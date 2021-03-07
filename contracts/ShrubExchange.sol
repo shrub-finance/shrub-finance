@@ -64,10 +64,6 @@ contract OptionsExchange {
     ));
   }
 
-  function verifySignature(Order memory order) public returns(bool) {
-
-  }
-
   modifier orderMatches(Order memory sellOrder, Order memory buyOrder) {
     require(sellOrder.isBuy == false, "Sell order should not be buying");
     require(buyOrder.isBuy == true, "Buy order should be buying");
@@ -82,8 +78,6 @@ contract OptionsExchange {
     require(sellOrder.offerExpire <= block.timestamp, "Sell order has expired");
     require(buyOrder.offerExpire <= block.timestamp, "Buy order has expired");
 
-    require(verifySignature(sellOrder), "Seller signature must match");
-    require(verifySignature(buyOrder), "Buyer signature must match");
     _;
   }
 
