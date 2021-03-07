@@ -1,4 +1,4 @@
-pragma solidity 0.8.0;
+pragma solidity 0.7.6;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract OptionsExchange {
@@ -8,16 +8,7 @@ contract OptionsExchange {
     CALL
   }
 
-  struct Option {
-    address baseAsset;      // ETH-USD, USD is the base
-    address quoteAsset;     // ETH-USD ETH is the quote
-    uint expiry;            // timestamp expires
-    uint strike;            // The price of the pair
-    OptionType optionType;
-  }
-
   struct Order {
-    Option option;
     uint size;
     address signer;
     bool isBuy;
@@ -25,12 +16,19 @@ contract OptionsExchange {
     uint price;
     uint offerExpire;       // time this order expires
     uint fee;               // matcherFee
+
+    address baseAsset;      // ETH-USD, USD is the base
+    address quoteAsset;     // ETH-USD ETH is the quote
+    uint expiry;            // timestamp expires
+    uint strike;            // The price of the pair
+    OptionType optionType;
+
     uint8 v;
     bytes32 r;
     bytes32 s;
   }
 
-  address(address => mapping(address => mapping(address => uint))) userPairNonce;
+  mapping(address => mapping(address => mapping(address => uint))) userPairNonce;
   mapping(address => mapping(address => uint)) userTokenBalances;
   mapping(address => mapping(address => uint)) userTokenLockedBalance;
 
@@ -43,42 +41,57 @@ contract OptionsExchange {
     keccak256("1"),
     1,
     address(this),
-    salt
+    SALT
   ));
 
   function hashOrder(Order order) public pure returns (bytes32) {
     return keccak256(abi.encode(
       IDENTITY_TYPEHASH,
-      identity.userId,
-      identity.wallet
+      order.size,
+      order.signer,
+      order.isBuy,
+      order.nonce,
+      order.price,
+      order.offerExpire,
+      order.fee,
+
+      order.baseAsset,
+      order.quoteAsset,
+      order.expiry,
+      order.strike,
+      order.optionType
+
+      order.v,
+      order.r,
+      order.s,
     ));
   }
 
-  function verifySignature(Order order) returns(bool) {
+  function verifySignature(Order order) public returns(bool) {
 
   }
 
   modifier orderMatches(Order sellOrder, Order buyOrder) {
     require(sellOrder.isBuy == false, "Sell order should not be buying");
     require(buyOrder.isBuy == true, "Buy order should be buying");
-    require(sellOrder.option.baseAsset == buyOrder.option.baseAsset, "Base Must Match");
-    require(sellOrder.option.quoteAsset == buyOrder.option.quoteAsset, "Quote Must Match");
-    require(sellOrder.option.expiry == buyOrder.option.expiry, "Expiration must match");
-    require(sellOrder.option.strike == buyOrder.option.strike, "Strike price must match");
-    require(sellOrder.option.price <= buyOrder.option.price, "Price must be sufficient for seller");
-    require(sellOrder.option.optionType == buyOrder.option.optionType, "Must be the same option type");
+    require(sellOrder.baseAsset == buyOrder.baseAsset, "Base Must Match");
+    require(sellOrder.quoteAsset == buyOrder.quoteAsset, "Quote Must Match");
+    require(sellOrder.expiry == buyOrder.expiry, "Expiration must match");
+    require(sellOrder.strike == buyOrder.strike, "Strike price must match");
+    require(sellOrder.price <= buyOrder.price, "Price must be sufficient for seller");
+    require(sellOrder.optionType == buyOrder.optionType, "Must be the same option type");
 
     require(sellOrder.size >= buyOrder.size, "Cannot buy more than being sold");
     require(sellOrder.offerExpire <= block.time, "Sell order has expired");
     require(buyOrder.offerExpire <= block.time, "Buy order has expired");
 
     require(verifySignature(sellOrder), "Seller signature must match");
-    require(verifySignature(BuyOrder), "Buyer signature must match");
+    require(verifySignature(buyOrder), "Buyer signature must match");
     _;
   }
 
-  function match(Order sellOrder, Order BuyOrder) orderMatches(sellOrder, buyOrder) public {
-    userTokenLockedBalance[sellOrder.option.base] += sellOrder.option.
-      ERC20(sellOrder.option)
+  function matchOrder(Order sellOrder, Order buyOrder) orderMatches(sellOrder, buyOrder) public {
+    userTokenLockedBalance[sellOrder.baseAsset] += sellOrder.size * sellOrder.price;
+    ERC20(sellOrder.baseAsset);
   }
 }
