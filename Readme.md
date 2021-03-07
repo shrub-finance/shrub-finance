@@ -13,6 +13,10 @@ An options exchange where users can deposit liquidity and write options against 
 * [Contract Code](contracts/ShrubExchange.sol)
 * [Signing Code](backend/test-order.js)
 
+# Examples
+* [Example signed data contract](https://github.com/ethereum/EIPs/blob/master/assets/eip-712/Example.sol)
+* [Example signed data client](https://github.com/ethereum/EIPs/blob/master/assets/eip-712/Example.js)
+
 
 # Installation
 ```
