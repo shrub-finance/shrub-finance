@@ -1,4 +1,5 @@
-pragma solidity 0.7.6;
+pragma solidity 0.7.0;
+pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract OptionsExchange {
@@ -10,7 +11,6 @@ contract OptionsExchange {
 
   struct Order {
     uint size;
-    address signer;
     bool isBuy;
     uint nonce;             // unique id of order
     uint price;
@@ -32,23 +32,24 @@ contract OptionsExchange {
   mapping(address => mapping(address => uint)) userTokenBalances;
   mapping(address => mapping(address => uint)) userTokenLockedBalance;
 
-  bytes32 private constant SALT = 0x43efba454ccb1b6fff2625fe562bdd9a23260359;
-  string private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
+  bytes32 private constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
+  bytes private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
   bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
   bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
     EIP712_DOMAIN_TYPEHASH,
     keccak256("Shrub Trade"),
     keccak256("1"),
     1,
-    address(this),
+    0x6e80C53f2cdCad7843aD765E4918298427AaC550,
     SALT
   ));
 
-  function hashOrder(Order order) public pure returns (bytes32) {
+  bytes32 private constant ORDER_TYPEHASH = keccak256("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee,              address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType, uint8 v, bytes32 r, bytes32 s)");
+
+  function hashOrder(Order memory order) public pure returns (bytes32) {
     return keccak256(abi.encode(
-      IDENTITY_TYPEHASH,
+      ORDER_TYPEHASH,
       order.size,
-      order.signer,
       order.isBuy,
       order.nonce,
       order.price,
@@ -60,18 +61,14 @@ contract OptionsExchange {
       order.expiry,
       order.strike,
       order.optionType
-
-      order.v,
-      order.r,
-      order.s,
     ));
   }
 
-  function verifySignature(Order order) public returns(bool) {
+  function verifySignature(Order memory order) public returns(bool) {
 
   }
 
-  modifier orderMatches(Order sellOrder, Order buyOrder) {
+  modifier orderMatches(Order memory sellOrder, Order memory buyOrder) {
     require(sellOrder.isBuy == false, "Sell order should not be buying");
     require(buyOrder.isBuy == true, "Buy order should be buying");
     require(sellOrder.baseAsset == buyOrder.baseAsset, "Base Must Match");
@@ -82,16 +79,17 @@ contract OptionsExchange {
     require(sellOrder.optionType == buyOrder.optionType, "Must be the same option type");
 
     require(sellOrder.size >= buyOrder.size, "Cannot buy more than being sold");
-    require(sellOrder.offerExpire <= block.time, "Sell order has expired");
-    require(buyOrder.offerExpire <= block.time, "Buy order has expired");
+    require(sellOrder.offerExpire <= block.timestamp, "Sell order has expired");
+    require(buyOrder.offerExpire <= block.timestamp, "Buy order has expired");
 
     require(verifySignature(sellOrder), "Seller signature must match");
     require(verifySignature(buyOrder), "Buyer signature must match");
     _;
   }
 
-  function matchOrder(Order sellOrder, Order buyOrder) orderMatches(sellOrder, buyOrder) public {
-    userTokenLockedBalance[sellOrder.baseAsset] += sellOrder.size * sellOrder.price;
-    ERC20(sellOrder.baseAsset);
+  function matchOrder(Order memory sellOrder, Order memory buyOrder) orderMatches(sellOrder, buyOrder) public {
+    address seller = ecrecover(hashOrder(sellOrder), sellOrder.v, sellOrder.r, sellOrder.s);
+    address buyer = ecrecover(hashOrder(buyOrder), buyOrder.v, buyOrder.r, buyOrder.s);
+    userTokenLockedBalance[seller][address(0x0)] += sellOrder.size;
   }
 }
