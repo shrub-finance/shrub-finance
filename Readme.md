@@ -9,6 +9,10 @@ An options exchange where users can deposit liquidity and write options against 
   * Whitelist pairs
 * Allow flashloans of collateral that has been locked
 
+# Current State
+* [Contract Code](contracts/ShrubExchange.sol)
+* [Signing Code](backend/test-order.js)
+
 
 # Installation
 ```
