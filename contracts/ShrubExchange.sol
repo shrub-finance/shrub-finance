@@ -92,7 +92,7 @@ contract ShrubExchange {
 
 
   function hashSmallOrder(SmallOrder memory order, OrderCommon memory common) public pure returns (bytes32) {
-    return keccak256(abi.encode(
+    return keccak256(abi.encodePacked(
       ORDER_TYPEHASH,
       order.size,
       order.isBuy,
@@ -110,7 +110,7 @@ contract ShrubExchange {
   }
 
   function hashOrderCommon(OrderCommon memory common) public pure returns(bytes32) {
-    return keccak256(abi.encode(
+    return keccak256(abi.encodePacked(
       COMMON_TYPEHASH,
       common.baseAsset,
       common.quoteAsset,
