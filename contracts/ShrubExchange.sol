@@ -128,6 +128,15 @@ contract ShrubExchange {
     return userTokenBalances[user][asset] - userTokenLockedBalance[user][asset];
   }
 
+  function getSignedHash(bytes32 hash) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+  }
+
+  function validateSignature(address user, bytes32 hash, uint8 v, bytes32 r, bytes32 s) public view returns(bool) {
+    bytes32 payloadHash = getSignedHash(hash);
+    return ecrecover(payloadHash, v, r, s) == user;
+  }
+
   modifier orderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common) {
     require(sellOrder.isBuy == false, "Sell order should not be buying");
     require(buyOrder.isBuy == true, "Buy order should be buying");
@@ -141,8 +150,8 @@ contract ShrubExchange {
   }
 
   function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory buySig, Signature memory sellSig) orderMatches(sellOrder, buyOrder, common) public {
-    address seller = ecrecover(hashSmallOrder(sellOrder, common), sellSig.v, sellSig.r, sellSig.s);
-    address buyer = ecrecover(hashSmallOrder(buyOrder, common), buySig.v, buySig.r, buySig.s);
+    address seller = ecrecover(getSignedHash(hashSmallOrder(sellOrder, common)), sellSig.v, sellSig.r, sellSig.s);
+    address buyer = ecrecover(getSignedHash(hashSmallOrder(buyOrder, common)), buySig.v, buySig.r, buySig.s);
     bytes32 positionHash = hashOrderCommon(common);
     require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1);
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1);
@@ -173,7 +182,7 @@ contract ShrubExchange {
     require(common.expiry <= block.timestamp, "Option has already expired");
 
     if(common.optionType == OptionType.CALL) {
-      // Reduce seller's locked capital and token balance of quote asset 
+      // Reduce seller's locked capital and token balance of quote asset
       userTokenBalances[seller][common.quoteAsset] -= buyOrder.size;
       userTokenLockedBalance[seller][common.quoteAsset] -= buyOrder.size * common.strike;
       // Give the seller the buyer's funds, in terms of baseAsset
@@ -183,7 +192,7 @@ contract ShrubExchange {
       userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
     }
     if(common.optionType == OptionType.PUT) {
-      // Reduce seller's locked capital and token balance of base asset 
+      // Reduce seller's locked capital and token balance of base asset
       userTokenBalances[seller][common.baseAsset] -= buyOrder.size * common.strike;
       userTokenLockedBalance[seller][common.baseAsset] -= buyOrder.size * common.strike;
       // Give the seller the buyer's funds, in terms of quoteAsset
