@@ -2,7 +2,7 @@ pragma solidity 0.7.0;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract OptionsExchange {
+contract ShrubExchange {
 
   enum OptionType {
     PUT,
@@ -18,6 +18,12 @@ contract OptionsExchange {
     OptionType optionType;
   }
 
+  struct Signature {
+    uint8 v;
+    bytes32 r;
+    bytes32 s;
+  }
+
 
   // Meant to be hashed with OrderCommon
   struct SmallOrder {
@@ -27,10 +33,6 @@ contract OptionsExchange {
     uint price;
     uint offerExpire;       // time this order expires
     uint fee;               // matcherFee
-
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
   }
 
   struct Order {
@@ -46,21 +48,18 @@ contract OptionsExchange {
     uint expiry;            // timestamp expires
     uint strike;            // The price of the pair
     OptionType optionType;
-
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
   }
 
   event OrderMatched(address seller, address buyer, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
+  mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
-  bytes32 private constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
-  bytes private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
-  bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
-  bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
+  bytes32 public constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
+  bytes public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
+  bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
+  bytes32 public constant DOMAIN_SEPARATOR = keccak256(abi.encode(
     EIP712_DOMAIN_TYPEHASH,
     keccak256("Shrub Trade"),
     keccak256("1"),
@@ -69,10 +68,12 @@ contract OptionsExchange {
     SALT
   ));
 
-  bytes32 private constant ORDER_TYPEHASH = keccak256("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType, uint8 v, bytes32 r, bytes32 s)");
+  bytes32 public constant ORDER_TYPEHASH = keccak256("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
+
+  bytes32 public constant COMMON_TYPEHASH = keccak256("OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
 
   function hashOrder(Order memory order) public pure returns (bytes32) {
-    return keccak256(abi.encode(
+    return keccak256(abi.encodePacked(
       ORDER_TYPEHASH,
       order.size,
       order.isBuy,
@@ -108,6 +109,17 @@ contract OptionsExchange {
     ));
   }
 
+  function hashOrderCommon(OrderCommon memory common) public pure returns(bytes32) {
+    return keccak256(abi.encode(
+      COMMON_TYPEHASH,
+      common.baseAsset,
+      common.quoteAsset,
+      common.expiry,
+      common.strike,
+      common.optionType
+    ));
+  }
+
   function getCurrentNonce(address user, address quoteAsset, address baseAsset) public view returns(uint) {
     return userPairNonce[user][quoteAsset][baseAsset];
   }
@@ -128,9 +140,10 @@ contract OptionsExchange {
     _;
   }
 
-  function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common) orderMatches(sellOrder, buyOrder, common) public {
-    address seller = ecrecover(hashSmallOrder(sellOrder, common), sellOrder.v, sellOrder.r, sellOrder.s);
-    address buyer = ecrecover(hashSmallOrder(buyOrder, common), buyOrder.v, buyOrder.r, buyOrder.s);
+  function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory buySig, Signature memory sellSig) orderMatches(sellOrder, buyOrder, common) public {
+    address seller = ecrecover(hashSmallOrder(sellOrder, common), sellSig.v, sellSig.r, sellSig.s);
+    address buyer = ecrecover(hashSmallOrder(buyOrder, common), buySig.v, buySig.r, buySig.s);
+    bytes32 positionHash = hashOrderCommon(common);
     require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1);
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1);
 
@@ -144,8 +157,40 @@ contract OptionsExchange {
       userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike;
     }
 
+    userOptionPosition[seller][positionHash] -= int(sellOrder.size);
+    userOptionPosition[buyer][positionHash] += int(sellOrder.size);
+
     emit OrderMatched(seller, buyer, sellOrder, buyOrder, common);
     userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
     userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
+  }
+
+  function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
+    address buyer = ecrecover(hashSmallOrder(buyOrder, common), buySig.v, buySig.r, buySig.s);
+    bytes32 positionHash = hashOrderCommon(common);
+    require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
+    require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
+    require(common.expiry <= block.timestamp, "Option has already expired");
+
+    if(common.optionType == OptionType.CALL) {
+      // Reduce seller's locked capital and token balance of quote asset 
+      userTokenBalances[seller][common.quoteAsset] -= buyOrder.size;
+      userTokenLockedBalance[seller][common.quoteAsset] -= buyOrder.size * common.strike;
+      // Give the seller the buyer's funds, in terms of baseAsset
+      userTokenBalances[seller][common.baseAsset] += buyOrder.size * common.strike;
+
+      userTokenBalances[buyer][common.baseAsset] -= buyOrder.size * common.strike;
+      userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
+    }
+    if(common.optionType == OptionType.PUT) {
+      // Reduce seller's locked capital and token balance of base asset 
+      userTokenBalances[seller][common.baseAsset] -= buyOrder.size * common.strike;
+      userTokenLockedBalance[seller][common.baseAsset] -= buyOrder.size * common.strike;
+      // Give the seller the buyer's funds, in terms of quoteAsset
+      userTokenBalances[seller][common.quoteAsset] += buyOrder.size;
+
+      userTokenBalances[buyer][common.baseAsset] += buyOrder.size * common.strike;
+      userTokenBalances[buyer][common.quoteAsset] -= buyOrder.size;
+    }
   }
 }

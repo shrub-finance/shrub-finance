@@ -1,0 +1,46 @@
+const Exchange = artifacts.require("ShrubExchange");
+const { Shrub712 } = require('./EIP712');
+
+const Assets = {
+  USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  ETH: '0x0000000000000000000000000000000000000000'
+}
+contract("ShrubExchange", accounts => {
+  it("should hash an order and match the contract's hash", async () =>{
+    const exchange = await Exchange.deployed()
+    const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
+    console.log({orderTypeHash});
+    const shrubInterface = new Shrub712(17, exchange.address);
+
+
+    const order = {
+      size: 1,
+      isBuy: true,
+      nonce: 0,
+      price: 100,
+      offerExpire: new Date(0).getTime(),
+      fee: 1,
+
+      baseAsset: Assets.USDC,
+      quoteAsset: Assets.ETH,
+      expiry: new Date(0).getTime(),
+      strike: 3300,
+      optionType: 1,
+    }
+
+    const sha3Message = shrubInterface.getOrderSha3Message(orderTypeHash, order);
+    console.log(sha3Message);
+    const hash = await web3.utils.soliditySha3(...sha3Message);
+    const signature = await web3.eth.sign(hash, accounts[0]);
+
+    const sig = signature.slice(2);
+    const r = `0x${sig.slice(0, 64)}`;
+    const s = `0x${sig.slice(64, 128)}`;
+    const v = web3.utils.toDecimal('0x' + sig.slice(128, 130)) + 27;
+
+
+    const hashedOrder = await exchange.hashOrder(order);
+    console.log({hash, hashedOrder, v, r, s});
+    assert.equal(hash, hashedOrder);
+  });
+});
