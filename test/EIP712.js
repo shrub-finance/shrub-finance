@@ -28,10 +28,10 @@ class EIP712Generator {
     return types.map(t => ({t: t.type, v: message[t.name], name: t.name}));
   }
 }
-    /*
-     *const orderTypeHash = await web3.utils.soliditySha3("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
-     */
- 
+/*
+ *const orderTypeHash = await web3.utils.soliditySha3("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
+ */
+
 const types = {
   Order: [
     { name: 'size', type: 'uint' },
@@ -40,6 +40,26 @@ const types = {
     { name: 'price', type: 'uint' },
     { name: 'offerExpire', type: 'uint' },
     { name: 'fee', type: 'uint' },
+    { name: 'baseAsset', type: 'address' },
+    { name: 'quoteAsset', type: 'address' },
+    { name: 'expiry', type: 'uint' },
+    { name: 'strike', type: 'uint' },
+    { name: 'optionType', type: 'uint8' },
+  ],
+  SmallOrder: [
+    { name: 'size', type: 'uint' },
+    { name: 'isBuy', type: 'bool' },
+    { name: 'nonce', type: 'uint' },
+    { name: 'price', type: 'uint' },
+    { name: 'offerExpire', type: 'uint' },
+    { name: 'fee', type: 'uint' },
+    { name: 'baseAsset', type: 'address' },
+    { name: 'quoteAsset', type: 'address' },
+    { name: 'expiry', type: 'uint' },
+    { name: 'strike', type: 'uint' },
+    { name: 'optionType', type: 'uint8' },
+  ],
+  OrderCommon: [
     { name: 'baseAsset', type: 'address' },
     { name: 'quoteAsset', type: 'address' },
     { name: 'expiry', type: 'uint' },
@@ -66,11 +86,22 @@ class Shrub712 extends EIP712Generator {
     super.get712Body(message, 'Order');
   }
 
-  getOrderSha3Message(orderTypeHash, message) {
-    const orderMessage = super.getSha3Message(this.types.Order, message);
-    const sha3Message = [{t: 'bytes32', v: orderTypeHash }, ...orderMessage];
-    console.log(sha3Message);
+  getTypeSha3Message(typeName, typehash, message){
+    const orderMessage = super.getSha3Message(this.types[typeName], message);
+    const sha3Message = [{t: 'bytes32', v: typehash }, ...orderMessage];
     return sha3Message;
+  }
+
+  getOrderSha3Message(typehash, message) {
+    return this.getTypeSha3Message("Order", typehash, message);
+  }
+
+  getSmallOrderSha3Message(typehash, message) {
+    return this.getTypeSha3Message("SmallOrder", typehash, message);
+  }
+
+  getOrderCommonSha3Message(typehash, message) {
+    return this.getTypeSha3Message("OrderCommon", typehash, message);
   }
 }
 

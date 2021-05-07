@@ -9,7 +9,6 @@ contract("ShrubExchange", accounts => {
   it("should hash an order and match the contract's hash", async () =>{
     const exchange = await Exchange.deployed()
     const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
-    console.log({orderTypeHash});
     const shrubInterface = new Shrub712(17, exchange.address);
 
 
@@ -41,6 +40,62 @@ contract("ShrubExchange", accounts => {
 
     const hashedOrder = await exchange.hashOrder(order);
     console.log({hash, hashedOrder, v, r, s});
+    assert.equal(hash, hashedOrder);
+  });
+
+
+  it("should hash a small order and match the contract's hash", async () =>{
+    const exchange = await Exchange.deployed()
+    const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
+    const shrubInterface = new Shrub712(17, exchange.address);
+
+
+    const order = {
+      size: 1,
+      isBuy: true,
+      nonce: 0,
+      price: 100,
+      offerExpire: new Date(0).getTime(),
+      fee: 1,
+    }
+
+    const common = {
+      baseAsset: Assets.USDC,
+      quoteAsset: Assets.ETH,
+      expiry: new Date(0).getTime(),
+      strike: 3300,
+      optionType: 1,
+    }
+
+    const sha3Message = shrubInterface.getSmallOrderSha3Message(orderTypeHash, {...order, ...common});
+    console.log(sha3Message);
+
+    const hash = await web3.utils.soliditySha3(...sha3Message);
+    const hashedOrder = await exchange.hashSmallOrder(order, common);
+    console.log({hash, hashedOrder});
+    assert.equal(hash, hashedOrder);
+  });
+
+
+  it("should hash a common data and match the contract's hash", async () =>{
+    const exchange = await Exchange.deployed()
+    const orderTypeHash = await exchange.COMMON_TYPEHASH.call();
+    const shrubInterface = new Shrub712(17, exchange.address);
+
+    const common = {
+      baseAsset: Assets.USDC,
+      quoteAsset: Assets.ETH,
+      expiry: new Date(0).getTime(),
+      strike: 3300,
+      optionType: 1,
+    }
+
+    const sha3Message = shrubInterface.getOrderCommonSha3Message(orderTypeHash, common);
+    console.log(sha3Message);
+    const hash = await web3.utils.soliditySha3(...sha3Message);
+
+    const hashedOrder = await exchange.hashOrderCommon(common);
+    console.log({hash, hashedOrder});
     assert.equal(hash, hashedOrder);
   });
 });
