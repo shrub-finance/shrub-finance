@@ -1,4 +1,5 @@
 const Exchange = artifacts.require("ShrubExchange");
+const FakeToken = artifacts.require("FakeToken");
 const { Shrub712 } = require('./EIP712');
 const utils = require('ethereumjs-util');
 
@@ -147,5 +148,75 @@ contract("ShrubExchange", accounts => {
     await exchange.withdraw(Assets.ETH, 100, {from: accounts[0]});
     const balance = await exchange.userTokenBalances(accounts[0], Assets.ETH);
     console.log(balance.toNumber());
+  });
+
+  it("should be able to match two orders", async () => {
+    const fakeToken = await FakeToken.deployed();
+    const exchange = await Exchange.deployed()
+
+    const sellOrder = {
+      size: 1,
+      isBuy: false,
+      nonce: 1,
+      price: 100,
+      offerExpire: new Date().getTime() + 5 * 1000 * 60,
+      fee: 1,
+
+      baseAsset: fakeToken.address,
+      quoteAsset: Assets.ETH,
+      expiry: new Date().getTime() + 30 * 1000 * 60,
+      strike: 4500,
+      optionType: 1,
+    }
+
+    const buyOrder = {
+      ...sellOrder,
+      isBuy: true
+    }
+
+    const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
+    const shrubInterface = new Shrub712(17, exchange.address);
+
+    await exchange.deposit(Assets.ETH, 200, {value: 200, from: accounts[0]});
+
+    await fakeToken.approve(exchange.address, 100, {from: accounts[0]})
+    await exchange.deposit(fakeToken.address, 100, {from: accounts[0]});
+
+
+
+
+    const signedSellOrder = await shrubInterface.signOrderWithWeb3(web3, orderTypeHash, sellOrder, accounts[0]);
+    const signedBuyOrder = await shrubInterface.signOrderWithWeb3(web3, orderTypeHash, buyOrder, accounts[0]);
+
+    const smallSellOrder = shrubInterface.toSmallOrder(sellOrder);
+    const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
+    const common = shrubInterface.toCommon(sellOrder);
+
+    assert.isTrue(smallSellOrder.isBuy == false, "sell isBuy should be false");
+    assert.isTrue(smallBuyOrder.isBuy == true, "buy isBuy should be true");
+    assert.isTrue(smallSellOrder.price <= smallBuyOrder.price, "Price should be sufficient for seller");
+    assert.isTrue(smallSellOrder.size <= smallBuyOrder.size, "Sell size should be sufficient for seller");
+    assert.isTrue(smallSellOrder.offerExpire >= Date.now(), "Sell Offer should not be expired");
+    assert.isTrue(smallBuyOrder.offerExpire >= Date.now(), "Buy Offer should not be expired");
+
+    const seller = await exchange.getAddressFromSignedOrder(smallSellOrder, common, signedSellOrder.sig);
+    assert.equal(seller, accounts[0], "Seller should be account0");
+    const sellerNonce = await exchange.getCurrentNonce(accounts[0], common.quoteAsset, common.baseAsset);
+    const buyerNonce = await exchange.getCurrentNonce(accounts[0], common.quoteAsset, common.baseAsset);
+    assert.isTrue(sellerNonce == sellOrder.nonce - 1, "Seller nonce should match order")
+    assert.isTrue(buyerNonce == buyOrder.nonce - 1, "Buyer nonce should match order")
+
+
+    const sellerBalance = await exchange.getAvailableBalance(accounts[0], common.quoteAsset);
+    if(sellOrder.optionType == 1) {
+      console.log("SOLD A CALL");
+      assert.isTrue(sellerBalance.toNumber() >= smallSellOrder.size, "Seller should have enough free collateral");
+    } else {
+      console.log("SOLD A PUT");
+      assert.isTrue(sellerBalance.toNumber() >= smallSellOrder.size * common.strike, "Seller should have enough free collateral");
+    }
+
+    await exchange.matchOrder(smallSellOrder, smallBuyOrder, common, signedSellOrder.sig, signedBuyOrder.sig, {from: accounts[0]})
+    console.log({signedBuyOrder, signedSellOrder});
   });
 });

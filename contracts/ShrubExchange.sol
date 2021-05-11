@@ -144,10 +144,16 @@ contract ShrubExchange {
 
     require(sellOrder.price <= buyOrder.price, "Price must be sufficient for seller");
     require(sellOrder.size >= buyOrder.size, "Cannot buy more than being sold");
-    require(sellOrder.offerExpire <= block.timestamp, "Sell order has expired");
-    require(buyOrder.offerExpire <= block.timestamp, "Buy order has expired");
+    require(sellOrder.offerExpire >= block.timestamp, "Sell order has expired");
+    require(buyOrder.offerExpire >= block.timestamp, "Buy order has expired");
 
     _;
+  }
+
+  function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public view returns(address) {
+    address recovered = ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s);
+    require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
+    return recovered;
   }
 
   function deposit(address token, uint amount) public payable {
@@ -164,27 +170,33 @@ contract ShrubExchange {
     require(amount <= balance, "Cannot withdraw more than available balance");
     userTokenBalances[msg.sender][token] -= amount;
     if(token == ZERO_ADDRESS) {
-      msg.sender.transfer(amount);
+      payable(msg.sender).transfer(amount);
     } else {
-      require(ERC20(token).transfer(msg.sender, amount));
+      require(ERC20(token).transfer(msg.sender, amount), "ERC20 transfer must succeed");
     }
   }
 
-  function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory buySig, Signature memory sellSig) orderMatches(sellOrder, buyOrder, common) public {
-    address seller = ecrecover(getSignedHash(hashSmallOrder(sellOrder, common)), sellSig.v, sellSig.r, sellSig.s);
-    address buyer = ecrecover(getSignedHash(hashSmallOrder(buyOrder, common)), buySig.v, buySig.r, buySig.s);
+  function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) orderMatches(sellOrder, buyOrder, common) public {
+    address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
+    address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
     bytes32 positionHash = hashOrderCommon(common);
-    require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1);
-    require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1);
+    require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1, "Seller nonce incorrect");
+    require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
 
-    // TODO: Lockup capital
     if(common.optionType == OptionType.CALL) {
-      require(getAvailableBalance(seller, common.quoteAsset) > sellOrder.size, "Seller must have enough free collateral");
+      require(getAvailableBalance(seller, common.quoteAsset) >= sellOrder.size, "Seller must have enough free collateral");
+      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price, "Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.quoteAsset] += sellOrder.size;
+      userTokenBalances[seller][common.baseAsset] += sellOrder.price;
+      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price;
     }
+
     if(common.optionType == OptionType.PUT) {
-      require(getAvailableBalance(seller, common.baseAsset) > sellOrder.size * common.strike, "Seller must have enough free collateral");
+      require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike, "Seller must have enough free collateral");
+      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price, "Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike;
+      userTokenBalances[seller][common.quoteAsset] += sellOrder.price;
+      userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price;
     }
 
     userOptionPosition[seller][positionHash] -= int(sellOrder.size);
@@ -196,7 +208,7 @@ contract ShrubExchange {
   }
 
   function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
-    address buyer = ecrecover(hashSmallOrder(buyOrder, common), buySig.v, buySig.r, buySig.s);
+    address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
     bytes32 positionHash = hashOrderCommon(common);
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
     require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
