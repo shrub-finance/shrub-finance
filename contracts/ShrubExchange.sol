@@ -199,8 +199,8 @@ contract ShrubExchange {
       userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price * buyOrder.size;
     }
 
-    userOptionPosition[seller][positionHash] -= int(sellOrder.size);
-    userOptionPosition[buyer][positionHash] += int(sellOrder.size);
+    userOptionPosition[seller][positionHash] -= int(buyOrder.size);
+    userOptionPosition[buyer][positionHash] += int(buyOrder.size);
 
     emit OrderMatched(seller, buyer, sellOrder, buyOrder, common);
     userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
