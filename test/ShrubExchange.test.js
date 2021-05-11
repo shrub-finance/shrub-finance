@@ -253,6 +253,9 @@ contract("ShrubExchange", accounts => {
     const buyer = accounts[1];
     const sellerPosition = await exchange.userOptionPosition(seller, commonHash);
     const buyerPosition = await exchange.userOptionPosition(buyer, commonHash);
+
+    assert.equal(sellerPosition.toNumber(), -1, "Seller should be short 1 ETH");
+    assert.equal(buyerPosition.toNumber(), 1, "Buyer should be long 1 ETH");
     console.log({sellerPosition, buyerPosition});
   });
 });
