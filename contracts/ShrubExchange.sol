@@ -56,6 +56,7 @@ contract ShrubExchange {
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
   mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
+  address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
   bytes32 public constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
   bytes public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
   bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
@@ -147,6 +148,26 @@ contract ShrubExchange {
     require(buyOrder.offerExpire <= block.timestamp, "Buy order has expired");
 
     _;
+  }
+
+  function deposit(address token, uint amount) public payable {
+    if(token != ZERO_ADDRESS) {
+      require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
+      userTokenBalances[msg.sender][token] += amount;
+    } else {
+      userTokenBalances[msg.sender][token] += msg.value;
+    }
+  }
+
+  function withdraw(address token, uint amount) public {
+    uint balance = getAvailableBalance(msg.sender, token);
+    require(amount <= balance, "Cannot withdraw more than available balance");
+    userTokenBalances[msg.sender][token] -= amount;
+    if(token == ZERO_ADDRESS) {
+      msg.sender.transfer(amount);
+    } else {
+      require(ERC20(token).transfer(msg.sender, amount));
+    }
   }
 
   function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory buySig, Signature memory sellSig) orderMatches(sellOrder, buyOrder, common) public {

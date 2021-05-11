@@ -134,4 +134,18 @@ contract("ShrubExchange", accounts => {
     console.log({sig, validSig});
     assert.isTrue(validSig);
   });
+
+  it("should be able to deposit funds to the exchange", async () => {
+    const exchange = await Exchange.deployed();
+    await exchange.deposit(Assets.ETH, 100, {value: 100, from: accounts[0]});
+    const balance = await exchange.userTokenBalances(accounts[0], Assets.ETH);
+    console.log(balance.toNumber());
+  });
+
+  it("should be able to withdraw unlocked funds", async () => {
+    const exchange = await Exchange.deployed();
+    await exchange.withdraw(Assets.ETH, 100, {from: accounts[0]});
+    const balance = await exchange.userTokenBalances(accounts[0], Assets.ETH);
+    console.log(balance.toNumber());
+  });
 });
