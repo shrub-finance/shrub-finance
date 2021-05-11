@@ -10,6 +10,8 @@ const Assets = {
 contract("ShrubExchange", accounts => {
   let exchange;
   let shrubInterface;
+  let fakeToken;
+  let orderTypeHash;
 
   let sellOrder = {
     size: 1,
@@ -34,8 +36,9 @@ contract("ShrubExchange", accounts => {
   before(async () => {
     exchange = await Exchange.deployed();
     shrubInterface = new Shrub712(17, exchange.address);
+    fakeToken = await FakeToken.deployed();
+    orderTypeHash = await exchange.ORDER_TYPEHASH.call();
 
-    const fakeToken = await FakeToken.deployed();
     sellOrder.baseAsset = fakeToken.address;
     buyOrder.baseAsset = fakeToken.address;
 
@@ -44,9 +47,6 @@ contract("ShrubExchange", accounts => {
   });
 
   it("should hash an order and match the contract's hash", async () =>{
-    const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
-    const shrubInterface = new Shrub712(17, exchange.address);
-
 
     const order = {
       size: 1,
@@ -80,9 +80,6 @@ contract("ShrubExchange", accounts => {
 
 
   it("should hash a small order and match the contract's hash", async () =>{
-    const exchange = await Exchange.deployed()
-    const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
-    const shrubInterface = new Shrub712(17, exchange.address);
 
     const common = shrubInterface.toCommon(buyOrder);
     const sha3Message = shrubInterface.getSmallOrderSha3Message(orderTypeHash, {...buyOrder, ...common});
@@ -96,9 +93,7 @@ contract("ShrubExchange", accounts => {
 
 
   it("should hash a common data and match the contract's hash", async () =>{
-    const exchange = await Exchange.deployed()
-    const orderTypeHash = await exchange.COMMON_TYPEHASH.call();
-    const shrubInterface = new Shrub712(17, exchange.address);
+    const commonTypeHash = await exchange.COMMON_TYPEHASH.call();
 
     const common = {
       baseAsset: Assets.USDC,
@@ -108,7 +103,7 @@ contract("ShrubExchange", accounts => {
       optionType: 1,
     }
 
-    const sha3Message = shrubInterface.getOrderCommonSha3Message(orderTypeHash, common);
+    const sha3Message = shrubInterface.getOrderCommonSha3Message(commonTypeHash, common);
     console.log(sha3Message);
     const hash = await web3.utils.soliditySha3(...sha3Message);
 
@@ -119,7 +114,6 @@ contract("ShrubExchange", accounts => {
 
 
   it("should create a signature and be validated by the contract", async () =>{
-    const exchange = await Exchange.deployed();
     const hash = await web3.utils.soliditySha3("Hello worlds");
     const signature = await web3.eth.sign(hash, accounts[0]);
 
@@ -133,14 +127,12 @@ contract("ShrubExchange", accounts => {
   });
 
   it("should be able to deposit funds to the exchange", async () => {
-    const exchange = await Exchange.deployed();
     await exchange.deposit(Assets.ETH, 100, {value: 100, from: accounts[0]});
     const balance = await exchange.userTokenBalances(accounts[0], Assets.ETH);
     console.log(balance.toNumber());
   });
 
   it("should be able to withdraw unlocked funds", async () => {
-    const exchange = await Exchange.deployed();
     await exchange.withdraw(Assets.ETH, 100, {from: accounts[0]});
     const balance = await exchange.userTokenBalances(accounts[0], Assets.ETH);
     console.log(balance.toNumber());
@@ -149,12 +141,6 @@ contract("ShrubExchange", accounts => {
   it("should be able to match two orders", async () => {
     const seller = accounts[0];
     const buyer = accounts[1];
-
-    const fakeToken = await FakeToken.deployed();
-    const exchange = await Exchange.deployed()
-
-    const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
-    const shrubInterface = new Shrub712(17, exchange.address);
 
     // Deposit ETH
     await exchange.deposit(Assets.ETH, 200, {value: 200, from: seller});
@@ -246,9 +232,6 @@ contract("ShrubExchange", accounts => {
     const fakeToken = await FakeToken.deployed();
     const exchange = await Exchange.deployed()
 
-    const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
-
-
     const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
     const common = shrubInterface.toCommon(sellOrder);
 
@@ -259,6 +242,14 @@ contract("ShrubExchange", accounts => {
     await fakeToken.approve(exchange.address, buyOrder.size * buyOrder.strike, {from: buyer})
     await exchange.deposit(fakeToken.address, buyOrder.size * buyOrder.strike, {from: buyer});
 
+    const sellerBalanceBefore = await exchange.userTokenBalances(seller, fakeToken.address);
+    const buyerBalanceBefore = await exchange.userTokenBalances(buyer, fakeToken.address);
     await exchange.execute(smallBuyOrder, common, seller, signedBuyOrder.sig);
+    const sellerBalanceAfter = await exchange.userTokenBalances(seller, fakeToken.address);
+    const buyerBalanceAfter = await exchange.userTokenBalances(buyer, fakeToken.address);
+
+    assert.isTrue(sellerBalanceBefore < sellerBalanceAfter, "Seller balance should increase");
+    assert.isTrue(buyerBalanceBefore > buyerBalanceAfter, "Buyer balance should decrease");
+    assert.equal(sellerBalanceAfter - sellerBalanceBefore, buyOrder.size * buyOrder.strike, "Seller should now have the assets required to execute");
   })
 });
