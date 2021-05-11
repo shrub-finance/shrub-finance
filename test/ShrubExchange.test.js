@@ -177,21 +177,24 @@ contract("ShrubExchange", accounts => {
     const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
     const shrubInterface = new Shrub712(17, exchange.address);
 
+    // Deposit ETH
     await exchange.deposit(Assets.ETH, 200, {value: 200, from: accounts[0]});
 
+    // Deposit ERC20 to pay PRICE
     await fakeToken.approve(exchange.address, 100, {from: accounts[0]})
     await exchange.deposit(fakeToken.address, 100, {from: accounts[0]});
 
 
-
-
+    // Sign orders
     const signedSellOrder = await shrubInterface.signOrderWithWeb3(web3, orderTypeHash, sellOrder, accounts[0]);
     const signedBuyOrder = await shrubInterface.signOrderWithWeb3(web3, orderTypeHash, buyOrder, accounts[0]);
 
+    // Filter off properties
     const smallSellOrder = shrubInterface.toSmallOrder(sellOrder);
     const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
     const common = shrubInterface.toCommon(sellOrder);
 
+    // Sanity checks
     assert.isTrue(smallSellOrder.isBuy == false, "sell isBuy should be false");
     assert.isTrue(smallBuyOrder.isBuy == true, "buy isBuy should be true");
     assert.isTrue(smallSellOrder.price <= smallBuyOrder.price, "Price should be sufficient for seller");
@@ -199,14 +202,18 @@ contract("ShrubExchange", accounts => {
     assert.isTrue(smallSellOrder.offerExpire >= Date.now(), "Sell Offer should not be expired");
     assert.isTrue(smallBuyOrder.offerExpire >= Date.now(), "Buy Offer should not be expired");
 
+    // Make sure the signature recovers to our address
     const seller = await exchange.getAddressFromSignedOrder(smallSellOrder, common, signedSellOrder.sig);
     assert.equal(seller, accounts[0], "Seller should be account0");
+
+    // Make sure the nonces match what we expect
     const sellerNonce = await exchange.getCurrentNonce(accounts[0], common.quoteAsset, common.baseAsset);
     const buyerNonce = await exchange.getCurrentNonce(accounts[0], common.quoteAsset, common.baseAsset);
     assert.isTrue(sellerNonce == sellOrder.nonce - 1, "Seller nonce should match order")
     assert.isTrue(buyerNonce == buyOrder.nonce - 1, "Buyer nonce should match order")
 
 
+    // Make sure we've got balance available for seller
     const sellerBalance = await exchange.getAvailableBalance(accounts[0], common.quoteAsset);
     if(sellOrder.optionType == 1) {
       console.log("SOLD A CALL");
@@ -216,7 +223,24 @@ contract("ShrubExchange", accounts => {
       assert.isTrue(sellerBalance.toNumber() >= smallSellOrder.size * common.strike, "Seller should have enough free collateral");
     }
 
+    // Match the order, make sure seller has correct amount of asset locked up
     await exchange.matchOrder(smallSellOrder, smallBuyOrder, common, signedSellOrder.sig, signedBuyOrder.sig, {from: accounts[0]})
-    console.log({signedBuyOrder, signedSellOrder});
+
+    const sellerLockedBalance = (await exchange.userTokenLockedBalance(seller, Assets.ETH)).toNumber();
+
+    if(sellOrder.optionType == 1) {
+      assert.equal(smallSellOrder.size, sellerLockedBalance, "Seller should have SIZE locked up for CALLS");
+    } else {
+      assert.equal(smallSellOrder.size * common.strike, sellerLockedBalance, "Seller should have SIZE * STRIKE locked up for PUTS");
+    }
+
+    // Make sure the buyer paid us sellOrder.price
+    const paidToken = sellOrder.optionType == 1 ? fakeToken.address : Assets.ETH;
+    const paidBalance = await exchange.userTokenBalances(seller, paidToken);
+    assert.equal(paidBalance, smallSellOrder.price * smallBuyOrder.size);
+    const paid = {paidToken, paidBalance: paidBalance.toNumber()};
+
+
+    console.log({signedBuyOrder, signedSellOrder, sellerLockedBalance, paid });
   });
 });

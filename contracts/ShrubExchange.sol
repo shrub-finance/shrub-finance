@@ -185,18 +185,18 @@ contract ShrubExchange {
 
     if(common.optionType == OptionType.CALL) {
       require(getAvailableBalance(seller, common.quoteAsset) >= sellOrder.size, "Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price, "Buyer must have enough free collateral");
+      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price * buyOrder.size, "Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.quoteAsset] += sellOrder.size;
-      userTokenBalances[seller][common.baseAsset] += sellOrder.price;
-      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price;
+      userTokenBalances[seller][common.baseAsset] += sellOrder.price * buyOrder.size;
+      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price * buyOrder.size;
     }
 
     if(common.optionType == OptionType.PUT) {
       require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike, "Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price, "Buyer must have enough free collateral");
+      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price * buyOrder.size, "Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike;
-      userTokenBalances[seller][common.quoteAsset] += sellOrder.price;
-      userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price;
+      userTokenBalances[seller][common.quoteAsset] += sellOrder.price * buyOrder.size;
+      userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price * buyOrder.size;
     }
 
     userOptionPosition[seller][positionHash] -= int(sellOrder.size);
