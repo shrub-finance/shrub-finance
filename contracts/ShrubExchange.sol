@@ -212,26 +212,30 @@ contract ShrubExchange {
     bytes32 positionHash = hashOrderCommon(common);
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
     require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
-    require(common.expiry <= block.timestamp, "Option has already expired");
+    require(common.expiry >= block.timestamp, "Option has already expired");
 
     if(common.optionType == OptionType.CALL) {
+      // unlock the assets for seller
+      userTokenLockedBalance[seller][common.quoteAsset] -= buyOrder.size;
+
       // Reduce seller's locked capital and token balance of quote asset
       userTokenBalances[seller][common.quoteAsset] -= buyOrder.size;
-      userTokenLockedBalance[seller][common.quoteAsset] -= buyOrder.size * common.strike;
+      userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
+
       // Give the seller the buyer's funds, in terms of baseAsset
       userTokenBalances[seller][common.baseAsset] += buyOrder.size * common.strike;
-
       userTokenBalances[buyer][common.baseAsset] -= buyOrder.size * common.strike;
-      userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
     }
     if(common.optionType == OptionType.PUT) {
+      // unlock the assets of the seller
+      userTokenLockedBalance[seller][common.baseAsset] -= buyOrder.size * common.strike;
+
       // Reduce seller's locked capital and token balance of base asset
       userTokenBalances[seller][common.baseAsset] -= buyOrder.size * common.strike;
-      userTokenLockedBalance[seller][common.baseAsset] -= buyOrder.size * common.strike;
+      userTokenBalances[buyer][common.baseAsset] += buyOrder.size * common.strike;
+
       // Give the seller the buyer's funds, in terms of quoteAsset
       userTokenBalances[seller][common.quoteAsset] += buyOrder.size;
-
-      userTokenBalances[buyer][common.baseAsset] += buyOrder.size * common.strike;
       userTokenBalances[buyer][common.quoteAsset] -= buyOrder.size;
     }
   }

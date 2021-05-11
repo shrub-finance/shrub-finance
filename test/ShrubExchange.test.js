@@ -8,19 +8,42 @@ const Assets = {
   ETH: '0x0000000000000000000000000000000000000000'
 }
 contract("ShrubExchange", accounts => {
-  before(async () => {
-    const fakeToken = await FakeToken.deployed();
+  let exchange;
+  let shrubInterface;
 
-    //const newAccount = await web3.eth.accounts.privateKeyToAccount(testAccount.privateKey);
-    //accounts[1] = newAccount.address;
-    console.log("Sending ETH");
-    await web3.eth.sendTransaction({from: accounts[0], to: accounts[1], value: 10000});
-    console.log("Sending tokens");
+  let sellOrder = {
+    size: 1,
+    isBuy: false,
+    nonce: 1,
+    price: 100,
+    offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
+    fee: 1,
+
+    baseAsset: Assets.USDC,
+    quoteAsset: Assets.ETH,
+    expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
+    strike: 100,
+    optionType: 1,
+  }
+
+  let buyOrder = {
+    ...sellOrder,
+    isBuy: true
+  }
+
+  before(async () => {
+    exchange = await Exchange.deployed();
+    shrubInterface = new Shrub712(17, exchange.address);
+
+    const fakeToken = await FakeToken.deployed();
+    sellOrder.baseAsset = fakeToken.address;
+    buyOrder.baseAsset = fakeToken.address;
+
+    console.log("Sending tokens to buyer account");
     await fakeToken.transfer(accounts[1], 1000, {from: accounts[0]});
   });
 
   it("should hash an order and match the contract's hash", async () =>{
-    const exchange = await Exchange.deployed()
     const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
     const shrubInterface = new Shrub712(17, exchange.address);
 
@@ -61,29 +84,12 @@ contract("ShrubExchange", accounts => {
     const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
     const shrubInterface = new Shrub712(17, exchange.address);
 
-
-    const order = {
-      size: 1,
-      isBuy: true,
-      nonce: 0,
-      price: 100,
-      offerExpire: new Date(0).getTime(),
-      fee: 1,
-    }
-
-    const common = {
-      baseAsset: Assets.USDC,
-      quoteAsset: Assets.ETH,
-      expiry: new Date(0).getTime(),
-      strike: 3300,
-      optionType: 1,
-    }
-
-    const sha3Message = shrubInterface.getSmallOrderSha3Message(orderTypeHash, {...order, ...common});
+    const common = shrubInterface.toCommon(buyOrder);
+    const sha3Message = shrubInterface.getSmallOrderSha3Message(orderTypeHash, {...buyOrder, ...common});
     console.log(sha3Message);
 
     const hash = await web3.utils.soliditySha3(...sha3Message);
-    const hashedOrder = await exchange.hashSmallOrder(order, common);
+    const hashedOrder = await exchange.hashSmallOrder(buyOrder, common);
     console.log({hash, hashedOrder});
     assert.equal(hash, hashedOrder);
   });
@@ -146,26 +152,6 @@ contract("ShrubExchange", accounts => {
 
     const fakeToken = await FakeToken.deployed();
     const exchange = await Exchange.deployed()
-
-    const sellOrder = {
-      size: 1,
-      isBuy: false,
-      nonce: 1,
-      price: 100,
-      offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
-      fee: 1,
-
-      baseAsset: fakeToken.address,
-      quoteAsset: Assets.ETH,
-      expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
-      strike: 4500,
-      optionType: 1,
-    }
-
-    const buyOrder = {
-      ...sellOrder,
-      isBuy: true
-    }
 
     const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
     const shrubInterface = new Shrub712(17, exchange.address);
@@ -241,13 +227,7 @@ contract("ShrubExchange", accounts => {
     const fakeToken = await FakeToken.deployed();
     const exchange = await Exchange.deployed()
 
-    const common = {
-      baseAsset: fakeToken.address,
-      quoteAsset: Assets.ETH,
-      expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
-      strike: 4500,
-      optionType: 1,
-    };
+    const common = shrubInterface.toCommon(buyOrder);
     const commonHash = await exchange.hashOrderCommon(common);
     const seller = accounts[0];
     const buyer = accounts[1];
@@ -258,4 +238,27 @@ contract("ShrubExchange", accounts => {
     assert.equal(buyerPosition.toNumber(), 1, "Buyer should be long 1 ETH");
     console.log({sellerPosition, buyerPosition});
   });
+
+  it("should be able to execute an option position", async () => {
+    const seller = accounts[0];
+    const buyer = accounts[1];
+
+    const fakeToken = await FakeToken.deployed();
+    const exchange = await Exchange.deployed()
+
+    const orderTypeHash = await exchange.ORDER_TYPEHASH.call();
+
+
+    const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
+    const common = shrubInterface.toCommon(sellOrder);
+
+    // Sign orders
+    const signedBuyOrder = await shrubInterface.signOrderWithWeb3(web3, orderTypeHash, buyOrder, buyer);
+
+    // Deposit ERC20 to pay STRIKE * SIZE
+    await fakeToken.approve(exchange.address, buyOrder.size * buyOrder.strike, {from: buyer})
+    await exchange.deposit(fakeToken.address, buyOrder.size * buyOrder.strike, {from: buyer});
+
+    await exchange.execute(smallBuyOrder, common, seller, signedBuyOrder.sig);
+  })
 });
