@@ -1,0 +1,30 @@
+{
+  "name": "shrub-contracts",
+  "version": "1.0.0",
+  "description": "An options exchange where users can deposit liquidity and write options against their liquidity, or purchase options from others",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.1.0",
+    "truffle": "^5.3.6"
+  },
+  "devDependencies": {
+    "ethereumjs-util": "^7.0.10"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/truffle test",
+    "migrate": "node_modules/.bin/truffle migrate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shrub-finance/shrub-contracts.git"
+  },
+  "author": "mriggan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shrub-finance/shrub-contracts/issues"
+  },
+  "homepage": "https://github.com/shrub-finance/shrub-contracts#readme"
+}
