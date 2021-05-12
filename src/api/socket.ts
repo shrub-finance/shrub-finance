@@ -26,21 +26,6 @@ export class SocketService {
     retryCursor();
   }
 
-  getRooms(order: IOrder) {
-    const rooms = ["baseAsset", "quoteAsset", "expiry"].map((key) => {
-      return `${key}:${order[key]}`;
-    });
-
-    const aggregateRooms = [];
-    let aggregate = "";
-    for (const room of rooms) {
-      aggregate += room;
-      aggregateRooms.push(aggregate);
-    }
-
-    return aggregateRooms;
-  }
-
   signalOrder(order: IOrder) {
     this.server.in(`baseAsset:${order.baseAsset}`).emit("order", order);
 
