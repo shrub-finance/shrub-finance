@@ -1,10 +1,10 @@
 import Express from "express";
-export function ExchangeRoutes() {
+import { OrderRoutes } from "./orders";
+
+export function ApiRoutes() {
   const router = Express.Router();
 
-  router.get("/", async () => {
-
-  });
+  router.use("/orders", OrderRoutes());
 
   return router;
 }

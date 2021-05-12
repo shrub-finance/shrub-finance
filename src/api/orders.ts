@@ -1,7 +1,8 @@
 import Express from "express";
 import { Orders } from "../services/OrderService";
 import { IOrder } from "../models/order";
-export function ExchangeRoutes() {
+
+export function OrderRoutes() {
   const router = Express.Router();
 
   router.get("/", async (req, res) => {

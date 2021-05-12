@@ -6,6 +6,7 @@ import SocketIO from "socket.io";
 import { CacheMiddleware } from "./api/middleware";
 import { Socket } from "./api/socket";
 import { Storage } from "./services/StorageService";
+import { ApiRoutes } from "./api";
 
 export function Api(port = Number(process.env.API_PORT) || 8000) {
   const app = Express();
@@ -13,6 +14,7 @@ export function Api(port = Number(process.env.API_PORT) || 8000) {
   app.use(morgan("tiny"));
   app.use(Express.json());
   app.use(CacheMiddleware());
+  app.use(ApiRoutes());
 
   const server = http.createServer(app);
   let io = SocketIO(server);
