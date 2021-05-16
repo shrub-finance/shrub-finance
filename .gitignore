@@ -19,6 +19,7 @@ coverage
 node_modules
 npm-debug.log
 dist
+config
 src/vendor
 src/dist
 ts_build
