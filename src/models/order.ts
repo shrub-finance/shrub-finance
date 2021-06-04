@@ -20,23 +20,23 @@ export interface IOrder {
 }
 
 const OrderSchema = new mongoose.Schema({
-  size: Number,
-  isBuy: Boolean,
-  nonce: Number,
-  price: Number,
-  offerExpire: Number,
-  fee: Number,
+  size: { type: Number, required: true },
+  isBuy: { type: Boolean, required: true},
+  nonce: { type: Number, required: true},
+  price: { type: Number, required: true},
+  offerExpire: { type: Number, required: true},
+  fee: { type: Number, required: true},
 
-  baseAsset: String,
-  quoteAsset: String,
-  expiry: Number,
-  strike: Number,
-  optionType: Number,
+  baseAsset: { type: String, required: true},
+  quoteAsset: { type: String, required: true},
+  expiry: { type: Number, required: true},
+  strike: { type: Number, required: true},
+  optionType: { type: Number, required: true},
 
-  v: String,
-  r: String,
-  s: String,
-  address: String
+  v: { type: String, required: true},
+  r: { type: String, required: true},
+  s: { type: String, required: true},
+  address: { type: String, required: true},
 });
 
 OrderSchema.index({ baseAsset: 1, quoteAsset: 1, expiry: 1 });

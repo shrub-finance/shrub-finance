@@ -4,7 +4,7 @@
   "description": "An options exchange where users can deposit liquidity and write options against their liquidity, or purchase options from others",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "",
     "compile": "tsc --resolveJsonModule",
     "start": "npm run compile; node ts_build/index.js"
   },
@@ -19,8 +19,10 @@
   },
   "homepage": "https://github.com/shrub-finance/shrub-contracts#readme",
   "dependencies": {
+    "@openzeppelin/contracts": "^4.1.0",
     "config": "^3.3.6",
     "cors": "^2.8.5",
+    "ethereumjs-util": "^7.0.10",
     "express": "^4.17.1",
     "mongoose": "5.9.25",
     "morgan": "^1.10.0",
