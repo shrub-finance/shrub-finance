@@ -50,7 +50,8 @@ contract ShrubExchange {
     OptionType optionType;
   }
 
-  event Deposit(address depositor, address token, uint amount);
+  event Deposit(address user, address token, uint amount);
+  event Withdraw(address user, address token, uint amount);
   event OrderMatched(address seller, address buyer, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
@@ -176,6 +177,7 @@ contract ShrubExchange {
     } else {
       require(ERC20(token).transfer(msg.sender, amount), "ERC20 transfer must succeed");
     }
+    emit Withdraw(msg.sender, token, amount);
   }
 
   function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) orderMatches(sellOrder, buyOrder, common) public {
