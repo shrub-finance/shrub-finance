@@ -12,12 +12,13 @@ export function OrderRoutes() {
   });
 
   router.post("/",  async (req, res) => {
-    console.log(req.body)
     const order = req.body as IOrder;
     const newOrder = new OrderModel(order);
     try {
       await newOrder.save();
+      console.log(req.body)
     } catch (e) {
+      console.error(e);
       return res.status(400).send(e.message);
     }
     return res.status(200).send('order accepted');

@@ -1,6 +1,6 @@
 const Exchange = artifacts.require("ShrubExchange");
 const FakeToken = artifacts.require("FakeToken");
-const { Shrub712 } = require('./EIP712');
+const { Shrub712 } = require('../utils/EIP712');
 const utils = require('ethereumjs-util');
 
 const Assets = {
@@ -43,6 +43,11 @@ contract("ShrubExchange", accounts => {
     buyOrder.baseAsset = fakeToken.address;
 
     console.log("Sending tokens to buyer account");
+    if(accounts.length < 2 ){
+      const created = await web3.eth.accounts.create("12345");
+      accounts.push(created.address);
+    }
+    console.log({accounts});
     await fakeToken.transfer(accounts[1], 1000, {from: accounts[0]});
   });
 

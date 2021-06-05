@@ -24,3 +24,4 @@ config
 src/vendor
 src/dist
 ts_build
+build
