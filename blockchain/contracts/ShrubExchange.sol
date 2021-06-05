@@ -50,6 +50,7 @@ contract ShrubExchange {
     OptionType optionType;
   }
 
+  event Deposit(address depositor, address token, uint amount);
   event OrderMatched(address seller, address buyer, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
@@ -163,6 +164,7 @@ contract ShrubExchange {
     } else {
       userTokenBalances[msg.sender][token] += msg.value;
     }
+    emit Deposit(msg.sender, token, amount);
   }
 
   function withdraw(address token, uint amount) public {
