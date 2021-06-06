@@ -4,7 +4,6 @@ const util = require('util');
 
 const wsUrl = "http://127.0.0.1:8545"
 const web3 = new Web3(new Web3.providers.HttpProvider(wsUrl));
-const parityAdmin = "0x00a329c0648769A73afAc7F9381E08FB43dBEA72";
 const apiPort = Number(process.env.API_PORT) || 8000
 
 const Assets = {
@@ -15,6 +14,7 @@ const Assets = {
 const wait = util.promisify(setTimeout);
 
 async function main() {
+  const [ from ] = await web3.eth.personal.getAccounts();
   const currentNetwork = await web3.eth.net.getId();
   const exchangeAddress = ExchangeJson.networks[currentNetwork.toString()].address;
   console.log("Using ShrubExchange:", {exchangeAddress});
@@ -22,6 +22,6 @@ async function main() {
   const depositAmount = process.env.DEPOSIT_ETH || "1";
   const wei = web3.utils.toWei(depositAmount, "ether");
   console.log("Depositing", depositAmount, "ETH");
-  await exchange.methods.deposit(Assets.ETH, wei).send({value: wei, from: parityAdmin});
+  await exchange.methods.deposit(Assets.ETH, wei).send({value: wei, from});
 }
 main().catch(console.log);

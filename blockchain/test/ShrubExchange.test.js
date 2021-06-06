@@ -44,7 +44,8 @@ contract("ShrubExchange", accounts => {
 
     console.log("Sending tokens to buyer account");
     if(accounts.length < 2 ){
-      const created = await web3.eth.accounts.create("12345");
+      const privKey = "0x1fb827553fb70314fd91fd57468e658d08eb67ff5d3e0d6d0b6fad53e1da73d3";
+      const created = await web3.eth.accounts.privateKeyToAccount(privKey);
       accounts.push(created.address);
     }
     console.log({accounts});

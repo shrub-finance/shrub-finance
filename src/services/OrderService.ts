@@ -6,7 +6,7 @@ export class OrderService {
     const query = {
       ...(baseAsset && { baseAsset }),
       ...(quoteAsset && { quoteAsset }),
-      ...(expiry && { $gt: { expiry } }),
+      ...(expiry && { expiry: { $gt: expiry } }),
     };
     return this.orderModel.find(query);
   }
