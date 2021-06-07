@@ -53,6 +53,7 @@ contract ShrubExchange {
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
   event OrderMatched(address seller, address buyer, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
+  event AddressRecovered(address user);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
@@ -183,21 +184,23 @@ contract ShrubExchange {
   function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) orderMatches(sellOrder, buyOrder, common) public {
     address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
+    emit AddressRecovered(seller);
+    emit AddressRecovered(buyer);
     bytes32 positionHash = hashOrderCommon(common);
     require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1, "Seller nonce incorrect");
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
 
     if(common.optionType == OptionType.CALL) {
-      require(getAvailableBalance(seller, common.quoteAsset) >= sellOrder.size, "Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price * buyOrder.size, "Buyer must have enough free collateral");
+      require(getAvailableBalance(seller, common.quoteAsset) >= sellOrder.size, "Call Seller must have enough free collateral");
+      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price * buyOrder.size, "Call Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.quoteAsset] += sellOrder.size;
       userTokenBalances[seller][common.baseAsset] += sellOrder.price * buyOrder.size;
       userTokenBalances[buyer][common.baseAsset] -= sellOrder.price * buyOrder.size;
     }
 
     if(common.optionType == OptionType.PUT) {
-      require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike, "Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price * buyOrder.size, "Buyer must have enough free collateral");
+      require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike, "Put Seller must have enough free collateral");
+      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price * buyOrder.size, "Put Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike;
       userTokenBalances[seller][common.quoteAsset] += sellOrder.price * buyOrder.size;
       userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price * buyOrder.size;

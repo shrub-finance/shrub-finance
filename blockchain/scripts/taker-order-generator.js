@@ -14,6 +14,7 @@ const Assets = {
   USDC: '',
   ETH: '0x0000000000000000000000000000000000000000'
 }
+const currentNonce = {}
 
 const wait = util.promisify(setTimeout);
 
@@ -29,18 +30,42 @@ async function topupAddress(address, value, token, exchange, from) {
   console.log("Sending", value, "to", address, "from", from, "with token", token._address);
   await web3.eth.sendTransaction({to: address, value: Math.floor(value * 1.2), from});
   await token.methods.transfer(address, value).send({from});
+
   await token.methods.approve(exchange._address, value).send({from: address});;
-  await exchange.methods.deposit(Assets.ETH, value).send({value, from: address});
   await exchange.methods.deposit(token._address, value).send({from: address});
+  await exchange.methods.deposit(Assets.ETH, value).send({value, from: address});
+
+  await token.methods.approve(exchange._address, value).send({from});;
+  await exchange.methods.deposit(token._address, value).send({from});
+  await exchange.methods.deposit(Assets.ETH, value).send({value, from});
+
 }
 
-async function takeRandomOrder(nonce) {
-  const orders = await getOrders();
+async function printBalances(address, exchange) {
+  const ethBalance = await exchange.methods.getAvailableBalance(address, Assets.ETH).call();
+  const tokenBalance = await exchange.methods.getAvailableBalance(address, Assets.USDC).call();
+  console.log({address, ethBalance, tokenBalance});
+}
+
+async function takeRandomOrder(user, exchange) {
+  let orders = await getOrders();
+  const addresses = Array.from(new Set(orders.map(o => o.address)));
+  for(const address of addresses) {
+    const [bestNonce, next] = Array.from(new Set(orders.map(o => Number(o.nonce)))).sort((a, b) => b - a);
+    console.log("Setting best nonce for", address, "to", bestNonce, "next", next);
+    currentNonce[address] = bestNonce;
+  }
+  console.log("Filtering", orders.length, "orders");
+  orders = orders.filter(o => o.nonce === currentNonce[o.address] && o.offerExpire >= Math.floor(Date.now() / 1000));
+
   if(orders.length === 0) {
     throw new Error("No orders availble to take");
   }
   const orderIndex = Math.floor(orders.length * Math.random());
   const randomOrder = orders[orderIndex];
+  const nonce = Number(await exchange.methods.getCurrentNonce(user, randomOrder.quoteAsset, randomOrder.baseAsset).call()) + 1;
+  console.log("Setting user expected nonce to", currentNonce[randomOrder.address]);
+  console.log("Using nonce", nonce);
   return takeOpposite(randomOrder, nonce);
 }
 
@@ -70,21 +95,24 @@ async function main() {
   const shrubInterface = new Shrub712(17, exchangeAddress);
   const exchange = new web3.eth.Contract(ExchangeJson.abi, exchangeAddress);
   const token = new web3.eth.Contract(TokenJson.abi, tokenAddress);
-  const nonce = await exchange.methods.userPairNonce(taker, Assets.ETH, Assets.USDC).call();
   const orderTypeHash = await exchange.methods.ORDER_TYPEHASH().call();
 
   while(true) {
     try {
-      const {sellOrder, buyOrder, newOrder} = await takeRandomOrder(Number(nonce));
-      await topupAddress(taker, sellOrder.price, token, exchange, maker);
+      const {sellOrder, buyOrder, newOrder} = await takeRandomOrder(taker, exchange);
+      await topupAddress(taker, 1000 * sellOrder.size * Math.max(sellOrder.price, sellOrder.strike), token, exchange, maker);
       const signed = await shrubInterface.signOrderWithWeb3(web3, orderTypeHash, newOrder, taker);
       const {v, r, s} = buyOrder;
-      const buyerSig = {v, r, s};
+      const buyerSig = {v: Number(v), r, s};
       const smallSellOrder = shrubInterface.toSmallOrder(sellOrder);
       const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
       const common = shrubInterface.toCommon(buyOrder);
-      console.log("Matching order", {smallSellOrder, smallBuyOrder, common, signed, buyerSig});
-      await exchange.methods.matchOrder(smallSellOrder, smallBuyOrder, common, signed.sig, buyerSig).send({from: taker});
+      console.log("Matching order", {smallSellOrder, smallBuyOrder, common, sellerSig: signed.sig, buyerSig});
+      await printBalances(maker, exchange);
+      await printBalances(taker, exchange);
+      await exchange.methods.matchOrder(smallSellOrder, smallBuyOrder, common, signed.sig, buyerSig).send({from: taker, gasLimit: 250000});
+      console.log("Order filled");
+      process.exit();
     } catch(e) {
       console.log(e);
     }

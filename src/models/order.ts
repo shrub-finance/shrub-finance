@@ -13,7 +13,7 @@ export interface IOrder {
   strike: number
   optionType: number
 
-  v: string
+  v: number
   r: string
   s: string
   address: string
@@ -33,7 +33,7 @@ const OrderSchema = new mongoose.Schema({
   strike: { type: Number, required: true},
   optionType: { type: Number, required: true},
 
-  v: { type: String, required: true},
+  v: { type: Number, required: true},
   r: { type: String, required: true},
   s: { type: String, required: true},
   address: { type: String, required: true},

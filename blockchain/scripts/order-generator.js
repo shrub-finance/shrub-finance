@@ -19,7 +19,7 @@ const wait = util.promisify(setTimeout);
 async function generateRandomOrder(nonce) {
   return {
     nonce,
-    size: Math.floor(Math.random() * 5),
+    size: Math.floor(Math.random() * 5) + 1,
     isBuy: Math.random() * 100 > 50,
     price: Math.floor(Math.random() * 4000),
     offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
@@ -50,10 +50,10 @@ async function main() {
   console.log("Using ShrubExchange:", {exchangeAddress});
   const shrubInterface = new Shrub712(17, exchangeAddress);
   const exchange = new web3.eth.Contract(ExchangeJson.abi, exchangeAddress);
-  const nonce = await exchange.methods.userPairNonce(from, Assets.ETH, Assets.USDC).call();
   const orderTypeHash = await exchange.methods.ORDER_TYPEHASH().call();
 
   while(true) {
+    const nonce = Number(await exchange.methods.userPairNonce(from, Assets.ETH, Assets.USDC).call()) + 1;
     const order = await generateRandomOrder(Number(nonce));
     const signed = await shrubInterface.signOrderWithWeb3(web3, orderTypeHash, order, from);
     console.log(signed);

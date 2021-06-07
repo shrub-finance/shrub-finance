@@ -104,12 +104,25 @@ class Shrub712 extends EIP712Generator {
     return this.getTypeSha3Message("OrderCommon", typehash, message);
   }
 
+  toOrder(order) {
+    const obj = {...order};
+    const common = this.types.OrderCommon.map(t => t.name);
+    const orderKeys = this.types.Order.map(t => t.name);
+    for(const key in obj) {
+      if(!orderKeys.includes(key) && !common.includes(key)) {
+        delete obj[key];
+      }
+    }
+    return obj;
+  }
+
   toSmallOrder(order) {
     const obj = {...order};
     const common = this.types.OrderCommon.map(t => t.name);
     const smallOrder = this.types.SmallOrder.map(t => t.name);
     for(const key in obj) {
-      if(!smallOrder || common.includes(key)) {
+      if(!smallOrder.includes(key) || common.includes(key)) {
+        console.log("Deleting key", key);
         delete obj[key];
       }
     }
@@ -128,7 +141,9 @@ class Shrub712 extends EIP712Generator {
   }
 
   async signOrderWithWeb3(web3, orderTypeHash, order, account) {
-    const sha3Message = this.getOrderSha3Message(orderTypeHash, order);
+    const filteredOrder = this.toOrder(order);
+    console.log(filteredOrder);
+    const sha3Message = this.getOrderSha3Message(orderTypeHash, filteredOrder);
     const hash = await web3.utils.soliditySha3(...sha3Message);
     const signature = await web3.eth.sign(hash, account);
 
