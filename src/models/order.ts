@@ -39,6 +39,8 @@ const OrderSchema = new mongoose.Schema({
   address: { type: String, required: true},
 });
 
+OrderSchema.index({ expiry: 1 });
+OrderSchema.index({ offerExpire: 1 });
 OrderSchema.index({ baseAsset: 1, quoteAsset: 1, expiry: 1 });
 OrderSchema.index({ address: 1 });
 OrderSchema.index({ address: 1, baseAsset: 1, quoteAsset: 1, nonce: 1 });

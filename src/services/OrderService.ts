@@ -24,5 +24,13 @@ export class OrderService {
       this.orderModel.remove({baseAsset, quoteAsset, address: seller, nonce: {$lte:  sellNonce}})
     ]);
   }
+
+  public async pruneExpiredOffers() {
+    const now = Date.now() / 1000;
+    const pruned = await this.orderModel.remove({offerExpire: {$lte: now}});
+    if(pruned.deletedCount) {
+      console.log("pruned", pruned.deletedCount, "expired offers");
+    }
+  }
 }
 export const Orders = new OrderService(OrderModel);

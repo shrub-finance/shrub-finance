@@ -8,6 +8,10 @@ import { Socket } from "./api/socket";
 import { Storage } from "./services/StorageService";
 import { ApiRoutes } from "./api";
 import { Exchange } from "./services/ContractService";
+import util from "util";
+import { Orders } from "./services/OrderService";
+
+const wait = util.promisify(setTimeout);
 
 export function Api(port = Number(process.env.API_PORT) || 8000) {
   const app = Express();
@@ -38,6 +42,10 @@ export function Api(port = Number(process.env.API_PORT) || 8000) {
 async function start() {
   await Storage();
   Api();
+  while(true) {
+    await wait(10000);
+    Orders.pruneExpiredOffers();
+  }
 }
 if (require.main === module) {
   start();
