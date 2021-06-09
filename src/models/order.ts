@@ -41,6 +41,7 @@ const OrderSchema = new mongoose.Schema({
 
 OrderSchema.index({ baseAsset: 1, quoteAsset: 1, expiry: 1 });
 OrderSchema.index({ address: 1 });
+OrderSchema.index({ address: 1, baseAsset: 1, quoteAsset: 1, nonce: 1 });
 
 export const OrderModel = mongoose.model<IOrder & mongoose.Document>(
   "Order",

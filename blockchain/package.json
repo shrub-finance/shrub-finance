@@ -1,6 +1,14 @@
 {
+  "scripts": {
+    "postinstall": "npm run types",
+    "types": "typechain --target=web3-v1 abis/**/*.json"
+  },
   "dependencies": {
     "node-fetch": "^2.6.1",
     "web3": "^1.3.6"
+  },
+  "devDependencies": {
+    "@typechain/web3-v1": "^3.0.0",
+    "typechain": "^5.0.0"
   }
 }

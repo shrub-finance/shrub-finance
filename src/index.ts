@@ -7,6 +7,7 @@ import { CacheMiddleware } from "./api/middleware";
 import { Socket } from "./api/socket";
 import { Storage } from "./services/StorageService";
 import { ApiRoutes } from "./api";
+import { Exchange } from "./services/ContractService";
 
 export function Api(port = Number(process.env.API_PORT) || 8000) {
   const app = Express();
@@ -19,6 +20,7 @@ export function Api(port = Number(process.env.API_PORT) || 8000) {
   const server = http.createServer(app);
   let io = SocketIO(server);
   Socket.start(io);
+  Exchange.start();
   const host = process.env.HOST;
   if (host) {
     server.listen(port, host, 511, () => {
