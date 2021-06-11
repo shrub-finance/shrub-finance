@@ -22,12 +22,12 @@ async function generateRandomOrder(nonce) {
     size: Math.floor(Math.random() * 5) + 1,
     isBuy: Math.random() * 100 > 50,
     price: Math.floor(Math.random() * 4000),
-    offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
+    offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
     fee: Math.floor(Math.random() * 100),
     baseAsset: Assets.USDC,
     quoteAsset: Assets.ETH,
-    expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
-    strike: Math.floor(Math.random() * 4000),
+    expiry: Date.UTC(new Date().getUTCFullYear(),new Date().getUTCMonth() + Math.ceil(Math.random() * 2), 1)/1000,
+    strike: Math.floor(Math.random() * 10) * 100 + 2000,
     optionType: Math.floor(Math.random() * 2),
   }
 }
