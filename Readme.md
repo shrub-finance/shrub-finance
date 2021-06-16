@@ -30,6 +30,15 @@ npm i
 
 This project uses 'hardhat' (which is installed as a dev dependency)
 
+To improve your hardhad experience follow the steps here: https://hardhat.org/guides/shorthand.html
+
+    # This will allow you to use 'hh' instead of 'npx hardhat' and have completions in your shell
+
+    npm i -g hardhat-shorthand
+    hardhat-completion install
+
+Hardhat Commands:
+
     # To compile contracts and generate typings
     npx hardhat compile
 
@@ -41,6 +50,9 @@ This project uses 'hardhat' (which is installed as a dev dependency)
 
     # To deploy the contracts to your local environment:
     npx hardhat run --network localhost scripts/deploy.ts
+
+    # To deploy and fund the shrub accounts (while running the hardhat node in another window)
+    # npx hardhat fundAccounts --network localhost
     
 
 # Configuration
