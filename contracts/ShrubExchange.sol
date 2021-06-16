@@ -154,6 +154,26 @@ contract ShrubExchange {
   }
 
   function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public view returns(address) {
+    console.log('sig: v, r, s');
+    console.log(sig.v);
+    console.logBytes32(sig.r);
+    console.logBytes32(sig.s);
+    console.log('order: size, isBuy, nonce, price, offerExpire, fee');
+    console.log(order.size);
+    console.log(order.isBuy);
+    console.log(order.nonce);
+    console.log(order.price);
+    console.log(order.offerExpire);
+    console.log(order.fee);
+    console.log('common: baseAsset, quoteAsset, expiry, strike');
+    console.log(common.baseAsset);
+    console.log(common.quoteAsset);
+    console.log(common.expiry);
+    console.log(common.strike);
+    console.log('hashSmallOrder, getSignedHash, ecrecover');
+    console.logBytes32(hashSmallOrder(order, common));
+    console.logBytes32(getSignedHash(hashSmallOrder(order, common)));
+    console.log(ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s));
     address recovered = ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s);
     require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
     return recovered;
@@ -189,9 +209,9 @@ contract ShrubExchange {
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
 
     if(common.optionType == OptionType.CALL) {
-      console.log(sellOrder);
-      console.log(common);
-      console.log(sellSig);
+//      console.log(sellOrder);
+//      console.log(common);
+//      console.log(sellSig);
       console.log('seller', seller);
       console.log('common.quoteAsset', common.quoteAsset);
       console.log('sellOrder.size', sellOrder.size);
