@@ -1,6 +1,7 @@
-pragma solidity 0.8.0;
+pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "hardhat/console.sol";
 
 contract ShrubExchange {
 
@@ -188,6 +189,13 @@ contract ShrubExchange {
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
 
     if(common.optionType == OptionType.CALL) {
+      console.log(sellOrder);
+      console.log(common);
+      console.log(sellSig);
+      console.log('seller', seller);
+      console.log('common.quoteAsset', common.quoteAsset);
+      console.log('sellOrder.size', sellOrder.size);
+      console.log('availableBalance', getAvailableBalance(seller, common.quoteAsset));
       require(getAvailableBalance(seller, common.quoteAsset) >= sellOrder.size, "Call Seller must have enough free collateral");
       require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price * buyOrder.size, "Call Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.quoteAsset] += sellOrder.size;

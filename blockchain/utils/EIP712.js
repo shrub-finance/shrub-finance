@@ -148,7 +148,7 @@ class Shrub712 extends EIP712Generator {
     const sig = signature.slice(2);
     const r = '0x' + sig.substr(0, 64);
     const s = '0x' + sig.substr(64, 64);
-    const v =  web3.utils.toDecimal('0x' + sig.substr(128, 2)) + 27;
+    const v =  web3.utils.toDecimal('0x' + sig.substr(128, 2));
     return {order, sig: {v, r, s}};
   }
 }

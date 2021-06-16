@@ -9,6 +9,7 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "target": "es6",
     "typeRoots": ["./node_modules/@types", "./types"],
     "baseUrl": ".",
@@ -21,8 +22,11 @@
   "include": [
     "./src/**/*.ts",
     "./tests/**/*.ts",
-    "./types/**/*.ts"
+    "./types/**/*.ts",
+    "./scripts",
+    "./test"
   ],
+  "files": ["./hardhat.config.ts"],
   "exclude": [
     "node_modules"
   ]

@@ -1,21 +1,20 @@
 import { EventEmitter } from "events";
 import Web3 from 'web3';
 import { Config } from "../config";
-import { ShrubExchange } from "../types/contract-types/ShrubExchange";
 import { Orders } from "./OrderService";
 const web3Url = Config.web3WssUrl;
 const web3 = new Web3(new Web3.providers.WebsocketProvider(web3Url));
-const ExchangeJson = require("../../blockchain/build/contracts/ShrubExchange.json");
+import ExchangeJson from '../../artifacts/contracts/ShrubExchange.sol/ShrubExchange.json';
 const abi = ExchangeJson.abi;
 
 export class ContractService {
   public match: EventEmitter;
-  public exchange: ShrubExchange;
+  public exchange: any;
 
 
   async start() {
     const address = await this.getExchangeAddress();
-    this.exchange = new web3.eth.Contract(abi, address) as any as ShrubExchange;
+    this.exchange = new web3.eth.Contract(abi, address) as any as any;
     this.match = this.exchange.events.OrderMatched((err, order) => {
       const {buyer, seller} = order.returnValues;
       const buyNonce = order.returnValues.buyOrder["nonce"];

@@ -1,6 +1,6 @@
 const Exchange = artifacts.require("ShrubExchange");
 const FakeToken = artifacts.require("FakeToken");
-const { Shrub712 } = require('../utils/EIP712');
+const { Shrub712 } = require('../blockchain/utils/EIP712');
 const utils = require('ethereumjs-util');
 
 const Assets = {
@@ -126,7 +126,7 @@ contract("ShrubExchange", accounts => {
     const sig = signature.slice(2);
     const r = '0x' + sig.substr(0, 64);
     const s = '0x' + sig.substr(64, 64);
-    const v =  web3.utils.toDecimal('0x' + sig.substr(128, 2)) + 27;
+    const v =  web3.utils.toDecimal('0x' + sig.substr(128, 2));
     const validSig = await exchange.validateSignature(accounts[0], hash, v, r, s);
     console.log({sig, validSig, v, r, s});
     assert.isTrue(validSig);
@@ -166,8 +166,8 @@ contract("ShrubExchange", accounts => {
     const common = shrubInterface.toCommon(sellOrder);
 
     // Sanity checks
-    assert.isTrue(smallSellOrder.isBuy == false, "sell isBuy should be false");
-    assert.isTrue(smallBuyOrder.isBuy == true, "buy isBuy should be true");
+    assert.isTrue(smallSellOrder.isBuy === false, "sell isBuy should be false");
+    assert.isTrue(smallBuyOrder.isBuy === true, "buy isBuy should be true");
     assert.isTrue(smallSellOrder.price <= smallBuyOrder.price, "Price should be sufficient for seller");
     assert.isTrue(smallSellOrder.size <= smallBuyOrder.size, "Sell size should be sufficient for seller");
     assert.isTrue(smallSellOrder.offerExpire >= Date.now() / 1000, "Sell Offer should not be expired");

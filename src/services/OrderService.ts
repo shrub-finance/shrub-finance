@@ -1,5 +1,4 @@
-import { OrderModel } from "../models/order";
-import { OrderMatched } from "../types/contract-types/ShrubExchange";
+import { OrderModel } from '../models/order';
 export class OrderService {
   constructor(private orderModel: typeof OrderModel) {}
 
@@ -9,10 +8,11 @@ export class OrderService {
       ...(quoteAsset && { quoteAsset }),
       ...(expiry && { expiry: { $gt: expiry } }),
     };
+    console.log(query);
     return this.orderModel.find(query);
   }
 
-  public async fufillOrder(order:OrderMatched) {
+  public async fufillOrder(order:any) {
     const {buyer, seller} = order.returnValues;
     const buyNonce = order.returnValues.buyOrder["nonce"];
     const sellNonce = order.returnValues.sellOrder["nonce"];
