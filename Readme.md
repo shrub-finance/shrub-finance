@@ -30,7 +30,7 @@ npm i
 
 This project uses 'hardhat' (which is installed as a dev dependency)
 
-To improve your hardhad experience follow the steps here: https://hardhat.org/guides/shorthand.html
+To improve your hardhat experience follow the steps here: https://hardhat.org/guides/shorthand.html
 
     # This will allow you to use 'hh' instead of 'npx hardhat' and have completions in your shell
 
