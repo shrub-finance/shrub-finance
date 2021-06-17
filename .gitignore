@@ -20,6 +20,7 @@
 coverage
 node_modules
 npm-debug.log
+coverage.json
 dist
 config
 src/vendor

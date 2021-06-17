@@ -22,11 +22,13 @@ An options exchange where users can deposit liquidity and write options against 
 mongo version 4.4+
 
 # Installation
-```
-# Switch to node version 16 
-n 16 # if you have n
-npm i 
-```
+
+    # Switch to node version 16 
+    n 16 # if you have n
+
+    npm i 
+
+    npm i -g solhint
 
 This project uses 'hardhat' (which is installed as a dev dependency)
 
@@ -42,16 +44,25 @@ Hardhat Commands:
     # To compile contracts and generate typings
     npx hardhat compile
 
+    # To run linter (solhint)
+    npx hardhat check
+
     # To run tests
     npx hardhat test
+
+    # To run tests and give a report on gas usage
+    REPORT_GAS=true npx hardhat test
+
+    # To run solidity coverage
+    npx hardhat coverage
 
     # To run a JSON-RPC server on top of hardhat network
     npx hardhat node
 
-    # To deploy the contracts to your local environment:
-    npx hardhat run --network localhost scripts/deploy.ts
+    # To deploy the contracts (note: this will happen automatically when testing or starting the node):
+    npx hardhat deploy --network localhost
 
-    # To deploy and fund the shrub accounts (while running the hardhat node in another window)
+    # To fund the shrub accounts (while running the hardhat node in another window)
     # npx hardhat fundAccounts --network localhost
     
 

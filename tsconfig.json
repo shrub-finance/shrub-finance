@@ -24,6 +24,7 @@
     "./tests/**/*.ts",
     "./types/**/*.ts",
     "./scripts",
+    "./deploy",
     "./test"
   ],
   "files": ["./hardhat.config.ts"],
