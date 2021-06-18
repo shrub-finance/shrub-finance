@@ -1,6 +1,6 @@
 const { Shrub712 } = require('../utils/EIP712');
-const ExchangeJson = require('../build/contracts/ShrubExchange.json');
-const TokenJson = require('../build/contracts/FakeToken.json');
+const ExchangeJson = require('../../deployments/localhost/ShrubExchange.json');
+const TokenJson = require('../../deployments/localhost/FakeToken.json');
 const Web3 = require('web3');
 const util = require('util');
 const fetch = require('node-fetch');
@@ -41,10 +41,9 @@ async function saveOrder(order) {
 }
 
 async function main() {
-  const currentNetwork = await web3.eth.net.getId();
-  const [ from ] = await web3.eth.personal.getAccounts();
-  const exchangeAddress = ExchangeJson.networks[currentNetwork.toString()].address;
-  const tokenAddress = TokenJson.networks[currentNetwork.toString()].address;
+  const [ from ] = await web3.eth.getAccounts();
+  const exchangeAddress = ExchangeJson.address;
+  const tokenAddress = TokenJson.address;
   Assets.USDC = tokenAddress;
 
   console.log("Using ShrubExchange:", {exchangeAddress});
