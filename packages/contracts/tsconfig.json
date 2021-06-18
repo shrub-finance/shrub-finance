@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": ["es5", "es6", "es2017"],
+    "noImplicitAny": false,
+    "removeComments": true,
+    "declaration": true,
+    "module": "commonjs",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "es6",
+    "typeRoots": ["./node_modules/@types", "./types/web3-v1"],
+    "baseUrl": ".",
+    "outDir": "ts_build",
+    "sourceMap": true
+  },
+  "include": ["index.ts"],
+  "exclude": ["node_modules"]
+}

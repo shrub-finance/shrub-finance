@@ -1,0 +1,42 @@
+{
+  "name": "@shrub/backend",
+  "version": "1.0.0",
+  "description": "An options exchange where users can deposit liquidity and write options against their liquidity, or purchase options from others",
+  "main": "index.js",
+  "scripts": {
+    "test": "",
+    "compile": "tsc",
+    "start": "npm run compile; node ts_build/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shrub-finance/shrub-contracts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shrub-finance/shrub-contracts/issues"
+  },
+  "homepage": "https://github.com/shrub-finance/shrub-contracts#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mongoose": "5.9.25",
+    "morgan": "^1.10.0",
+    "socket.io": "^2.3.0",
+    "source-map-support": "^0.5.19",
+    "@shrub/contracts": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/config": "0.0.38",
+    "@types/mocha": "^8.2.2",
+    "@types/mongoose": "5.7.32",
+    "@types/node": "^15.12.2",
+    "@types/socket.io": "^2.1.10",
+    "chai": "^4.3.4",
+    "typechain": "^5.0.0",
+    "typescript": "^4.3.2",
+    "web3": "^1.3.6"
+  }
+}
