@@ -53,7 +53,7 @@ contract ShrubExchange {
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
-  event OrderMatched(address seller, address buyer, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
+  event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
@@ -234,7 +234,7 @@ contract ShrubExchange {
     userOptionPosition[seller][positionHash] -= int(buyOrder.size);
     userOptionPosition[buyer][positionHash] += int(buyOrder.size);
 
-    emit OrderMatched(seller, buyer, sellOrder, buyOrder, common);
+    emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
     userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
     userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
   }
