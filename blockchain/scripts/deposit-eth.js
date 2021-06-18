@@ -1,4 +1,4 @@
-const ExchangeJson = require('../build/contracts/ShrubExchange.json');
+const ExchangeJson = require('../../deployments/localhost/ShrubExchange.json');
 const Web3 = require('web3');
 const util = require('util');
 
@@ -14,9 +14,9 @@ const Assets = {
 const wait = util.promisify(setTimeout);
 
 async function main() {
-  const [ from ] = await web3.eth.personal.getAccounts();
+  const [ from ] = await web3.eth.getAccounts();
   const currentNetwork = await web3.eth.net.getId();
-  const exchangeAddress = ExchangeJson.networks[currentNetwork.toString()].address;
+  const exchangeAddress = ExchangeJson.address;
   console.log("Using ShrubExchange:", {exchangeAddress});
   const exchange = new web3.eth.Contract(ExchangeJson.abi, exchangeAddress);
   const depositAmount = process.env.DEPOSIT_ETH || "1";
