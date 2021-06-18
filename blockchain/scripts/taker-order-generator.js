@@ -1,6 +1,6 @@
 const { Shrub712 } = require('../utils/EIP712');
-const ExchangeJson = require('../build/contracts/ShrubExchange.json');
-const TokenJson = require('../build/contracts/FakeToken.json');
+const ExchangeJson = require('../../deployments/localhost/ShrubExchange.json');
+const TokenJson = require('../../deployments/localhost/FakeToken.json');
 const Web3 = require('web3');
 const util = require('util');
 const fetch = require('node-fetch');
@@ -82,10 +82,10 @@ function takeOpposite(order, nonce) {
 }
 
 async function main() {
-  const [ maker, taker ] = await web3.eth.personal.getAccounts();
+  const [ maker, taker ] = await web3.eth.getAccounts();
   const currentNetwork = await web3.eth.net.getId();
-  const exchangeAddress = ExchangeJson.networks[currentNetwork.toString()].address;
-  const tokenAddress = TokenJson.networks[currentNetwork.toString()].address;
+  const exchangeAddress = ExchangeJson.address;
+  const tokenAddress = TokenJson.address;
   Assets.USDC = tokenAddress;
   console.log("Using maker:", {taker});
   console.log("Using taker:", {taker});
