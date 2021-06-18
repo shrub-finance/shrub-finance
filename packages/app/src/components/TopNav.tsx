@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import {
   Box,
   Flex,
+  Text,
   HStack,
   Link,
   IconButton,
@@ -16,10 +17,13 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
+  ModalFooter,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
-import ConnectWalletsView from "./ConnectWallets";
+import ConnectWalletsView, { Account } from "./ConnectWallets";
+import { useWeb3React } from "@web3-react/core";
+import { toBech32 } from "@harmony-js/crypto";
 
 const NavLinks = ["Shrub"];
 const NavLink = ({ children }: { children: ReactNode }) => (
@@ -70,9 +74,6 @@ function TopNav() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            {/*<Link as={ReachLink} to="connect">*/}
-            {/*  Connect Wallet*/}
-            {/*</Link>*/}
             <Button
               onClick={onOpen}
               variant={"solid"}
@@ -82,7 +83,6 @@ function TopNav() {
             >
               Connect Wallet
             </Button>
-
             <Button onClick={toggleColorMode}>
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
             </Button>
@@ -103,11 +103,14 @@ function TopNav() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
-          <ModalHeader>Connect Wallet</ModalHeader>
+          <ModalHeader>
+            <Text fontSize={20}>Connect to a wallet</Text>
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <ConnectWalletsView />
           </ModalBody>
+          <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
     </>

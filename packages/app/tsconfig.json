@@ -16,5 +16,5 @@
     "jsx": "react-jsx",
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.tsx"]
+  "include": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.tsx", "src/react-app-env.d.ts"]
 }
