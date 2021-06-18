@@ -1,6 +1,6 @@
 const Exchange = artifacts.require("ShrubExchange");
 const FakeToken = artifacts.require("FakeToken");
-const { Shrub712 } = require("../blockchain/utils/EIP712");
+const { Shrub712 } = require("../utils/EIP712");
 const utils = require("ethereumjs-util");
 
 const Assets = {
