@@ -18,13 +18,11 @@
   "lint-staged": {
     "packages/backend/**/*.{ts,tsx}": [
       "tslint --fix",
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "**/*.{js}": [
       "eslint --fix",
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "repository": {
