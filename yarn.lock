@@ -2666,6 +2666,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@craco/craco@npm:^6.1.2":
+  version: 6.1.2
+  resolution: "@craco/craco@npm:6.1.2"
+  dependencies:
+    cross-spawn: ^7.0.0
+    lodash: ^4.17.15
+    semver: ^7.3.2
+    webpack-merge: ^4.2.2
+  peerDependencies:
+    react-scripts: ^4.0.0
+  bin:
+    craco: bin/craco.js
+  checksum: 946d0ea1f83d93c869c3e2d72cc0a3f3f4b099c6d85b03ad62ef7c6d3696505ae53745db84d4caf5c4ebe40e7e81a5009d9662f7aa9fceb832a38a81157e5f33
+  languageName: node
+  linkType: hard
+
 "@csstools/convert-colors@npm:^1.4.0":
   version: 1.4.0
   resolution: "@csstools/convert-colors@npm:1.4.0"
@@ -5782,6 +5798,7 @@ __metadata:
   dependencies:
     "@chakra-ui/icons": 1.0.13
     "@chakra-ui/react": 1.6.3
+    "@craco/craco": ^6.1.2
     "@emotion/react": 11.1.5
     "@emotion/styled": 11.1.5
     "@harmony-js/core": 0.1.57
@@ -29977,6 +29994,15 @@ typescript@4.3.2:
   peerDependencies:
     webpack: 2 || 3 || 4
   checksum: 00f084e2c2883fa68996758446784e366c76fb32a4cffa5131824dc7c2f8ab8b8c24e8cb8c3bd0776f2ef0471fddc9c37ec7712add925341885ee0cdbc48c4b8
+  languageName: node
+  linkType: hard
+
+"webpack-merge@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "webpack-merge@npm:4.2.2"
+  dependencies:
+    lodash: ^4.17.15
+  checksum: 038c6d8ba45f538ce8e4505a8a3d90fbd2e554ba2065bacffe4d7cff0229cce9f0d983bf56061f8e0fef86c711da7232f88681aab285c06673b3916b1040cd9e
   languageName: node
   linkType: hard
 
