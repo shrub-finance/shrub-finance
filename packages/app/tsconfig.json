@@ -17,5 +17,5 @@
     "jsx": "react-jsx",
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/**/*.tsx", "test/**/*.tsx"]
+  "include": ["src/**/*.tsx", "test/**/*.tsx", "node_modules/@shrub/contracts/types/ethers-v5/**/*.ts"]
 }
