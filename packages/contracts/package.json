@@ -10,9 +10,8 @@
   "scripts": {
     "start": "npm run compile && hardhat node",
     "compile": "npx hardhat compile && npm run typechain",
-    "typechain": "npm run typechain:ethers && npm run typechain:web3 && npm run typechain:ethers-temp",
+    "typechain": "npm run typechain:ethers && npm run typechain:web3",
     "typechain:ethers": "typechain --target ethers-v5 --out-dir types/ethers-v5 './abi/**/*.json'",
-    "typechain:ethers-temp": "typechain --target ethers-v5 --out-dir ../app/src/types/ethers-v5 './abi/**/*.json'",
     "typechain:web3": "typechain --target web3-v1 --out-dir types/web3-v1 './abi/**/*.json'",
     "maker": "node scripts/order-generator.js",
     "taker": "node scripts/taker-order-generator.js",
