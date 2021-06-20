@@ -146,7 +146,6 @@ contract ShrubExchange {
     require(buyOrder.isBuy == true, "Buy order should be buying");
 
     require(sellOrder.price <= buyOrder.price, "Price must be sufficient for seller");
-    require(sellOrder.size >= buyOrder.size, "Cannot buy more than being sold");
     require(sellOrder.offerExpire >= block.timestamp, "Sell order has expired");
     require(buyOrder.offerExpire >= block.timestamp, "Buy order has expired");
 
@@ -154,26 +153,26 @@ contract ShrubExchange {
   }
 
   function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public view returns(address) {
-    console.log('sig: v, r, s');
-    console.log(sig.v);
-    console.logBytes32(sig.r);
-    console.logBytes32(sig.s);
-    console.log('order: size, isBuy, nonce, price, offerExpire, fee');
-    console.log(order.size);
-    console.log(order.isBuy);
-    console.log(order.nonce);
-    console.log(order.price);
-    console.log(order.offerExpire);
-    console.log(order.fee);
-    console.log('common: baseAsset, quoteAsset, expiry, strike');
-    console.log(common.baseAsset);
-    console.log(common.quoteAsset);
-    console.log(common.expiry);
-    console.log(common.strike);
-    console.log('hashSmallOrder, getSignedHash, ecrecover');
-    console.logBytes32(hashSmallOrder(order, common));
-    console.logBytes32(getSignedHash(hashSmallOrder(order, common)));
-    console.log(ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s));
+    //console.log('sig: v, r, s');
+    //console.log(sig.v);
+    //console.logBytes32(sig.r);
+    //console.logBytes32(sig.s);
+    //console.log('order: size, isBuy, nonce, price, offerExpire, fee');
+    //console.log(order.size);
+    //console.log(order.isBuy);
+    //console.log(order.nonce);
+    //console.log(order.price);
+    //console.log(order.offerExpire);
+    //console.log(order.fee);
+    //console.log('common: baseAsset, quoteAsset, expiry, strike');
+    //console.log(common.baseAsset);
+    //console.log(common.quoteAsset);
+    //console.log(common.expiry);
+    //console.log(common.strike);
+    //console.log('hashSmallOrder, getSignedHash, ecrecover');
+    //console.logBytes32(hashSmallOrder(order, common));
+    //console.logBytes32(getSignedHash(hashSmallOrder(order, common)));
+    //console.log(ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s));
     address recovered = ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s);
     require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
     return recovered;
@@ -201,47 +200,99 @@ contract ShrubExchange {
     emit Withdraw(msg.sender, token, amount);
   }
 
-  function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) orderMatches(sellOrder, buyOrder, common) public {
+  function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) public {
+    (address buyer, address seller, bytes32 positionHash) = doPartialMatch(sellOrder, buyOrder, common, sellSig, buySig);
+    emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
+    userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
+    userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
+  }
+
+  function doPartialMatch(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig)
+  orderMatches(sellOrder, buyOrder, common)
+  internal returns(address, address, bytes32) {
     address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
     bytes32 positionHash = hashOrderCommon(common);
 
-      console.log('seller', seller);
-      console.log('sellerNonce', getCurrentNonce(seller, common.quoteAsset, common.baseAsset));
-      console.log('buyer', buyer);
-      console.log('buyerNonce', getCurrentNonce(buyer, common.quoteAsset, common.baseAsset));
-      console.log('common.quoteAsset', common.quoteAsset);
-      console.log('sellOrder.size', sellOrder.size);
-      console.log('availableBalance', getAvailableBalance(seller, common.quoteAsset));
+    //console.log('seller', seller);
+    //console.log('sellerNonce', getCurrentNonce(seller, common.quoteAsset, common.baseAsset));
+    //console.log('buyer', buyer);
+    //console.log('buyerNonce', getCurrentNonce(buyer, common.quoteAsset, common.baseAsset));
+    //console.log('common.quoteAsset', common.quoteAsset);
+    //console.log('sellOrder.size', sellOrder.size);
+    //console.log('availableBalance', getAvailableBalance(seller, common.quoteAsset));
 
     require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1, "Seller nonce incorrect");
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
 
     if(common.optionType == OptionType.CALL) {
-//      console.log(sellOrder);
-//      console.log(common);
-//      console.log(sellSig);
+      console.log("Seller balance");
+      console.log(seller);
+      console.log(getAvailableBalance(seller, common.quoteAsset));
+      console.log("Buyer balance");
+      console.log(buyer);
+      console.log(getAvailableBalance(buyer, common.baseAsset));
+
       require(getAvailableBalance(seller, common.quoteAsset) >= sellOrder.size, "Call Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price * buyOrder.size, "Call Buyer must have enough free collateral");
+      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price, "Call Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.quoteAsset] += sellOrder.size;
-      userTokenBalances[seller][common.baseAsset] += sellOrder.price * buyOrder.size;
-      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price * buyOrder.size;
+      userTokenBalances[seller][common.baseAsset] += sellOrder.price;
+      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price;
     }
 
     if(common.optionType == OptionType.PUT) {
       require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike, "Put Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price * buyOrder.size, "Put Buyer must have enough free collateral");
+      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price, "Put Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike;
-      userTokenBalances[seller][common.quoteAsset] += sellOrder.price * buyOrder.size;
-      userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price * buyOrder.size;
+      userTokenBalances[seller][common.quoteAsset] += sellOrder.price;
+      userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price;
     }
 
     userOptionPosition[seller][positionHash] -= int(buyOrder.size);
     userOptionPosition[buyer][positionHash] += int(buyOrder.size);
 
-    emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
-    userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
-    userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
+    return (buyer, seller, positionHash);
+  }
+
+  function matchOrders(SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public {
+    uint sellIndex = 0;
+    uint buyIndex = 0;
+    uint sellFilled = 0;
+    uint buyFilled = 0;
+    uint sellsLen = sellOrders.length;
+    uint buysLen = buyOrders.length;
+    while(sellIndex < sellOrders.length && buyIndex < buysLen) {
+      SmallOrder memory sellOrder = sellOrders[sellIndex];
+      OrderCommon memory common = commons[sellIndex];
+      Signature memory sellSig = sellSigs[sellIndex];
+      SmallOrder memory buyOrder = buyOrders[buyIndex];
+      Signature memory buySig = buySigs[buyIndex];
+      (address buyer, address seller, bytes32 positionHash) = doPartialMatch(sellOrder, buyOrder, common, sellSig, buySig);
+
+      if(sellOrder.size - sellFilled >= buyOrder.size - buyFilled) {
+        sellFilled += buyOrder.size;
+        buyIndex++;
+        if(sellFilled == sellOrder.size || buyIndex == buysLen) {
+          sellIndex++;
+          userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
+          // calculate remainder of selling order and add it to internal offers
+          sellFilled = 0;
+        }
+        emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
+        userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
+      } else if (sellOrder.size - sellFilled < buyOrder.size - buyFilled) {
+        buyFilled += sellOrder.size;
+        sellIndex++;
+        if(buyFilled == buyOrder.size || sellIndex == sellsLen) {
+          buyIndex++;
+          userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
+          // calculate remainder of buying order and add it to internal offers
+          buyFilled = 0;
+        }
+        emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
+        userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
+      }
+    }
   }
 
   function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {

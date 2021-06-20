@@ -39,6 +39,7 @@ contract("ShrubExchange", (accounts) => {
     fakeToken = await FakeToken.deployed();
     orderTypeHash = await exchange.ORDER_TYPEHASH.call();
 
+    Assets.USDC = fakeToken.address;
     sellOrder.baseAsset = fakeToken.address;
     buyOrder.baseAsset = fakeToken.address;
 
@@ -50,7 +51,7 @@ contract("ShrubExchange", (accounts) => {
       accounts.push(created.address);
     }
     console.log({ accounts });
-    await fakeToken.transfer(accounts[1], 1000, { from: accounts[0] });
+    await fakeToken.transfer(accounts[1], 10000, { from: accounts[0] });
   });
 
   it("should hash an order and match the contract's hash", async () => {
@@ -215,12 +216,12 @@ contract("ShrubExchange", (accounts) => {
 
     // Make sure the nonces match what we expect
     const sellerNonce = await exchange.getCurrentNonce(
-      accounts[0],
+      seller,
       common.quoteAsset,
       common.baseAsset
     );
     const buyerNonce = await exchange.getCurrentNonce(
-      accounts[0],
+      buyer,
       common.quoteAsset,
       common.baseAsset
     );
@@ -235,7 +236,7 @@ contract("ShrubExchange", (accounts) => {
 
     // Make sure we've got balance available for seller
     const sellerBalance = await exchange.getAvailableBalance(
-      accounts[0],
+      seller,
       common.quoteAsset
     );
     if (sellOrder.optionType == 1) {
@@ -288,6 +289,150 @@ contract("ShrubExchange", (accounts) => {
     const paid = { paidToken, paidBalance: paidBalance.toNumber() };
 
     console.log({ signedBuyOrder, signedSellOrder, sellerLockedBalance, paid });
+  });
+
+
+  it("should be able to match array of orders", async () => {
+    const seller = accounts[0];
+    const buyer = accounts[1];
+
+    // Deposit ETH
+    await exchange.deposit(Assets.ETH, 200, { value: 200, from: seller });
+
+    // Deposit ERC20 to pay PRICE
+    await fakeToken.approve(exchange.address, 300, { from: buyer });
+    await exchange.deposit(fakeToken.address, 300, { from: buyer });
+
+
+
+    const base = {
+      price: 100,
+      offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
+      fee: 1,
+
+      baseAsset: Assets.USDC,
+      quoteAsset: Assets.ETH,
+      expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
+      strike: 100,
+      optionType: 1,
+    }
+
+    const sellerLockedBalanceBefore = (
+      await exchange.userTokenLockedBalance(seller, Assets.ETH)
+    ).toNumber();
+
+
+    const sellerTokenBalanceBefore = (await exchange.userTokenBalances(seller, Assets.USDC)).toNumber();
+
+    const sellerNonce = (await exchange.getCurrentNonce(
+      seller,
+      Assets.ETH,
+      Assets.USDC
+    )).toNumber();
+
+
+    const buyerNonce = (await exchange.getCurrentNonce(
+      buyer,
+      Assets.ETH,
+      Assets.USDC
+    )).toNumber();
+
+    console.log({buyerNonce, sellerNonce});
+
+    let sellOrders = [{
+      size: 1,
+      isBuy: false,
+      nonce: sellerNonce + 1,
+      ...base
+    }, {
+      size: 1,
+      isBuy: false,
+      nonce: sellerNonce + 2,
+      ...base
+    }, {
+      size: 1,
+      isBuy: false,
+      nonce: sellerNonce + 3,
+      ...base
+    }];
+
+    let buyOrders = [{
+      ...base,
+      size: 2,
+      isBuy: true,
+      nonce: buyerNonce + 1
+    }, {
+      ...base,
+      size: 1,
+      isBuy: true,
+      nonce: buyerNonce + 2
+    }];
+
+    // Sign orders
+    const signedSellOrders = await Promise.all(sellOrders.map(s => shrubInterface.signOrderWithWeb3(
+      web3,
+      orderTypeHash,
+      s,
+      seller
+    )));
+
+    const signedBuyOrders = await Promise.all(buyOrders.map(b => shrubInterface.signOrderWithWeb3(
+      web3,
+      orderTypeHash,
+      b,
+      buyer
+    )));
+
+    // Filter off properties
+    const smallSellOrders = sellOrders.map(s => shrubInterface.toSmallOrder(s));
+    const smallBuyOrders = buyOrders.map(b => shrubInterface.toSmallOrder(b));
+    const commons = sellOrders.map(s => shrubInterface.toCommon(s));
+
+    for(const b of signedBuyOrders) {
+      const buyerRecovered = await exchange.getAddressFromSignedOrder(
+        shrubInterface.toSmallOrder(b.order),
+        commons[0],
+        b.sig
+      );
+      assert.equal(buyer, buyerRecovered, "Buyer should match");
+    }
+
+    // Match the order, make sure seller has correct amount of asset locked up
+    await exchange.matchOrders(
+      smallSellOrders,
+      smallBuyOrders,
+      commons,
+      signedSellOrders.map(o => o.sig),
+      signedBuyOrders.map(o => o.sig),
+      { from: accounts[0] }
+    );
+
+    const sellerLockedBalance = (
+      await exchange.userTokenLockedBalance(seller, Assets.ETH)
+    ).toNumber();
+
+    if (sellOrder.optionType == 1) {
+      assert.equal(
+        3 + sellerLockedBalanceBefore,
+        sellerLockedBalance,
+        "Seller should have 3 locked up for CALLS"
+      );
+    } else {
+      assert.equal(
+        300 + sellerLockedBalanceBefore,
+        sellerLockedBalance,
+        "Seller should have 300 locked up for PUTS"
+      );
+    }
+
+    // Make sure the buyer paid us sellOrder.price
+    const paidToken =
+      sellOrder.optionType == 1 ? fakeToken.address : Assets.ETH;
+    const paidBalance = (await exchange.userTokenBalances(seller, paidToken)).toNumber();
+    assert.equal(paidBalance - sellerTokenBalanceBefore, 100 * 3);
+    const paid = { paidToken, paidBalance };
+
+    console.log({ sellerLockedBalance, paid });
   });
 
   it("should have an option position", async () => {
