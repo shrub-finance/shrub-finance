@@ -1,8 +1,6 @@
 import { ethers } from "ethers";
 import {FakeToken__factory} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
-// import {FakeToken__factory} from "../types/ethers-v5";
-// import {ShrubExchange__factory} from "../types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
   IOrder,
@@ -14,11 +12,9 @@ import {
 } from "../types";
 import { Shrub712 } from "./EIP712";
 import Web3 from "web3";
-import {add} from "husky";
 
 declare let window: any;
 
-console.log(process.env);
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const FK_TOKEN_ADDRESS = process.env.REACT_APP_FK_TOKEN_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
@@ -322,34 +318,16 @@ export async function matchOrder(params: {
       address: seller,
       tokenContractAddress: common.quoteAsset,
     });
-    console.log(`quoteAsset: ${quoteAsset}`);
-    console.log(`seller: ${seller}`);
-    console.log(`buyer: ${buyer}`);
-    console.log(`sellerQuoteAssetBalance: ${sellerQuoteAssetBalance}`);
-    console.log(`sellOrder.size: ${sellOrder.size}`);
     if (sellerQuoteAssetBalance.lt(sellOrder.size)) {
       throw new Error(
         `sellerQuoteAssetBalance: ${sellerQuoteAssetBalance} must be larger than the sellOrder size: ${sellOrder.size}`
       );
     }
-    const buyerBaseAssetBalance = await getAvailableBalance({
-      address: buyer,
-      tokenContractAddress: common.baseAsset,
-    });
-    console.log(`buyerBaseAssetBalance: ${buyerBaseAssetBalance}`);
-    console.log(`sellOrder.price: ${sellOrder.price}`);
-    console.log(`buyOrder.size: ${buyOrder.size}`);
   } else {
     //  PUT OPTION
   }
 
   console.log({ sellOrder, buyOrder, common, sellSig, buySig });
-  console.log(await signer.getAddress());
-  console.log(signedSellOrder);
-  const addressFromSell = await validateOrderAddress(signedSellOrder);
-  console.log(addressFromSell);
-  const addressFromBuy = await validateOrderAddress(signedBuyOrder);
-  console.log(addressFromBuy);
   return shrubContract.matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
 }
 
@@ -388,9 +366,6 @@ export async function getFilledOrders(
       };
     }
   }
-  console.log(sellOrdersMatched);
-  console.log(buyOrdersMatched);
-  console.log(openOrders);
   return openOrders;
 }
 

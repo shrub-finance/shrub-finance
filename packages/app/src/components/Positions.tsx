@@ -18,7 +18,8 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  Box, ComponentWithAs, TableRowProps,
+  Box,
+  TableRowProps
 } from "@chakra-ui/react";
 
 import {
@@ -26,15 +27,16 @@ import {
   depositToken,
   withdraw,
   getAvailableSignerBalance,
-  approveToken, getSignerAddress, getFilledOrders,
+  approveToken,
+  getSignerAddress,
+  getFilledOrders
 } from "../utils/ethMethods";
 import UpdatePositions from "./UpdatePositions";
 import { Balance } from "../types";
 import { Currencies } from "../constants/currencies";
-import {ReactJSXElement} from "@emotion/react/types/jsx-namespace";
 
 function Positions({ walletBalance }: { walletBalance: Balance }) {
-  const tableRows:ReactJSXElement[] = [];
+  const tableRows:TableRowProps[] = [];
   const tableRowsOptions:any = [];
   const [action, setAction] = React.useState("");
 
@@ -61,15 +63,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
       const filledOrders = await getFilledOrders(address);
       // Populate Option Positions Table
       for (const [positionHash, details] of Object.entries(filledOrders)) {
-        // <Th>Pair</Th>
-        // <Th>Strike</Th>
-        // <Th>Expiry</Th>
-        // <Th>Option Type</Th>
-        // <Th>Amount</Th>
-        // @ts-ignore
-        const {pair, strike, expiry, optionType, amount} = details;
-        console.log(pair, strike, expiry, optionType, amount)
-        console.log('did this')
+        const {pair, strike, expiry, optionType, amount} = details as {baseAsset: string, quoteAsset: string, pair: string, strike: string, expiry: string, optionType:string, amount:number};
         tableRowsOptions.push(
             <Tr>
               <Td>{pair}</Td>
@@ -80,7 +74,6 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             </Tr>
         )
       }
-      console.log(tableRowsOptions);
       setOptionsRows(tableRowsOptions);
     }
     inner().catch(console.error);
