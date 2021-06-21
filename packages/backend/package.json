@@ -6,7 +6,7 @@
   "scripts": {
     "test": "",
     "compile": "tsc",
-    "start": "npm run compile; node ts_build/index.js"
+    "start": "yarn compile; node ts_build/index.js"
   },
   "repository": {
     "type": "git",
