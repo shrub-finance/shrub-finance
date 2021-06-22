@@ -17,13 +17,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalCloseButton,
-  ModalFooter,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
-import ConnectWalletsView, { Account } from "./ConnectWallets";
-import { useWeb3React } from "@web3-react/core";
-import { toBech32 } from "@harmony-js/crypto";
+import ConnectWalletsView from "./ConnectWallets";
 
 const NavLinks = ["Shrub"];
 const NavLink = ({ children }: { children: ReactNode }) => (
@@ -44,7 +41,6 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -110,7 +106,6 @@ function TopNav() {
           <ModalBody>
             <ConnectWalletsView />
           </ModalBody>
-          <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
     </>

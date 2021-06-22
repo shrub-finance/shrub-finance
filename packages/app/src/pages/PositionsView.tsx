@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Positions from "../components/Positions";
-import WalletBalance from "../components/WalletBalance";
 import { getWalletBalance } from "../utils/ethMethods";
 import { Balance } from "../types";
 import { Currencies } from "../constants/currencies";

@@ -24,7 +24,6 @@ import {
   Stack,
   HStack,
   useRadioGroup,
-  Container,
 } from "@chakra-ui/react";
 
 import {
@@ -238,10 +237,10 @@ function Options({
         </Box>
         <Box h={height}>
           <Stack spacing={4} direction="row" align="center">
-            <Button colorScheme="teal" onClick={onOpen}>
+            <Button colorScheme="teal" onClick={onOpen} size="sm">
               {isBuy ? "Limit Buy" : "Limit Sell"}
             </Button>
-            <Button colorScheme="teal" onClick={matchOrderRow}>
+            <Button colorScheme="teal" onClick={matchOrderRow} size="sm">
               {isBuy ? "Market Buy" : "Market Sell"}
             </Button>
           </Stack>
