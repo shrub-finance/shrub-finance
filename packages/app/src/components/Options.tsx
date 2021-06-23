@@ -103,7 +103,7 @@ function Options({
     const unsignedOrder = {
       size: amount,
       isBuy,
-      optionType: isCall ? 0 : 1,
+      optionType: isCall ? 1 : 0,
       baseAsset,
       quoteAsset,
       expiry: toEthDate(new Date(expiryDate)),

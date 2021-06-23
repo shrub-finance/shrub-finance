@@ -6,12 +6,14 @@
   "author": "",
   "license": "ISC",
   "main": "index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "start": "lerna run start --parallel",
-    "contracts": "cd packages/contracts && npm start",
-    "app": "cd packages/app && npm start",
-    "backend": "cd packages/backend && npm start",
-    "postinstall": "lerna bootstrap",
+    "contracts": "yarn workspace @shrub/contracts start",
+    "app": "yarn workspace @shrub/app start",
+    "backend": "yarn workspace @shrub/backend start",
     "prepare": "husky install",
     "test": "mocha"
   },
