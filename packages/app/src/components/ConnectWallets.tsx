@@ -140,7 +140,7 @@ export function Account() {
   return (
     <>
       <Button
-        leftIcon={<span ref={ref as any}></span>}
+        leftIcon={account ? <span ref={ref as any}/> : undefined}
         variant={"solid"}
         colorScheme={"teal"}
         size={"sm"}
@@ -190,7 +190,6 @@ function ConnectWallets() {
         </Stack>
       )}
       <ConnectionStatus />
-      <Account />
       <>
         {Object.keys(connectorsByName).map((name) => {
           // @ts-ignore
@@ -248,7 +247,7 @@ function ConnectWallets() {
                 </Box>
                 <Spacer />
                 <Box p={4}>
-                  <WalletIconName type={name} />
+                  <WalletIconName type={name} key={name}/>
                 </Box>
               </Flex>
             </Stack>

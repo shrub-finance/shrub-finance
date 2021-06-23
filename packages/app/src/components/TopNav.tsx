@@ -70,15 +70,11 @@ function TopNav() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            <Button
+            <Box
               onClick={onOpen}
-              variant={"solid"}
-              colorScheme={"teal"}
-              size={"sm"}
-              mr={4}
             >
               <Account/>
-            </Button>
+            </Box>
             <Button onClick={toggleColorMode}>
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
             </Button>
