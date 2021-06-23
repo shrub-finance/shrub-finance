@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import {
   Box,
   Flex,
+  Text,
   HStack,
   Link,
   IconButton,
@@ -40,7 +41,6 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -70,9 +70,6 @@ function TopNav() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            {/*<Link as={ReachLink} to="connect">*/}
-            {/*  Connect Wallet*/}
-            {/*</Link>*/}
             <Button
               onClick={onOpen}
               variant={"solid"}
@@ -82,7 +79,6 @@ function TopNav() {
             >
               Connect Wallet
             </Button>
-
             <Button onClick={toggleColorMode}>
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
             </Button>
@@ -103,7 +99,9 @@ function TopNav() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
-          <ModalHeader>Connect Wallet</ModalHeader>
+          <ModalHeader>
+            <Text fontSize={20}>Connect to a wallet</Text>
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <ConnectWalletsView />

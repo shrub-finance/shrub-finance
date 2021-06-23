@@ -1,4 +1,10 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import {
+  CoinbaseIcon,
+  LedgerIcon,
+  MetaMaskIcon,
+  WalletConnectIcon,
+} from "../assets/Icons";
 import {
   Web3ReactProvider,
   useWeb3React,
@@ -20,19 +26,32 @@ import {
   walletlink,
   ledger,
 } from "../utils/connectors";
-import { Spinner } from "./Spinner";
+import { toBech32 } from "@harmony-js/crypto";
+import Jazzicon from "@metamask/jazzicon";
+import {
+  Alert,
+  AlertIcon,
+  Badge,
+  Box,
+  Button,
+  Stack,
+  Spinner,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { Flex, Spacer } from "@chakra-ui/react";
+import { CheckCircleIcon } from "@chakra-ui/icons";
 
 enum ConnectorNames {
-  Metamask = "Metamask",
-  WalletConnect = "WalletConnect",
-  WalletLink = "WalletLink",
+  MetaMask = "MetaMask",
+  WalletConnect = "Wallet Connect",
+  CoinbaseWallet = "Coinbase Wallet",
   Ledger = "Ledger",
 }
 
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
-  [ConnectorNames.Metamask]: injected,
+  [ConnectorNames.MetaMask]: injected,
   [ConnectorNames.WalletConnect]: walletconnect,
-  [ConnectorNames.WalletLink]: walletlink,
+  [ConnectorNames.CoinbaseWallet]: walletlink,
   [ConnectorNames.Ledger]: ledger,
 };
 
@@ -47,6 +66,9 @@ function getErrorMessage(error: Error) {
     error instanceof UserRejectedRequestErrorFrame
   ) {
     return "Please authorize this website to access your Ethereum account.";
+  } else if (error.message) {
+    console.error(error);
+    return error.message;
   } else {
     console.error(error);
     return "An unknown error occurred. Check the console for more details.";
@@ -66,25 +88,78 @@ function getLibrary(provider: any): Web3Provider | Harmony {
   return library;
 }
 
-// @ts-ignore
-export default function ConnectWalletsView(RouteComponentProps) {
+function ConnectionStatus() {
+  const { active, error, deactivate } = useWeb3React();
+
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <ConnectWallets />
-    </Web3ReactProvider>
+    <>
+      {active && !error ? (
+        <Flex mb="10px">
+          <Spacer />
+          <Badge
+            borderRadius="md"
+            cursor="pointer"
+            variant="outline"
+            onClick={() => {
+              deactivate();
+            }}
+          >
+            Disconnect
+          </Badge>
+        </Flex>
+      ) : (
+        <Flex mb="10px">
+          <Spacer />
+          <Badge
+            borderRadius="md"
+            variant="outline"
+            colorScheme={active ? "green" : error ? "red" : "yellow"}
+          >
+            {!active && !error && "Not Connected"}
+          </Badge>
+        </Flex>
+      )}
+    </>
   );
 }
 
-function Header() {
-  const { active, error } = useWeb3React();
+export function Account() {
+  const ref = useRef<HTMLDivElement>();
+  let { account, library } = useWeb3React();
+  const isHmyLibrary = library?.messenger?.chainType === "hmy";
+  account = isHmyLibrary && account ? toBech32(account) : account;
 
-  return <>{active ? "🟢" : error ? "🔴" : "🟠"}</>;
+  useEffect(() => {
+    if (account && ref.current) {
+      ref.current.innerHTML = "";
+      ref.current.appendChild(Jazzicon(16, parseInt(account.slice(2, 10), 16)));
+    }
+  }, [account]);
+
+  return (
+    <>
+      <Button
+        leftIcon={<span ref={ref as any}></span>}
+        variant={"solid"}
+        colorScheme={"teal"}
+        size={"sm"}
+        mr={4}
+      >
+        {account === null
+          ? "-"
+          : account
+          ? `${account.substring(0, 6)}...${account.substring(
+              account.length - 4
+            )}`
+          : "Connect Wallet"}
+      </Button>
+    </>
+  );
 }
 
 function ConnectWallets() {
   const context = useWeb3React();
   const { connector, activate, error } = context;
-
   // handle logic to recognize the connector currently being activated
   const [activatingConnector, setActivatingConnector] = React.useState<any>();
   React.useEffect(() => {
@@ -92,25 +167,30 @@ function ConnectWallets() {
       setActivatingConnector(undefined);
     }
   }, [activatingConnector, connector]);
-
   // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
   const triedEager = useEagerConnect();
-
   // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
   useInactiveListener(!triedEager || !!activatingConnector);
 
+  const shadow = useColorModeValue("base", "dark-lg");
+  const gradient = useColorModeValue(
+    "linear(to-r, blue.100, teal.200)",
+    "linear(to-l, blue.700, teal.700)"
+  );
+
   return (
     <>
-      <Header />
-      <div
-        style={{
-          display: "grid",
-          gridGap: "1rem",
-          gridTemplateColumns: "1fr 1fr",
-          maxWidth: "20rem",
-          margin: "auto",
-        }}
-      >
+      {!!error && (
+        <Stack spacing={3}>
+          <Alert status="error" borderRadius={9} mb={4}>
+            <AlertIcon />
+            {getErrorMessage(error)}
+          </Alert>
+        </Stack>
+      )}
+      <ConnectionStatus />
+      {/*<Account />*/}
+      <>
         {Object.keys(connectorsByName).map((name) => {
           // @ts-ignore
           const currentConnector = connectorsByName[name];
@@ -118,63 +198,70 @@ function ConnectWallets() {
           const connected = currentConnector === connector;
           const disabled =
             !triedEager || !!activatingConnector || connected || !!error;
-
+          function WalletIconName(props: any) {
+            switch (props.type) {
+              case "MetaMask":
+                return <MetaMaskIcon boxSize={8} />;
+              case "Coinbase Wallet":
+                return <CoinbaseIcon boxSize={8} />;
+              case "Wallet Connect":
+                return <WalletConnectIcon boxSize={8} />;
+              case "Ledger":
+                return <LedgerIcon boxSize={8} />;
+              default:
+                return <MetaMaskIcon boxSize={8} />;
+            }
+          }
           return (
-            <button
-              style={{
-                height: "3rem",
-                borderRadius: "1rem",
-                borderColor: activating
-                  ? "orange"
-                  : connected
-                  ? "green"
-                  : "unset",
-                cursor: disabled ? "unset" : "pointer",
-                position: "relative",
-              }}
-              disabled={disabled}
-              key={name}
-              onClick={() => {
-                setActivatingConnector(currentConnector);
-                // @ts-ignore
-                activate(connectorsByName[name]);
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: "0",
-                  left: "0",
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  color: "black",
-                  margin: "0 0 0 1rem",
+            <Stack spacing={8}>
+              <Flex
+                cursor="pointer"
+                p={3}
+                mb={5}
+                boxShadow={shadow}
+                rounded="lg"
+                _hover={{ bgGradient: gradient }}
+                disabled={disabled}
+                onClick={() => {
+                  setActivatingConnector(currentConnector);
+                  // @ts-ignore
+                  activate(connectorsByName[name]);
                 }}
               >
-                {activating && (
-                  <Spinner
-                    color={"black"}
-                    style={{ height: "25%", marginLeft: "-1rem" }}
-                  />
-                )}
-                {connected && (
-                  <span role="img" aria-label="check">
-                    ✅
-                  </span>
-                )}
-              </div>
-              {name}
-            </button>
+                <Box p="4" fontSize={20}>
+                  {activating && (
+                    <Spinner
+                      mr={2}
+                      thickness="1px"
+                      speed="0.65s"
+                      emptyColor="blue.200"
+                      color="teal.500"
+                      size="xs"
+                      label="loading"
+                    />
+                  )}
+                  {connected && (
+                    <CheckCircleIcon color="teal.400" mr={2} boxSize={3} />
+                  )}
+                  {name}
+                </Box>
+                <Spacer />
+                <Box p={4}>
+                  <WalletIconName type={name} />
+                </Box>
+              </Flex>
+            </Stack>
           );
         })}
-      </div>
-
-      {!!error && (
-        <h4 style={{ marginTop: "1rem", marginBottom: "0" }}>
-          {getErrorMessage(error)}
-        </h4>
-      )}
+      </>
     </>
+  );
+}
+
+export default function ConnectWalletsView() {
+  return (
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <ConnectWallets />
+    </Web3ReactProvider>
   );
 }

@@ -3,7 +3,6 @@ import PositionsView from "./pages/PositionsView";
 import TopNav from "./components/TopNav";
 import { Router } from "@reach/router";
 import HomeView from "./pages/HomeView";
-import ConnectWalletsView from "./components/ConnectWallets";
 
 function App() {
   return (
@@ -11,7 +10,6 @@ function App() {
       <TopNav />
       <Router>
         <HomeView path="/" />
-        <ConnectWalletsView path="connect" />
         <PositionsView path="positions" />
         <OptionsView path="options" />
       </Router>

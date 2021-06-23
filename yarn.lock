@@ -5127,6 +5127,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/jazzicon@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@metamask/jazzicon@npm:2.0.0"
+  dependencies:
+    color: ^0.11.3
+    mersenne-twister: ^1.1.0
+  checksum: e5c110e009ee37e0f73718b90144abc51f8cd4312fcdaafc02b3394dfc9eb8a7470306a61cbe84bdb5aa981f56efbfd886cc5acdb3c6d0fa1f7cc67006420ce2
+  languageName: node
+  linkType: hard
+
 "@metamask/safe-event-emitter@npm:2.0.0, @metamask/safe-event-emitter@npm:^2.0.0":
   version: 2.0.0
   resolution: "@metamask/safe-event-emitter@npm:2.0.0"
@@ -5775,6 +5785,7 @@ __metadata:
     "@emotion/react": 11.1.5
     "@emotion/styled": 11.1.5
     "@harmony-js/core": 0.1.57
+    "@metamask/jazzicon": 2.0.0
     "@reach/router": 1.3.4
     "@shrub/contracts": ^1.0.0
     "@testing-library/jest-dom": 5.11.9
@@ -6308,14 +6319,14 @@ __metadata:
   linkType: hard
 
 "@typechain/hardhat@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "@typechain/hardhat@npm:2.0.2"
+  version: 2.1.0
+  resolution: "@typechain/hardhat@npm:2.1.0"
   dependencies:
     fs-extra: ^9.1.0
   peerDependencies:
     hardhat: ^2.0.10
     typechain: ^5.0.0
-  checksum: 13e0e51e67374a2a77623e90d40d397cdf4ab6ae847b3b678f3105ed4091d7c694c331140abcb44de4f149355b629c3f4f4e73bb67d4cf767c9a0c44ea772fa9
+  checksum: 69e33827f09921e358b69171b4bdd8c56850ea433695a9db375d6765f08c0b391d4fb5ff1045a28e29ca80a86a1bfa6d54ddd399cf5b58286c72e57cb095beda
   languageName: node
   linkType: hard
 
@@ -10870,7 +10881,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-convert@npm:^1.9.0, color-convert@npm:^1.9.1":
+"color-convert@npm:^1.3.0, color-convert@npm:^1.9.0, color-convert@npm:^1.9.1":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
   dependencies:
@@ -10902,6 +10913,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"color-string@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "color-string@npm:0.3.0"
+  dependencies:
+    color-name: ^1.0.0
+  checksum: 5e5a0004b81541dfc84f6a826c12e2b683260190f21884c048e67ab453a6dac2467da47d68e32dd85ae8944e52e4557a59b43dfcc20af3aa359d0f029d106214
+  languageName: node
+  linkType: hard
+
 "color-string@npm:^1.5.4":
   version: 1.5.5
   resolution: "color-string@npm:1.5.5"
@@ -10909,6 +10929,17 @@ __metadata:
     color-name: ^1.0.0
     simple-swizzle: ^0.2.2
   checksum: 3d7799f70d389214757c83bdc27380081dbeee18f90148b883ff7e86e9a599c68ccb8a956b7175e761dcd98d1061fdc58ca89ca4b1f6ca20f8ce05cc8c4e564a
+  languageName: node
+  linkType: hard
+
+"color@npm:^0.11.3":
+  version: 0.11.4
+  resolution: "color@npm:0.11.4"
+  dependencies:
+    clone: ^1.0.2
+    color-convert: ^1.3.0
+    color-string: ^0.3.0
+  checksum: 81ec590160b1923363c14034cebffe28e148a0c507326b4f131526f8c2e1a0354773fd8245762623876b37f0a552c7b1800388c900839ab3e56ffda291c7693f
   languageName: node
   linkType: hard
 
@@ -20130,6 +20161,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"mersenne-twister@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "mersenne-twister@npm:1.1.0"
+  checksum: e95c91184cd42cf7e4d86722a4f322fd70e95b9bc164b96409e2280abea38c9f82205611c07b5d964cd8d5220633d8f0266e8f5a52b951eea25f02d75aaaf275
+  languageName: node
+  linkType: hard
+
 "methods@npm:~1.1.2":
   version: 1.1.2
   resolution: "methods@npm:1.1.2"
@@ -21220,6 +21258,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"normalize-url@npm:4.5.0":
+  version: 4.5.0
+  resolution: "normalize-url@npm:4.5.0"
+  checksum: 09794941dbe5c7b91caf6f3cd1ae167c27f6d09793e4a03601a68b62de7e8ee9e5de21a246130cdbab98b01481de292f9556d492444a527648f9cf1220e4b0df
+  languageName: node
+  linkType: hard
+
 "normalize-url@npm:^3.0.0":
   version: 3.3.0
   resolution: "normalize-url@npm:3.3.0"
@@ -21231,13 +21276,6 @@ fsevents@~2.1.1:
   version: 4.5.1
   resolution: "normalize-url@npm:4.5.1"
   checksum: 31dd05ad33cc649d5c1cd390f1e494d36bdcd3c0a440fd873290ffc5d4f838e2d0c1f4e9c29c9395d4907318cd8c0aaa759af336ac04ec0bd6fecb62ef1f4556
-  languageName: node
-  linkType: hard
-
-"normalize-url@npm:^6.0.1":
-  version: 6.1.0
-  resolution: "normalize-url@npm:6.1.0"
-  checksum: 5fb69e98c149f4a54a7bb0f1904cc524627c0d23327a9feafacacf135d01d9595c65e80ced6f27c17c1959541ea732815b604ff8a6ec52ec3fe7a391b92cfba9
   languageName: node
   linkType: hard
 
@@ -22109,14 +22147,14 @@ fsevents@~2.1.1:
   linkType: hard
 
 "parse-url@npm:^5.0.0":
-  version: 5.0.3
-  resolution: "parse-url@npm:5.0.3"
+  version: 5.0.5
+  resolution: "parse-url@npm:5.0.5"
   dependencies:
     is-ssh: ^1.3.0
-    normalize-url: ^6.0.1
+    normalize-url: 4.5.0
     parse-path: ^4.0.0
     protocols: ^1.4.0
-  checksum: 4f333974d82709f42e999f7992c86e750593def38bf47d350aa9ccbeef940578115da63646ab0c78bfdcde3db86bfa6456e00978d25ef1043369004211087772
+  checksum: e4b3226d10b754a4bd72391ba7f654b301f9e92412da46a372ae7210458fa2b2eb2b6609106c679cd61641648ba9b945adf358b550520e2334a58790ec1f1068
   languageName: node
   linkType: hard
 
@@ -28038,8 +28076,8 @@ resolve@^2.0.0-next.3:
   linkType: hard
 
 "typechain@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "typechain@npm:5.0.0"
+  version: 5.1.0
+  resolution: "typechain@npm:5.1.0"
   dependencies:
     "@types/prettier": ^2.1.1
     command-line-args: ^4.0.7
@@ -28052,7 +28090,7 @@ resolve@^2.0.0-next.3:
     ts-essentials: ^7.0.1
   bin:
     typechain: dist/cli/cli.js
-  checksum: c174cfecf71f1e24450f8be5e7dd5b0e988ba94c118ce0c492cb36de080166c42318d2a4d8bbb0e904e987a4191fab7ff09842448e759797811ec093a38a3ab0
+  checksum: 3b56f02086b8b0cacc357eff91dedcb6c05058af1b29f4487f7e1bb051a598f2070fba45daa90efcce9a3c19e4fe712d92b45466c9d27e4a3e00aa574dc9fae7
   languageName: node
   linkType: hard
 
