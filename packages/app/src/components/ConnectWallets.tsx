@@ -88,20 +88,12 @@ function getLibrary(provider: any): Web3Provider | Harmony {
   return library;
 }
 
-// @ts-ignore
-export default function ConnectWalletsView(RouteComponentProps) {
-  return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <ConnectWallets />
-    </Web3ReactProvider>
-  );
-}
-
 function ConnectionStatus() {
   const { active, error, deactivate } = useWeb3React();
+
   return (
     <>
-      {active || error ? (
+      {active && !error ? (
         <Flex mb="10px">
           <Spacer />
           <Badge
@@ -123,11 +115,7 @@ function ConnectionStatus() {
             variant="outline"
             colorScheme={active ? "green" : error ? "red" : "yellow"}
           >
-            {active
-              ? "Connected"
-              : error
-              ? "Error Connecting"
-              : "Not Connected"}
+            {!active && !error && "Not Connected"}
           </Badge>
         </Flex>
       )}
@@ -267,5 +255,13 @@ function ConnectWallets() {
         })}
       </>
     </>
+  );
+}
+
+export default function ConnectWalletsView() {
+  return (
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <ConnectWallets />
+    </Web3ReactProvider>
   );
 }
