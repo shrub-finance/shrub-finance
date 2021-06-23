@@ -11,7 +11,9 @@ import {
   UnsignedOrder,
 } from "../types";
 import { Shrub712 } from "./EIP712";
+import { recoverTypedSignature_v4 } from "eth-sig-util";
 import Web3 from "web3";
+import {_TypedDataEncoder} from "@ethersproject/hash";
 
 declare let window: any;
 
@@ -49,36 +51,107 @@ export async function signOrder(unsignedOrder: UnsignedOrder) {
     ...unsignedOrder,
     optionType: unsignedOrder.optionType === OptionType.CALL ? 1 : 0,
   };
+  console.log(shrubInterface.domain);
   await window.ethereum.enable();
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = provider.getSigner();
 
   // TODO: change this to sign with ethers to enable EIP712 metamask view
   // Sign with shrubInterface
-  const web3 = new Web3(window.ethereum);
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer)
-  const orderTypeHash = await shrubContract.ORDER_TYPEHASH();
-  const address = await signer.getAddress();
-  const { order: resOrder, sig } = await shrubInterface.signOrderWithWeb3(
-    web3,
-    orderTypeHash,
-    order,
-    address
-  );
-  const signedOrder: IOrder = { ...resOrder, ...sig, address };
-  return signedOrder;
+  // const web3 = new Web3(window.ethereum);
+  // const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer)
+  // const orderTypeHash = await shrubContract.ORDER_TYPEHASH();
+  // const address = await signer.getAddress();
+  // const { order: resOrder, sig } = await shrubInterface.signOrderWithWeb3(
+  //   web3,
+  //   orderTypeHash,
+  //   order,
+  //   address
+  // );
+  // const signedOrder: IOrder = { ...resOrder, ...sig, address };
+  // return signedOrder;
+
+
+
 
   // Sign with ethers
-  /*
-    const domain = shrubInterface.domain;
-    const types = { Order: shrubInterface.types.Order };
-    const signature = await signer._signTypedData(domain, types, order);
-    const sig = signature.slice(2);
-    const r = "0x" + sig.substr(0, 64);
-    const s = "0x" + sig.substr(64, 64);
-    const v = parseInt("0x" + sig.substr(128, 2));
-    return { order, sig: { v, r, s } };
-  */
+  // /*
+  const domain = {
+    name: 'Shrub Trade',
+    version: '1',
+    chainId: 1337,
+    verifyingContract: SHRUB_CONTRACT_ADDRESS,
+    salt: ethers.utils.keccak256('0x43efba454ccb1b6fff2625fe562bdd9a23260359')
+  };
+  const types = {
+    Order: [
+      { name: "size", type: "uint256" },
+      { name: "isBuy", type: "bool" },
+      { name: "nonce", type: "uint256" },
+      { name: "price", type: "uint256" },
+      { name: "offerExpire", type: "uint256" },
+      { name: "fee", type: "uint256" },
+      { name: "baseAsset", type: "address" },
+      { name: "quoteAsset", type: "address" },
+      { name: "expiry", type: "uint256" },
+      { name: "strike", type: "uint256" },
+      { name: "optionType", type: "uint8" },
+    ],
+    EIP712Domain: [
+      { "name": "name", "type": "string" },
+      { "name": "version", "type": "string" },
+      { "name": "chainId", "type": "uint256" },
+      { "name": "verifyingContract", "type": "address" },
+      { "name": "salt", type: "bytes32" }
+    ]
+  };
+  // const domain = shrubInterface.domain;
+  // const types = { Order: shrubInterface.types.Order };
+  const {size, isBuy, nonce, price, offerExpire, fee, baseAsset, quoteAsset, expiry, strike, optionType } = order;
+  const formattedOrder = { size, isBuy, nonce, price, offerExpire, fee, baseAsset, quoteAsset, expiry, strike, optionType }
+  console.log(domain, types, formattedOrder);
+  // ethers.utils.Logger.setCensorship(false);
+  // ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.DEBUG);
+  provider.on('debug', (msg) => {
+    console.log('debug');
+    console.log(msg);
+  })
+  provider.on('block', (block) => {
+    console.log(block);
+  })
+
+  const address = await signer.getAddress();
+  console.log(address);
+  // console.log(JSON.stringify(_TypedDataEncoder.getPayload(domain, types, order)))
+  const msgParams = JSON.stringify({types, domain, primaryType: 'Order', message: formattedOrder});
+  console.log(msgParams);
+
+  // const signature = await signer._signTypedData(domain, types, formattedOrder);
+  const signature = await provider.send("eth_signTypedData_v4", [
+    address.toLowerCase(),
+    msgParams
+  ]);
+
+  const parsedMsgParams = JSON.parse(msgParams);
+  parsedMsgParams.types.EIP712Domain = [
+      { "name": "name", "type": "string" },
+      { "name": "version", "type": "string" },
+      { "name": "chainId", "type": "uint256" },
+      { "name": "verifyingContract", "type": "address" },
+      { "name": "salt", type: "bytes32" }
+    ]
+
+  console.log(signature);
+  const recoveredAddress = recoverTypedSignature_v4({data: parsedMsgParams, sig: signature})
+  console.log('recoveredAddress')
+  console.log(recoveredAddress);
+  const sig = signature.slice(2);
+  const r = '0x' + sig.substr(0, 64);
+  const s = '0x' + sig.substr(64, 64);
+  const v = parseInt('0x' + sig.substr(128, 2), 16);
+  // return { order, sig: { v, r, s } };
+  return { ...order, v, r, s, address}
+   // */
 
   // Sign with ethereum API
   /*

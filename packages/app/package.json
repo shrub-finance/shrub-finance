@@ -22,6 +22,7 @@
     "@web3-react/walletlink-connector": "6.2.0",
     "axios": "0.21.1",
     "chai": "4.3.3",
+    "eth-sig-util": "^3.0.1",
     "ethereumjs-abi": "0.6.8",
     "ethereumjs-util": "7.0.9",
     "ethers": "5.1.4",

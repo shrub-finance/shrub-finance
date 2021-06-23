@@ -5820,6 +5820,7 @@ __metadata:
     axios: 0.21.1
     chai: 4.3.3
     eslint-plugin-react-hooks: 4.2.0
+    eth-sig-util: ^3.0.1
     ethereumjs-abi: 0.6.8
     ethereumjs-util: 7.0.9
     ethers: 5.1.4
@@ -14024,6 +14025,18 @@ __metadata:
     tweetnacl: ^1.0.3
     tweetnacl-util: ^0.15.0
   checksum: af90ec88352c2a07fedf149ae7dd95b1a149b0d034b50c01007c383324567a74e1a2cad989010cb7271408b41ea9fb7005bce6f7151b4ecb30269e5abbddf1a4
+  languageName: node
+  linkType: hard
+
+"eth-sig-util@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "eth-sig-util@npm:3.0.1"
+  dependencies:
+    ethereumjs-abi: ^0.6.8
+    ethereumjs-util: ^5.1.1
+    tweetnacl: ^1.0.3
+    tweetnacl-util: ^0.15.0
+  checksum: ca706c4f2d62e43444b31a3449dda19df873babb72222832849344b43b127bd2b40b6c4402521d4fd1f500d66c121521cf9a713fbb5ef3934fb31e024a07bbe6
   languageName: node
   linkType: hard
 

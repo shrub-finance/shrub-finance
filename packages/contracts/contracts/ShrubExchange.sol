@@ -67,8 +67,8 @@ contract ShrubExchange {
     EIP712_DOMAIN_TYPEHASH,
     keccak256("Shrub Trade"),
     keccak256("1"),
-    1,
-    0x6e80C53f2cdCad7843aD765E4918298427AaC550,
+    1337,
+    0x6a9D4aF8BF697679f4441dDeD9E2B8F1F31D3e85,
     SALT
   ));
 

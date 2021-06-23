@@ -91,8 +91,9 @@ function Options({
 
   async function placeOrder() {
     const now = new Date();
-    const oneWeekFromNow = new Date(now);
-    oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
+    const oneWeekFromNow = new Date('2020-08-01');
+    // const oneWeekFromNow = new Date(now);
+    // oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
     const signerAddress = await getSignerAddress();
     const nonce =
       (await getUserNonce({
@@ -115,6 +116,8 @@ function Options({
     };
     try {
       const signedOrder = await signOrder(unsignedOrder);
+      console.log('signedOrder');
+      console.log(signedOrder);
       const verifiedAddress = await getAddressFromSignedOrder(signedOrder);
       console.log(`verifiedAddress: ${verifiedAddress}`);
       await postOrder(signedOrder);
