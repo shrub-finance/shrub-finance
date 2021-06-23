@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "start": "lerna start --parallel",
+    "start": "lerna run start --parallel",
     "contracts": "yarn workspace @shrub/contracts start",
     "app": "yarn workspace @shrub/app start",
     "backend": "yarn workspace @shrub/backend start",
