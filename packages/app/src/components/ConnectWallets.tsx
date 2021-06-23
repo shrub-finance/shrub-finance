@@ -75,7 +75,7 @@ function getErrorMessage(error: Error) {
   }
 }
 
-function getLibrary(provider: any): Web3Provider | Harmony {
+export function getLibrary(provider: any): Web3Provider | Harmony {
   let library: Web3Provider | Harmony;
 
   if (provider?.chainType === "hmy") {
@@ -125,7 +125,8 @@ function ConnectionStatus() {
 
 export function Account() {
   const ref = useRef<HTMLDivElement>();
-  let { account, library } = useWeb3React();
+  let { account } = useWeb3React();
+  const { library } = useWeb3React();
   const isHmyLibrary = library?.messenger?.chainType === "hmy";
   account = isHmyLibrary && account ? toBech32(account) : account;
 
@@ -189,7 +190,7 @@ function ConnectWallets() {
         </Stack>
       )}
       <ConnectionStatus />
-      {/*<Account />*/}
+      <Account />
       <>
         {Object.keys(connectorsByName).map((name) => {
           // @ts-ignore
@@ -260,8 +261,6 @@ function ConnectWallets() {
 
 export default function ConnectWalletsView() {
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <ConnectWallets />
-    </Web3ReactProvider>
+    <ConnectWallets />
   );
 }

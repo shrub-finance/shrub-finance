@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
-import ConnectWalletsView from "./ConnectWallets";
+import ConnectWalletsView, {Account} from "./ConnectWallets";
 
 const NavLinks = ["Shrub"];
 const NavLink = ({ children }: { children: ReactNode }) => (
@@ -77,7 +77,7 @@ function TopNav() {
               size={"sm"}
               mr={4}
             >
-              Connect Wallet
+              <Account/>
             </Button>
             <Button onClick={toggleColorMode}>
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
