@@ -152,6 +152,7 @@ function ConnectWallets() {
   const { connector, activate, error } = context;
   // handle logic to recognize the connector currently being activated
   const [activatingConnector, setActivatingConnector] = React.useState<any>();
+
   React.useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
       setActivatingConnector(undefined);
@@ -159,6 +160,7 @@ function ConnectWallets() {
   }, [activatingConnector, connector]);
   // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
   const triedEager = useEagerConnect();
+
   // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
   useInactiveListener(!triedEager || !!activatingConnector);
 
@@ -201,7 +203,7 @@ function ConnectWallets() {
             }
           }
           return (
-            <Stack spacing={8}>
+            <Stack spacing={8} key={item}>
               <Flex
                 cursor="pointer"
                 p={3}
@@ -235,7 +237,7 @@ function ConnectWallets() {
                 </Box>
                 <Spacer />
                 <Box p={4}>
-                  <WalletIconName type={item} key={item}/>
+                  <WalletIconName type={item}/>
                 </Box>
               </Flex>
             </Stack>
