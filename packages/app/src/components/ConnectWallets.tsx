@@ -40,6 +40,7 @@ import {
 } from "@chakra-ui/react";
 import { Flex, Spacer } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
+import {ethers} from "ethers";
 
 enum ConnectorNames {
   MetaMask = "MetaMask",
@@ -75,17 +76,8 @@ function getErrorMessage(error: Error) {
   }
 }
 
-export function getLibrary(provider: any): Web3Provider | Harmony {
-  let library: Web3Provider | Harmony;
-
-  if (provider?.chainType === "hmy") {
-    library = provider.blockchain;
-  } else {
-    library = new Web3Provider(provider);
-    library.pollingInterval = 12000;
-  }
-
-  return library;
+export function getLibrary(provider: any) {
+  return new ethers.providers.Web3Provider(provider);
 }
 
 function ConnectionStatus() {
