@@ -21,6 +21,7 @@ import {
 import { HamburgerIcon, CloseIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
 import ConnectWalletsView, {Account} from "./ConnectWallets";
+import {useConnectWallet} from "../hooks/useConnectWallet";
 
 const NavLinks = ["Shrub"];
 const NavLink = ({ children }: { children: ReactNode }) => (
@@ -41,6 +42,9 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
+
+  const {error, activatingConnector, connector, triedEager, setActivatingConnector} = useConnectWallet();
+
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>

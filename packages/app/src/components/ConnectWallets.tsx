@@ -23,7 +23,6 @@ import {
   walletlink,
   ledger,
 } from "../utils/connectors";
-import { toBech32 } from "@harmony-js/crypto";
 import Jazzicon from "@metamask/jazzicon";
 import {
   Alert,
@@ -38,6 +37,9 @@ import {
 import { Flex, Spacer } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import {ethers} from "ethers";
+import {useConnectWallet} from "../hooks/useConnectWallet";
+import {Simulate} from "react-dom/test-utils";
+
 
 enum ConnectorNames {
   MetaMask = "MetaMask",
@@ -114,10 +116,7 @@ function ConnectionStatus() {
 
 export function Account() {
   const ref = useRef<HTMLDivElement>();
-  let { account } = useWeb3React();
-  const { library } = useWeb3React();
-  const isHmyLibrary = library?.messenger?.chainType === "hmy";
-  account = isHmyLibrary && account ? toBech32(account) : account;
+  const { account } = useWeb3React();
 
   useEffect(() => {
     if (account && ref.current) {
@@ -148,21 +147,8 @@ export function Account() {
 }
 
 function ConnectWallets() {
-  const context = useWeb3React();
-  const { connector, activate, error } = context;
-  // handle logic to recognize the connector currently being activated
-  const [activatingConnector, setActivatingConnector] = React.useState<any>();
 
-  React.useEffect(() => {
-    if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined);
-    }
-  }, [activatingConnector, connector]);
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  const triedEager = useEagerConnect();
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  useInactiveListener(!triedEager || !!activatingConnector);
+const {activate, error, activatingConnector, connector, triedEager, setActivatingConnector} = useConnectWallet();
 
   const shadow = useColorModeValue("base", "dark-lg");
   const gradient = useColorModeValue(
