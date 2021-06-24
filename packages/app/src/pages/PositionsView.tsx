@@ -5,13 +5,19 @@ import { Balance } from "../types";
 import { Currencies } from "../constants/currencies";
 import { RouteComponentProps } from "@reach/router";
 import { Container } from "@chakra-ui/react";
+import {useWeb3React} from "@web3-react/core";
 
 function PositionsView(props: RouteComponentProps) {
+  const { active, library } = useWeb3React();
   const [walletBalance, setWalletBalance] = useState({ ETH: 0 } as Balance);
   useEffect(() => {
     async function inner() {
+        if (!active) {
+          console.error('Please connect your wallet');
+          return;
+        }
       for (const [symbol, symbolObj] of Object.entries(Currencies)) {
-        const balance = await getWalletBalance(symbolObj.address);
+        const balance = await getWalletBalance(symbolObj.address, library);
         if (walletBalance[symbol] !== balance) {
           setWalletBalance({ ...walletBalance, [symbol]: balance });
         }

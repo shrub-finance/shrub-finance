@@ -34,8 +34,10 @@ import {
 import UpdatePositions from "./UpdatePositions";
 import { Balance } from "../types";
 import { Currencies } from "../constants/currencies";
+import {useWeb3React} from "@web3-react/core";
 
 function Positions({ walletBalance }: { walletBalance: Balance }) {
+  const { active, library } = useWeb3React();
   const tableRows:TableRowProps[] = [];
   const tableRowsOptions:any = [];
   const [action, setAction] = React.useState("");
@@ -47,7 +49,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     async function inner() {
       for (const currencyObj of Object.values(Currencies)) {
         const { symbol, address: tokenContractAddress } = currencyObj;
-        const balance = await getAvailableSignerBalance(tokenContractAddress);
+        const balance = await getAvailableSignerBalance(tokenContractAddress, library);
         if (shrubBalance[symbol] !== balance) {
           setShrubBalance({ ...shrubBalance, [symbol]: balance });
         }
@@ -60,7 +62,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   useEffect(() => {
     async function inner() {
       const address = await getSignerAddress();
-      const filledOrders = await getFilledOrders(address);
+      const filledOrders = await getFilledOrders(address, library);
       // Populate Option Positions Table
       for (const [positionHash, details] of Object.entries(filledOrders)) {
         const {pair, strike, expiry, optionType, amount} = details as {baseAsset: string, quoteAsset: string, pair: string, strike: string, expiry: string, optionType:string, amount:number};
@@ -98,15 +100,6 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   function handleClick(passButtonText: string) {
     onOpen();
     setAction(passButtonText);
-  }
-
-  function ethToWei(eth: number | string) {
-    const amountString = eth.toString();
-    const bigAmountEth = ethers.BigNumber.from(amountString);
-    const multiplier = ethers.BigNumber.from(10).pow(
-      Currencies[modalCurrency].decimals
-    );
-    return bigAmountEth.mul(multiplier);
   }
 
   // Populate Balance Table
@@ -178,12 +171,16 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                     <Button
                         colorScheme="teal"
                         mr={200}
-                        onClick={() =>
+                        onClick={() => {
+                          if (active) {
                             approveToken(
                                 Currencies[modalCurrency].address,
-                                ethToWei(value)
+                                ethers.utils.parseUnits(value),
+                                library
                             ).catch(console.error)
+                          }
                         }
+                      }
                     >
                       Approve
                     </Button>
@@ -191,19 +188,25 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                 <Button
                     colorScheme="teal"
                     onClick={() => {
+                        if (!active) {
+                          console.error('Please connect your wallet');
+                          return;
+                        }
                       if (action === "Deposit") {
                         if (modalCurrency === "ETH") {
-                          depositEth(ethToWei(value)).catch(console.error);
+                          depositEth(ethers.utils.parseUnits(value), library).catch(console.error);
                         } else {
                           depositToken(
                               Currencies[modalCurrency].address,
-                              ethToWei(value)
+                              ethers.utils.parseUnits(value),
+                              library
                           ).catch(console.error);
                         }
                       } else if (action === "Withdraw") {
                         withdraw(
                             Currencies[modalCurrency].address,
-                            ethToWei(value)
+                            ethers.utils.parseUnits(value),
+                            library
                         ).catch(console.error);
                       }
                     }}

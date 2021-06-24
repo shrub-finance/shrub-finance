@@ -34,10 +34,11 @@ import {
   getSignerAddress,
   validateOrderAddress,
   getAvailableBalance,
-  matchOrder,
+  matchOrder
 } from "../utils/ethMethods";
 import { Icon } from "@chakra-ui/icons";
-import { OptionType } from "../types";
+import {OptionType} from "../types";
+import {useWeb3React} from "@web3-react/core";
 
 const quoteAsset = "0x0000000000000000000000000000000000000000"; // ETH
 const baseAsset: string = process.env.REACT_APP_FK_TOKEN_ADDRESS || ""; // FK
@@ -87,8 +88,13 @@ function Options({
   });
   const groupOption = getOptionRootProps();
   const groupOptionType = getOptionTypeRootProps();
+  const { active, error, deactivate, library } = useWeb3React();
 
   async function placeOrder() {
+    if (!active) {
+      console.error('Please connect your wallet');
+      return;
+    }
     const now = new Date();
     const oneWeekFromNow = new Date(now);
     oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
@@ -98,7 +104,7 @@ function Options({
         address: signerAddress,
         quoteAsset,
         baseAsset,
-      })) + 1;
+      }, library)) + 1;
     const unsignedOrder = {
       size: amount,
       isBuy,
@@ -113,8 +119,8 @@ function Options({
       nonce,
     };
     try {
-      const signedOrder = await signOrder(unsignedOrder);
-      const verifiedAddress = await getAddressFromSignedOrder(signedOrder);
+      const signedOrder = await signOrder(unsignedOrder, library);
+      const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
       console.log(`verifiedAddress: ${verifiedAddress}`);
       await postOrder(signedOrder);
     } catch (e) {
@@ -123,6 +129,10 @@ function Options({
   }
 
   async function matchOrderRow() {
+    if (!active) {
+      console.error('Please connect your wallet');
+      return;
+    }
     const now = new Date();
     const fifteenMinutesFromNow = new Date(now);
     fifteenMinutesFromNow.setUTCMinutes(now.getUTCMinutes() + 15);
@@ -134,7 +144,7 @@ function Options({
     }
     try {
       console.log(order);
-      const doesAddressMatch: boolean = await validateOrderAddress(order);
+      const doesAddressMatch: boolean = await validateOrderAddress(order, library);
       console.log(doesAddressMatch);
       const {
         address,
@@ -152,7 +162,7 @@ function Options({
         address,
         quoteAsset,
         baseAsset,
-      });
+      }, library);
       console.log(userNonce);
       console.log(nonce);
       // if (userNonce !== nonce) {
@@ -163,6 +173,7 @@ function Options({
         const balance = await getAvailableBalance({
           address,
           tokenContractAddress: quoteAsset,
+          provider: library
         });
         console.log(balance);
         if (balance.lt(strike * size)) {
@@ -173,6 +184,7 @@ function Options({
         const balance = await getAvailableBalance({
           address,
           tokenContractAddress: quoteAsset,
+          provider: library
         });
         console.log(balance.toString());
         if (balance.lt(strike * size)) {
@@ -186,7 +198,7 @@ function Options({
           address: signerAddress,
           quoteAsset,
           baseAsset,
-        })) + 1;
+        }, library)) + 1;
       console.log(`signerNonce: ${signerNonce}`);
       // Get other stuff needed for the order
       console.log(`isBuy: ${isBuy}`);
@@ -204,12 +216,12 @@ function Options({
         offerExpire: toEthDate(fifteenMinutesFromNow),
         nonce: signerNonce,
       };
-      const signedOrder = await signOrder(unsignedOrder);
+      const signedOrder = await signOrder(unsignedOrder, library);
       console.log(signedOrder);
       const result = await matchOrder({
         signedBuyOrder: signedOrder,
         signedSellOrder: order,
-      });
+      }, library);
       console.log("result");
       console.log(result);
       // Create the buy order and sign it
