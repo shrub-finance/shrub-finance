@@ -31,7 +31,6 @@ import {
   toEthDate,
   getAddressFromSignedOrder,
   getUserNonce,
-  getSignerAddress,
   validateOrderAddress,
   getAvailableBalance,
   matchOrder
@@ -88,20 +87,19 @@ function Options({
   });
   const groupOption = getOptionRootProps();
   const groupOptionType = getOptionTypeRootProps();
-  const { active, library } = useWeb3React();
+  const { active, library, account } = useWeb3React();
 
   async function placeOrder() {
-    if (!active) {
+    if (!active || !account) {
       console.error('Please connect your wallet');
       return;
     }
     const now = new Date();
     const oneWeekFromNow = new Date(now);
     oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
-    const signerAddress = await getSignerAddress();
     const nonce =
       (await getUserNonce({
-        address: signerAddress,
+        address: account,
         quoteAsset,
         baseAsset,
       }, library)) + 1;
@@ -129,7 +127,7 @@ function Options({
   }
 
   async function matchOrderRow() {
-    if (!active) {
+    if (!active || !account) {
       console.error('Please connect your wallet');
       return;
     }
@@ -192,10 +190,9 @@ function Options({
         }
       }
       // Get the user nonce
-      const signerAddress = await getSignerAddress();
       const signerNonce =
         (await getUserNonce({
-          address: signerAddress,
+          address: account,
           quoteAsset,
           baseAsset,
         }, library)) + 1;

@@ -15,8 +15,6 @@ import {
 } from "@web3-react/injected-connector";
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from "@web3-react/walletconnect-connector";
 import { UserRejectedRequestError as UserRejectedRequestErrorFrame } from "@web3-react/frame-connector";
-import { useEagerConnect } from "../hooks/useEagerConnect";
-import { useInactiveListener } from "../hooks/useInactiveListener";
 import {
   injected,
   walletconnect,
@@ -38,8 +36,6 @@ import { Flex, Spacer } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import {ethers} from "ethers";
 import {useConnectWallet} from "../hooks/useConnectWallet";
-import {Simulate} from "react-dom/test-utils";
-
 
 enum ConnectorNames {
   MetaMask = "MetaMask",

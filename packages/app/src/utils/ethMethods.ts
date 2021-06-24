@@ -35,11 +35,6 @@ export function useGetProvider() {
   return provider;
 }
 
-export async function getProvider() {
-  await window.ethereum.enable();
-  return new ethers.providers.Web3Provider(window.ethereum);
-}
-
 export function extractRSV(signature: string) {
   const sig = signature.slice(2);
   const r = "0x" + sig.substr(0, 64);
@@ -50,13 +45,6 @@ export function extractRSV(signature: string) {
 
 export function toEthDate(date: Date) {
   return Math.round(Number(date) / 1000);
-}
-
-export async function getSignerAddress() {
-  await window.ethereum.enable();
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  return signer.getAddress();
 }
 
 export async function signOrder(unsignedOrder: UnsignedOrder, provider: Web3Provider) {
@@ -150,7 +138,7 @@ export async function getWalletBalance(address: string, provider: Web3Provider) 
     bigBalance = await erc20Contract.balanceOf(signerAddress);
     decimals = await erc20Contract.decimals();
   }
-  return bigBalance.toNumber() / Math.pow(10, decimals);
+  return ethers.utils.formatUnits(bigBalance, decimals);
 }
 
 export async function depositEth(amount: ethers.BigNumber, provider: Web3Provider) {
@@ -208,12 +196,6 @@ export async function withdraw(
     throw new Error(`insufficient available balance: ${availableBalance}`);
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
-}
-
-export async function getAvailableSignerBalance(tokenContractAddress: string, provider: Web3Provider) {
-  const address = await getSignerAddress();
-  const bigBalance = await getAvailableBalance({ address, tokenContractAddress, provider });
-  return Number(bigBalance.div(ethers.BigNumber.from(10).pow(18)).toString());
 }
 
 export function iOrderToSmall(order: IOrder) {

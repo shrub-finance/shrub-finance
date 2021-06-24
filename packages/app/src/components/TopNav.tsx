@@ -43,7 +43,7 @@ function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
 
-  const {error, activatingConnector, connector, triedEager, setActivatingConnector} = useConnectWallet();
+  useConnectWallet();
 
   return (
     <>

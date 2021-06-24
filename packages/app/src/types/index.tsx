@@ -1,4 +1,4 @@
-export type Balance = { [currency: string]: number };
+export type Balance = { [currency: string]: string };
 
 export type Option = {
   strikePrice: number;

@@ -9,7 +9,7 @@ import {useWeb3React} from "@web3-react/core";
 
 function PositionsView(props: RouteComponentProps) {
   const { active, library } = useWeb3React();
-  const [walletBalance, setWalletBalance] = useState({ ETH: 0 } as Balance);
+  const [walletBalance, setWalletBalance] = useState({ ETH: '0' } as Balance);
   useEffect(() => {
     async function inner() {
         if (!active) {
@@ -25,7 +25,7 @@ function PositionsView(props: RouteComponentProps) {
     }
 
     inner().catch(console.error);
-  }, [walletBalance]);
+  }, [walletBalance, active, library]);
 
   return (
     <Container

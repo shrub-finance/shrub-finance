@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import { ethers } from "ethers";
 import {
   Stack,
@@ -25,10 +25,8 @@ import {
   depositEth,
   depositToken,
   withdraw,
-  getAvailableSignerBalance,
   approveToken,
-  getSignerAddress,
-  getFilledOrders
+  getFilledOrders, getAvailableBalance
 } from "../utils/ethMethods";
 import UpdatePositions from "./UpdatePositions";
 import { Balance } from "../types";
@@ -36,34 +34,45 @@ import { Currencies } from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 
 function Positions({ walletBalance }: { walletBalance: Balance }) {
-  const { active, library } = useWeb3React();
+  const { active, library, account } = useWeb3React();
   const tableRows:TableRowProps[] = [];
   const tableRowsOptions:any = [];
-  const [action, setAction] = React.useState("");
+  const [action, setAction] = useState("");
 
-  const [optionsRows, setOptionsRows] = React.useState(<></>)
+  const [optionsRows, setOptionsRows] = useState(<></>)
 
-  const [shrubBalance, setShrubBalance] = React.useState({} as Balance);
-  React.useEffect(() => {
+  const [shrubBalance, setShrubBalance] = useState({} as Balance);
+  useEffect(() => {
+    console.log('running shrubBalance useEffect');
+
     async function inner() {
-      for (const currencyObj of Object.values(Currencies)) {
-        const { symbol, address: tokenContractAddress } = currencyObj;
-        const balance = await getAvailableSignerBalance(tokenContractAddress, library);
-        if (shrubBalance[symbol] !== balance) {
-          setShrubBalance({ ...shrubBalance, [symbol]: balance });
-        }
+      if (!active || !account) {
+        console.error('Please connect wallet');
+        return;
       }
+      const shrubBalanceObj:any = {};
+      for (const currencyObj of Object.values(Currencies)) {
+        const {symbol, address: tokenContractAddress} = currencyObj;
+        const bigBalance = await getAvailableBalance({address: account, tokenContractAddress, provider: library})
+        const balance = ethers.utils.formatUnits(bigBalance, 18);
+        shrubBalanceObj[symbol] = balance;
+      }
+      setShrubBalance(shrubBalanceObj)
     }
     inner().catch(console.error);
-  }, [shrubBalance]);
+  }, [active, account, library]);
 
 
   useEffect(() => {
+    console.log('running optionRows useEffect');
     async function inner() {
-      const address = await getSignerAddress();
-      const filledOrders = await getFilledOrders(address, library);
+      if (!active || !account) {
+        console.error('Please connect wallet');
+        return;
+      }
+      const filledOrders = await getFilledOrders(account, library);
       // Populate Option Positions Table
-      for (const [positionHash, details] of Object.entries(filledOrders)) {
+      for (const details of Object.values(filledOrders)) {
         const {pair, strike, expiry, optionType, amount} = details as {baseAsset: string, quoteAsset: string, pair: string, strike: string, expiry: string, optionType:string, amount:number};
         tableRowsOptions.push(
             <Tr>
@@ -78,13 +87,13 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
       setOptionsRows(tableRowsOptions);
     }
     inner().catch(console.error);
-  }, [])
+  }, [active, account, library])
 
 
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [value, setValue] = React.useState("0");
-  const [modalCurrency, setModalCurrency] = React.useState(
+  const [value, setValue] = useState("0");
+  const [modalCurrency, setModalCurrency] = useState(
     "ETH" as keyof typeof Currencies
   );
 
