@@ -10,16 +10,16 @@ import {
   Tr,
   Th,
   Td,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
   useDisclosure,
   Box,
-  TableRowProps
+  TableRowProps, Flex, Spacer
 } from "@chakra-ui/react";
 
 import {
@@ -150,12 +150,15 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             </Thead>
             <Tbody>{tableRows}</Tbody>
           </Table>
-          <Modal onClose={onClose} isOpen={isOpen} isCentered={true}>
-            <ModalOverlay/>
-            <ModalContent>
-              <ModalHeader>{action}</ModalHeader>
-              <ModalCloseButton/>
-              <ModalBody>
+          <Drawer
+              onClose={onClose}
+              isOpen={isOpen}
+              placement="right">
+            <DrawerOverlay/>
+            <DrawerContent>
+              <DrawerHeader>{action}</DrawerHeader>
+              <DrawerCloseButton/>
+              <DrawerBody>
                 <UpdatePositions
                     value={value}
                     setValue={setValue}
@@ -165,12 +168,10 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                     shrubBalance={shrubBalance}
                     action={action}
                 />
-              </ModalBody>
-              <ModalFooter>
+                <Flex>
                 {modalCurrency !== "ETH" && action === "Deposit" ? (
                     <Button
                         colorScheme="teal"
-                        mr={200}
                         onClick={() => {
                           if (active) {
                             approveToken(
@@ -185,6 +186,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                       Approve
                     </Button>
                 ) : null}
+                      <Spacer/>
                 <Button
                     colorScheme="teal"
                     onClick={() => {
@@ -213,9 +215,10 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                 >
                   {action}
                 </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
+                    </Flex>
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
         </Box>
         <br/>
         <Box>
