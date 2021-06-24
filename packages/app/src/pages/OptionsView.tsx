@@ -11,7 +11,7 @@ function OptionsView(props: RouteComponentProps) {
   const optionRows = [];
 
   const url = `http://localhost:8000/orders`;
-  const { status, data, error } = useFetch<IOrder[]>(url);
+  const {data} = useFetch<IOrder[]>(url);
   // TODO: This will come from backend
   for (let i = 1900; i <= 3000; i += 100) {
     const filteredOrders = data && data.filter((order) => order.strike === i);

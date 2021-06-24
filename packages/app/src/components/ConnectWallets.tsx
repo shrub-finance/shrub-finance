@@ -6,7 +6,6 @@ import {
   WalletConnectIcon,
 } from "../assets/Icons";
 import {
-  Web3ReactProvider,
   useWeb3React,
   UnsupportedChainIdError,
 } from "@web3-react/core";
@@ -16,8 +15,6 @@ import {
 } from "@web3-react/injected-connector";
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from "@web3-react/walletconnect-connector";
 import { UserRejectedRequestError as UserRejectedRequestErrorFrame } from "@web3-react/frame-connector";
-import { Web3Provider } from "@ethersproject/providers";
-import { Harmony } from "@harmony-js/core";
 import { useEagerConnect } from "../hooks/useEagerConnect";
 import { useInactiveListener } from "../hooks/useInactiveListener";
 import {
@@ -183,13 +180,12 @@ function ConnectWallets() {
       )}
       <ConnectionStatus />
       <>
-        {Object.keys(connectorsByName).map((name) => {
+        {Object.keys(connectorsByName).map((item) => {
           // @ts-ignore
-          const currentConnector = connectorsByName[name];
+          const currentConnector = connectorsByName[item];
           const activating = currentConnector === activatingConnector;
           const connected = currentConnector === connector;
-          const disabled =
-            !triedEager || !!activatingConnector || connected || !!error;
+          const disabled = !triedEager || !!activatingConnector || connected || !!error;
           function WalletIconName(props: any) {
             switch (props.type) {
               case "MetaMask":
@@ -217,7 +213,7 @@ function ConnectWallets() {
                 onClick={() => {
                   setActivatingConnector(currentConnector);
                   // @ts-ignore
-                  activate(connectorsByName[name]);
+                  activate(connectorsByName[item]);
                 }}
               >
                 <Box p="4" fontSize={20}>
@@ -235,11 +231,11 @@ function ConnectWallets() {
                   {connected && (
                     <CheckCircleIcon color="teal.400" mr={2} boxSize={3} />
                   )}
-                  {name}
+                  {item}
                 </Box>
                 <Spacer />
                 <Box p={4}>
-                  <WalletIconName type={name} key={name}/>
+                  <WalletIconName type={item} key={item}/>
                 </Box>
               </Flex>
             </Stack>

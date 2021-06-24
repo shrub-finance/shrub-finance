@@ -12,7 +12,6 @@ import {
   Td,
   Drawer,
   DrawerBody,
-  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
@@ -105,7 +104,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   // Populate Balance Table
   for (const currency of Object.keys(Currencies)) {
     tableRows.push(
-      <Tr>
+      <Tr key={currency}>
         <Td>{currency}</Td>
         <Td/>
         <Td/>

@@ -88,7 +88,7 @@ function Options({
   });
   const groupOption = getOptionRootProps();
   const groupOptionType = getOptionTypeRootProps();
-  const { active, error, deactivate, library } = useWeb3React();
+  const { active, library } = useWeb3React();
 
   async function placeOrder() {
     if (!active) {
