@@ -1,8 +1,9 @@
-import optionContracts from '../option-contracts.json'
-import {fromEthDate, getSymbolFor} from "./ethMethods";
-import {Web3Provider} from "@ethersproject/providers";
+import optionContracts from './option-contracts.json'
+import {JsonRpcProvider} from "@ethersproject/providers";
+import {FakeToken__factory} from "../../contracts/types/ethers-v5";
+import {ethers} from "ethers";
 
-export async function pairExpiryTypeStrike(provider: Web3Provider) {
+export async function pairExpiryTypeStrike(provider: JsonRpcProvider) {
     const intermediate: any = {};
     const res: any = {};
     for (const contract of optionContracts) {
@@ -32,4 +33,16 @@ export async function pairExpiryTypeStrike(provider: Web3Provider) {
         }
     }
     return res;
+}
+
+function getSymbolFor(token: string, provider: JsonRpcProvider) {
+    if (token === ethers.constants.AddressZero) {
+        return 'ETH';
+    }
+    const erc20Contract = FakeToken__factory.connect(token, provider);
+    return erc20Contract.symbol();
+}
+
+function fromEthDate(ethDate: number) {
+    return new Date(ethDate * 1000);
 }

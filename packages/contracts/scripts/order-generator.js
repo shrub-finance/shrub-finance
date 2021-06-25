@@ -5,6 +5,7 @@ const Web3 = require("web3");
 const util = require("util");
 const fetch = require("node-fetch");
 const bs = require('../utils/black-scholes');
+const axios = require('axios');
 
 const wsUrl = "http://127.0.0.1:8545";
 const web3 = new Web3(new Web3.providers.HttpProvider(wsUrl));
@@ -18,7 +19,11 @@ const Assets = {
 const ETH_PRICE = process.argv[2] || 2500;
 const RISK_FREE_RATE = 0.05
 
-const optionContracts = require('../../app/src/option-contracts')
+let optionContracts = [];
+
+async function setOptionContracts() {
+  optionContracts = (await axios.get('http://localhost:8000/contracts/raw')).data
+}
 
 const wait = util.promisify(setTimeout);
 
@@ -63,6 +68,7 @@ async function saveOrder(order) {
 
 async function main() {
   const [from] = await web3.eth.getAccounts();
+  await setOptionContracts();
   const exchangeAddress = ExchangeJson.address;
   const tokenAddress = TokenJson.address;
   Assets.USDC = tokenAddress;
