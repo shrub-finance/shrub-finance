@@ -116,12 +116,20 @@ export async function signOrder(unsignedOrder: UnsignedOrder, provider: Web3Prov
 
 export async function getDecimalsFor(token: string, provider: Web3Provider) {
   const decimals = 18;
-  if (token === Currencies.ETH.address) {
+  if (token === ethers.constants.AddressZero) {
     return decimals;
   }
 
   const erc20Contract = FakeToken__factory.connect(token, provider)
   return erc20Contract.decimals();
+}
+
+export async function getSymbolFor(token: string, provider: Web3Provider) {
+  if (token === ethers.constants.AddressZero) {
+    return 'ETH';
+  }
+  const erc20Contract = FakeToken__factory.connect(token, provider);
+  return erc20Contract.symbol();
 }
 
 export async function getWalletBalance(address: string, provider: Web3Provider) {
