@@ -4,6 +4,7 @@ const TokenJson = require("../deployments/localhost/FakeToken.json");
 const Web3 = require("web3");
 const util = require("util");
 const fetch = require("node-fetch");
+const bs = require('../utils/black-scholes');
 
 const wsUrl = "http://127.0.0.1:8545";
 const web3 = new Web3(new Web3.providers.HttpProvider(wsUrl));
@@ -14,26 +15,41 @@ const Assets = {
   ETH: "0x0000000000000000000000000000000000000000",
 };
 
+const ETH_PRICE = process.argv[2] || 2500;
+const RISK_FREE_RATE = 0.05
+
+const optionContracts = require('../../app/src/option-contracts')
+
 const wait = util.promisify(setTimeout);
 
+function getRandomContract() {
+  const contractNumber = Math.floor(Math.random() * optionContracts.length);
+  return optionContracts[contractNumber];
+}
+
 async function generateRandomOrder(nonce) {
+  const {expiry, strike, optionType } = getRandomContract();
+  const timeToExpiry = (expiry * 1000 - Date.now()) / (365 * 24 * 60 * 60 * 1000)
+  const volatility = (Math.random() * 75 + 75) / 100;
+  console.log(`
+    ETH price: ${ETH_PRICE}
+    strike: ${strike}
+    time to expiry (years): ${timeToExpiry}
+    volatility: ${volatility}
+    risk free rate: ${RISK_FREE_RATE}
+  `)
   return {
     nonce,
     size: Math.floor(Math.random() * 5) + 1,
     isBuy: Math.random() * 100 > 50,
-    price: Math.floor(Math.random() * 4000),
+    price: Math.round(100 * bs.blackScholes(ETH_PRICE, strike, timeToExpiry, volatility, RISK_FREE_RATE, optionType)) / 100,
     offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
     fee: Math.floor(Math.random() * 100),
     baseAsset: Assets.USDC,
     quoteAsset: Assets.ETH,
-    expiry:
-      Date.UTC(
-        new Date().getUTCFullYear(),
-        new Date().getUTCMonth() + Math.ceil(Math.random() * 2),
-        1
-      ) / 1000,
-    strike: Math.floor(Math.random() * 10) * 100 + 2000,
-    optionType: Math.floor(Math.random() * 2),
+    expiry,
+    strike,
+    optionType: optionType === 'CALL' ? 1 : 0,
   };
 }
 
