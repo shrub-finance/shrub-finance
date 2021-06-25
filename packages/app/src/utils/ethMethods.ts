@@ -47,6 +47,10 @@ export function toEthDate(date: Date) {
   return Math.round(Number(date) / 1000);
 }
 
+export function fromEthDate(ethDate: number) {
+  return new Date(ethDate * 1000);
+}
+
 export async function signOrder(unsignedOrder: UnsignedOrder, provider: Web3Provider) {
   const shrubInterface = new Shrub712(1337, SHRUB_CONTRACT_ADDRESS);
   const order = {
