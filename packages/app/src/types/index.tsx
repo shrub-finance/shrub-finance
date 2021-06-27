@@ -8,26 +8,16 @@ export type Option = {
   ask: number;
   bid: number;
 };
+export type ContractData = {
+  [optionPair: string ] : ContractInnerData
+}
 
-// export interface IOrder {
-//   size: number;
-//   isBuy: boolean;
-//   nonce: number;
-//   price: number;
-//   offerExpire: number;
-//   fee: number;
-//
-//   baseAsset: string;
-//   quoteAsset: string;
-//   expiry: number;
-//   strike: number;
-//   optionType: number;
-//
-//   v: number;
-//   r: string;
-//   s: string;
-//   address: string;
-// }
+
+export type ContractInnerData = {
+  [expiryDate: string] : {
+    [optionType: string] : [number]
+  }
+}
 
 export interface SmallOrder {
   size: number;
@@ -39,8 +29,14 @@ export interface SmallOrder {
 }
 
 export enum OptionType {
-  "PUT",
-  "CALL",
+  PUT ,
+  CALL
+}
+
+export enum OptionAction {
+  BUY= "Buy",
+  SELL = "Sell"
+
 }
 
 export interface OrderCommon {

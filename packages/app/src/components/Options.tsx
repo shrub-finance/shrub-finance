@@ -36,8 +36,9 @@ import {
   matchOrder
 } from "../utils/ethMethods";
 import { Icon } from "@chakra-ui/icons";
-import {OptionType} from "../types";
+import { OptionAction, OptionType } from '../types';
 import {useWeb3React} from "@web3-react/core";
+import { getEnumKeys } from '../utils/helperMethods';
 
 const quoteAsset = "0x0000000000000000000000000000000000000000"; // ETH
 const baseAsset: string = process.env.REACT_APP_FK_TOKEN_ADDRESS || ""; // FK
@@ -50,7 +51,7 @@ if (!baseAsset) {
 
 const height = 100;
 
-// TODO: setOption and setOptionType should be maintained through context, and the type here should be Option from our type definitions
+// TODO: setOption and setOptionType should be maintained through context
 function Options({
   strikePrice,
   isCall,
@@ -63,12 +64,14 @@ function Options({
 }: any) {
   const expiryDate = "2021-11-01";
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   const [amount, setAmount] = React.useState(1);
   const [price, setPrice] = React.useState(0);
 
   // Radio logic
-  const options = ["Buy", "Sell"];
-  const optionType = ["Call", "Put"];
+  const options: string[] = [OptionAction.BUY, OptionAction.SELL]
+  const optionType: string[] = getEnumKeys(OptionType)
+
   const {
     getRootProps: getOptionRootProps,
     getRadioProps: getOptionRadioProps,
@@ -77,14 +80,16 @@ function Options({
     defaultValue: isBuy ? "Buy" : "Sell",
     onChange: (nextValue) => setOption(nextValue),
   });
+
   const {
     getRootProps: getOptionTypeRootProps,
     getRadioProps: getOptionTypeRadioProps,
   } = useRadioGroup({
     name: "optionType",
-    defaultValue: isCall ? "Put" : "Call",
+    defaultValue: isCall ? "CALL" : "PUT",
     onChange: (nextValue) => setOptionType(nextValue),
   });
+
   const groupOption = getOptionRootProps();
   const groupOptionType = getOptionTypeRootProps();
   const { active, library, account } = useWeb3React();
@@ -271,7 +276,7 @@ function Options({
               </Box>
               <Box>
                 <FormLabel htmlFor="strike">Strike:</FormLabel>
-                <NumberInput id="strike" isDisabled value={strikePrice}>
+                <NumberInput id="strike" isDisabled={true} value={strikePrice}>
                   <NumberInputField />
                 </NumberInput>
               </Box>
@@ -290,7 +295,7 @@ function Options({
               </Box>
               <Box>
                 <FormLabel htmlFor="expiryDate">Expiry Date:</FormLabel>
-                <Input id="expiry" value={expiryDate} isDisabled />
+                <Input id="expiry" value={expiryDate} isDisabled={true} />
               </Box>
               <Box>
                 <HStack>
