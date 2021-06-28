@@ -166,7 +166,7 @@ export async function depositToken(
 ) {
   const signer = provider.getSigner();
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer)
-  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, provider)
+  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer)
   const signerAddress = await signer.getAddress();
   const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
   if (allowance.lt(amount)) {
@@ -186,7 +186,7 @@ export async function approveToken(
 ) {
   const signer = provider.getSigner();
   const bigAmount = amount;
-  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, provider);
+  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
   const signerAddress = await signer.getAddress();
   const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
   if (allowance.gte(bigAmount)) {

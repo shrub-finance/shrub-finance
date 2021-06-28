@@ -68,14 +68,10 @@ function OptionsView(props: RouteComponentProps) {
 
   useEffect(() => {
     if (contractData && contractDataStatus === "fetched") {
-      console.log(contractData);
-      console.log(contractDataStatus);
-
       // @ts-ignore
       const expiryDatesLocal = Object.keys(contractData["ETH-FK"]);
       // @ts-ignore
       setExpiryDates(expiryDatesLocal);
-
       if(!expiryDate) {
         setExpiryDate(expiryDatesLocal[0])
       }

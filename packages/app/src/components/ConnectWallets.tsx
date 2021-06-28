@@ -87,11 +87,9 @@ function ConnectionStatus() {
             borderRadius="md"
             cursor="pointer"
             variant="outline"
-            onClick={() => {
-              deactivate();
-            }}
+            colorScheme="green"
           >
-            Disconnect
+            Connected
           </Badge>
         </Flex>
       ) : (
@@ -100,7 +98,7 @@ function ConnectionStatus() {
           <Badge
             borderRadius="md"
             variant="outline"
-            colorScheme={active ? "green" : error ? "red" : "yellow"}
+            colorScheme="yellow"
           >
             {!active && !error && "Not Connected"}
           </Badge>
