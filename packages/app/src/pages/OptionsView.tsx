@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -15,27 +15,31 @@ import { getEnumKeys } from '../utils/helperMethods';
 
 function OptionsView(props: RouteComponentProps) {
 
-  const [option, setOption] = React.useState("Buy");
-  const [optionType, setOptionType] = React.useState("Call");
-  const [expiry, setExpiry] = React.useState("");
+  const [option, setOption] = useState("BUY");
+  const [optionType, setOptionType] = useState("CALL");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [strikePrices, setStrikePrices] = useState([]);
+  const [expiryDates, setExpiryDates] = useState([]);
 
-  const optionRows = [];
+  const optionRows: any = [];
 
   const url = `http://localhost:8000/orders`;
   const {data} = useFetch<IOrder[]>(url);
 
   const contractsUrl = 'http://localhost:8000/contracts';
-  const {data: contractData} = useFetch<ContractData>(contractsUrl);
+  // TODO: useFetch also provides state error, that we should handle
+  const {data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
 
   const options: string[] = [OptionAction.BUY, OptionAction.SELL]
   const optionTypes: string[] = getEnumKeys(OptionType)
-  let expiryDates: string[] = [""]
+
 
   const {
     getRootProps: getOptionRootProps,
-    getRadioProps: getOptionRadioProps, } = useRadioGroup({
+    getRadioProps: getOptionRadioProps,
+  } = useRadioGroup({
     name: "option",
-    defaultValue: "Buy",
+    defaultValue: "BUY",
     onChange: (nextValue) => setOption(nextValue),
   })
 
@@ -52,45 +56,76 @@ function OptionsView(props: RouteComponentProps) {
     getRootProps: getExpiryRootProps,
     getRadioProps: getExpiryRadioProps,
   } = useRadioGroup({
-    name: "expiry",
-    defaultValue:  "Aug21",
-    onChange: (nextValue) => setExpiry(nextValue),
+    name: "expiryDate",
+    onChange: (nextValue) => setExpiryDate(nextValue),
   });
 
-  console.log();
+
   const groupOption = getOptionRootProps();
   const groupOptionType = getOptionTypeRootProps();
   const groupExpiry = getExpiryRootProps();
 
 
-  if (contractData) {
-    expiryDates = Object.keys(contractData["ETH-FK"]);
-  }
+  useEffect(() => {
+    if (contractData && contractDataStatus === "fetched") {
+      console.log(contractData);
+      console.log(contractDataStatus);
 
-  for (let i = 1900; i <= 3000; i += 100) {
-    const filteredOrders = data && data.filter((order) => order.strike === i);
+      // @ts-ignore
+      const expiryDatesLocal = Object.keys(contractData["ETH-FK"]);
+      // @ts-ignore
+      setExpiryDates(expiryDatesLocal);
+
+      if(!expiryDate) {
+        setExpiryDate(expiryDatesLocal[0])
+      }
+    }
+      }, [contractDataStatus]
+
+  );
+
+
+  useEffect(() => {
+    if(expiryDate) {
+      // @ts-ignore
+      setStrikePrices(contractData["ETH-FK"][expiryDate][optionType]);
+    }
+
+  },[expiryDate, optionType]);
+
+
+  for (const strikePrice of strikePrices) {
+    const filteredOrders = data && data.filter((order) =>
+        // @ts-ignore
+    order.strike === strikePrice && order.optionType === OptionType[optionType]
+    );
+
     const buyOrders =
       filteredOrders &&
       filteredOrders.filter((filteredOrder) => filteredOrder.isBuy);
+
     const sellOrders =
       filteredOrders &&
       filteredOrders.filter((filteredOrder) => !filteredOrder.isBuy);
+
     const bestBid =
       buyOrders &&
       buyOrders.length &&
       Math.max(...buyOrders.map((buyOrder) => buyOrder.price));
+
     const bestAsk =
       sellOrders &&
       sellOrders.length &&
       Math.min(...sellOrders.map((buyOrder) => buyOrder.price));
+
     optionRows.push(
       <Options
-        key={i}
-        strikePrice={i}
+        key={strikePrice}
+        strikePrice={strikePrice}
         bid={bestBid}
         ask={bestAsk}
-        isBuy={option === "Buy"}
-        isCall={optionType === "Call"}
+        isBuy={option === "BUY"}
+        isCall={optionType === "CALL"}
         setOption={setOption}
         setOptionType={setOptionType}
       />

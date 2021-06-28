@@ -77,7 +77,7 @@ function Options({
     getRadioProps: getOptionRadioProps,
   } = useRadioGroup({
     name: "option",
-    defaultValue: isBuy ? "Buy" : "Sell",
+    defaultValue: isBuy ? "BUY" : "SELL",
     onChange: (nextValue) => setOption(nextValue),
   });
 
