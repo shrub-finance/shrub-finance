@@ -347,12 +347,15 @@ export async function getFilledOrders(
     if (!event) {
       continue;
     }
-    const { positionHash, common } = event.args;
+    const { positionHash, common, buyOrder, seller } = event.args;
     const { baseAsset, quoteAsset, strike, expiry, optionType } = common;
     const dateExpiry = new Date(expiry.toNumber() * 1000);
     if (!openOrders[positionHash]) {
       const amount = await userOptionPosition(address, positionHash, provider);
       openOrders[positionHash] = {
+        common,
+        buyOrder,
+        seller,
         baseAsset,
         quoteAsset,
         pair: getPair(baseAsset, quoteAsset),
@@ -384,4 +387,14 @@ export async function userOptionPosition(address: string, positionHash: string, 
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const bigBalance = await shrubContract.userOptionPosition(address, positionHash);
   return bigBalance.toNumber();
+}
+
+export async function exercise(order: IOrder, seller: string, provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const buyOrder = iOrderToSmall(order);
+  const common = iOrderToCommon(order);
+  const buySig = iOrderToSig(order);
+  const executed = await shrubContract.execute(buyOrder,common,seller,buySig);
+  return executed;
 }

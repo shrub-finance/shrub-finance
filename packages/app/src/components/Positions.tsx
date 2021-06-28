@@ -26,10 +26,10 @@ import {
   depositToken,
   withdraw,
   approveToken,
-  getFilledOrders, getAvailableBalance
+  getFilledOrders, getAvailableBalance, exercise, signOrder
 } from "../utils/ethMethods";
 import UpdatePositions from "./UpdatePositions";
-import { Balance } from "../types";
+import {Balance, OrderCommon, SmallOrder} from "../types";
 import { Currencies } from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 
@@ -42,6 +42,9 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   const [optionsRows, setOptionsRows] = useState(<></>)
 
   const [shrubBalance, setShrubBalance] = useState({} as Balance);
+
+  const orderMap = new Map();
+
   useEffect(() => {
     console.log('running shrubBalance useEffect');
 
@@ -73,7 +76,8 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
       const filledOrders = await getFilledOrders(account, library);
       // Populate Option Positions Table
       for (const details of Object.values(filledOrders)) {
-        const {pair, strike, expiry, optionType, amount} = details as {baseAsset: string, quoteAsset: string, pair: string, strike: string, expiry: string, optionType:string, amount:number};
+        const {pair, strike, expiry, optionType, amount, common, buyOrder, seller} = details as {baseAsset: string, quoteAsset: string, pair: string, strike: string, expiry: string, optionType:string, amount:number, common: OrderCommon, buyOrder: SmallOrder, seller: string};
+        orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
         tableRowsOptions.push(
             <Tr>
               <Td>{pair}</Td>
@@ -81,6 +85,15 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
               <Td>{expiry}</Td>
               <Td>{optionType}</Td>
               <Td>{amount}</Td>
+              <Td>
+                <Button
+                    colorScheme="teal"
+                    size="xs"
+                    onClick={() => handleClickExercise(pair, strike, expiry, optionType)}
+                >
+                  Exercise
+                </Button>
+              </Td>
             </Tr>
         )
       }
@@ -103,6 +116,15 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
 
   function handleClickDeposit() {
     handleClick('Deposit');
+  }
+
+  async function handleClickExercise(pair: string, strike: string, expiry:string, optionType:string) {
+    const key = `${pair}${strike}${expiry}${optionType}`
+    const {common, buyOrder, seller} = orderMap.get(key);
+    const unsignedOrder = { ...common, ...buyOrder };
+    const signedOrder = await signOrder(unsignedOrder, library)
+    const exercised = await exercise(signedOrder, seller, library)
+    return exercised;
   }
 
   function handleClick(passButtonText: string) {
