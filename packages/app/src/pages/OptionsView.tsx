@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Box,
   Container,
   Grid,
@@ -23,12 +26,11 @@ function OptionsView(props: RouteComponentProps) {
 
   const optionRows: any = [];
 
-  const url = `http://localhost:8000/orders`;
-  const {data} = useFetch<IOrder[]>(url);
-
-  const contractsUrl = 'http://localhost:8000/contracts';
-  // TODO: useFetch also provides state error, that we should handle
-  const {data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
+  const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
+  // TODO: orderData should handle error just like contract data
+  const {data:orderData, status: orderDataStatus} = useFetch<IOrder[]>(url);
+  const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
+  const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
 
   const options: string[] = [OptionAction.BUY, OptionAction.SELL]
   const optionTypes: string[] = getEnumKeys(OptionType)
@@ -67,15 +69,16 @@ function OptionsView(props: RouteComponentProps) {
 
 
   useEffect(() => {
-    if (contractData && contractDataStatus === "fetched") {
-      // @ts-ignore
-      const expiryDatesLocal = Object.keys(contractData["ETH-FK"]);
-      // @ts-ignore
-      setExpiryDates(expiryDatesLocal);
-      if(!expiryDate) {
-        setExpiryDate(expiryDatesLocal[0])
+
+      if (contractData && contractDataStatus === "fetched" && !contractDataError) {
+        // @ts-ignore
+        const expiryDatesLocal = Object.keys(contractData["ETH-FK"]);
+        // @ts-ignore
+        setExpiryDates(expiryDatesLocal);
+        if(!expiryDate) {
+          setExpiryDate(expiryDatesLocal[0])
+        }
       }
-    }
       }, [contractDataStatus]
 
   );
@@ -89,11 +92,13 @@ function OptionsView(props: RouteComponentProps) {
 
   },[expiryDate, optionType]);
 
-
   for (const strikePrice of strikePrices) {
-    const filteredOrders = data && data.filter((order) =>
+    const filteredOrders =
+        orderData &&
+        orderDataStatus === "fetched"
+        && orderData.filter((order) =>
         // @ts-ignore
-    order.strike === strikePrice && order.optionType === OptionType[optionType]
+        order.strike === strikePrice && order.optionType === OptionType[optionType]
     );
 
     const buyOrders =
@@ -137,6 +142,14 @@ function OptionsView(props: RouteComponentProps) {
       flex="1"
       borderRadius="lg"
     >
+      {contractDataError &&
+      <Box>
+        <Alert status="error" borderRadius={9}>
+          <AlertIcon />
+          <AlertDescription>{contractDataError}</AlertDescription>
+        </Alert>
+      </Box>
+      }
       <Box mb={10}>
         <HStack {...groupExpiry}>
           {expiryDates.map((value) => {
@@ -149,6 +162,7 @@ function OptionsView(props: RouteComponentProps) {
           })}
         </HStack>
       </Box>
+      {!contractDataError &&
       <Grid pb={"5"} templateColumns="repeat(2, 1fr)">
         <HStack {...groupOption}>
           {options.map((value) => {
@@ -172,6 +186,7 @@ function OptionsView(props: RouteComponentProps) {
           })}
         </HStack>
       </Grid>
+      }
       {optionRows}
     </Container>
   );
