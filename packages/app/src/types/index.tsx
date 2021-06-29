@@ -34,8 +34,8 @@ export enum OptionType {
 }
 
 export enum OptionAction {
-  BUY= "Buy",
-  SELL = "Sell"
+  BUY= "BUY",
+  SELL = "SELL"
 
 }
 

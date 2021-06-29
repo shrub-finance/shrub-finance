@@ -15,6 +15,7 @@ import { IOrder, ContractData, OptionType, OptionAction } from '../types';
 import { RouteComponentProps } from "@reach/router";
 import RadioCard from '../components/Radio';
 import { getEnumKeys } from '../utils/helperMethods';
+import { Spinner } from "@chakra-ui/react"
 
 function OptionsView(props: RouteComponentProps) {
 
@@ -31,7 +32,6 @@ function OptionsView(props: RouteComponentProps) {
   const {data:orderData, status: orderDataStatus} = useFetch<IOrder[]>(url);
   const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
   const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
-
   const options: string[] = [OptionAction.BUY, OptionAction.SELL]
   const optionTypes: string[] = getEnumKeys(OptionType)
 
@@ -68,6 +68,7 @@ function OptionsView(props: RouteComponentProps) {
   const groupExpiry = getExpiryRootProps();
 
 
+
   useEffect(() => {
 
       if (contractData && contractDataStatus === "fetched" && !contractDataError) {
@@ -93,12 +94,12 @@ function OptionsView(props: RouteComponentProps) {
   },[expiryDate, optionType]);
 
   for (const strikePrice of strikePrices) {
+
     const filteredOrders =
         orderData &&
         orderDataStatus === "fetched"
         && orderData.filter((order) =>
-        // @ts-ignore
-        order.strike === strikePrice && order.optionType === OptionType[optionType]
+        order.strike === strikePrice && order.optionType === OptionType[optionType as keyof typeof OptionType]
     );
 
     const buyOrders =
@@ -142,6 +143,9 @@ function OptionsView(props: RouteComponentProps) {
       flex="1"
       borderRadius="lg"
     >
+      {contractDataStatus === "fetching" &&
+      <Spinner color="teal"/>
+      }
       {contractDataError &&
       <Box>
         <Alert status="error" borderRadius={9}>

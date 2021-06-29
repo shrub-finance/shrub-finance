@@ -1,44 +1,45 @@
 import React from "react";
 import RadioCard from "./Radio";
-import { FaEthereum } from "react-icons/fa";
-import { getOrders, postOrder } from "../utils/requests";
+import {FaEthereum} from "react-icons/fa";
+import {getOrders, postOrder} from "../utils/requests";
+
 import {
-  Text,
-  Grid,
   Box,
   Button,
   Divider,
-  Tag,
   Drawer,
   DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  useDisclosure,
-  Input,
   FormLabel,
-  NumberInputField,
-  NumberInput,
-  Stack,
+  Grid,
   HStack,
+  Input,
+  NumberInput,
+  NumberInputField,
+  Stack,
+  Tag,
+  Text,
+  useDisclosure,
   useRadioGroup,
 } from "@chakra-ui/react";
 
 import {
+  getAddressFromSignedOrder,
+  getAvailableBalance,
+  getUserNonce,
+  matchOrder,
   signOrder,
   toEthDate,
-  getAddressFromSignedOrder,
-  getUserNonce,
-  validateOrderAddress,
-  getAvailableBalance,
-  matchOrder
+  validateOrderAddress
 } from "../utils/ethMethods";
-import { Icon } from "@chakra-ui/icons";
-import { OptionAction, OptionType } from '../types';
+import {Icon} from "@chakra-ui/icons";
+import {OptionAction, OptionType} from '../types';
 import {useWeb3React} from "@web3-react/core";
-import { getEnumKeys } from '../utils/helperMethods';
+import {getEnumKeys} from '../utils/helperMethods';
 
 const quoteAsset = "0x0000000000000000000000000000000000000000"; // ETH
 const baseAsset: string = process.env.REACT_APP_FK_TOKEN_ADDRESS || ""; // FK
@@ -77,6 +78,7 @@ function Options({
     getRadioProps: getOptionRadioProps,
   } = useRadioGroup({
     name: "option",
+    // TODO: buy and sell should be derived from the enum optionAction everywhere
     defaultValue: isBuy ? "BUY" : "SELL",
     onChange: (nextValue) => setOption(nextValue),
   });
@@ -86,7 +88,7 @@ function Options({
     getRadioProps: getOptionTypeRadioProps,
   } = useRadioGroup({
     name: "optionType",
-    defaultValue: isCall ? "CALL" : "PUT",
+    defaultValue: "CALL",
     onChange: (nextValue) => setOptionType(nextValue),
   });
 
@@ -111,7 +113,7 @@ function Options({
     const unsignedOrder = {
       size: amount,
       isBuy,
-      optionType: isCall ? 1 : 0,
+      optionType: isCall ? OptionType.CALL : OptionType.PUT,
       baseAsset,
       quoteAsset,
       expiry: toEthDate(new Date(expiryDate)),
