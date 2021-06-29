@@ -3,7 +3,7 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Box,
+  Box, Center,
   Container,
   Grid,
   HStack,
@@ -144,7 +144,10 @@ function OptionsView(props: RouteComponentProps) {
       borderRadius="lg"
     >
       {contractDataStatus === "fetching" &&
-      <Spinner color="teal"/>
+      <Center >
+        <Spinner color="teal"/>
+      </Center>
+     
       }
       {contractDataError &&
       <Box>
@@ -154,6 +157,8 @@ function OptionsView(props: RouteComponentProps) {
         </Alert>
       </Box>
       }
+      {contractDataStatus === "fetched" &&
+          <>
       <Box mb={10}>
         <HStack {...groupExpiry}>
           {expiryDates.map((value) => {
@@ -166,7 +171,6 @@ function OptionsView(props: RouteComponentProps) {
           })}
         </HStack>
       </Box>
-      {!contractDataError &&
       <Grid pb={"5"} templateColumns="repeat(2, 1fr)">
         <HStack {...groupOption}>
           {options.map((value) => {
@@ -190,6 +194,7 @@ function OptionsView(props: RouteComponentProps) {
           })}
         </HStack>
       </Grid>
+          </>
       }
       {optionRows}
     </Container>
