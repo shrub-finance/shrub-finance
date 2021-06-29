@@ -1,7 +1,7 @@
 import React from "react";
 import RadioCard from "./Radio";
 import { FaEthereum } from "react-icons/fa";
-import { getOrders, postOrder } from "../utils/requests";
+import { GetOrders, postOrder } from "../utils/requests";
 import {
   Text,
   Grid,
@@ -139,7 +139,7 @@ function Options({
     const now = new Date();
     const fifteenMinutesFromNow = new Date(now);
     fifteenMinutesFromNow.setUTCMinutes(now.getUTCMinutes() + 15);
-    const order = await getOrders({});
+    const order = await GetOrders({});
     console.log(order);
     if (!order) {
       console.log("no orders found");
