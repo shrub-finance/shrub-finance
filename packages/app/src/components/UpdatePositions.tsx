@@ -61,12 +61,12 @@ function UpdatePositions({
             <NumberInputField />
           </NumberInput>
           <Button
-            colorScheme="orange"
-            size="xs"
-            variant="outline"
-            ml="320px"
-            mt="10px"
-            onClick={fillSendMax}
+              colorScheme="orange"
+              size="xs"
+              variant="outline"
+              mt="10px"
+              ml="72%"
+              onClick={fillSendMax}
           >
             Send Max
           </Button>

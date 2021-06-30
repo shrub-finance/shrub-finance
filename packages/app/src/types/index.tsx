@@ -34,13 +34,13 @@ export interface SmallOrder {
 }
 
 export enum OptionType {
-  PUT ,
-  CALL
+  PUT= "PUT",
+  CALL= "CALL"
 }
 
 export enum OptionAction {
+  SELL= "SELL",
   BUY= "BUY",
-  SELL = "SELL"
 
 }
 

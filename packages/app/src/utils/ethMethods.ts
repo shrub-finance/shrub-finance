@@ -69,7 +69,7 @@ export async function signOrder(unsignedOrder: UnsignedOrder, provider: JsonRpcP
   const shrubInterface = new Shrub712(1337, SHRUB_CONTRACT_ADDRESS);
   const order = {
     ...unsignedOrder,
-    optionType: unsignedOrder.optionType === OptionType.CALL ? 1 : 0,
+    optionType: [OptionType.CALL, 1].includes(unsignedOrder.optionType) ? 1 : 0,
   };
   const signer = provider.getSigner();
 
