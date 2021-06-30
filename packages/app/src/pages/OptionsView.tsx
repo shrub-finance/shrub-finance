@@ -97,8 +97,10 @@ function OptionsView(props: RouteComponentProps) {
     const filteredOrders =
         orderData &&
         orderDataStatus === "fetched"
-        && orderData.filter((order) =>
-        order.strike === strikePrice && order.optionType === OptionType[optionType as keyof typeof OptionType]
+        && orderData.filter((order) => {
+          const orderOptionTypeString = Object.keys(OptionType)[Number(order.optionType)];
+          return order.strike === strikePrice && orderOptionTypeString === OptionType[optionType]
+        }
     );
 
     const buyOrders =
