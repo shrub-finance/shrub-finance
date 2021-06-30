@@ -26,10 +26,14 @@ import {
   depositToken,
   withdraw,
   approveToken,
-  getFilledOrders, getAvailableBalance, exercise, signOrder
+  getFilledOrders,
+  getAvailableBalance,
+  exercise,
+  signOrder,
+  getLockedBalance
 } from "../utils/ethMethods";
 import UpdatePositions from "./UpdatePositions";
-import {Balance, OrderCommon, SmallOrder} from "../types";
+import {Balance, OrderCommon, ShrubBalance, SmallOrder} from "../types";
 import { Currencies } from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 
@@ -41,7 +45,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
 
   const [optionsRows, setOptionsRows] = useState(<></>)
 
-  const [shrubBalance, setShrubBalance] = useState({} as Balance);
+  const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
 
   const orderMap = new Map();
 
@@ -53,12 +57,15 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
         console.error('Please connect wallet');
         return;
       }
-      const shrubBalanceObj:any = {};
+      const shrubBalanceObj:ShrubBalance = {locked: {}, available:{}};
       for (const currencyObj of Object.values(Currencies)) {
         const {symbol, address: tokenContractAddress} = currencyObj;
         const bigBalance = await getAvailableBalance({address: account, tokenContractAddress, provider: library})
+        const bigLockedBalance = await getLockedBalance(account, tokenContractAddress, library);
         const balance = ethers.utils.formatUnits(bigBalance, 18);
-        shrubBalanceObj[symbol] = balance;
+        const lockedBalance = ethers.utils.formatUnits(bigLockedBalance, 18);
+        shrubBalanceObj.available[symbol] = Number(balance);
+        shrubBalanceObj.locked[symbol] = Number(lockedBalance);
       }
       setShrubBalance(shrubBalanceObj)
     }
@@ -132,14 +139,18 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     setAction(passButtonText);
   }
 
+  function totalUserBalance(currency: string) {
+    return shrubBalance.locked[currency] + shrubBalance.available[currency];
+  }
+
   // Populate Balance Table
   for (const currency of Object.keys(Currencies)) {
     tableRows.push(
       <Tr key={currency}>
         <Td>{currency}</Td>
-        <Td/>
-        <Td/>
-        <Td>{shrubBalance[currency]}</Td>
+        <Td>{totalUserBalance(currency)}</Td>
+        <Td>{shrubBalance.locked[currency]}</Td>
+        <Td>{shrubBalance.available[currency]}</Td>
         <Td>
           <Stack spacing={4} direction="row" align="center">
             <Button
