@@ -68,7 +68,7 @@ function Options({
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [amount, setAmount] = React.useState(1);
-  const [price, setPrice] = React.useState();
+  const [price, setPrice] = React.useState('');
 
   // TODO: get proper status response from postOrder method to show loading state on Place Order button
   const [submitting, setSubmitting] = React.useState(false);
@@ -84,8 +84,7 @@ function Options({
     getRadioProps: getOptionRadioProps,
   } = useRadioGroup({
     name: "option",
-    // TODO: buy and sell should be derived from the enum optionAction everywhere
-    // defaultValue: option,
+    defaultValue: option,
     // @ts-ignore
     onChange: (nextValue) => setRadioOption(nextValue),
   });
