@@ -1,5 +1,10 @@
 export type Balance = { [currency: string]: string };
 
+export type ShrubBalance = {
+  locked: {[currency: string]: number},
+  available: {[currency: string]: number}
+};
+
 export type Option = {
   strikePrice: number;
   isCall: boolean;

@@ -278,6 +278,11 @@ export async function getAvailableBalance(params: {
   return shrubContract.getAvailableBalance(address, tokenContractAddress)
 }
 
+export function getLockedBalance(address: string, tokenContractAddress: string, provider: JsonRpcProvider) {
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  return shrubContract.userTokenLockedBalance(address, tokenContractAddress);
+}
+
 export async function matchOrder(params: {
   signedBuyOrder: IOrder;
   signedSellOrder: IOrder;
