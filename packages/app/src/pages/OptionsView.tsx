@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   Alert,
   AlertDescription,
@@ -16,6 +16,7 @@ import { RouteComponentProps } from "@reach/router";
 import RadioCard from '../components/Radio';
 import { getEnumKeys } from '../utils/helperMethods';
 import { Spinner } from "@chakra-ui/react"
+import {formatOrder} from "../utils/ethMethods";
 
 function OptionsView(props: RouteComponentProps) {
 
@@ -93,13 +94,17 @@ function OptionsView(props: RouteComponentProps) {
 
   },[expiryDate, optionType]);
 
+  const formattedOrderData = useMemo(() => {
+    return orderData && orderData.map(order => formatOrder(order));
+  }, [orderData])
+
   for (const strikePrice of strikePrices) {
 
     const filteredOrders =
-        orderData &&
+        formattedOrderData &&
         orderDataStatus === "fetched"
-        && orderData.filter((order) =>
-        order.strike === strikePrice && order.optionType === OptionType[optionType as keyof typeof OptionType]
+        && formattedOrderData.filter((order) =>
+        order.formattedStrike === strikePrice && order.optionType === OptionType[optionType as keyof typeof OptionType]
     );
 
     const buyOrders =
@@ -113,12 +118,12 @@ function OptionsView(props: RouteComponentProps) {
     const bestBid =
       buyOrders &&
       buyOrders.length &&
-      Math.max(...buyOrders.map((buyOrder) => buyOrder.price));
+      Math.max(...buyOrders.map((buyOrder) => buyOrder.formattedPrice));
 
     const bestAsk =
       sellOrders &&
       sellOrders.length &&
-      Math.min(...sellOrders.map((buyOrder) => buyOrder.price));
+      Math.min(...sellOrders.map((buyOrder) => buyOrder.formattedPrice));
 
     optionRows.push(
       <Options

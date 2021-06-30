@@ -11,6 +11,8 @@ const wsUrl = "http://127.0.0.1:8545";
 const web3 = new Web3(new Web3.providers.HttpProvider(wsUrl));
 const apiPort = Number(process.env.API_PORT) || 8000;
 
+const weiInEth = web3.utils.toBN(10).pow(web3.utils.toBN(18));
+
 const Assets = {
   USDC: "",
   ETH: "0x0000000000000000000000000000000000000000",
@@ -33,21 +35,27 @@ function getRandomContract() {
 }
 
 async function generateRandomOrder(nonce) {
-  const {expiry, strike, optionType } = getRandomContract();
+  const {expiry, strike:strikeUsdc, optionType } = getRandomContract();
   const timeToExpiry = (expiry * 1000 - Date.now()) / (365 * 24 * 60 * 60 * 1000)
   const volatility = (Math.random() * 75 + 75) / 100;
   console.log(`
     ETH price: ${ETH_PRICE}
-    strike: ${strike}
+    strike: ${strikeUsdc}
     time to expiry (years): ${timeToExpiry}
     volatility: ${volatility}
     risk free rate: ${RISK_FREE_RATE}
   `)
+
+  const strike = web3.utils.toBN(strikeUsdc).mul(weiInEth);
+  const sizeEth = Math.floor(Math.random() * 5) + 1;
+  const size = web3.utils.toBN(sizeEth).mul(weiInEth);
+  const pricePerContractUsdc = Math.round(100 * bs.blackScholes(ETH_PRICE, strikeUsdc, timeToExpiry, volatility, RISK_FREE_RATE, optionType)) / 100
+  const price = web3.utils.toBN(Math.round(pricePerContractUsdc * 100)).mul(weiInEth.div(web3.utils.toBN(100)));
   return {
     nonce,
-    size: Math.floor(Math.random() * 5) + 1,
+    size,
     isBuy: Math.random() * 100 > 50,
-    price: Math.round(100 * bs.blackScholes(ETH_PRICE, strike, timeToExpiry, volatility, RISK_FREE_RATE, optionType)) / 100,
+    price,
     offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
     fee: Math.floor(Math.random() * 100),
     baseAsset: Assets.USDC,
@@ -93,7 +101,8 @@ async function main() {
       from
     );
     console.log(signed);
-    await saveOrder({ ...signed.order, ...signed.sig, address: from });
+    const { size, price, strike } = signed.order;
+    await saveOrder({ ...signed.order, ...signed.sig, address: from, size: size.toString(), price: price.toString(), strike: strike.toString() });
     await wait(1000);
   }
 }

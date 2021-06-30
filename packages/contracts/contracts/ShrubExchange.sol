@@ -297,7 +297,12 @@ contract ShrubExchange {
 
   function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
+//    console.log(buyer);
+//    console.log(seller);
     bytes32 positionHash = hashOrderCommon(common);
+//    console.logBytes32(positionHash);
+//    console.logInt(userOptionPosition[buyer][positionHash]);
+//    console.logInt(userOptionPosition[seller][positionHash]);
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
     require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
     require(common.expiry >= block.timestamp, "Option has already expired");

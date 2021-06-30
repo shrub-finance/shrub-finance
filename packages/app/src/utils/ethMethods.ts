@@ -14,7 +14,9 @@ import { Shrub712 } from "./EIP712";
 import Web3 from "web3";
 import {useWeb3React} from "@web3-react/core";
 import {JsonRpcProvider} from "@ethersproject/providers";
-import {toWei} from 'ethjs-unit';
+
+const { WeiPerEther } = ethers.constants;
+const BigHundred = ethers.BigNumber.from(100);
 
 declare let window: any;
 
@@ -49,6 +51,18 @@ export function toEthDate(date: Date) {
 
 export function fromEthDate(ethDate: number) {
   return new Date(ethDate * 1000);
+}
+
+export function orderWholeUnitsToBaseUnits(unsignedOrder: any) {
+  const { size, strike, price } = unsignedOrder;
+  return {
+    ...unsignedOrder,
+    size: ethers.utils.parseUnits(size.toString()).toString(),
+    strike: ethers.utils.parseUnits(strike.toString()).toString(),
+    price: ethers.utils.parseUnits(price.toString()).toString(),
+    optionType: unsignedOrder.optionType === OptionType.CALL ? 1 : 0,
+  };
+
 }
 
 export async function signOrder(unsignedOrder: UnsignedOrder, provider: JsonRpcProvider) {
@@ -173,10 +187,6 @@ export async function depositToken(
     throw new Error("need to approve");
   }
   return shrubContract.deposit(tokenContractAddress, amount);
-}
-
-export function ethToWei(value: number, unitString = 'ether') {
-  return ethers.BigNumber.from(toWei(value, unitString).toString())
 }
 
 export async function approveToken(
@@ -397,4 +407,24 @@ export async function exercise(order: IOrder, seller: string, provider: JsonRpcP
   const buySig = iOrderToSig(order);
   const executed = await shrubContract.execute(buyOrder,common,seller,buySig);
   return executed;
+}
+
+export function formatOrder(order: any) {
+  let strike;
+  let size;
+  let price;
+  if (order.strike.$numberDecimal && order.size.$numberDecimal && order.price.$numberDecimal) {
+    strike = ethers.BigNumber.from(order.strike.$numberDecimal);
+    size = ethers.BigNumber.from(order.size.$numberDecimal);
+    price = ethers.BigNumber.from(order.price.$numberDecimal);
+  }
+  return {
+    ...order,
+    strike,
+    size,
+    price,
+    formattedStrike: ethers.BigNumber.from(order.strike.$numberDecimal).div(WeiPerEther).toNumber(),
+    formattedSize: ethers.BigNumber.from(order.size.$numberDecimal).mul(BigHundred).div(WeiPerEther).toNumber() / 100,
+    formattedPrice: ethers.BigNumber.from(order.price.$numberDecimal).mul(BigHundred).div(WeiPerEther).toNumber() / 100,
+  }
 }

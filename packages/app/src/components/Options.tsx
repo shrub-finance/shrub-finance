@@ -28,10 +28,12 @@ import {
 } from "@chakra-ui/react";
 
 import {
+  formatOrder,
   getAddressFromSignedOrder,
   getAvailableBalance,
   getUserNonce,
   matchOrder,
+  orderWholeUnitsToBaseUnits,
   signOrder,
   toEthDate,
   validateOrderAddress
@@ -124,7 +126,7 @@ function Options({
       nonce,
     };
     try {
-      const signedOrder = await signOrder(unsignedOrder, library);
+      const signedOrder = await signOrder(orderWholeUnitsToBaseUnits(unsignedOrder), library);
       const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
       console.log(`verifiedAddress: ${verifiedAddress}`);
       await postOrder(signedOrder);
@@ -149,7 +151,9 @@ function Options({
     }
     try {
       console.log(order);
-      const doesAddressMatch: boolean = await validateOrderAddress(order, library);
+      const formattedOrder = formatOrder(order);
+      console.log(formattedOrder);
+      const doesAddressMatch: boolean = await validateOrderAddress(formattedOrder, library);
       console.log(doesAddressMatch);
       const {
         address,
@@ -162,7 +166,7 @@ function Options({
         size,
         isBuy,
         expiry,
-      } = order;
+      } = formattedOrder;
       const userNonce = await getUserNonce({
         address,
         quoteAsset,
@@ -181,18 +185,19 @@ function Options({
           provider: library
         });
         console.log(balance);
-        if (balance.lt(strike * size)) {
+        console.log(size)
+        if (balance.lt(size)) {
           throw new Error("not enough collateral of quoteAsset");
         }
       } else {
         // required collateral is strike * size of the baseAsset
         const balance = await getAvailableBalance({
           address,
-          tokenContractAddress: quoteAsset,
+          tokenContractAddress: baseAsset,
           provider: library
         });
         console.log(balance.toString());
-        if (balance.lt(strike * size)) {
+        if (balance.lt(price)) {
           throw new Error("not enough collateral of baseAsset");
         }
       }
@@ -222,9 +227,15 @@ function Options({
       };
       const signedOrder = await signOrder(unsignedOrder, library);
       console.log(signedOrder);
+      const signedSellOrder = {
+            ...formattedOrder,
+            price: formattedOrder.price.toString(),
+            size: formattedOrder.size.toString(),
+            strike: formattedOrder.strike.toString()
+          };
       const result = await matchOrder({
         signedBuyOrder: signedOrder,
-        signedSellOrder: order,
+        signedSellOrder
       }, library);
       console.log("result");
       console.log(result);

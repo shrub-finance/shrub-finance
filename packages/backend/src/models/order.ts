@@ -1,16 +1,22 @@
 import mongoose from "mongoose";
+import mongooseInt32 from 'mongoose-int32';
+
+const Int32 = mongooseInt32.loadType(mongoose);
+
+const Decimal128 = mongoose.Schema.Types.Decimal128
+
 export interface IOrder {
-  size: number;
+  size: mongoose.Schema.Types.Decimal128;
   isBuy: boolean;
   nonce: number;
-  price: number;
+  price: mongoose.Schema.Types.Decimal128;
   offerExpire: number;
   fee: number;
 
   baseAsset: string;
   quoteAsset: string;
   expiry: number;
-  strike: number;
+  strike: mongoose.Schema.Types.Decimal128;
   optionType: number;
 
   v: number;
@@ -20,20 +26,20 @@ export interface IOrder {
 }
 
 const OrderSchema = new mongoose.Schema({
-  size: { type: Number, required: true },
+  size: { type: Decimal128, required: true },
   isBuy: { type: Boolean, required: true },
-  nonce: { type: Number, required: true },
-  price: { type: Number, required: true },
-  offerExpire: { type: Number, required: true },
+  nonce: { type: Int32, required: true },
+  price: { type: Decimal128, required: true },
+  offerExpire: { type: Int32, required: true },
   fee: { type: Number, required: true },
 
   baseAsset: { type: String, required: true },
   quoteAsset: { type: String, required: true },
-  expiry: { type: Number, required: true },
-  strike: { type: Number, required: true },
-  optionType: { type: Number, required: true },
+  expiry: { type: Int32, required: true },
+  strike: { type: Decimal128, required: true },
+  optionType: { type: Int32, required: true },
 
-  v: { type: Number, required: true },
+  v: { type: Int32, required: true },
   r: { type: String, required: true },
   s: { type: String, required: true },
   address: { type: String, required: true },
