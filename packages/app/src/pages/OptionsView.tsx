@@ -1,47 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Box, Center,
+  Box,
+  Center,
   Container,
   Grid,
   HStack,
+  Spinner,
   useRadioGroup
 } from '@chakra-ui/react';
 import Options from "../components/Options";
 import useFetch from "../hooks/useFetch";
-import { IOrder, ContractData, OptionType, OptionAction } from '../types';
-import { RouteComponentProps } from "@reach/router";
+import {ContractData, IOrder, OptionAction, OptionType} from '../types';
+import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
-import { getEnumKeys } from '../utils/helperMethods';
-import { Spinner } from "@chakra-ui/react"
+import {getEnumKeys} from '../utils/helperMethods';
 
 function OptionsView(props: RouteComponentProps) {
 
-  const [option, setOption] = useState("BUY");
-  const [optionType, setOptionType] = useState("CALL");
+  const options: string[] = getEnumKeys(OptionAction)
+  const optionTypes: string[] = getEnumKeys(OptionType)
+  const [option, setOption] = useState(OptionAction.BUY);
+  const [optionType, setOptionType] = useState(OptionType.CALL);
   const [expiryDate, setExpiryDate] = useState("");
   const [strikePrices, setStrikePrices] = useState([]);
   const [expiryDates, setExpiryDates] = useState([]);
 
   const optionRows: any = [];
 
-  const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
-  // TODO: orderData should handle error just like contract data
-  const {data:orderData, status: orderDataStatus} = useFetch<IOrder[]>(url);
-  const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
-  const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
-  const options: string[] = [OptionAction.BUY, OptionAction.SELL]
-  const optionTypes: string[] = getEnumKeys(OptionType)
-
-
   const {
     getRootProps: getOptionRootProps,
     getRadioProps: getOptionRadioProps,
   } = useRadioGroup({
     name: "option",
-    defaultValue: "BUY",
+    defaultValue: OptionAction.BUY,
+    // @ts-ignore
     onChange: (nextValue) => setOption(nextValue),
   })
 
@@ -50,7 +45,8 @@ function OptionsView(props: RouteComponentProps) {
     getRadioProps: getOptionTypeRadioProps,
   } = useRadioGroup({
     name: "optionType",
-    defaultValue:  "CALL",
+    defaultValue:  OptionType.CALL,
+    // @ts-ignore
     onChange: (nextValue) => setOptionType(nextValue),
   });
 
@@ -62,12 +58,15 @@ function OptionsView(props: RouteComponentProps) {
     onChange: (nextValue) => setExpiryDate(nextValue),
   });
 
-
   const groupOption = getOptionRootProps();
   const groupOptionType = getOptionTypeRootProps();
   const groupExpiry = getExpiryRootProps();
 
-
+  const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
+  // TODO: orderData should handle error just like contract data
+  const {data:orderData, status: orderDataStatus} = useFetch<IOrder[]>(url);
+  const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
+  const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
 
   useEffect(() => {
 
@@ -126,10 +125,11 @@ function OptionsView(props: RouteComponentProps) {
         strikePrice={strikePrice}
         bid={bestBid}
         ask={bestAsk}
-        isBuy={option === "BUY"}
-        isCall={optionType === "CALL"}
-        setOption={setOption}
-        setOptionType={setOptionType}
+        isBuy={option === OptionAction.BUY}
+        isCall={optionType === OptionType.CALL}
+        option={option}
+        optionType={optionType}
+        expiryDate={expiryDate}
       />
     );
   }
