@@ -29,7 +29,8 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-  ModalCloseButton, ModalBody
+  ModalCloseButton,
+  ModalBody
 } from "@chakra-ui/react";
 
 import {
@@ -155,14 +156,16 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     "ETH" as keyof typeof Currencies
   );
 
-  function handleClickWithdraw() {
-    handleClick('Withdraw');
+  function handleClickWithdraw(selectedCurrency: any) {
+    passButtonText('Withdraw');
     setError('');
+    setDrawerCurrency(selectedCurrency);
   }
 
-  function handleClickDeposit() {
-    handleClick('Deposit');
+  function handleClickDeposit(selectedCurrency: any) {
+    passButtonText('Deposit');
     setError('');
+    setDrawerCurrency(selectedCurrency)
 
   }
 
@@ -175,9 +178,9 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     return exercised;
   }
 
-  function handleClick(passButtonText: string) {
+  function passButtonText(clickedButtonText: string) {
     onOpenDrawer();
-    setAction(passButtonText);
+    setAction(clickedButtonText);
   }
 
   function totalUserBalance(currency: string) {
@@ -197,7 +200,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Button
               colorScheme="teal"
               size="xs"
-              onClick={handleClickWithdraw}
+              onClick={() => handleClickWithdraw(currency)}
               isDisabled={!active}
             >
               Withdraw
@@ -205,7 +208,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Button
               colorScheme="teal"
               size="xs"
-              onClick={handleClickDeposit}
+              onClick={() => handleClickDeposit(currency)}
               isDisabled={!active}
             >
               Deposit
@@ -230,9 +233,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                   </Button>
               </Box>
               </Alert>
-
             </SlideFade>
-
               <Modal isOpen={isOpenConnectModal} onClose={onCloseConnectModal}>
                 <ModalOverlay />
                 <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
@@ -282,56 +283,56 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                     error={error}
                 />
                 <Flex>
-                {drawerCurrency !== "ETH" && action === "Deposit" ? (
-                    <Button
-                        colorScheme="teal"
-                        isDisabled={amountValue === '0' || amountValue === ''}
-                        onClick={() => {
-                          if (active) {
-                            approveToken(
-                                Currencies[drawerCurrency].address,
-                                ethers.utils.parseUnits(amountValue),
-                                library
-                            ).catch(handleErrorMessages)
+                  {drawerCurrency !== "ETH" && action === "Deposit" ? (
+                      <Button
+                          colorScheme="teal"
+                          isDisabled={amountValue === '0' || amountValue === ''}
+                          onClick={() => {
+                            if (active) {
+                              approveToken(
+                                  Currencies[drawerCurrency].address,
+                                  ethers.utils.parseUnits(amountValue),
+                                  library
+                              ).catch(handleErrorMessages)
+                            }
                           }
-                        }
-                      }
-                    >
-                      Approve
-                    </Button>
-                ) : null}
-                      <Spacer/>
-                <Button
-                    colorScheme="teal"
-                    isDisabled={amountValue === '0' || amountValue === ''}
-                    onClick={() => {
+                          }
+                      >
+                        Approve
+                      </Button>
+                  ) : null}
+                  <Spacer/>
+                  <Button
+                      colorScheme="teal"
+                      isDisabled={amountValue === '0' || amountValue === ''}
+                      onClick={() => {
                         if (!active) {
                           handleErrorMessages(undefined,'Please connect your wallet');
                           return;
                         }
-                      if (action === "Deposit") {
-                        if (drawerCurrency === "ETH") {
-                          depositEth(ethers.utils.parseUnits(amountValue), library
-                          ).catch(handleErrorMessages);
-                        } else {
-                          depositToken(
+                        if (action === "Deposit") {
+                          if (drawerCurrency === "ETH") {
+                            depositEth(ethers.utils.parseUnits(amountValue), library
+                            ).catch(handleErrorMessages);
+                          } else {
+                            depositToken(
+                                Currencies[drawerCurrency].address,
+                                ethers.utils.parseUnits(amountValue),
+                                library
+                            ).catch(handleErrorMessages);
+                          }
+                        } else if (action === "Withdraw") {
+                          withdraw(
                               Currencies[drawerCurrency].address,
                               ethers.utils.parseUnits(amountValue),
                               library
                           ).catch(handleErrorMessages);
                         }
-                      } else if (action === "Withdraw") {
-                        withdraw(
-                            Currencies[drawerCurrency].address,
-                            ethers.utils.parseUnits(amountValue),
-                            library
-                        ).catch(handleErrorMessages);
-                      }
-                    }}
-                >
-                  {action}
-                </Button>
-                    </Flex>
+                      }}
+                  >
+                    {action}
+                  </Button>
+                </Flex>
               </DrawerBody>
             </DrawerContent>
           </Drawer>

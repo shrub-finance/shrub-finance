@@ -29,7 +29,7 @@ function UpdatePositions({
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "currency",
-    defaultValue: "ETH",
+    defaultValue: drawerCurrency,
     onChange: (nextValue) => setDrawerCurrency(nextValue)
   })
 
