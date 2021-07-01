@@ -1,56 +1,70 @@
 import React from "react";
 import {
   Stack,
-  Select,
+  HStack,
   Button,
   FormControl,
   FormLabel,
   NumberInput,
-  NumberInputField,
+  NumberInputField, useRadioGroup, Alert, AlertIcon, SlideFade
 } from "@chakra-ui/react";
 import { Currencies } from "../constants/currencies";
-
-const currencySymbols = [] as Array<JSX.Element>;
-for (const currency of Object.keys(Currencies)) {
-  currencySymbols.push(
-    <option key={currency} value={currency}>
-      {currency}
-    </option>
-  );
-}
+import RadioCard from "./Radio";
 
 function UpdatePositions({
   value,
   setValue,
-  modalCurrency,
-  setModalCurrency,
+  drawerCurrency,
+  setDrawerCurrency,
   walletBalance,
   shrubBalance,
   action,
+  error
 }: any) {
   const format = (val: string) => val;
   const parse = (val: string) => val.replace(/^\$/, "");
 
+  // radio butttons
+  const currencies = Object.keys(Currencies)
+
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name: "currency",
+    defaultValue: "ETH",
+    onChange: (nextValue) => setDrawerCurrency(nextValue)
+  })
+
+  const currenciesRadiogroup = getRootProps()
+
   function fillSendMax() {
     if (action === "Deposit") {
-      setValue(walletBalance[modalCurrency]);
+      setValue(walletBalance[drawerCurrency]);
     } else if (action === "Withdraw") {
-      setValue(shrubBalance[modalCurrency]);
+      setValue(shrubBalance[drawerCurrency]);
     }
   }
 
   return (
-    <div>
+
       <Stack direction={["column"]} spacing="40px" mb="40px">
-        <FormControl id="currency">
-          <FormLabel>Currency</FormLabel>
-          <Select
-            size="lg"
-            onChange={(event) => setModalCurrency(event.target.value)}
-          >
-            {currencySymbols}
-          </Select>
-        </FormControl>
+        {error && (
+            <SlideFade in={true} unmountOnExit={true}>
+            <Alert status="error" borderRadius={9}>
+              <AlertIcon />
+              {error}
+            </Alert>
+            </SlideFade>
+        )
+        }
+        <HStack {...currenciesRadiogroup}>
+          {currencies.map((value) => {
+            const radio = getRadioProps({ value })
+            return (
+                <RadioCard key={value} {...radio}>
+                  {value}
+                </RadioCard>
+            )
+          })}
+        </HStack>
         <FormControl id="amount">
           <FormLabel>Amount</FormLabel>
           <NumberInput
@@ -72,7 +86,6 @@ function UpdatePositions({
           </Button>
         </FormControl>
       </Stack>
-    </div>
   );
 }
 
