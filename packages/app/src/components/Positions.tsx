@@ -51,7 +51,7 @@ import ConnectWalletsView from "./ConnectWallets";
 
 function Positions({ walletBalance }: { walletBalance: Balance }) {
 
-  function handleErr(err?: Error, message?:string) {
+  function handleErrorMessages(err?: Error, message?:string) {
     if(err) {
       // @ts-ignore
       setError(err.message);
@@ -76,7 +76,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     setError('');
     async function inner() {
       if (!active || !account) {
-        handleErr(undefined, 'Please connect your wallet')
+        handleErrorMessages(undefined, 'Please connect your wallet')
         console.error('Please connect wallet');
         return;
       }
@@ -101,7 +101,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     setError('');
     async function inner() {
       if (!active || !account) {
-        handleErr(undefined, 'Please connect your wallet')
+        handleErrorMessages(undefined, 'Please connect your wallet')
         console.error('Please connect wallet');
         return;
       }
@@ -149,7 +149,8 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   } = useDisclosure();
 
 
-  const [value, setValue] = useState("0");
+  const [amountValue, setAmountValue] = useState("0");
+
   const [drawerCurrency, setDrawerCurrency] = useState(
     "ETH" as keyof typeof Currencies
   );
@@ -271,8 +272,8 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
               <DrawerCloseButton/>
               <DrawerBody>
                 <UpdatePositions
-                    value={value}
-                    setValue={setValue}
+                    amountValue={amountValue}
+                    setAmountValue={setAmountValue}
                     drawerCurrency={drawerCurrency}
                     setDrawerCurrency={setDrawerCurrency}
                     walletBalance={walletBalance}
@@ -284,13 +285,14 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                 {drawerCurrency !== "ETH" && action === "Deposit" ? (
                     <Button
                         colorScheme="teal"
+                        isDisabled={amountValue === '0' || amountValue === ''}
                         onClick={() => {
                           if (active) {
                             approveToken(
                                 Currencies[drawerCurrency].address,
-                                ethers.utils.parseUnits(value),
+                                ethers.utils.parseUnits(amountValue),
                                 library
-                            ).catch(handleErr)
+                            ).catch(handleErrorMessages)
                           }
                         }
                       }
@@ -301,28 +303,29 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                       <Spacer/>
                 <Button
                     colorScheme="teal"
+                    isDisabled={amountValue === '0' || amountValue === ''}
                     onClick={() => {
                         if (!active) {
-                          handleErr(undefined,'Please connect your wallet');
+                          handleErrorMessages(undefined,'Please connect your wallet');
                           return;
                         }
                       if (action === "Deposit") {
                         if (drawerCurrency === "ETH") {
-                          depositEth(ethers.utils.parseUnits(value), library
-                          ).catch(handleErr);
+                          depositEth(ethers.utils.parseUnits(amountValue), library
+                          ).catch(handleErrorMessages);
                         } else {
                           depositToken(
                               Currencies[drawerCurrency].address,
-                              ethers.utils.parseUnits(value),
+                              ethers.utils.parseUnits(amountValue),
                               library
-                          ).catch(handleErr);
+                          ).catch(handleErrorMessages);
                         }
                       } else if (action === "Withdraw") {
                         withdraw(
                             Currencies[drawerCurrency].address,
-                            ethers.utils.parseUnits(value),
+                            ethers.utils.parseUnits(amountValue),
                             library
-                        ).catch(handleErr);
+                        ).catch(handleErrorMessages);
                       }
                     }}
                 >

@@ -12,8 +12,8 @@ import { Currencies } from "../constants/currencies";
 import RadioCard from "./Radio";
 
 function UpdatePositions({
-  value,
-  setValue,
+  amountValue,
+  setAmountValue,
   drawerCurrency,
   setDrawerCurrency,
   walletBalance,
@@ -37,9 +37,9 @@ function UpdatePositions({
 
   function fillSendMax() {
     if (action === "Deposit") {
-      setValue(walletBalance[drawerCurrency]);
+      setAmountValue(walletBalance[drawerCurrency]);
     } else if (action === "Withdraw") {
-      setValue(shrubBalance[drawerCurrency]);
+      setAmountValue(shrubBalance[drawerCurrency]);
     }
   }
 
@@ -68,8 +68,8 @@ function UpdatePositions({
         <FormControl id="amount">
           <FormLabel>Amount</FormLabel>
           <NumberInput
-            onChange={(valueString) => setValue(parse(valueString))}
-            value={format(value)}
+            onChange={(valueString) => setAmountValue(parse(valueString))}
+            value={format(amountValue)}
             size="lg"
           >
             <NumberInputField />
