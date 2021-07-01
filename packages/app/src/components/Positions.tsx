@@ -156,17 +156,22 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     "ETH" as keyof typeof Currencies
   );
 
-  function handleClickWithdraw(selectedCurrency: any) {
-    passButtonText('Withdraw');
-    setError('');
-    setDrawerCurrency(selectedCurrency);
+  function handleClickWithdrawFactory(selectedCurrency: any) {
+    return (
+       function handleClickWithdraw() {
+         passButtonText('Withdraw');
+         setError('');
+         setDrawerCurrency(selectedCurrency);
+       })
   }
 
-  function handleClickDeposit(selectedCurrency: any) {
-    passButtonText('Deposit');
-    setError('');
-    setDrawerCurrency(selectedCurrency)
-
+  function handleClickDepositFactory(selectedCurrency: any) {
+    return(
+      function handleClickDeposit() {
+      passButtonText('Deposit');
+      setError('');
+      setDrawerCurrency(selectedCurrency)
+    })
   }
 
   async function handleClickExercise(pair: string, strike: string, expiry:string, optionType:string) {
@@ -200,7 +205,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Button
               colorScheme="teal"
               size="xs"
-              onClick={() => handleClickWithdraw(currency)}
+              onClick={handleClickWithdrawFactory(currency)}
               isDisabled={!active}
             >
               Withdraw
@@ -208,7 +213,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Button
               colorScheme="teal"
               size="xs"
-              onClick={() => handleClickDeposit(currency)}
+              onClick={handleClickDepositFactory(currency)}
               isDisabled={!active}
             >
               Deposit
