@@ -59,9 +59,7 @@ const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => 
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-
   useConnectWallet();
-
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -88,9 +86,7 @@ function TopNav() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            <Box
-              onClick={onOpen}
-            >
+            <Box onClick={onOpen}>
               <Account/>
             </Box>
             <Button onClick={toggleColorMode}>

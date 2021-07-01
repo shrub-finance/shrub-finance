@@ -18,7 +18,18 @@ import {
   DrawerCloseButton,
   useDisclosure,
   Box,
-  TableRowProps, Flex, Spacer, SlideFade, Alert, AlertIcon
+  TableRowProps,
+  Flex,
+  Spacer,
+  SlideFade,
+  Alert,
+  AlertIcon,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  Text,
+  ModalCloseButton, ModalBody
 } from "@chakra-ui/react";
 
 import {
@@ -36,6 +47,7 @@ import UpdatePositions from "./UpdatePositions";
 import {Balance, OrderCommon, ShrubBalance, SmallOrder} from "../types";
 import { Currencies } from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
+import ConnectWalletsView from "./ConnectWallets";
 
 function Positions({ walletBalance }: { walletBalance: Balance }) {
 
@@ -124,7 +136,19 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   }, [active, account, library])
 
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenDrawer,
+    onOpen: onOpenDrawer,
+    onClose: onCloseDrawer
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenConnectModal,
+    onOpen: onOpenConnectModal,
+    onClose: onCloseConnectModal
+  } = useDisclosure();
+
+
   const [value, setValue] = useState("0");
   const [drawerCurrency, setDrawerCurrency] = useState(
     "ETH" as keyof typeof Currencies
@@ -151,7 +175,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   }
 
   function handleClick(passButtonText: string) {
-    onOpen();
+    onOpenDrawer();
     setAction(passButtonText);
   }
 
@@ -173,6 +197,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
               colorScheme="teal"
               size="xs"
               onClick={handleClickWithdraw}
+              isDisabled={!active}
             >
               Withdraw
             </Button>
@@ -180,6 +205,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
               colorScheme="teal"
               size="xs"
               onClick={handleClickDeposit}
+              isDisabled={!active}
             >
               Deposit
             </Button>
@@ -192,12 +218,33 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   return (
       <>
         {error && (
+            <>
             <SlideFade in={true} unmountOnExit={true}>
               <Alert status="error" borderRadius={7} mb={6}>
                 <AlertIcon />
                 {error}
+                <Box pl="5" onClick={onOpenConnectModal}>
+                  <Button colorScheme="cyan" variant="outline" size="sm">
+                    Connect Wallet
+                  </Button>
+              </Box>
               </Alert>
+
             </SlideFade>
+
+              <Modal isOpen={isOpenConnectModal} onClose={onCloseConnectModal}>
+                <ModalOverlay />
+                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
+                  <ModalHeader>
+                    <Text fontSize={20}>Connect to a wallet</Text>
+                  </ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <ConnectWalletsView />
+                  </ModalBody>
+                </ModalContent>
+              </Modal>
+            </>
         )}
         <Box>
           <Table variant="simple">
@@ -215,8 +262,8 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Tbody>{tableRows}</Tbody>
           </Table>
           <Drawer
-              onClose={onClose}
-              isOpen={isOpen}
+              onClose={onCloseDrawer}
+              isOpen={isOpenDrawer}
               placement="right">
             <DrawerOverlay/>
             <DrawerContent>
