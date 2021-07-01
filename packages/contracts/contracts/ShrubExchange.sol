@@ -28,12 +28,12 @@ contract ShrubExchange {
 
   // Meant to be hashed with OrderCommon
   struct SmallOrder {
-    uint size;
+    uint size;              // number of contracts in terms of the smallest unit of the quoteAsset (i.e. 1e18 for 1 ETH call contract)
     bool isBuy;
     uint nonce;             // unique id of order
-    uint price;
+    uint price;             // total price of the order in terms of the smallest unit of the baseAsset (i.e. 200e6 for an order costing a total of 200 USDC) (price goes up with size)
     uint offerExpire;       // time this order expires
-    uint fee;               // matcherFee
+    uint fee;               // matcherFee in terms of wei
   }
 
   struct Order {
@@ -47,7 +47,7 @@ contract ShrubExchange {
     address baseAsset;      // ETH-USD, USD is the base
     address quoteAsset;     // ETH-USD ETH is the quote
     uint expiry;            // timestamp expires
-    uint strike;            // The price of the pair
+    uint strike;            // The price of the pair in terms of the exercise price in the baseAsset times 1e6 (i.e. 2000e6 for a 2000 USDC strike price)
     OptionType optionType;
   }
 
@@ -60,6 +60,7 @@ contract ShrubExchange {
   mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
   address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
+  uint private constant STRIKE_BASE_SHIFT = 1000000;
   bytes32 public constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
   bytes public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
   bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
@@ -241,9 +242,9 @@ contract ShrubExchange {
     }
 
     if(common.optionType == OptionType.PUT) {
-      require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike, "Put Seller must have enough free collateral");
+      require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike / STRIKE_BASE_SHIFT, "Put Seller must have enough free collateral");
       require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price, "Put Buyer must have enough free collateral");
-      userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike;
+      userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike / STRIKE_BASE_SHIFT;
       userTokenBalances[seller][common.quoteAsset] += sellOrder.price;
       userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price;
     }
@@ -316,16 +317,16 @@ contract ShrubExchange {
       userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
 
       // Give the seller the buyer's funds, in terms of baseAsset
-      userTokenBalances[seller][common.baseAsset] += buyOrder.size * common.strike;
-      userTokenBalances[buyer][common.baseAsset] -= buyOrder.size * common.strike;
+      userTokenBalances[seller][common.baseAsset] += buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
+      userTokenBalances[buyer][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
     }
     if(common.optionType == OptionType.PUT) {
       // unlock the assets of the seller
-      userTokenLockedBalance[seller][common.baseAsset] -= buyOrder.size * common.strike;
+      userTokenLockedBalance[seller][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
 
       // Reduce seller's locked capital and token balance of base asset
-      userTokenBalances[seller][common.baseAsset] -= buyOrder.size * common.strike;
-      userTokenBalances[buyer][common.baseAsset] += buyOrder.size * common.strike;
+      userTokenBalances[seller][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
+      userTokenBalances[buyer][common.baseAsset] += buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
 
       // Give the seller the buyer's funds, in terms of quoteAsset
       userTokenBalances[seller][common.quoteAsset] += buyOrder.size;
