@@ -18,7 +18,7 @@ import {
   DrawerCloseButton,
   useDisclosure,
   Box,
-  TableRowProps, Flex, Spacer
+  TableRowProps, Flex, Spacer, SlideFade, Alert, AlertIcon
 } from "@chakra-ui/react";
 
 import {
@@ -38,22 +38,33 @@ import { Currencies } from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 
 function Positions({ walletBalance }: { walletBalance: Balance }) {
+
+  function handleErr(err?: Error, message?:string) {
+    if(err) {
+      // @ts-ignore
+      setError(err.message);
+      console.log(err);
+    } else if(message) {
+      setError(message);
+    }
+  }
+
   const { active, library, account } = useWeb3React();
   const tableRows:TableRowProps[] = [];
   const tableRowsOptions:any = [];
-  const [action, setAction] = useState("");
+  const [action, setAction] = useState('');
 
   const [optionsRows, setOptionsRows] = useState(<></>)
-
+  const [error, setError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
 
   const orderMap = new Map();
 
   useEffect(() => {
-    console.log('running shrubBalance useEffect');
-
+    setError('');
     async function inner() {
       if (!active || !account) {
+        handleErr(undefined, 'Please connect your wallet')
         console.error('Please connect wallet');
         return;
       }
@@ -69,14 +80,16 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
       }
       setShrubBalance(shrubBalanceObj)
     }
-    inner().catch(console.error);
+    inner()
+    .catch(console.error);
   }, [active, account, library]);
 
 
   useEffect(() => {
-    console.log('running optionRows useEffect');
+    setError('');
     async function inner() {
       if (!active || !account) {
+        handleErr(undefined, 'Please connect your wallet')
         console.error('Please connect wallet');
         return;
       }
@@ -106,23 +119,26 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
       }
       setOptionsRows(tableRowsOptions);
     }
-    inner().catch(console.error);
+    inner()
+    .catch(console.error);
   }, [active, account, library])
-
 
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [value, setValue] = useState("0");
-  const [modalCurrency, setModalCurrency] = useState(
+  const [drawerCurrency, setDrawerCurrency] = useState(
     "ETH" as keyof typeof Currencies
   );
 
   function handleClickWithdraw() {
     handleClick('Withdraw');
+    setError('');
   }
 
   function handleClickDeposit() {
     handleClick('Deposit');
+    setError('');
+
   }
 
   async function handleClickExercise(pair: string, strike: string, expiry:string, optionType:string) {
@@ -173,9 +189,16 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     );
   }
 
-
   return (
       <>
+        {error && (
+            <SlideFade in={true} unmountOnExit={true}>
+              <Alert status="error" borderRadius={7} mb={6}>
+                <AlertIcon />
+                {error}
+              </Alert>
+            </SlideFade>
+        )}
         <Box>
           <Table variant="simple">
             <Thead>
@@ -203,23 +226,24 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                 <UpdatePositions
                     value={value}
                     setValue={setValue}
-                    modalCurrency={modalCurrency}
-                    setModalCurrency={setModalCurrency}
+                    drawerCurrency={drawerCurrency}
+                    setDrawerCurrency={setDrawerCurrency}
                     walletBalance={walletBalance}
                     shrubBalance={shrubBalance}
                     action={action}
+                    error={error}
                 />
                 <Flex>
-                {modalCurrency !== "ETH" && action === "Deposit" ? (
+                {drawerCurrency !== "ETH" && action === "Deposit" ? (
                     <Button
                         colorScheme="teal"
                         onClick={() => {
                           if (active) {
                             approveToken(
-                                Currencies[modalCurrency].address,
+                                Currencies[drawerCurrency].address,
                                 ethers.utils.parseUnits(value),
                                 library
-                            ).catch(console.error)
+                            ).catch(handleErr)
                           }
                         }
                       }
@@ -232,25 +256,26 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                     colorScheme="teal"
                     onClick={() => {
                         if (!active) {
-                          console.error('Please connect your wallet');
+                          handleErr(undefined,'Please connect your wallet');
                           return;
                         }
                       if (action === "Deposit") {
-                        if (modalCurrency === "ETH") {
-                          depositEth(ethers.utils.parseUnits(value), library).catch(console.error);
+                        if (drawerCurrency === "ETH") {
+                          depositEth(ethers.utils.parseUnits(value), library
+                          ).catch(handleErr);
                         } else {
                           depositToken(
-                              Currencies[modalCurrency].address,
+                              Currencies[drawerCurrency].address,
                               ethers.utils.parseUnits(value),
                               library
-                          ).catch(console.error);
+                          ).catch(handleErr);
                         }
                       } else if (action === "Withdraw") {
                         withdraw(
-                            Currencies[modalCurrency].address,
+                            Currencies[drawerCurrency].address,
                             ethers.utils.parseUnits(value),
                             library
-                        ).catch(console.error);
+                        ).catch(handleErr);
                       }
                     }}
                 >
