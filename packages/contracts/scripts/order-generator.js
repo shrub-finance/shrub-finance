@@ -20,6 +20,7 @@ const Assets = {
 
 const ETH_PRICE = process.argv[2] || 2500;
 const RISK_FREE_RATE = 0.05
+const STRIKE_BASE_SHIFT = 1e6;
 
 let optionContracts = [];
 
@@ -61,7 +62,7 @@ async function generateRandomOrder(nonce) {
     baseAsset: Assets.USDC,
     quoteAsset: Assets.ETH,
     expiry,
-    strike,
+    strike: strike * STRIKE_BASE_SHIFT,
     optionType: optionType === 'CALL' ? 1 : 0,
   };
 }
