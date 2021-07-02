@@ -18,7 +18,19 @@ import {
   DrawerCloseButton,
   useDisclosure,
   Box,
-  TableRowProps, Flex, Spacer
+  TableRowProps,
+  Flex,
+  Spacer,
+  SlideFade,
+  Alert,
+  AlertIcon,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  Text,
+  ModalCloseButton,
+  ModalBody
 } from "@chakra-ui/react";
 
 import {
@@ -26,50 +38,71 @@ import {
   depositToken,
   withdraw,
   approveToken,
-  getFilledOrders, getAvailableBalance, exercise, signOrder
+  getFilledOrders,
+  getAvailableBalance,
+  exercise,
+  signOrder,
+  getLockedBalance
 } from "../utils/ethMethods";
 import UpdatePositions from "./UpdatePositions";
-import {Balance, OrderCommon, SmallOrder} from "../types";
+import {Balance, OrderCommon, ShrubBalance, SmallOrder} from "../types";
 import { Currencies } from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
+import ConnectWalletsView from "./ConnectWallets";
 
 function Positions({ walletBalance }: { walletBalance: Balance }) {
+
+  function handleErrorMessages(err?: Error, message?:string) {
+    if(err) {
+      // @ts-ignore
+      setError(err.message);
+      console.log(err);
+    } else if(message) {
+      setError(message);
+    }
+  }
+
   const { active, library, account } = useWeb3React();
   const tableRows:TableRowProps[] = [];
   const tableRowsOptions:any = [];
-  const [action, setAction] = useState("");
+  const [action, setAction] = useState('');
 
   const [optionsRows, setOptionsRows] = useState(<></>)
-
-  const [shrubBalance, setShrubBalance] = useState({} as Balance);
+  const [error, setError] = useState('')
+  const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
 
   const orderMap = new Map();
 
   useEffect(() => {
-    console.log('running shrubBalance useEffect');
-
+    setError('');
     async function inner() {
       if (!active || !account) {
+        handleErrorMessages(undefined, 'Please connect your wallet')
         console.error('Please connect wallet');
         return;
       }
-      const shrubBalanceObj:any = {};
+      const shrubBalanceObj:ShrubBalance = {locked: {}, available:{}};
       for (const currencyObj of Object.values(Currencies)) {
         const {symbol, address: tokenContractAddress} = currencyObj;
         const bigBalance = await getAvailableBalance({address: account, tokenContractAddress, provider: library})
+        const bigLockedBalance = await getLockedBalance(account, tokenContractAddress, library);
         const balance = ethers.utils.formatUnits(bigBalance, 18);
-        shrubBalanceObj[symbol] = balance;
+        const lockedBalance = ethers.utils.formatUnits(bigLockedBalance, 18);
+        shrubBalanceObj.available[symbol] = Number(balance);
+        shrubBalanceObj.locked[symbol] = Number(lockedBalance);
       }
       setShrubBalance(shrubBalanceObj)
     }
-    inner().catch(console.error);
+    inner()
+    .catch(console.error);
   }, [active, account, library]);
 
 
   useEffect(() => {
-    console.log('running optionRows useEffect');
+    setError('');
     async function inner() {
       if (!active || !account) {
+        handleErrorMessages(undefined, 'Please connect your wallet')
         console.error('Please connect wallet');
         return;
       }
@@ -99,23 +132,46 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
       }
       setOptionsRows(tableRowsOptions);
     }
-    inner().catch(console.error);
+    inner()
+    .catch(console.error);
   }, [active, account, library])
 
 
+  const {
+    isOpen: isOpenDrawer,
+    onOpen: onOpenDrawer,
+    onClose: onCloseDrawer
+  } = useDisclosure();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [value, setValue] = useState("0");
-  const [modalCurrency, setModalCurrency] = useState(
+  const {
+    isOpen: isOpenConnectModal,
+    onOpen: onOpenConnectModal,
+    onClose: onCloseConnectModal
+  } = useDisclosure();
+
+
+  const [amountValue, setAmountValue] = useState("0");
+
+  const [drawerCurrency, setDrawerCurrency] = useState(
     "ETH" as keyof typeof Currencies
   );
 
-  function handleClickWithdraw() {
-    handleClick('Withdraw');
+  function handleClickWithdrawFactory(selectedCurrency: any) {
+    return (
+       function handleClickWithdraw() {
+         passButtonText('Withdraw');
+         setError('');
+         setDrawerCurrency(selectedCurrency);
+       })
   }
 
-  function handleClickDeposit() {
-    handleClick('Deposit');
+  function handleClickDepositFactory(selectedCurrency: any) {
+    return(
+      function handleClickDeposit() {
+      passButtonText('Deposit');
+      setError('');
+      setDrawerCurrency(selectedCurrency)
+    })
   }
 
   async function handleClickExercise(pair: string, strike: string, expiry:string, optionType:string) {
@@ -127,9 +183,13 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     return exercised;
   }
 
-  function handleClick(passButtonText: string) {
-    onOpen();
-    setAction(passButtonText);
+  function passButtonText(clickedButtonText: string) {
+    onOpenDrawer();
+    setAction(clickedButtonText);
+  }
+
+  function totalUserBalance(currency: string) {
+    return shrubBalance.locked[currency] + shrubBalance.available[currency];
   }
 
   // Populate Balance Table
@@ -137,22 +197,24 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     tableRows.push(
       <Tr key={currency}>
         <Td>{currency}</Td>
-        <Td/>
-        <Td/>
-        <Td>{shrubBalance[currency]}</Td>
+        <Td>{totalUserBalance(currency)}</Td>
+        <Td>{shrubBalance.locked[currency]}</Td>
+        <Td>{shrubBalance.available[currency]}</Td>
         <Td>
           <Stack spacing={4} direction="row" align="center">
             <Button
               colorScheme="teal"
               size="xs"
-              onClick={handleClickWithdraw}
+              onClick={handleClickWithdrawFactory(currency)}
+              isDisabled={!active}
             >
               Withdraw
             </Button>
             <Button
               colorScheme="teal"
               size="xs"
-              onClick={handleClickDeposit}
+              onClick={handleClickDepositFactory(currency)}
+              isDisabled={!active}
             >
               Deposit
             </Button>
@@ -162,9 +224,35 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     );
   }
 
-
   return (
       <>
+        {error && (
+            <>
+            <SlideFade in={true} unmountOnExit={true}>
+              <Alert status="error" borderRadius={7} mb={6}>
+                <AlertIcon />
+                {error}
+                <Box pl="5" onClick={onOpenConnectModal}>
+                  <Button colorScheme="cyan" variant="outline" size="sm">
+                    Connect Wallet
+                  </Button>
+              </Box>
+              </Alert>
+            </SlideFade>
+              <Modal isOpen={isOpenConnectModal} onClose={onCloseConnectModal}>
+                <ModalOverlay />
+                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
+                  <ModalHeader>
+                    <Text fontSize={20}>Connect to a wallet</Text>
+                  </ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <ConnectWalletsView />
+                  </ModalBody>
+                </ModalContent>
+              </Modal>
+            </>
+        )}
         <Box>
           <Table variant="simple">
             <Thead>
@@ -181,8 +269,8 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Tbody>{tableRows}</Tbody>
           </Table>
           <Drawer
-              onClose={onClose}
-              isOpen={isOpen}
+              onClose={onCloseDrawer}
+              isOpen={isOpenDrawer}
               placement="right">
             <DrawerOverlay/>
             <DrawerContent>
@@ -190,62 +278,66 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
               <DrawerCloseButton/>
               <DrawerBody>
                 <UpdatePositions
-                    value={value}
-                    setValue={setValue}
-                    modalCurrency={modalCurrency}
-                    setModalCurrency={setModalCurrency}
+                    amountValue={amountValue}
+                    setAmountValue={setAmountValue}
+                    drawerCurrency={drawerCurrency}
+                    setDrawerCurrency={setDrawerCurrency}
                     walletBalance={walletBalance}
                     shrubBalance={shrubBalance}
                     action={action}
+                    error={error}
                 />
                 <Flex>
-                {modalCurrency !== "ETH" && action === "Deposit" ? (
-                    <Button
-                        colorScheme="teal"
-                        onClick={() => {
-                          if (active) {
-                            approveToken(
-                                Currencies[modalCurrency].address,
-                                ethers.utils.parseUnits(value),
-                                library
-                            ).catch(console.error)
+                  {drawerCurrency !== "ETH" && action === "Deposit" ? (
+                      <Button
+                          colorScheme="teal"
+                          isDisabled={amountValue === '0' || amountValue === ''}
+                          onClick={() => {
+                            if (active) {
+                              approveToken(
+                                  Currencies[drawerCurrency].address,
+                                  ethers.utils.parseUnits(amountValue),
+                                  library
+                              ).catch(handleErrorMessages)
+                            }
                           }
-                        }
-                      }
-                    >
-                      Approve
-                    </Button>
-                ) : null}
-                      <Spacer/>
-                <Button
-                    colorScheme="teal"
-                    onClick={() => {
+                          }
+                      >
+                        Approve
+                      </Button>
+                  ) : null}
+                  <Spacer/>
+                  <Button
+                      colorScheme="teal"
+                      isDisabled={amountValue === '0' || amountValue === ''}
+                      onClick={() => {
                         if (!active) {
-                          console.error('Please connect your wallet');
+                          handleErrorMessages(undefined,'Please connect your wallet');
                           return;
                         }
-                      if (action === "Deposit") {
-                        if (modalCurrency === "ETH") {
-                          depositEth(ethers.utils.parseUnits(value), library).catch(console.error);
-                        } else {
-                          depositToken(
-                              Currencies[modalCurrency].address,
-                              ethers.utils.parseUnits(value),
+                        if (action === "Deposit") {
+                          if (drawerCurrency === "ETH") {
+                            depositEth(ethers.utils.parseUnits(amountValue), library
+                            ).catch(handleErrorMessages);
+                          } else {
+                            depositToken(
+                                Currencies[drawerCurrency].address,
+                                ethers.utils.parseUnits(amountValue),
+                                library
+                            ).catch(handleErrorMessages);
+                          }
+                        } else if (action === "Withdraw") {
+                          withdraw(
+                              Currencies[drawerCurrency].address,
+                              ethers.utils.parseUnits(amountValue),
                               library
-                          ).catch(console.error);
+                          ).catch(handleErrorMessages);
                         }
-                      } else if (action === "Withdraw") {
-                        withdraw(
-                            Currencies[modalCurrency].address,
-                            ethers.utils.parseUnits(value),
-                            library
-                        ).catch(console.error);
-                      }
-                    }}
-                >
-                  {action}
-                </Button>
-                    </Flex>
+                      }}
+                  >
+                    {action}
+                  </Button>
+                </Flex>
               </DrawerBody>
             </DrawerContent>
           </Drawer>

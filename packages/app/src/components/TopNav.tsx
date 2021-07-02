@@ -39,12 +39,27 @@ const NavLink = ({ children }: { children: ReactNode }) => (
   </Link>
 );
 
+const NavRoutes = ["Positions", "Options"];
+const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => (
+    <Link
+        px={2}
+        py={1}
+        rounded={"md"}
+        _hover={{
+          textDecoration: "none",
+          bg: useColorModeValue("gray.200", "gray.700"),
+        }}
+        as={ReachLink}
+        to={path.toLowerCase()}
+    >
+      {children}
+    </Link>
+);
+
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-
   useConnectWallet();
-
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -65,18 +80,13 @@ function TopNav() {
               {NavLinks.map((link) => (
                 <NavLink key={link}>{link}</NavLink>
               ))}
-              <Link as={ReachLink} to="positions">
-                Positions
-              </Link>
-              <Link as={ReachLink} to="options">
-                Options
-              </Link>
+              {NavRoutes.map((route) => (
+                  <NavRoute key={route} path={route}>{route}</NavRoute>
+              ))}
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            <Box
-              onClick={onOpen}
-            >
+            <Box onClick={onOpen}>
               <Account/>
             </Box>
             <Button onClick={toggleColorMode}>

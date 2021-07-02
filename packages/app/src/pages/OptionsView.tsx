@@ -1,45 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Box,
+  Center,
   Container,
   Grid,
   HStack,
+  Spinner,
   useRadioGroup
 } from '@chakra-ui/react';
 import Options from "../components/Options";
 import useFetch from "../hooks/useFetch";
-import { IOrder, ContractData, OptionType, OptionAction } from '../types';
-import { RouteComponentProps } from "@reach/router";
+import {ContractData, IOrder, OptionAction, OptionType} from '../types';
+import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
-import { getEnumKeys } from '../utils/helperMethods';
+import {getEnumKeys} from '../utils/helperMethods';
 
 function OptionsView(props: RouteComponentProps) {
 
-  const [option, setOption] = useState("BUY");
-  const [optionType, setOptionType] = useState("CALL");
+  const options: string[] = getEnumKeys(OptionAction)
+  const optionTypes: string[] = getEnumKeys(OptionType)
+  const [option, setOption] = useState(OptionAction.BUY);
+  const [optionType, setOptionType] = useState(OptionType.CALL);
   const [expiryDate, setExpiryDate] = useState("");
   const [strikePrices, setStrikePrices] = useState([]);
   const [expiryDates, setExpiryDates] = useState([]);
 
   const optionRows: any = [];
 
-  const url = `http://localhost:8000/orders`;
-  const {data} = useFetch<IOrder[]>(url);
-
-  const contractsUrl = 'http://localhost:8000/contracts';
-  // TODO: useFetch also provides state error, that we should handle
-  const {data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
-
-  const options: string[] = [OptionAction.BUY, OptionAction.SELL]
-  const optionTypes: string[] = getEnumKeys(OptionType)
-
-
   const {
     getRootProps: getOptionRootProps,
     getRadioProps: getOptionRadioProps,
   } = useRadioGroup({
     name: "option",
-    defaultValue: "BUY",
+    defaultValue: OptionAction.BUY,
+    // @ts-ignore
     onChange: (nextValue) => setOption(nextValue),
   })
 
@@ -48,7 +45,8 @@ function OptionsView(props: RouteComponentProps) {
     getRadioProps: getOptionTypeRadioProps,
   } = useRadioGroup({
     name: "optionType",
-    defaultValue:  "CALL",
+    defaultValue:  OptionType.CALL,
+    // @ts-ignore
     onChange: (nextValue) => setOptionType(nextValue),
   });
 
@@ -60,22 +58,27 @@ function OptionsView(props: RouteComponentProps) {
     onChange: (nextValue) => setExpiryDate(nextValue),
   });
 
-
   const groupOption = getOptionRootProps();
   const groupOptionType = getOptionTypeRootProps();
   const groupExpiry = getExpiryRootProps();
 
+  const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
+  // TODO: orderData should handle error just like contract data
+  const {data:orderData, status: orderDataStatus} = useFetch<IOrder[]>(url);
+  const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
+  const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
 
   useEffect(() => {
-    if (contractData && contractDataStatus === "fetched") {
-      // @ts-ignore
-      const expiryDatesLocal = Object.keys(contractData["ETH-FK"]);
-      // @ts-ignore
-      setExpiryDates(expiryDatesLocal);
-      if(!expiryDate) {
-        setExpiryDate(expiryDatesLocal[0])
+
+      if (contractData && contractDataStatus === "fetched" && !contractDataError) {
+        // @ts-ignore
+        const expiryDatesLocal = Object.keys(contractData["ETH-FK"]);
+        // @ts-ignore
+        setExpiryDates(expiryDatesLocal);
+        if(!expiryDate) {
+          setExpiryDate(expiryDatesLocal[0])
+        }
       }
-    }
       }, [contractDataStatus]
 
   );
@@ -89,11 +92,15 @@ function OptionsView(props: RouteComponentProps) {
 
   },[expiryDate, optionType]);
 
-
   for (const strikePrice of strikePrices) {
-    const filteredOrders = data && data.filter((order) =>
-        // @ts-ignore
-    order.strike === strikePrice && order.optionType === OptionType[optionType]
+
+    const filteredOrders =
+        orderData &&
+        orderDataStatus === "fetched"
+        && orderData.filter((order) => {
+          const orderOptionTypeString = Object.keys(OptionType)[Number(order.optionType)];
+          return order.strike === strikePrice && orderOptionTypeString === OptionType[optionType]
+        }
     );
 
     const buyOrders =
@@ -120,10 +127,11 @@ function OptionsView(props: RouteComponentProps) {
         strikePrice={strikePrice}
         bid={bestBid}
         ask={bestAsk}
-        isBuy={option === "BUY"}
-        isCall={optionType === "CALL"}
-        setOption={setOption}
-        setOptionType={setOptionType}
+        isBuy={option === OptionAction.BUY}
+        isCall={optionType === OptionType.CALL}
+        option={option}
+        optionType={optionType}
+        expiryDate={expiryDate}
       />
     );
   }
@@ -137,6 +145,22 @@ function OptionsView(props: RouteComponentProps) {
       flex="1"
       borderRadius="lg"
     >
+      {contractDataStatus === "fetching" &&
+      <Center >
+        <Spinner color="teal"/>
+      </Center>
+     
+      }
+      {contractDataError &&
+      <Box>
+        <Alert status="error" borderRadius={9}>
+          <AlertIcon />
+          <AlertDescription>{contractDataError}</AlertDescription>
+        </Alert>
+      </Box>
+      }
+      {contractDataStatus === "fetched" &&
+          <>
       <Box mb={10}>
         <HStack {...groupExpiry}>
           {expiryDates.map((value) => {
@@ -172,6 +196,8 @@ function OptionsView(props: RouteComponentProps) {
           })}
         </HStack>
       </Grid>
+          </>
+      }
       {optionRows}
     </Container>
   );

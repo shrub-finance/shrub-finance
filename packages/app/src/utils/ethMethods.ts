@@ -205,7 +205,7 @@ export async function withdraw(
   const signerAddress = await signer.getAddress();
   const availableBalance = await shrubContract.getAvailableBalance(signerAddress, tokenContractAddress);
   if (amount.gt(availableBalance)) {
-    throw new Error(`insufficient available balance: ${availableBalance}`);
+    throw new Error(`Insufficient balance of ${availableBalance} available` );
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }
@@ -278,6 +278,11 @@ export async function getAvailableBalance(params: {
   return shrubContract.getAvailableBalance(address, tokenContractAddress)
 }
 
+export function getLockedBalance(address: string, tokenContractAddress: string, provider: JsonRpcProvider) {
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  return shrubContract.userTokenLockedBalance(address, tokenContractAddress);
+}
+
 export async function matchOrder(params: {
   signedBuyOrder: IOrder;
   signedSellOrder: IOrder;
@@ -301,12 +306,12 @@ export async function matchOrder(params: {
   const buyerNonce = await getUserNonce({ address: buyer, quoteAsset, baseAsset }, provider);
   if (sellOrder.nonce - 1 !== sellerNonce) {
     throw new Error(
-      `sellerNonce: ${sellerNonce} must be 1 less than the sell order nonce: ${sellOrder.nonce}`
+      `SellerNonce: ${sellerNonce} must be 1 less than the sell order nonce: ${sellOrder.nonce}`
     );
   }
   if (buyOrder.nonce - 1 !== buyerNonce) {
     throw new Error(
-      `buyerNonce: ${buyerNonce} must be 1 less than the buy order nonce: ${buyOrder.nonce}`
+      `BuyerNonce: ${buyerNonce} must be 1 less than the buy order nonce: ${buyOrder.nonce}`
     );
   }
   if (common.optionType === 1) {
@@ -318,7 +323,7 @@ export async function matchOrder(params: {
     });
     if (sellerQuoteAssetBalance.lt(sellOrder.size)) {
       throw new Error(
-        `sellerQuoteAssetBalance: ${sellerQuoteAssetBalance} must be larger than the sellOrder size: ${sellOrder.size}`
+        `SellerQuoteAssetBalance: ${sellerQuoteAssetBalance} must be larger than the sellOrder size: ${sellOrder.size}`
       );
     }
   } else {

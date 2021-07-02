@@ -1,5 +1,10 @@
 export type Balance = { [currency: string]: string };
 
+export type ShrubBalance = {
+  locked: {[currency: string]: number},
+  available: {[currency: string]: number}
+};
+
 export type Option = {
   strikePrice: number;
   isCall: boolean;
@@ -29,13 +34,13 @@ export interface SmallOrder {
 }
 
 export enum OptionType {
-  PUT ,
-  CALL
+  PUT= "PUT",
+  CALL= "CALL"
 }
 
 export enum OptionAction {
-  BUY= "Buy",
-  SELL = "Sell"
+  SELL= "SELL",
+  BUY= "BUY",
 
 }
 

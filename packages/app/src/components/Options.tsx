@@ -1,51 +1,51 @@
-import React from "react";
+import React, {useState} from "react";
 import RadioCard from "./Radio";
-import { FaEthereum } from "react-icons/fa";
-import { GetOrders, postOrder } from "../utils/requests";
+import {FaEthereum} from "react-icons/fa";
+import {GetOrders, postOrder} from "../utils/requests";
 import {
-  Text,
-  Grid,
   Box,
   Button,
   Divider,
-  Tag,
   Drawer,
   DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  useDisclosure,
-  Input,
   FormLabel,
-  NumberInputField,
-  NumberInput,
-  Stack,
+  Grid,
   HStack,
+  Input,
+  NumberInput,
+  NumberInputField,
+  Stack,
+  Tag,
+  Text,
+  useDisclosure,
   useRadioGroup,
 } from "@chakra-ui/react";
 
 import {
+  getAddressFromSignedOrder,
+  getAvailableBalance,
+  getUserNonce,
+  matchOrder,
   signOrder,
   toEthDate,
-  getAddressFromSignedOrder,
-  getUserNonce,
-  validateOrderAddress,
-  getAvailableBalance,
-  matchOrder
+  validateOrderAddress
 } from "../utils/ethMethods";
-import { Icon } from "@chakra-ui/icons";
-import { OptionAction, OptionType } from '../types';
+import {Icon} from "@chakra-ui/icons";
+import {OptionAction, OptionType} from '../types';
 import {useWeb3React} from "@web3-react/core";
-import { getEnumKeys } from '../utils/helperMethods';
+import {getEnumKeys} from '../utils/helperMethods';
 
 const quoteAsset = "0x0000000000000000000000000000000000000000"; // ETH
 const baseAsset: string = process.env.REACT_APP_FK_TOKEN_ADDRESS || ""; // FK
 
 if (!baseAsset) {
   throw new Error(
-    "configuration missing. Please specify REACT_APP_FK_TOKEN_ADDRESS in .env file"
+    "Configuration missing. Please specify REACT_APP_FK_TOKEN_ADDRESS in .env file"
   );
 }
 
@@ -59,26 +59,33 @@ function Options({
   last,
   ask,
   bid,
-  setOption,
-  setOptionType,
+  option,
+  optionType,
+  expiryDate
 }: any) {
-  const expiryDate = "2021-11-01";
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [amount, setAmount] = React.useState(1);
-  const [price, setPrice] = React.useState(0);
+  const [price, setPrice] = React.useState('');
+
+  // TODO: get proper status response from postOrder method to show loading state on Place Order button
+  const [submitting, setSubmitting] = React.useState(false);
 
   // Radio logic
-  const options: string[] = [OptionAction.BUY, OptionAction.SELL]
-  const optionType: string[] = getEnumKeys(OptionType)
+  const radioOptions: string[] = getEnumKeys(OptionAction)
+  const radioOptionsType: string[] = getEnumKeys(OptionType)
+  const [radioOption, setRadioOption] = useState(option);
+  const [radioOptionType, setRadioOptionType] = useState(optionType);
 
   const {
     getRootProps: getOptionRootProps,
     getRadioProps: getOptionRadioProps,
   } = useRadioGroup({
     name: "option",
-    defaultValue: isBuy ? "BUY" : "SELL",
-    onChange: (nextValue) => setOption(nextValue),
+    defaultValue: option,
+    // @ts-ignore
+    onChange: (nextValue) => setRadioOption(nextValue),
   });
 
   const {
@@ -86,17 +93,25 @@ function Options({
     getRadioProps: getOptionTypeRadioProps,
   } = useRadioGroup({
     name: "optionType",
-    defaultValue: isCall ? "CALL" : "PUT",
-    onChange: (nextValue) => setOptionType(nextValue),
+    defaultValue: optionType,
+    // @ts-ignore
+    onChange: (nextValue) => setRadioOptionType(nextValue),
   });
 
   const groupOption = getOptionRootProps();
   const groupOptionType = getOptionTypeRootProps();
   const { active, library, account } = useWeb3React();
 
+  function closeDrawer() {
+    setSubmitting(false);
+    onClose();
+  }
+
   async function placeOrder() {
+    setSubmitting(true);
     if (!active || !account) {
       console.error('Please connect your wallet');
+      setSubmitting(false);
       return;
     }
     const now = new Date();
@@ -110,13 +125,13 @@ function Options({
       }, library)) + 1;
     const unsignedOrder = {
       size: amount,
-      isBuy,
-      optionType: isCall ? 1 : 0,
+      isBuy: radioOption === OptionAction.BUY,
+      optionType: radioOptionType,
       baseAsset,
       quoteAsset,
       expiry: toEthDate(new Date(expiryDate)),
       strike: strikePrice,
-      price,
+      price: Number(price) || 0,
       fee: 0,
       offerExpire: toEthDate(oneWeekFromNow),
       nonce,
@@ -232,6 +247,7 @@ function Options({
     }
   }
 
+
   return (
     <Box>
       <Divider mb={5} />
@@ -241,7 +257,7 @@ function Options({
             ${strikePrice}
           </Text>
           <Tag size={"sm"} colorScheme="teal">
-            {isCall ? "CALL" : "PUT"}
+            {isCall ? OptionType.CALL : OptionType.PUT}
           </Tag>
         </Box>
         <Box h={height}>
@@ -283,7 +299,7 @@ function Options({
               <Box>
                 <HStack {...groupOptionType}>
                   <FormLabel htmlFor="optionType">Option Type:</FormLabel>
-                  {optionType.map((value) => {
+                  {radioOptionsType.map((value) => {
                     const radio = getOptionTypeRadioProps({ value });
                     return (
                       <RadioCard key={value} {...radio}>
@@ -305,7 +321,7 @@ function Options({
               <Box>
                 <HStack {...groupOption}>
                   <FormLabel htmlFor="option">Option:</FormLabel>
-                  {options.map((value) => {
+                  {radioOptions.map((value) => {
                     const radio = getOptionRadioProps({ value });
                     return (
                       <RadioCard key={value} {...radio}>
@@ -321,7 +337,7 @@ function Options({
                   id="amount"
                   placeholder="0"
                   value={amount}
-                  onChange={(event) => setAmount(Number(event.target.value))}
+                  onChange={(event: any) => setAmount(event.target.value)}
                 />
               </Box>
               <Box>
@@ -330,17 +346,23 @@ function Options({
                   id="bid"
                   placeholder="0"
                   value={price}
-                  onChange={(event) => setPrice(Number(event.target.value))}
+                  onChange={(event: any) => setPrice(event.target.value)}
                 />
               </Box>
             </Stack>
           </DrawerBody>
 
           <DrawerFooter borderTopWidth="1px">
-            <Button variant="outline" mr={3} onClick={onClose}>
+            <Button variant="outline" mr={3} onClick={closeDrawer}>
               Cancel
             </Button>
-            <Button colorScheme="teal" type="submit" onClick={placeOrder}>
+            <Button
+                colorScheme="teal"
+                type="submit"
+                onClick={placeOrder}
+                isLoading={submitting}
+                loadingText="Placing Order"
+            >
               Place Order
             </Button>
           </DrawerFooter>
