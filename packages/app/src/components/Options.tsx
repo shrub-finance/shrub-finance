@@ -13,13 +13,13 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
-  DrawerOverlay,
+  DrawerOverlay, Flex,
   FormLabel,
   Grid,
   HStack,
   Input,
   NumberInput,
-  NumberInputField,
+  NumberInputField, Spacer,
   Stack,
   Tag,
   Text,
@@ -250,9 +250,9 @@ function Options({
 
 
   return (
-    <Box>
+    <>
       <Divider mb={5} />
-      <Grid templateColumns="repeat(3, 1fr)" gap={6}>
+      <Flex>
         <Box h={height}>
           <Text fontSize={"2xl"} pb={3}>
             ${strikePrice}
@@ -261,11 +261,13 @@ function Options({
             {isCall ? OptionType.CALL : OptionType.PUT}
           </Tag>
         </Box>
-        <Box h={height}>
-          <Text fontSize={"sm"}>Last: ${last}</Text>
-          <Text fontSize={"sm"}>Ask: ${ask}</Text>
-          <Text fontSize={"sm"}>Bid: ${bid}</Text>
+        <Spacer/>
+        <Box h={height} fontSize="14" color="gray.400" fontWeight="semibold" lineHeight={1.8}>
+          <Text>Last: ${last}</Text>
+          <Text>Ask: ${ask}</Text>
+          <Text>Bid: ${bid}</Text>
         </Box>
+        <Spacer/>
         <Box h={height}>
           <Stack spacing={4} direction="row" align="center">
             <Button colorScheme="teal" onClick={onOpen} size="sm">
@@ -276,8 +278,7 @@ function Options({
             </Button>
           </Stack>
         </Box>
-      </Grid>
-
+      </Flex>
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent>
@@ -369,7 +370,7 @@ function Options({
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
-    </Box>
+    </>
   );
 }
 
