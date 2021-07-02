@@ -93,13 +93,14 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
               <Td>{optionType}</Td>
               <Td>{amount}</Td>
               <Td>
-                <Button
+                {amount > 0 && <Button
                     colorScheme="teal"
                     size="xs"
                     onClick={() => handleClickExercise(pair, strike, expiry, optionType)}
                 >
                   Exercise
                 </Button>
+                }
               </Td>
             </Tr>
         )

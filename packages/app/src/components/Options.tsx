@@ -28,7 +28,7 @@ import {
 } from "@chakra-ui/react";
 
 import {
-  formatOrder,
+  transformOrderApiApp,
   getAddressFromSignedOrder,
   getAvailableBalance,
   getUserNonce,
@@ -36,12 +36,13 @@ import {
   orderWholeUnitsToBaseUnits,
   signOrder,
   toEthDate,
-  validateOrderAddress
+  validateOrderAddress, transformOrderAppChain
 } from "../utils/ethMethods";
 import {Icon} from "@chakra-ui/icons";
 import {OptionAction, OptionType} from '../types';
 import {useWeb3React} from "@web3-react/core";
 import {getEnumKeys} from '../utils/helperMethods';
+import {ethers} from "ethers";
 
 const quoteAsset = "0x0000000000000000000000000000000000000000"; // ETH
 const baseAsset: string = process.env.REACT_APP_FK_TOKEN_ADDRESS || ""; // FK
@@ -140,7 +141,8 @@ function Options({
       nonce,
     };
     try {
-      const signedOrder = await signOrder(orderWholeUnitsToBaseUnits(unsignedOrder), library);
+      const wholeUnitOrder = orderWholeUnitsToBaseUnits(unsignedOrder);
+      const signedOrder = await signOrder(wholeUnitOrder, library);
       const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
       console.log(`verifiedAddress: ${verifiedAddress}`);
       await postOrder(signedOrder);
@@ -165,9 +167,10 @@ function Options({
     }
     try {
       console.log(order);
-      const formattedOrder = formatOrder(order);
+      const formattedOrder = transformOrderApiApp(order);
       console.log(formattedOrder);
-      const doesAddressMatch: boolean = await validateOrderAddress(formattedOrder, library);
+      const iOrder = transformOrderAppChain(formattedOrder);
+      const doesAddressMatch: boolean = await validateOrderAddress(iOrder, library);
       console.log(doesAddressMatch);
       const {
         address,
@@ -230,23 +233,20 @@ function Options({
       const unsignedOrder = {
         size,
         isBuy: !isBuy,
-        optionType,
+        optionType: optionType === 'CALL' ? 1 : 0 as 0 | 1,
         baseAsset,
         quoteAsset,
-        expiry,
+        expiry: toEthDate(expiry),
         strike,
         price,
-        fee: 0,
+        fee: ethers.BigNumber.from(0),
         offerExpire: toEthDate(fifteenMinutesFromNow),
         nonce: signerNonce,
       };
       const signedOrder = await signOrder(unsignedOrder, library);
       console.log(signedOrder);
       const signedSellOrder = {
-            ...formattedOrder,
-            price: formattedOrder.price.toString(),
-            size: formattedOrder.size.toString(),
-            strike: formattedOrder.strike.toString()
+            ...transformOrderAppChain(formattedOrder),
           };
       const result = await matchOrder({
         signedBuyOrder: signedOrder,

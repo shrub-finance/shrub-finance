@@ -1,8 +1,10 @@
-import { ethers } from "ethers";
+import {BigNumber, ethers} from "ethers";
 import {FakeToken__factory} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
+  ApiOrder,
+  AppOrder,
   IOrder,
   OptionType,
   OrderCommon,
@@ -54,12 +56,13 @@ export function fromEthDate(ethDate: number) {
 }
 
 export function orderWholeUnitsToBaseUnits(unsignedOrder: any) {
-  const { size, strike, price } = unsignedOrder;
+  const { size, strike, price, fee } = unsignedOrder;
   return {
     ...unsignedOrder,
     size: ethers.utils.parseUnits(size.toString()).toString(),
-    strike: ethers.utils.parseUnits(strike.toString()).toString(),
+    strike: ethers.utils.parseUnits(strike.toString(), 6).toString(),
     price: ethers.utils.parseUnits(price.toString()).toString(),
+    fee: ethers.utils.parseUnits(fee.toString()).toString(),
     optionType: unsignedOrder.optionType === OptionType.CALL ? 1 : 0,
   };
 
@@ -69,7 +72,6 @@ export async function signOrder(unsignedOrder: UnsignedOrder, provider: JsonRpcP
   const shrubInterface = new Shrub712(1337, SHRUB_CONTRACT_ADDRESS);
   const order = {
     ...unsignedOrder,
-    optionType: [OptionType.CALL, 1].includes(unsignedOrder.optionType) ? 1 : 0,
   };
   const signer = provider.getSigner();
 
@@ -253,10 +255,9 @@ export function iOrderToSig(order: IOrder) {
 }
 
 export async function getAddressFromSignedOrder(order: IOrder, provider: JsonRpcProvider) {
-  const shrubInterface = new Shrub712(1337, SHRUB_CONTRACT_ADDRESS);
   const sig = iOrderToSig(order);
-  const smallOrder = shrubInterface.toSmallOrder(order);
-  const commonOrder = shrubInterface.toCommon(order);
+  const smallOrder = iOrderToSmall(order);
+  const commonOrder = iOrderToCommon(order);
 
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   return shrubContract.getAddressFromSignedOrder(smallOrder, commonOrder, sig);
@@ -374,7 +375,7 @@ export async function getFilledOrders(
         baseAsset,
         quoteAsset,
         pair: getPair(baseAsset, quoteAsset),
-        strike: strike.toString(),
+        strike: ethers.utils.formatUnits(strike, 6),  // Divide out the base shift of 1M
         expiry: dateExpiry.toISOString().substr(0,10),
         optionType: optionType === 1 ? 'CALL' : 'PUT',
         amount
@@ -401,7 +402,7 @@ export function addressToLabel(address: string) {
 export async function userOptionPosition(address: string, positionHash: string, provider: JsonRpcProvider) {
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const bigBalance = await shrubContract.userOptionPosition(address, positionHash);
-  return bigBalance.toNumber();
+  return ethers.utils.formatUnits(bigBalance);
 }
 
 export async function exercise(order: IOrder, seller: string, provider: JsonRpcProvider) {
@@ -414,22 +415,57 @@ export async function exercise(order: IOrder, seller: string, provider: JsonRpcP
   return executed;
 }
 
-export function formatOrder(order: any) {
-  let strike;
-  let size;
-  let price;
-  if (order.strike.$numberDecimal && order.size.$numberDecimal && order.price.$numberDecimal) {
-    strike = ethers.BigNumber.from(order.strike.$numberDecimal);
-    size = ethers.BigNumber.from(order.size.$numberDecimal);
-    price = ethers.BigNumber.from(order.price.$numberDecimal);
-  }
+export function transformOrderApiApp(order: ApiOrder) {
+  const expiry = fromEthDate(order.expiry);
+  const formattedExpiry = expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"});
+  const strike = order.strike.$numberDecimal;
+  const formattedStrike = ethers.utils.formatUnits(strike, 6);  // Need to divide by 1M to get the actual strike
+  const optionType = order.optionType ? 'CALL' : 'PUT';
+  const size = order.size.$numberDecimal;
+  const formattedSize = ethers.utils.formatUnits(size, 18);
+  const price = order.price.$numberDecimal;
+  const formattedPrice = ethers.utils.formatUnits(price, 18);
+  const offerExpire = fromEthDate(order.offerExpire);
+  const fee = order.fee.$numberDecimal;
+  const formattedFee = ethers.utils.formatUnits(fee, 18);
   return {
     ...order,
+    expiry,
+    formattedExpiry,
     strike,
+    formattedStrike,
+    optionType,
     size,
+    formattedSize,
     price,
-    formattedStrike: ethers.BigNumber.from(order.strike.$numberDecimal).div(WeiPerEther).toNumber(),
-    formattedSize: ethers.BigNumber.from(order.size.$numberDecimal).mul(BigHundred).div(WeiPerEther).toNumber() / 100,
-    formattedPrice: ethers.BigNumber.from(order.price.$numberDecimal).mul(BigHundred).div(WeiPerEther).toNumber() / 100,
-  }
+    formattedPrice,
+    offerExpire,
+    fee,
+    formattedFee
+  } as AppOrder;
+}
+
+export function transformOrderAppChain(order: AppOrder) {
+  const { baseAsset, quoteAsset, strike, size, isBuy, nonce, price, fee, r, s, v, address } = order;
+  const expiry = toEthDate(order.expiry);
+  // const optionType = OptionType[order.optionType];
+  const optionType = order.optionType === 'CALL' ? 1 : 0;
+  const offerExpire = toEthDate(order.offerExpire);
+  return {
+    baseAsset,
+    quoteAsset,
+    expiry,
+    strike,
+    optionType,
+    size,
+    isBuy,
+    nonce,
+    price,
+    offerExpire,
+    fee,
+    r,
+    s,
+    v,
+    address
+  } as IOrder
 }

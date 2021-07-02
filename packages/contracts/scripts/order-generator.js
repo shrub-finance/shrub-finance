@@ -11,7 +11,8 @@ const wsUrl = "http://127.0.0.1:8545";
 const web3 = new Web3(new Web3.providers.HttpProvider(wsUrl));
 const apiPort = Number(process.env.API_PORT) || 8000;
 
-const weiInEth = web3.utils.toBN(10).pow(web3.utils.toBN(18));
+const WeiInEth = web3.utils.toBN(10).pow(web3.utils.toBN(18));
+const BigMillion = web3.utils.toBN(10).pow(web3.utils.toBN(6));
 
 const Assets = {
   USDC: "",
@@ -47,22 +48,23 @@ async function generateRandomOrder(nonce) {
     risk free rate: ${RISK_FREE_RATE}
   `)
 
-  const strike = web3.utils.toBN(strikeUsdc).mul(weiInEth);
+  const strike = web3.utils.toBN(strikeUsdc).mul(BigMillion);
   const sizeEth = Math.floor(Math.random() * 5) + 1;
-  const size = web3.utils.toBN(sizeEth).mul(weiInEth);
+  const size = web3.utils.toBN(sizeEth).mul(WeiInEth);
   const pricePerContractUsdc = Math.round(100 * bs.blackScholes(ETH_PRICE, strikeUsdc, timeToExpiry, volatility, RISK_FREE_RATE, optionType)) / 100
-  const price = web3.utils.toBN(Math.round(pricePerContractUsdc * 100)).mul(weiInEth.div(web3.utils.toBN(100)));
+  const price = web3.utils.toBN(Math.round(pricePerContractUsdc * 100)).mul(WeiInEth.div(web3.utils.toBN(100)));
+  const fee = web3.utils.toBN(Math.floor(Math.random() * 100))
   return {
     nonce,
     size,
     isBuy: Math.random() * 100 > 50,
     price,
     offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
-    fee: Math.floor(Math.random() * 100),
+    fee,
     baseAsset: Assets.USDC,
     quoteAsset: Assets.ETH,
     expiry,
-    strike: strike * STRIKE_BASE_SHIFT,
+    strike,
     optionType: optionType === 'CALL' ? 1 : 0,
   };
 }
@@ -102,8 +104,8 @@ async function main() {
       from
     );
     console.log(signed);
-    const { size, price, strike } = signed.order;
-    await saveOrder({ ...signed.order, ...signed.sig, address: from, size: size.toString(), price: price.toString(), strike: strike.toString() });
+    const { size, price, strike, fee } = signed.order;
+    await saveOrder({ ...signed.order, ...signed.sig, address: from, size: size.toString(), price: price.toString(), strike: strike.toString(), fee: fee.toString() });
     await wait(1000);
   }
 }

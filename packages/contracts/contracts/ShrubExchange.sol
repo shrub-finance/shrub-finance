@@ -242,11 +242,18 @@ contract ShrubExchange {
     }
 
     if(common.optionType == OptionType.PUT) {
+      console.log("Seller balance");
+      console.log(seller);
+      console.log(getAvailableBalance(seller, common.baseAsset));
+      console.log("Buyer balance");
+      console.log(buyer);
+      console.log(getAvailableBalance(buyer, common.baseAsset));
+
       require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike / STRIKE_BASE_SHIFT, "Put Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price, "Put Buyer must have enough free collateral");
+      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price, "Put Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike / STRIKE_BASE_SHIFT;
-      userTokenBalances[seller][common.quoteAsset] += sellOrder.price;
-      userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price;
+      userTokenBalances[seller][common.baseAsset] += sellOrder.price;
+      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price;
     }
 
     userOptionPosition[seller][positionHash] -= int(buyOrder.size);

@@ -1,4 +1,4 @@
-import { IOrder } from "../types";
+import {ApiOrder, IOrder} from "../types";
 import axios from "axios";
 
 const API_ENDPOINT = "http://localhost:8000";
@@ -23,7 +23,7 @@ export async function getOrders({
   if (status !== 200) {
     throw new Error("unable to get orders");
   }
-  const orders: [IOrder] = data;
+  const orders: [ApiOrder] = data;
   const now = Number(new Date());
   const order = orders.find((o) => {
     return (

@@ -11,7 +11,7 @@ export interface IOrder {
   nonce: number;
   price: mongoose.Schema.Types.Decimal128;
   offerExpire: number;
-  fee: number;
+  fee: mongoose.Schema.Types.Decimal128;
 
   baseAsset: string;
   quoteAsset: string;
@@ -31,7 +31,7 @@ const OrderSchema = new mongoose.Schema({
   nonce: { type: Int32, required: true },
   price: { type: Decimal128, required: true },
   offerExpire: { type: Int32, required: true },
-  fee: { type: Number, required: true },
+  fee: { type: Decimal128, required: true },
 
   baseAsset: { type: String, required: true },
   quoteAsset: { type: String, required: true },
