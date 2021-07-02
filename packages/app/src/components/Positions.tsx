@@ -77,6 +77,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     setError('');
     async function inner() {
       if (!active || !account) {
+        setError('');
         handleErrorMessages(undefined, 'Please connect your wallet')
         console.error('Please connect wallet');
         return;
@@ -109,7 +110,19 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
       const filledOrders = await getFilledOrders(account, library);
       // Populate Option Positions Table
       for (const details of Object.values(filledOrders)) {
-        const {pair, strike, expiry, optionType, amount, common, buyOrder, seller} = details as {baseAsset: string, quoteAsset: string, pair: string, strike: string, expiry: string, optionType:string, amount:number, common: OrderCommon, buyOrder: SmallOrder, seller: string};
+        const {pair, strike, expiry, optionType, amount, common, buyOrder, seller}
+            = details as
+            { baseAsset: string,
+              quoteAsset: string,
+              pair: string,
+              strike: string,
+              expiry: string,
+              optionType:string,
+              amount:number,
+              common: OrderCommon,
+              buyOrder: SmallOrder,
+              seller: string
+            };
         orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
         tableRowsOptions.push(
             <Tr>
@@ -153,7 +166,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   const [amountValue, setAmountValue] = useState("0");
 
   const [drawerCurrency, setDrawerCurrency] = useState(
-    "ETH" as keyof typeof Currencies
+    'ETH' as keyof typeof Currencies
   );
 
   function handleClickWithdrawFactory(selectedCurrency: any) {
@@ -161,6 +174,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
        function handleClickWithdraw() {
          passButtonText('Withdraw');
          setError('');
+         setAmountValue('');
          setDrawerCurrency(selectedCurrency);
        })
   }
@@ -170,7 +184,8 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
       function handleClickDeposit() {
       passButtonText('Deposit');
       setError('');
-      setDrawerCurrency(selectedCurrency)
+      setAmountValue('');
+      setDrawerCurrency(selectedCurrency);
     })
   }
 
@@ -226,31 +241,32 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
 
   return (
       <>
-        {error && (
-            <>
+        {error && (!active || !account) && (
+          <>
             <SlideFade in={true} unmountOnExit={true}>
-              <Alert status="error" borderRadius={7} mb={6}>
+              <Flex>
+              <Alert status="warning" borderRadius={7} mb={6}>
                 <AlertIcon />
                 {error}
-                <Box pl="5" onClick={onOpenConnectModal}>
-                  <Button colorScheme="cyan" variant="outline" size="sm">
+                <Spacer />
+                  <Button colorScheme="yellow" variant="outline" size="sm" onClick={onOpenConnectModal}>
                     Connect Wallet
                   </Button>
-              </Box>
               </Alert>
+              </Flex>
             </SlideFade>
-              <Modal isOpen={isOpenConnectModal} onClose={onCloseConnectModal}>
-                <ModalOverlay />
-                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
-                  <ModalHeader>
-                    <Text fontSize={20}>Connect to a wallet</Text>
-                  </ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    <ConnectWalletsView />
-                  </ModalBody>
-                </ModalContent>
-              </Modal>
+                <Modal isOpen={isOpenConnectModal} onClose={onCloseConnectModal}>
+                  <ModalOverlay />
+                  <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
+                    <ModalHeader>
+                      <Text fontSize={20}>Connect to a wallet</Text>
+                    </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                      <ConnectWalletsView />
+                    </ModalBody>
+                  </ModalContent>
+                </Modal>
             </>
         )}
         <Box>
@@ -311,7 +327,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                       colorScheme="teal"
                       isDisabled={amountValue === '0' || amountValue === ''}
                       onClick={() => {
-                        if (!active) {
+                        if (!active || !account) {
                           handleErrorMessages(undefined,'Please connect your wallet');
                           return;
                         }
