@@ -1,4 +1,4 @@
-import { Box, useRadio } from "@chakra-ui/react";
+import {Box, useColorModeValue, useRadio} from "@chakra-ui/react";
 
 // @ts-ignore
 function RadioCard(props) {
@@ -17,15 +17,15 @@ function RadioCard(props) {
         borderRadius="md"
         boxShadow="md"
         _checked={{
-          bg: "teal.600",
-          color: "white",
-          borderColor: "teal.600",
+          bg: useColorModeValue("teal.500", "teal.200"),
+          fontWeight: "semibold",
+          color: useColorModeValue("white", "gray.800")
         }}
         _focus={{
           boxShadow: "outline",
         }}
-        px={5}
-        py={3}
+        px={8}
+        py={1.5}
       >
         {props.children}
       </Box>

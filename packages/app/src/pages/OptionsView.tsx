@@ -5,9 +5,9 @@ import {
   AlertIcon,
   Box,
   Center,
-  Container,
+  Container, Flex,
   Grid,
-  HStack,
+  HStack, Spacer,
   Spinner,
   useRadioGroup
 } from '@chakra-ui/react';
@@ -179,29 +179,29 @@ function OptionsView(props: RouteComponentProps) {
           })}
         </HStack>
       </Box>
-      <Grid pb={"5"} templateColumns="repeat(2, 1fr)">
-        <HStack {...groupOption}>
-          {options.map((value) => {
-            const radio = getOptionRadioProps({ value });
-            return (
-                <RadioCard key={value} {...radio}>
-                  {value}
-                </RadioCard>
-            );
-          })}
-        </HStack>
-
-        <HStack {...groupOptionType}>
-          {optionTypes.map((value) => {
-            const radio = getOptionTypeRadioProps({ value });
-            return (
-                <RadioCard key={value} {...radio}>
-                  {value}
-                </RadioCard>
-            );
-          })}
-        </HStack>
-      </Grid>
+        <Flex mb={10}>
+            <HStack {...groupOption}>
+              {options.map((value) => {
+                const radio = getOptionRadioProps({ value });
+                return (
+                    <RadioCard key={value} {...radio}>
+                      {value}
+                    </RadioCard>
+                );
+              })}
+            </HStack>
+          <Spacer/>
+            <HStack {...groupOptionType}>
+              {optionTypes.map((value) => {
+                const radio = getOptionTypeRadioProps({ value });
+                return (
+                    <RadioCard key={value} {...radio}>
+                      {value}
+                    </RadioCard>
+                );
+              })}
+            </HStack>
+        </Flex>
           </>
       }
       {optionRows}
