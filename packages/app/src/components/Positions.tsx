@@ -169,24 +169,16 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     'ETH' as keyof typeof Currencies
   );
 
-  function handleClickWithdrawFactory(selectedCurrency: any) {
+
+  function handleClickFactory(selectedCurrency: any, buttonText?: any) {
     return (
-       function handleClickWithdraw() {
-         passButtonText('Withdraw');
+       function handleClick() {
+         onOpenDrawer();
+         setAction(buttonText);
          setError('');
          setAmountValue('');
          setDrawerCurrency(selectedCurrency);
        })
-  }
-
-  function handleClickDepositFactory(selectedCurrency: any) {
-    return(
-      function handleClickDeposit() {
-      passButtonText('Deposit');
-      setError('');
-      setAmountValue('');
-      setDrawerCurrency(selectedCurrency);
-    })
   }
 
   async function handleClickExercise(pair: string, strike: string, expiry:string, optionType:string) {
@@ -196,11 +188,6 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     const signedOrder = await signOrder(unsignedOrder, library)
     const exercised = await exercise(signedOrder, seller, library)
     return exercised;
-  }
-
-  function passButtonText(clickedButtonText: string) {
-    onOpenDrawer();
-    setAction(clickedButtonText);
   }
 
   function totalUserBalance(currency: string) {
@@ -220,7 +207,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Button
               colorScheme="teal"
               size="xs"
-              onClick={handleClickWithdrawFactory(currency)}
+              onClick={handleClickFactory(currency, 'Withdraw')}
               isDisabled={!active}
             >
               Withdraw
@@ -228,7 +215,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Button
               colorScheme="teal"
               size="xs"
-              onClick={handleClickDepositFactory(currency)}
+              onClick={handleClickFactory(currency, 'Deposit')}
               isDisabled={!active}
             >
               Deposit
