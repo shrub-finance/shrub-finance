@@ -121,7 +121,7 @@ export function Account() {
 
   return (
     <>
-      <Button
+      <Button fontFamily="Montserrat"
         leftIcon={account ? <span ref={ref as any}/> : undefined}
         variant={"solid"}
         colorScheme={"teal"}
@@ -140,7 +140,7 @@ export function Account() {
   );
 }
 
-function ConnectWallets() {
+function ConnectWallet() {
 
 const {activate, error, activatingConnector, connector, triedEager, setActivatingConnector} = useConnectWallet();
 
@@ -151,7 +151,7 @@ const {activate, error, activatingConnector, connector, triedEager, setActivatin
   );
 
   return (
-    <>
+    <Box fontFamily="Montserrat">
       {!!error && (
         <Stack spacing={3}>
           <Alert status="error" borderRadius={9} mb={4}>
@@ -224,12 +224,12 @@ const {activate, error, activatingConnector, connector, triedEager, setActivatin
           );
         })}
       </>
-    </>
+    </Box>
   );
 }
 
 export default function ConnectWalletsView() {
   return (
-    <ConnectWallets />
+    <ConnectWallet />
   );
 }

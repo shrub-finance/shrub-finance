@@ -53,7 +53,7 @@ if (!baseAsset) {
 const height = 100;
 
 // TODO: setOption and setOptionType should be maintained through context
-function Options({
+function PlaceOrder({
   strikePrice,
   isCall,
   isBuy,
@@ -250,7 +250,7 @@ function Options({
 
 
   return (
-    <>
+    <Box fontFamily="Montserrat">
       <Divider mb={5} />
       <Flex>
         <Box h={height}>
@@ -281,7 +281,7 @@ function Options({
       </Flex>
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent fontFamily="Montserrat">
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px">Order Details</DrawerHeader>
           <DrawerBody>
@@ -354,7 +354,7 @@ function Options({
             </Stack>
           </DrawerBody>
 
-          <DrawerFooter borderTopWidth="1px">
+          <DrawerFooter borderTopWidth="1px" >
             <Button variant="outline" mr={3} onClick={closeDrawer}>
               Cancel
             </Button>
@@ -370,8 +370,8 @@ function Options({
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
-    </>
+    </Box>
   );
 }
 
-export default Options;
+export default PlaceOrder;

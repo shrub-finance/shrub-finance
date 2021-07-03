@@ -3842,6 +3842,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource/montserrat@npm:4.4.5":
+  version: 4.4.5
+  resolution: "@fontsource/montserrat@npm:4.4.5"
+  checksum: 551f5ee2f94699602e666eee312f840b01d551c720c973b52513768bb937ae1039cf95ff56d79f5365389ea383109a2152429aa47dbdb595f36ed733e769c796
+  languageName: node
+  linkType: hard
+
 "@hapi/address@npm:2.x.x":
   version: 2.1.4
   resolution: "@hapi/address@npm:2.1.4"
@@ -5784,6 +5791,7 @@ __metadata:
     "@craco/craco": ^6.1.2
     "@emotion/react": 11.1.5
     "@emotion/styled": 11.1.5
+    "@fontsource/montserrat": 4.4.5
     "@harmony-js/core": 0.1.57
     "@metamask/jazzicon": 2.0.0
     "@reach/router": 1.3.4

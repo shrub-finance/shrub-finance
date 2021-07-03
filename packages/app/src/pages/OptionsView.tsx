@@ -5,18 +5,19 @@ import {
   AlertIcon,
   Box,
   Center,
-  Container, Flex,
-  Grid,
+  Container,
+  Flex,
   HStack, Spacer,
   Spinner,
   useRadioGroup
 } from '@chakra-ui/react';
-import Options from "../components/Options";
+import PlaceOrder from "../components/PlaceOrder";
 import useFetch from "../hooks/useFetch";
 import {ContractData, IOrder, OptionAction, OptionType} from '../types';
 import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {getEnumKeys} from '../utils/helperMethods';
+import theme from "../styles/theme";
 
 function OptionsView(props: RouteComponentProps) {
 
@@ -79,10 +80,7 @@ function OptionsView(props: RouteComponentProps) {
           setExpiryDate(expiryDatesLocal[0])
         }
       }
-      }, [contractDataStatus]
-
-  );
-
+      }, [contractDataStatus]);
 
   useEffect(() => {
     if(expiryDate) {
@@ -122,7 +120,7 @@ function OptionsView(props: RouteComponentProps) {
       Math.min(...sellOrders.map((buyOrder) => buyOrder.price));
 
     optionRows.push(
-      <Options
+      <PlaceOrder
         key={strikePrice}
         strikePrice={strikePrice}
         bid={bestBid}
@@ -135,7 +133,6 @@ function OptionsView(props: RouteComponentProps) {
       />
     );
   }
-
   return (
     <Container
       mt={100}
@@ -144,6 +141,7 @@ function OptionsView(props: RouteComponentProps) {
       borderWidth="1px"
       flex="1"
       borderRadius="lg"
+      fontFamily="Montserrat"
     >
       {contractDataStatus === "fetching" &&
       <Center >

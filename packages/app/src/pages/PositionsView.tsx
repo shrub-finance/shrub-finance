@@ -35,6 +35,7 @@ function PositionsView(props: RouteComponentProps) {
       borderWidth="1px"
       flex="1"
       borderRadius="lg"
+      fontFamily="Montserrat"
     >
       {/*<WalletBalance ethWalletBalance={walletBalance.ETH} />*/}
       <Positions walletBalance={walletBalance} />

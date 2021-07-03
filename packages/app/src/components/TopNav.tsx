@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
-import ConnectWalletsView, {Account} from "./ConnectWallets";
+import ConnectWalletsView, {Account} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 
 const NavLinks = ["Shrub"];
@@ -61,7 +61,7 @@ function TopNav() {
   const { colorMode, toggleColorMode } = useColorMode();
   useConnectWallet();
   return (
-    <>
+    <Box fontFamily="Montserrat">
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton
@@ -117,7 +117,7 @@ function TopNav() {
           </ModalBody>
         </ModalContent>
       </Modal>
-    </>
+    </Box>
   );
 }
 
