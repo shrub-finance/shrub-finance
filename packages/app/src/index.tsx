@@ -2,11 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import { ChakraProvider } from "@chakra-ui/react";
-import theme from "./styles/theme";
+import customTheme from "./styles/theme";
+import "@fontsource/montserrat/400.css";
+
 
 ReactDOM.render(
   <React.StrictMode>
-    <ChakraProvider theme={theme}>
+    <ChakraProvider theme={customTheme}>
       <App />
     </ChakraProvider>
   </React.StrictMode>,

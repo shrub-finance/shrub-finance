@@ -4,7 +4,7 @@ import TopNav from "./components/TopNav";
 import { Router } from "@reach/router";
 import HomeView from "./pages/HomeView";
 import {Web3ReactProvider} from "@web3-react/core";
-import {getLibrary} from "./components/ConnectWallets";
+import {getLibrary} from "./components/ConnectWallet";
 
 function App() {
   return (

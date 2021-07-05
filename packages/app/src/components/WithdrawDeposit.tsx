@@ -11,7 +11,7 @@ import {
 import { Currencies } from "../constants/currencies";
 import RadioCard from "./Radio";
 
-function UpdatePositions({
+function WithdrawDeposit({
   amountValue,
   setAmountValue,
   drawerCurrency,
@@ -89,4 +89,4 @@ function UpdatePositions({
   );
 }
 
-export default UpdatePositions;
+export default WithdrawDeposit;

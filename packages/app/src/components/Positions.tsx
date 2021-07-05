@@ -44,11 +44,11 @@ import {
   signOrder,
   getLockedBalance
 } from "../utils/ethMethods";
-import UpdatePositions from "./UpdatePositions";
+import WithdrawDeposit from "./WithdrawDeposit";
 import {Balance, OrderCommon, ShrubBalance, SmallOrder} from "../types";
 import { Currencies } from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
-import ConnectWalletsView from "./ConnectWallets";
+import ConnectWalletsView from "./ConnectWallet";
 
 function Positions({ walletBalance }: { walletBalance: Balance }) {
 
@@ -228,7 +228,8 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   }
 
   return (
-      <>
+      // TODO: make a reusable component and add it to all pages
+      <Box fontFamily="Montserrat">
         {error && (!active || !account) && (
           <>
             <SlideFade in={true} unmountOnExit={true}>
@@ -275,13 +276,14 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
           <Drawer
               onClose={onCloseDrawer}
               isOpen={isOpenDrawer}
-              placement="right">
+              placement="right"
+          >
             <DrawerOverlay/>
-            <DrawerContent>
+            <DrawerContent fontFamily="Montserrat">
               <DrawerHeader>{action}</DrawerHeader>
               <DrawerCloseButton/>
               <DrawerBody>
-                <UpdatePositions
+                <WithdrawDeposit
                     amountValue={amountValue}
                     setAmountValue={setAmountValue}
                     drawerCurrency={drawerCurrency}
@@ -366,7 +368,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             </Tbody>
           </Table>
         </Box>
-      </>
+      </Box>
   );
 }
 

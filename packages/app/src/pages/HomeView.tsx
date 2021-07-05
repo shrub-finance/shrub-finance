@@ -4,9 +4,9 @@ import { RouteComponentProps } from "@reach/router";
 
 function HomeView(props: RouteComponentProps) {
   return (
-    <div>
+    <>
       <OptionsView />
-    </div>
+    </>
   );
 }
 
