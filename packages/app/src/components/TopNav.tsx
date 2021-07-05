@@ -33,7 +33,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
       textDecoration: "none",
       bg: useColorModeValue("gray.200", "gray.700"),
     }}
-    href={"/"}
+    // href={"/"}
   >
     {children}
   </Link>
