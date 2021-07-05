@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   Alert,
   AlertDescription,
@@ -13,11 +13,11 @@ import {
 } from '@chakra-ui/react';
 import PlaceOrder from "../components/PlaceOrder";
 import useFetch from "../hooks/useFetch";
-import {ContractData, IOrder, OptionAction, OptionType} from '../types';
+import {ApiOrder, ContractData, IOrder, OptionAction, OptionType} from '../types';
 import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {getEnumKeys} from '../utils/helperMethods';
-import theme from "../styles/theme";
+import {transformOrderApiApp} from "../utils/ethMethods";
 
 function OptionsView(props: RouteComponentProps) {
 
@@ -65,7 +65,7 @@ function OptionsView(props: RouteComponentProps) {
 
   const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
   // TODO: orderData should handle error just like contract data
-  const {data:orderData, status: orderDataStatus} = useFetch<IOrder[]>(url);
+  const {data:orderData, status: orderDataStatus} = useFetch<ApiOrder[]>(url);
   const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
   const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
 
@@ -90,14 +90,19 @@ function OptionsView(props: RouteComponentProps) {
 
   },[expiryDate, optionType]);
 
+  const formattedOrderData = useMemo(() => {
+    return orderData && orderData.map(order => transformOrderApiApp(order));
+  }, [orderData])
+
   for (const strikePrice of strikePrices) {
 
     const filteredOrders =
-        orderData &&
+        formattedOrderData &&
         orderDataStatus === "fetched"
-        && orderData.filter((order) => {
-          const orderOptionTypeString = Object.keys(OptionType)[Number(order.optionType)];
-          return order.strike === strikePrice && orderOptionTypeString === OptionType[optionType]
+        && formattedOrderData.filter((order) => {
+          return Number(order.formattedStrike) === strikePrice &&
+              optionType === order.optionType &&
+              expiryDate === order.formattedExpiry
         }
     );
 
@@ -112,12 +117,12 @@ function OptionsView(props: RouteComponentProps) {
     const bestBid =
       buyOrders &&
       buyOrders.length &&
-      Math.max(...buyOrders.map((buyOrder) => buyOrder.price));
+      Math.max(...buyOrders.map((buyOrder) => Number(buyOrder.formattedPrice)));
 
     const bestAsk =
       sellOrders &&
       sellOrders.length &&
-      Math.min(...sellOrders.map((buyOrder) => buyOrder.price));
+      Math.min(...sellOrders.map((sellOrder) => Number(sellOrder.formattedPrice)));
 
     optionRows.push(
       <PlaceOrder
@@ -147,7 +152,7 @@ function OptionsView(props: RouteComponentProps) {
       <Center >
         <Spinner color="teal"/>
       </Center>
-     
+
       }
       {contractDataError &&
       <Box>

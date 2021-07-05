@@ -28,18 +28,21 @@ import {
 } from "@chakra-ui/react";
 
 import {
+  transformOrderApiApp,
   getAddressFromSignedOrder,
   getAvailableBalance,
   getUserNonce,
   matchOrder,
+  orderWholeUnitsToBaseUnits,
   signOrder,
   toEthDate,
-  validateOrderAddress
+  validateOrderAddress, transformOrderAppChain
 } from "../utils/ethMethods";
 import {Icon} from "@chakra-ui/icons";
 import {OptionAction, OptionType} from '../types';
 import {useWeb3React} from "@web3-react/core";
 import {getEnumKeys} from '../utils/helperMethods';
+import {ethers} from "ethers";
 
 const quoteAsset = "0x0000000000000000000000000000000000000000"; // ETH
 const baseAsset: string = process.env.REACT_APP_FK_TOKEN_ADDRESS || ""; // FK
@@ -138,7 +141,8 @@ function PlaceOrder({
       nonce,
     };
     try {
-      const signedOrder = await signOrder(unsignedOrder, library);
+      const wholeUnitOrder = orderWholeUnitsToBaseUnits(unsignedOrder);
+      const signedOrder = await signOrder(wholeUnitOrder, library);
       const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
       console.log(`verifiedAddress: ${verifiedAddress}`);
       await postOrder(signedOrder);
@@ -163,7 +167,10 @@ function PlaceOrder({
     }
     try {
       console.log(order);
-      const doesAddressMatch: boolean = await validateOrderAddress(order, library);
+      const formattedOrder = transformOrderApiApp(order);
+      console.log(formattedOrder);
+      const iOrder = transformOrderAppChain(formattedOrder);
+      const doesAddressMatch: boolean = await validateOrderAddress(iOrder, library);
       console.log(doesAddressMatch);
       const {
         address,
@@ -176,7 +183,7 @@ function PlaceOrder({
         size,
         isBuy,
         expiry,
-      } = order;
+      } = formattedOrder;
       const userNonce = await getUserNonce({
         address,
         quoteAsset,
@@ -195,18 +202,19 @@ function PlaceOrder({
           provider: library
         });
         console.log(balance);
-        if (balance.lt(strike * size)) {
+        console.log(size)
+        if (balance.lt(size)) {
           throw new Error("not enough collateral of quoteAsset");
         }
       } else {
         // required collateral is strike * size of the baseAsset
         const balance = await getAvailableBalance({
           address,
-          tokenContractAddress: quoteAsset,
+          tokenContractAddress: baseAsset,
           provider: library
         });
         console.log(balance.toString());
-        if (balance.lt(strike * size)) {
+        if (balance.lt(price)) {
           throw new Error("not enough collateral of baseAsset");
         }
       }
@@ -221,24 +229,28 @@ function PlaceOrder({
       // Get other stuff needed for the order
       console.log(`isBuy: ${isBuy}`);
       console.log(`!isBuy: ${!isBuy}`);
+      console.log(`optionType: ${optionType}`)
       const unsignedOrder = {
         size,
         isBuy: !isBuy,
-        optionType,
+        optionType: optionType === 'CALL' ? 1 : 0 as 0 | 1,
         baseAsset,
         quoteAsset,
-        expiry,
+        expiry: toEthDate(expiry),
         strike,
         price,
-        fee: 0,
+        fee: ethers.BigNumber.from(0),
         offerExpire: toEthDate(fifteenMinutesFromNow),
         nonce: signerNonce,
       };
       const signedOrder = await signOrder(unsignedOrder, library);
       console.log(signedOrder);
+      const signedSellOrder = {
+            ...transformOrderAppChain(formattedOrder),
+          };
       const result = await matchOrder({
         signedBuyOrder: signedOrder,
-        signedSellOrder: order,
+        signedSellOrder
       }, library);
       console.log("result");
       console.log(result);

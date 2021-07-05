@@ -242,11 +242,18 @@ contract ShrubExchange {
     }
 
     if(common.optionType == OptionType.PUT) {
+      console.log("Seller balance");
+      console.log(seller);
+      console.log(getAvailableBalance(seller, common.baseAsset));
+      console.log("Buyer balance");
+      console.log(buyer);
+      console.log(getAvailableBalance(buyer, common.baseAsset));
+
       require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike / STRIKE_BASE_SHIFT, "Put Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.quoteAsset) >= sellOrder.price, "Put Buyer must have enough free collateral");
+      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price, "Put Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike / STRIKE_BASE_SHIFT;
-      userTokenBalances[seller][common.quoteAsset] += sellOrder.price;
-      userTokenBalances[buyer][common.quoteAsset] -= sellOrder.price;
+      userTokenBalances[seller][common.baseAsset] += sellOrder.price;
+      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price;
     }
 
     userOptionPosition[seller][positionHash] -= int(buyOrder.size);
@@ -298,7 +305,12 @@ contract ShrubExchange {
 
   function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
+//    console.log(buyer);
+//    console.log(seller);
     bytes32 positionHash = hashOrderCommon(common);
+//    console.logBytes32(positionHash);
+//    console.logInt(userOptionPosition[buyer][positionHash]);
+//    console.logInt(userOptionPosition[seller][positionHash]);
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
     require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
     require(common.expiry >= block.timestamp, "Option has already expired");

@@ -5848,6 +5848,7 @@ __metadata:
     ethers: ^5.3.1
     express: ^4.17.1
     mongoose: 5.9.25
+    mongoose-int32: ^0.5.0
     morgan: ^1.10.0
     socket.io: ^2.3.0
     source-map-support: ^0.5.19
@@ -20620,6 +20621,15 @@ fsevents@~2.1.1:
     saslprep:
       optional: true
   checksum: 9df68e136852b73c2126d896178c1496dc3a473e8573836df6a347c5e9f63cdf479e4dac90608f38cc00152331a148f447b9afa76cf77b513f3987df5a2b5071
+  languageName: node
+  linkType: hard
+
+"mongoose-int32@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "mongoose-int32@npm:0.5.0"
+  peerDependencies:
+    mongoose: ">= 4.4.0 || 5.x"
+  checksum: 69885b8f9cbd1500532796e8f9d7443b56d28d71c1bedb17d26f069ba6813ed5d5acf2cdf81496be63395cda3c51f02cd4e39a7d82d5c3b584997f521a84fe07
   languageName: node
   linkType: hard
 

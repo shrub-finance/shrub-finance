@@ -61,7 +61,7 @@ task(
     });
     await shrubExchange.deposit(
       fakeToken.address,
-      ethers.BigNumber.from(500).mul(weiInEth)
+      ethers.BigNumber.from(8500).mul(weiInEth)
     );
 
     // Setup contracts for account1
