@@ -51,7 +51,7 @@ async function generateRandomOrder(nonce) {
   const strike = web3.utils.toBN(strikeUsdc).mul(BigMillion);
   const sizeEth = Math.floor(Math.random() * 5) + 1;
   const size = web3.utils.toBN(sizeEth).mul(WeiInEth);
-  const pricePerContractUsdc = Math.round(100 * bs.blackScholes(ETH_PRICE, strikeUsdc, timeToExpiry, volatility, RISK_FREE_RATE, optionType)) / 100
+  const pricePerContractUsdc = Math.round(100 * bs.blackScholes(ETH_PRICE, strikeUsdc, timeToExpiry, volatility, RISK_FREE_RATE, optionType.toLowerCase())) / 100
   const price = web3.utils.toBN(Math.round(pricePerContractUsdc * 100)).mul(WeiInEth.div(web3.utils.toBN(100)));
   const fee = web3.utils.toBN(Math.floor(Math.random() * 100))
   return {
