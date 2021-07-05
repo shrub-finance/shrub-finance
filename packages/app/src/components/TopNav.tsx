@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
-import ConnectWalletsView, {Account} from "./ConnectWallet";
+import ConnectWalletsView, {Account, Balance, ChainId} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 
 const NavLinks = ["Shrub"];
@@ -85,8 +85,14 @@ function TopNav() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
+            <Box>
+              <Balance/>
+            </Box>
             <Box onClick={onOpen}>
               <Account/>
+            </Box>
+            <Box>
+              <ChainId/>
             </Box>
             <Button
                 onClick={toggleColorMode}
