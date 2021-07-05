@@ -13,13 +13,14 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
-  DrawerOverlay, Flex,
+  DrawerOverlay,
+  Flex,
   FormLabel,
-  Grid,
   HStack,
   Input,
   NumberInput,
-  NumberInputField, Spacer,
+  NumberInputField,
+  Spacer,
   Stack,
   Tag,
   Text,
@@ -68,7 +69,10 @@ function PlaceOrder({
   expiryDate
 }: any) {
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpenLimitBuy, onOpen: onOpenLimitBuy, onClose: onCloseLimitBuy } = useDisclosure();
+
+  const { isOpen: isOpenMarketBuy, onOpen: onOpenMarketBuy, onClose: onCloseMarketBuy } = useDisclosure();
+
 
   const [amount, setAmount] = React.useState(1);
   const [price, setPrice] = React.useState('');
@@ -106,9 +110,14 @@ function PlaceOrder({
   const groupOptionType = getOptionTypeRootProps();
   const { active, library, account } = useWeb3React();
 
-  function closeDrawer() {
+  function closeLimitBuyDrawer() {
     setSubmitting(false);
-    onClose();
+    onCloseLimitBuy();
+  }
+
+  function closeMarketBuyDrawer() {
+    setSubmitting(false);
+    onCloseMarketBuy();
   }
 
   async function placeOrder() {
@@ -282,16 +291,16 @@ function PlaceOrder({
         <Spacer/>
         <Box h={height}>
           <Stack spacing={4} direction="row" align="center">
-            <Button colorScheme="teal" onClick={onOpen} size="sm">
+            <Button colorScheme="teal" onClick={onOpenLimitBuy} size="sm">
               {isBuy ? "Limit Buy" : "Limit Sell"}
             </Button>
-            <Button colorScheme="teal" onClick={matchOrderRow} size="sm">
-              {isBuy ? "Market Buy" : "Market Sell"}
+            <Button colorScheme="teal" onClick={onOpenMarketBuy} size="sm">
+              {isBuy ? "Buy Now" : "Sell Now"}
             </Button>
           </Stack>
         </Box>
       </Flex>
-      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+      <Drawer size={"sm"} isOpen={isOpenLimitBuy} placement="right" onClose={onCloseLimitBuy}>
         <DrawerOverlay />
         <DrawerContent fontFamily="Montserrat">
           <DrawerCloseButton />
@@ -367,7 +376,108 @@ function PlaceOrder({
           </DrawerBody>
 
           <DrawerFooter borderTopWidth="1px" >
-            <Button variant="outline" mr={3} onClick={closeDrawer}>
+            <Button variant="outline" mr={3} onClick={closeLimitBuyDrawer}>
+              Cancel
+            </Button>
+            <Button
+                colorScheme="teal"
+                type="submit"
+                onClick={placeOrder}
+                isLoading={submitting}
+                loadingText="Placing Order"
+            >
+              Place Order
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
+      <Drawer size={"lg"} isOpen={isOpenMarketBuy} placement="right" onClose={onCloseMarketBuy}>
+        <DrawerOverlay />
+        <DrawerContent fontFamily="Montserrat">
+          <DrawerCloseButton />
+          <DrawerHeader borderBottomWidth="1px">Order Details</DrawerHeader>
+          <DrawerBody>
+            <Stack spacing="24px">
+              <Box mt={4}>
+                <Tag>
+                  <Icon as={FaEthereum} />
+                  ETHEREUM
+                </Tag>
+              </Box>
+              <Box>
+                <FormLabel htmlFor="amount">Amount:</FormLabel>
+                <Input
+                    id="amount"
+                    placeholder="0"
+                    value={amount}
+                    onChange={(event: any) => setAmount(event.target.value)}
+                />
+              </Box>
+              <Box>
+                <FormLabel htmlFor="amount">Total Price:</FormLabel>
+                <Input
+                    id="amount"
+                    placeholder="0"
+                    value={amount}
+                    onChange={(event: any) => setAmount(event.target.value)}
+                />
+              </Box>
+              <Box>
+                <FormLabel htmlFor="bid">Unit Price:</FormLabel>
+                <Input
+                    id="bid"
+                    placeholder="0"
+                    value={price}
+                    onChange={(event: any) => setPrice(event.target.value)}
+                />
+              </Box>
+              <Box>
+                <HStack>
+                  <Divider variant="dashed" orientation="horizontal" mb={5} mt={5} />
+                </HStack>
+              </Box>
+              <Box>
+                <HStack {...groupOption}>
+                  <FormLabel htmlFor="option">Option:</FormLabel>
+                  {radioOptions.map((value) => {
+                    const radio = getOptionRadioProps({ value });
+                    return (
+                        <RadioCard key={value} {...radio}>
+                          {value}
+                        </RadioCard>
+                    );
+                  })}
+                </HStack>
+              </Box>
+              <Box>
+                <FormLabel htmlFor="strike">Strike:</FormLabel>
+                <NumberInput id="strike" isDisabled={true} value={strikePrice}>
+                  <NumberInputField />
+                </NumberInput>
+              </Box>
+              <Box>
+                <HStack {...groupOptionType}>
+                  <FormLabel htmlFor="optionType">Option Type:</FormLabel>
+                  {radioOptionsType.map((value) => {
+                    const radio = getOptionTypeRadioProps({ value });
+                    return (
+                        <RadioCard key={value} {...radio}>
+                          {value}
+                        </RadioCard>
+                    );
+                  })}
+                </HStack>
+              </Box>
+              <Box>
+                <FormLabel htmlFor="expiryDate">Expiry Date:</FormLabel>
+                <Input id="expiry" value={expiryDate} isDisabled={true} />
+              </Box>
+            </Stack>
+          </DrawerBody>
+
+          <DrawerFooter borderTopWidth="1px" >
+            <Button variant="outline" mr={3} onClick={closeMarketBuyDrawer}>
               Cancel
             </Button>
             <Button
