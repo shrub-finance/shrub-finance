@@ -6,8 +6,8 @@ export function OrderRoutes() {
   const router = Express.Router();
 
   router.get("/", async (req, res) => {
-    const { quoteAsset, baseAsset, expiry } = req.query as Partial<IOrder>;
-    const orders = await Orders.getOrders(quoteAsset, baseAsset, expiry);
+    const { quoteAsset, baseAsset, expiry, optionType, strike, isBuy } = req.query as Partial<IOrder>;
+    const orders = await Orders.getOrders(quoteAsset, baseAsset, expiry, optionType, strike, isBuy);
     return res.json(orders);
   });
 
