@@ -30,7 +30,7 @@ import {
   ModalHeader,
   Text,
   ModalCloseButton,
-  ModalBody
+  ModalBody, VStack, StackDivider, HStack
 } from "@chakra-ui/react";
 
 import {
@@ -204,10 +204,12 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
         <Td>{shrubBalance.locked[currency]}</Td>
         <Td>{shrubBalance.available[currency]}</Td>
         <Td>
-          <Stack spacing={4} direction="row" align="center">
+          <HStack spacing="24px">
             <Button
               colorScheme="teal"
+              variant="outline"
               size="xs"
+              borderRadius="2xl"
               onClick={handleClickFactory(currency, 'Withdraw')}
               isDisabled={!active}
             >
@@ -215,26 +217,27 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             </Button>
             <Button
               colorScheme="teal"
+              variant="outline"
               size="xs"
+              borderRadius="2xl"
               onClick={handleClickFactory(currency, 'Deposit')}
               isDisabled={!active}
             >
               Deposit
             </Button>
-          </Stack>
+          </HStack>
         </Td>
       </Tr>
     );
   }
 
   return (
-      // TODO: make a reusable component and add it to all pages
-      <Box fontFamily="Montserrat">
+      <>
         {error && (!active || !account) && (
           <>
             <SlideFade in={true} unmountOnExit={true}>
               <Flex>
-              <Alert status="warning" borderRadius={7} mb={6}>
+              <Alert status="warning" borderRadius={7} mb={6} >
                 <AlertIcon />
                 {error}
                 <Spacer />
@@ -258,8 +261,8 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                 </Modal>
             </>
         )}
-        <Box>
-          <Table variant="simple">
+
+          <Table variant="simple" size="lg">
             <Thead>
               <Tr>
                 <Th>Asset</Th>
@@ -273,84 +276,10 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             </Thead>
             <Tbody>{tableRows}</Tbody>
           </Table>
-          <Drawer
-              onClose={onCloseDrawer}
-              isOpen={isOpenDrawer}
-              placement="right"
-          >
-            <DrawerOverlay/>
-            <DrawerContent fontFamily="Montserrat">
-              <DrawerHeader>{action}</DrawerHeader>
-              <DrawerCloseButton/>
-              <DrawerBody>
-                <WithdrawDeposit
-                    amountValue={amountValue}
-                    setAmountValue={setAmountValue}
-                    drawerCurrency={drawerCurrency}
-                    setDrawerCurrency={setDrawerCurrency}
-                    walletBalance={walletBalance}
-                    shrubBalance={shrubBalance}
-                    action={action}
-                    error={error}
-                />
-                <Flex>
-                  {drawerCurrency !== "ETH" && action === "Deposit" ? (
-                      <Button
-                          colorScheme="teal"
-                          isDisabled={amountValue === '0' || amountValue === ''}
-                          onClick={() => {
-                            if (active) {
-                              approveToken(
-                                  Currencies[drawerCurrency].address,
-                                  ethers.utils.parseUnits(amountValue),
-                                  library
-                              ).catch(handleErrorMessages)
-                            }
-                          }
-                          }
-                      >
-                        Approve
-                      </Button>
-                  ) : null}
-                  <Spacer/>
-                  <Button
-                      colorScheme="teal"
-                      isDisabled={amountValue === '0' || amountValue === ''}
-                      onClick={() => {
-                        if (!active || !account) {
-                          handleErrorMessages(undefined,'Please connect your wallet');
-                          return;
-                        }
-                        if (action === "Deposit") {
-                          if (drawerCurrency === "ETH") {
-                            depositEth(ethers.utils.parseUnits(amountValue), library
-                            ).catch(handleErrorMessages);
-                          } else {
-                            depositToken(
-                                Currencies[drawerCurrency].address,
-                                ethers.utils.parseUnits(amountValue),
-                                library
-                            ).catch(handleErrorMessages);
-                          }
-                        } else if (action === "Withdraw") {
-                          withdraw(
-                              Currencies[drawerCurrency].address,
-                              ethers.utils.parseUnits(amountValue),
-                              library
-                          ).catch(handleErrorMessages);
-                        }
-                      }}
-                  >
-                    {action}
-                  </Button>
-                </Flex>
-              </DrawerBody>
-            </DrawerContent>
-          </Drawer>
-        </Box>
-        <br/>
-        <Box>
-          <Table variant="simple">
+
+
+
+          <Table variant="simple" size="lg">
             <Thead>
               <Tr>
                 <Th>Pair</Th>
@@ -363,13 +292,81 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                 </Th>
               </Tr>
             </Thead>
-            <Tbody>
-              {optionsRows}
-            </Tbody>
+            <Tbody>{optionsRows}</Tbody>
           </Table>
-        </Box>
-      </Box>
-  );
+
+     <Drawer onClose={onCloseDrawer} isOpen={isOpenDrawer} placement="right">
+    <DrawerOverlay/>
+    <DrawerContent fontFamily="Montserrat" borderRadius="2xl">
+      <DrawerHeader>{action}</DrawerHeader>
+      <DrawerCloseButton/>
+      <DrawerBody>
+        <WithdrawDeposit
+            amountValue={amountValue}
+            setAmountValue={setAmountValue}
+            drawerCurrency={drawerCurrency}
+            setDrawerCurrency={setDrawerCurrency}
+            walletBalance={walletBalance}
+            shrubBalance={shrubBalance}
+            action={action}
+            error={error}
+        />
+        <Flex>
+          {drawerCurrency !== "ETH" && action === "Deposit" ? (
+              <Button
+                  colorScheme="teal"
+                  isDisabled={amountValue === '0' || amountValue === ''}
+                  onClick={() => {
+                    if (active) {
+                      approveToken(
+                          Currencies[drawerCurrency].address,
+                          ethers.utils.parseUnits(amountValue),
+                          library
+                      ).catch(handleErrorMessages)
+                    }
+                  }
+                  }
+              >
+                Approve
+              </Button>
+          ) : null}
+          <Spacer/>
+          <Button
+              colorScheme="teal"
+              isDisabled={amountValue === '0' || amountValue === ''}
+              onClick={() => {
+                if (!active || !account) {
+                  handleErrorMessages(undefined,'Please connect your wallet');
+                  return;
+                }
+                if (action === "Deposit") {
+                  if (drawerCurrency === "ETH") {
+                    depositEth(ethers.utils.parseUnits(amountValue), library
+                    ).catch(handleErrorMessages);
+                  } else {
+                    depositToken(
+                        Currencies[drawerCurrency].address,
+                        ethers.utils.parseUnits(amountValue),
+                        library
+                    ).catch(handleErrorMessages);
+                  }
+                } else if (action === "Withdraw") {
+                  withdraw(
+                      Currencies[drawerCurrency].address,
+                      ethers.utils.parseUnits(amountValue),
+                      library
+                  ).catch(handleErrorMessages);
+                }
+              }}
+          >
+            {action}
+          </Button>
+        </Flex>
+      </DrawerBody>
+    </DrawerContent>
+  </Drawer>
+      </>
+);
 }
 
 export default Positions;

@@ -6,7 +6,7 @@ import {
   Box,
   Center,
   Container,
-  Flex,
+  Flex, Heading,
   HStack, Spacer,
   Spinner,
   useRadioGroup
@@ -18,6 +18,8 @@ import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {getEnumKeys} from '../utils/helperMethods';
 import {transformOrderApiApp} from "../utils/ethMethods";
+import {FaEthereum} from "react-icons/fa";
+import {Icon} from "@chakra-ui/icons";
 
 function OptionsView(props: RouteComponentProps) {
 
@@ -139,18 +141,21 @@ function OptionsView(props: RouteComponentProps) {
     );
   }
   return (
-    <Container
-      mt={100}
+      <>
+        <Heading mt={10}><Center><Icon as={FaEthereum} /> ETH Options</Center></Heading>
+
+  <Container
+      mt={50}
       p={5}
       shadow="md"
       borderWidth="1px"
       flex="1"
-      borderRadius="lg"
+      borderRadius="2xl"
       fontFamily="Montserrat"
     >
       {contractDataStatus === "fetching" &&
       <Center >
-        <Spinner color="teal"/>
+        <Spinner color="teal" size="xl"/>
       </Center>
 
       }
@@ -203,6 +208,7 @@ function OptionsView(props: RouteComponentProps) {
       }
       {optionRows}
     </Container>
+      </>
   );
 }
 

@@ -22,8 +22,8 @@ import {
   NumberInputField,
   Spacer,
   Stack,
-  Tag,
-  Text,
+  Tag, TagLabel,
+  Text, Tooltip,
   useDisclosure,
   useRadioGroup,
 } from "@chakra-ui/react";
@@ -44,6 +44,7 @@ import {OptionAction, OptionType} from '../types';
 import {useWeb3React} from "@web3-react/core";
 import {getEnumKeys} from '../utils/helperMethods';
 import {ethers} from "ethers";
+import {CgDollar, GiSwordBrandish, GiTakeMyMoney, MdDateRange} from "react-icons/all";
 
 const quoteAsset = "0x0000000000000000000000000000000000000000"; // ETH
 const baseAsset: string = process.env.REACT_APP_FK_TOKEN_ADDRESS || ""; // FK
@@ -291,10 +292,10 @@ function PlaceOrder({
         <Spacer/>
         <Box h={height}>
           <Stack spacing={4} direction="row" align="center">
-            <Button colorScheme="teal" onClick={onOpenLimitBuy} size="sm">
+            <Button colorScheme="teal" onClick={onOpenLimitBuy} size="sm" variant="outline" borderRadius="2xl">
               {isBuy ? "Limit Buy" : "Limit Sell"}
             </Button>
-            <Button colorScheme="teal" onClick={onOpenMarketBuy} size="sm">
+            <Button colorScheme="teal" onClick={onOpenMarketBuy} size="sm" variant="outline" borderRadius="2xl">
               {isBuy ? "Buy Now" : "Sell Now"}
             </Button>
           </Stack>
@@ -302,22 +303,26 @@ function PlaceOrder({
       </Flex>
       <Drawer size={"sm"} isOpen={isOpenLimitBuy} placement="right" onClose={onCloseLimitBuy}>
         <DrawerOverlay />
-        <DrawerContent fontFamily="Montserrat">
+        <DrawerContent fontFamily="Montserrat" borderRadius="2xl">
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px">Order Details</DrawerHeader>
           <DrawerBody>
             <Stack spacing="24px">
-              <Box mt={4}>
-                <Tag>
-                  <Icon as={FaEthereum} />
-                  ETHEREUM
-                </Tag>
-              </Box>
-              <Box>
-                <FormLabel htmlFor="strike">Strike:</FormLabel>
-                <NumberInput id="strike" isDisabled={true} value={strikePrice}>
-                  <NumberInputField />
-                </NumberInput>
+              <Box mt={2} mb={8}>
+                <HStack spacing={3}>
+                  <Tooltip label="Strike price for this optoin is $2000" bg="gray.300" color="gray.800">
+                    <Tag colorScheme="yellow">
+                      <Icon as={CgDollar} />
+                      <TagLabel>{strikePrice}</TagLabel>
+                    </Tag>
+                  </Tooltip>
+                  <Tooltip label="This option expires on Jul 15" bg="gray.300" color="gray.800">
+                    <Tag colorScheme="blue">
+                      <Icon as={MdDateRange} />
+                      <TagLabel> {expiryDate}</TagLabel>
+                    </Tag>
+                  </Tooltip>
+                </HStack>
               </Box>
               <Box>
                 <HStack {...groupOptionType}>
@@ -331,10 +336,6 @@ function PlaceOrder({
                     );
                   })}
                 </HStack>
-              </Box>
-              <Box>
-                <FormLabel htmlFor="expiryDate">Expiry Date:</FormLabel>
-                <Input id="expiry" value={expiryDate} isDisabled={true} />
               </Box>
               <Box>
                 <HStack>
@@ -367,43 +368,67 @@ function PlaceOrder({
                 <FormLabel htmlFor="bid">Price:</FormLabel>
                 <Input
                   id="bid"
-                  placeholder="0"
+                  placeholder="What will you pay?"
                   value={price}
                   onChange={(event: any) => setPrice(event.target.value)}
                 />
               </Box>
+
+            <Box>
+              <Flex justifyContent="flex-end">
+              <Button
+                  colorScheme="teal"
+                  type="submit"
+                  onClick={placeOrder}
+                  isLoading={submitting}
+                  loadingText="Placing Order"
+              >
+                Place Order
+              </Button>
+              </Flex>
+            </Box>
             </Stack>
           </DrawerBody>
 
-          <DrawerFooter borderTopWidth="1px" >
-            <Button variant="outline" mr={3} onClick={closeLimitBuyDrawer}>
-              Cancel
-            </Button>
-            <Button
-                colorScheme="teal"
-                type="submit"
-                onClick={placeOrder}
-                isLoading={submitting}
-                loadingText="Placing Order"
-            >
-              Place Order
-            </Button>
-          </DrawerFooter>
         </DrawerContent>
       </Drawer>
 
-      <Drawer size={"lg"} isOpen={isOpenMarketBuy} placement="right" onClose={onCloseMarketBuy}>
+      <Drawer placement="right" size={"md"} isOpen={isOpenMarketBuy} onClose={onCloseMarketBuy}>
         <DrawerOverlay />
-        <DrawerContent fontFamily="Montserrat">
+        <DrawerContent fontFamily="Montserrat" borderRadius="xl">
           <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px">Order Details</DrawerHeader>
+          <DrawerHeader borderBottomWidth="1px" fontSize="14px" fontWeight="bold">
+            Order Details
+          </DrawerHeader>
           <DrawerBody>
             <Stack spacing="24px">
-              <Box mt={4}>
-                <Tag>
-                  <Icon as={FaEthereum} />
-                  ETHEREUM
-                </Tag>
+              <Box mt={2} mb={8}>
+                <HStack spacing={3}>
+                  <Tooltip label="Option" bg="gray.300" color="gray.800">
+                    <Tag colorScheme="pink">
+                      <Icon as={GiTakeMyMoney} />
+                      <TagLabel>{isBuy? "BUY" : "SELL"}</TagLabel>
+                    </Tag>
+                  </Tooltip>
+                    <Tooltip label="Option Type" bg="gray.300" color="gray.800">
+                    <Tag colorScheme="purple">
+                      <Icon as={GiSwordBrandish}/>
+                      <TagLabel>{isCall? "CALL" : "PUT"}</TagLabel>
+                    </Tag>
+                    </Tooltip>
+                  <Tooltip label="Strike price for this optoin is $2000" bg="gray.300" color="gray.800">
+                  <Tag colorScheme="yellow">
+                    <Icon as={CgDollar} />
+                    <TagLabel>{strikePrice}</TagLabel>
+                  </Tag>
+                  </Tooltip>
+                  <Tooltip label="This option expires on Jul 15" bg="gray.300" color="gray.800">
+                  <Tag colorScheme="blue">
+                    <Icon as={MdDateRange} />
+                    <TagLabel> {expiryDate}</TagLabel>
+                  </Tag>
+                  </Tooltip>
+                </HStack>
               </Box>
               <Box>
                 <FormLabel htmlFor="amount">Amount:</FormLabel>
@@ -433,63 +458,21 @@ function PlaceOrder({
                 />
               </Box>
               <Box>
-                <HStack>
-                  <Divider variant="dashed" orientation="horizontal" mb={5} mt={5} />
-                </HStack>
-              </Box>
-              <Box>
-                <HStack {...groupOption}>
-                  <FormLabel htmlFor="option">Option:</FormLabel>
-                  {radioOptions.map((value) => {
-                    const radio = getOptionRadioProps({ value });
-                    return (
-                        <RadioCard key={value} {...radio}>
-                          {value}
-                        </RadioCard>
-                    );
-                  })}
-                </HStack>
-              </Box>
-              <Box>
-                <FormLabel htmlFor="strike">Strike:</FormLabel>
-                <NumberInput id="strike" isDisabled={true} value={strikePrice}>
-                  <NumberInputField />
-                </NumberInput>
-              </Box>
-              <Box>
-                <HStack {...groupOptionType}>
-                  <FormLabel htmlFor="optionType">Option Type:</FormLabel>
-                  {radioOptionsType.map((value) => {
-                    const radio = getOptionTypeRadioProps({ value });
-                    return (
-                        <RadioCard key={value} {...radio}>
-                          {value}
-                        </RadioCard>
-                    );
-                  })}
-                </HStack>
-              </Box>
-              <Box>
-                <FormLabel htmlFor="expiryDate">Expiry Date:</FormLabel>
-                <Input id="expiry" value={expiryDate} isDisabled={true} />
+                <Flex justifyContent="flex-end">
+                <Button
+                    colorScheme="teal"
+                    type="submit"
+                    onClick={placeOrder}
+                    isLoading={submitting}
+                    loadingText="Placing Order"
+                >
+                  Place Order
+                </Button>
+              </Flex>
+
               </Box>
             </Stack>
           </DrawerBody>
-
-          <DrawerFooter borderTopWidth="1px" >
-            <Button variant="outline" mr={3} onClick={closeMarketBuyDrawer}>
-              Cancel
-            </Button>
-            <Button
-                colorScheme="teal"
-                type="submit"
-                onClick={placeOrder}
-                isLoading={submitting}
-                loadingText="Placing Order"
-            >
-              Place Order
-            </Button>
-          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </Box>

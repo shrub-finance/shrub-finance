@@ -88,7 +88,10 @@ function TopNav() {
             <Box onClick={onOpen}>
               <Account/>
             </Box>
-            <Button onClick={toggleColorMode}>
+            <Button
+                onClick={toggleColorMode}
+                variant="ghost"
+            >
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
             </Button>
           </Flex>
@@ -107,7 +110,7 @@ function TopNav() {
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
+        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
           <ModalHeader>
             <Text fontSize={20}>Connect to a wallet</Text>
           </ModalHeader>

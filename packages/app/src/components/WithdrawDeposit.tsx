@@ -48,7 +48,7 @@ function WithdrawDeposit({
       <Stack direction={["column"]} spacing="40px" mb="40px">
         {error && (
             <SlideFade in={true} unmountOnExit={true}>
-            <Alert status="warning" borderRadius={9}>
+            <Alert status="warning" borderRadius={9} >
               <AlertIcon />
               {error}
             </Alert>
