@@ -284,7 +284,7 @@ function PlaceOrder({
           </Tag>
         </Box>
         <Spacer/>
-        <Box h={height} fontSize="14" color="gray.400" fontWeight="semibold" lineHeight={1.8}>
+        <Box h={height} fontWeight="semibold" lineHeight={1.8}>
           <Text>Last: ${last}</Text>
           <Text>Ask: ${ask}</Text>
           <Text>Bid: ${bid}</Text>
@@ -301,7 +301,7 @@ function PlaceOrder({
           </Stack>
         </Box>
       </Flex>
-      <Modal size={"sm"} isOpen={isOpenLimitBuy}  onClose={onCloseLimitBuy}>
+      <Modal  motionPreset="slideInBottom" size={"sm"} isOpen={isOpenLimitBuy}  onClose={onCloseLimitBuy}>
         <ModalOverlay />
         <ModalContent fontFamily="Montserrat" borderRadius="2xl">
           <ModalCloseButton />
@@ -393,7 +393,7 @@ function PlaceOrder({
         </ModalContent>
       </Modal>
 
-      <Modal  size={"md"} isOpen={isOpenMarketBuy} onClose={onCloseMarketBuy}>
+      <Modal  motionPreset="slideInBottom" size={"md"} isOpen={isOpenMarketBuy} onClose={onCloseMarketBuy}>
         <ModalOverlay />
         <ModalContent fontFamily="Montserrat" borderRadius="xl">
           <ModalCloseButton />

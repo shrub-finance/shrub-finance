@@ -20,7 +20,7 @@ function RadioCard(props) {
         _checked={{
           bg: useColorModeValue("teal.500", "gray.400"),
           fontWeight: "semibold",
-          color: useColorModeValue("white", "gray.800")
+          color: useColorModeValue("white", "black")
         }}
         _focus={{
           boxShadow: "outline",

@@ -240,7 +240,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
               </Alert>
               </Flex>
             </SlideFade>
-                <Modal isOpen={isOpenConnectModal} onClose={onCloseConnectModal}>
+                <Modal  motionPreset="slideInBottom" isOpen={isOpenConnectModal} onClose={onCloseConnectModal}>
                   <ModalOverlay />
                   <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
                     <ModalHeader>
@@ -288,7 +288,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Tbody>{optionsRows}</Tbody>
           </Table>
 
-     <Modal onClose={onCloseModal} isOpen={isOpenModal} >
+     <Modal  motionPreset="slideInBottom" onClose={onCloseModal} isOpen={isOpenModal} >
     <ModalOverlay/>
     <ModalContent fontFamily="Montserrat" borderRadius="2xl">
       <ModalHeader>{action}</ModalHeader>
