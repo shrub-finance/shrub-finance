@@ -7,13 +7,13 @@ import {
   Box,
   Button,
   Divider,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Flex,
   FormLabel,
   HStack,
@@ -111,12 +111,12 @@ function PlaceOrder({
   const groupOptionType = getOptionTypeRootProps();
   const { active, library, account } = useWeb3React();
 
-  function closeLimitBuyDrawer() {
+  function closeLimitBuyModal() {
     setSubmitting(false);
     onCloseLimitBuy();
   }
 
-  function closeMarketBuyDrawer() {
+  function closeMarketBuyModal() {
     setSubmitting(false);
     onCloseMarketBuy();
   }
@@ -301,12 +301,12 @@ function PlaceOrder({
           </Stack>
         </Box>
       </Flex>
-      <Drawer size={"sm"} isOpen={isOpenLimitBuy} placement="right" onClose={onCloseLimitBuy}>
-        <DrawerOverlay />
-        <DrawerContent fontFamily="Montserrat" borderRadius="2xl">
-          <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px">Order Details</DrawerHeader>
-          <DrawerBody>
+      <Modal size={"sm"} isOpen={isOpenLimitBuy}  onClose={onCloseLimitBuy}>
+        <ModalOverlay />
+        <ModalContent fontFamily="Montserrat" borderRadius="2xl">
+          <ModalCloseButton />
+          <ModalHeader borderBottomWidth="1px">Order Details</ModalHeader>
+          <ModalBody>
             <Stack spacing="24px">
               <Box mt={2} mb={8}>
                 <HStack spacing={3}>
@@ -388,19 +388,19 @@ function PlaceOrder({
               </Flex>
             </Box>
             </Stack>
-          </DrawerBody>
+          </ModalBody>
 
-        </DrawerContent>
-      </Drawer>
+        </ModalContent>
+      </Modal>
 
-      <Drawer placement="right" size={"md"} isOpen={isOpenMarketBuy} onClose={onCloseMarketBuy}>
-        <DrawerOverlay />
-        <DrawerContent fontFamily="Montserrat" borderRadius="xl">
-          <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px" fontSize="14px" fontWeight="bold">
+      <Modal  size={"md"} isOpen={isOpenMarketBuy} onClose={onCloseMarketBuy}>
+        <ModalOverlay />
+        <ModalContent fontFamily="Montserrat" borderRadius="xl">
+          <ModalCloseButton />
+          <ModalHeader borderBottomWidth="1px" fontSize="14px" fontWeight="bold">
             Order Details
-          </DrawerHeader>
-          <DrawerBody>
+          </ModalHeader>
+          <ModalBody>
             <Stack spacing="24px">
               <Box mt={2} mb={8}>
                 <HStack spacing={3}>
@@ -472,9 +472,9 @@ function PlaceOrder({
 
               </Box>
             </Stack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

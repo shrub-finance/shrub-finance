@@ -14,8 +14,8 @@ import RadioCard from "./Radio";
 function WithdrawDeposit({
   amountValue,
   setAmountValue,
-  drawerCurrency,
-  setDrawerCurrency,
+  modalCurrency,
+  setModalCurrency,
   walletBalance,
   shrubBalance,
   action,
@@ -29,17 +29,17 @@ function WithdrawDeposit({
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "currency",
-    defaultValue: drawerCurrency,
-    onChange: (nextValue) => setDrawerCurrency(nextValue)
+    defaultValue: modalCurrency,
+    onChange: (nextValue) => setModalCurrency(nextValue)
   })
 
   const currenciesRadiogroup = getRootProps()
 
   function fillSendMax() {
     if (action === "Deposit") {
-      setAmountValue(walletBalance[drawerCurrency]);
+      setAmountValue(walletBalance[modalCurrency]);
     } else if (action === "Withdraw") {
-      setAmountValue(shrubBalance[drawerCurrency]);
+      setAmountValue(shrubBalance[modalCurrency]);
     }
   }
 

@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { ethers } from "ethers";
 import {
-  Stack,
   VisuallyHidden,
   Button,
   Table,
@@ -10,14 +9,7 @@ import {
   Tr,
   Th,
   Td,
-  Drawer,
-  DrawerBody,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
   useDisclosure,
-  Box,
   TableRowProps,
   Flex,
   Spacer,
@@ -30,7 +22,8 @@ import {
   ModalHeader,
   Text,
   ModalCloseButton,
-  ModalBody, VStack, StackDivider, HStack
+  ModalBody,
+  HStack
 } from "@chakra-ui/react";
 
 import {
@@ -152,9 +145,9 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
 
 
   const {
-    isOpen: isOpenDrawer,
-    onOpen: onOpenDrawer,
-    onClose: onCloseDrawer
+    isOpen: isOpenModal,
+    onOpen: onOpenModal,
+    onClose: onCloseModal
   } = useDisclosure();
 
   const {
@@ -166,7 +159,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
 
   const [amountValue, setAmountValue] = useState("0");
 
-  const [drawerCurrency, setDrawerCurrency] = useState(
+  const [modalCurrency, setModalCurrency] = useState(
     'ETH' as keyof typeof Currencies
   );
 
@@ -174,11 +167,11 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
   function handleClickFactory(selectedCurrency: any, buttonText?: any) {
     return (
        function handleClick() {
-         onOpenDrawer();
+         onOpenModal();
          setAction(buttonText);
          setError('');
          setAmountValue('');
-         setDrawerCurrency(selectedCurrency);
+         setModalCurrency(selectedCurrency);
        })
   }
 
@@ -295,31 +288,31 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Tbody>{optionsRows}</Tbody>
           </Table>
 
-     <Drawer onClose={onCloseDrawer} isOpen={isOpenDrawer} placement="right">
-    <DrawerOverlay/>
-    <DrawerContent fontFamily="Montserrat" borderRadius="2xl">
-      <DrawerHeader>{action}</DrawerHeader>
-      <DrawerCloseButton/>
-      <DrawerBody>
+     <Modal onClose={onCloseModal} isOpen={isOpenModal} >
+    <ModalOverlay/>
+    <ModalContent fontFamily="Montserrat" borderRadius="2xl">
+      <ModalHeader>{action}</ModalHeader>
+      <ModalCloseButton/>
+      <ModalBody>
         <WithdrawDeposit
             amountValue={amountValue}
             setAmountValue={setAmountValue}
-            drawerCurrency={drawerCurrency}
-            setDrawerCurrency={setDrawerCurrency}
+            modalCurrency={modalCurrency}
+            setModalCurrency={setModalCurrency}
             walletBalance={walletBalance}
             shrubBalance={shrubBalance}
             action={action}
             error={error}
         />
         <Flex>
-          {drawerCurrency !== "ETH" && action === "Deposit" ? (
+          {modalCurrency !== "ETH" && action === "Deposit" ? (
               <Button
                   colorScheme="teal"
                   isDisabled={amountValue === '0' || amountValue === ''}
                   onClick={() => {
                     if (active) {
                       approveToken(
-                          Currencies[drawerCurrency].address,
+                          Currencies[modalCurrency].address,
                           ethers.utils.parseUnits(amountValue),
                           library
                       ).catch(handleErrorMessages)
@@ -340,19 +333,19 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                   return;
                 }
                 if (action === "Deposit") {
-                  if (drawerCurrency === "ETH") {
+                  if (modalCurrency === "ETH") {
                     depositEth(ethers.utils.parseUnits(amountValue), library
                     ).catch(handleErrorMessages);
                   } else {
                     depositToken(
-                        Currencies[drawerCurrency].address,
+                        Currencies[modalCurrency].address,
                         ethers.utils.parseUnits(amountValue),
                         library
                     ).catch(handleErrorMessages);
                   }
                 } else if (action === "Withdraw") {
                   withdraw(
-                      Currencies[drawerCurrency].address,
+                      Currencies[modalCurrency].address,
                       ethers.utils.parseUnits(amountValue),
                       library
                   ).catch(handleErrorMessages);
@@ -362,9 +355,9 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             {action}
           </Button>
         </Flex>
-      </DrawerBody>
-    </DrawerContent>
-  </Drawer>
+      </ModalBody>
+    </ModalContent>
+  </Modal>
       </>
 );
 }
