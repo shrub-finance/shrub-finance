@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import RadioCard from "./Radio";
 import {FaEthereum} from "react-icons/fa";
-import {getOrders, postOrder} from "../utils/requests";
+import {getOrders, getSpecificOrderbook, postOrder} from "../utils/requests";
 
 import {
   Box,
@@ -37,37 +37,20 @@ import {
   orderWholeUnitsToBaseUnits,
   signOrder,
   toEthDate,
-  validateOrderAddress, transformOrderAppChain
+  validateOrderAddress, transformOrderAppChain, optionTypeToNumber, iOrderToPostOrder
 } from "../utils/ethMethods";
 import {Icon} from "@chakra-ui/icons";
-import {OptionAction, OptionType} from '../types';
+import {ApiOrder, AppCommon, GetOrdersParams, OptionAction, OptionType, UnsignedOrder} from '../types';
 import {useWeb3React} from "@web3-react/core";
 import {getEnumKeys} from '../utils/helperMethods';
-import {ethers} from "ethers";
-
-const quoteAsset = "0x0000000000000000000000000000000000000000"; // ETH
-const baseAsset: string = process.env.REACT_APP_FK_TOKEN_ADDRESS || ""; // FK
-
-if (!baseAsset) {
-  throw new Error(
-    "Configuration missing. Please specify REACT_APP_FK_TOKEN_ADDRESS in .env file"
-  );
-}
+import {BigNumber, ethers} from "ethers";
+import useFetch from "../hooks/useFetch";
 
 const height = 100;
 
-// TODO: setOption and setOptionType should be maintained through context
-function PlaceOrder({
-  strikePrice,
-  isCall,
-  isBuy,
-  last,
-  ask,
-  bid,
-  option,
-  optionType,
-  expiryDate
-}: any) {
+// function PlaceOrder({ baseAsset, quoteAsset, strikePrice, isCall, isBuy, last, ask, bid, option, optionType, expiryDate }: any) {
+function OptionRow({appCommon, isBuy, last, ask, bid}: {appCommon: AppCommon, isBuy: boolean, last: string, ask: string, bid: string}) {
+  const { baseAsset, quoteAsset, expiry, optionType, strike, formattedExpiry, formattedStrike } = appCommon;
 
   const { isOpen: isOpenLimitBuy, onOpen: onOpenLimitBuy, onClose: onCloseLimitBuy } = useDisclosure();
 
@@ -81,19 +64,30 @@ function PlaceOrder({
   const [submitting, setSubmitting] = React.useState(false);
 
   // Radio logic
-  const radioOptions: string[] = getEnumKeys(OptionAction)
-  const radioOptionsType: string[] = getEnumKeys(OptionType)
-  const [radioOption, setRadioOption] = useState(option);
+  const radioOptions = ['BUY', 'SELL']
+  const radioOptionsType = ['CALL', 'PUT']
+  const [radioOption, setRadioOption] = useState<'BUY' | 'SELL'>(isBuy ? 'BUY' : 'SELL');
   const [radioOptionType, setRadioOptionType] = useState(optionType);
+
+  const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
+  const params: GetOrdersParams = {
+    strike: strike.toString(),
+    isBuy,
+    quoteAsset,
+    baseAsset,
+    expiry: toEthDate(expiry),
+    optionType: optionTypeToNumber(optionType)
+  }
+  const {data:orderBookData, status: orderBookDataStatus} = useFetch<ApiOrder[]>(url, {params});
+  console.log(orderBookData);
 
   const {
     getRootProps: getOptionRootProps,
     getRadioProps: getOptionRadioProps,
   } = useRadioGroup({
     name: "option",
-    defaultValue: option,
-    // @ts-ignore
-    onChange: (nextValue) => setRadioOption(nextValue),
+    defaultValue: isBuy ? 'BUY' : 'SELL',
+    onChange: (nextValue: 'BUY' | 'SELL') => setRadioOption(nextValue),
   });
 
   const {
@@ -102,8 +96,7 @@ function PlaceOrder({
   } = useRadioGroup({
     name: "optionType",
     defaultValue: optionType,
-    // @ts-ignore
-    onChange: (nextValue) => setRadioOptionType(nextValue),
+    onChange: (nextValue: 'CALL' | 'PUT') => setRadioOptionType(nextValue),
   });
 
   const groupOption = getOptionRootProps();
@@ -136,137 +129,144 @@ function PlaceOrder({
         quoteAsset,
         baseAsset,
       }, library)) + 1;
-    const unsignedOrder = {
-      size: amount,
-      isBuy: radioOption === OptionAction.BUY,
-      optionType: radioOptionType,
+    const unsignedOrder: UnsignedOrder = {
+      size: ethers.utils.parseUnits(amount.toString(), 18),
+      isBuy: radioOption === 'BUY',
+      optionType: optionTypeToNumber(radioOptionType),
       baseAsset,
       quoteAsset,
-      expiry: toEthDate(new Date(expiryDate)),
-      strike: strikePrice,
-      price: Number(price) || 0,
-      fee: 0,
+      expiry: toEthDate(expiry),
+      strike,
+      price: ethers.utils.parseUnits(price || '0', 18),
+      fee: ethers.utils.parseUnits('0', 18),
       offerExpire: toEthDate(oneWeekFromNow),
       nonce,
     };
     try {
-      const wholeUnitOrder = orderWholeUnitsToBaseUnits(unsignedOrder);
-      const signedOrder = await signOrder(wholeUnitOrder, library);
+      // const wholeUnitOrder = orderWholeUnitsToBaseUnits(unsignedOrder);
+      const signedOrder = await signOrder(unsignedOrder, library);
       const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
       console.log(`verifiedAddress: ${verifiedAddress}`);
-      await postOrder(signedOrder);
+      const pOrder = iOrderToPostOrder(signedOrder);
+      await postOrder(pOrder);
     } catch (e) {
       console.error(e);
     }
   }
 
+  async function matchOrderNew() {
+    // console.log('running matchOrderNew')
+    // setSubmitting(true);
+    // const orderbook = await getSpecificOrderbook({quoteAsset, baseAsset, expiry:expiryDate, optionType, strike, isBuy})
+  }
+
   async function matchOrderRow() {
-    if (!active || !account) {
-      console.error('Please connect your wallet');
-      return;
-    }
-    const now = new Date();
-    const fifteenMinutesFromNow = new Date(now);
-    fifteenMinutesFromNow.setUTCMinutes(now.getUTCMinutes() + 15);
-    const order = await getOrders({});
-    console.log(order);
-    if (!order) {
-      console.log("no orders found");
-      return;
-    }
-    try {
-      console.log(order);
-      const formattedOrder = transformOrderApiApp(order);
-      console.log(formattedOrder);
-      const iOrder = transformOrderAppChain(formattedOrder);
-      const doesAddressMatch: boolean = await validateOrderAddress(iOrder, library);
-      console.log(doesAddressMatch);
-      const {
-        address,
-        baseAsset,
-        quoteAsset,
-        nonce,
-        price,
-        optionType,
-        strike,
-        size,
-        isBuy,
-        expiry,
-      } = formattedOrder;
-      const userNonce = await getUserNonce({
-        address,
-        quoteAsset,
-        baseAsset,
-      }, library);
-      console.log(userNonce);
-      console.log(nonce);
-      // if (userNonce !== nonce) {
-      //   throw new Error("nonce does not match");
-      // }
-      if (optionType === OptionType.CALL) {
-        // required collateral is strike * size of the quoteAsset
-        const balance = await getAvailableBalance({
-          address,
-          tokenContractAddress: quoteAsset,
-          provider: library
-        });
-        console.log(balance);
-        console.log(size)
-        if (balance.lt(size)) {
-          throw new Error("not enough collateral of quoteAsset");
-        }
-      } else {
-        // required collateral is strike * size of the baseAsset
-        const balance = await getAvailableBalance({
-          address,
-          tokenContractAddress: baseAsset,
-          provider: library
-        });
-        console.log(balance.toString());
-        if (balance.lt(price)) {
-          throw new Error("not enough collateral of baseAsset");
-        }
-      }
-      // Get the user nonce
-      const signerNonce =
-        (await getUserNonce({
-          address: account,
-          quoteAsset,
-          baseAsset,
-        }, library)) + 1;
-      console.log(`signerNonce: ${signerNonce}`);
-      // Get other stuff needed for the order
-      console.log(`isBuy: ${isBuy}`);
-      console.log(`!isBuy: ${!isBuy}`);
-      console.log(`optionType: ${optionType}`)
-      const unsignedOrder = {
-        size,
-        isBuy: !isBuy,
-        optionType: optionType === 'CALL' ? 1 : 0 as 0 | 1,
-        baseAsset,
-        quoteAsset,
-        expiry: toEthDate(expiry),
-        strike,
-        price,
-        fee: ethers.BigNumber.from(0),
-        offerExpire: toEthDate(fifteenMinutesFromNow),
-        nonce: signerNonce,
-      };
-      const signedOrder = await signOrder(unsignedOrder, library);
-      console.log(signedOrder);
-      const signedSellOrder = {
-            ...transformOrderAppChain(formattedOrder),
-          };
-      const result = await matchOrder({
-        signedBuyOrder: signedOrder,
-        signedSellOrder
-      }, library);
-      console.log("result");
-      console.log(result);
-      // Create the buy order and sign it
-    } catch (e) {
-      console.error(e);
-    }
+    // if (!active || !account) {
+    //   console.error('Please connect your wallet');
+    //   return;
+    // }
+    // const now = new Date();
+    // const fifteenMinutesFromNow = new Date(now);
+    // fifteenMinutesFromNow.setUTCMinutes(now.getUTCMinutes() + 15);
+    // const order = await getOrders({});
+    // console.log(order);
+    // if (!order) {
+    //   console.log("no orders found");
+    //   return;
+    // }
+    // try {
+    //   console.log(order);
+    //   const formattedOrder = transformOrderApiApp(order);
+    //   console.log(formattedOrder);
+    //   const iOrder = transformOrderAppChain(formattedOrder);
+    //   const doesAddressMatch: boolean = await validateOrderAddress(iOrder, library);
+    //   console.log(doesAddressMatch);
+    //   const {
+    //     address,
+    //     baseAsset,
+    //     quoteAsset,
+    //     nonce,
+    //     price,
+    //     optionType,
+    //     strike,
+    //     size,
+    //     isBuy,
+    //     expiry,
+    //   } = formattedOrder;
+    //   const userNonce = await getUserNonce({
+    //     address,
+    //     quoteAsset,
+    //     baseAsset,
+    //   }, library);
+    //   console.log(userNonce);
+    //   console.log(nonce);
+    //   // if (userNonce !== nonce) {
+    //   //   throw new Error("nonce does not match");
+    //   // }
+    //   if (optionType === OptionType.CALL) {
+    //     // required collateral is strike * size of the quoteAsset
+    //     const balance = await getAvailableBalance({
+    //       address,
+    //       tokenContractAddress: quoteAsset,
+    //       provider: library
+    //     });
+    //     console.log(balance);
+    //     console.log(size)
+    //     if (balance.lt(size)) {
+    //       throw new Error("not enough collateral of quoteAsset");
+    //     }
+    //   } else {
+    //     // required collateral is strike * size of the baseAsset
+    //     const balance = await getAvailableBalance({
+    //       address,
+    //       tokenContractAddress: baseAsset,
+    //       provider: library
+    //     });
+    //     console.log(balance.toString());
+    //     if (balance.lt(price)) {
+    //       throw new Error("not enough collateral of baseAsset");
+    //     }
+    //   }
+    //   // Get the user nonce
+    //   const signerNonce =
+    //     (await getUserNonce({
+    //       address: account,
+    //       quoteAsset,
+    //       baseAsset,
+    //     }, library)) + 1;
+    //   console.log(`signerNonce: ${signerNonce}`);
+    //   // Get other stuff needed for the order
+    //   console.log(`isBuy: ${isBuy}`);
+    //   console.log(`!isBuy: ${!isBuy}`);
+    //   console.log(`optionType: ${optionType}`)
+    //   const unsignedOrder = {
+    //     size,
+    //     isBuy: !isBuy,
+    //     optionType: optionType === 'CALL' ? 1 : 0 as 0 | 1,
+    //     baseAsset,
+    //     quoteAsset,
+    //     expiry: toEthDate(expiry),
+    //     strike,
+    //     price,
+    //     fee: ethers.BigNumber.from(0),
+    //     offerExpire: toEthDate(fifteenMinutesFromNow),
+    //     nonce: signerNonce,
+    //   };
+    //   const signedOrder = await signOrder(unsignedOrder, library);
+    //   console.log(signedOrder);
+    //   const signedSellOrder = {
+    //         ...transformOrderAppChain(formattedOrder),
+    //       };
+    //   const result = await matchOrder({
+    //     signedBuyOrder: signedOrder,
+    //     signedSellOrder
+    //   }, library);
+    //   console.log("result");
+    //   console.log(result);
+    //   // Create the buy order and sign it
+    // } catch (e) {
+    //   console.error(e);
+    // }
   }
 
 
@@ -276,10 +276,10 @@ function PlaceOrder({
       <Flex>
         <Box h={height}>
           <Text fontSize={"2xl"} pb={3}>
-            ${strikePrice}
+            ${formattedStrike}
           </Text>
           <Tag size={"sm"} colorScheme="teal">
-            {isCall ? OptionType.CALL : OptionType.PUT}
+            {optionType}
           </Tag>
         </Box>
         <Spacer/>
@@ -315,7 +315,7 @@ function PlaceOrder({
               </Box>
               <Box>
                 <FormLabel htmlFor="strike">Strike:</FormLabel>
-                <NumberInput id="strike" isDisabled={true} value={strikePrice}>
+                <NumberInput id="strike" isDisabled={true} value={formattedStrike}>
                   <NumberInputField />
                 </NumberInput>
               </Box>
@@ -334,7 +334,7 @@ function PlaceOrder({
               </Box>
               <Box>
                 <FormLabel htmlFor="expiryDate">Expiry Date:</FormLabel>
-                <Input id="expiry" value={expiryDate} isDisabled={true} />
+                <Input id="expiry" value={formattedExpiry} isDisabled={true} />
               </Box>
               <Box>
                 <HStack>
@@ -452,7 +452,7 @@ function PlaceOrder({
               </Box>
               <Box>
                 <FormLabel htmlFor="strike">Strike:</FormLabel>
-                <NumberInput id="strike" isDisabled={true} value={strikePrice}>
+                <NumberInput id="strike" isDisabled={true} value={formattedStrike}>
                   <NumberInputField />
                 </NumberInput>
               </Box>
@@ -471,7 +471,7 @@ function PlaceOrder({
               </Box>
               <Box>
                 <FormLabel htmlFor="expiryDate">Expiry Date:</FormLabel>
-                <Input id="expiry" value={expiryDate} isDisabled={true} />
+                <Input id="expiry" value={formattedExpiry} isDisabled={true} />
               </Box>
             </Stack>
           </DrawerBody>
@@ -483,7 +483,7 @@ function PlaceOrder({
             <Button
                 colorScheme="teal"
                 type="submit"
-                onClick={placeOrder}
+                onClick={matchOrderNew}
                 isLoading={submitting}
                 loadingText="Placing Order"
             >
@@ -496,4 +496,4 @@ function PlaceOrder({
   );
 }
 
-export default PlaceOrder;
+export default OptionRow;

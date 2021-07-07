@@ -37,7 +37,8 @@ function getRandomContract() {
 }
 
 async function generateRandomOrder(nonce) {
-  const {expiry, strike:strikeUsdc, optionType } = getRandomContract();
+  const {expiry, strike:strikeUsdcMillion, optionType } = getRandomContract();
+  const strikeUsdc = strikeUsdcMillion / STRIKE_BASE_SHIFT;
   const timeToExpiry = (expiry * 1000 - Date.now()) / (365 * 24 * 60 * 60 * 1000)
   const volatility = (Math.random() * 75 + 75) / 100;
   console.log(`
@@ -48,7 +49,7 @@ async function generateRandomOrder(nonce) {
     risk free rate: ${RISK_FREE_RATE}
   `)
 
-  const strike = web3.utils.toBN(strikeUsdc).mul(BigMillion);
+  const strike = web3.utils.toBN(strikeUsdcMillion);
   const sizeEth = Math.floor(Math.random() * 5) + 1;
   const size = web3.utils.toBN(sizeEth).mul(WeiInEth);
   const pricePerContractUsdc = Math.round(100 * bs.blackScholes(ETH_PRICE, strikeUsdc, timeToExpiry, volatility, RISK_FREE_RATE, optionType.toLowerCase())) / 100

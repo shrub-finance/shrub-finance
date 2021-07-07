@@ -7,17 +7,19 @@ import {
   Center,
   Container,
   Flex,
-  HStack, Spacer,
+  HStack,
+  Spacer,
   Spinner,
   useRadioGroup
 } from '@chakra-ui/react';
-import PlaceOrder from "../components/PlaceOrder";
+import OptionRow from "../components/OptionRow";
 import useFetch from "../hooks/useFetch";
-import {ApiOrder, ContractData, IOrder, OptionAction, OptionType} from '../types';
+import {ApiOrder, AppCommon, ContractData, OptionAction, OptionType, OrderbookStats} from '../types';
 import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {getEnumKeys} from '../utils/helperMethods';
-import {transformOrderApiApp} from "../utils/ethMethods";
+import {formatExpiry, formatStrike, fromEthDate, toEthDate, transformOrderApiApp} from "../utils/ethMethods";
+import {ethers} from "ethers";
 
 function OptionsView(props: RouteComponentProps) {
 
@@ -25,11 +27,21 @@ function OptionsView(props: RouteComponentProps) {
   const optionTypes: string[] = getEnumKeys(OptionType)
   const [option, setOption] = useState(OptionAction.BUY);
   const [optionType, setOptionType] = useState(OptionType.CALL);
-  const [expiryDate, setExpiryDate] = useState("");
-  const [strikePrices, setStrikePrices] = useState([]);
-  const [expiryDates, setExpiryDates] = useState([]);
+  const [expiryDate, setExpiryDate] = useState<number>();
+  const [strikePrices, setStrikePrices] = useState<ethers.BigNumber[]>([]);
+  const [expiryDates, setExpiryDates] = useState<number[]>([]);
 
-  const optionRows: any = [];
+  const optionRows: JSX.Element[] = [];
+
+  const expiryMap = {};
+
+  // TODO un-hardcode this
+  const quoteAsset = process.env.REACT_APP_FK_TOKEN_ADDRESS;
+  const baseAsset = ethers.constants.AddressZero;
+
+  if (!quoteAsset || !baseAsset) {
+    throw new Error('missing quoteAsset or baseAsset');
+  }
 
   const {
     getRootProps: getOptionRootProps,
@@ -56,7 +68,7 @@ function OptionsView(props: RouteComponentProps) {
     getRadioProps: getExpiryRadioProps,
   } = useRadioGroup({
     name: "expiryDate",
-    onChange: (nextValue) => setExpiryDate(nextValue),
+    onChange: (nextValue) => setExpiryDate(Number(nextValue)),
   });
 
   const groupOption = getOptionRootProps();
@@ -72,20 +84,23 @@ function OptionsView(props: RouteComponentProps) {
   useEffect(() => {
 
       if (contractData && contractDataStatus === "fetched" && !contractDataError) {
-        // @ts-ignore
-        const expiryDatesLocal = Object.keys(contractData["ETH-FK"]);
-        // @ts-ignore
-        setExpiryDates(expiryDatesLocal);
+        const expiryDatesNumber = Object.keys(contractData["ETH-FK"]);
+        const expiryDatesNice = expiryDatesNumber.map((expiryDateNumber) => {
+          return Number(expiryDateNumber);
+        })
+        setExpiryDates(expiryDatesNice)
         if(!expiryDate) {
-          setExpiryDate(expiryDatesLocal[0])
+          setExpiryDate(expiryDatesNice[0])
         }
       }
       }, [contractDataStatus]);
 
   useEffect(() => {
-    if(expiryDate) {
-      // @ts-ignore
-      setStrikePrices(contractData["ETH-FK"][expiryDate][optionType]);
+    if(contractData && expiryDate) {
+      const strikeObjPrices = contractData['ETH-FK'][expiryDate][optionType].map((strikeNum) => {
+        return ethers.BigNumber.from(strikeNum);
+      })
+      setStrikePrices(strikeObjPrices);
     }
 
   },[expiryDate, optionType]);
@@ -94,48 +109,81 @@ function OptionsView(props: RouteComponentProps) {
     return orderData && orderData.map(order => transformOrderApiApp(order));
   }, [orderData])
 
+  // const expiryObj = expiryDates.find(o => o[0] === expiryDate)
+  // if (!expiryObj) {
+  //     return <></>;
+  // }
+
   for (const strikePrice of strikePrices) {
+
+    if (!expiryDate) {
+      continue;
+    }
 
     const filteredOrders =
         formattedOrderData &&
         orderDataStatus === "fetched"
         && formattedOrderData.filter((order) => {
-          return Number(order.formattedStrike) === strikePrice &&
+          return order.strike.eq(strikePrice) &&
               optionType === order.optionType &&
-              expiryDate === order.formattedExpiry
+              expiryDate === toEthDate(order.expiry)
         }
     );
 
     const buyOrders =
       filteredOrders &&
-      filteredOrders.filter((filteredOrder) => filteredOrder.isBuy);
+      filteredOrders.filter((filteredOrder) => filteredOrder.optionAction === 'BUY');
 
     const sellOrders =
       filteredOrders &&
-      filteredOrders.filter((filteredOrder) => !filteredOrder.isBuy);
+      filteredOrders.filter((filteredOrder) => filteredOrder.optionAction === 'SELL');
 
     const bestBid =
       buyOrders &&
       buyOrders.length &&
-      Math.max(...buyOrders.map((buyOrder) => Number(buyOrder.formattedPrice)));
+      Math.max(...buyOrders.map((buyOrder) => Number(buyOrder.unitPrice))).toFixed(2) || '';
 
     const bestAsk =
       sellOrders &&
       sellOrders.length &&
-      Math.min(...sellOrders.map((sellOrder) => Number(sellOrder.formattedPrice)));
+      Math.min(...sellOrders.map((sellOrder) => Number(sellOrder.unitPrice))).toFixed(2) || '';
 
-    optionRows.push(
-      <PlaceOrder
-        key={strikePrice}
-        strikePrice={strikePrice}
-        bid={bestBid}
-        ask={bestAsk}
-        isBuy={option === OptionAction.BUY}
-        isCall={optionType === OptionType.CALL}
-        option={option}
-        optionType={optionType}
-        expiryDate={expiryDate}
-      />
+    const appCommon:AppCommon = {
+      formattedStrike: formatStrike(strikePrice),
+      formattedExpiry: formatExpiry(expiryDate),
+      optionType,
+      quoteAsset,
+      baseAsset,
+      expiry: fromEthDate(expiryDate),
+      strike: strikePrice
+    }
+
+    const stats: OrderbookStats = {
+      // TODO: provide data for last
+      last: '',
+      bestBid,
+      bestAsk
+    }
+
+    if (filteredOrders && filteredOrders[0]) {
+      appCommon.expiry = filteredOrders[0].expiry;
+      appCommon.strike = filteredOrders[0].strike;
+    }
+
+
+        optionRows.push(
+        <OptionRow appCommon={appCommon} isBuy={option === OptionAction.BUY} last={''} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} />
+      // <PlaceOrder
+      //   key={strikePrice}
+      //   strikePrice={strikePrice}
+      //   bid={bestBid}
+      //   ask={bestAsk}
+      //   isBuy={option === OptionAction.BUY}
+      //   isCall={optionType === OptionType.CALL}
+      //   option={option}
+      //   optionType={optionType}
+      //   expiryDate={expiryDate}
+      // />
     );
   }
   return (
@@ -166,11 +214,11 @@ function OptionsView(props: RouteComponentProps) {
           <>
       <Box mb={10}>
         <HStack {...groupExpiry}>
-          {expiryDates.map((value) => {
-            const radio = getExpiryRadioProps({ value });
+          {expiryDates.map((expiry) => {
+            const radio = getExpiryRadioProps({ value: expiry });
             return (
-                <RadioCard key={value} {...radio}>
-                  {value}
+                <RadioCard key={expiry} {...radio}>
+                  {formatExpiry(expiry)}
                 </RadioCard>
             );
           })}
