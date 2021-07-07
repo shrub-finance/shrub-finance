@@ -7,13 +7,13 @@ import {
   Box,
   Button,
   Divider,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Flex,
   FormLabel,
   HStack,
@@ -22,8 +22,8 @@ import {
   NumberInputField,
   Spacer,
   Stack,
-  Tag,
-  Text,
+  Tag, TagLabel,
+  Text, Tooltip,
   useDisclosure,
   useRadioGroup,
 } from "@chakra-ui/react";
@@ -37,7 +37,7 @@ import {
   orderWholeUnitsToBaseUnits,
   signOrder,
   toEthDate,
-  validateOrderAddress, transformOrderAppChain, optionTypeToNumber, iOrderToPostOrder
+  validateOrderAddress, transformOrderAppChain, optionTypeToNumber, iOrderToPostOrder, formatExpiry
 } from "../utils/ethMethods";
 import {Icon} from "@chakra-ui/icons";
 import {ApiOrder, AppCommon, GetOrdersParams, OptionAction, OptionType, UnsignedOrder} from '../types';
@@ -45,6 +45,7 @@ import {useWeb3React} from "@web3-react/core";
 import {getEnumKeys} from '../utils/helperMethods';
 import {BigNumber, ethers} from "ethers";
 import useFetch from "../hooks/useFetch";
+import {CgDollar, GiSwordBrandish, GiTakeMyMoney, MdDateRange} from "react-icons/all";
 
 const height = 100;
 
@@ -103,12 +104,12 @@ function OptionRow({appCommon, isBuy, last, ask, bid}: {appCommon: AppCommon, is
   const groupOptionType = getOptionTypeRootProps();
   const { active, library, account } = useWeb3React();
 
-  function closeLimitBuyDrawer() {
+  function closeLimitBuyModal() {
     setSubmitting(false);
     onCloseLimitBuy();
   }
 
-  function closeMarketBuyDrawer() {
+  function closeMarketBuyModal() {
     setSubmitting(false);
     onCloseMarketBuy();
   }
@@ -283,7 +284,7 @@ function OptionRow({appCommon, isBuy, last, ask, bid}: {appCommon: AppCommon, is
           </Tag>
         </Box>
         <Spacer/>
-        <Box h={height} fontSize="14" color="gray.400" fontWeight="semibold" lineHeight={1.8}>
+        <Box h={height} fontWeight="semibold" lineHeight={1.8}>
           <Text>Last: ${last}</Text>
           <Text>Ask: ${ask}</Text>
           <Text>Bid: ${bid}</Text>
@@ -291,33 +292,37 @@ function OptionRow({appCommon, isBuy, last, ask, bid}: {appCommon: AppCommon, is
         <Spacer/>
         <Box h={height}>
           <Stack spacing={4} direction="row" align="center">
-            <Button colorScheme="teal" onClick={onOpenLimitBuy} size="sm">
+            <Button colorScheme="teal" onClick={onOpenLimitBuy} size="sm" variant="outline" borderRadius="2xl">
               {isBuy ? "Limit Buy" : "Limit Sell"}
             </Button>
-            <Button colorScheme="teal" onClick={onOpenMarketBuy} size="sm">
+            <Button colorScheme="teal" onClick={onOpenMarketBuy} size="sm" variant="outline" borderRadius="2xl">
               {isBuy ? "Buy Now" : "Sell Now"}
             </Button>
           </Stack>
         </Box>
       </Flex>
-      <Drawer size={"sm"} isOpen={isOpenLimitBuy} placement="right" onClose={onCloseLimitBuy}>
-        <DrawerOverlay />
-        <DrawerContent fontFamily="Montserrat">
-          <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px">Order Details</DrawerHeader>
-          <DrawerBody>
+      <Modal  motionPreset="slideInBottom" size={"sm"} isOpen={isOpenLimitBuy}  onClose={onCloseLimitBuy}>
+        <ModalOverlay />
+        <ModalContent fontFamily="Montserrat" borderRadius="2xl">
+          <ModalCloseButton />
+          <ModalHeader borderBottomWidth="1px">Order Details</ModalHeader>
+          <ModalBody>
             <Stack spacing="24px">
-              <Box mt={4}>
-                <Tag>
-                  <Icon as={FaEthereum} />
-                  ETHEREUM
-                </Tag>
-              </Box>
-              <Box>
-                <FormLabel htmlFor="strike">Strike:</FormLabel>
-                <NumberInput id="strike" isDisabled={true} value={formattedStrike}>
-                  <NumberInputField />
-                </NumberInput>
+              <Box mt={2} mb={8}>
+                <HStack spacing={3}>
+                  <Tooltip label="Strike price for this optoin is $2000" bg="gray.300" color="gray.800">
+                    <Tag colorScheme="yellow">
+                      <Icon as={CgDollar} />
+                      <TagLabel>{formattedStrike}</TagLabel>
+                    </Tag>
+                  </Tooltip>
+                  <Tooltip label="This option expires on Jul 15" bg="gray.300" color="gray.800">
+                    <Tag colorScheme="blue">
+                      <Icon as={MdDateRange} />
+                      <TagLabel> {formattedExpiry}</TagLabel>
+                    </Tag>
+                  </Tooltip>
+                </HStack>
               </Box>
               <Box>
                 <HStack {...groupOptionType}>
@@ -331,10 +336,6 @@ function OptionRow({appCommon, isBuy, last, ask, bid}: {appCommon: AppCommon, is
                     );
                   })}
                 </HStack>
-              </Box>
-              <Box>
-                <FormLabel htmlFor="expiryDate">Expiry Date:</FormLabel>
-                <Input id="expiry" value={formattedExpiry} isDisabled={true} />
               </Box>
               <Box>
                 <HStack>
@@ -367,43 +368,67 @@ function OptionRow({appCommon, isBuy, last, ask, bid}: {appCommon: AppCommon, is
                 <FormLabel htmlFor="bid">Price:</FormLabel>
                 <Input
                   id="bid"
-                  placeholder="0"
+                  placeholder="What will you pay?"
                   value={price}
                   onChange={(event: any) => setPrice(event.target.value)}
                 />
               </Box>
+
+            <Box>
+              <Flex justifyContent="flex-end">
+              <Button
+                  colorScheme="teal"
+                  type="submit"
+                  onClick={placeOrder}
+                  isLoading={submitting}
+                  loadingText="Placing Order"
+              >
+                Place Order
+              </Button>
+              </Flex>
+            </Box>
             </Stack>
-          </DrawerBody>
+          </ModalBody>
 
-          <DrawerFooter borderTopWidth="1px" >
-            <Button variant="outline" mr={3} onClick={closeLimitBuyDrawer}>
-              Cancel
-            </Button>
-            <Button
-                colorScheme="teal"
-                type="submit"
-                onClick={placeOrder}
-                isLoading={submitting}
-                loadingText="Placing Order"
-            >
-              Place Order
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+        </ModalContent>
+      </Modal>
 
-      <Drawer size={"lg"} isOpen={isOpenMarketBuy} placement="right" onClose={onCloseMarketBuy}>
-        <DrawerOverlay />
-        <DrawerContent fontFamily="Montserrat">
-          <DrawerCloseButton />
-          <DrawerHeader borderBottomWidth="1px">Order Details</DrawerHeader>
-          <DrawerBody>
+      <Modal  motionPreset="slideInBottom" size={"md"} isOpen={isOpenMarketBuy} onClose={onCloseMarketBuy}>
+        <ModalOverlay />
+        <ModalContent fontFamily="Montserrat" borderRadius="xl">
+          <ModalCloseButton />
+          <ModalHeader borderBottomWidth="1px" fontSize="14px" fontWeight="bold">
+            Order Details
+          </ModalHeader>
+          <ModalBody>
             <Stack spacing="24px">
-              <Box mt={4}>
-                <Tag>
-                  <Icon as={FaEthereum} />
-                  ETHEREUM
-                </Tag>
+              <Box mt={2} mb={8}>
+                <HStack spacing={3}>
+                  <Tooltip label="Option" bg="gray.300" color="gray.800">
+                    <Tag colorScheme="pink">
+                      <Icon as={GiTakeMyMoney} />
+                      <TagLabel>{isBuy? "BUY" : "SELL"}</TagLabel>
+                    </Tag>
+                  </Tooltip>
+                    <Tooltip label="Option Type" bg="gray.300" color="gray.800">
+                    <Tag colorScheme="purple">
+                      <Icon as={GiSwordBrandish}/>
+                      <TagLabel>{isCall? "CALL" : "PUT"}</TagLabel>
+                    </Tag>
+                    </Tooltip>
+                  <Tooltip label="Strike price for this optoin is $2000" bg="gray.300" color="gray.800">
+                  <Tag colorScheme="yellow">
+                    <Icon as={CgDollar} />
+                    <TagLabel>{strikePrice}</TagLabel>
+                  </Tag>
+                  </Tooltip>
+                  <Tooltip label="This option expires on Jul 15" bg="gray.300" color="gray.800">
+                  <Tag colorScheme="blue">
+                    <Icon as={MdDateRange} />
+                    <TagLabel> {expiryDate}</TagLabel>
+                  </Tag>
+                  </Tooltip>
+                </HStack>
               </Box>
               <Box>
                 <FormLabel htmlFor="amount">Amount:</FormLabel>
@@ -433,65 +458,23 @@ function OptionRow({appCommon, isBuy, last, ask, bid}: {appCommon: AppCommon, is
                 />
               </Box>
               <Box>
-                <HStack>
-                  <Divider variant="dashed" orientation="horizontal" mb={5} mt={5} />
-                </HStack>
-              </Box>
-              <Box>
-                <HStack {...groupOption}>
-                  <FormLabel htmlFor="option">Option:</FormLabel>
-                  {radioOptions.map((value) => {
-                    const radio = getOptionRadioProps({ value });
-                    return (
-                        <RadioCard key={value} {...radio}>
-                          {value}
-                        </RadioCard>
-                    );
-                  })}
-                </HStack>
-              </Box>
-              <Box>
-                <FormLabel htmlFor="strike">Strike:</FormLabel>
-                <NumberInput id="strike" isDisabled={true} value={formattedStrike}>
-                  <NumberInputField />
-                </NumberInput>
-              </Box>
-              <Box>
-                <HStack {...groupOptionType}>
-                  <FormLabel htmlFor="optionType">Option Type:</FormLabel>
-                  {radioOptionsType.map((value) => {
-                    const radio = getOptionTypeRadioProps({ value });
-                    return (
-                        <RadioCard key={value} {...radio}>
-                          {value}
-                        </RadioCard>
-                    );
-                  })}
-                </HStack>
-              </Box>
-              <Box>
-                <FormLabel htmlFor="expiryDate">Expiry Date:</FormLabel>
-                <Input id="expiry" value={formattedExpiry} isDisabled={true} />
+                <Flex justifyContent="flex-end">
+                <Button
+                    colorScheme="teal"
+                    type="submit"
+                    onClick={placeOrder}
+                    isLoading={submitting}
+                    loadingText="Placing Order"
+                >
+                  Place Order
+                </Button>
+              </Flex>
+
               </Box>
             </Stack>
-          </DrawerBody>
-
-          <DrawerFooter borderTopWidth="1px" >
-            <Button variant="outline" mr={3} onClick={closeMarketBuyDrawer}>
-              Cancel
-            </Button>
-            <Button
-                colorScheme="teal"
-                type="submit"
-                onClick={matchOrderNew}
-                isLoading={submitting}
-                loadingText="Placing Order"
-            >
-              Place Order
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

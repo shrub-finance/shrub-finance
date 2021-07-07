@@ -33,7 +33,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
       textDecoration: "none",
       bg: useColorModeValue("gray.200", "gray.700"),
     }}
-    href={"/"}
+    // href={"/"}
   >
     {children}
   </Link>
@@ -88,7 +88,10 @@ function TopNav() {
             <Box onClick={onOpen}>
               <Account/>
             </Box>
-            <Button onClick={toggleColorMode}>
+            <Button
+                onClick={toggleColorMode}
+                variant="ghost"
+            >
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
             </Button>
           </Flex>
@@ -105,9 +108,9 @@ function TopNav() {
         ) : null}
       </Box>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
         <ModalOverlay />
-        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
+        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
           <ModalHeader>
             <Text fontSize={20}>Connect to a wallet</Text>
           </ModalHeader>

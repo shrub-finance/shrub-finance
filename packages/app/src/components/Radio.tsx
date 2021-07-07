@@ -13,16 +13,21 @@ function RadioCard(props) {
       <Box
         {...checkbox}
         cursor="pointer"
+        borderRadius="2xl"
         borderWidth="1px"
-        borderRadius="md"
+        borderColor={useColorModeValue("teal.500", "gray.700")}
         boxShadow="md"
         _checked={{
-          bg: useColorModeValue("teal.500", "teal.200"),
+          bg: useColorModeValue("teal.500", "gray.400"),
           fontWeight: "semibold",
-          color: useColorModeValue("white", "gray.800")
+          color: useColorModeValue("white", "black")
         }}
         _focus={{
           boxShadow: "outline",
+        }}
+        _hover={{
+            borderColor: useColorModeValue("teal.500", "gray.400"),
+            borderWidth: "1px"
         }}
         px={8}
         py={1.5}

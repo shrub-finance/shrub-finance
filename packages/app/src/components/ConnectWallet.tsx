@@ -123,10 +123,11 @@ export function Account() {
     <>
       <Button fontFamily="Montserrat"
         leftIcon={account ? <span ref={ref as any}/> : undefined}
-        variant={"solid"}
+        variant={"outline"}
         colorScheme={"teal"}
         size={"sm"}
         mr={4}
+        borderRadius="2xl"
       >
         {account === null
           ? "-"
@@ -154,7 +155,7 @@ const {activate, error, activatingConnector, connector, triedEager, setActivatin
     <Box fontFamily="Montserrat">
       {!!error && (
         <Stack spacing={3}>
-          <Alert status="error" borderRadius={9} mb={4}>
+          <Alert status="error" borderRadius={9} mb={4} >
             <AlertIcon />
             {getErrorMessage(error)}
           </Alert>

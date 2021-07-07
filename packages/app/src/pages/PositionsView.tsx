@@ -4,8 +4,10 @@ import { getWalletBalance } from "../utils/ethMethods";
 import { Balance } from "../types";
 import { Currencies } from "../constants/currencies";
 import { RouteComponentProps } from "@reach/router";
-import { Container } from "@chakra-ui/react";
+import {Center, Container, Heading} from "@chakra-ui/react";
 import {useWeb3React} from "@web3-react/core";
+import {Icon} from "@chakra-ui/icons";
+import {FaEthereum} from "react-icons/fa";
 
 function PositionsView(props: RouteComponentProps) {
   const { active, library } = useWeb3React();
@@ -28,18 +30,21 @@ function PositionsView(props: RouteComponentProps) {
   }, [walletBalance, active, library]);
 
   return (
-    <Container
-      mt={100}
-      p={0}
-      shadow="md"
-      borderWidth="1px"
-      flex="1"
-      borderRadius="lg"
-      fontFamily="Montserrat"
-    >
-      {/*<WalletBalance ethWalletBalance={walletBalance.ETH} />*/}
-      <Positions walletBalance={walletBalance} />
-    </Container>
+      <>
+        <Heading mt={10}><Center><Icon as={FaEthereum} /> ETH Positions</Center></Heading>
+        <Container
+            mt={50}
+            p={0}
+            shadow="md"
+            borderWidth="1px"
+            flex="1"
+            borderRadius="2xl"
+            fontFamily="Montserrat"
+        >
+          {/*<WalletBalance ethWalletBalance={walletBalance.ETH} />*/}
+          <Positions walletBalance={walletBalance} />
+        </Container>
+      </>
   );
 }
 
