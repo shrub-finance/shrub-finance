@@ -3,10 +3,9 @@ import {FakeToken__factory} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
-  ApiOrder, AppCommon,
+  ApiOrder,
   AppOrder,
   IOrder,
-  OptionType,
   OrderCommon, PostOrder,
   Signature,
   SmallOrder,
@@ -16,9 +15,6 @@ import { Shrub712 } from "./EIP712";
 import Web3 from "web3";
 import {useWeb3React} from "@web3-react/core";
 import {JsonRpcProvider} from "@ethersproject/providers";
-
-const { WeiPerEther } = ethers.constants;
-const BigHundred = ethers.BigNumber.from(100);
 
 declare let window: any;
 
@@ -441,7 +437,7 @@ export function optionActionToIsBuy(optionAction: 'BUY' | 'SELL') {
 }
 
 export function formatStrike(strike: ethers.BigNumber) {
-  return Number(ethers.utils.formatUnits(strike, 6)).toFixed(2);
+  return Number(ethers.utils.formatUnits(strike, 6)).toFixed(0);
 }
 
 export function formatExpiry(expiry: number | Date) {

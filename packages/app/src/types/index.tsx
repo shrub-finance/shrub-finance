@@ -4,6 +4,8 @@ export type PutCall = 'PUT' | 'CALL';
 
 export type SellBuy = 'SELL' | 'BUY';
 
+export type OrderType = 'Market' | 'Limit';
+
 export type BinaryNumber = 0 | 1;
 
 export type SmallOrder = {
@@ -91,14 +93,6 @@ export type ShrubBalance = {
   available: {[currency: string]: number}
 };
 
-// export type Option = {
-//   strikePrice: number;
-//   isCall: boolean;
-//   isBuy: boolean;
-//   last: number;
-//   ask: number;
-//   bid: number;
-// };
 export type ContractData = {
   [optionPair: string ] : ContractInnerData
 }
@@ -112,66 +106,6 @@ export type ContractInnerData = {
 export type Stringify<Type> = {
   [Property in keyof Type]: string;
 }
-
-
-export enum OptionType {
-  PUT= "PUT",
-  CALL= "CALL"
-}
-
-export enum OptionAction {
-  SELL= "SELL",
-  BUY= "BUY",
-
-}
-
-
-
-// export interface AppCommon {
-//   // Common
-//   baseAsset: string;
-//   quoteAsset: string;
-//   expiry?: Date;
-//   formattedExpiry: string;
-//   strkke?: BigNumber;
-//   formattedStrike: string;
-//   optionType: 'CALL' | 'PUT';
-// }
-
-// export interface AppOrder extends Modify<IOrder, {
-//   offerExpire: Date;
-//   expiry: Date;
-//   optionType: 'CALL' | 'PUT';
-// }> {
-//   formattedSize: string;
-//   formattedPrice: string;
-//   formattedFee: string;
-//   formattedExpiry: string;
-//   formattedStrike: string;
-// }
-
-// export interface SmallOrder {
-//   size: BigNumber;
-//   isBuy: boolean;
-//   nonce: number;
-//   price: BigNumber;
-//   offerExpire: number;
-//   fee: BigNumber;
-// }
-//
-// export interface OrderCommon {
-//   baseAsset: string;
-//   quoteAsset: string;
-//   expiry: number;
-//   strike: BigNumber;
-//   optionType: 0 | 1;
-// }
-//
-// export interface Signature {
-//   v: number;
-//   r: string;
-//   s: string;
-// }
 
 
 // https://stackoverflow.com/questions/41285211/overriding-interface-property-type-defined-in-typescript-d-ts-file/65561287#65561287
