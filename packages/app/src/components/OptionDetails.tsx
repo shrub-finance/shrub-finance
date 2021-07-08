@@ -13,10 +13,10 @@ import {
     useRadioGroup
 } from "@chakra-ui/react";
 import {Icon} from "@chakra-ui/icons";
-import {AiOutlinePhone, BiPhone, CgDollar, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
+import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
 import RadioCard from "./Radio";
 import React, {useState} from "react";
-import {AppCommon, OrderType, PutCall, SellBuy, UnsignedOrder} from "../types";
+import {AppCommon, OrderType, SellBuy, UnsignedOrder} from "../types";
 import {
     getAddressFromSignedOrder,
     getUserNonce,

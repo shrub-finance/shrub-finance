@@ -4,10 +4,10 @@ import { getWalletBalance } from "../utils/ethMethods";
 import { Balance } from "../types";
 import { Currencies } from "../constants/currencies";
 import { RouteComponentProps } from "@reach/router";
-import {Center, Container, Heading, useColorModeValue} from "@chakra-ui/react";
+import {Button, Center, Container, Heading, HStack, useColorModeValue} from "@chakra-ui/react";
 import {useWeb3React} from "@web3-react/core";
 import {Icon} from "@chakra-ui/icons";
-import {GiCoins, GiMoneyStack} from "react-icons/gi";
+import {GiCoins} from "react-icons/gi";
 
 
 function PositionsView(props: RouteComponentProps) {
@@ -30,18 +30,19 @@ function PositionsView(props: RouteComponentProps) {
     inner().catch(console.error);
   }, [walletBalance, active, library]);
 
-  return (
+
+    return (
       <>
         <Heading mt={10}><Center><Icon as={GiCoins} mr={2}/> Shrub Portfolio</Center></Heading>
         <Container
             mt={50}
             p={0}
-            shadow="md"
-            borderWidth="1px"
             flex="1"
             borderRadius="2xl"
             fontFamily="Montserrat"
             bg={useColorModeValue("white", "rgb(31, 31, 65)")}
+            shadow={useColorModeValue("2xl", "2xl")}
+            maxW="container.md"
         >
           <Positions walletBalance={walletBalance} />
         </Container>

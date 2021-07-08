@@ -211,7 +211,7 @@ export async function withdraw(
   const signerAddress = await signer.getAddress();
   const availableBalance = await shrubContract.getAvailableBalance(signerAddress, tokenContractAddress);
   if (amount.gt(availableBalance)) {
-    throw new Error(`Not enough balance. You only have ${availableBalance}.` );
+    throw new Error(`Not enough balance. You have ${availableBalance}.` );
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }

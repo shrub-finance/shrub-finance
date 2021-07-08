@@ -177,7 +177,6 @@ function OptionsView(props: RouteComponentProps) {
       mt={50}
       p={5}
       shadow={useColorModeValue("2xl", "2xl")}
-      // borderWidth="1px"
       flex="1"
       borderRadius="2xl"
       fontFamily="Montserrat"
