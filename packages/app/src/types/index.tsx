@@ -1,5 +1,91 @@
 import {BigNumber} from "ethers";
 
+export type PutCall = 'PUT' | 'CALL';
+
+export type SellBuy = 'SELL' | 'BUY';
+
+export type OrderType = 'Market' | 'Limit';
+
+export type BinaryNumber = 0 | 1;
+
+export type SmallOrder = {
+  size: BigNumber;
+  isBuy: boolean;
+  nonce: number;
+  price: BigNumber;
+  offerExpire: number;
+  fee: BigNumber;
+}
+
+export type OrderCommon = {
+  baseAsset: string;
+  quoteAsset: string;
+  expiry: number;
+  strike: BigNumber;
+  optionType: BinaryNumber;
+}
+
+export type GetOrdersParams = Modify<Partial<OrderCommon>, {
+  strike: string
+}> & {
+  isBuy: boolean;
+}
+
+export type Signature = {
+  v: number;
+  r: string;
+  s: string;
+}
+
+export type UnsignedOrder = OrderCommon & SmallOrder;
+
+export type IOrder = UnsignedOrder & Signature & {
+  address: string;
+}
+
+export type ApiOrder = Modify<IOrder, {
+  strike: { $numberDecimal: string };
+  size: { $numberDecimal: string };
+  price: { $numberDecimal: string };
+  fee: { $numberDecimal: string };
+}>
+
+export type PostOrder = Modify<IOrder, {
+  strike: string;
+  size: string;
+  price: string;
+  fee: string;
+}>
+
+export type AppCommon = Modify<OrderCommon, {
+  expiry: Date;
+  optionType: PutCall;
+}> & {
+  formattedExpiry: string;
+  formattedStrike: string;
+}
+
+export type AppSmall = {
+  formattedSize: string;
+  optionAction: SellBuy;
+  nonce: number;
+  unitPrice: string;
+  offerExpire: Date;
+  formattedFee: string;
+}
+
+export type AppOrder = AppCommon & AppSmall & {
+  size: BigNumber;
+  totalPrice: BigNumber;
+  fee: BigNumber;
+}
+
+export type OrderbookStats = {
+  bestAsk: string;
+  bestBid: string;
+  last: string;
+}
+
 export type Balance = { [currency: string]: string };
 
 export type ShrubBalance = {
@@ -7,102 +93,36 @@ export type ShrubBalance = {
   available: {[currency: string]: number}
 };
 
-export type Option = {
-  strikePrice: number;
-  isCall: boolean;
-  isBuy: boolean;
-  last: number;
-  ask: number;
-  bid: number;
-};
 export type ContractData = {
   [optionPair: string ] : ContractInnerData
 }
 
-
 export type ContractInnerData = {
-  [expiryDate: string] : {
-    [optionType: string] : [number]
+  [expiry: string] : {
+    [optionType: string] : [strike: number]
   }
 }
 
-export interface SmallOrder {
-  size: BigNumber;
-  isBuy: boolean;
-  nonce: number;
-  price: BigNumber;
-  offerExpire: number;
-  fee: BigNumber;
+export type Stringify<Type> = {
+  [Property in keyof Type]: string;
 }
 
-export enum OptionType {
-  PUT= "PUT",
-  CALL= "CALL"
+
+// https://stackoverflow.com/questions/41285211/overriding-interface-property-type-defined-in-typescript-d-ts-file/65561287#65561287
+
+type ModifyDeep<A extends AnyObject, B extends DeepPartialAny<A>> = {
+  [K in keyof A]: B[K] extends never
+      ? A[K]
+      : B[K] extends AnyObject
+          ? ModifyDeep<A[K], B[K]>
+          : B[K]
+} & (A extends AnyObject ? Omit<B, keyof A> : A)
+
+/** Makes each property optional and turns each leaf property into any, allowing for type overrides by narrowing any. */
+type DeepPartialAny<T> = {
+  [P in keyof T]?: T[P] extends AnyObject ? DeepPartialAny<T[P]> : any
 }
 
-export enum OptionAction {
-  SELL= "SELL",
-  BUY= "BUY",
+type AnyObject = Record<string, any>
 
-}
-
-export interface OrderCommon {
-  baseAsset: string;
-  quoteAsset: string;
-  expiry: number;
-  strike: BigNumber;
-  optionType: 0 | 1;
-}
-
-export interface Signature {
-  v: number;
-  r: string;
-  s: string;
-}
-
-export interface UnsignedOrder extends SmallOrder, OrderCommon {}
-
-export interface IOrder extends SmallOrder, OrderCommon, Signature {
-  address: string;
-}
-
-export interface ApiOrder extends Signature{
-  // Common
-  baseAsset: string;
-  quoteAsset: string;
-  expiry: number;
-  strike: { $numberDecimal: BigNumber };
-  optionType: 0 | 1;
-  // Small
-  size: { $numberDecimal: BigNumber };
-  isBuy: boolean;
-  nonce: number;
-  price: { $numberDecimal: BigNumber };
-  offerExpire: number;
-  fee: { $numberDecimal: BigNumber };
-  // Address
-  address: string;
-}
-
-export interface AppOrder extends Signature{
-  // Common
-  baseAsset: string;
-  quoteAsset: string;
-  expiry: Date;
-  formattedExpiry: string;
-  strike: BigNumber;
-  formattedStrike: string;
-  optionType: 'CALL' | 'PUT';
-  // Small
-  size: BigNumber;
-  formattedSize: string;
-  isBuy: boolean;
-  nonce: number;
-  price: BigNumber;
-  formattedPrice: string;
-  offerExpire: Date;
-  fee: BigNumber;
-  formattedFee: string;
-  // Address
-  address: string;
-}
+type Modify<T, R> = Omit<T, keyof R> & R;

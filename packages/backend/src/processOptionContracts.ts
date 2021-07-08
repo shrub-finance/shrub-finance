@@ -8,20 +8,20 @@ export async function pairExpiryTypeStrike(provider: JsonRpcProvider) {
     const res: any = {};
     for (const contract of optionContracts) {
         const { baseAsset, quoteAsset, expiry, optionType, strike } = contract;
-        const expiryNice = fromEthDate(expiry).toLocaleDateString('en-us', {month: "short", day: "numeric"})
+        // const expiryNice = fromEthDate(expiry).toLocaleDateString('en-us', {month: "short", day: "numeric"})
         if (!intermediate[baseAsset]) {
             intermediate[baseAsset] = {};
         }
         if (!intermediate[baseAsset][quoteAsset]) {
             intermediate[baseAsset][quoteAsset] = {};
         }
-        if (!intermediate[baseAsset][quoteAsset][expiryNice]) {
-            intermediate[baseAsset][quoteAsset][expiryNice] = {}
+        if (!intermediate[baseAsset][quoteAsset][expiry]) {
+            intermediate[baseAsset][quoteAsset][expiry] = {}
         }
-        if (!intermediate[baseAsset][quoteAsset][expiryNice][optionType]) {
-            intermediate[baseAsset][quoteAsset][expiryNice][optionType] = [];
+        if (!intermediate[baseAsset][quoteAsset][expiry][optionType]) {
+            intermediate[baseAsset][quoteAsset][expiry][optionType] = [];
         }
-        intermediate[baseAsset][quoteAsset][expiryNice][optionType].push(strike);
+        intermediate[baseAsset][quoteAsset][expiry][optionType].push(strike);
     }
     for (const [baseAsset, baseAssetObj] of Object.entries(intermediate)) {
         // @ts-ignore - typescript is wrong
