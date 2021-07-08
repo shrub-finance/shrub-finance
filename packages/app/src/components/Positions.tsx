@@ -23,7 +23,7 @@ import {
   Text,
   ModalCloseButton,
   ModalBody,
-  HStack
+  HStack,
 } from "@chakra-ui/react";
 
 import {
@@ -193,9 +193,9 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
     tableRows.push(
       <Tr key={currency}>
         <Td>{currency}</Td>
-        <Td>{totalUserBalance(currency)}</Td>
-        <Td>{shrubBalance.locked[currency]}</Td>
-        <Td>{shrubBalance.available[currency]}</Td>
+        <Td isNumeric>{totalUserBalance(currency)}</Td>
+        <Td isNumeric>{shrubBalance.locked[currency]}</Td>
+        <Td isNumeric>{shrubBalance.available[currency]}</Td>
         <Td>
           <HStack spacing="24px">
             <Button
@@ -276,10 +276,10 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
             <Thead>
               <Tr>
                 <Th>Pair</Th>
-                <Th>Strike</Th>
+                <Th isNumeric>Strike</Th>
                 <Th>Expiry</Th>
                 <Th>Option Type</Th>
-                <Th>Amount</Th>
+                <Th isNumeric>Amount</Th>
                 <Th>
                   <VisuallyHidden/>
                 </Th>
@@ -335,7 +335,7 @@ function Positions({ walletBalance }: { walletBalance: Balance }) {
                 if (action === "Deposit") {
                   if (modalCurrency === "ETH") {
                     depositEth(ethers.utils.parseUnits(amountValue), library
-                    ).catch(handleErrorMessages);
+                    ).then(tx => tx.wait().then(console.log)).catch(handleErrorMessages);
                   } else {
                     depositToken(
                         Currencies[modalCurrency].address,

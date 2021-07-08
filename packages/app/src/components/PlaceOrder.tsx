@@ -316,7 +316,7 @@ function PlaceOrder({
                       <TagLabel>{strikePrice}</TagLabel>
                     </Tag>
                   </Tooltip>
-                  <Tooltip label="This option expires on Jul 15" bg="gray.300" color="gray.800">
+                  <Tooltip label="This option expires on Jul 31" bg="gray.300" color="gray.800">
                     <Tag colorScheme="blue">
                       <Icon as={MdDateRange} />
                       <TagLabel> {expiryDate}</TagLabel>
@@ -397,7 +397,7 @@ function PlaceOrder({
         <ModalOverlay />
         <ModalContent fontFamily="Montserrat" borderRadius="xl">
           <ModalCloseButton />
-          <ModalHeader borderBottomWidth="1px" fontSize="14px" fontWeight="bold">
+          <ModalHeader borderBottomWidth="1px" fontWeight="bold">
             Order Details
           </ModalHeader>
           <ModalBody>
@@ -422,7 +422,7 @@ function PlaceOrder({
                     <TagLabel>{strikePrice}</TagLabel>
                   </Tag>
                   </Tooltip>
-                  <Tooltip label="This option expires on Jul 15" bg="gray.300" color="gray.800">
+                  <Tooltip label="This option expires on Jul 31" bg="rgb(18, 18, 38)" color="white" borderRadius={"md"}>
                   <Tag colorScheme="blue">
                     <Icon as={MdDateRange} />
                     <TagLabel> {expiryDate}</TagLabel>

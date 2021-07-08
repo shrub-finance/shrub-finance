@@ -44,7 +44,6 @@ function WithdrawDeposit({
   }
 
   return (
-
       <Stack direction={["column"]} spacing="40px" mb="40px">
         {error && (
             <SlideFade in={true} unmountOnExit={true}>
@@ -79,7 +78,7 @@ function WithdrawDeposit({
               size="xs"
               variant="outline"
               mt="10px"
-              ml="72%"
+              ml="80%"
               onClick={fillSendMax}
           >
             Send Max

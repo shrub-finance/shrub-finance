@@ -4,10 +4,11 @@ import { getWalletBalance } from "../utils/ethMethods";
 import { Balance } from "../types";
 import { Currencies } from "../constants/currencies";
 import { RouteComponentProps } from "@reach/router";
-import {Center, Container, Heading} from "@chakra-ui/react";
+import {Center, Container, Heading, useColorModeValue} from "@chakra-ui/react";
 import {useWeb3React} from "@web3-react/core";
 import {Icon} from "@chakra-ui/icons";
-import {FaEthereum} from "react-icons/fa";
+import {GiCoins, GiMoneyStack} from "react-icons/gi";
+
 
 function PositionsView(props: RouteComponentProps) {
   const { active, library } = useWeb3React();
@@ -31,7 +32,7 @@ function PositionsView(props: RouteComponentProps) {
 
   return (
       <>
-        <Heading mt={10}><Center><Icon as={FaEthereum} /> ETH Positions</Center></Heading>
+        <Heading mt={10}><Center><Icon as={GiCoins} mr={2}/> Shrub Portfolio</Center></Heading>
         <Container
             mt={50}
             p={0}
@@ -40,8 +41,8 @@ function PositionsView(props: RouteComponentProps) {
             flex="1"
             borderRadius="2xl"
             fontFamily="Montserrat"
+            bg={useColorModeValue("white", "rgb(31, 31, 65)")}
         >
-          {/*<WalletBalance ethWalletBalance={walletBalance.ETH} />*/}
           <Positions walletBalance={walletBalance} />
         </Container>
       </>

@@ -4,7 +4,7 @@ export enum SupportedChainId {
     RINKEBY = 4,
     GOERLI = 5,
     KOVAN = 42,
-    LOCAL = 5777,
+    LOCAL = 1337,
 }
 
 export const NETWORK_LABELS: { [chainId in SupportedChainId | number]: string } = {

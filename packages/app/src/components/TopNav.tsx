@@ -18,10 +18,11 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
+import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon} from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
 import ConnectWalletsView, {Account, Balance, ChainId} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
+import {ShrubIcon} from "../assets/Icons";
 
 const NavLinks = ["Shrub"];
 const NavLink = ({ children }: { children: ReactNode }) => (
@@ -39,7 +40,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
   </Link>
 );
 
-const NavRoutes = ["Positions", "Options"];
+const NavRoutes = ["Portfolio", "Options"];
 const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => (
     <Link
         px={2}
@@ -62,7 +63,7 @@ function TopNav() {
   useConnectWallet();
   return (
     <Box fontFamily="Montserrat">
-      <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
+      <Box bg={useColorModeValue("gray.200", "rgb(31, 31, 65)")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton
             icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -77,7 +78,9 @@ function TopNav() {
               display={{ base: "none", md: "flex" }}
             >
               {NavLinks.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink key={link}>
+                  <ShrubIcon boxSize={10}/>
+                </NavLink>
               ))}
               {NavRoutes.map((route) => (
                   <NavRoute key={route} path={route}>{route}</NavRoute>
@@ -85,7 +88,7 @@ function TopNav() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            <Box>
+            <Box pr={5}>
               <Balance/>
             </Box>
             <Box onClick={onOpen}>
