@@ -11,7 +11,7 @@ function App() {
         <Web3ReactProvider getLibrary={getLibrary}>
             <TopNav />
             <Router>
-                <PositionsView path="positions" />
+                <PositionsView path="shrubfolio" />
                 <OptionsView path="options" />
             </Router>
         </Web3ReactProvider>

@@ -36,6 +36,9 @@ import { Flex, Spacer } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import {ethers} from "ethers";
 import {useConnectWallet} from "../hooks/useConnectWallet";
+import {formatEther} from "ethers/lib/utils";
+import {NETWORK_LABELS} from "../constants/networks";
+import {MdNetworkWifi} from "react-icons/all";
 
 enum ConnectorNames {
   MetaMask = "MetaMask",
@@ -76,7 +79,7 @@ export function getLibrary(provider: any) {
 }
 
 function ConnectionStatus() {
-  const { active, error, deactivate } = useWeb3React();
+  const { active, error } = useWeb3React();
 
   return (
     <>
@@ -108,6 +111,72 @@ function ConnectionStatus() {
   );
 }
 
+export function ChainId() {
+  const { chainId } = useWeb3React()
+const network = chainId && NETWORK_LABELS[chainId]
+
+        return (
+            <Box>
+              {network && (
+                  <Button
+                  leftIcon={<MdNetworkWifi/>}
+                  variant={"ghost"}
+                  colorScheme={"teal"}
+                  size={"sm"}
+                  mr={4}
+              >
+                {network}
+              </Button>
+              )
+              }
+        </Box>
+        )
+
+
+}
+
+export function Balance() {
+  const { account, library, chainId } = useWeb3React()
+
+  const [balance, setBalance] = React.useState()
+  React.useEffect((): any => {
+    if (!!account && !!library) {
+      let stale = false
+      library
+          .getBalance(account)
+          .then((balance: any) => {
+
+            if (!stale) {
+              setBalance(balance)
+            }
+          })
+          .catch(() => {
+            if (!stale) {
+              // @ts-ignore
+              setBalance(null)
+            }
+          })
+
+      return () => {
+        stale = true
+        setBalance(undefined)
+      }
+    }
+  }, [account, library, chainId]) // ensures refresh if referential identity of library doesn't change across chainIds
+
+  return (
+      <>
+        <span>
+          {
+            balance === null ? 'Error' : balance
+              // @ts-ignore
+              ? `${formatEther(balance)} ETH` : ''
+          }
+        </span>
+      </>
+  )
+}
+
 export function Account() {
   const ref = useRef<HTMLDivElement>();
   const { account } = useWeb3React();
@@ -121,7 +190,7 @@ export function Account() {
 
   return (
     <>
-      <Button fontFamily="Montserrat"
+      <Button
         leftIcon={account ? <span ref={ref as any}/> : undefined}
         variant={"outline"}
         colorScheme={"teal"}

@@ -15,25 +15,25 @@ import {
 import {Icon} from "@chakra-ui/icons";
 import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
 import RadioCard from "./Radio";
-import React, {useEffect, useState} from "react";
-import {ApiOrder, AppCommon, GetOrdersParams, IOrder, OrderBook, OrderType, SellBuy, UnsignedOrder} from "../types";
 import {
     getAddressFromSignedOrder,
-    getAvailableBalance,
     getUserNonce,
-    iOrderToPostOrder,
-    matchOrders,
-    optionActionToIsBuy,
     optionTypeToNumber,
     signOrder,
     toEthDate,
+    getAvailableBalance,
+    iOrderToPostOrder,
+    matchOrders,
+    optionActionToIsBuy,
     transformOrderApiApp,
     transformOrderAppChain,
     validateOrderAddress
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
-import {postOrder} from "../utils/requests";
 import {useWeb3React} from "@web3-react/core";
+import React, {useEffect, useState} from "react";
+import {ApiOrder, AppCommon, GetOrdersParams, IOrder, OrderBook, OrderType, SellBuy, UnsignedOrder} from "../types";
+import {postOrder} from "../utils/requests";
 import useFetch from "../hooks/useFetch";
 
 const { Zero } = ethers.constants;
@@ -346,6 +346,7 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
                     onChange={(event: any) => setPrice(event.target.value)}
                 />
             </Box>
+
             <Box>
                 <Flex justifyContent="flex-end">
                     <Button

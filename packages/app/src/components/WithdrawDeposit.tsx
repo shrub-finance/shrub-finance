@@ -6,7 +6,7 @@ import {
   FormControl,
   FormLabel,
   NumberInput,
-  NumberInputField, useRadioGroup, Alert, AlertIcon, SlideFade
+  NumberInputField, useRadioGroup, Alert, AlertIcon, SlideFade, InputRightElement
 } from "@chakra-ui/react";
 import { Currencies } from "../constants/currencies";
 import RadioCard from "./Radio";
@@ -39,12 +39,11 @@ function WithdrawDeposit({
     if (action === "Deposit") {
       setAmountValue(walletBalance[modalCurrency]);
     } else if (action === "Withdraw") {
-      setAmountValue(shrubBalance[modalCurrency]);
+      setAmountValue(shrubBalance.available[modalCurrency]);
     }
   }
 
   return (
-
       <Stack direction={["column"]} spacing="40px" mb="40px">
         {error && (
             <SlideFade in={true} unmountOnExit={true}>
@@ -67,23 +66,17 @@ function WithdrawDeposit({
         </HStack>
         <FormControl id="amount">
           <FormLabel>Amount</FormLabel>
-          <NumberInput
-            onChange={(valueString) => setAmountValue(parse(valueString))}
-            value={format(amountValue)}
-            size="lg"
-          >
-            <NumberInputField />
+            <NumberInput
+                onChange={(valueString) => setAmountValue(parse(valueString))}
+                value={format(amountValue)} size="lg"
+            >
+            <NumberInputField/>
+            <InputRightElement width="auto">
+              <Button size="xs" onClick={fillSendMax} p={3.5} mr={2} >
+                Send Max
+              </Button>
+            </InputRightElement>
           </NumberInput>
-          <Button
-              colorScheme="orange"
-              size="xs"
-              variant="outline"
-              mt="10px"
-              ml="72%"
-              onClick={fillSendMax}
-          >
-            Send Max
-          </Button>
         </FormControl>
       </Stack>
   );

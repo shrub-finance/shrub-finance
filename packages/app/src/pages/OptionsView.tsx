@@ -9,7 +9,7 @@ import {
   Flex, Heading,
   HStack,
   Spacer,
-  Spinner,
+  Spinner, useColorModeValue,
   useRadioGroup
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
@@ -172,11 +172,11 @@ function OptionsView(props: RouteComponentProps) {
   <Container
       mt={50}
       p={5}
-      shadow="md"
-      borderWidth="1px"
+      shadow={useColorModeValue("2xl", "2xl")}
       flex="1"
       borderRadius="2xl"
       fontFamily="Montserrat"
+      bg={useColorModeValue("white", "rgb(31, 31, 65)")}
     >
       {contractDataStatus === "fetching" &&
       <Center >
