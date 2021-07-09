@@ -40,7 +40,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
   </Link>
 );
 
-const NavRoutes = ["Portfolio", "Options"];
+const NavRoutes = ["Shrubfolio", "Options"];
 const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => (
     <Link
         px={2}

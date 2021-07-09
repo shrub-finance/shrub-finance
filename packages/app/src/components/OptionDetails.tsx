@@ -20,13 +20,11 @@ import {AppCommon, OrderType, SellBuy, UnsignedOrder} from "../types";
 import {
     getAddressFromSignedOrder,
     getUserNonce,
-    iOrderToPostOrder,
     optionTypeToNumber,
     signOrder,
     toEthDate
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
-import {postOrder} from "../utils/requests";
 import {useWeb3React} from "@web3-react/core";
 
 function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: SellBuy}) {
@@ -100,9 +98,7 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
             const signedOrder = await signOrder(unsignedOrder, library);
             const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
             console.log(`verifiedAddress: ${verifiedAddress}`);
-            const pOrder = iOrderToPostOrder(signedOrder);
             // TODO: handle success/failure responses
-            const res = await postOrder(pOrder);
             setSubmitting(false);
         } catch (e) {
             console.error(e);

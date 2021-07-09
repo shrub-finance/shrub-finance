@@ -1,4 +1,4 @@
-import {BigNumber, ethers} from "ethers";
+import {ethers} from "ethers";
 import {FakeToken__factory} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";

@@ -6,7 +6,7 @@ import {
   FormControl,
   FormLabel,
   NumberInput,
-  NumberInputField, useRadioGroup, Alert, AlertIcon, SlideFade, InputGroup, Input, InputRightElement
+  NumberInputField, useRadioGroup, Alert, AlertIcon, SlideFade, InputRightElement
 } from "@chakra-ui/react";
 import { Currencies } from "../constants/currencies";
 import RadioCard from "./Radio";

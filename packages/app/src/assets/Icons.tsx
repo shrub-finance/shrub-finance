@@ -182,8 +182,8 @@ export const ShrubIcon = createIcon({
   displayName: "ShrubIcon",
   viewBox: "0 0 548 772",
   path: [
-    <rect width="548" height="772" fill="url(#pattern0)"/>,
-    <defs>
+    <rect key="shrub1" width="548" height="772" fill="url(#pattern0)"/>,
+    <defs key="shrub2">
       <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
         <use xlinkHref="#image0" transform="scale(0.00182482 0.00129534)"/>
       </pattern>

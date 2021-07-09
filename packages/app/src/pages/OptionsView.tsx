@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 import useFetch from "../hooks/useFetch";
-import {ApiOrder, AppCommon, ContractData, OrderbookStats, PutCall, SellBuy} from '../types';
+import {ApiOrder, AppCommon, ContractData, PutCall, SellBuy} from '../types';
 import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {formatExpiry, formatStrike, fromEthDate, toEthDate, transformOrderApiApp} from "../utils/ethMethods";
@@ -133,14 +133,14 @@ function OptionsView(props: RouteComponentProps) {
       filteredOrders.filter((filteredOrder) => filteredOrder.optionAction === 'SELL');
 
     const bestBid =
-      buyOrders &&
+        (buyOrders &&
       buyOrders.length &&
-      Math.max(...buyOrders.map((buyOrder) => Number(buyOrder.unitPrice))).toFixed(2) || '';
+      Math.max(...buyOrders.map((buyOrder) => Number(buyOrder.unitPrice))).toFixed(2)) || '';
 
     const bestAsk =
-      sellOrders &&
+        (sellOrders &&
       sellOrders.length &&
-      Math.min(...sellOrders.map((sellOrder) => Number(sellOrder.unitPrice))).toFixed(2) || '';
+      Math.min(...sellOrders.map((sellOrder) => Number(sellOrder.unitPrice))).toFixed(2)) || '';
 
     const appCommon:AppCommon = {
       formattedStrike: formatStrike(strikePrice),
@@ -150,13 +150,6 @@ function OptionsView(props: RouteComponentProps) {
       baseAsset,
       expiry: fromEthDate(Number(expiryDate)),
       strike: strikePrice
-    }
-
-    const stats: OrderbookStats = {
-      // TODO: provide data for last
-      last: '',
-      bestBid,
-      bestAsk
     }
 
     if (filteredOrders && filteredOrders[0]) {

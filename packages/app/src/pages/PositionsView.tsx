@@ -4,10 +4,11 @@ import { getWalletBalance } from "../utils/ethMethods";
 import { Balance } from "../types";
 import { Currencies } from "../constants/currencies";
 import { RouteComponentProps } from "@reach/router";
-import {Button, Center, Container, Heading, HStack, useColorModeValue} from "@chakra-ui/react";
+import {Center, Heading} from "@chakra-ui/react";
 import {useWeb3React} from "@web3-react/core";
 import {Icon} from "@chakra-ui/icons";
 import {GiCoins} from "react-icons/gi";
+import TxMonitoring from "../components/TxMonitoring";
 
 
 function PositionsView(props: RouteComponentProps) {
@@ -33,19 +34,9 @@ function PositionsView(props: RouteComponentProps) {
 
     return (
       <>
-        <Heading mt={10}><Center><Icon as={GiCoins} mr={2}/> Shrub Portfolio</Center></Heading>
-        <Container
-            mt={50}
-            p={0}
-            flex="1"
-            borderRadius="2xl"
-            fontFamily="Montserrat"
-            bg={useColorModeValue("white", "rgb(31, 31, 65)")}
-            shadow={useColorModeValue("2xl", "2xl")}
-            maxW="container.md"
-        >
+        <Heading mt={10}><Center><Icon as={GiCoins} mr={2}/> Shrubfolio</Center></Heading>
           <Positions walletBalance={walletBalance} />
-        </Container>
+            <TxMonitoring/>
       </>
   );
 }
