@@ -79,7 +79,7 @@ function useFetch<T = unknown>(
     return () => {
       cancelRequest.current = true;
     };
-  }, [options, url]);
+  }, [url]);
 
   return state;
 }

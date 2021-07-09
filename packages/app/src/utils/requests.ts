@@ -1,9 +1,9 @@
-import {ApiOrder, IOrder} from "../types";
+import {ApiOrder, IOrder, PostOrder, Stringify} from "../types";
 import axios from "axios";
 
-const API_ENDPOINT = "http://localhost:8000";
+const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 
-export function postOrder(signedOrder: IOrder) {
+export function postOrder(signedOrder: PostOrder) {
   return axios.post(`${API_ENDPOINT}/orders`, signedOrder);
 }
 
@@ -35,4 +35,12 @@ export async function getOrders({
     );
   });
   return order;
+}
+
+export async function getSpecificOrderbook({quoteAsset, baseAsset, expiry, optionType, strike, isBuy}: Partial<Stringify<ApiOrder>>) {
+  const url = `${API_ENDPOINT}/orders`
+  const params = { quoteAsset, baseAsset, expiry, optionType, strike, isBuy };
+  const orderbook = await axios.get(url, {params});
+  console.log(orderbook);
+  return orderbook;
 }
