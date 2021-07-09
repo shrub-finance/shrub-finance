@@ -26,9 +26,9 @@ export type OrderCommon = {
 }
 
 export type GetOrdersParams = Modify<Partial<OrderCommon>, {
-  strike: string
+  strike?: string
 }> & {
-  isBuy: boolean;
+  isBuy?: boolean;
 }
 
 export type Signature = {
@@ -69,16 +69,19 @@ export type AppSmall = {
   formattedSize: string;
   optionAction: SellBuy;
   nonce: number;
-  unitPrice: string;
+  unitPrice: number;
   offerExpire: Date;
   formattedFee: string;
 }
 
 export type AppOrder = AppCommon & AppSmall & {
+  address?: string;
   size: BigNumber;
   totalPrice: BigNumber;
   fee: BigNumber;
 }
+
+export type AppOrderSigned = AppOrder & Signature;
 
 export type OrderbookStats = {
   bestAsk: string;
@@ -101,6 +104,11 @@ export type ContractInnerData = {
   [expiry: string] : {
     [optionType: string] : [strike: number]
   }
+}
+
+export type OrderBook = {
+    buyOrders: AppOrderSigned[];
+    sellOrders: AppOrderSigned[];
 }
 
 export type Stringify<Type> = {

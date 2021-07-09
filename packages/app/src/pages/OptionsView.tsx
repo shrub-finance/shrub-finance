@@ -35,8 +35,8 @@ function OptionsView(props: RouteComponentProps) {
   const optionRows: JSX.Element[] = [];
 
   // TODO un-hardcode this
-  const quoteAsset = process.env.REACT_APP_FK_TOKEN_ADDRESS;
-  const baseAsset = ethers.constants.AddressZero;
+  const quoteAsset = ethers.constants.AddressZero;
+  const baseAsset = process.env.REACT_APP_FK_TOKEN_ADDRESS;
 
   if (!quoteAsset || !baseAsset) {
     throw new Error('missing quoteAsset or baseAsset');
@@ -83,13 +83,9 @@ function OptionsView(props: RouteComponentProps) {
 
       if (contractData && contractDataStatus === "fetched" && !contractDataError) {
         const expiryDatesString = Object.keys(contractData["ETH-FK"]);
-        // const expiryDatesNice = expiryDatesString.map((expiryDateNumber) => {
-        //   return Number(expiryDateNumber);
-        // })
-        setExpiryDates(expiryDatesString)
+        setExpiryDates(expiryDatesString);
         if(!expiryDate) {
-          setExpiryDate(expiryDatesString[0])
-          console.log(expiryDatesString[0])
+          setExpiryDate(expiryDatesString[0]);
         }
       }
       }, [contractDataStatus]);
@@ -135,12 +131,12 @@ function OptionsView(props: RouteComponentProps) {
     const bestBid =
       buyOrders &&
       buyOrders.length &&
-      Math.max(...buyOrders.map((buyOrder) => Number(buyOrder.unitPrice))).toFixed(2) || '';
+        Math.max(...buyOrders.map((buyOrder) => buyOrder.unitPrice)).toFixed(2) || '';
 
     const bestAsk =
       sellOrders &&
       sellOrders.length &&
-      Math.min(...sellOrders.map((sellOrder) => Number(sellOrder.unitPrice))).toFixed(2) || '';
+        Math.min(...sellOrders.map((sellOrder) => sellOrder.unitPrice)).toFixed(2) || '';
 
     const appCommon:AppCommon = {
       formattedStrike: formatStrike(strikePrice),

@@ -13,29 +13,33 @@ import {
     useRadioGroup
 } from "@chakra-ui/react";
 import {Icon} from "@chakra-ui/icons";
-import {AiOutlinePhone, BiPhone, CgDollar, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
+import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
 import RadioCard from "./Radio";
-import React, {useState} from "react";
-import {AppCommon, OrderType, PutCall, SellBuy, UnsignedOrder} from "../types";
+import React, {useEffect, useState} from "react";
+import {ApiOrder, AppCommon, GetOrdersParams, IOrder, OrderBook, OrderType, SellBuy, UnsignedOrder} from "../types";
 import {
-    getAddressFromSignedOrder,
+    getAddressFromSignedOrder, getAvailableBalance,
     getUserNonce,
-    iOrderToPostOrder,
+    iOrderToPostOrder, matchOrder, optionActionToIsBuy,
     optionTypeToNumber,
     signOrder,
-    toEthDate
+    toEthDate, transformOrderApiApp, transformOrderAppChain, validateOrderAddress
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {postOrder} from "../utils/requests";
 import {useWeb3React} from "@web3-react/core";
+import useFetch from "../hooks/useFetch";
+
+const { Zero } = ethers.constants;
 
 function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: SellBuy}) {
-    const { active, library, account } = useWeb3React();
-    const { formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike } = appCommon
+    const {active, library, account} = useWeb3React();
+    const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [submitting, setSubmitting] = React.useState(false);
     const [amount, setAmount] = React.useState(1);
     const [price, setPrice] = React.useState('');
+    const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: []})
     // Radio logic
     const radioOptions = ['BUY', 'SELL']
     const radioOrderTypes = ['Market', 'Limit']
@@ -50,6 +54,38 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
 
+    let orderBookDepth = {buyOrderDepth: Zero, sellOrderDepth: Zero};
+
+    const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
+    const params: GetOrdersParams = {
+        baseAsset,
+        quoteAsset,
+        expiry: toEthDate(expiry),
+        optionType: optionTypeToNumber(optionType),
+        strike: strike.toString()
+    }
+    const options = {params};
+    const {data: orderBookData, status} = useFetch<ApiOrder[]>(url, options);
+    useEffect(() => {
+        if (status !== 'fetched' || !orderBookData) {
+            return;
+        }
+        // add perContract pricing
+        const appOrderBookData = orderBookData.map(o => transformOrderApiApp(o));
+        const buyOrders = appOrderBookData.filter(o => o.optionAction === 'BUY').sort((a, b) => b.unitPrice - a.unitPrice);
+        const sellOrders = appOrderBookData.filter(o => o.optionAction === 'SELL').sort((a, b) => a.unitPrice - b.unitPrice);
+        const buyOrderDepth = buyOrders.reduce((tot, order) => tot.add(order.size), Zero)
+        const sellOrderDepth = sellOrders.reduce((tot, order) => tot.add(order.size), Zero)
+        orderBookDepth = {buyOrderDepth, sellOrderDepth};
+        console.log('sellOrders');
+        console.log(sellOrders);
+        setOrderBook((book) => {
+            book.sellOrders = sellOrders;
+            book.buyOrders = buyOrders;
+            return book;
+        })
+    }, [status])
+
     const {
         getRootProps: getOrderTypeRootProps,
         getRadioProps: getOrderTypeRadioProps,
@@ -63,7 +99,7 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
     const groupOptionType = getOrderTypeRootProps();
 
 
-    async function placeOrder() {
+    async function limitOrder() {
         setSubmitting(true);
         if (!active || !account) {
             console.error('Please connect your wallet');
@@ -84,7 +120,7 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
             }, library)) + 1;
         const unsignedOrder: UnsignedOrder = {
             size: ethers.utils.parseUnits(amount.toString(), 18),
-            isBuy: radioOption === 'BUY',
+            isBuy: optionActionToIsBuy(radioOption),
             optionType: optionTypeToNumber(optionType),
             baseAsset,
             quoteAsset,
@@ -96,7 +132,6 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
             nonce,
         };
         try {
-            // const wholeUnitOrder = orderWholeUnitsToBaseUnits(unsignedOrder);
             const signedOrder = await signOrder(unsignedOrder, library);
             const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
             console.log(`verifiedAddress: ${verifiedAddress}`);
@@ -107,6 +142,219 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
         } catch (e) {
             console.error(e);
         }
+    }
+
+
+    async function marketOrder() {
+        console.log('running marketOrder');
+        setSubmitting(true);
+        if (!active || !account) {
+            console.error('Please connect your wallet');
+            setSubmitting(false);
+            return;
+        }
+        const localOrderBook = radioOption === 'BUY' ? orderBook.sellOrders : orderBook.buyOrders;
+        const depth = localOrderBook.reduce((tot, order) => tot.add(order.size), Zero)
+        const bigSize = ethers.utils.parseUnits(amount.toString(), 18);
+        if (bigSize.gt(depth)) {
+            throw new Error('Order size exceeds available depth in orderbook');
+        }
+        let remainingSize = ethers.BigNumber.from(bigSize);
+        const now = new Date();
+        const oneWeekFromNow = new Date(now);
+        oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
+        const nonce =
+            (await getUserNonce({
+                address: account,
+                quoteAsset,
+                baseAsset,
+            }, library)) + 1;
+
+        // Create as many unsigned orders as needed to get the total amount up to the requested amount
+
+        let index = 0;
+        while (remainingSize.gt(Zero)) {
+            const order = localOrderBook[index];
+            const { address: counterpartyAddress, nonce: orderNonce, size, totalPrice: orderPrice, unitPrice: orderUnitPrice, formattedSize: orderFormattedSize } = order;
+            if (!counterpartyAddress) {
+                console.error('no counterparty address on order');
+                index++;
+                continue;
+            }
+            const iOrder = transformOrderAppChain(order);
+            const doesAddressMatch: boolean = await validateOrderAddress(iOrder, library);
+            console.log(doesAddressMatch);
+            const counterpartyNonce = await getUserNonce({ address: counterpartyAddress, quoteAsset, baseAsset, }, library) + 1;
+            console.log(counterpartyNonce);
+            console.log(orderNonce);
+            if (orderNonce !== counterpartyNonce) {
+                console.error("order nonce does not match the signer of the order's nonce");
+                index++;
+                continue;
+            }
+            // if buying - check the collateral of the counterparty
+            if (radioOption === 'BUY') {
+                if (optionType === 'CALL') {
+                    // required collateral is size of the quoteAsset
+                    const balance = await getAvailableBalance({
+                        address: counterpartyAddress,
+                        tokenContractAddress: quoteAsset,
+                        provider: library
+                    });
+                    console.log(balance);
+                    console.log(size)
+                    if (balance.lt(size)) {
+                        throw new Error("not enough collateral of quoteAsset");
+                    }
+                } else {
+                    // required collateral is strike * size of the baseAsset
+                    const balance = await getAvailableBalance({
+                        address: counterpartyAddress,
+                        tokenContractAddress: baseAsset,
+                        provider: library
+                    });
+                    console.log(balance.toString());
+                    if (balance.lt(price)) {
+                        throw new Error("not enough collateral of baseAsset");
+                    }
+                }
+            }
+            // TODO: If selling, check that you have sufficient collateral
+
+            const unsignedOrder: UnsignedOrder = {
+                size: size.lt(remainingSize) ? size : remainingSize,
+                isBuy: optionActionToIsBuy(radioOption),
+                optionType: optionTypeToNumber(optionType),
+                baseAsset,
+                quoteAsset,
+                expiry: toEthDate(expiry),
+                strike,
+                // TODO: update contract so that the commented out price logic works (with partial orders)
+                // price: size.lt(remainingSize) ? orderPrice : ethers.utils.parseUnits((orderUnitPrice * Number(ethers.utils.formatUnits(remainingSize, 18))).toString()),
+                price: orderPrice,
+                fee: ethers.utils.parseUnits('0', 18),
+                offerExpire: toEthDate(oneWeekFromNow),
+                nonce,
+            };
+            // ordersToSign.push(unsignedOrder);
+            const signedOrder = await signOrder(unsignedOrder, library);
+            console.log(signedOrder);
+            const result = await matchOrder({
+                signedBuyOrder: signedOrder,
+                signedSellOrder: iOrder
+            }, library);
+            console.log(result);
+            remainingSize = remainingSize.sub(order.size);
+            console.log('remaining size');
+            console.log(ethers.utils.formatUnits(remainingSize));
+            index++
+        }
+    }
+
+    async function marketOrderMany() {
+        console.log('running marketOrderMany');
+        setSubmitting(true);
+        if (!active || !account) {
+            console.error('Please connect your wallet');
+            setSubmitting(false);
+            return;
+        }
+        const localOrderBook = radioOption === 'BUY' ? orderBook.sellOrders : orderBook.buyOrders;
+        const depth = localOrderBook.reduce((tot, order) => tot.add(order.size), Zero)
+        const bigSize = ethers.utils.parseUnits(amount.toString(), 18);
+        if (bigSize.gt(depth)) {
+            throw new Error('Order size exceeds available depth in orderbook');
+        }
+        let remainingSize = ethers.BigNumber.from(bigSize);
+        const now = new Date();
+        const oneWeekFromNow = new Date(now);
+        oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
+        const nonce =
+            (await getUserNonce({
+                address: account,
+                quoteAsset,
+                baseAsset,
+            }, library)) + 1;
+
+        // Create as many unsigned orders as needed to get the total amount up to the requested amount
+        const counterPartyOrders: IOrder[] = [];
+
+        let index = 0;
+        let accumulatedPrice = Zero;
+        while (remainingSize.gt(Zero)) {
+            const order = localOrderBook[index];
+            const { address: counterpartyAddress, nonce: orderNonce, size, totalPrice: orderPrice, unitPrice: orderUnitPrice, formattedSize: orderFormattedSize } = order;
+            if (!counterpartyAddress) {
+                console.error('no counterparty address on order');
+                index++;
+                continue;
+            }
+            const counterPartyOrder = transformOrderAppChain(order);
+            const doesAddressMatch: boolean = await validateOrderAddress(counterPartyOrder, library);
+            console.log(doesAddressMatch);
+            const counterpartyNonce = await getUserNonce({ address: counterpartyAddress, quoteAsset, baseAsset, }, library) + 1;
+            console.log(counterpartyNonce);
+            console.log(orderNonce);
+            if (orderNonce !== counterpartyNonce) {
+              console.error("order nonce does not match the signer of the order's nonce");
+              index++;
+              continue;
+            }
+            // if buying - check the collateral of the counterparty
+            if (radioOption === 'BUY') {
+                if (optionType === 'CALL') {
+                    // required collateral is size of the quoteAsset
+                    const balance = await getAvailableBalance({
+                        address: counterpartyAddress,
+                        tokenContractAddress: quoteAsset,
+                        provider: library
+                    });
+                    console.log(balance);
+                    console.log(size)
+                    if (balance.lt(size)) {
+                        throw new Error("not enough collateral of quoteAsset");
+                    }
+                } else {
+                    // required collateral is strike * size of the baseAsset
+                    const balance = await getAvailableBalance({
+                        address: counterpartyAddress,
+                        tokenContractAddress: baseAsset,
+                        provider: library
+                    });
+                    console.log(balance.toString());
+                    if (balance.lt(price)) {
+                        throw new Error("not enough collateral of baseAsset");
+                    }
+                }
+            }
+            // TODO: If selling, check that you have sufficient collateral
+
+            remainingSize = remainingSize.sub(order.size);
+            accumulatedPrice = accumulatedPrice.add(counterPartyOrder.price);
+            counterPartyOrders.push(counterPartyOrder);
+            console.log('remaining size');
+            console.log(ethers.utils.formatUnits(remainingSize));
+            index++;
+        }
+
+        const unsignedOrder: UnsignedOrder = {
+            size: bigSize,
+            isBuy: optionActionToIsBuy(radioOption),
+            optionType: optionTypeToNumber(optionType),
+            baseAsset,
+            quoteAsset,
+            expiry: toEthDate(expiry),
+            strike,
+            // TODO: update contract so that the commented out price logic works (with partial orders)
+            // price: size.lt(remainingSize) ? orderPrice : ethers.utils.parseUnits((orderUnitPrice * Number(ethers.utils.formatUnits(remainingSize, 18))).toString()),
+            price: accumulatedPrice,
+            fee: ethers.utils.parseUnits('0', 18),
+            offerExpire: toEthDate(oneWeekFromNow),
+            nonce,
+        };
+        // ordersToSign.push(unsignedOrder);
+        const signedOrder = await signOrder(unsignedOrder, library);
+        console.log(signedOrder);
     }
 
     // TODO: get the symbols dynamically
@@ -191,7 +439,7 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
                     <Button
                         colorScheme="teal"
                         type="submit"
-                        onClick={placeOrder}
+                        onClick={radioOrderType === 'Limit' ? limitOrder : marketOrder}
                         isLoading={submitting}
                         loadingText="Placing Order"
                     >

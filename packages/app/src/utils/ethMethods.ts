@@ -4,7 +4,7 @@ import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
   ApiOrder,
-  AppOrder,
+  AppOrder, AppOrderSigned,
   IOrder,
   OrderCommon, PostOrder,
   Signature,
@@ -339,6 +339,30 @@ export async function matchOrder(params: {
   return shrubContract.matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
 }
 
+export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: IOrder[], provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+
+  const buyOrders: SmallOrder[] = [];
+  const sellOrders: SmallOrder[] = [];
+  const commons: OrderCommon[] = [];
+  const buySigs: Signature[] = [];
+  const sellSigs: Signature[] = [];
+
+  for (const signedBuyOrder of signedBuyOrders) {
+    buyOrders.push(iOrderToSmall(signedBuyOrder));
+    buySigs.push(iOrderToSig(signedBuyOrder));
+  }
+  for (const signedSellOrder of signedSellOrders) {
+    sellOrders.push(iOrderToSmall(signedSellOrder));
+    sellSigs.push(iOrderToSig(signedSellOrder));
+    commons.push(iOrderToCommon(signedSellOrder));
+  }
+
+  return shrubContract.matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
+}
+
+
 export async function getFilledOrders(
     address: string,
     provider: JsonRpcProvider,
@@ -447,8 +471,8 @@ export function formatExpiry(expiry: number | Date) {
   return fromEthDate(expiry).toLocaleDateString('en-us', {month: "short", day: "numeric"})
 }
 
-export function transformOrderApiApp(order: ApiOrder): AppOrder {
-  const { baseAsset, quoteAsset, nonce } = order;
+export function transformOrderApiApp(order: ApiOrder): AppOrderSigned {
+  const { baseAsset, quoteAsset, nonce, address, r, s, v } = order;
   const expiry = fromEthDate(order.expiry);
   const strike = ethers.BigNumber.from(order.strike.$numberDecimal);
   const optionType = optionTypeToString(order.optionType);
@@ -459,36 +483,32 @@ export function transformOrderApiApp(order: ApiOrder): AppOrder {
   const formattedSize = ethers.utils.formatUnits(size, 18);
   const optionAction = isBuyToOptionAction(order.isBuy);
   const totalPrice = ethers.BigNumber.from(order.price.$numberDecimal);
-  const unitPrice = (Number(ethers.utils.formatUnits(totalPrice, 18)) / Number(formattedSize)).toFixed(2);
+  const unitPrice = Number(ethers.utils.formatUnits(totalPrice, 18)) / Number(formattedSize);
   const offerExpire = fromEthDate(order.offerExpire);
   const fee = ethers.BigNumber.from(order.fee.$numberDecimal);
   const formattedFee = ethers.utils.formatUnits(fee, 18);
   return {
-    baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee
+    baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, r, s, v, address
   };
 }
 
-export function transformOrderAppChain(order: AppOrder) {
-//   const { baseAsset, quoteAsset, strike, size, isBuy, nonce, price, fee, r, s, v, address } = order;
-//   const expiry = toEthDate(order.expiry);
-//   // const optionType = OptionType[order.optionType];
-//   const optionType = order.optionType === 'CALL' ? 1 : 0;
-//   const offerExpire = toEthDate(order.offerExpire);
-//   return {
-//     baseAsset,
-//     quoteAsset,
-//     expiry,
-//     strike,
-//     optionType,
-//     size,
-//     isBuy,
-//     nonce,
-//     price,
-//     offerExpire,
-//     fee,
-//     r,
-//     s,
-//     v,
-//     address
-//   } as IOrder
+export function transformOrderAppChain(order: AppOrderSigned): IOrder {
+  const { baseAsset, quoteAsset, address, size, expiry, strike, optionType, optionAction, fee, totalPrice, offerExpire, nonce, r, s, v} = order;
+  return {
+    baseAsset,
+    quoteAsset,
+    expiry: toEthDate(expiry),
+    strike,
+    optionType: optionTypeToNumber(optionType),
+    s,
+    v,
+    r,
+    price: totalPrice,
+    fee,
+    size,
+    isBuy: optionActionToIsBuy(optionAction),
+    nonce,
+    offerExpire: toEthDate(offerExpire),
+    address: address || ''
+  }
 }
