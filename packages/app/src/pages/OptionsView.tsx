@@ -24,9 +24,9 @@ import {Icon} from "@chakra-ui/icons";
 
 function OptionsView(props: RouteComponentProps) {
 
-  const options = ['SELL', 'BUY']
+  const sellBuys = ['BUY', 'SELL']
   const optionTypes = ['PUT', 'CALL']
-  const [option, setOption] = useState<SellBuy>('BUY');
+  const [sellBuy, setSellBuy] = useState<SellBuy>('BUY');
   const [optionType, setOptionType] = useState<PutCall>('CALL');
   const [expiryDate, setExpiryDate] = useState<string>();
   const [strikePrices, setStrikePrices] = useState<ethers.BigNumber[]>([]);
@@ -47,8 +47,8 @@ function OptionsView(props: RouteComponentProps) {
     getRadioProps: getOptionRadioProps,
   } = useRadioGroup({
     name: "option",
-    defaultValue: 'BUY',
-    onChange: (nextValue: SellBuy) => setOption(nextValue),
+    defaultValue: sellBuy,
+    onChange: (nextValue: SellBuy) => setSellBuy(nextValue),
   })
 
   const {
@@ -56,7 +56,7 @@ function OptionsView(props: RouteComponentProps) {
     getRadioProps: getOptionTypeRadioProps,
   } = useRadioGroup({
     name: "optionType",
-    defaultValue: 'PUT',
+    defaultValue: optionType,
     onChange: (nextValue: PutCall) => setOptionType(nextValue),
   });
 
@@ -162,7 +162,7 @@ function OptionsView(props: RouteComponentProps) {
 
 
         optionRows.push(
-        <OptionRow appCommon={appCommon} option={option} last={''} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} />
+        <OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} />
     );
   }
   return (
@@ -208,7 +208,7 @@ function OptionsView(props: RouteComponentProps) {
       </Box>
         <Flex mb={10}>
             <HStack {...groupOption}>
-              {options.map((value) => {
+              {sellBuys.map((value) => {
                 const radio = getOptionRadioProps({ value });
                 return (
                     <RadioCard key={value} {...radio}>
