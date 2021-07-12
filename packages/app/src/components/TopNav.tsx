@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon} from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
-import ConnectWalletsView, {Account, Balance, ChainId} from "./ConnectWallet";
+import {Account, Balance, ChainId, ConnectionStatus, ConnectWallet} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {ShrubIcon} from "../assets/Icons";
 
@@ -60,7 +60,8 @@ const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => 
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  useConnectWallet();
+  const {active} = useConnectWallet();
+
   return (
     <Box fontFamily="Montserrat">
       <Box bg={useColorModeValue("gray.200", "rgb(31, 31, 65)")} px={4}>
@@ -91,11 +92,19 @@ function TopNav() {
             <Box pr={5}>
               <Balance/>
             </Box>
-            <Box onClick={onOpen}>
-              <Account/>
-            </Box>
             <Box>
               <ChainId/>
+            </Box>
+            <Box onClick={onOpen}>
+              <Button
+                  variant={"outline"}
+                  colorScheme={"teal"}
+                  size={"md"}
+                  mr={4}
+                  borderRadius="2xl"
+              >
+              <Account/>
+              </Button>
             </Box>
             <Button
                 onClick={toggleColorMode}
@@ -121,11 +130,15 @@ function TopNav() {
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
           <ModalHeader>
-            <Text fontSize={20}>Connect to a wallet</Text>
+            {!active ? 'Connect Wallet' :
+            <Text fontSize={16}>Account Details</Text>
+            }
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <ConnectWalletsView />
+            {!active ? <ConnectWallet/> :
+                <ConnectionStatus/>
+            }
           </ModalBody>
         </ModalContent>
       </Modal>

@@ -7,6 +7,7 @@ export enum SupportedChainId {
     LOCAL = 1337,
 }
 
+
 export const NETWORK_LABELS: { [chainId in SupportedChainId | number]: string } = {
     [SupportedChainId.MAINNET]: 'Mainnet',
     [SupportedChainId.RINKEBY]: 'Rinkeby',
@@ -14,4 +15,13 @@ export const NETWORK_LABELS: { [chainId in SupportedChainId | number]: string } 
     [SupportedChainId.GOERLI]: 'Görli',
     [SupportedChainId.KOVAN]: 'Kovan',
     [SupportedChainId.LOCAL]: 'Local',
+}
+
+export const NETWORK_COLORS: { [chainId in SupportedChainId | number]: string } = {
+    [SupportedChainId.MAINNET]: 'green',
+    [SupportedChainId.RINKEBY]: 'yellow',
+    [SupportedChainId.ROPSTEN]: 'pink',
+    [SupportedChainId.GOERLI]: 'blue',
+    [SupportedChainId.KOVAN]: 'purple',
+    [SupportedChainId.LOCAL]: 'white',
 }

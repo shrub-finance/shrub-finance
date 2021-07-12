@@ -41,7 +41,7 @@ import WithdrawDeposit from "./WithdrawDeposit";
 import {Balance, OrderCommon, ShrubBalance, SmallOrder} from "../types";
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
-import ConnectWalletsView from "./ConnectWallet";
+import {ConnectionStatus, ConnectWallet} from "./ConnectWallet";
 import {ShrubIcon} from "../assets/Icons";
 import {IoRocketSharp} from "react-icons/all";
 import { Link as ReachLink } from "@reach/router";
@@ -287,7 +287,9 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                             </ModalHeader>
                             <ModalCloseButton/>
                             <ModalBody>
-                                <ConnectWalletsView/>
+                                {!active ? <ConnectWallet/> :
+                                    <ConnectionStatus/>
+                                }
                             </ModalBody>
                         </ModalContent>
                     </Modal>

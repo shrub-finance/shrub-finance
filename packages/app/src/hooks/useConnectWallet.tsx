@@ -1,17 +1,16 @@
 import {useWeb3React} from "@web3-react/core";
-import React from "react";
+import {useEffect, useState} from "react";
 import {useEagerConnect} from "./useEagerConnect";
 import {useInactiveListener} from "./useInactiveListener";
 
 export function useConnectWallet() {
-    const context = useWeb3React();
-    const { connector, activate, error } = context;
+    const { connector, activate, error, active } = useWeb3React();
 
 
 // handle logic to recognize the connector currently being activated
-    const [activatingConnector, setActivatingConnector] = React.useState<any>();
+    const [activatingConnector, setActivatingConnector] = useState<any>();
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (activatingConnector && activatingConnector === connector) {
             setActivatingConnector(undefined);
         }
@@ -23,6 +22,6 @@ export function useConnectWallet() {
 // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
     useInactiveListener(!triedEager || !!activatingConnector);
 
-    return {connector, activatingConnector, triedEager, activate, error, setActivatingConnector}
+    return {connector, activatingConnector, triedEager, activate, error, setActivatingConnector, active}
 }
 
