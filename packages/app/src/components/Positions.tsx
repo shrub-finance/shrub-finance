@@ -267,11 +267,12 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                 <>
                     <SlideFade in={true} unmountOnExit={true}>
                         <Flex>
-                            <Alert status="warning" borderRadius={7}>
+                            <Alert status="warning" borderRadius={"2xl"}>
                                 <AlertIcon/>
                                 {error}
                                 <Spacer/>
-                                <Button colorScheme="yellow" variant="outline" size="sm" onClick={onOpenConnectModal}>
+                                <Button colorScheme="yellow" variant="outline" size="sm"
+                                        onClick={onOpenConnectModal} borderRadius={"full"}>
                                     Connect Wallet
                                 </Button>
                             </Alert>
@@ -358,7 +359,9 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                                 </Box>
                             </Center>
                             <Center pt={6}>
-                                <Button rightIcon={<IoRocketSharp />} colorScheme="teal" variant="outline" borderRadius={"full"} as={ReachLink} to="/options">
+                                <Button rightIcon={<IoRocketSharp />} colorScheme="teal"
+                                        variant="outline"
+                                        borderRadius={"full"} as={ReachLink} to="/options">
                                     Buy Some
                                 </Button>
                             </Center>

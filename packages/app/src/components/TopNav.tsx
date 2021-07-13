@@ -18,11 +18,12 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
-import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon} from "@chakra-ui/icons";
+import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon} from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
-import {Account, Balance, ChainId, ConnectionStatus, ConnectWallet} from "./ConnectWallet";
+import {Account, Balance, ChainId, ConnectionStatus, ConnectWallet, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {ShrubIcon} from "../assets/Icons";
+
 
 const NavLinks = ["Shrub"];
 const NavLink = ({ children }: { children: ReactNode }) => (
@@ -60,7 +61,7 @@ const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => 
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  const {active} = useConnectWallet();
+  const {active, error} = useConnectWallet();
 
   return (
     <Box fontFamily="Montserrat">
@@ -98,12 +99,17 @@ function TopNav() {
             <Box onClick={onOpen}>
               <Button
                   variant={"outline"}
-                  colorScheme={"teal"}
+                  colorScheme={!!error ? "red":"teal"}
                   size={"md"}
                   mr={4}
-                  borderRadius="2xl"
+                  borderRadius="full"
+                  leftIcon={!!error ?<InfoOutlineIcon colorScheme="red"/> : undefined}
               >
-              <Account/>
+                {!!error ?
+                        getErrorMessage(error, true)  : <Account/>
+
+                }
+
               </Button>
             </Box>
             <Button

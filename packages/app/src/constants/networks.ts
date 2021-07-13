@@ -12,7 +12,7 @@ export const NETWORK_LABELS: { [chainId in SupportedChainId | number]: string } 
     [SupportedChainId.MAINNET]: 'Mainnet',
     [SupportedChainId.RINKEBY]: 'Rinkeby',
     [SupportedChainId.ROPSTEN]: 'Ropsten',
-    [SupportedChainId.GOERLI]: 'Görli',
+    [SupportedChainId.GOERLI]: 'Goerli',
     [SupportedChainId.KOVAN]: 'Kovan',
     [SupportedChainId.LOCAL]: 'Local',
 }

@@ -35,13 +35,13 @@ import {
     useClipboard
 } from "@chakra-ui/react";
 import {Flex, Spacer} from "@chakra-ui/react";
-import {CheckCircleIcon, CopyIcon, ExternalLinkIcon, WarningTwoIcon} from "@chakra-ui/icons";
+import {CheckCircleIcon, CopyIcon, ExternalLinkIcon, Icon, InfoOutlineIcon} from "@chakra-ui/icons";
 import {ethers} from "ethers";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {formatEther} from "ethers/lib/utils";
 import {NETWORK_COLORS, NETWORK_LABELS} from "../constants/networks";
-import {RiWirelessChargingLine} from "react-icons/all";
-import {FaEthereum} from "react-icons/fa";
+import {RiSignalTowerLine} from "react-icons/all";
+import {FaEthereum, FaPlug} from "react-icons/fa";
 
 enum ConnectorNames {
     MetaMask = "MetaMask",
@@ -58,23 +58,35 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.Ledger]: ledger,
 };
 
-function getErrorMessage(error: Error) {
+export function getErrorMessage(error: Error, short?: boolean) {
     if (error instanceof NoEthereumProviderError) {
-        return "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.";
+        return (
+            short ? "Install MetaMask" :
+                "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile."
+        );
     } else if (error instanceof UnsupportedChainIdError) {
-        return "You're connected to an unsupported network.";
+
+        return (
+            short ? "Wrong Network" :
+                "You are connected, but not to Ethereum. Check your settings."
+        );
     } else if (
         error instanceof UserRejectedRequestErrorInjected ||
         error instanceof UserRejectedRequestErrorWalletConnect ||
         error instanceof UserRejectedRequestErrorFrame
     ) {
-        return "Please authorize this website to access your Ethereum account.";
+        return (
+            short ? "Authorize Access" :
+                "Please authorize this website to access your Ethereum account.");
     } else if (error.message) {
         console.error(error);
-        return error.message;
+        return (
+            short ? "Connection Error" : error.message);
     } else {
         console.error(error);
-        return "An unknown error occurred. Check the console for more details.";
+        return (
+            short ? "Connection Error" :
+                "An unknown error occurred. Check the console for more details.");
     }
 }
 
@@ -94,7 +106,6 @@ export function ChainId() {
             {network && (
 
                 <Button
-                    leftIcon={<RiWirelessChargingLine fontSize={"md"}/>}
                     variant={"ghost"}
                     // @ts-ignore
                     colorScheme={networkColor}
@@ -102,6 +113,7 @@ export function ChainId() {
                     mr={4}
                     borderRadius="2xl"
                 >
+                    <Icon as={RiSignalTowerLine} boxSize={4} mr={1}/>
                     {network}
                 </Button>
             )
@@ -172,14 +184,14 @@ export function Account() {
     useEffect(() => {
         if (account && ref.current) {
             ref.current.innerHTML = "";
-            ref.current.appendChild(Jazzicon(16, parseInt(account.slice(2, 10), 16)));
+            ref.current.appendChild(Jazzicon(14, parseInt(account.slice(2, 10), 16)));
         }
     }, [account]);
 
     return (
         <>
 
-            {account ? <Box pr={1} d="flex" alignItems="center" ref={ref as any}/> : undefined}
+            {account ? <Box pr={2} d="flex" alignItems="center" ref={ref as any}/> : <Icon as={FaPlug} boxSize={5} pr={2}/>}
             {account === null
                 ? "-"
                 : account
@@ -332,8 +344,7 @@ export function ConnectWallet() {
                     const connected = currentConnector === connector;
                     const disabled = !triedEager || !!activatingConnector ||
                         connected || !!error;
-console.log(activating);
-console.log(connected);
+
                     function WalletIconName(props: any) {
                         switch (props.type) {
                             case "MetaMask":
@@ -382,7 +393,7 @@ console.log(connected);
                                     )}
 
                                     {connected && error && (
-                                        <WarningTwoIcon color="red.400" mr={2} boxSize={3}/>
+                                        <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>
                                     )}
                                     {item}
                                 </Box>
