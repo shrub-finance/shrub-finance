@@ -41,7 +41,7 @@ import WithdrawDeposit from "./WithdrawDeposit";
 import {Balance, OrderCommon, ShrubBalance, SmallOrder} from "../types";
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
-import {ConnectionStatus, ConnectWallet} from "./ConnectWallet";
+import {ConnectionStatus, ConnectWallet, getErrorMessage} from "./ConnectWallet";
 import {ShrubIcon} from "../assets/Icons";
 import {IoRocketSharp} from "react-icons/all";
 import { Link as ReachLink } from "@reach/router";
@@ -50,20 +50,20 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
     function handleErrorMessages(err?: Error, message?: string) {
         if (err) {
-            setError(err.message);
+            setlocalError(err.message);
             console.log(err);
         } else if (message) {
-            setError(message);
+            setlocalError(message);
         }
     }
 
-    const {active, library, account} = useWeb3React();
+    const {active, library, account, error: web3Error} = useWeb3React();
     const tableRows: TableRowProps[] = [];
     const tableRowsOptions: any = [];
     const [action, setAction] = useState('');
 
     const [optionsRows, setOptionsRows] = useState(<></>)
-    const [error, setError] = useState('')
+    const [localError, setlocalError] = useState('')
     const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
     const hasOptions = useRef(false);
 
@@ -89,11 +89,11 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
 
     useEffect(() => {
-        setError('');
+        setlocalError('');
 
         async function inner() {
             if (!active || !account) {
-                setError('');
+                setlocalError('');
                 handleErrorMessages(undefined, 'Please connect your wallet')
                 console.error('Please connect wallet');
                 return;
@@ -121,7 +121,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
 
     useEffect(() => {
-        setError('');
+        setlocalError('');
 
         async function inner() {
             if (!active || !account) {
@@ -198,7 +198,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
        function handleClick() {
          onOpenModal();
          setAction(buttonText);
-         setError('');
+         setlocalError('');
          setAmountValue('');
          setModalCurrency(selectedCurrency);
        })
@@ -226,7 +226,6 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                 <Td isNumeric>{shrubBalance.locked[currency]}</Td>
                 <Td isNumeric>{shrubBalance.available[currency]}</Td>
                 <Td>
-                     {/*withdraw deposit buttons*/}
                     <HStack spacing="24px">
                         <Button
                             colorScheme="teal"
@@ -263,22 +262,23 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                 fontFamily="Montserrat"
                 maxW="container.md"
             >
-            {error && (!active || !account) && (
+            {localError &&
                 <>
                     <SlideFade in={true} unmountOnExit={true}>
                         <Flex>
-                            <Alert status="warning" borderRadius={"2xl"}>
+                            <Alert status={!!web3Error ? "error": "warning"} borderRadius={"2xl"}>
                                 <AlertIcon/>
-                                {error}
+                                {!!web3Error ? getErrorMessage(web3Error).message : localError}
                                 <Spacer/>
-                                <Button colorScheme="yellow" variant="outline" size="sm"
+                                <Button colorScheme={!!web3Error ? "red": "yellow"} variant="outline" size="sm"
                                         onClick={onOpenConnectModal} borderRadius={"full"}>
-                                    Connect Wallet
+                                    {!!web3Error ? getErrorMessage(web3Error).title : "Connect Wallet"}
                                 </Button>
                             </Alert>
                         </Flex>
                     </SlideFade>
-
+                    </>
+                    }
                     <Modal motionPreset="slideInBottom" isOpen={isOpenConnectModal}
                            onClose={onCloseConnectModal}>
                         <ModalOverlay/>
@@ -294,8 +294,6 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                             </ModalBody>
                         </ModalContent>
                     </Modal>
-                </>
-            )}
             </Container>
 
                 <Container
@@ -384,7 +382,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                             walletBalance={walletBalance}
                             shrubBalance={shrubBalance}
                             action={action}
-                            error={error}
+                            error={localError}
                         />
                         <Flex>
                             {modalCurrency !== "ETH" && action === "Deposit" ? (

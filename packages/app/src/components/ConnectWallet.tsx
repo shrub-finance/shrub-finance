@@ -58,37 +58,45 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.Ledger]: ledger,
 };
 
-export function getErrorMessage(error: Error, short?: boolean) {
+export function getErrorMessage(error: Error) {
     if (error instanceof NoEthereumProviderError) {
         return (
-            short ? "Install MetaMask" :
-                "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile."
+            {title: "Install MetaMask",
+            message: "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile."}
         );
     } else if (error instanceof UnsupportedChainIdError) {
 
         return (
-            short ? "Wrong Network" :
-                "You are connected, but not to Ethereum. Check your settings."
-        );
+            {
+                title: "Wrong Network",
+                message: "You are connected, but not to Ethereum. Check your settings."
+
+            });
     } else if (
         error instanceof UserRejectedRequestErrorInjected ||
         error instanceof UserRejectedRequestErrorWalletConnect ||
         error instanceof UserRejectedRequestErrorFrame
     ) {
         return (
-            short ? "Authorize Access" :
-                "Please authorize this website to access your Ethereum account.");
+            {
+                title: "Authorize Access",
+                message: "Please authorize this website to access your Ethereum account."
+            });
     } else if (error.message) {
         console.error(error);
         return (
-            short ? "Connection Error" : error.message);
+            {title: "Connection Error" ,
+                message: error.message});
     } else {
         console.error(error);
         return (
-            short ? "Connection Error" :
-                "An unknown error occurred. Check the console for more details.");
+            {
+                title: "Connection Error",
+                message: "An unknown error occurred. Check the console for more details."
+            });
     }
 }
+
 
 export function getLibrary(provider: any) {
     return new ethers.providers.Web3Provider(provider);
@@ -332,7 +340,7 @@ export function ConnectWallet() {
                 <Stack spacing={3}>
                     <Alert status="error" borderRadius={9} mb={4}>
                         <AlertIcon/>
-                        {getErrorMessage(error)}
+                        {getErrorMessage(error).message}
                     </Alert>
                 </Stack>
             )}

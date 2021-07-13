@@ -61,7 +61,7 @@ const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => 
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  const {active, error} = useConnectWallet();
+  const {active, error: web3Error} = useConnectWallet();
 
   return (
     <Box fontFamily="Montserrat">
@@ -99,14 +99,14 @@ function TopNav() {
             <Box onClick={onOpen}>
               <Button
                   variant={"outline"}
-                  colorScheme={!!error ? "red":"teal"}
+                  colorScheme={!!web3Error ? "red":"teal"}
                   size={"md"}
                   mr={4}
                   borderRadius="full"
-                  leftIcon={!!error ?<InfoOutlineIcon colorScheme="red"/> : undefined}
+                  leftIcon={!!web3Error ?<InfoOutlineIcon colorScheme="red"/> : undefined}
               >
-                {!!error ?
-                        getErrorMessage(error, true)  : <Account/>
+                {!!web3Error ?
+                        getErrorMessage(web3Error).title  : <Account/>
 
                 }
 
