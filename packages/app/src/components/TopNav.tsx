@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, {ReactNode, useState} from "react";
 import {
   Box,
   Flex,
@@ -20,7 +20,7 @@ import {
 } from "@chakra-ui/react";
 import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon} from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
-import {Account, Balance, ChainId, ConnectionStatus, ConnectWallet, getErrorMessage} from "./ConnectWallet";
+import {Account, Balance, ChainId, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {ShrubIcon} from "../assets/Icons";
 
@@ -62,89 +62,56 @@ function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   const {active, error: web3Error} = useConnectWallet();
-
+  const [isHidden, setIsHidden] = useState(false);
+  const displayStatus = (val: boolean ) => {
+    setIsHidden(val);
+  }
+function handleModalClose() {
+    onClose();
+    displayStatus(false);
+}
   return (
     <Box fontFamily="Montserrat">
       <Box bg={useColorModeValue("gray.200", "rgb(31, 31, 65)")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <IconButton
-            icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
-            aria-label={"Open Menu"}
-            display={{ md: "none" }}
+          <IconButton icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+            aria-label={"Open Menu"} display={{ md: "none" }}
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={"center"}>
-            <HStack
-              as={"nav"}
-              spacing={4}
-              display={{ base: "none", md: "flex" }}
-            >
-              {NavLinks.map((link) => (
-                <NavLink key={link}>
-                  <ShrubIcon boxSize={10}/>
-                </NavLink>
-              ))}
-              {NavRoutes.map((route) => (
-                  <NavRoute key={route} path={route}>{route}</NavRoute>
-              ))}
+            <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
+              {NavLinks.map((link) => (<NavLink key={link}><ShrubIcon boxSize={10}/></NavLink>))}
+              {NavRoutes.map((route) => (<NavRoute key={route} path={route}>{route}</NavRoute>))}
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            <Box pr={5}>
-              <Balance/>
-            </Box>
-            <Box>
-              <ChainId/>
-            </Box>
+            <Box pr={5}><Balance/></Box>
+            <Box><ChainId/></Box>
             <Box onClick={onOpen}>
-              <Button
-                  variant={"outline"}
-                  colorScheme={!!web3Error ? "red":"teal"}
-                  size={"md"}
-                  mr={4}
-                  borderRadius="full"
-                  leftIcon={!!web3Error ?<InfoOutlineIcon colorScheme="red"/> : undefined}
-              >
-                {!!web3Error ?
-                        getErrorMessage(web3Error).title  : <Account/>
-
-                }
-
+              <Button variant={"outline"} colorScheme={!!web3Error ? "red":"teal"}
+                  size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?<InfoOutlineIcon colorScheme="red"/> : undefined}>
+                {!!web3Error && !active ? getErrorMessage(web3Error).title  : <Account/>}
               </Button>
             </Box>
-            <Button
-                onClick={toggleColorMode}
-                variant="ghost"
-            >
+            <Button onClick={toggleColorMode} variant="ghost">
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
             </Button>
           </Flex>
         </Flex>
 
-        {isOpen ? (
-          <Box pb={4} display={{ md: "none" }}>
-            <Stack as={"nav"} spacing={4}>
-              {NavLinks.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
-              ))}
-            </Stack>
-          </Box>
-        ) : null}
-      </Box>
+        {isOpen ? (<Box pb={4} display={{ md: "none" }}>
+            <Stack as={"nav"} spacing={4}>{NavLinks.map((link) => (<NavLink key={link}>{link}</NavLink>))}</Stack></Box>) : null}</Box>
 
-      <Modal isOpen={isOpen} onClose={onClose} motionPreset="slideInBottom">
+      <Modal isOpen={isOpen} onClose={handleModalClose} motionPreset="slideInBottom">
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
-          <ModalHeader>
-            {!active ? 'Connect Wallet' :
-            <Text fontSize={16}>Account Details</Text>
-            }
-          </ModalHeader>
+          <ModalHeader>{ !active ? 'Connect Wallet' :
+              !isHidden ? <Text fontSize={16}>Account Details</Text>:
+            <Button variant="ghost" onClick={() => displayStatus(false)}>Back</Button>
+          } </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {!active ? <ConnectWallet/> :
-                <ConnectionStatus/>
-            }
+            {!active || isHidden? <ConnectWalletModal/> : !isHidden &&<ConnectionStatus displayStatus={displayStatus}/>}
           </ModalBody>
         </ModalContent>
       </Modal>

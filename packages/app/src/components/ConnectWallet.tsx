@@ -60,48 +60,38 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
 
 export function getErrorMessage(error: Error) {
     if (error instanceof NoEthereumProviderError) {
-        return (
-            {title: "Install MetaMask",
-            message: "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile."}
-        );
+        return ({ title: "Install MetaMask",
+            message: "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile."
+        });
     } else if (error instanceof UnsupportedChainIdError) {
-
-        return (
-            {
+        return ({
                 title: "Wrong Network",
                 message: "You are connected, but not to Ethereum. Check your settings."
-
             });
     } else if (
         error instanceof UserRejectedRequestErrorInjected ||
         error instanceof UserRejectedRequestErrorWalletConnect ||
         error instanceof UserRejectedRequestErrorFrame
     ) {
-        return (
-            {
+        return ({
                 title: "Authorize Access",
                 message: "Please authorize this website to access your Ethereum account."
             });
     } else if (error.message) {
         console.error(error);
-        return (
-            {title: "Connection Error" ,
+        return ({title: "Connection Error" ,
                 message: error.message});
     } else {
         console.error(error);
-        return (
-            {
+        return ({
                 title: "Connection Error",
                 message: "An unknown error occurred. Check the console for more details."
             });
     }
 }
-
-
 export function getLibrary(provider: any) {
     return new ethers.providers.Web3Provider(provider);
 }
-
 export function ChainId() {
 
     const {chainId} = useWeb3React()
@@ -131,7 +121,6 @@ export function ChainId() {
 
 
 }
-
 export function Balance() {
     const {account, library, chainId} = useWeb3React()
     const networkColor = chainId && NETWORK_COLORS[chainId]
@@ -184,143 +173,86 @@ export function Balance() {
         </>
     )
 }
-
 export function Account() {
     const ref = useRef<HTMLDivElement>();
     const {account} = useWeb3React();
-
     useEffect(() => {
         if (account && ref.current) {
             ref.current.innerHTML = "";
             ref.current.appendChild(Jazzicon(14, parseInt(account.slice(2, 10), 16)));
         }
     }, [account]);
-
     return (
         <>
-
             {account ? <Box pr={2} d="flex" alignItems="center" ref={ref as any}/> : <Icon as={FaPlug} boxSize={5} pr={2}/>}
-            {account === null
-                ? "-"
-                : account
-                    ? `${account.substring(0, 6)}...${account.substring(
-                        account.length - 4
-                    )}`
-                    : "Connect Wallet"}
-
+            {account === null ? "-" : account ? `${account.substring(0, 6)}...${account.substring(account.length - 4)}` : "Connect Wallet"}
         </>
     );
 }
 
 
-export function ConnectionStatus() {
+// @ts-ignore
+export function ConnectionStatus({displayStatus}) {
+
     const shadow = useColorModeValue("base", "dark-lg");
-
     const {active, error, account} = useWeb3React();
-
     const connector = Object.keys(connectorsByName).find(item =>
         // @ts-ignore
         connectorsByName[item]);
     const ethScanLink = `https://etherscan.io/address/${account}`;
-
     const [copyValue, setCopyValue] = React.useState("")
     const {hasCopied, onCopy} = useClipboard(copyValue)
-
-    function handleConnectorChange() {
-
-    }
-
-
     useEffect(() => {
         if (account) {
             setCopyValue(account);
-        }
-
-    }, [account])
-
+        }}, [account])
 
     return (
         <>
             {active && !error ? (
-                <Box
-                    cursor="pointer" p={3} mb={5} boxShadow={shadow}
-                    rounded="lg">
+                <Box cursor="pointer" p={3} mb={5} boxShadow={shadow} rounded="lg">
                     <Flex pt={1}>
-                        <Box
-                            color="gray.500"
-                            fontWeight="semibold"
-                            letterSpacing="wide"
-                            fontSize="sm"
-                            ml="2"
-                        >
+                        <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm" ml="2">
                             Connected with {connector}
                         </Box>
                         <Spacer/>
                         <Box>
                             <Button size={"sm"} borderRadius="full" cursor="pointer"
-                                    variant="outline" colorScheme="green" onClick={handleConnectorChange}>
+                                    variant="outline" colorScheme="green" onClick={() => displayStatus(true)}>
                                 Change
                             </Button>
                         </Box>
                     </Flex>
                     <Flex pb={2}>
-                        <Button
-                            variant={"ghost"}
-                            colorScheme={"teal"}
-                            size={"lg"}
-                            mr={4}
-                            borderRadius="2xl"
-                        >
+                        <Button variant={"ghost"} colorScheme={"teal"} size={"lg"} mr={4} borderRadius="2xl">
                             <Account/>
                         </Button>
                     </Flex>
                     <Flex pb={1}>
-                        <Box color="gray.500" fontWeight="semibold"
-                             letterSpacing="wide" fontSize="xs" ml="2"
-                             onClick={onCopy}
-                        >
-                            {hasCopied ?
-                                <CheckCircleIcon mr={1}/> :
-                                <CopyIcon mr={1}/>
-                            }
-                            {hasCopied ?
-                                'Copied' :
-                                'Copy Address'
-                            }
-
+                        <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2"
+                             onClick={onCopy}>
+                            {hasCopied ? <CheckCircleIcon mr={1}/> : <CopyIcon mr={1}/>}
+                            {hasCopied ? 'Copied' : 'Copy Address'}
                         </Box>
                         <Spacer/>
-                        <Box
-                            color="gray.500"
-                            fontWeight="semibold"
-                            letterSpacing="wide"
-                            fontSize="xs"
-                            ml="2"
-                        >
+                        <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2">
                             <Link href={ethScanLink} isExternal>
                                 <ExternalLinkIcon/> View on Etherscan
                             </Link>
                         </Box>
                     </Flex>
-                </Box>
-
-            ) : (
-                <Flex mb="10px">
+                </Box>) :
+                (<Flex mb="10px">
                     <Spacer/>
-                    <Badge
-                        borderRadius="md"
-                        variant="outline"
-                        colorScheme="yellow"
-                    >
+                    <Badge borderRadius="md" variant="outline" colorScheme="yellow">
                         {!active && !error && "Not Connected"}
                     </Badge>
-                </Flex>
-            )}
+                </Flex>)}
         </>
     );
 }
 
-export function ConnectWallet() {
+export function ConnectWalletModal() {
 
     const {
         activate, error, activatingConnector, connector,
@@ -332,8 +264,6 @@ export function ConnectWallet() {
         "linear(to-r, blue.100, teal.200)",
         "linear(to-l, blue.700, teal.700)"
     );
-
-
     return (
         <Box fontFamily="Montserrat">
             {!!error && (
@@ -371,29 +301,20 @@ export function ConnectWallet() {
                     return (
                         <Stack spacing={8} key={item}>
                             <Flex
-                                cursor="pointer"
-                                p={3}
-                                mb={5}
-                                boxShadow={shadow}
-                                rounded="lg"
-                                _hover={{bgGradient: gradient}}
-                                disabled={disabled}
+                                cursor="pointer" p={3} mb={5}
+                                boxShadow={shadow} rounded="lg"
+                                _hover={{bgGradient: gradient}} disabled={disabled}
                                 onClick={() => {
                                     setActivatingConnector(currentConnector);
                                     // @ts-ignore
                                     activate(connectorsByName[item]);
-                                }}
-                            >
+                                }}>
                                 <Box p="4" fontSize={20}>
                                     {activating && (
                                         <Spinner
-                                            mr={2}
-                                            thickness="1px"
-                                            speed="0.65s"
-                                            emptyColor="blue.200"
-                                            color="teal.500"
-                                            size="xs"
-                                            label="loading"
+                                            mr={2} thickness="1px" speed="0.65s"
+                                            emptyColor="blue.200" color="teal.500"
+                                            size="xs" label="loading"
                                         />
                                     )}
                                     {connected && !error && (
