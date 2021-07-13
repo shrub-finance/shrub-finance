@@ -35,7 +35,7 @@ import {
     useClipboard
 } from "@chakra-ui/react";
 import {Flex, Spacer} from "@chakra-ui/react";
-import {CheckCircleIcon, CopyIcon, ExternalLinkIcon} from "@chakra-ui/icons";
+import {CheckCircleIcon, CopyIcon, ExternalLinkIcon, WarningTwoIcon} from "@chakra-ui/icons";
 import {ethers} from "ethers";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {formatEther} from "ethers/lib/utils";
@@ -332,7 +332,8 @@ export function ConnectWallet() {
                     const connected = currentConnector === connector;
                     const disabled = !triedEager || !!activatingConnector ||
                         connected || !!error;
-
+console.log(activating);
+console.log(connected);
                     function WalletIconName(props: any) {
                         switch (props.type) {
                             case "MetaMask":
@@ -376,8 +377,12 @@ export function ConnectWallet() {
                                             label="loading"
                                         />
                                     )}
-                                    {connected && (
+                                    {connected && !error && (
                                         <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>
+                                    )}
+
+                                    {connected && error && (
+                                        <WarningTwoIcon color="red.400" mr={2} boxSize={3}/>
                                     )}
                                     {item}
                                 </Box>
