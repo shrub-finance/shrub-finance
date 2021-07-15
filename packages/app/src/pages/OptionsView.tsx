@@ -17,7 +17,7 @@ import useFetch from "../hooks/useFetch";
 import {ApiOrder, AppCommon, ContractData, OrderbookStats, PutCall, SellBuy} from '../types';
 import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
-import {formatExpiry, formatStrike, fromEthDate, toEthDate, transformOrderApiApp} from "../utils/ethMethods";
+import {formatDate, formatStrike, fromEthDate, toEthDate, transformOrderApiApp} from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {FaEthereum} from "react-icons/fa";
 import {Icon} from "@chakra-ui/icons";
@@ -140,7 +140,7 @@ function OptionsView(props: RouteComponentProps) {
 
     const appCommon:AppCommon = {
       formattedStrike: formatStrike(strikePrice),
-      formattedExpiry: formatExpiry(Number(expiryDate)),
+      formattedExpiry: formatDate(Number(expiryDate)),
       optionType,
       quoteAsset,
       baseAsset,
@@ -200,7 +200,7 @@ function OptionsView(props: RouteComponentProps) {
             const radio = getExpiryRadioProps({ value: expiry });
             return (
                 <RadioCard key={expiry} {...radio}>
-                  {formatExpiry(Number(expiry))}
+                  {formatDate(Number(expiry))}
                 </RadioCard>
             );
           })}

@@ -27,18 +27,20 @@ import {
     optionActionToIsBuy,
     transformOrderApiApp,
     transformOrderAppChain,
-    validateOrderAddress
+    validateOrderAddress, formatDate, getSymbolFor
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {ApiOrder, AppCommon, GetOrdersParams, IOrder, OrderBook, OrderType, SellBuy, UnsignedOrder} from "../types";
 import {postOrder} from "../utils/requests";
 import useFetch from "../hooks/useFetch";
+import {TxContext} from "./Store";
 
 const { Zero } = ethers.constants;
 
 function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: SellBuy}) {
+    const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
     const {active, library, account} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
@@ -266,8 +268,18 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
             signedSellOrders = [signedOrder];
         }
         console.log(signedBuyOrders, signedSellOrders);
-        const res = await matchOrders(signedBuyOrders, signedSellOrders, library)
-        console.log(res);
+        const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
+        console.log(tx);
+        const quoteSymbol = await getSymbolFor(quoteAsset, library);
+        pendingTxsDispatch({type: 'add', txHash: tx.hash, description: `${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`})
+        console.log(pendingTxsState);
+        try {
+            const receipt = await tx.wait()
+            pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+        } catch (e) {
+            pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
+        }
+        console.log(pendingTxsState);
     }
 
     // TODO: get the symbols dynamically
