@@ -1,66 +1,58 @@
+import {
+    Alert,
+    AlertDescription,
+    AlertIcon,
+    AlertTitle, Spinner
+} from '@chakra-ui/react';
 
-import {Box, Badge, useColorModeValue, Container} from "@chakra-ui/react";
-import { IoCheckmarkDoneCircleOutline, IoCheckmarkDoneCircleSharp } from "react-icons/io5";
+function Txmonitor({confirmed, setConfirmationStatus, depositing, setDepositStatus} : any) {
+   return(
+       <>
+       { depositing && <Alert
+           status="success"
+           variant="subtle"
+           flexDirection="column"
+           alignItems="center"
+           justifyContent="center"
+           textAlign="center"
+           height="200px"
+       >
+           {/*<AlertIcon boxSize="40px" mr={0} />*/}
+           <Spinner
+               thickness="4px"
+               speed="0.65s"
+               emptyColor="gray.200"
+               color="blue.500"
+               size="xl"
+           />
+           <AlertTitle mt={4} mb={1} fontSize="lg">
+               Waiting for confirmation
+           </AlertTitle>
+           <AlertDescription maxWidth="sm">
+               Please confirm in your wallet.
+           </AlertDescription>
+       </Alert>}
 
-function TxMonitoring() {
-    const property = {
-        beds: 3,
-        baths: 2,
-        title: "PENDING",
-        formattedPrice: "$1,900.00",
-        reviewCount: 34,
-        rating: 4,
-    }
+           {confirmed && <Alert
+        status="success"
+        variant="subtle"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        height="200px"
+    >
+        <AlertIcon boxSize="40px" mr={0} />
+        <AlertTitle mt={4} mb={1} fontSize="lg">
+            Transaction Submitted
+        </AlertTitle>
+        <AlertDescription maxWidth="sm">
 
-    return (
-        <Container
-            mt={50}
-            p={0}
-            flex="1"
-            borderRadius="2xl"
-            fontFamily="Montserrat"
-            bg={useColorModeValue("white", "rgb(31, 31, 65)")}
-            shadow={useColorModeValue("2xl", "2xl")}
-            maxW="container.md"
-        >
-        <Box maxW="sm"  borderRadius="lg" overflow="hidden">
-            <Box p="6">
-                <Box d="flex" alignItems="baseline">
-                    <Badge borderRadius="full" px="2" colorScheme="teal">
-                        New
-                    </Badge>
-                    <Box
-                        color="green.500"
-                        fontWeight="extrabold"
-                        fontSize="2xl"
-                        ml="2"
-                    >
-                        <IoCheckmarkDoneCircleOutline/>
-                    </Box>
-                </Box>
-
-                <Box
-                    mt="1"
-                    fontWeight="semibold"
-                    as="h4"
-                    lineHeight="tight"
-                    isTruncated
-                >
-                    {property.title}
-                </Box>
-
-                <Box>
-                    {/*{property.formattedPrice}*/}
-                    {/*<Box as="span" color="gray.600" fontSize="sm">*/}
-                    {/*    / wk*/}
-                    {/*</Box>*/}
-                </Box>
-
-
-            </Box>
-        </Box>
-</Container>
-    )
+        </AlertDescription>
+    </Alert>}
+           </>
+   ) ;
 }
 
-export default TxMonitoring;
+export default Txmonitor;
+

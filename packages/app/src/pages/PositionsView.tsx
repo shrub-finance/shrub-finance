@@ -8,7 +8,7 @@ import {Center, Heading} from "@chakra-ui/react";
 import {useWeb3React} from "@web3-react/core";
 import {Icon} from "@chakra-ui/icons";
 import {GiCoins} from "react-icons/gi";
-import TxMonitoring from "../components/TxMonitoring";
+
 
 
 function PositionsView(props: RouteComponentProps) {
@@ -36,7 +36,7 @@ function PositionsView(props: RouteComponentProps) {
       <>
         <Heading mt={10}><Center><Icon as={GiCoins} mr={2}/> Shrubfolio</Center></Heading>
           <Positions walletBalance={walletBalance} />
-            <TxMonitoring/>
+
       </>
   );
 }
