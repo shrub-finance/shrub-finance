@@ -6,6 +6,8 @@ import {Web3ReactProvider} from "@web3-react/core";
 import {getLibrary} from "./components/ConnectWallet";
 
 function App() {
+
+
   return (
     <div className="App">
         <Web3ReactProvider getLibrary={getLibrary}>

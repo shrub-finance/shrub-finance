@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useReducer, useRef, useState} from "react";
 import {ethers} from "ethers";
 import {
     VisuallyHidden,
@@ -44,7 +44,7 @@ import {
     getLockedBalance
 } from "../utils/ethMethods";
 import WithdrawDeposit from "./WithdrawDeposit";
-import {Balance, OrderCommon, ShrubBalance, SmallOrder} from "../types";
+import {Balance, OrderCommon, PendingStatuses, ShrubBalance, SmallOrder} from "../types";
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 import {ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
@@ -55,6 +55,50 @@ import Txmonitor from './TxMonitoring';
 
 
 function Positions({walletBalance}: { walletBalance: Balance }) {
+
+
+    const initialState = {};
+    function reducer(
+        state: {[txHash: string]: { description: string, status: PendingStatuses, created: Date, updated: Date}},
+        action: { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}) {
+        const { type, txHash, status, description } = action;
+        const now = new Date()
+        switch (action.type) {
+            case "add":
+                if (!txHash) {
+                    throw new Error('txHash required for add');
+                }
+                if (!description) {
+                    throw new Error('description required for add');
+                }
+                state[txHash] = { description, status: 'pending', created: now, updated: now }
+                return state;
+            case "update":
+                if (!txHash) {
+                    throw new Error('txHash required for update')
+                }
+                if (!status) {
+                    throw new Error('status required for update');
+                }
+                state[txHash].status = status;
+                state[txHash].updated = now;
+                return state;
+            case "clear":
+                return {};
+            // case "get":
+            //     const pendingTxArr = [];
+            //     for (const [txHash, {status, description, created}] of Object.entries(state)) {
+            //         pendingTxArr.push({ txHash, status, description, created });
+            //     }
+            //     return pendingTxArr
+            //         .sort((a,b) => a.created.getTime() - b.created.getTime())
+            //         .map(arr => {txHash, status, description})
+            default: throw new Error(`invalid type ${type}`);
+        }
+    }
+
+    const [pendingTxsState, pendingTxsDispatch] = useReducer(reducer, initialState);
+
 
     function handleErrorMessages(err?: Error, customMessage?: string) {
         if (err) {
@@ -70,11 +114,11 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
     const tableRows: TableRowProps[] = [];
     const tableRowsOptions: any = [];
     const [action, setAction] = useState('');
-    const [depositing, setDepositState] = useState(false);
-    const [confirmed, setConfirmationState] = useState(false);
+    // const [depositing, setDepositState] = useState(false);
+    // const [confirmed, setConfirmationState] = useState(false);
     // const [showBud, setShowBud] = useState(false);
 
-    console.log(depositing);
+    // console.log(depositing);
     const [optionsRows, setOptionsRows] = useState(<></>)
     const [localError, setlocalError] = useState('')
     const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
@@ -204,7 +248,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
     function handleModalClose() {
         onCloseModal();
-        setConfirmationState(false);
+        // setConfirmationState(false);
         // setShowBud(false);
     }
 
@@ -230,6 +274,38 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
     function totalUserBalance(currency: string) {
         return shrubBalance.locked[currency] + shrubBalance.available[currency];
+    }
+
+    async function handleDepositWithdraw() {
+        try {
+            if (!active || !account) {
+                handleErrorMessages(undefined, 'Please connect your wallet');
+                return;
+            }
+            let tx;
+            if (action === "Deposit") {
+                if (modalCurrency === "ETH") {
+                    tx = await depositEth(ethers.utils.parseUnits(amountValue), library)
+                } else {
+                    // Deposit FK
+                    tx = await depositToken(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library);
+                }
+            } else {
+                // Withdraw
+                tx = await withdraw(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library)
+            }
+            console.log(tx);
+            pendingTxsDispatch({type: 'add', txHash: tx.hash, description: `${action} ${amountValue} ${modalCurrency}`})
+            try {
+                const receipt = await tx.wait()
+                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+            } catch (e) {
+                pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
+            }
+            console.log(pendingTxsState);
+        } catch (e) {
+            handleErrorMessages(e)
+        }
     }
 
     // Populate Balance Table
@@ -385,12 +461,12 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                 <ModalOverlay/>
                 <ModalContent fontFamily="Montserrat" borderRadius="2xl">
                     {/*<ModalHeader>{!showBud ? action: depositing ? '': 'Congratulations!'}</ModalHeader>*/}
-                    <ModalHeader>{!confirmed ? action: ''}</ModalHeader>
+                    <ModalHeader>{action}</ModalHeader>
                     <ModalCloseButton/>
                     <ModalBody>
 
                         {/*{!showBud &&*/}
-                        {(!confirmed && !depositing ) &&
+                        {
                         <>
                             <WithdrawDeposit
                                 amountValue={amountValue}
@@ -424,40 +500,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                                     isDisabled={amountValue === '0' || amountValue === ''}
                                     // isLoading={depositing}
                                     // loadingText={depositing ? "Depositing" : undefined}
-                                    onClick={() => {
-                                        if (!active || !account) {
-                                            handleErrorMessages(undefined, 'Please connect your wallet');
-                                            return;
-                                        }
-                                        if (action === "Deposit") {
-                                            if (modalCurrency === "ETH") {
-                                                setDepositState(true)
-                                                depositEth(ethers.utils.parseUnits(amountValue), library
-                                                ).then(tx =>
-                                                    tx.wait()
-                                                        .then(
-                                                            // console.log,
-                                                            // @ts-ignore
-                                                            setDepositState(false),
-                                                            setConfirmationState(true),
-                                                            // setShowBud(true)
-                                                        ))
-                                                    .catch(handleErrorMessages);
-                                            } else {
-                                                depositToken(
-                                                    Currencies[modalCurrency].address,
-                                                    ethers.utils.parseUnits(amountValue),
-                                                    library
-                                                ).catch(handleErrorMessages);
-                                            }
-                                        } else if (action === "Withdraw") {
-                                            withdraw(
-                                                Currencies[modalCurrency].address,
-                                                ethers.utils.parseUnits(amountValue),
-                                                library
-                                            ).catch(handleErrorMessages);
-                                        }
-                                    }}
+                                    onClick={handleDepositWithdraw}
                                 >
                                     {action}
                                 </Button>
@@ -468,8 +511,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                         {/*{showBud && <Center>*/}
                         {/*    <HappyBud boxSize={500} />*/}
                         {/*</Center>}*/}
-                        <Txmonitor depositing = {depositing} confirmed = {confirmed}
-                            setDepositState={setDepositState} setConfirmationState={setConfirmationState}/>
+                        {/*<Txmonitor depositing = {depositing} confirmed = {confirmed} setDepositState={setDepositState} setConfirmationState={setConfirmationState}/>*/}
                     </ModalBody>
                 </ModalContent>
             </Modal>

@@ -6,6 +6,8 @@ export type SellBuy = 'SELL' | 'BUY';
 
 export type OrderType = 'Market' | 'Limit';
 
+export type PendingStatuses = 'pending'|'confirming'|'confirmed'|'failed'
+
 export type BinaryNumber = 0 | 1;
 
 export type SmallOrder = {

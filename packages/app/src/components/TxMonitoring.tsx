@@ -4,8 +4,14 @@ import {
     AlertIcon,
     AlertTitle, Spinner
 } from '@chakra-ui/react';
+import {PendingStatuses} from "../types";
+import {useReducer} from "react";
 
-function Txmonitor({confirmed, setConfirmationStatus, depositing, setDepositStatus} : any) {
+export function Txmonitor({confirmed, setConfirmationStatus, depositing, setDepositStatus} : any) {
+
+
+
+
    return(
        <>
        { depositing && <Alert
@@ -44,7 +50,7 @@ function Txmonitor({confirmed, setConfirmationStatus, depositing, setDepositStat
     >
         <AlertIcon boxSize="40px" mr={0} />
         <AlertTitle mt={4} mb={1} fontSize="lg">
-            Transaction Submitted
+            Transaction Confirmed
         </AlertTitle>
         <AlertDescription maxWidth="sm">
 
@@ -55,4 +61,3 @@ function Txmonitor({confirmed, setConfirmationStatus, depositing, setDepositStat
 }
 
 export default Txmonitor;
-
