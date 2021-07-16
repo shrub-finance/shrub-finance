@@ -2,11 +2,12 @@ import {
     Alert,
     AlertDescription,
     AlertIcon,
-    AlertTitle, Link, Spinner
+    AlertTitle, Center, Link, Spinner
 } from '@chakra-ui/react';
-import {useContext} from "react";
+import React, {useContext} from "react";
 import {TxContext} from "./Store";
 import {ExternalLinkIcon, TimeIcon} from "@chakra-ui/icons";
+import {HappyBud} from "../assets/Icons";
 
 
 export function Txmonitor({txHash}:{txHash?: string}) {
@@ -78,7 +79,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
               alignItems="center"
               justifyContent="center"
               textAlign="center"
-              height="200px"
+              height="400px"
             >
               <AlertIcon boxSize="40px" mr={0}/>
               <AlertTitle mt={4} mb={1} fontSize="lg">
@@ -89,6 +90,9 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                       View on explorer <ExternalLinkIcon mx="2px" />
                   </Link>
 
+                  <Center>
+                      <HappyBud mt={8} boxSize={200} />
+                  </Center>
               </AlertDescription>
             </Alert>}
 
@@ -116,5 +120,3 @@ export function Txmonitor({txHash}:{txHash?: string}) {
         </>
     );
 }
-
-export default Txmonitor;

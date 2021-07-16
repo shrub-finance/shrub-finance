@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 
 import {
   Box,
@@ -20,12 +20,15 @@ import {
 
 import { AppCommon, SellBuy } from '../types';
 import OptionDetails from "./OptionDetails";
+import {Txmonitor} from "./TxMonitoring";
 
 const height = 100;
 
 function OptionRow({appCommon, last, ask, bid, option}: {appCommon: AppCommon, last: string, ask: string, bid: string, option: SellBuy}) {
   const { optionType, formattedStrike } = appCommon;
   const { isOpen: isOpenLimitBuy, onOpen: onOpenLimitBuy, onClose: onCloseLimitBuy } = useDisclosure();
+  const [approving, setApproving] = React.useState(false);
+  const [activeHash, setActiveHash] = useState<string>();
 
   return (
     <Box fontFamily="Montserrat">
@@ -60,7 +63,8 @@ function OptionRow({appCommon, last, ask, bid, option}: {appCommon: AppCommon, l
           <ModalCloseButton />
           <ModalHeader borderBottomWidth="1px">ETH Order</ModalHeader>
           <ModalBody>
-              <OptionDetails appCommon={appCommon} sellBuy={option}/>
+            { (!approving && !activeHash) && <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}}/> }
+            { (approving || activeHash) && <Txmonitor txHash={activeHash}/> }
           </ModalBody>
         </ModalContent>
       </Modal>

@@ -52,7 +52,7 @@ import {HelloBud} from '../assets/Icons';
 import {IoRocketSharp} from "react-icons/all";
 import {Link as ReachLink} from "@reach/router";
 import {TxContext} from "./Store";
-import Txmonitor from "./TxMonitoring";
+import {Txmonitor} from "./TxMonitoring";
 
 function Positions({walletBalance}: { walletBalance: Balance }) {
 
