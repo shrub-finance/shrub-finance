@@ -209,7 +209,7 @@ export function ConnectionStatus({displayStatus}) {
     return (
         <>
             {active && !error ? (
-                <Box cursor="pointer" p={3} mb={5} boxShadow={shadow} rounded="lg">
+                <Box p={3} mb={5} boxShadow={shadow} rounded="lg">
                     <Flex pt={1}>
                         <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm" ml="2">
                             Connected with {connector}

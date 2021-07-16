@@ -2,12 +2,14 @@ import {
     Alert,
     AlertDescription,
     AlertIcon,
-    AlertTitle, Center, Link, Spinner
+    AlertTitle, Box, Button, Center, Flex, Link, Spacer, Spinner, useColorModeValue
 } from '@chakra-ui/react';
 import React, {useContext} from "react";
 import {TxContext} from "./Store";
-import {ExternalLinkIcon, TimeIcon} from "@chakra-ui/icons";
+import {CheckCircleIcon, ExternalLinkIcon, Icon, TimeIcon} from "@chakra-ui/icons";
 import {HappyBud} from "../assets/Icons";
+import {PendingTxState} from "../types";
+import {VscError} from "react-icons/all";
 
 
 export function Txmonitor({txHash}:{txHash?: string}) {
@@ -45,7 +47,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
             </>
         )
     }
-    const {description, status} = pendingTxsState[txHash]
+    const {status} = pendingTxsState[txHash]
     console.log(pendingTxsState[txHash]);
 
     console.log(status)
@@ -119,4 +121,84 @@ export function Txmonitor({txHash}:{txHash?: string}) {
             </Alert>}
         </>
     );
+}
+
+export function confirmingCount(pendingTxsState: PendingTxState) {
+    return Object.values(pendingTxsState).filter(txState => txState.status === 'confirming').length
+}
+
+export function TxStatusList() {
+    console.log('rendering TxStatusList');
+    const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+    const entries = Object.entries(pendingTxsState)
+      .sort((a,b) => b[1].created.getTime() - a[1].created.getTime())
+      //  Only retain the most recent 10 records
+      .slice(0, 10)
+    const list:React.ReactElement[] = []
+
+    for (const [txHash, {description, status}] of entries) {
+        list.push(
+          <Flex pt={3} pb={1}>
+              <Box color={status === 'failed' ? 'red.500' : 'teal.500'} fontWeight="semibold" letterSpacing="tight" fontSize="xs" ml="2">
+                  <Link href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                      {description}
+                  </Link>
+              </Box>
+              <Spacer/>
+              <Box color="green.500" fontWeight="semibold"  fontSize="xs" ml="2">
+                  { status === 'confirming'?
+                    <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /> :
+                    status === 'confirmed' ?
+                      <CheckCircleIcon/> :
+                      <Icon as={VscError} color="red.400" boxSize={3}/>
+                  }
+              </Box>
+          </Flex>
+        )
+    }
+    console.log(entries);
+    console.log(pendingTxsState);
+    console.log(list);
+
+    const shadow = useColorModeValue("base", "dark-lg");
+    const gradient = useColorModeValue(
+      "linear(to-r, blue.100, teal.200)",
+      "linear(to-l, blue.700, teal.700)"
+    );
+
+    const stateEntries = Object.entries(pendingTxsState)
+
+
+
+    return (
+      <>
+          <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg="gray.100">
+              <Flex pt={1}>
+                  {list.length ?
+                    <>
+                        <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm" ml="2">
+                            Recent Transactions
+                        </Box>
+                        <Spacer/>
+                        <Box>
+                            <Button size={"xs"} borderRadius="full" cursor="pointer"
+                                    variant="ghost" colorScheme="green" onClick={() => pendingTxsDispatch({type: 'clear'})}>
+                                Clear all
+                            </Button>
+                        </Box>
+                    </>
+                    :
+                      <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="lg" ml="2">
+                      Your transactions will show here...
+                      </Center>
+                  }
+
+              </Flex>
+              {list}
+
+          </Box>
+      </>
+
+    )
+
 }

@@ -10,6 +10,10 @@ export type PendingStatuses = 'pending'|'confirming'|'confirmed'|'failed'
 
 export type BinaryNumber = 0 | 1;
 
+export type PendingTxState = {[txHash: string]: { description: string, status: PendingStatuses, created: Date, updated: Date}}
+
+export type PendingTxAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}
+
 export type SmallOrder = {
   size: BigNumber;
   isBuy: boolean;

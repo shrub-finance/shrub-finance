@@ -1,4 +1,4 @@
-import React, {ReactNode, useState} from "react";
+import React, {ReactNode, useContext, useState} from "react";
 import {
   Box,
   Flex,
@@ -16,13 +16,15 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton,
+  ModalCloseButton, Spinner,
 } from "@chakra-ui/react";
 import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon} from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
 import {Account, Balance, ChainId, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {HelloBud} from "../assets/Icons";
+import {TxContext} from "./Store";
+import {confirmingCount, TxStatusList} from "./TxMonitoring";
 
 
 const NavLinks = ["Shrub"];
@@ -59,10 +61,14 @@ const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => 
 );
 
 function TopNav() {
+  console.log('rendering TopNav');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   const {active, error: web3Error} = useConnectWallet();
   const [isHidden, setIsHidden] = useState(false);
+  const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+  const confirmingCountNumber = confirmingCount(pendingTxsState);
+  console.log(confirmingCountNumber);
   const displayStatus = (val: boolean ) => {
     setIsHidden(val);
   }
@@ -89,8 +95,12 @@ function handleModalClose() {
             <Box><ChainId/></Box>
             <Box onClick={onOpen}>
               <Button variant={"outline"} colorScheme={!!web3Error ? "red":"teal"}
-                  size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?<InfoOutlineIcon colorScheme="red"/> : undefined}>
-                {!!web3Error && !active ? getErrorMessage(web3Error).title  : <Account/>}
+                  size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?
+                    <InfoOutlineIcon colorScheme="red"/> : undefined}> {!!web3Error && !active ?
+                    getErrorMessage(web3Error).title :
+                      confirmingCountNumber > 0 ?
+                        <><Spinner thickness="1px" speed="0.65s" color="cyan.500" size="xs" mr={2} /> {confirmingCountNumber} Pending...</> :
+                        <Account/>}
               </Button>
             </Box>
             <Button onClick={toggleColorMode} variant="ghost">
@@ -112,6 +122,7 @@ function handleModalClose() {
           <ModalCloseButton />
           <ModalBody>
             {!active || isHidden? <ConnectWalletModal/> : !isHidden &&<ConnectionStatus displayStatus={displayStatus}/>}
+            <TxStatusList/>
           </ModalBody>
         </ModalContent>
       </Modal>
