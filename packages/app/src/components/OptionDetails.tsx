@@ -370,6 +370,9 @@ function OptionDetails({ appCommon, sellBuy }: { appCommon: AppCommon, sellBuy: 
                     >
                         Place Order
                     </Button>
+                    {/*{showBud && <Center>*/}
+                    {/*    <HappyBud boxSize={500} />*/}
+                    {/*</Center>}*/}
                 </Flex>
             </Box>
         </Stack>

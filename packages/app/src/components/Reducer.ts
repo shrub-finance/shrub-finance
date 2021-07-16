@@ -14,8 +14,8 @@ export function reducer (
             if (!description) {
                 throw new Error('description required for add');
             }
-            state[txHash] = { description, status: 'pending', created: now, updated: now }
-            return state;
+            state[txHash] = { description, status: 'confirming', created: now, updated: now }
+            return {...state};
         case "update":
             if (!txHash) {
                 throw new Error('txHash required for update')
@@ -25,7 +25,7 @@ export function reducer (
             }
             state[txHash].status = status;
             state[txHash].updated = now;
-            return state;
+            return {...state};
         case "clear":
             return {};
         // case "get":
