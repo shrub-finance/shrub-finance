@@ -49,8 +49,6 @@ enum ConnectorNames {
     CoinbaseWallet = "Coinbase Wallet",
     Ledger = "Ledger"
 }
-
-
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.MetaMask]: injected,
     [ConnectorNames.WalletConnect]: walletconnect,
@@ -60,33 +58,36 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
 
 export function getErrorMessage(error: Error) {
     if (error instanceof NoEthereumProviderError) {
-        return ({ title: "Install MetaMask",
+        return ({
+            title: "Install MetaMask",
             message: "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile."
         });
     } else if (error instanceof UnsupportedChainIdError) {
         return ({
-                title: "Wrong Network",
-                message: "You are connected, but not to Ethereum. Check your settings."
-            });
+            title: "Wrong Network",
+            message: "You are connected, but not to Ethereum. Check your settings."
+        });
     } else if (
         error instanceof UserRejectedRequestErrorInjected ||
         error instanceof UserRejectedRequestErrorWalletConnect ||
         error instanceof UserRejectedRequestErrorFrame
     ) {
         return ({
-                title: "Authorize Access",
-                message: "Please authorize this website to access your Ethereum account."
-            });
+            title: "Authorize Access",
+            message: "Please authorize this website to access your Ethereum account."
+        });
     } else if (error.message) {
         console.error(error);
-        return ({title: "Connection Error" ,
-                message: error.message});
+        return ({
+            title: "Connection Error",
+            message: error.message
+        });
     } else {
         console.error(error);
         return ({
-                title: "Connection Error",
-                message: "An unknown error occurred. Check the console for more details."
-            });
+            title: "Connection Error",
+            message: "An unknown error occurred. Check the console for more details."
+        });
     }
 }
 export function getLibrary(provider: any) {
@@ -189,8 +190,6 @@ export function Account() {
         </>
     );
 }
-
-
 // @ts-ignore
 export function ConnectionStatus({displayStatus}) {
 
@@ -251,14 +250,11 @@ export function ConnectionStatus({displayStatus}) {
         </>
     );
 }
-
 export function ConnectWalletModal() {
-
     const {
         activate, error, activatingConnector, connector,
         triedEager, setActivatingConnector
     } = useConnectWallet();
-
     const shadow = useColorModeValue("base", "dark-lg");
     const gradient = useColorModeValue(
         "linear(to-r, blue.100, teal.200)",
@@ -297,7 +293,6 @@ export function ConnectWalletModal() {
                                 return <MetaMaskIcon boxSize={8}/>;
                         }
                     }
-
                     return (
                         <Stack spacing={8} key={item}>
                             <Flex

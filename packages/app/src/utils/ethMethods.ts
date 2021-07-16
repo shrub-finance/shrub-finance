@@ -464,11 +464,11 @@ export function formatStrike(strike: ethers.BigNumber) {
   return Number(ethers.utils.formatUnits(strike, 6)).toFixed(0);
 }
 
-export function formatExpiry(expiry: number | Date) {
-  if (expiry instanceof Date) {
-    return expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"})
+export function formatDate(date: number | Date) {
+  if (date instanceof Date) {
+    return date.toLocaleDateString('en-us', {month: "short", day: "numeric"})
   }
-  return fromEthDate(expiry).toLocaleDateString('en-us', {month: "short", day: "numeric"})
+  return fromEthDate(date).toLocaleDateString('en-us', {month: "short", day: "numeric"})
 }
 
 export function transformOrderApiApp(order: ApiOrder): AppOrderSigned {

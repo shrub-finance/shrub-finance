@@ -9,7 +9,7 @@ export enum SupportedChainId {
 
 
 export const NETWORK_LABELS: { [chainId in SupportedChainId | number]: string } = {
-    [SupportedChainId.MAINNET]: 'Mainnet',
+    [SupportedChainId.MAINNET]: 'Ethereum',
     [SupportedChainId.RINKEBY]: 'Rinkeby',
     [SupportedChainId.ROPSTEN]: 'Ropsten',
     [SupportedChainId.GOERLI]: 'Goerli',

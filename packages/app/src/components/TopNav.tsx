@@ -22,7 +22,7 @@ import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon} from "@cha
 import { Link as ReachLink } from "@reach/router";
 import {Account, Balance, ChainId, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
-import {ShrubIcon} from "../assets/Icons";
+import {HelloBud} from "../assets/Icons";
 
 
 const NavLinks = ["Shrub"];
@@ -80,7 +80,7 @@ function handleModalClose() {
           />
           <HStack spacing={8} alignItems={"center"}>
             <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
-              {NavLinks.map((link) => (<NavLink key={link}><ShrubIcon boxSize={10}/></NavLink>))}
+              {NavLinks.map((link) => (<NavLink key={link}><HelloBud boxSize={10}/></NavLink>))}
               {NavRoutes.map((route) => (<NavRoute key={route} path={route}>{route}</NavRoute>))}
             </HStack>
           </HStack>
