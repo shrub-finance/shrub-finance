@@ -29,6 +29,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                   justifyContent="center"
                   textAlign="center"
                   height="200px"
+                  bg="none"
                 >
                   <Spinner
                     thickness="4px"
@@ -61,13 +62,14 @@ export function Txmonitor({txHash}:{txHash?: string}) {
               justifyContent="center"
               textAlign="center"
               height="200px"
+              bg="none"
             >
                 <TimeIcon boxSize="40px"/>
                 <AlertTitle mt={4} mb={1} fontSize="lg">
                     Transaction Confirming...
                 </AlertTitle>
                 <AlertDescription maxWidth="sm">
-                    <Link color={"cyan"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                    <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
                         View on explorer <ExternalLinkIcon mx="2px" />
                     </Link>
                 </AlertDescription>
@@ -82,13 +84,14 @@ export function Txmonitor({txHash}:{txHash?: string}) {
               justifyContent="center"
               textAlign="center"
               height="400px"
+              bg="none"
             >
               <AlertIcon boxSize="40px" mr={0}/>
               <AlertTitle mt={4} mb={1} fontSize="lg">
                 Transaction Confirmed
               </AlertTitle>
               <AlertDescription maxWidth="sm">
-                  <Link color={"cyan"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                  <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
                       View on explorer <ExternalLinkIcon mx="2px" />
                   </Link>
 
@@ -113,7 +116,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                     Transaction Rejected
                 </AlertTitle>
                 <AlertDescription maxWidth="sm">
-                    <Link color={"cyan"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                    <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
                         View on explorer <ExternalLinkIcon mx="2px" />
                     </Link>
 
@@ -149,7 +152,7 @@ export function TxStatusList() {
                   { status === 'confirming'?
                     <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /> :
                     status === 'confirmed' ?
-                      <CheckCircleIcon/> :
+                      <CheckCircleIcon color="teal.400"/> :
                       <Icon as={VscError} color="red.400" boxSize={3}/>
                   }
               </Box>
@@ -161,18 +164,12 @@ export function TxStatusList() {
     console.log(list);
 
     const shadow = useColorModeValue("base", "dark-lg");
-    const gradient = useColorModeValue(
-      "linear(to-r, blue.100, teal.200)",
-      "linear(to-l, blue.700, teal.700)"
-    );
-
-    const stateEntries = Object.entries(pendingTxsState)
-
+    const bgColor =useColorModeValue("gray.100", "gray.800");
 
 
     return (
       <>
-          <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg="gray.100">
+          <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg={bgColor}>
               <Flex pt={1}>
                   {list.length ?
                     <>
@@ -189,7 +186,7 @@ export function TxStatusList() {
                     </>
                     :
                       <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="lg" ml="2">
-                      Your transactions will show here...
+                      Transactions will show up here...
                       </Center>
                   }
 
@@ -201,4 +198,15 @@ export function TxStatusList() {
 
     )
 
+}
+
+export function ToastDescription(description: string, txHash: string) {
+    return <>
+        <Box>
+            {description}
+        </Box>
+        <Box>
+            <Link href={`https://etherscan.io/tx/${txHash}`} isExternal>View on etherscan</Link>
+        </Box>
+    </>
 }

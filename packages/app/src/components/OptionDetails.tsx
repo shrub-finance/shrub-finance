@@ -5,12 +5,12 @@ import {
     Flex,
     FormLabel,
     HStack,
-    Input,
+    Input, Link,
     Stack,
     Tag,
     TagLabel,
     Tooltip,
-    useRadioGroup
+    useRadioGroup, useToast
 } from "@chakra-ui/react";
 import {Icon} from "@chakra-ui/icons";
 import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
@@ -37,6 +37,7 @@ import {postOrder} from "../utils/requests";
 import useFetch from "../hooks/useFetch";
 import {TxContext} from "./Store";
 import {HappyBud} from "../assets/Icons";
+import {ToastDescription} from "./TxMonitoring";
 
 const { Zero } = ethers.constants;
 
@@ -54,6 +55,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
     const radioOrderTypes = ['Market', 'Limit']
     const [radioOption, setRadioOption] = useState<SellBuy>(sellBuy);
     const [radioOrderType, setRadioOrderType] = useState<OrderType>('Market');
+    const toast = useToast();
     const {
         getRootProps: getOptionRootProps,
         getRadioProps: getOptionRadioProps,
@@ -273,13 +275,18 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
             const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
-            pendingTxsDispatch({type: 'add', txHash: tx.hash, description: `${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`})
+            const description = `${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
+            pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
             setActiveHash(tx.hash);
             console.log(pendingTxsState);
             try {
                 const receipt = await tx.wait()
+                const toastDescription = ToastDescription(description, receipt.transactionHash);
+                toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
             } catch (e) {
+                const toastDescription = ToastDescription(description, e.transactionHash);
+                toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
             console.log(pendingTxsState);

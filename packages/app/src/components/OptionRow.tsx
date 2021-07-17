@@ -26,9 +26,15 @@ const height = 100;
 
 function OptionRow({appCommon, last, ask, bid, option}: {appCommon: AppCommon, last: string, ask: string, bid: string, option: SellBuy}) {
   const { optionType, formattedStrike } = appCommon;
-  const { isOpen: isOpenLimitBuy, onOpen: onOpenLimitBuy, onClose: onCloseLimitBuy } = useDisclosure();
+  const { isOpen, onOpen, onClose} = useDisclosure();
   const [approving, setApproving] = React.useState(false);
   const [activeHash, setActiveHash] = useState<string>();
+
+  function handleModalClose() {
+    setApproving(false);
+    setActiveHash(undefined);
+    onClose();
+  }
 
   return (
     <Box fontFamily="Montserrat">
@@ -51,13 +57,13 @@ function OptionRow({appCommon, last, ask, bid, option}: {appCommon: AppCommon, l
         <Spacer/>
         <Box h={height}>
           <Stack spacing={4} direction="row" align="center">
-            <Button colorScheme="teal" onClick={onOpenLimitBuy} size="sm" variant="outline" borderRadius="2xl">
+            <Button colorScheme="teal" onClick={onOpen} size="sm" variant="outline" borderRadius="2xl">
               {option === 'BUY' ? "Buy Options" : "Sell Options"}
             </Button>
           </Stack>
         </Box>
       </Flex>
-      <Modal  motionPreset="slideInBottom" size={"sm"} isOpen={isOpenLimitBuy}  onClose={onCloseLimitBuy}>
+      <Modal  motionPreset="slideInBottom" size={"sm"} isOpen={isOpen}  onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent fontFamily="Montserrat" borderRadius="2xl">
           <ModalCloseButton />

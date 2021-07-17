@@ -29,7 +29,8 @@ import {
   Center,
   Box,
   VStack,
-  CloseButton
+  useToast,
+  Link
 } from '@chakra-ui/react';
 
 import {
@@ -52,7 +53,7 @@ import {HelloBud} from '../assets/Icons';
 import {IoRocketSharp} from "react-icons/all";
 import {Link as ReachLink} from "@reach/router";
 import {TxContext} from "./Store";
-import {Txmonitor} from "./TxMonitoring";
+import {ToastDescription, Txmonitor} from "./TxMonitoring";
 
 function Positions({walletBalance}: { walletBalance: Balance }) {
 
@@ -75,11 +76,11 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
   const [action, setAction] = useState('');
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
-
   const [optionsRows, setOptionsRows] = useState(<></>)
   const [localError, setlocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
   const hasOptions = useRef(false);
+  const toast = useToast()
 
   const orderMap = new Map();
 
@@ -207,8 +208,6 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
     setApproving(false);
     setActiveHash(undefined);
     onCloseModal();
-    // setConfirmationState(false);
-    // setShowBud(false);
   }
 
   function handleClickFactory(selectedCurrency: any, buttonText?: any) {
@@ -263,9 +262,13 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
       setActiveHash(tx.hash);
       try {
         const receipt = await tx.wait()
+        const toastDescription = ToastDescription(description, receipt.transactionHash);
+        toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
         pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
       } catch (e) {
+        const toastDescription = ToastDescription(description, e.transactionHash);
         pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
+        toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
       }
       console.log(pendingTxsState);
 

@@ -78,6 +78,7 @@ function handleModalClose() {
 }
   return (
     <Box fontFamily="Montserrat">
+
       <Box bg={useColorModeValue("gray.200", "rgb(31, 31, 65)")} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
