@@ -34,7 +34,7 @@ mongo version 4.4+
 
 # Configuration
 
-create a `.env` file in both `packages/backent` and `packages/app`. Use `dotenv.example` as an example
+create a `.env` file in both `packages/backend` and `packages/app`. Use `dotenv.example` as an example
 
     # Database configuration
     dbHost: process.env.DB_HOST || "localhost",
