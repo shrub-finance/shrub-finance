@@ -213,6 +213,7 @@ contract ShrubExchange {
   internal returns(address, address, bytes32) {
     address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
+    require(seller != buyer, "Seller and Buyer must be different");
     bytes32 positionHash = hashOrderCommon(common);
 
     //console.log('seller', seller);
