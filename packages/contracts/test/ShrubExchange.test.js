@@ -7,6 +7,14 @@ const Assets = {
   USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
   ETH: "0x0000000000000000000000000000000000000000",
 };
+const STRIKE_BASE_SHIFT = 1000000;
+
+const WeiInEth = web3.utils.toBN(10).pow(web3.utils.toBN(18))
+const BigHundred = web3.utils.toBN(100);
+const BigTwo = web3.utils.toBN(2);
+const BigMillion = web3.utils.toBN(1e6);
+
+
 contract("ShrubExchange", (accounts) => {
   let exchange;
   let shrubInterface;
@@ -14,17 +22,17 @@ contract("ShrubExchange", (accounts) => {
   let orderTypeHash;
 
   let sellOrder = {
-    size: 1,
+    size: WeiInEth.toString(),
     isBuy: false,
     nonce: 1,
-    price: 100,
+    price: WeiInEth.mul(BigHundred).toString(),
     offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
     fee: 1,
 
     baseAsset: Assets.USDC,
     quoteAsset: Assets.ETH,
     expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
-    strike: 100,
+    strike: BigHundred.mul(BigMillion).toString(),
     optionType: 1,
   };
 
@@ -51,22 +59,22 @@ contract("ShrubExchange", (accounts) => {
       accounts.push(created.address);
     }
     console.log({ accounts });
-    await fakeToken.transfer(accounts[1], 10000, { from: accounts[0] });
+    await fakeToken.transfer(accounts[1], WeiInEth.mul(web3.utils.toBN(10000)), { from: accounts[0] });
   });
 
   it("should hash an order and match the contract's hash", async () => {
     const order = {
-      size: 1,
+      size: WeiInEth.toString(),
       isBuy: true,
       nonce: 0,
-      price: 100,
+      price: WeiInEth.mul(BigHundred).toString(),
       offerExpire: new Date(0).getTime(),
       fee: 1,
 
       baseAsset: Assets.USDC,
       quoteAsset: Assets.ETH,
       expiry: new Date(0).getTime(),
-      strike: 3300,
+      strike: web3.utils.toBN(3300).mul(BigMillion).toString(),
       optionType: 1,
     };
 
@@ -109,7 +117,7 @@ contract("ShrubExchange", (accounts) => {
       baseAsset: Assets.USDC,
       quoteAsset: Assets.ETH,
       expiry: new Date(0).getTime(),
-      strike: 3300,
+      strike: web3.utils.toBN(3300).mul(BigMillion).toString(),
       optionType: 1,
     };
 
@@ -161,11 +169,11 @@ contract("ShrubExchange", (accounts) => {
     const buyer = accounts[1];
 
     // Deposit ETH
-    await exchange.deposit(Assets.ETH, 200, { value: 200, from: seller });
+    await exchange.deposit(Assets.ETH, WeiInEth.mul(BigHundred).mul(BigTwo), { value: WeiInEth.mul(BigHundred).mul(BigTwo), from: seller });
 
     // Deposit ERC20 to pay PRICE
-    await fakeToken.approve(exchange.address, 100, { from: buyer });
-    await exchange.deposit(fakeToken.address, 100, { from: buyer });
+    await fakeToken.approve(exchange.address, WeiInEth.mul(BigHundred), { from: buyer });
+    await exchange.deposit(fakeToken.address, WeiInEth.mul(BigHundred), { from: buyer });
 
     // Sign orders
     const signedSellOrder = await shrubInterface.signOrderWithWeb3(
@@ -242,13 +250,13 @@ contract("ShrubExchange", (accounts) => {
     if (sellOrder.optionType == 1) {
       console.log("SOLD A CALL");
       assert.isTrue(
-        sellerBalance.toNumber() >= smallSellOrder.size,
+        sellerBalance.gte(smallSellOrder.size),
         "Seller should have enough free collateral"
       );
     } else {
       console.log("SOLD A PUT");
       assert.isTrue(
-        sellerBalance.toNumber() >= smallSellOrder.size * common.strike,
+        sellerBalance.toNumber() >= smallSellOrder.size * common.strike / STRIKE_BASE_SHIFT,
         "Seller should have enough free collateral"
       );
     }
@@ -265,7 +273,7 @@ contract("ShrubExchange", (accounts) => {
 
     const sellerLockedBalance = (
       await exchange.userTokenLockedBalance(seller, Assets.ETH)
-    ).toNumber();
+    );
 
     if (sellOrder.optionType == 1) {
       assert.equal(
@@ -275,7 +283,7 @@ contract("ShrubExchange", (accounts) => {
       );
     } else {
       assert.equal(
-        smallSellOrder.size * common.strike,
+        smallSellOrder.size * common.strike / STRIKE_BASE_SHIFT,
         sellerLockedBalance,
         "Seller should have SIZE * STRIKE locked up for PUTS"
       );
@@ -285,8 +293,8 @@ contract("ShrubExchange", (accounts) => {
     const paidToken =
       sellOrder.optionType == 1 ? fakeToken.address : Assets.ETH;
     const paidBalance = await exchange.userTokenBalances(seller, paidToken);
-    assert.equal(paidBalance, smallSellOrder.price * smallBuyOrder.size);
-    const paid = { paidToken, paidBalance: paidBalance.toNumber() };
+    assert.equal(paidBalance, smallSellOrder.price);
+    const paid = { paidToken, paidBalance: paidBalance.toString() };
 
     console.log({ signedBuyOrder, signedSellOrder, sellerLockedBalance, paid });
   });
@@ -297,32 +305,32 @@ contract("ShrubExchange", (accounts) => {
     const buyer = accounts[1];
 
     // Deposit ETH
-    await exchange.deposit(Assets.ETH, 200, { value: 200, from: seller });
+    await exchange.deposit(Assets.ETH, BigTwo.mul(BigHundred).mul(WeiInEth), { value: BigTwo.mul(BigHundred).mul(WeiInEth), from: seller });
 
     // Deposit ERC20 to pay PRICE
-    await fakeToken.approve(exchange.address, 300, { from: buyer });
-    await exchange.deposit(fakeToken.address, 300, { from: buyer });
+    await fakeToken.approve(exchange.address, web3.utils.toBN(300).mul(WeiInEth), { from: buyer });
+    await exchange.deposit(fakeToken.address, web3.utils.toBN(300).mul(WeiInEth), { from: buyer });
 
 
 
     const base = {
-      price: 100,
+      price: WeiInEth.mul(BigHundred).toString(),
       offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
       fee: 1,
 
       baseAsset: Assets.USDC,
       quoteAsset: Assets.ETH,
       expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
-      strike: 100,
+      strike: 100e6,
       optionType: 1,
     }
 
     const sellerLockedBalanceBefore = (
       await exchange.userTokenLockedBalance(seller, Assets.ETH)
-    ).toNumber();
+    );
 
 
-    const sellerTokenBalanceBefore = (await exchange.userTokenBalances(seller, Assets.USDC)).toNumber();
+    const sellerTokenBalanceBefore = (await exchange.userTokenBalances(seller, Assets.USDC));
 
     const sellerNonce = (await exchange.getCurrentNonce(
       seller,
@@ -340,17 +348,17 @@ contract("ShrubExchange", (accounts) => {
     console.log({buyerNonce, sellerNonce});
 
     let sellOrders = [{
-      size: 1,
+      size: WeiInEth.toString(),
       isBuy: false,
       nonce: sellerNonce + 1,
       ...base
     }, {
-      size: 1,
+      size: WeiInEth.toString(),
       isBuy: false,
       nonce: sellerNonce + 2,
       ...base
     }, {
-      size: 1,
+      size: WeiInEth.toString(),
       isBuy: false,
       nonce: sellerNonce + 3,
       ...base
@@ -358,12 +366,12 @@ contract("ShrubExchange", (accounts) => {
 
     let buyOrders = [{
       ...base,
-      size: 2,
+      size: WeiInEth.mul(web3.utils.toBN(2)).toString(),
       isBuy: true,
       nonce: buyerNonce + 1
     }, {
       ...base,
-      size: 1,
+      size: WeiInEth.toString(),
       isBuy: true,
       nonce: buyerNonce + 2
     }];
@@ -409,12 +417,12 @@ contract("ShrubExchange", (accounts) => {
 
     const sellerLockedBalance = (
       await exchange.userTokenLockedBalance(seller, Assets.ETH)
-    ).toNumber();
+    );
 
     if (sellOrder.optionType == 1) {
       assert.equal(
-        3 + sellerLockedBalanceBefore,
-        sellerLockedBalance,
+        sellerLockedBalanceBefore.add(web3.utils.toBN(3).mul(WeiInEth)),
+        sellerLockedBalance.toString(),
         "Seller should have 3 locked up for CALLS"
       );
     } else {
@@ -428,8 +436,8 @@ contract("ShrubExchange", (accounts) => {
     // Make sure the buyer paid us sellOrder.price
     const paidToken =
       sellOrder.optionType == 1 ? fakeToken.address : Assets.ETH;
-    const paidBalance = (await exchange.userTokenBalances(seller, paidToken)).toNumber();
-    assert.equal(paidBalance - sellerTokenBalanceBefore, 100 * 3);
+    const paidBalance = (await exchange.userTokenBalances(seller, paidToken));
+    assert.isTrue(paidBalance.sub(sellerTokenBalanceBefore).eq(web3.utils.toBN(300).mul(WeiInEth)));
     const paid = { paidToken, paidBalance };
 
     console.log({ sellerLockedBalance, paid });
@@ -449,8 +457,8 @@ contract("ShrubExchange", (accounts) => {
     );
     const buyerPosition = await exchange.userOptionPosition(buyer, commonHash);
 
-    assert.equal(sellerPosition.toNumber(), -1, "Seller should be short 1 ETH");
-    assert.equal(buyerPosition.toNumber(), 1, "Buyer should be long 1 ETH");
+    assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 ETH");
+    assert.isTrue(buyerPosition.eq(WeiInEth.mul(web3.utils.toBN(1))), "Buyer should be long 1 ETH");
     console.log({ sellerPosition, buyerPosition });
   });
 
@@ -473,10 +481,14 @@ contract("ShrubExchange", (accounts) => {
     );
 
     // Deposit ERC20 to pay STRIKE * SIZE
-    await fakeToken.approve(exchange.address, buyOrder.size * buyOrder.strike, {
+    const totalPrice =
+      web3.utils.toBN(buyOrder.size)
+        .mul(web3.utils.toBN(buyOrder.strike))
+        .div(web3.utils.toBN(STRIKE_BASE_SHIFT));
+    await fakeToken.approve(exchange.address, totalPrice, {
       from: buyer,
     });
-    await exchange.deposit(fakeToken.address, buyOrder.size * buyOrder.strike, {
+    await exchange.deposit(fakeToken.address, totalPrice, {
       from: buyer,
     });
 
@@ -508,7 +520,7 @@ contract("ShrubExchange", (accounts) => {
     );
     assert.equal(
       sellerBalanceAfter - sellerBalanceBefore,
-      buyOrder.size * buyOrder.strike,
+      buyOrder.size * buyOrder.strike / STRIKE_BASE_SHIFT,
       "Seller should now have the assets required to execute"
     );
   });

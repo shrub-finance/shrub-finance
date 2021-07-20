@@ -61,7 +61,7 @@ task(
     });
     await shrubExchange.deposit(
       fakeToken.address,
-      ethers.BigNumber.from(500).mul(weiInEth)
+      ethers.BigNumber.from(8500).mul(weiInEth)
     );
 
     // Setup contracts for account1
@@ -102,6 +102,10 @@ const config: HardhatUserConfig & AbiExporter = {
         mnemonic:
           "palm weapon verb cream balcony acid book ring surround end race gaze",
       },
+/*        mining: {
+            auto: false,
+            interval: 5000
+        },*/
       chainId: 1337,
     },
   },

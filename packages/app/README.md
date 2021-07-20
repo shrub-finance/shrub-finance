@@ -24,8 +24,9 @@ create a `.env` file in the project root with the environment variables. use `do
 
     yarn start
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Icons
+
+Shrub consumes icons as svgs via Icons.tsx and React Icons. Simply add the svg values there. For multi path svgs, use the array format.
 
 ### Testing
 

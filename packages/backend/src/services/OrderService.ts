@@ -2,11 +2,21 @@ import { OrderModel } from "../models/order";
 export class OrderService {
   constructor(private orderModel: typeof OrderModel) {}
 
-  public getOrders(baseAsset: string, quoteAsset: string, expiry?: number) {
+  public getOrders(
+    baseAsset: string,
+    quoteAsset: string,
+    expiry?: number,
+    optionType?: number,
+    strike?: number,
+    isBuy?: boolean
+  ) {
     const query = {
       ...(baseAsset && { baseAsset }),
       ...(quoteAsset && { quoteAsset }),
-      ...(expiry && { expiry: { $gt: expiry } }),
+      ...(expiry && { expiry }),
+      ...(optionType && { optionType }),
+      ...(strike && { strike }),
+      ...(isBuy && { isBuy }),
     };
     console.log(query);
     return this.orderModel.find(query);
