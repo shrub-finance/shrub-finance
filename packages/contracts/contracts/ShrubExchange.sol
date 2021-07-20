@@ -59,9 +59,11 @@ contract ShrubExchange {
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
   mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
-  uint private constant MILLION = 1000000;
   address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
-  uint private constant STRIKE_BASE_SHIFT = 1000000;
+
+  // Used to shift price and strike up and down by factors of 1 million
+  uint private constant BASE_SHIFT = 1000000;
+
   bytes32 public constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
   bytes public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
   bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
@@ -222,14 +224,14 @@ contract ShrubExchange {
 
 
   function adjustWithRatio(uint number, uint partsPerMillion) internal returns (uint) {
-    return number * partsPerMillion / MILLION;
+    return number * partsPerMillion / BASE_SHIFT;
   }
 
 
   function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal returns (uint, uint) {
     uint fillSize = sellOrder.size < buyOrder.size ?  sellOrder.size : buyOrder.size;
     uint denominator = sellOrder.size < buyOrder.size ? buyOrder.size : sellOrder.size;
-    uint fillSizePPM = fillSize * MILLION;
+    uint fillSizePPM = fillSize * BASE_SHIFT;
     uint adjustedPrice = adjustWithRatio(sellOrder.price,  fillSizePPM);
 
     return (fillSize, adjustedPrice);
@@ -246,11 +248,8 @@ contract ShrubExchange {
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
 
     (uint fillSize, uint adjustedPrice) = getAdjustedPriceAndFillSize(sellOrder, buyOrder);
-    console.log(fillSize);
-    console.log(adjustedPrice);
 
     if(common.optionType == OptionType.CALL) {
-      // TODO: Adjust logic to use the ratio of the buy/sell size multiplied by the price
       require(getAvailableBalance(seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
       require(getAvailableBalance(buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
       userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
@@ -259,10 +258,9 @@ contract ShrubExchange {
     }
 
     if(common.optionType == OptionType.PUT) {
-      // TODO: Adjust logic to use the ratio of the buy/sell size multiplied by the price
-      require(getAvailableBalance(seller, common.baseAsset) >= fillSize * common.strike, "Put Seller must have enough free collateral");
+      require(getAvailableBalance(seller, common.baseAsset) >= adjustWithRatio(fillSize, common.strike), "Put Seller must have enough free collateral");
       require(getAvailableBalance(buyer, common.quoteAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
-      userTokenLockedBalance[seller][common.baseAsset] += fillSize * common.strike;
+      userTokenLockedBalance[seller][common.baseAsset] += adjustWithRatio(fillSize, common.strike);
       userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
       userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
     }
@@ -335,16 +333,16 @@ contract ShrubExchange {
       userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
 
       // Give the seller the buyer's funds, in terms of baseAsset
-      userTokenBalances[seller][common.baseAsset] += buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
-      userTokenBalances[buyer][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
+      userTokenBalances[seller][common.baseAsset] += adjustWithRatio(buyOrder.size, common.strike);
+      userTokenBalances[buyer][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
     }
     if(common.optionType == OptionType.PUT) {
       // unlock the assets of the seller
-      userTokenLockedBalance[seller][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
+      userTokenLockedBalance[seller][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
 
       // Reduce seller's locked capital and token balance of base asset
-      userTokenBalances[seller][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
-      userTokenBalances[buyer][common.baseAsset] += buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
+      userTokenBalances[seller][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
+      userTokenBalances[buyer][common.baseAsset] += adjustWithRatio(buyOrder.size, common.strike);
 
       // Give the seller the buyer's funds, in terms of quoteAsset
       userTokenBalances[seller][common.quoteAsset] += buyOrder.size;

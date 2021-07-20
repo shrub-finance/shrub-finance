@@ -24,7 +24,6 @@ export async function pairExpiryTypeStrike(provider: JsonRpcProvider) {
     intermediate[baseAsset][quoteAsset][expiry][optionType].push(strike);
   }
   for (const [baseAsset, baseAssetObj] of Object.entries(intermediate)) {
-    // @ts-ignore - typescript is wrong
     for (const quoteAsset of Object.keys(baseAssetObj)) {
       const baseSymbol = await getSymbolFor(baseAsset, provider);
       const quoteSymbol = await getSymbolFor(quoteAsset, provider);
