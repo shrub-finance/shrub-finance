@@ -242,6 +242,7 @@ contract ShrubExchange {
     require(checkOrderMatches(sellOrder, buyOrder, common), "Buy and sell order do not match");
     address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
+    require(seller != buyer, "Seller and Buyer must be different");
     bytes32 positionHash = hashOrderCommon(common);
 
     require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1, "Seller nonce incorrect");
