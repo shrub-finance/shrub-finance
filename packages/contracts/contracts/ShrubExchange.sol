@@ -2,6 +2,7 @@ pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "hardhat/console.sol";
+import "./ZapperInterface.sol";
 
 contract ShrubExchange {
 
@@ -54,6 +55,12 @@ contract ShrubExchange {
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
+
+  address public owner;
+  address public zapperContract;
+  address public shrubPairAddress;
+  address public shrubToken;
+
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
@@ -79,6 +86,11 @@ contract ShrubExchange {
   bytes32 public constant ORDER_TYPEHASH = keccak256("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
 
   bytes32 public constant COMMON_TYPEHASH = keccak256("OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
+
+
+  ShrubExchange() {
+    owner = msg.sender;
+  }
 
   function hashOrder(Order memory order) public pure returns (bytes32) {
     return keccak256(abi.encodePacked(
@@ -197,7 +209,8 @@ contract ShrubExchange {
     if(token != ZERO_ADDRESS) {
       require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
       userTokenBalances[msg.sender][token] += amount;
-    } else {
+    }
+    if(msg.value > 0) {
       userTokenBalances[msg.sender][token] += msg.value;
     }
     emit Deposit(msg.sender, token, amount);
@@ -247,6 +260,8 @@ contract ShrubExchange {
 
     require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1, "Seller nonce incorrect");
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
+    require(getAvailableBalance(seller, ZERO_ADDRESS) >= sellOrder.fee, "Seller must have ETH to pay the fee");
+    require(getAvailableBalance(buyer, ZERO_ADDRESS) >= buyOrder.fee, "Buyer must have ETH to pay the fee");
 
     (uint fillSize, uint adjustedPrice) = getAdjustedPriceAndFillSize(sellOrder, buyOrder);
 
@@ -266,6 +281,11 @@ contract ShrubExchange {
       userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
     }
 
+    uint feeRevenue = sellOrder.fee + buyOrder.fee;
+    if(feeRevenue > 0) {
+      userTokenBalances[msg.sender][ZERO_ADDRESS] += (sellOrder.fee + buyOrder.fee) * 9/10;
+      userTokenBalances[address(this)][ZERO_ADDRESS] += (sellOrder.fee + buyOrder.fee) * 1/10;
+    }
     userOptionPosition[seller][positionHash] -= int(fillSize);
     userOptionPosition[buyer][positionHash] += int(fillSize);
 
@@ -298,7 +318,7 @@ contract ShrubExchange {
         }
         emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
         userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
-      } else if (sellOrder.size - sellFilled < buyOrder.size - buyFilled) {
+      } else if(sellOrder.size - sellFilled < buyOrder.size - buyFilled) {
         buyFilled += sellOrder.size;
         sellIndex++;
         if(buyFilled == buyOrder.size || sellIndex == sellsLen) {
@@ -315,12 +335,7 @@ contract ShrubExchange {
 
   function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
-//    console.log(buyer);
-//    console.log(seller);
     bytes32 positionHash = hashOrderCommon(common);
-//    console.logBytes32(positionHash);
-//    console.logInt(userOptionPosition[buyer][positionHash]);
-//    console.logInt(userOptionPosition[seller][positionHash]);
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
     require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
     require(common.expiry >= block.timestamp, "Option has already expired");
@@ -349,5 +364,31 @@ contract ShrubExchange {
       userTokenBalances[seller][common.quoteAsset] += buyOrder.size;
       userTokenBalances[buyer][common.quoteAsset] -= buyOrder.size;
     }
+  }
+
+  modifier onlyOwner() {
+    require(msg.sender == owner, "Only the owner can do this action");
+    _;
+  }
+
+  function setZapperContract(address newContract) public onlyOwner {
+    zapperContract = newContract;
+  }
+
+  function setShrubPairAddress(address shrubPair) public onlyOwner {
+    shrubPairAddress = shrubPair;
+  }
+
+  function setShrubToken(address shrubToken) public onlyOwner {
+    shrubToken = shrubToken;
+  }
+
+  function addShrubTokenLiquidity() public onlyOwner {
+    uint balance = userTokenBalances[address(this)][ZERO_ADDRESS];
+    require(zapperContract != ZERO_ADDRESS, "Zapper contract must be set before calling this method");
+    require(shrubPairAddress != ZERO_ADDRESS, "SHRUB/ETH pool contract must be set before calling this method");
+
+    // This would add liquidity to ETH/SHRUB using the fees this contract has accrued from matching
+    ZapperInterface(zapperContract).ZapIn(ZERO_ADDRESS, shrubPairAddress, balance, 0, ZERO_ADDRESS, 0x0, owner, false, false); 
   }
 }
