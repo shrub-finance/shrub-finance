@@ -1,7 +1,7 @@
 import Express from "express";
 import { OrderRoutes } from "./orders";
 import { CurrencyRoutes } from "./currencies";
-import {ContractRoutes} from "./contracts";
+import { ContractRoutes } from "./contracts";
 
 export function ApiRoutes() {
   const router = Express.Router();

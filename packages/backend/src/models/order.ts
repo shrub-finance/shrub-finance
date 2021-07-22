@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import mongooseInt32 from 'mongoose-int32';
+import mongooseInt32 from "mongoose-int32";
 
 const Int32 = mongooseInt32.loadType(mongoose);
 
-const Decimal128 = mongoose.Schema.Types.Decimal128
+const Decimal128 = mongoose.Schema.Types.Decimal128;
 
 export interface IOrder {
   size: mongoose.Schema.Types.Decimal128;

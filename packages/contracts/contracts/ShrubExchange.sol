@@ -60,7 +60,10 @@ contract ShrubExchange {
   mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
   address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
-  uint private constant STRIKE_BASE_SHIFT = 1000000;
+
+  // Used to shift price and strike up and down by factors of 1 million
+  uint private constant BASE_SHIFT = 1000000;
+
   bytes32 public constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
   bytes public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
   bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
@@ -142,6 +145,17 @@ contract ShrubExchange {
     return ecrecover(payloadHash, v, r, s) == user;
   }
 
+  function checkOrderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common) internal returns (bool) {
+    bool matches = true;
+    matches = matches && sellOrder.isBuy == false;
+    matches = matches && buyOrder.isBuy == true;
+
+    matches = matches && sellOrder.price <= buyOrder.price;
+    matches = matches && sellOrder.offerExpire >= block.timestamp;
+    matches = matches && buyOrder.offerExpire >= block.timestamp;
+    return matches;
+  }
+
   modifier orderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common) {
     require(sellOrder.isBuy == false, "Sell order should not be buying");
     require(buyOrder.isBuy == true, "Buy order should be buying");
@@ -220,57 +234,51 @@ contract ShrubExchange {
     userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
   }
 
+
+  function adjustWithRatio(uint number, uint partsPerMillion) internal returns (uint) {
+    return (number * partsPerMillion) / BASE_SHIFT;
+  }
+
+
+  function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal returns (uint, uint) {
+    uint fillSize = sellOrder.size < buyOrder.size ?  sellOrder.size : buyOrder.size;
+    uint denominator = sellOrder.size < buyOrder.size ? buyOrder.size : sellOrder.size;
+    uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
+
+    return (fillSize, adjustedPrice);
+  }
+
   function doPartialMatch(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig)
-  orderMatches(sellOrder, buyOrder, common)
   internal returns(address, address, bytes32) {
+    require(checkOrderMatches(sellOrder, buyOrder, common), "Buy and sell order do not match");
     address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
     require(seller != buyer, "Seller and Buyer must be different");
     bytes32 positionHash = hashOrderCommon(common);
 
-    //console.log('seller', seller);
-    //console.log('sellerNonce', getCurrentNonce(seller, common.quoteAsset, common.baseAsset));
-    //console.log('buyer', buyer);
-    //console.log('buyerNonce', getCurrentNonce(buyer, common.quoteAsset, common.baseAsset));
-    //console.log('common.quoteAsset', common.quoteAsset);
-    //console.log('sellOrder.size', sellOrder.size);
-    //console.log('availableBalance', getAvailableBalance(seller, common.quoteAsset));
-
     require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1, "Seller nonce incorrect");
     require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
 
-    if(common.optionType == OptionType.CALL) {
-      console.log("Seller balance");
-      console.log(seller);
-      console.log(getAvailableBalance(seller, common.quoteAsset));
-      console.log("Buyer balance");
-      console.log(buyer);
-      console.log(getAvailableBalance(buyer, common.baseAsset));
+    (uint fillSize, uint adjustedPrice) = getAdjustedPriceAndFillSize(sellOrder, buyOrder);
 
-      require(getAvailableBalance(seller, common.quoteAsset) >= sellOrder.size, "Call Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price, "Call Buyer must have enough free collateral");
-      userTokenLockedBalance[seller][common.quoteAsset] += sellOrder.size;
-      userTokenBalances[seller][common.baseAsset] += sellOrder.price;
-      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price;
+    if(common.optionType == OptionType.CALL) {
+      require(getAvailableBalance(seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
+      require(getAvailableBalance(buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
+      userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
+      userTokenBalances[seller][common.baseAsset] += adjustedPrice;
+      userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
     }
 
     if(common.optionType == OptionType.PUT) {
-      console.log("Seller balance");
-      console.log(seller);
-      console.log(getAvailableBalance(seller, common.baseAsset));
-      console.log("Buyer balance");
-      console.log(buyer);
-      console.log(getAvailableBalance(buyer, common.baseAsset));
-
-      require(getAvailableBalance(seller, common.baseAsset) >= sellOrder.size * common.strike / STRIKE_BASE_SHIFT, "Put Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.baseAsset) >= sellOrder.price, "Put Buyer must have enough free collateral");
-      userTokenLockedBalance[seller][common.baseAsset] += sellOrder.size * common.strike / STRIKE_BASE_SHIFT;
-      userTokenBalances[seller][common.baseAsset] += sellOrder.price;
-      userTokenBalances[buyer][common.baseAsset] -= sellOrder.price;
+      require(getAvailableBalance(seller, common.baseAsset) >= adjustWithRatio(fillSize, common.strike), "Put Seller must have enough free collateral");
+      require(getAvailableBalance(buyer, common.quoteAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
+      userTokenLockedBalance[seller][common.baseAsset] += adjustWithRatio(fillSize, common.strike);
+      userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
+      userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
     }
 
-    userOptionPosition[seller][positionHash] -= int(buyOrder.size);
-    userOptionPosition[buyer][positionHash] += int(buyOrder.size);
+    userOptionPosition[seller][positionHash] -= int(fillSize);
+    userOptionPosition[buyer][positionHash] += int(fillSize);
 
     return (buyer, seller, positionHash);
   }
@@ -337,16 +345,16 @@ contract ShrubExchange {
       userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
 
       // Give the seller the buyer's funds, in terms of baseAsset
-      userTokenBalances[seller][common.baseAsset] += buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
-      userTokenBalances[buyer][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
+      userTokenBalances[seller][common.baseAsset] += adjustWithRatio(buyOrder.size, common.strike);
+      userTokenBalances[buyer][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
     }
     if(common.optionType == OptionType.PUT) {
       // unlock the assets of the seller
-      userTokenLockedBalance[seller][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
+      userTokenLockedBalance[seller][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
 
       // Reduce seller's locked capital and token balance of base asset
-      userTokenBalances[seller][common.baseAsset] -= buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
-      userTokenBalances[buyer][common.baseAsset] += buyOrder.size * common.strike / STRIKE_BASE_SHIFT;
+      userTokenBalances[seller][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
+      userTokenBalances[buyer][common.baseAsset] += adjustWithRatio(buyOrder.size, common.strike);
 
       // Give the seller the buyer's funds, in terms of quoteAsset
       userTokenBalances[seller][common.quoteAsset] += buyOrder.size;
