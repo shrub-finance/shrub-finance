@@ -197,10 +197,22 @@ contract ShrubExchange {
     if(token != ZERO_ADDRESS) {
       require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
       userTokenBalances[msg.sender][token] += amount;
-    } else {
+    }
+    if(msg.value > 0) {
       userTokenBalances[msg.sender][token] += msg.value;
     }
     emit Deposit(msg.sender, token, amount);
+  }
+
+  function depositAndMatch(address token, uint amount, SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) public payable {
+    deposit(token, amount);
+    matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
+  }
+
+
+  function depositAndMatchMany(address token, uint amount, SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public payable {
+    deposit(token, amount);
+    matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
   }
 
   function withdraw(address token, uint amount) public {
@@ -315,12 +327,12 @@ contract ShrubExchange {
 
   function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
-//    console.log(buyer);
-//    console.log(seller);
+    //    console.log(buyer);
+    //    console.log(seller);
     bytes32 positionHash = hashOrderCommon(common);
-//    console.logBytes32(positionHash);
-//    console.logInt(userOptionPosition[buyer][positionHash]);
-//    console.logInt(userOptionPosition[seller][positionHash]);
+    //    console.logBytes32(positionHash);
+    //    console.logInt(userOptionPosition[buyer][positionHash]);
+    //    console.logInt(userOptionPosition[seller][positionHash]);
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
     require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
     require(common.expiry >= block.timestamp, "Option has already expired");
