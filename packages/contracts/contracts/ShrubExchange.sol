@@ -236,15 +236,14 @@ contract ShrubExchange {
 
 
   function adjustWithRatio(uint number, uint partsPerMillion) internal returns (uint) {
-    return number * partsPerMillion / BASE_SHIFT;
+    return (number * partsPerMillion) / BASE_SHIFT;
   }
 
 
   function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal returns (uint, uint) {
     uint fillSize = sellOrder.size < buyOrder.size ?  sellOrder.size : buyOrder.size;
     uint denominator = sellOrder.size < buyOrder.size ? buyOrder.size : sellOrder.size;
-    uint fillSizePPM = fillSize * BASE_SHIFT;
-    uint adjustedPrice = adjustWithRatio(sellOrder.price,  fillSizePPM);
+    uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
 
     return (fillSize, adjustedPrice);
   }
