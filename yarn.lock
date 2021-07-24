@@ -5908,9 +5908,11 @@ __metadata:
     "@typechain/ethers-v5": ^7.0.1
     "@typechain/hardhat": ^2.0.2
     "@typechain/web3-v1": ^3.0.0
+    "@types/chai-as-promised": ^7.1.4
     "@types/config": 0.0.38
     "@types/mocha": ^8.2.2
     chai: ^4.3.4
+    chai-as-promised: ^7.1.1
     ethereum-waffle: ^3.3.0
     ethers: ^5.3.1
     hardhat: ^2.4.1
@@ -6476,6 +6478,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 4b1f19b55e598169888a4ed76c77399a5a21427ea7ced267d28777c14475443d6cd5b0bb7e9d58797e49598b073410a8982acab633bf598f76c6d0786fc6be0d
+  languageName: node
+  linkType: hard
+
+"@types/chai-as-promised@npm:^7.1.4":
+  version: 7.1.4
+  resolution: "@types/chai-as-promised@npm:7.1.4"
+  dependencies:
+    "@types/chai": "*"
+  checksum: 8bfb9d8c79c85cf6061b64ead67bfe5534f2ef8c50ad80e804293dd06d688b3f57f99624cedbf80a6257a1abaa16949fbf7e9ab9590ed1baa1373a605af4d772
   languageName: node
   linkType: hard
 
@@ -10410,6 +10421,17 @@ __metadata:
   version: 0.12.0
   resolution: "caseless@npm:0.12.0"
   checksum: 147f48bff9bebf029d7050e2335da3f8d295f26d157edf08d8c3282c804dae04a462c4cd6efa8179755686aa3aeaca5c28f3e7f3559698bc0484c65e46c36c5b
+  languageName: node
+  linkType: hard
+
+"chai-as-promised@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "chai-as-promised@npm:7.1.1"
+  dependencies:
+    check-error: ^1.0.2
+  peerDependencies:
+    chai: ">= 2.1.2 < 5"
+  checksum: 747b85b679f8decdbb83f249883519ea5d4de055f2502fb830db28175af1e4f02a6a8c505d6edce1f2cf28c5512d5e3666db92906b80e77fca30b37c3e5cd360
   languageName: node
   linkType: hard
 

@@ -11,11 +11,12 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "target": "es6",
-    "typeRoots": ["./node_modules/@types", "./types/web3-v1"],
+    "typeRoots": ["./node_modules/@types", "./types/web3-v1", "./types/ethers-v5"],
     "baseUrl": ".",
     "outDir": "ts_build",
     "sourceMap": true
   },
-  "include": ["index.ts"],
+  "include": ["index.ts", "./test"],
+  "files": ["./hardhat.config.ts"],
   "exclude": ["node_modules"]
 }

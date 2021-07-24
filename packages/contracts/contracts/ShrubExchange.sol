@@ -194,13 +194,28 @@ contract ShrubExchange {
   }
 
   function deposit(address token, uint amount) public payable {
-    if(token != ZERO_ADDRESS) {
-      require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
-      userTokenBalances[msg.sender][token] += amount;
-    }
     if(msg.value > 0) {
+      require(token == ZERO_ADDRESS, "Value must not be specified for non-ETH deposits");
+      require(msg.value == amount, "Value must match amount");
       userTokenBalances[msg.sender][token] += msg.value;
+      emit Deposit(msg.sender, token, amount);
+      return;
     }
+    require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
+    userTokenBalances[msg.sender][token] += amount;
+    emit Deposit(msg.sender, token, amount);
+  }
+
+  function depositEth() public payable {
+    require(msg.value > 0, "Value must be positive");
+    userTokenBalances[msg.sender][ZERO_ADDRESS] += msg.value;
+    emit Deposit(msg.sender, ZERO_ADDRESS, msg.value);
+  }
+
+  function depositToken(address token, uint amount) public {
+    require(amount > 0, "amount must be positive");
+    require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
+    userTokenBalances[msg.sender][token] += amount;
     emit Deposit(msg.sender, token, amount);
   }
 
@@ -216,6 +231,7 @@ contract ShrubExchange {
   }
 
   function withdraw(address token, uint amount) public {
+    require(amount > 0, "amount must be positive");
     uint balance = getAvailableBalance(msg.sender, token);
     require(amount <= balance, "Cannot withdraw more than available balance");
     userTokenBalances[msg.sender][token] -= amount;
