@@ -320,7 +320,6 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
         mt={50}
         flex="1"
         borderRadius="2xl"
-        fontFamily="Montserrat"
         maxW="container.md"
       >
         {localError &&
@@ -359,8 +358,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
         mt={50}
         flex="1"
         borderRadius="2xl"
-        fontFamily="Montserrat"
-        bg={useColorModeValue("white", "rgb(31, 31, 65)")}
+        bg={useColorModeValue("white", "shrub.100")}
         shadow={useColorModeValue("2xl", "2xl")}
         maxW="container.md"
       >
@@ -385,8 +383,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
         p={hasOptions.current ? 0 : 8}
         flex="1"
         borderRadius="2xl"
-        fontFamily="Montserrat"
-        bg={useColorModeValue("white", "rgb(31, 31, 65)")}
+        bg={useColorModeValue("white", "shrub.100")}
         shadow={useColorModeValue("2xl", "2xl")}
         maxW="container.md"
       >
@@ -429,7 +426,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
       <Modal motionPreset="slideInBottom" onClose={handleModalClose} isOpen={isOpenModal}>
         <ModalOverlay/>
-        <ModalContent fontFamily="Montserrat" borderRadius="2xl">
+        <ModalContent borderRadius="2xl">
           {/*<ModalHeader>{!showBud ? action: depositing ? '': 'Congratulations!'}</ModalHeader>*/}
           <ModalHeader>{action}</ModalHeader>
           <ModalCloseButton/>
