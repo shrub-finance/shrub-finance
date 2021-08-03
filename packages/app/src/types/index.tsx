@@ -14,6 +14,8 @@ export type PendingTxState = {[txHash: string]: { description: string, status: P
 
 export type PendingTxAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}
 
+export type SupportedCurrencies = 'ETH'|'FK'
+
 export type SmallOrder = {
   size: BigNumber;
   isBuy: boolean;

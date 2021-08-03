@@ -64,7 +64,8 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
     } = useDisclosure();
 
     const { approving, setApproving, activeHash, setActiveHash } = hooks;
-    const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+    const { pendingTxs } = useContext(TxContext);
+    const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {active, library, account, error: web3Error} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks

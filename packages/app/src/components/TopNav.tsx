@@ -66,7 +66,8 @@ function TopNav() {
   const { colorMode, toggleColorMode } = useColorMode();
   const {active, error: web3Error} = useConnectWallet();
   const [isHidden, setIsHidden] = useState(false);
-  const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+  const { pendingTxs } = useContext(TxContext);
+  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const confirmingCountNumber = confirmingCount(pendingTxsState);
   console.log(confirmingCountNumber);
   const displayStatus = (val: boolean ) => {
