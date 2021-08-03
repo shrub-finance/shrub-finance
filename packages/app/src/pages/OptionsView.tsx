@@ -175,12 +175,11 @@ function OptionsView(props: RouteComponentProps) {
       shadow={useColorModeValue("2xl", "2xl")}
       flex="1"
       borderRadius="2xl"
-      fontFamily="Montserrat"
-      bg={useColorModeValue("white", "rgb(31, 31, 65)")}
+      bg={useColorModeValue("white", "shrub.100")}
     >
       {contractDataStatus === "fetching" &&
       <Center >
-        <Spinner color="teal" size="xl"/>
+        <Spinner color="bud.100" size="xl"/>
       </Center>
 
       }

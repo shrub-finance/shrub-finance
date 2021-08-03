@@ -4,11 +4,25 @@ import {mode} from "@chakra-ui/theme-tools"
 const config = extendTheme({
     initialColorMode: "dark" as ColorMode,
     useSystemColorMode: false,
+    fonts: {
+        heading: "Montserrat",
+        body: "Montserrat",
+    },
+    colors: {
+        shrub: {
+            100: "rgb(31, 31, 65)",
+            200: "rgb(18, 18, 38)", // base
+            300: "rgb(21, 21, 38)"
+        },
+        bud: {
+            100: "#64A66A"
+        }
+    },
     styles: {
         global: (props) => ({
             body: {
                 fontFamily: "body",
-                bg: mode("gray.50", "rgb(18, 18, 38)")(props),
+                bg: mode("gray.50", "shrub.200")(props),
             }
         }),
     },
@@ -16,8 +30,8 @@ const config = extendTheme({
         Modal: {
             baseStyle: ({colorMode}) => ({
                 dialog: {
-                    color: colorMode === "dark" ? "white" : "rgb(31, 31, 65)",
-                    bg: colorMode === "dark" ? "rgb(31, 31, 65)" : "white",
+                    color: colorMode === "dark" ? "white" : "shrub.100",
+                    bg: colorMode === "dark" ? "shrub.100" : "white",
                     boxShadow: "rgb(33 35 74 / 80%) 0px 22px 48px -9px",
                 }
             })

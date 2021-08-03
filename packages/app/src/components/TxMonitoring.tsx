@@ -164,7 +164,7 @@ export function TxStatusList() {
     console.log(list);
 
     const shadow = useColorModeValue("base", "dark-lg");
-    const bgColor =useColorModeValue("gray.100", "gray.800");
+    const bgColor =useColorModeValue("gray.100", "shrub.300");
 
 
     return (

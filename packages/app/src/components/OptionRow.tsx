@@ -37,7 +37,7 @@ function OptionRow({appCommon, last, ask, bid, option}: {appCommon: AppCommon, l
   }
 
   return (
-    <Box fontFamily="Montserrat">
+    <Box>
       <Divider mb={5} />
       <Flex>
         <Box h={height}>
@@ -65,7 +65,7 @@ function OptionRow({appCommon, last, ask, bid, option}: {appCommon: AppCommon, l
       </Flex>
       <Modal  motionPreset="slideInBottom" size={"sm"} isOpen={isOpen}  onClose={handleModalClose}>
         <ModalOverlay />
-        <ModalContent fontFamily="Montserrat" borderRadius="2xl">
+        <ModalContent borderRadius="2xl">
           <ModalCloseButton />
           <ModalHeader borderBottomWidth="1px">ETH Order</ModalHeader>
           <ModalBody>
