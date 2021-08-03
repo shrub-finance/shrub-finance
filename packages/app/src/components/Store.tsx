@@ -2,16 +2,20 @@ import {createContext, useReducer} from "react";
 import {reducer} from "./Reducer";
 import {PendingTxAction, PendingTxState} from "../types";
 
-let initialState: [PendingTxState, React.Dispatch<PendingTxAction>] = [{}, () => {}];
+let initialState: {
+    pendingTxs: [PendingTxState, React.Dispatch<PendingTxAction>]
+} = {
+    pendingTxs: [{}, () => {}]
+};
 
 const Store=({children}: any)=>{
     const [pendingTxsState, pendingTxsDispatch] = useReducer(reducer, {})
-    initialState = [pendingTxsState, pendingTxsDispatch];
+    initialState = {pendingTxs: [pendingTxsState, pendingTxsDispatch]};
 
     return (
-        <TxContext.Provider value={[pendingTxsState, pendingTxsDispatch]}>
-            {children}
-        </TxContext.Provider>
+      <TxContext.Provider value={{pendingTxs: [pendingTxsState, pendingTxsDispatch]}}>
+          {children}
+      </TxContext.Provider>
     )
 }
 

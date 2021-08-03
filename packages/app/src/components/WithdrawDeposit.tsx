@@ -10,36 +10,48 @@ import {
 } from "@chakra-ui/react";
 import { Currencies } from "../constants/currencies";
 import RadioCard from "./Radio";
+import {useWeb3React} from "@web3-react/core";
+import {getWalletBalance} from "../utils/ethMethods";
+import {ShrubBalance, SupportedCurrencies} from "../types";
 
 function WithdrawDeposit({
   amountValue,
   setAmountValue,
   modalCurrency,
   setModalCurrency,
-  walletBalance,
   shrubBalance,
   action,
   error
-}: any) {
+}: {
+  amountValue: string,
+  setAmountValue: React.Dispatch<React.SetStateAction<string>>,
+  modalCurrency: SupportedCurrencies,
+  setModalCurrency: React.Dispatch<React.SetStateAction<SupportedCurrencies>>,
+  shrubBalance: ShrubBalance,
+  action: string,
+  error: string
+}) {
+  const { library } = useWeb3React();
   const format = (val: string) => val;
   const parse = (val: string) => val.replace(/^\$/, "");
 
-  // radio butttons
+  // radio buttons
   const currencies = Object.keys(Currencies)
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "currency",
     defaultValue: modalCurrency,
-    onChange: (nextValue) => setModalCurrency(nextValue)
+    onChange: (nextValue: SupportedCurrencies) => setModalCurrency(nextValue)
   })
 
   const currenciesRadiogroup = getRootProps()
 
-  function fillSendMax() {
+  async function fillSendMax() {
     if (action === "Deposit") {
-      setAmountValue(walletBalance[modalCurrency]);
+      const walletBalanceValue = await getWalletBalance(Currencies[modalCurrency].address, library);
+      setAmountValue(walletBalanceValue);
     } else if (action === "Withdraw") {
-      setAmountValue(shrubBalance.available[modalCurrency]);
+      setAmountValue(String(shrubBalance.available[modalCurrency]));
     }
   }
 
