@@ -44,7 +44,7 @@ import {
   getLockedBalance
 } from "../utils/ethMethods";
 import WithdrawDeposit from "./WithdrawDeposit";
-import {Balance, OrderCommon, ShrubBalance, SmallOrder} from "../types";
+import {OrderCommon, ShrubBalance, SmallOrder} from "../types";
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 import {ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
@@ -55,9 +55,10 @@ import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 
-function Positions({walletBalance}: { walletBalance: Balance }) {
+function Positions() {
 
-  const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+  const { pendingTxs } = useContext(TxContext);
+  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
 
   const {active, library, account, error: web3Error} = useWeb3React();
   const tableRows: TableRowProps[] = [];
@@ -430,7 +431,6 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                 setAmountValue={setAmountValue}
                 modalCurrency={modalCurrency}
                 setModalCurrency={setModalCurrency}
-                walletBalance={walletBalance}
                 shrubBalance={shrubBalance}
                 action={action}
                 error={localError}
