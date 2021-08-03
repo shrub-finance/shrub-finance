@@ -11,7 +11,7 @@ const config = extendTheme({
     colors: {
         shrub: {
             100: "rgb(31, 31, 65)",
-            200: "rgb(18, 18, 38)",
+            200: "rgb(18, 18, 38)", // base
             300: "rgb(21, 21, 38)"
         },
         bud: {
