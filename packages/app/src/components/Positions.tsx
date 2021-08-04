@@ -123,7 +123,7 @@ function Positions() {
 
     inner()
       .catch(console.error);
-  }, [active, account, library]);
+  }, [active, account, library, pendingTxsState]);
 
   useEffect(() => {
     setlocalError('');
