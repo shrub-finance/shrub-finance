@@ -66,11 +66,11 @@ function Positions() {
   const [action, setAction] = useState('');
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
-  const [optionsRows, setOptionsRows] = useState(<></>)
-  const [localError, setlocalError] = useState('')
+  const [optionsRows, setOptionsRows] = useState(<></>);
+  const [localError, setlocalError] = useState('');
   const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
   const hasOptions = useRef(false);
-  const toast = useToast()
+  const toast = useToast();
 
   const orderMap = new Map();
 

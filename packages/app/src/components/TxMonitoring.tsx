@@ -35,8 +35,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                   <Spinner
                     thickness="4px"
                     speed="0.65s"
-                    emptyColor="gray.200"
-                    color="blue.500"
+                    emptyColor="blue.200" color="teal.500"
                     size="xl"
                   />
                   <AlertTitle mt={4} mb={1} fontSize="lg">

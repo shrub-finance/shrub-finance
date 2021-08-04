@@ -6,6 +6,7 @@ import {Web3ReactProvider} from "@web3-react/core";
 import {getLibrary} from "./components/ConnectWallet";
 import React from 'react';
 import Store from "./components/Store";
+import HomeView from './pages/HomeView';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
                 <Store>
                     <TopNav/>
                 <Router>
+                        <HomeView path="/" />
                         <PositionsView path="shrubfolio"/>
                         <OptionsView path="options"/>
                 </Router>

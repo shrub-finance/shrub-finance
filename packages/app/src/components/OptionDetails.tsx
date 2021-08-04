@@ -3,24 +3,17 @@ import {
     AlertIcon,
     Box,
     Button,
-    Center,
     Divider,
     Flex,
     FormLabel,
     HStack,
     Input,
-    Link,
-    Modal, ModalBody, ModalCloseButton,
-    ModalContent,
-    ModalHeader,
-    ModalOverlay,
     SlideFade,
-    Spacer,
     Stack,
     Tag,
-    TagLabel, Text,
+    TagLabel,
     Tooltip,
-    useColorModeValue, useDisclosure,
+    useColorModeValue,
     useRadioGroup,
     useToast
 } from '@chakra-ui/react';
@@ -50,20 +43,15 @@ import useFetch from "../hooks/useFetch";
 import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
-import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
+import {getErrorMessage} from './ConnectWallet';
 
 const { Zero } = ethers.constants;
 
 function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, sellBuy: SellBuy, hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}}) {
 
     const [localError, setlocalError] = useState('');
-    const {
-        isOpen: isOpenConnectModal,
-        onOpen: onOpenConnectModal,
-        onClose: onCloseConnectModal
-    } = useDisclosure();
 
-    const { approving, setApproving, activeHash, setActiveHash } = hooks;
+    const { approving, setApproving, setActiveHash } = hooks;
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {active, library, account, error: web3Error} = useWeb3React();
@@ -132,7 +120,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
     const groupOptionType = getOrderTypeRootProps();
 
    const handleErrorMessages = handleErrorMessagesFactory(setlocalError);
-   
+
 
     async function limitOrder() {
         try {
@@ -222,7 +210,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
                 if (!order) {
                     throw new Error('Insufficient market depth for this order');
                 }
-                const { address: counterpartyAddress, nonce: orderNonce, size, totalPrice: orderPrice, unitPrice: orderUnitPrice, formattedSize: orderFormattedSize } = order;
+                const { address: counterpartyAddress, nonce: orderNonce, size} = order;
                 if (!counterpartyAddress) {
                     console.error('no counterparty address on order');
                     index++;
@@ -344,19 +332,6 @@ console.log(web3Error);
                 </SlideFade>
             </>
             }
-            <Modal motionPreset="slideInBottom" isOpen={isOpenConnectModal}
-                   onClose={onCloseConnectModal}>
-                <ModalOverlay/>
-                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
-                    <ModalHeader>
-                        <Text fontSize={20}>Connect to a wallet</Text>
-                    </ModalHeader>
-                    <ModalCloseButton/>
-                    <ModalBody>
-                        <ConnectWalletModal/>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
 
         <Stack spacing="24px">
             <Box mt={2} mb={8}>
