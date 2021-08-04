@@ -180,7 +180,7 @@ export async function depositToken(
   const signerAddress = await signer.getAddress();
   const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
   if (allowance.lt(amount)) {
-    throw new Error("need to approve");
+    throw new Error("Looks like you need to approve first.");
   }
   return shrubContract.deposit(tokenContractAddress, amount);
 }
@@ -196,7 +196,7 @@ export async function approveToken(
   const signerAddress = await signer.getAddress();
   const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
   if (allowance.gte(bigAmount)) {
-    throw new Error("allowance is sufficient - no need to approve");
+    throw new Error("Allowance is sufficient. You don't need to approve");
   }
   return erc20Contract.approve(SHRUB_CONTRACT_ADDRESS, bigAmount);
 }

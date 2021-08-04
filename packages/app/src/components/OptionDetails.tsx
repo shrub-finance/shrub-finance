@@ -56,7 +56,7 @@ const { Zero } = ethers.constants;
 
 function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, sellBuy: SellBuy, hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}}) {
 
-    const [localError, setlocalError] = useState('');
+    const [localError, setLocalError] = useState('');
     const {
         isOpen: isOpenConnectModal,
         onOpen: onOpenConnectModal,
@@ -131,14 +131,14 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
     const groupOption = getOptionRootProps();
     const groupOptionType = getOrderTypeRootProps();
 
-   const handleErrorMessages = handleErrorMessagesFactory(setlocalError);
+   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
    
 
     async function limitOrder() {
         try {
         setApproving(true);
         if (!active || !account) {
-            setlocalError('');
+            setLocalError('');
             handleErrorMessages({ customMessage: 'Please connect your wallet'})
             console.error('Please connect your wallet');
             setApproving(false);
@@ -187,7 +187,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
             console.log('running marketOrderMany');
             setApproving(true);
             if (!active || !account) {
-                setlocalError('');
+                setLocalError('');
                 handleErrorMessages({ customMessage: 'Please connect your wallet'})
                 console.error('Please connect your wallet');
                 setApproving(false);
