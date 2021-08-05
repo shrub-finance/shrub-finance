@@ -55,6 +55,7 @@ import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 
+
 function Positions() {
 
   const { pendingTxs } = useContext(TxContext);
@@ -67,7 +68,7 @@ function Positions() {
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
-  const [localError, setlocalError] = useState('')
+  const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast()
@@ -92,14 +93,14 @@ function Positions() {
     'ETH' as keyof typeof Currencies
   );
 
-  const handleErrorMessages = handleErrorMessagesFactory(setlocalError);
+  const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
+
 
   useEffect(() => {
-    setlocalError('');
+    setLocalError('');
 
     async function inner() {
       if (!active || !account) {
-        setlocalError('');
         handleErrorMessages({ customMessage: 'Please connect your wallet'})
         console.error('Please connect wallet');
         return;
@@ -126,7 +127,6 @@ function Positions() {
   }, [active, account, library, pendingTxsState]);
 
   useEffect(() => {
-    setlocalError('');
 
     async function inner() {
       if (!active || !account) {
@@ -207,7 +207,7 @@ function Positions() {
       function handleClick() {
         onOpenModal();
         setAction(buttonText);
-        setlocalError('');
+        setLocalError('');
         setAmountValue('');
         setModalCurrency(selectedCurrency);
       })
@@ -322,7 +322,7 @@ function Positions() {
                 <AlertIcon/>
                 {!!web3Error ? getErrorMessage(web3Error).message : localError}
                 <Spacer/>
-                {!web3Error && <Button colorScheme={"yellow"} variant="outline" size="sm"
+                {!!web3Error && <Button colorScheme={"yellow"} variant="outline" size="sm"
                                        onClick={onOpenConnectModal} borderRadius={"full"}>
                   Connect Wallet
                 </Button>}
@@ -419,7 +419,6 @@ function Positions() {
       <Modal motionPreset="slideInBottom" onClose={handleModalClose} isOpen={isOpenModal}>
         <ModalOverlay/>
         <ModalContent borderRadius="2xl">
-          {/*<ModalHeader>{!showBud ? action: depositing ? '': 'Congratulations!'}</ModalHeader>*/}
           <ModalHeader>{action}</ModalHeader>
           <ModalCloseButton/>
           <ModalBody>

@@ -16,7 +16,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton, Spinner,
+  ModalCloseButton, Spinner
 } from "@chakra-ui/react";
 import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon} from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
@@ -67,7 +67,7 @@ function TopNav() {
   const {active, error: web3Error} = useConnectWallet();
   const [isHidden, setIsHidden] = useState(false);
   const { pendingTxs } = useContext(TxContext);
-  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+  const [pendingTxsState] = pendingTxs;
   const confirmingCountNumber = confirmingCount(pendingTxsState);
   console.log(confirmingCountNumber);
   const displayStatus = (val: boolean ) => {
