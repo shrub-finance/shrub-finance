@@ -419,7 +419,7 @@ function Positions() {
       <Modal motionPreset="slideInBottom" onClose={handleModalClose} isOpen={isOpenModal}>
         <ModalOverlay/>
         <ModalContent borderRadius="2xl">
-          <ModalHeader>{action}</ModalHeader>
+          <ModalHeader borderBottomWidth="1px">{action}</ModalHeader>
           <ModalCloseButton/>
           <ModalBody>
 

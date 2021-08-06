@@ -97,7 +97,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                   </Link>
 
                   <Center>
-                      <HappyBud mt={8} boxSize={200} />
+                      <HappyBud mt={8} boxSize={260} />
                   </Center>
               </AlertDescription>
             </Alert>}

@@ -9,7 +9,7 @@ import {
   Flex, Heading,
   HStack,
   Spacer,
-  Spinner, useColorModeValue,
+  Spinner, Tooltip, useColorModeValue,
   useRadioGroup
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
@@ -20,7 +20,7 @@ import RadioCard from '../components/Radio';
 import {formatDate, formatStrike, fromEthDate, toEthDate, transformOrderApiApp} from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {FaEthereum} from "react-icons/fa";
-import {Icon} from "@chakra-ui/icons";
+import {Icon, QuestionIcon} from '@chakra-ui/icons';
 
 function OptionsView(props: RouteComponentProps) {
 
@@ -203,6 +203,10 @@ function OptionsView(props: RouteComponentProps) {
                 </RadioCard>
             );
           })}
+          <RadioCard>Special Dates</RadioCard>
+          <Tooltip label="Own the future. This date picker let's you pick important upcoming events in ETH land as your expiry. " fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+            <QuestionIcon/>
+          </Tooltip>
         </HStack>
       </Box>
         <Flex mb={10}>
