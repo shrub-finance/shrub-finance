@@ -422,7 +422,6 @@ function Positions() {
           <ModalHeader borderBottomWidth="1px">{action}</ModalHeader>
           <ModalCloseButton/>
           <ModalBody>
-
             {(!approving && !activeHash) &&
             <>
               <WithdrawDeposit
@@ -451,8 +450,6 @@ function Positions() {
                 <Button
                   colorScheme="teal"
                   isDisabled={amountValue === '0' || amountValue === ''}
-                  // isLoading={depositing}
-                  // loadingText={depositing ? "Depositing" : undefined}
                   onClick={handleDepositWithdraw}
                 >
                   {action}
