@@ -16,10 +16,11 @@ import {
     ModalOverlay,
     SlideFade,
     Spacer,
-    Stack,
+    Stack, Table,
     Tag,
-    TagLabel, Text,
+    TagLabel, Tbody, Td, Text, Tfoot, Th, Thead,
     Tooltip,
+    Tr,
     useColorModeValue, useDisclosure,
     useRadioGroup,
     useToast
@@ -44,7 +45,16 @@ import {
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
 import React, {useContext, useEffect, useState} from "react";
-import {ApiOrder, AppCommon, GetOrdersParams, IOrder, OrderBook, OrderType, SellBuy, UnsignedOrder} from "../types";
+import {
+    ApiOrder,
+    AppCommon,
+    GetOrdersParams,
+    IOrder,
+    OrderBook,
+    OrderType,
+    SellBuy,
+    UnsignedOrder
+} from "../types";
 import {postOrder} from "../utils/requests";
 import useFetch from "../hooks/useFetch";
 import {TxContext} from "./Store";
@@ -54,7 +64,11 @@ import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
 
 const { Zero } = ethers.constants;
 
-function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, sellBuy: SellBuy, hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}}) {
+function OptionDetails({ appCommon, sellBuy, hooks }: {
+    appCommon: AppCommon,
+    sellBuy: SellBuy,
+    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}
+}) {
 
     const [localError, setLocalError] = useState('');
     const {
@@ -112,11 +126,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
         orderBookDepth = {buyOrderDepth, sellOrderDepth};
         console.log('sellOrders');
         console.log(sellOrders);
-        setOrderBook((book) => {
-            book.sellOrders = sellOrders;
-            book.buyOrders = buyOrders;
-            return book;
-        })
+        setOrderBook({ sellOrders, buyOrders })
     }, [status])
 
     const {
@@ -329,14 +339,45 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
 
     // TODO: get the symbols dynamically
     const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ETH for ${formattedStrike} FK up until ${formattedExpiry}`;
-console.log(web3Error);
+
+    const orderbookSellRows: JSX.Element[] = [];
+    const orderbookBuyRows: JSX.Element[] = [];
+    orderBook.sellOrders
+      .sort((a,b) => b.unitPrice - a.unitPrice)
+      .slice(-10)
+      .forEach((sellOrder, index) => {
+        if (index > 5) {
+            return;
+        }
+        orderbookSellRows.push(<Tr key={index}>
+            <Td>{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
+            <Td isNumeric={true}>{sellOrder.formattedSize}</Td>
+        </Tr>)
+    });
+    orderBook.buyOrders
+      .sort((a,b) => b.unitPrice - a.unitPrice)
+      .slice(0, 10)
+      .forEach((buyOrder, index) => {
+          if (index > 5) {
+              return;
+          }
+          orderbookBuyRows.push(<Tr key={index} color={Number(price) > buyOrder.unitPrice ? "orange": "white"}>
+              <Td>{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
+              <Td>{buyOrder.formattedSize}</Td>
+          </Tr>)
+      });
+
+    function changePrice(value: string) {
+        setPrice(value)
+    }
+
     return (
-        <>
-            {localError &&
-            <>
-                <SlideFade in={true} unmountOnExit={true}>
-                    <Flex>
-                        <Alert status="error" borderRadius={"2xl"} my={4}>
+      <>
+          {localError &&
+          <>
+              <SlideFade in={true} unmountOnExit={true}>
+                  <Flex>
+                      <Alert status="error" borderRadius={"2xl"} my={4}>
                             <AlertIcon/>
                             {!!web3Error ? getErrorMessage(web3Error).message : localError}
                         </Alert>
@@ -358,96 +399,125 @@ console.log(web3Error);
                 </ModalContent>
             </Modal>
 
-        <Stack spacing="24px">
-            <Box mt={2} mb={8}>
-                <HStack spacing={3}>
-                    <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
-                        <Tag colorScheme="purple">
-                            <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
-                            <TagLabel>{optionType}</TagLabel>
-                        </Tag>
-                    </Tooltip>
-                    <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
-                        <Tag colorScheme="blue">
-                            <Icon as={MdDateRange} />
-                            <TagLabel> {formattedExpiry}</TagLabel>
-                        </Tag>
-                    </Tooltip>
-                    <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
-                        <Tag colorScheme="yellow">
-                            <Icon as={GiMoneyStack} />
-                            <TagLabel>{`${formattedStrike} USDC`}</TagLabel>
-                        </Tag>
-                    </Tooltip>
-                </HStack>
-            </Box>
-            <Box>
-                <HStack {...groupOptionType}>
-                    <FormLabel htmlFor="orderType">Order:</FormLabel>
-                    {radioOrderTypes.map((value) => {
-                        const radio = getOrderTypeRadioProps({ value });
-                        return (
-                            <RadioCard key={value} {...radio}>
-                                {value}
-                            </RadioCard>
-                        );
-                    })}
-                </HStack>
-            </Box>
-            <Box>
-                <HStack>
-                    <Divider orientation="horizontal" mb={3} mt={3} />
-                </HStack>
-            </Box>
-            <Box>
-                <HStack {...groupOption}>
-                    <FormLabel htmlFor="option">Option:</FormLabel>
-                    {radioOptions.map((value) => {
-                        const radio = getOptionRadioProps({ value });
-                        return (
-                            <RadioCard key={value} {...radio}>
-                                {value}
-                            </RadioCard>
-                        );
-                    })}
-                </HStack>
-            </Box>
-            <Box>
-                <FormLabel htmlFor="amount">Amount:</FormLabel>
-                <Input
-                    id="amount"
-                    placeholder="0"
-                    value={amount}
-                    onChange={(event: any) => setAmount(event.target.value)}
-                />
-            </Box>
-            <Box>
-                <FormLabel htmlFor="bid">Price per contract:</FormLabel>
-                <Input
-                    id="bid"
-                    placeholder="The USDC required to purchase 1 contract (1 ETH)"
-                    value={price}
-                    onChange={(event: any) => setPrice(event.target.value)}
-                />
-            </Box>
-            <Alert status="info" borderRadius={"2xl"} bgColor={useColorModeValue("", "shrub.200")}>
-                <AlertIcon />
-                {tooltipLabel}
-            </Alert>
-            <Box>
-                <Flex justifyContent="flex-end">
-                    <Button
-                        colorScheme="teal"
-                        type="submit"
-                        onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
-                        isLoading={approving}
-                        loadingText="Placing Order"
-                    >
-                        Place Order
-                    </Button>
-                </Flex>
-            </Box>
-        </Stack>
+            <Flex>
+                <Box id={"order form"}>
+                    <Stack spacing="24px">
+                        <Box mt={2} mb={8}>
+                            <HStack spacing={3}>
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                    <Tag colorScheme="purple">
+                                        <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
+                                        <TagLabel>{optionType}</TagLabel>
+                                    </Tag>
+                                </Tooltip>
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                    <Tag colorScheme="blue">
+                                        <Icon as={MdDateRange} />
+                                        <TagLabel> {formattedExpiry}</TagLabel>
+                                    </Tag>
+                                </Tooltip>
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                    <Tag colorScheme="yellow">
+                                        <Icon as={GiMoneyStack} />
+                                        <TagLabel>{`${formattedStrike} USDC`}</TagLabel>
+                                    </Tag>
+                                </Tooltip>
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <HStack {...groupOptionType}>
+                                <FormLabel htmlFor="orderType">Order:</FormLabel>
+                                {radioOrderTypes.map((value) => {
+                                    const radio = getOrderTypeRadioProps({ value });
+                                    return (
+                                      <RadioCard key={value} {...radio}>
+                                          {value}
+                                      </RadioCard>
+                                    );
+                                })}
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <HStack>
+                                <Divider orientation="horizontal" mb={3} mt={3} />
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <HStack {...groupOption}>
+                                <FormLabel htmlFor="option">Option:</FormLabel>
+                                {radioOptions.map((value) => {
+                                    const radio = getOptionRadioProps({ value });
+                                    return (
+                                      <RadioCard key={value} {...radio}>
+                                          {value}
+                                      </RadioCard>
+                                    );
+                                })}
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <FormLabel htmlFor="amount">Amount:</FormLabel>
+                            <Input
+                              id="amount"
+                              placeholder="0"
+                              value={amount}
+                              onChange={(event: any) => setAmount(event.target.value)}
+                            />
+                        </Box>
+                        <Box>
+                            <FormLabel htmlFor="bid">Price per contract:</FormLabel>
+                            <Input
+                              id="bid"
+                              placeholder="The USDC required to purchase 1 contract (1 ETH)"
+                              value={price}
+                              onChange={(event: any) => changePrice(event.target.value)}
+                            />
+                        </Box>
+                        <Alert status="info" borderRadius={"2xl"} bgColor={useColorModeValue("", "shrub.200")}>
+                            <AlertIcon />
+                            {tooltipLabel}
+                        </Alert>
+                        <Box>
+                            <Flex justifyContent="flex-end">
+                                <Button
+                                  colorScheme="teal"
+                                  type="submit"
+                                  onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
+                                  isLoading={approving}
+                                  loadingText="Placing Order"
+                                >
+                                    Place Order
+                                </Button>
+                            </Flex>
+                        </Box>
+                    </Stack>
+
+                </Box>
+
+                <Box id={"orderbook"} ml={4}>
+                    <Table variant={'unstyled'} size={'sm'}>
+                        <Thead>
+                            <Tr>
+                                <Th>Price</Th>
+                                <Th>Amount</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {orderbookSellRows}
+                        </Tbody>
+                    </Table>
+                    <Divider/>
+                    <Table variant={'unstyled'} size={'sm'}>
+                        <Tbody>
+                            {orderbookBuyRows}
+                        </Tbody>
+                        <Tfoot>
+                            <Th>Price</Th>
+                            <Th>Amount</Th>
+                        </Tfoot>
+                    </Table>
+                </Box>
+            </Flex>
         </>
     )
 }
