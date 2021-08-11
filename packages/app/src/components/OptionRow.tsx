@@ -24,7 +24,13 @@ import {Txmonitor} from "./TxMonitoring";
 
 const height = 100;
 
-function OptionRow({appCommon, last, ask, bid, option}: {appCommon: AppCommon, last: string, ask: string, bid: string, option: SellBuy}) {
+function OptionRow({appCommon, last, ask, bid, option}: {
+  appCommon: AppCommon,
+  last: string,
+  ask: string,
+  bid: string,
+  option: SellBuy
+}) {
   const { optionType, formattedStrike } = appCommon;
   const { isOpen, onOpen, onClose} = useDisclosure();
   const [approving, setApproving] = React.useState(false);
@@ -63,7 +69,7 @@ function OptionRow({appCommon, last, ask, bid, option}: {appCommon: AppCommon, l
           </Stack>
         </Box>
       </Flex>
-      <Modal  motionPreset="slideInBottom" size={"sm"} isOpen={isOpen}  onClose={handleModalClose}>
+      <Modal  motionPreset="slideInBottom" size={"2xl"} isOpen={isOpen}  onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent borderRadius="2xl">
           <ModalCloseButton />
