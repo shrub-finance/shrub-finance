@@ -35,7 +35,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                     thickness="4px"
                     speed="0.65s"
                     emptyColor="gray.200"
-                    color="blue.500"
+                    color="bud.100"
                     size="xl"
                   />
                   <AlertTitle mt={4} mb={1} fontSize="lg">
@@ -86,7 +86,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
               height="400px"
               bg="none"
             >
-              <AlertIcon boxSize="40px" mr={0}/>
+              <AlertIcon boxSize="40px" mr={0} color={"bud.100"}/>
               <AlertTitle mt={4} mb={1} fontSize="lg">
                 Transaction Confirmed
               </AlertTitle>

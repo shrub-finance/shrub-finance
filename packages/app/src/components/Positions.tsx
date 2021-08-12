@@ -41,7 +41,8 @@ import {
   getAvailableBalance,
   exercise,
   signOrder,
-  getLockedBalance
+  getLockedBalance,
+  getAllowance
 } from "../utils/ethMethods";
 import WithdrawDeposit from "./WithdrawDeposit";
 import {OrderCommon, ShrubBalance, SmallOrder} from "../types";
@@ -61,17 +62,19 @@ function Positions() {
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
 
+
   const {active, library, account, error: web3Error} = useWeb3React();
   const tableRows: TableRowProps[] = [];
   const tableRowsOptions: any = [];
   const [action, setAction] = useState('');
+  const [approveVisibility, setApproveVisibility] = useState(false);
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
   const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
   const hasOptions = useRef(false);
-  const toast = useToast()
+  const toast = useToast();
 
   const orderMap = new Map();
 
@@ -99,12 +102,13 @@ function Positions() {
   useEffect(() => {
     setLocalError('');
 
-    async function inner() {
+    async function shrubBalanceHandler() {
       if (!active || !account) {
         handleErrorMessages({ customMessage: 'Please connect your wallet'})
         console.error('Please connect wallet');
         return;
       }
+
       const shrubBalanceObj: ShrubBalance = {locked: {}, available: {}};
       for (const currencyObj of Object.values(Currencies)) {
         const {symbol, address: tokenContractAddress} = currencyObj;
@@ -122,13 +126,13 @@ function Positions() {
       setShrubBalance(shrubBalanceObj)
     }
 
-    inner()
+    shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
 
   useEffect(() => {
 
-    async function inner() {
+    async function addOptionsRowsHandler() {
       if (!active || !account) {
         handleErrorMessages({customMessage:'Please connect your wallet'})
         console.error('Please connect wallet');
@@ -192,11 +196,11 @@ function Positions() {
       setOptionsRows(tableRowsOptions);
     }
 
-    inner()
+    addOptionsRowsHandler()
       .catch(console.error);
   }, [active, account, library])
 
-  function handleModalClose() {
+  function handleWithdrawDepositModalClose() {
     setApproving(false);
     setActiveHash(undefined);
     onCloseModal();
@@ -232,6 +236,8 @@ function Positions() {
         handleErrorMessages({customMessage: 'Please connect your wallet'});
         return;
       }
+      const allowance = await getAllowance(Currencies[modalCurrency].address, library.getSigner());
+      setApproveVisibility (allowance.gte(ethers.utils.parseUnits(amountValue)));
       setApproving(true);
       let tx;
       if (approve === 'approve') {
@@ -416,7 +422,8 @@ function Positions() {
         }
       </Container>
 
-      <Modal motionPreset="slideInBottom" onClose={handleModalClose} isOpen={isOpenModal}>
+      {/*Withdraw Deposit modal*/}
+      <Modal motionPreset="slideInBottom" onClose={handleWithdrawDepositModalClose} isOpen={isOpenModal}>
         <ModalOverlay/>
         <ModalContent borderRadius="2xl">
           <ModalHeader borderBottomWidth="1px">{action}</ModalHeader>
@@ -434,7 +441,7 @@ function Positions() {
                 error={localError}
               />
               <Flex>
-                {modalCurrency !== "ETH" && action === "Deposit" ? (
+                {modalCurrency !== "ETH" && action === "Deposit" && !approveVisibility ? (
                   <Button
                     colorScheme="teal"
                     isDisabled={amountValue === '0' || amountValue === ''}
@@ -448,6 +455,8 @@ function Positions() {
                 ) : null}
                 <Spacer/>
                 <Button
+                    mb={1.5}
+                    size={"lg"}
                   colorScheme="teal"
                   isDisabled={amountValue === '0' || amountValue === ''}
                   onClick={handleDepositWithdraw}
