@@ -13,7 +13,6 @@ import {VscError} from "react-icons/all";
 
 
 export function Txmonitor({txHash}:{txHash?: string}) {
-    console.log('rendering txmonitor');
     console.log(txHash);
 
     const { pendingTxs } = useContext(TxContext);
