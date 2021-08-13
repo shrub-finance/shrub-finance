@@ -69,7 +69,6 @@ function TopNav() {
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
   const confirmingCountNumber = confirmingCount(pendingTxsState);
-  console.log(confirmingCountNumber);
   const displayStatus = (val: boolean ) => {
     setIsHidden(val);
   }

@@ -61,13 +61,11 @@ function Positions() {
 
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-
-
   const {active, library, account, error: web3Error} = useWeb3React();
   const tableRows: TableRowProps[] = [];
   const tableRowsOptions: any = [];
   const [action, setAction] = useState('');
-  const approved = useRef(false);
+  const [approved, setApproved] = useState(false);
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
@@ -75,32 +73,16 @@ function Positions() {
   const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast();
-
   const orderMap = new Map();
-
-  const {
-    isOpen: isOpenModal,
-    onOpen: onOpenModal,
-    onClose: onCloseModal
-  } = useDisclosure();
-
-  const {
-    isOpen: isOpenConnectModal,
-    onOpen: onOpenConnectModal,
-    onClose: onCloseConnectModal
-  } = useDisclosure();
-
+  const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
+  const {isOpen: isOpenConnectModal, onOpen: onOpenConnectModal, onClose: onCloseConnectModal} = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
-
-  const [modalCurrency, setModalCurrency] = useState(
-    'ETH' as keyof typeof Currencies
-  );
-
+  const [modalCurrency, setModalCurrency] = useState('ETH' as keyof typeof Currencies);
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
-  
+
+  // shrub balance display
   useEffect(() => {
     setLocalError('');
-
     async function shrubBalanceHandler() {
       if (!active || !account) {
         handleErrorMessages({ customMessage: 'Please connect your wallet'})
@@ -124,14 +106,14 @@ function Positions() {
       }
       setShrubBalance(shrubBalanceObj)
     }
-
     shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
 
+  // options display
   useEffect(() => {
 
-    async function addOptionsRowsHandler() {
+    async function displayOptionsHandler() {
       if (!active || !account) {
         handleErrorMessages({customMessage:'Please connect your wallet'})
         console.error('Please connect wallet');
@@ -195,7 +177,7 @@ function Positions() {
       setOptionsRows(tableRowsOptions);
     }
 
-    addOptionsRowsHandler()
+    displayOptionsHandler()
       .catch(console.error);
   }, [active, account, library])
 
@@ -205,9 +187,19 @@ function Positions() {
     onCloseModal();
   }
 
-  function handleClickFactory(selectedCurrency: any, buttonText?: any) {
+  function handleWithdrawDepositModalOpen(selectedCurrency: any, buttonText?: any) {
     return (
-      function handleClick() {
+        async function handleClick() {
+            if (modalCurrency !== 'ETH') {
+            console.log(' i ma here');
+            console.log(modalCurrency);
+            const allowance = await getAllowance(Currencies[modalCurrency].address, library.getSigner());
+            console.log(allowance);
+            if(allowance.gte(ethers.utils.parseUnits('0'))) {
+              setApproved(true);
+            }
+          }
+            console.log('approved value: ' + approved);
         onOpenModal();
         setAction(buttonText);
         setLocalError('');
@@ -229,14 +221,13 @@ function Positions() {
     return shrubBalance.locked[currency] + shrubBalance.available[currency];
   }
 
+  // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
     try {
       if (!active || !account) {
         handleErrorMessages({customMessage: 'Please connect your wallet'});
         return;
       }
-      const allowance = await getAllowance(Currencies[modalCurrency].address, library.getSigner());
-      approved.current = allowance.gte(ethers.utils.parseUnits(amountValue));
       setApproving(true);
       let tx;
       if (approve === 'approve') {
@@ -275,7 +266,7 @@ function Positions() {
     }
   }
 
-  // Populate Balance Table
+  // populate balance table
   for (const currency of Object.keys(Currencies)) {
     tableRows.push(
       <Tr key={currency}>
@@ -284,13 +275,14 @@ function Positions() {
         <Td isNumeric>{shrubBalance.locked[currency]}</Td>
         <Td isNumeric>{shrubBalance.available[currency]}</Td>
         <Td>
+           {/*positions table*/}
           <HStack spacing="24px">
             <Button
               colorScheme="teal"
               variant="outline"
               size="xs"
               borderRadius="2xl"
-              onClick={handleClickFactory(currency, 'Withdraw')}
+              onClick={handleWithdrawDepositModalOpen(currency, 'Withdraw')}
               isDisabled={!active}
             >
               Withdraw
@@ -300,7 +292,7 @@ function Positions() {
               variant="outline"
               size="xs"
               borderRadius="2xl"
-              onClick={handleClickFactory(currency, 'Deposit')}
+              onClick={handleWithdrawDepositModalOpen(currency, 'Deposit')}
               isDisabled={!active}
             >
               Deposit
@@ -440,7 +432,7 @@ function Positions() {
                 error={localError}
               />
               <Flex>
-                {modalCurrency !== "ETH" && action === "Deposit" && !approved ? (
+                {modalCurrency !== "ETH" && action === "Deposit" && !approved? (
                   <Button
                     colorScheme="teal"
                     size={"lg"}
