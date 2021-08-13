@@ -12,6 +12,8 @@ export type BinaryNumber = 0 | 1;
 
 export type PendingTxState = {[txHash: string]: { description: string, status: PendingStatuses, created: Date, updated: Date}}
 
+export type LastOrders = {[positionHash: string]: number}
+
 export type PendingTxAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}
 
 export type SupportedCurrencies = 'ETH'|'FK'

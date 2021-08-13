@@ -4,8 +4,8 @@ import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
   ApiOrder,
-AppOrderSigned,
-  IOrder,
+  AppOrderSigned,
+  IOrder, LastOrders,
   OrderCommon, PostOrder,
   Signature,
   SmallOrder,
@@ -21,6 +21,8 @@ declare let window: any;
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const FK_TOKEN_ADDRESS = process.env.REACT_APP_FK_TOKEN_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
+const COMMON_TYPEHASH = ethers.utils.id('OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
+const ORDER_TYPEHASH = ethers.utils.id('Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 if (!SHRUB_CONTRACT_ADDRESS || !FK_TOKEN_ADDRESS) {
   throw new Error(
     "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS and REACT_APP_FK_TOKEN_ADDRESS to your .env file"
@@ -362,6 +364,36 @@ export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: I
   return shrubContract.matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
 }
 
+export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provider, fromBlock = 0, toBlock = 'latest'}: {
+  buyerAddress?: string,
+  sellerAddress?: string,
+  positionHash?: string,
+  provider: JsonRpcProvider,
+  fromBlock: ethers.providers.BlockTag,
+  toBlock: ethers.providers.BlockTag
+}) {
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  const filter = shrubContract.filters.OrderMatched(sellerAddress, buyerAddress)
+  return shrubContract.queryFilter(filter, fromBlock, toBlock);
+}
+
+export async function getLastOrders(provider: JsonRpcProvider) {
+  const lastOrders: LastOrders = {}
+  const matchEvents = await getMatchEvents({
+    provider,
+    fromBlock: 0,
+    toBlock: 'latest'
+  });
+  for (const event of matchEvents) {
+    const { positionHash, buyOrder } = event.args;
+    const { size, price } = buyOrder;
+    const unitPrice = Number(ethers.utils.formatUnits(price, 18)) / Number(ethers.utils.formatUnits(size, 18));
+    if (!lastOrders[positionHash] || lastOrders[positionHash] < unitPrice) {
+      lastOrders[positionHash] = unitPrice;
+    }
+  }
+  return lastOrders;
+}
 
 export async function getFilledOrders(
     address: string,
@@ -369,13 +401,9 @@ export async function getFilledOrders(
     fromBlock: ethers.providers.BlockTag = 0,
     toBlock: ethers.providers.BlockTag = "latest",
 ) {
-  const signer = provider.getSigner();
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
   const openOrders = {} as any;
-  const sellFilter = shrubContract.filters.OrderMatched(address);
-  const buyFilter = shrubContract.filters.OrderMatched(null, address);
-  const sellOrdersMatched = await shrubContract.queryFilter(sellFilter, fromBlock, toBlock);
-  const buyOrdersMatched = await shrubContract.queryFilter(buyFilter, fromBlock, toBlock);
+  const sellOrdersMatched = await getMatchEvents({provider, sellerAddress: address, fromBlock, toBlock})
+  const buyOrdersMatched = await getMatchEvents({provider, buyerAddress: address, fromBlock, toBlock})
   const matchedOrders = [...sellOrdersMatched, ...buyOrdersMatched];
   for (const event of matchedOrders) {
     if (!event) {
@@ -431,6 +459,11 @@ export async function exercise(order: IOrder, seller: string, provider: JsonRpcP
   const buySig = iOrderToSig(order);
   const executed = await shrubContract.execute(buyOrder,common,seller,buySig);
   return executed;
+}
+
+export function hashOrderCommon(common: OrderCommon) {
+  const { baseAsset, quoteAsset, expiry, strike, optionType } = common;
+  return ethers.utils.solidityKeccak256(['bytes32', 'address', 'address', 'uint', 'uint', 'uint8'],[COMMON_TYPEHASH, baseAsset, quoteAsset, expiry, strike, optionType]);
 }
 
 export function iOrderToPostOrder(order: IOrder): PostOrder {

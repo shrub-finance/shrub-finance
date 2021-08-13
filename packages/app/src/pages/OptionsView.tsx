@@ -17,16 +17,24 @@ import {
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 import useFetch from "../hooks/useFetch";
-import {ApiOrder, AppCommon, ContractData, OrderbookStats, PutCall, SellBuy} from '../types';
+import {ApiOrder, AppCommon, ContractData, LastOrders, OrderbookStats, OrderCommon, PutCall, SellBuy} from '../types';
 import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
-import {formatDate, formatStrike, fromEthDate, toEthDate, transformOrderApiApp} from "../utils/ethMethods";
+import {
+  formatDate,
+  formatStrike,
+  fromEthDate, getLastOrders,
+  hashOrderCommon, optionTypeToNumber,
+  toEthDate,
+  transformOrderApiApp
+} from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {FaEthereum} from "react-icons/fa";
 import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
+import {useWeb3React} from "@web3-react/core";
 
 function OptionsView(props: RouteComponentProps) {
-
+  const {active, library, account, error: web3Error} = useWeb3React();
   const sellBuys = ['BUY', 'SELL']
   const optionTypes = ['PUT', 'CALL']
   const [sellBuy, setSellBuy] = useState<SellBuy>('BUY');
@@ -34,6 +42,7 @@ function OptionsView(props: RouteComponentProps) {
   const [expiryDate, setExpiryDate] = useState<string>();
   const [strikePrices, setStrikePrices] = useState<ethers.BigNumber[]>([]);
   const [expiryDates, setExpiryDates] = useState<string[]>([]);
+  const [lastMatches, setLastMatches] = useState<LastOrders>({})
 
   const optionRows: JSX.Element[] = [];
 
@@ -81,6 +90,17 @@ function OptionsView(props: RouteComponentProps) {
   const {data:orderData, status: orderDataStatus} = useFetch<ApiOrder[]>(url);
   const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
   const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
+
+  // On load
+  useEffect(() => {
+    console.log('running useEffect')
+    getLastOrders(library)
+      .then(lasts => {
+        setLastMatches(lasts)
+        console.log(lasts);
+      })
+      .catch(console.error);
+  }, [library]);
 
   useEffect(() => {
 
@@ -151,9 +171,20 @@ function OptionsView(props: RouteComponentProps) {
       strike: strikePrice
     }
 
+    const orderCommon: OrderCommon = {
+      baseAsset,
+      quoteAsset,
+      expiry: Number(expiryDate),
+      strike: strikePrice,
+      optionType: optionTypeToNumber(optionType)
+    }
+    const positionHash = hashOrderCommon(orderCommon)
+    console.log(positionHash);
+    const last = lastMatches[positionHash] ? String(lastMatches[positionHash]) : ' -';
+
     const stats: OrderbookStats = {
       // TODO: provide data for last
-      last: '',
+      last,
       bestBid,
       bestAsk
     }
@@ -163,9 +194,8 @@ function OptionsView(props: RouteComponentProps) {
       appCommon.strike = filteredOrders[0].strike;
     }
 
-
-        optionRows.push(
-        <OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} />
+    optionRows.push(
+      <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} />
     );
   }
   return (
