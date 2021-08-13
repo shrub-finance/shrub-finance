@@ -45,7 +45,12 @@ import {
   getAllowance
 } from "../utils/ethMethods";
 import WithdrawDeposit from "./WithdrawDeposit";
-import {OrderCommon, ShrubBalance, SmallOrder} from "../types";
+import {
+  OrderCommon,
+  ShrubBalance,
+  SmallOrder,
+  SupportedCurrencies
+} from '../types';
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 import {ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
@@ -187,19 +192,19 @@ function Positions() {
     onCloseModal();
   }
 
-  function handleWithdrawDepositModalOpen(selectedCurrency: any, buttonText?: any) {
+  function handleWithdrawDepositModalOpen(selectedCurrency: SupportedCurrencies, buttonText?: any) {
+
     return (
         async function handleClick() {
-            if (modalCurrency !== 'ETH') {
-            console.log(' i ma here');
-            console.log(modalCurrency);
-            const allowance = await getAllowance(Currencies[modalCurrency].address, library.getSigner());
-            console.log(allowance);
-            if(allowance.gte(ethers.utils.parseUnits('0'))) {
+            if (selectedCurrency !== 'ETH') {
+            const allowance = await getAllowance(Currencies[selectedCurrency].address, library);
+            if(allowance.gt(ethers.BigNumber.from(0))) {
               setApproved(true);
+            } else {
+              setApproved(false);
             }
+
           }
-            console.log('approved value: ' + approved);
         onOpenModal();
         setAction(buttonText);
         setLocalError('');
@@ -282,6 +287,7 @@ function Positions() {
               variant="outline"
               size="xs"
               borderRadius="2xl"
+                // @ts-ignore
               onClick={handleWithdrawDepositModalOpen(currency, 'Withdraw')}
               isDisabled={!active}
             >
@@ -292,6 +298,7 @@ function Positions() {
               variant="outline"
               size="xs"
               borderRadius="2xl"
+                // @ts-ignore
               onClick={handleWithdrawDepositModalOpen(currency, 'Deposit')}
               isDisabled={!active}
             >
