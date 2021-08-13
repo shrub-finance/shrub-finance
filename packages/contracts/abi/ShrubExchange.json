@@ -28,10 +28,37 @@
     "anonymous": false,
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "baseAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "quoteAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "strike",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum ShrubExchange.OptionType",
+            "name": "optionType",
+            "type": "uint8"
+          }
+        ],
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "commonHash",
-        "type": "bytes32"
+        "internalType": "struct ShrubExchange.OrderCommon",
+        "name": "common",
+        "type": "tuple"
       },
       {
         "components": [

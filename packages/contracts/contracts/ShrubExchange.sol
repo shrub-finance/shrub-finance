@@ -53,7 +53,7 @@ contract ShrubExchange {
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
-  event OrderAnnounce(bytes32 indexed commonHash, SmallOrder order, Signature sig);
+  event OrderAnnounce(OrderCommon indexed common, SmallOrder order, Signature sig);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
@@ -369,7 +369,6 @@ contract ShrubExchange {
 
   function announce(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public {
     address user = getAddressFromSignedOrder(order, common, sig);
-    bytes32 positionHash = hashOrderCommon(common);
     require(getCurrentNonce(user, common.quoteAsset, common.baseAsset) == order.nonce - 1, "User nonce incorrect");
 
     if(common.optionType == OptionType.CALL) {
@@ -388,6 +387,6 @@ contract ShrubExchange {
       }
     }
 
-    emit OrderAnnounce(positionHash, order, sig);
+    emit OrderAnnounce(common, order, sig);
   }
 }
