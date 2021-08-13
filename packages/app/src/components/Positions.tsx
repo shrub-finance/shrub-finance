@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useReducer, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {ethers} from "ethers";
 import {
   VisuallyHidden,
@@ -29,8 +29,7 @@ import {
   Center,
   Box,
   VStack,
-  useToast,
-  Link
+  useToast
 } from '@chakra-ui/react';
 
 import {
@@ -45,7 +44,7 @@ import {
   getLockedBalance
 } from "../utils/ethMethods";
 import WithdrawDeposit from "./WithdrawDeposit";
-import {Balance, OrderCommon, PendingStatuses, ShrubBalance, SmallOrder} from "../types";
+import {OrderCommon, ShrubBalance, SmallOrder} from "../types";
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 import {ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
@@ -54,21 +53,13 @@ import {IoRocketSharp} from "react-icons/all";
 import {Link as ReachLink} from "@reach/router";
 import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
-
-function Positions({walletBalance}: { walletBalance: Balance }) {
-
-  const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 
 
-  function handleErrorMessages(err?: Error, customMessage?: string) {
-    if (err) {
-      setlocalError(err.message);
-      console.log(err);
-    } else if (customMessage) {
-      setlocalError(customMessage);
-    }
-  }
+function Positions() {
 
+  const { pendingTxs } = useContext(TxContext);
+  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
 
   const {active, library, account, error: web3Error} = useWeb3React();
   const tableRows: TableRowProps[] = [];
@@ -77,7 +68,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
-  const [localError, setlocalError] = useState('')
+  const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast()
@@ -102,13 +93,15 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
     'ETH' as keyof typeof Currencies
   );
 
+  const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
+
+
   useEffect(() => {
-    setlocalError('');
+    setLocalError('');
 
     async function inner() {
       if (!active || !account) {
-        setlocalError('');
-        handleErrorMessages(undefined, 'Please connect your wallet')
+        handleErrorMessages({ customMessage: 'Please connect your wallet'})
         console.error('Please connect wallet');
         return;
       }
@@ -131,14 +124,13 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
     inner()
       .catch(console.error);
-  }, [active, account, library]);
+  }, [active, account, library, pendingTxsState]);
 
   useEffect(() => {
-    setlocalError('');
 
     async function inner() {
       if (!active || !account) {
-        handleErrorMessages(undefined, 'Please connect your wallet')
+        handleErrorMessages({customMessage:'Please connect your wallet'})
         console.error('Please connect wallet');
         return;
       }
@@ -215,7 +207,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
       function handleClick() {
         onOpenModal();
         setAction(buttonText);
-        setlocalError('');
+        setLocalError('');
         setAmountValue('');
         setModalCurrency(selectedCurrency);
       })
@@ -237,7 +229,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
   async function handleDepositWithdraw(event: any, approve?: string) {
     try {
       if (!active || !account) {
-        handleErrorMessages(undefined, 'Please connect your wallet');
+        handleErrorMessages({customMessage: 'Please connect your wallet'});
         return;
       }
       setApproving(true);
@@ -274,7 +266,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
     } catch (e) {
       setApproving(false)
-      handleErrorMessages(e)
+      handleErrorMessages({err: e})
     }
   }
 
@@ -320,7 +312,6 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
         mt={50}
         flex="1"
         borderRadius="2xl"
-        fontFamily="Montserrat"
         maxW="container.md"
       >
         {localError &&
@@ -331,7 +322,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                 <AlertIcon/>
                 {!!web3Error ? getErrorMessage(web3Error).message : localError}
                 <Spacer/>
-                {!web3Error && <Button colorScheme={"yellow"} variant="outline" size="sm"
+                {!!web3Error && <Button colorScheme={"yellow"} variant="outline" size="sm"
                                        onClick={onOpenConnectModal} borderRadius={"full"}>
                   Connect Wallet
                 </Button>}
@@ -359,8 +350,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
         mt={50}
         flex="1"
         borderRadius="2xl"
-        fontFamily="Montserrat"
-        bg={useColorModeValue("white", "rgb(31, 31, 65)")}
+        bg={useColorModeValue("white", "shrub.100")}
         shadow={useColorModeValue("2xl", "2xl")}
         maxW="container.md"
       >
@@ -385,8 +375,7 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
         p={hasOptions.current ? 0 : 8}
         flex="1"
         borderRadius="2xl"
-        fontFamily="Montserrat"
-        bg={useColorModeValue("white", "rgb(31, 31, 65)")}
+        bg={useColorModeValue("white", "shrub.100")}
         shadow={useColorModeValue("2xl", "2xl")}
         maxW="container.md"
       >
@@ -429,12 +418,10 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
 
       <Modal motionPreset="slideInBottom" onClose={handleModalClose} isOpen={isOpenModal}>
         <ModalOverlay/>
-        <ModalContent fontFamily="Montserrat" borderRadius="2xl">
-          {/*<ModalHeader>{!showBud ? action: depositing ? '': 'Congratulations!'}</ModalHeader>*/}
-          <ModalHeader>{action}</ModalHeader>
+        <ModalContent borderRadius="2xl">
+          <ModalHeader borderBottomWidth="1px">{action}</ModalHeader>
           <ModalCloseButton/>
           <ModalBody>
-
             {(!approving && !activeHash) &&
             <>
               <WithdrawDeposit
@@ -442,7 +429,6 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                 setAmountValue={setAmountValue}
                 modalCurrency={modalCurrency}
                 setModalCurrency={setModalCurrency}
-                walletBalance={walletBalance}
                 shrubBalance={shrubBalance}
                 action={action}
                 error={localError}
@@ -464,8 +450,6 @@ function Positions({walletBalance}: { walletBalance: Balance }) {
                 <Button
                   colorScheme="teal"
                   isDisabled={amountValue === '0' || amountValue === ''}
-                  // isLoading={depositing}
-                  // loadingText={depositing ? "Depositing" : undefined}
                   onClick={handleDepositWithdraw}
                 >
                   {action}

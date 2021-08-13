@@ -1,17 +1,29 @@
 import {
+    Alert,
+    AlertIcon,
     Box,
-    Button, Center,
+    Button,
+    Center,
     Divider,
     Flex,
     FormLabel,
     HStack,
-    Input, Link,
+    Input,
+    Link,
+    Modal, ModalBody, ModalCloseButton,
+    ModalContent,
+    ModalHeader,
+    ModalOverlay,
+    SlideFade,
+    Spacer,
     Stack,
     Tag,
-    TagLabel,
+    TagLabel, Text,
     Tooltip,
-    useRadioGroup, useToast
-} from "@chakra-ui/react";
+    useColorModeValue, useDisclosure,
+    useRadioGroup,
+    useToast
+} from '@chakra-ui/react';
 import {Icon} from "@chakra-ui/icons";
 import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
 import RadioCard from "./Radio";
@@ -36,15 +48,25 @@ import {ApiOrder, AppCommon, GetOrdersParams, IOrder, OrderBook, OrderType, Sell
 import {postOrder} from "../utils/requests";
 import useFetch from "../hooks/useFetch";
 import {TxContext} from "./Store";
-import {HappyBud} from "../assets/Icons";
 import {ToastDescription} from "./TxMonitoring";
+import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
+import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
 
 const { Zero } = ethers.constants;
 
 function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, sellBuy: SellBuy, hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}}) {
+
+    const [localError, setLocalError] = useState('');
+    const {
+        isOpen: isOpenConnectModal,
+        onOpen: onOpenConnectModal,
+        onClose: onCloseConnectModal
+    } = useDisclosure();
+
     const { approving, setApproving, activeHash, setActiveHash } = hooks;
-    const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
-    const {active, library, account} = useWeb3React();
+    const { pendingTxs } = useContext(TxContext);
+    const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+    const {active, library, account, error: web3Error} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [amount, setAmount] = React.useState(1);
@@ -109,10 +131,15 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
     const groupOption = getOptionRootProps();
     const groupOptionType = getOrderTypeRootProps();
 
+   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
+   
 
     async function limitOrder() {
+        try {
         setApproving(true);
         if (!active || !account) {
+            setLocalError('');
+            handleErrorMessages({ customMessage: 'Please connect your wallet'})
             console.error('Please connect your wallet');
             setApproving(false);
             return;
@@ -142,7 +169,6 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
             offerExpire: toEthDate(oneWeekFromNow),
             nonce,
         };
-        try {
             const signedOrder = await signOrder(unsignedOrder, library);
             const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
             console.log(`verifiedAddress: ${verifiedAddress}`);
@@ -151,6 +177,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
             const res = await postOrder(pOrder);
             setApproving(false);
         } catch (e) {
+            handleErrorMessages({err:e});
             console.error(e);
         }
     }
@@ -160,6 +187,8 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
             console.log('running marketOrderMany');
             setApproving(true);
             if (!active || !account) {
+                setLocalError('');
+                handleErrorMessages({ customMessage: 'Please connect your wallet'})
                 console.error('Please connect your wallet');
                 setApproving(false);
                 return;
@@ -293,14 +322,42 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
 
         } catch (e) {
             setApproving(false);
+            handleErrorMessages({ err: e})
             console.error(e);
         }
     }
 
     // TODO: get the symbols dynamically
     const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ETH for ${formattedStrike} FK up until ${formattedExpiry}`;
-
+console.log(web3Error);
     return (
+        <>
+            {localError &&
+            <>
+                <SlideFade in={true} unmountOnExit={true}>
+                    <Flex>
+                        <Alert status="error" borderRadius={"2xl"} my={4}>
+                            <AlertIcon/>
+                            {!!web3Error ? getErrorMessage(web3Error).message : localError}
+                        </Alert>
+                    </Flex>
+                </SlideFade>
+            </>
+            }
+            <Modal motionPreset="slideInBottom" isOpen={isOpenConnectModal}
+                   onClose={onCloseConnectModal}>
+                <ModalOverlay/>
+                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
+                    <ModalHeader>
+                        <Text fontSize={20}>Connect to a wallet</Text>
+                    </ModalHeader>
+                    <ModalCloseButton/>
+                    <ModalBody>
+                        <ConnectWalletModal/>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
+
         <Stack spacing="24px">
             <Box mt={2} mb={8}>
                 <HStack spacing={3}>
@@ -373,7 +430,10 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
                     onChange={(event: any) => setPrice(event.target.value)}
                 />
             </Box>
-
+            <Alert status="info" borderRadius={"2xl"} bgColor={useColorModeValue("", "shrub.200")}>
+                <AlertIcon />
+                {tooltipLabel}
+            </Alert>
             <Box>
                 <Flex justifyContent="flex-end">
                     <Button
@@ -388,7 +448,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
                 </Flex>
             </Box>
         </Stack>
-
+        </>
     )
 }
 

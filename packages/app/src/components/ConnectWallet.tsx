@@ -185,7 +185,7 @@ export function Account() {
     }, [account]);
     return (
         <>
-            {account ? <Box pr={2} d="flex" alignItems="center" ref={ref as any}/> : <Icon as={FaPlug} boxSize={5} pr={2}/>}
+            {account ? <Box pr={2} d="flex" alignItems="center" ref={ref as any}/> : ""}
             {account === null ? "-" : account ? `${account.substring(0, 6)}...${account.substring(account.length - 4)}` : "Connect Wallet"}
         </>
     );
@@ -261,7 +261,7 @@ export function ConnectWalletModal() {
         "linear(to-l, blue.700, teal.700)"
     );
     return (
-        <Box fontFamily="Montserrat">
+        <Box>
             {!!error && (
                 <Stack spacing={3}>
                     <Alert status="error" borderRadius={9} mb={4}>

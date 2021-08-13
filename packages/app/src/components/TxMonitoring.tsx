@@ -16,7 +16,8 @@ export function Txmonitor({txHash}:{txHash?: string}) {
     console.log('rendering txmonitor');
     console.log(txHash);
 
-    const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+    const { pendingTxs } = useContext(TxContext);
+    const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     console.log(txHash);
     if (!txHash) {
         return (
@@ -96,7 +97,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                   </Link>
 
                   <Center>
-                      <HappyBud mt={8} boxSize={200} />
+                      <HappyBud mt={8} boxSize={260} />
                   </Center>
               </AlertDescription>
             </Alert>}
@@ -132,7 +133,8 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
 
 export function TxStatusList() {
     console.log('rendering TxStatusList');
-    const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+    const { pendingTxs } = useContext(TxContext);
+    const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const entries = Object.entries(pendingTxsState)
       .sort((a,b) => b[1].created.getTime() - a[1].created.getTime())
       //  Only retain the most recent 10 records
@@ -164,7 +166,7 @@ export function TxStatusList() {
     console.log(list);
 
     const shadow = useColorModeValue("base", "dark-lg");
-    const bgColor =useColorModeValue("gray.100", "gray.800");
+    const bgColor =useColorModeValue("gray.100", "shrub.300");
 
 
     return (

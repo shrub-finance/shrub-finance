@@ -9,7 +9,10 @@ import {
   Flex, Heading,
   HStack,
   Spacer,
-  Spinner, useColorModeValue,
+  Spinner,
+  Tooltip,
+  Text,
+  useColorModeValue,
   useRadioGroup
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
@@ -20,7 +23,7 @@ import RadioCard from '../components/Radio';
 import {formatDate, formatStrike, fromEthDate, toEthDate, transformOrderApiApp} from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {FaEthereum} from "react-icons/fa";
-import {Icon} from "@chakra-ui/icons";
+import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
 
 function OptionsView(props: RouteComponentProps) {
 
@@ -175,12 +178,11 @@ function OptionsView(props: RouteComponentProps) {
       shadow={useColorModeValue("2xl", "2xl")}
       flex="1"
       borderRadius="2xl"
-      fontFamily="Montserrat"
-      bg={useColorModeValue("white", "rgb(31, 31, 65)")}
+      bg={useColorModeValue("white", "shrub.100")}
     >
       {contractDataStatus === "fetching" &&
       <Center >
-        <Spinner color="teal" size="xl"/>
+        <Spinner color="bud.100" size="xl"/>
       </Center>
 
       }
@@ -199,11 +201,18 @@ function OptionsView(props: RouteComponentProps) {
           {expiryDates.map((expiry) => {
             const radio = getExpiryRadioProps({ value: expiry });
             return (
-                <RadioCard key={expiry} {...radio}>
-                  {formatDate(Number(expiry))}
-                </RadioCard>
+                (Number(expiry)*1000) > Date.now() &&
+                  <RadioCard key={expiry} {...radio}>
+                    {formatDate(Number(expiry))}
+                  </RadioCard>
             );
           })}
+          <RadioCard>
+            Special Dates
+            <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in ETH land as your expiry. " fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+            <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+          </Tooltip>
+          </RadioCard>
         </HStack>
       </Box>
         <Flex mb={10}>

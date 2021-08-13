@@ -16,7 +16,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton, Spinner,
+  ModalCloseButton, Spinner
 } from "@chakra-ui/react";
 import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon} from "@chakra-ui/icons";
 import { Link as ReachLink } from "@reach/router";
@@ -37,7 +37,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
       textDecoration: "none",
       bg: useColorModeValue("gray.200", "gray.700"),
     }}
-    // href={"/"}
+    href={"/"}
   >
     {children}
   </Link>
@@ -66,7 +66,8 @@ function TopNav() {
   const { colorMode, toggleColorMode } = useColorMode();
   const {active, error: web3Error} = useConnectWallet();
   const [isHidden, setIsHidden] = useState(false);
-  const [pendingTxsState, pendingTxsDispatch] = useContext(TxContext);
+  const { pendingTxs } = useContext(TxContext);
+  const [pendingTxsState] = pendingTxs;
   const confirmingCountNumber = confirmingCount(pendingTxsState);
   console.log(confirmingCountNumber);
   const displayStatus = (val: boolean ) => {
@@ -77,9 +78,12 @@ function handleModalClose() {
     displayStatus(false);
 }
   return (
-    <Box fontFamily="Montserrat">
+    <Box>
 
-      <Box bg={useColorModeValue("gray.200", "rgb(31, 31, 65)")} px={4}>
+      <Box
+          shadow={useColorModeValue("md", "md")}
+          bg={useColorModeValue("white", "shrub.100")}
+          px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label={"Open Menu"} display={{ md: "none" }}
