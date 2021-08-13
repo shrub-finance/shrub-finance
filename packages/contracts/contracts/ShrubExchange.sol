@@ -389,4 +389,13 @@ contract ShrubExchange {
 
     emit OrderAnnounce(common, order, sig);
   }
+
+
+  function announceMany(SmallOrder[] memory orders, OrderCommon[] memory commons, Signature[] memory sigs) public {
+    require(orders.length == commons.length, "Array length mismatch");
+    require(orders.length == sigs.length, "Array length mismatch");
+    for(uint i = 0; i < orders.length; i++) {
+      announce(orders[i], commons[i], sigs[i]);
+    }
+  }
 }
