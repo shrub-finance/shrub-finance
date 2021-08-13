@@ -67,7 +67,7 @@ function Positions() {
   const tableRows: TableRowProps[] = [];
   const tableRowsOptions: any = [];
   const [action, setAction] = useState('');
-  const [approveVisibility, setApproveVisibility] = useState(false);
+  const approved = useRef(false);
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
@@ -97,8 +97,7 @@ function Positions() {
   );
 
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
-
-
+  
   useEffect(() => {
     setLocalError('');
 
@@ -237,7 +236,7 @@ function Positions() {
         return;
       }
       const allowance = await getAllowance(Currencies[modalCurrency].address, library.getSigner());
-      setApproveVisibility (allowance.gte(ethers.utils.parseUnits(amountValue)));
+      approved.current = allowance.gte(ethers.utils.parseUnits(amountValue));
       setApproving(true);
       let tx;
       if (approve === 'approve') {
@@ -441,9 +440,10 @@ function Positions() {
                 error={localError}
               />
               <Flex>
-                {modalCurrency !== "ETH" && action === "Deposit" && !approveVisibility ? (
+                {modalCurrency !== "ETH" && action === "Deposit" && !approved ? (
                   <Button
                     colorScheme="teal"
+                    size={"lg"}
                     isDisabled={amountValue === '0' || amountValue === ''}
                     onClick={() => {
                       if (active) {
