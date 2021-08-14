@@ -171,16 +171,24 @@ export async function depositEth(amount: ethers.BigNumber, provider: JsonRpcProv
   return shrubContract.deposit(ZERO_ADDRESS, amount, { value: amount });
 }
 
+export async function getAllowance(
+    tokenContractAddress: string,
+    provider: JsonRpcProvider,
+) {
+  const signer = provider.getSigner();
+  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
+  const signerAddress = await signer.getAddress();
+  return await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
+}
+
 export async function depositToken(
   tokenContractAddress: string,
   amount: ethers.BigNumber,
   provider: JsonRpcProvider,
 ) {
   const signer = provider.getSigner();
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer)
-  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer)
-  const signerAddress = await signer.getAddress();
-  const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const allowance = await getAllowance(tokenContractAddress, provider);
   if (allowance.lt(amount)) {
     throw new Error("Looks like you need to approve first.");
   }
@@ -195,8 +203,7 @@ export async function approveToken(
   const signer = provider.getSigner();
   const bigAmount = amount;
   const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
-  const signerAddress = await signer.getAddress();
-  const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
+  const allowance = await getAllowance(tokenContractAddress, provider);
   if (allowance.gte(bigAmount)) {
     throw new Error("Allowance is sufficient. You don't need to approve");
   }

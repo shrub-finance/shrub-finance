@@ -23,5 +23,5 @@ export const NETWORK_COLORS: { [chainId in SupportedChainId | number]: string } 
     [SupportedChainId.ROPSTEN]: 'pink',
     [SupportedChainId.GOERLI]: 'blue',
     [SupportedChainId.KOVAN]: 'purple',
-    [SupportedChainId.LOCAL]: 'white',
+    [SupportedChainId.LOCAL]: 'red',
 }

@@ -45,7 +45,7 @@ function WithdrawDeposit({
   })
 
   const currenciesRadiogroup = getRootProps()
-
+// TODO: give feedback if entered amount more than the max while being typed
   async function fillSendMax() {
     if (action === "Deposit") {
       const walletBalanceValue = await getWalletBalance(Currencies[modalCurrency].address, library);

@@ -41,10 +41,16 @@ import {
   getAvailableBalance,
   exercise,
   signOrder,
-  getLockedBalance
+  getLockedBalance,
+  getAllowance
 } from "../utils/ethMethods";
 import WithdrawDeposit from "./WithdrawDeposit";
-import {OrderCommon, ShrubBalance, SmallOrder} from "../types";
+import {
+  OrderCommon,
+  ShrubBalance,
+  SmallOrder,
+  SupportedCurrencies
+} from '../types';
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 import {ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
@@ -60,51 +66,35 @@ function Positions() {
 
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-
   const {active, library, account, error: web3Error} = useWeb3React();
   const tableRows: TableRowProps[] = [];
   const tableRowsOptions: any = [];
   const [action, setAction] = useState('');
+  const [approved, setApproved] = useState(false);
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
   const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
   const hasOptions = useRef(false);
-  const toast = useToast()
-
+  const toast = useToast();
   const orderMap = new Map();
-
-  const {
-    isOpen: isOpenModal,
-    onOpen: onOpenModal,
-    onClose: onCloseModal
-  } = useDisclosure();
-
-  const {
-    isOpen: isOpenConnectModal,
-    onOpen: onOpenConnectModal,
-    onClose: onCloseConnectModal
-  } = useDisclosure();
-
+  const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
+  const {isOpen: isOpenConnectModal, onOpen: onOpenConnectModal, onClose: onCloseConnectModal} = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
-
-  const [modalCurrency, setModalCurrency] = useState(
-    'ETH' as keyof typeof Currencies
-  );
-
+  const [modalCurrency, setModalCurrency] = useState('ETH' as keyof typeof Currencies);
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
-
+  // shrub balance display
   useEffect(() => {
     setLocalError('');
-
-    async function inner() {
+    async function shrubBalanceHandler() {
       if (!active || !account) {
         handleErrorMessages({ customMessage: 'Please connect your wallet'})
         console.error('Please connect wallet');
         return;
       }
+
       const shrubBalanceObj: ShrubBalance = {locked: {}, available: {}};
       for (const currencyObj of Object.values(Currencies)) {
         const {symbol, address: tokenContractAddress} = currencyObj;
@@ -121,14 +111,14 @@ function Positions() {
       }
       setShrubBalance(shrubBalanceObj)
     }
-
-    inner()
+    shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
 
+  // options display
   useEffect(() => {
 
-    async function inner() {
+    async function displayOptionsHandler() {
       if (!active || !account) {
         handleErrorMessages({customMessage:'Please connect your wallet'})
         console.error('Please connect wallet');
@@ -192,19 +182,29 @@ function Positions() {
       setOptionsRows(tableRowsOptions);
     }
 
-    inner()
+    displayOptionsHandler()
       .catch(console.error);
   }, [active, account, library])
 
-  function handleModalClose() {
+  function handleWithdrawDepositModalClose() {
     setApproving(false);
     setActiveHash(undefined);
     onCloseModal();
   }
 
-  function handleClickFactory(selectedCurrency: any, buttonText?: any) {
+  function handleWithdrawDepositModalOpen(selectedCurrency: SupportedCurrencies, buttonText?: any) {
+
     return (
-      function handleClick() {
+        async function handleClick() {
+            if (selectedCurrency !== 'ETH') {
+            const allowance = await getAllowance(Currencies[selectedCurrency].address, library);
+            if(allowance.gt(ethers.BigNumber.from(0))) {
+              setApproved(true);
+            } else {
+              setApproved(false);
+            }
+
+          }
         onOpenModal();
         setAction(buttonText);
         setLocalError('');
@@ -226,6 +226,7 @@ function Positions() {
     return shrubBalance.locked[currency] + shrubBalance.available[currency];
   }
 
+  // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
     try {
       if (!active || !account) {
@@ -270,7 +271,7 @@ function Positions() {
     }
   }
 
-  // Populate Balance Table
+  // populate balance table
   for (const currency of Object.keys(Currencies)) {
     tableRows.push(
       <Tr key={currency}>
@@ -279,13 +280,15 @@ function Positions() {
         <Td isNumeric>{shrubBalance.locked[currency]}</Td>
         <Td isNumeric>{shrubBalance.available[currency]}</Td>
         <Td>
+           {/*positions table*/}
           <HStack spacing="24px">
             <Button
               colorScheme="teal"
               variant="outline"
               size="xs"
               borderRadius="2xl"
-              onClick={handleClickFactory(currency, 'Withdraw')}
+                // @ts-ignore
+              onClick={handleWithdrawDepositModalOpen(currency, 'Withdraw')}
               isDisabled={!active}
             >
               Withdraw
@@ -295,7 +298,8 @@ function Positions() {
               variant="outline"
               size="xs"
               borderRadius="2xl"
-              onClick={handleClickFactory(currency, 'Deposit')}
+                // @ts-ignore
+              onClick={handleWithdrawDepositModalOpen(currency, 'Deposit')}
               isDisabled={!active}
             >
               Deposit
@@ -416,7 +420,8 @@ function Positions() {
         }
       </Container>
 
-      <Modal motionPreset="slideInBottom" onClose={handleModalClose} isOpen={isOpenModal}>
+      {/*Withdraw Deposit modal*/}
+      <Modal motionPreset="slideInBottom" onClose={handleWithdrawDepositModalClose} isOpen={isOpenModal}>
         <ModalOverlay/>
         <ModalContent borderRadius="2xl">
           <ModalHeader borderBottomWidth="1px">{action}</ModalHeader>
@@ -434,9 +439,10 @@ function Positions() {
                 error={localError}
               />
               <Flex>
-                {modalCurrency !== "ETH" && action === "Deposit" ? (
+                {modalCurrency !== "ETH" && action === "Deposit" && !approved? (
                   <Button
                     colorScheme="teal"
+                    size={"lg"}
                     isDisabled={amountValue === '0' || amountValue === ''}
                     onClick={() => {
                       if (active) {
@@ -448,6 +454,8 @@ function Positions() {
                 ) : null}
                 <Spacer/>
                 <Button
+                    mb={1.5}
+                    size={"lg"}
                   colorScheme="teal"
                   isDisabled={amountValue === '0' || amountValue === ''}
                   onClick={handleDepositWithdraw}
