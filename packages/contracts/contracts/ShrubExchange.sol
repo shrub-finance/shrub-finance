@@ -53,6 +53,7 @@ contract ShrubExchange {
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
+  event OrderAnnounce(OrderCommon indexed common, bytes32 indexed, positionHash, SmallOrder order, Signature sig);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
@@ -140,12 +141,12 @@ contract ShrubExchange {
     return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
   }
 
-  function validateSignature(address user, bytes32 hash, uint8 v, bytes32 r, bytes32 s) public view returns(bool) {
+  function validateSignature(address user, bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns(bool) {
     bytes32 payloadHash = getSignedHash(hash);
     return ecrecover(payloadHash, v, r, s) == user;
   }
 
-  function checkOrderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common) internal returns (bool) {
+  function checkOrderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal view returns (bool) {
     bool matches = true;
     matches = matches && sellOrder.isBuy == false;
     matches = matches && buyOrder.isBuy == true;
@@ -167,7 +168,7 @@ contract ShrubExchange {
     _;
   }
 
-  function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public view returns(address) {
+  function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public pure returns(address) {
     //console.log('sig: v, r, s');
     //console.log(sig.v);
     //console.logBytes32(sig.r);
@@ -209,6 +210,11 @@ contract ShrubExchange {
     matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
   }
 
+  function depositAndAnnounce(address token, uint amount, SmallOrder memory order, OrderCommon memory common, Signature memory sig) public payable {
+    deposit(token, amount);
+    announce(order, common, sig);
+  }
+
 
   function depositAndMatchMany(address token, uint amount, SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public payable {
     deposit(token, amount);
@@ -235,12 +241,12 @@ contract ShrubExchange {
   }
 
 
-  function adjustWithRatio(uint number, uint partsPerMillion) internal returns (uint) {
+  function adjustWithRatio(uint number, uint partsPerMillion) internal pure returns (uint) {
     return (number * partsPerMillion) / BASE_SHIFT;
   }
 
 
-  function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal returns (uint, uint) {
+  function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal pure returns (uint, uint) {
     uint fillSize = sellOrder.size < buyOrder.size ?  sellOrder.size : buyOrder.size;
     uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
 
@@ -249,7 +255,7 @@ contract ShrubExchange {
 
   function doPartialMatch(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig)
   internal returns(address, address, bytes32) {
-    require(checkOrderMatches(sellOrder, buyOrder, common), "Buy and sell order do not match");
+    require(checkOrderMatches(sellOrder, buyOrder), "Buy and sell order do not match");
     address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
     require(seller != buyer, "Seller and Buyer must be different");
@@ -358,6 +364,39 @@ contract ShrubExchange {
       // Give the seller the buyer's funds, in terms of quoteAsset
       userTokenBalances[seller][common.quoteAsset] += buyOrder.size;
       userTokenBalances[buyer][common.quoteAsset] -= buyOrder.size;
+    }
+  }
+
+  function announce(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public {
+    bytes32 positionHash = hashOrderCommon(common);
+    address user = getAddressFromSignedOrder(order, common, sig);
+    require(getCurrentNonce(user, common.quoteAsset, common.baseAsset) == order.nonce - 1, "User nonce incorrect");
+
+    if(common.optionType == OptionType.CALL) {
+      if(order.isBuy) {
+        require(getAvailableBalance(user, common.baseAsset) >= order.price, "Call Buyer must have enough free collateral");
+      } else {
+        require(getAvailableBalance(user, common.quoteAsset) >= order.size, "Call Seller must have enough free collateral");
+      }
+    }
+
+    if(common.optionType == OptionType.PUT) {
+      if(order.isBuy) {
+        require(getAvailableBalance(user, common.quoteAsset) >= order.price, "Put Buyer must have enough free collateral");
+      } else {
+        require(getAvailableBalance(user, common.baseAsset) >= adjustWithRatio(order.size, common.strike), "Put Seller must have enough free collateral");
+      }
+    }
+
+    emit OrderAnnounce(common, positionHash, order, sig);
+  }
+
+
+  function announceMany(SmallOrder[] memory orders, OrderCommon[] memory commons, Signature[] memory sigs) public {
+    require(orders.length == commons.length, "Array length mismatch");
+    require(orders.length == sigs.length, "Array length mismatch");
+    for(uint i = 0; i < orders.length; i++) {
+      announce(orders[i], commons[i], sigs[i]);
     }
   }
 }
