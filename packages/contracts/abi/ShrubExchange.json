@@ -61,6 +61,12 @@
         "type": "tuple"
       },
       {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "positionHash",
+        "type": "bytes32"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",
