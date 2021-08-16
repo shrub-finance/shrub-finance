@@ -16,6 +16,6 @@
     "outDir": "ts_build",
     "sourceMap": true
   },
-  "include": ["index.ts"],
+  "include": ["index.ts", "hardhat.config.ts"],
   "exclude": ["node_modules"]
 }
