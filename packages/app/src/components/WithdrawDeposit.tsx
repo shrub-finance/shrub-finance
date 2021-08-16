@@ -20,7 +20,7 @@ function WithdrawDeposit({
   modalCurrency,
   setModalCurrency,
   shrubBalance,
-  action,
+  withdrawDepositAction,
   error
 }: {
   amountValue: string,
@@ -28,7 +28,7 @@ function WithdrawDeposit({
   modalCurrency: SupportedCurrencies,
   setModalCurrency: React.Dispatch<React.SetStateAction<SupportedCurrencies>>,
   shrubBalance: ShrubBalance,
-  action: string,
+  withdrawDepositAction: string,
   error: string
 }) {
   const { library } = useWeb3React();
@@ -41,16 +41,16 @@ function WithdrawDeposit({
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "currency",
     defaultValue: modalCurrency,
-    onChange: (nextValue: SupportedCurrencies) => setModalCurrency(nextValue)
+    onChange: (value: SupportedCurrencies) => setModalCurrency(value)
   })
 
   const currenciesRadiogroup = getRootProps()
 // TODO: give feedback if entered amount more than the max while being typed
   async function fillSendMax() {
-    if (action === "Deposit") {
+    if (withdrawDepositAction === "Deposit") {
       const walletBalanceValue = await getWalletBalance(Currencies[modalCurrency].address, library);
       setAmountValue(walletBalanceValue);
-    } else if (action === "Withdraw") {
+    } else if (withdrawDepositAction === "Withdraw") {
       setAmountValue(String(shrubBalance.available[modalCurrency]));
     }
   }

@@ -67,10 +67,11 @@ function Positions() {
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {active, library, account, error: web3Error} = useWeb3React();
+  const alertColor = useColorModeValue("gray.100", "shrub.300");
   const tableRows: TableRowProps[] = [];
   const tableRowsOptions: any = [];
-  const [action, setAction] = useState('');
-  const [approved, setApproved] = useState(false);
+  const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
+  const [isApproved, setIsApproved] = useState(false);
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
@@ -199,14 +200,14 @@ function Positions() {
             if (selectedCurrency !== 'ETH') {
             const allowance = await getAllowance(Currencies[selectedCurrency].address, library);
             if(allowance.gt(ethers.BigNumber.from(0))) {
-              setApproved(true);
+              setIsApproved(true);
             } else {
-              setApproved(false);
+              setIsApproved(false);
             }
 
           }
         onOpenModal();
-        setAction(buttonText);
+        setWithdrawDepositAction(buttonText);
         setLocalError('');
         setAmountValue('');
         setModalCurrency(selectedCurrency);
@@ -237,7 +238,7 @@ function Positions() {
       let tx;
       if (approve === 'approve') {
         tx = await approveToken( Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library);
-      } else if (action === "Deposit") {
+      } else if (withdrawDepositAction === "Deposit") {
         if (modalCurrency === "ETH") {
           tx = await depositEth(ethers.utils.parseUnits(amountValue), library)
         } else {
@@ -250,7 +251,7 @@ function Positions() {
       }
       setApproving(false)
       console.log(tx);
-      const description = approve === 'approve' ? 'Approving FK' : `${action} ${amountValue} ${modalCurrency}`;
+      const description = approve === 'approve' ? 'Approving FK' : `${withdrawDepositAction} ${amountValue} ${modalCurrency}`;
       pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
       setActiveHash(tx.hash);
       try {
@@ -424,7 +425,7 @@ function Positions() {
       <Modal motionPreset="slideInBottom" onClose={handleWithdrawDepositModalClose} isOpen={isOpenModal}>
         <ModalOverlay/>
         <ModalContent borderRadius="2xl">
-          <ModalHeader borderBottomWidth="1px">{action}</ModalHeader>
+          <ModalHeader borderBottomWidth="1px">{withdrawDepositAction}</ModalHeader>
           <ModalCloseButton/>
           <ModalBody>
             {(!approving && !activeHash) &&
@@ -435,34 +436,44 @@ function Positions() {
                 modalCurrency={modalCurrency}
                 setModalCurrency={setModalCurrency}
                 shrubBalance={shrubBalance}
-                action={action}
+                withdrawDepositAction={withdrawDepositAction}
                 error={localError}
               />
-              <Flex>
-                {modalCurrency !== "ETH" && action === "Deposit" && !approved? (
+              {modalCurrency !== "ETH" && withdrawDepositAction === "Deposit" && !isApproved &&
+                  <>
+               <Alert
+                   bgColor={alertColor}
+                   status="info"
+                   borderRadius={"md"}
+                   mb={3}
+               >
+                <AlertIcon />
+                You will only have to approve once
+              </Alert>
                   <Button
                     colorScheme="teal"
                     size={"lg"}
                     isDisabled={amountValue === '0' || amountValue === ''}
+                    isFullWidth={true}
                     onClick={() => {
                       if (active) {
                         handleDepositWithdraw(undefined, 'approve')
                       }
                     }}>
                     Approve
-                  </Button>
-                ) : null}
-                <Spacer/>
-                <Button
+                  </ Button>
+                  </>
+                }
+              {isApproved && <Button
                     mb={1.5}
                     size={"lg"}
-                  colorScheme="teal"
-                  isDisabled={amountValue === '0' || amountValue === ''}
-                  onClick={handleDepositWithdraw}
+                    colorScheme="teal"
+                    isFullWidth={true}
+                    isDisabled={amountValue === '0' || amountValue === ''}
+                    onClick={handleDepositWithdraw}
                 >
-                  {action}
-                </Button>
-              </Flex>
+                  {withdrawDepositAction}
+                </Button>}
             </>
             }
 
