@@ -326,10 +326,6 @@ function Positions() {
                 <AlertIcon/>
                 {!!web3Error ? getErrorMessage(web3Error).message : localError}
                 <Spacer/>
-                {!!web3Error && <Button colorScheme={"yellow"} variant="outline" size="sm"
-                                       onClick={onOpenConnectModal} borderRadius={"full"}>
-                  Connect Wallet
-                </Button>}
               </Alert>
             </Flex>
           </SlideFade>
