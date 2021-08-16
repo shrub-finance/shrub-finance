@@ -29,9 +29,15 @@ import {
   Center,
   Box,
   VStack,
-  useToast
+  useToast,
+  FormControl,
+  FormLabel,
+  NumberInput,
+  NumberInputField,
+  InputRightElement,
+  Stack,
+  useRadioGroup
 } from '@chakra-ui/react';
-
 import {
   depositEth,
   depositToken,
@@ -42,15 +48,10 @@ import {
   exercise,
   signOrder,
   getLockedBalance,
-  getAllowance
-} from "../utils/ethMethods";
-import WithdrawDeposit from "./WithdrawDeposit";
-import {
-  OrderCommon,
-  ShrubBalance,
-  SmallOrder,
-  SupportedCurrencies
-} from '../types';
+  getAllowance,
+  getWalletBalance
+} from '../utils/ethMethods';
+import {OrderCommon, ShrubBalance, SmallOrder, SupportedCurrencies} from '../types';
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 import {ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
@@ -60,6 +61,7 @@ import {Link as ReachLink} from "@reach/router";
 import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
+import RadioCard from './Radio';
 
 
 function Positions() {
@@ -85,6 +87,16 @@ function Positions() {
   const [amountValue, setAmountValue] = useState("0");
   const [modalCurrency, setModalCurrency] = useState('ETH' as keyof typeof Currencies);
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
+  // radio buttons
+  const currencies = Object.keys(Currencies)
+  const format = (val: string) => val;
+  const parse = (val: string) => val.replace(/^\$/, "");
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name: "currency",
+    defaultValue: modalCurrency,
+    onChange: (value: SupportedCurrencies) => setModalCurrency(value)
+  })
+  const currenciesRadiogroup = getRootProps();
 
   // shrub balance display
   useEffect(() => {
@@ -272,6 +284,15 @@ function Positions() {
     }
   }
 
+  async function fillSendMax() {
+    if (withdrawDepositAction === "Deposit") {
+      const walletBalanceValue = await getWalletBalance(Currencies[modalCurrency].address, library);
+      setAmountValue(walletBalanceValue);
+    } else if (withdrawDepositAction === "Withdraw") {
+      setAmountValue(String(shrubBalance.available[modalCurrency]));
+    }
+  }
+
   // populate balance table
   for (const currency of Object.keys(Currencies)) {
     tableRows.push(
@@ -426,15 +447,41 @@ function Positions() {
           <ModalBody>
             {(!approving && !activeHash) &&
             <>
-              <WithdrawDeposit
-                amountValue={amountValue}
-                setAmountValue={setAmountValue}
-                modalCurrency={modalCurrency}
-                setModalCurrency={setModalCurrency}
-                shrubBalance={shrubBalance}
-                withdrawDepositAction={withdrawDepositAction}
-                error={localError}
-              />
+              <Stack direction={["column"]} spacing="40px" mb="40px">
+                {localError && (
+                    <SlideFade in={true} unmountOnExit={true}>
+                      <Alert status="error" borderRadius={9} >
+                        <AlertIcon />
+                        {localError}
+                      </Alert>
+                    </SlideFade>
+                )
+                }
+                <HStack {...currenciesRadiogroup}>
+                  {currencies.map((value) => {
+                    const radio = getRadioProps({ value })
+                    return (
+                        <RadioCard key={value} {...radio}>
+                          {value}
+                        </RadioCard>
+                    )
+                  })}
+                </HStack>
+                <FormControl id="amount">
+                  <FormLabel>Amount</FormLabel>
+                  <NumberInput
+                      onChange={(valueString) => setAmountValue(parse(valueString))}
+                      value={format(amountValue)} size="lg"
+                  >
+                    <NumberInputField/>
+                    <InputRightElement width="auto">
+                      <Button size="xs" onClick={fillSendMax} p={3.5} mr={2} >
+                        Send Max
+                      </Button>
+                    </InputRightElement>
+                  </NumberInput>
+                </FormControl>
+              </Stack>
               {modalCurrency !== "ETH" && withdrawDepositAction === "Deposit" && !isApproved &&
                   <>
                <Alert
@@ -460,7 +507,7 @@ function Positions() {
                   </ Button>
                   </>
                 }
-              {isApproved && <Button
+              <Button
                     mb={1.5}
                     size={"lg"}
                     colorScheme="teal"
@@ -469,7 +516,7 @@ function Positions() {
                     onClick={handleDepositWithdraw}
                 >
                   {withdrawDepositAction}
-                </Button>}
+                </Button>
             </>
             }
 
