@@ -382,7 +382,7 @@ contract ShrubExchange {
 
     if(common.optionType == OptionType.PUT) {
       if(order.isBuy) {
-        require(getAvailableBalance(user, common.quoteAsset) >= order.price, "Put Buyer must have enough free collateral");
+        require(getAvailableBalance(user, common.baseAsset) >= order.price, "Put Buyer must have enough free collateral");
       } else {
         require(getAvailableBalance(user, common.baseAsset) >= adjustWithRatio(order.size, common.strike), "Put Seller must have enough free collateral");
       }
