@@ -211,7 +211,7 @@ export async function approveToken(
   const allowance = await getAllowance(tokenContractAddress, provider);
   const {bigBalance: ethBalance} = await getBigWalletBalance(ethers.constants.AddressZero, provider);
   if(ethBalance.eq(ethers.constants.Zero)) {
-    throw new Error("Looks like you don't have any ETH. You need that to pay for gas.");
+    throw new Error("Looks like you don't have any ETH in this account. You need that to pay for gas.");
   }
 
   if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
@@ -230,7 +230,7 @@ export async function withdraw(
   const signerAddress = await signer.getAddress();
   const availableBalance = await shrubContract.getAvailableBalance(signerAddress, tokenContractAddress);
   if (amount.gt(availableBalance)) {
-    throw new Error(`Not enough balance. You have ${ethers.utils.formatUnits(availableBalance, 18)}.` );
+    throw new Error(`Not enough balance. You have ${ethers.utils.formatUnits(availableBalance, 18)}` );
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }
