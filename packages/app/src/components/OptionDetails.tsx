@@ -73,12 +73,12 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
     const [localError, setLocalError] = useState('');
     const {
         isOpen: isOpenConnectModal,
-        onOpen: onOpenConnectModal,
         onClose: onCloseConnectModal
     } = useDisclosure();
 
-    const { approving, setApproving, activeHash, setActiveHash } = hooks;
+    const { approving, setApproving, setActiveHash } = hooks;
     const { pendingTxs } = useContext(TxContext);
+    const alertColor = useColorModeValue("gray.100", "shrub.300")
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {active, library, account, error: web3Error} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
@@ -473,7 +473,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                               onChange={(event: any) => changePrice(event.target.value)}
                             />
                         </Box>
-                        <Alert status="info" borderRadius={"2xl"} bgColor={useColorModeValue("", "shrub.200")}>
+                        <Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>
                             <AlertIcon />
                             {tooltipLabel}
                         </Alert>

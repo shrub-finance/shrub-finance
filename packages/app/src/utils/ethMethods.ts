@@ -204,8 +204,12 @@ export async function approveToken(
   const bigAmount = amount;
   const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
   const allowance = await getAllowance(tokenContractAddress, provider);
-  if (allowance.gte(bigAmount)) {
-    throw new Error("Allowance is sufficient. You don't need to approve");
+  if(allowance.eq(ethers.constants.Zero)) {
+    throw new Error("Looks like you don't have any ETH :/ You need that to pay for gas.");
+  }
+
+  if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
+    throw new Error("Allowance is sufficient. You don't need to approve.");
   }
   return erc20Contract.approve(SHRUB_CONTRACT_ADDRESS, ethers.constants.WeiPerEther.mul(1000000000));
 }
