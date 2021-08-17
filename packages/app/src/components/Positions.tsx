@@ -248,7 +248,7 @@ function Positions() {
       setApproving(true);
       let tx;
       if (approve === 'approve') {
-        tx = await approveToken( Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library);
+        tx = await approveToken( Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue || '0'), library);
       } else if (withdrawDepositAction === "Deposit") {
         if (modalCurrency === "ETH") {
           tx = await depositEth(ethers.utils.parseUnits(amountValue), library)
@@ -462,6 +462,7 @@ function Positions() {
                     You will only have to approve once
                   </Alert>
                   <Button
+                      mb={1.5}
                       colorScheme="teal"
                       size={"lg"}
                       isFullWidth={true}
