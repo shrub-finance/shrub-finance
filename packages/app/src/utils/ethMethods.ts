@@ -30,7 +30,7 @@ if (!SHRUB_CONTRACT_ADDRESS || !FK_TOKEN_ADDRESS) {
 }
 
 export function useGetProvider() {
-  const { library: provider, active } = useWeb3React();
+  const { library: provider, active, account } = useWeb3React();
   if (!active) {
     return false;
   }
@@ -148,7 +148,7 @@ export async function getSymbolFor(token: string, provider: JsonRpcProvider) {
   return erc20Contract.symbol();
 }
 
-export async function getWalletBalance(address: string, provider: JsonRpcProvider) {
+export async function getBigWalletBalance(address: string, provider: JsonRpcProvider) {
   const signer = provider.getSigner();
   let bigBalance;
   let decimals = 18;
@@ -162,6 +162,11 @@ export async function getWalletBalance(address: string, provider: JsonRpcProvide
     bigBalance = await erc20Contract.balanceOf(signerAddress);
     decimals = await erc20Contract.decimals();
   }
+  return { bigBalance, decimals };
+}
+
+export async function getWalletBalance(address: string, provider: JsonRpcProvider) {
+  const { bigBalance, decimals } = await getBigWalletBalance(address, provider);
   return ethers.utils.formatUnits(bigBalance, decimals);
 }
 
@@ -204,8 +209,9 @@ export async function approveToken(
   const bigAmount = amount;
   const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
   const allowance = await getAllowance(tokenContractAddress, provider);
-  if(allowance.eq(ethers.constants.Zero)) {
-    throw new Error("Looks like you don't have any ETH :/ You need that to pay for gas.");
+  const {bigBalance: ethBalance} = await getBigWalletBalance(ethers.constants.AddressZero, provider);
+  if(ethBalance.eq(ethers.constants.Zero)) {
+    throw new Error("Looks like you don't have any ETH. You need that to pay for gas.");
   }
 
   if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
@@ -224,7 +230,7 @@ export async function withdraw(
   const signerAddress = await signer.getAddress();
   const availableBalance = await shrubContract.getAvailableBalance(signerAddress, tokenContractAddress);
   if (amount.gt(availableBalance)) {
-    throw new Error(`Not enough balance. You have ${availableBalance}.` );
+    throw new Error(`Not enough balance. You have ${ethers.utils.formatUnits(availableBalance, 18)}.` );
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }
