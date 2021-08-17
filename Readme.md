@@ -67,6 +67,7 @@ Hardhat Commands (These can all be run from the project root):
     yarn hh:gas                         # Run tests with a gas report
     yarn hh:coverage                    # Run coverage on contract tests
     yarn hh:fundAccounts                # Script to fund account[0] and account[1] and deposit ETH and FK into shrub contract
+    yarn hh:maker                       # Script to generate orders using announce
     yarn hh:console                     # Console connected to the localhost blockchain (web3 and ethers available along with top level await)
 
     # To run an arbitrary hardhat command from project root

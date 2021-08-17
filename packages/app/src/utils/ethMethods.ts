@@ -30,7 +30,7 @@ if (!SHRUB_CONTRACT_ADDRESS || !FK_TOKEN_ADDRESS) {
 }
 
 export function useGetProvider() {
-  const { library: provider, active } = useWeb3React();
+  const { library: provider, active, account } = useWeb3React();
   if (!active) {
     return false;
   }
@@ -148,7 +148,7 @@ export async function getSymbolFor(token: string, provider: JsonRpcProvider) {
   return erc20Contract.symbol();
 }
 
-export async function getWalletBalance(address: string, provider: JsonRpcProvider) {
+export async function getBigWalletBalance(address: string, provider: JsonRpcProvider) {
   const signer = provider.getSigner();
   let bigBalance;
   let decimals = 18;
@@ -162,6 +162,11 @@ export async function getWalletBalance(address: string, provider: JsonRpcProvide
     bigBalance = await erc20Contract.balanceOf(signerAddress);
     decimals = await erc20Contract.decimals();
   }
+  return { bigBalance, decimals };
+}
+
+export async function getWalletBalance(address: string, provider: JsonRpcProvider) {
+  const { bigBalance, decimals } = await getBigWalletBalance(address, provider);
   return ethers.utils.formatUnits(bigBalance, decimals);
 }
 
@@ -171,16 +176,24 @@ export async function depositEth(amount: ethers.BigNumber, provider: JsonRpcProv
   return shrubContract.deposit(ZERO_ADDRESS, amount, { value: amount });
 }
 
+export async function getAllowance(
+    tokenContractAddress: string,
+    provider: JsonRpcProvider,
+) {
+  const signer = provider.getSigner();
+  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
+  const signerAddress = await signer.getAddress();
+  return await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
+}
+
 export async function depositToken(
   tokenContractAddress: string,
   amount: ethers.BigNumber,
   provider: JsonRpcProvider,
 ) {
   const signer = provider.getSigner();
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer)
-  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer)
-  const signerAddress = await signer.getAddress();
-  const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const allowance = await getAllowance(tokenContractAddress, provider);
   if (allowance.lt(amount)) {
     throw new Error("Looks like you need to approve first.");
   }
@@ -195,10 +208,14 @@ export async function approveToken(
   const signer = provider.getSigner();
   const bigAmount = amount;
   const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
-  const signerAddress = await signer.getAddress();
-  const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
-  if (allowance.gte(bigAmount)) {
-    throw new Error("Allowance is sufficient. You don't need to approve");
+  const allowance = await getAllowance(tokenContractAddress, provider);
+  const {bigBalance: ethBalance} = await getBigWalletBalance(ethers.constants.AddressZero, provider);
+  if(ethBalance.eq(ethers.constants.Zero)) {
+    throw new Error("Looks like you don't have any ETH. You need that to pay for gas.");
+  }
+
+  if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
+    throw new Error("Allowance is sufficient. You don't need to approve.");
   }
   return erc20Contract.approve(SHRUB_CONTRACT_ADDRESS, ethers.constants.WeiPerEther.mul(1000000000));
 }
@@ -213,7 +230,7 @@ export async function withdraw(
   const signerAddress = await signer.getAddress();
   const availableBalance = await shrubContract.getAvailableBalance(signerAddress, tokenContractAddress);
   if (amount.gt(availableBalance)) {
-    throw new Error(`Not enough balance. You have ${availableBalance}.` );
+    throw new Error(`Not enough balance. You have ${ethers.utils.formatUnits(availableBalance, 18)}.` );
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }

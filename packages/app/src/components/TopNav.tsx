@@ -61,7 +61,7 @@ const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => 
 );
 
 function TopNav() {
-  console.log('rendering TopNav');
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   const {active, error: web3Error} = useConnectWallet();
@@ -69,7 +69,6 @@ function TopNav() {
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
   const confirmingCountNumber = confirmingCount(pendingTxsState);
-  console.log(confirmingCountNumber);
   const displayStatus = (val: boolean ) => {
     setIsHidden(val);
   }

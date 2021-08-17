@@ -20,6 +20,7 @@
     "hh:gas": "REPORT_GAS=true hardhat test",
     "hh:coverage": "hardhat coverage",
     "hh:fundAccounts": "hardhat fundAccounts --network localhost",
+    "hh:maker": "hardhat maker --network localhost",
     "hh:test": "yarn test",
     "hh:console": "hardhat console --network localhost",
     "prepare": "yarn compile",
