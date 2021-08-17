@@ -1,4 +1,4 @@
-import {ethers} from "ethers";
+import {BytesLike, ethers} from "ethers";
 import {FakeToken__factory} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
@@ -382,6 +382,18 @@ export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provi
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const filter = shrubContract.filters.OrderMatched(sellerAddress, buyerAddress)
   return shrubContract.queryFilter(filter, fromBlock, toBlock);
+}
+
+// export function getAnnouncedEvents(provider: JsonRpcProvider, fromBlock = 0, toBlock: string | number = 'latest') {
+export function getAnnouncedEvents({provider, positionHash, fromBlock = 0, toBlock = 'latest'}: {
+  provider: JsonRpcProvider,
+  positionHash?: BytesLike,
+  fromBlock?: ethers.providers.BlockTag,
+  toBlock?: ethers.providers.BlockTag
+}) {
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
+  return shrubContract.queryFilter(filter, fromBlock, toBlock)
 }
 
 export async function getLastOrders(provider: JsonRpcProvider) {

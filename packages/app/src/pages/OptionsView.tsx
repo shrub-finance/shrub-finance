@@ -23,12 +23,12 @@ import RadioCard from '../components/Radio';
 import {
   formatDate,
   formatStrike,
-  fromEthDate, getLastOrders,
+  fromEthDate, getAnnouncedEvents, getLastOrders,
   hashOrderCommon, optionTypeToNumber,
   toEthDate,
   transformOrderApiApp
 } from "../utils/ethMethods";
-import {ethers} from "ethers";
+import {BytesLike, ethers} from "ethers";
 import {FaEthereum} from "react-icons/fa";
 import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
@@ -40,7 +40,7 @@ function OptionsView(props: RouteComponentProps) {
   const [sellBuy, setSellBuy] = useState<SellBuy>('BUY');
   const [optionType, setOptionType] = useState<PutCall>('CALL');
   const [expiryDate, setExpiryDate] = useState<string>();
-  const [strikePrices, setStrikePrices] = useState<ethers.BigNumber[]>([]);
+  const [strikePrices, setStrikePrices] = useState<{strikePrice: ethers.BigNumber, positionHash: string}[]>([]);
   const [expiryDates, setExpiryDates] = useState<string[]>([]);
   const [lastMatches, setLastMatches] = useState<LastOrders>({})
 
@@ -93,7 +93,7 @@ function OptionsView(props: RouteComponentProps) {
 
   // On load
   useEffect(() => {
-    console.log('running useEffect')
+    console.log('running onLoad useEffect')
     getLastOrders(library)
       .then(lasts => {
         setLastMatches(lasts)
@@ -103,9 +103,10 @@ function OptionsView(props: RouteComponentProps) {
   }, [library]);
 
   useEffect(() => {
-
       if (contractData && contractDataStatus === "fetched" && !contractDataError) {
         const expiryDatesString = Object.keys(contractData["ETH-FK"]);
+        console.log(expiryDatesString);
+        console.log(contractData);
         setExpiryDates(expiryDatesString);
         if(!expiryDate) {
           setExpiryDate(expiryDatesString[0]);
@@ -116,9 +117,30 @@ function OptionsView(props: RouteComponentProps) {
   useEffect(() => {
     if(contractData && expiryDate) {
       const strikeObjPrices = contractData['ETH-FK'][expiryDate][optionType].map((strikeNum) => {
-        return ethers.BigNumber.from(strikeNum);
+        const strike = ethers.BigNumber.from(strikeNum);
+        const common: OrderCommon = {
+          baseAsset,
+          quoteAsset,
+          expiry: Number(expiryDate),
+          strike,
+          optionType: optionTypeToNumber(optionType)
+        }
+        const positionHash = hashOrderCommon(common)
+        return { strikePrice: strike, positionHash };
       })
-      setStrikePrices(strikeObjPrices);
+      getOrderData(strikeObjPrices.map(s => s.positionHash))
+        .then(() => setStrikePrices(strikeObjPrices))
+        .catch(e => console.error(`Something went wrong with the orderbook: ${e}`));
+    }
+
+    console.log('fetching orderbook data');
+
+    async function getOrderData(positionHashes: BytesLike[]) {
+      for (const positionHash of positionHashes) {
+        const eventsForHash = await getAnnouncedEvents({provider: library, positionHash})
+        console.log(positionHash);
+        console.log(eventsForHash);
+      }
     }
 
   },[expiryDate, optionType]);
@@ -127,7 +149,7 @@ function OptionsView(props: RouteComponentProps) {
     return orderData && orderData.map(order => transformOrderApiApp(order));
   }, [orderData])
 
-  for (const strikePrice of strikePrices) {
+  for (const {strikePrice, positionHash} of strikePrices) {
 
     if (!expiryDate) {
       continue;
