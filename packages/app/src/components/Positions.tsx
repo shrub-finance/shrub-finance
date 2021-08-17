@@ -92,7 +92,7 @@ function Positions() {
   const parse = (val: string) => val.replace(/^\$/, "");
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'currency',
-    defaultValue: '',
+    defaultValue: modalCurrency,
     onChange: (value: SupportedCurrencies) => setModalCurrency(value)
   })
   const currenciesRadiogroup = getRootProps();
