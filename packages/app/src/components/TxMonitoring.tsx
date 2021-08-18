@@ -130,6 +130,7 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
     return Object.values(pendingTxsState).filter(txState => txState.status === 'confirming').length
 }
 
+// displayed inside connect wallet modal
 export function TxStatusList() {
     console.log('rendering TxStatusList');
     const { pendingTxs } = useContext(TxContext);

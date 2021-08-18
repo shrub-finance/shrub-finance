@@ -174,14 +174,14 @@ function OptionsView(props: RouteComponentProps) {
       filteredOrders.filter((filteredOrder) => filteredOrder.optionAction === 'SELL');
 
     const bestBid =
-      buyOrders &&
+      (buyOrders &&
       buyOrders.length &&
-        Math.max(...buyOrders.map((buyOrder) => buyOrder.unitPrice)).toFixed(2) || '';
+        Math.max(...buyOrders.map((buyOrder) => buyOrder.unitPrice)).toFixed(2)) || '';
 
     const bestAsk =
-      sellOrders &&
+        (sellOrders &&
       sellOrders.length &&
-        Math.min(...sellOrders.map((sellOrder) => sellOrder.unitPrice)).toFixed(2) || '';
+        Math.min(...sellOrders.map((sellOrder) => sellOrder.unitPrice)).toFixed(2)) || '';
 
     const appCommon:AppCommon = {
       formattedStrike: formatStrike(strikePrice),
@@ -259,12 +259,13 @@ function OptionsView(props: RouteComponentProps) {
                   </RadioCard>
             );
           })}
-          <RadioCard>
-            Special Dates
-            <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in ETH land as your expiry. " fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-            <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-          </Tooltip>
-          </RadioCard>
+          {/* do not delete, leave it commented out for now*/}
+          {/*<RadioCard>*/}
+          {/*  Special Dates*/}
+          {/*  <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in ETH land as your expiry. " fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">*/}
+          {/*  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>*/}
+          {/*</Tooltip>*/}
+          {/*</RadioCard>*/}
         </HStack>
       </Box>
         <Flex mb={10}>

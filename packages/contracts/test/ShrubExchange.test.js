@@ -2,6 +2,7 @@ const Exchange = artifacts.require("ShrubExchange");
 const FakeToken = artifacts.require("FakeToken");
 const { Shrub712 } = require("../utils/EIP712");
 const utils = require("ethereumjs-util");
+const { assert } = require("chai");
 
 const Assets = {
   USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -522,6 +523,38 @@ contract("ShrubExchange", (accounts) => {
       sellerBalanceAfter - sellerBalanceBefore,
       buyOrder.size * buyOrder.strike / STRIKE_BASE_SHIFT,
       "Seller should now have the assets required to execute"
+    );
+  });
+
+  it("should cancel an order if in correct nonce state", async () => {
+    const user = accounts[0];
+    const userNoncePre = (
+      await exchange.getCurrentNonce(user, Assets.ETH, Assets.USDC)
+    ).toNumber();
+    console.log("Pre-cancel user nonce", userNoncePre);
+
+    const order = {
+      price: WeiInEth.mul(BigHundred).toString(),
+      offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
+      fee: 1,
+      baseAsset: Assets.USDC,
+      quoteAsset: Assets.ETH,
+      expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
+      strike: 100e6,
+      optionType: 1,
+      size: WeiInEth.toString(),
+      isBuy: false,
+      nonce: userNoncePre + 1,
+    };
+    console.log('Order nonce', order.nonce);
+    await exchange.cancel(order, { from: user });
+    const userNoncePost = (
+      await exchange.getCurrentNonce(user, Assets.ETH, Assets.USDC)
+    ).toNumber();
+    console.log('Post-cancel user nonce', userNoncePost);
+    assert.isTrue(
+      userNoncePost === order.nonce,
+      'User nonce should now equal canceled order nonce'
     );
   });
 });
