@@ -66,7 +66,7 @@ contract ShrubExchange {
   uint private constant BASE_SHIFT = 1000000;
 
   bytes32 public constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
-  bytes public constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
+  bytes public constant EIP712_DOMAIN = "EIP712Domain(string name, string version, uint256 chainId, address verifyingContract, bytes32 salt)";
   bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
   bytes32 public constant DOMAIN_SEPARATOR = keccak256(abi.encode(
     EIP712_DOMAIN_TYPEHASH,
@@ -155,17 +155,6 @@ contract ShrubExchange {
     matches = matches && sellOrder.offerExpire >= block.timestamp;
     matches = matches && buyOrder.offerExpire >= block.timestamp;
     return matches;
-  }
-
-  modifier orderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common) {
-    require(sellOrder.isBuy == false, "Sell order should not be buying");
-    require(buyOrder.isBuy == true, "Buy order should be buying");
-
-    require(sellOrder.price <= buyOrder.price, "Price must be sufficient for seller");
-    require(sellOrder.offerExpire >= block.timestamp, "Sell order has expired");
-    require(buyOrder.offerExpire >= block.timestamp, "Buy order has expired");
-
-    _;
   }
 
   function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public pure returns(address) {
@@ -342,6 +331,7 @@ contract ShrubExchange {
     //    console.logBytes32(positionHash);
     //    console.logInt(userOptionPosition[buyer][positionHash]);
     //    console.logInt(userOptionPosition[seller][positionHash]);
+    require(userOptionPosition[buyer][positionHash] >= int(buyOrder.size), "Cannot execute more than owned");
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
     require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
     require(common.expiry >= block.timestamp, "Option has already expired");
