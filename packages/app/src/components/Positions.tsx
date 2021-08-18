@@ -286,9 +286,6 @@ function Positions() {
     if (withdrawDepositAction === "Deposit") {
       const walletBalanceValue = await getWalletBalance(Currencies[modalCurrency].address, library);
       setAmountValue(walletBalanceValue);
-      if(walletBalanceValue === '0') {
-        handleErrorMessages({customMessage: 'Nothing to withdraw :/'});
-      }
     } else if (withdrawDepositAction === "Withdraw") {
       setAmountValue(String(shrubBalance.available[modalCurrency]));
       if(String(shrubBalance.available[modalCurrency]) === '0') {
