@@ -329,6 +329,11 @@ contract ShrubExchange {
     }
   }
 
+  function cancel(Order memory order) public {
+    require(order.nonce - 1 >= getCurrentNonce(msg.sender, order.quoteAsset, order.baseAsset), "Invalid order nonce");
+    userPairNonce[msg.sender][order.quoteAsset][order.baseAsset] = order.nonce;
+  }
+
   function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
     address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
     //    console.log(buyer);
