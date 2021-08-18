@@ -41,7 +41,7 @@ import {useConnectWallet} from "../hooks/useConnectWallet";
 import {formatEther} from "ethers/lib/utils";
 import {NETWORK_COLORS, NETWORK_LABELS} from "../constants/networks";
 import {RiSignalTowerLine} from "react-icons/all";
-import {FaEthereum, FaPlug} from "react-icons/fa";
+import {FaEthereum} from "react-icons/fa";
 
 enum ConnectorNames {
     MetaMask = "MetaMask",
