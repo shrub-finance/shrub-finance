@@ -326,7 +326,7 @@ contract ShrubExchange {
     //    console.logBytes32(positionHash);
     //    console.logInt(userOptionPosition[buyer][positionHash]);
     //    console.logInt(userOptionPosition[seller][positionHash]);
-    require(userOptionPosition[buyer][positionHash] >= buyerOrder.size, "Cannot execute more than owned");
+    require(userOptionPosition[buyer][positionHash] >= int(buyOrder.size), "Cannot execute more than owned");
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
     require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
     require(common.expiry >= block.timestamp, "Option has already expired");
