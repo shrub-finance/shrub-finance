@@ -1,10 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    CoinbaseIcon,
+    CoinbaseIcon, FortmaticIcon,
     LedgerIcon,
-    MetaMaskIcon,
+    MetaMaskIcon, PortisIcon,
     WalletConnectIcon,
-} from "../assets/Icons";
+} from '../assets/Icons';
 import {
     useWeb3React,
     UnsupportedChainIdError,
@@ -19,8 +19,8 @@ import {
     injected,
     walletconnect,
     walletlink,
-    ledger,
-} from "../utils/connectors";
+    ledger, portis, fortmatic,
+} from '../utils/connectors';
 import Jazzicon from "@metamask/jazzicon";
 import {
     Alert,
@@ -47,13 +47,18 @@ enum ConnectorNames {
     MetaMask = "MetaMask",
     WalletConnect = "Wallet Connect",
     CoinbaseWallet = "Coinbase Wallet",
-    Ledger = "Ledger"
+    Ledger = "Ledger",
+    Portis= "Portis",
+    Fortmatic= "Fortmatic"
+
 }
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.MetaMask]: injected,
     [ConnectorNames.WalletConnect]: walletconnect,
     [ConnectorNames.CoinbaseWallet]: walletlink,
     [ConnectorNames.Ledger]: ledger,
+    [ConnectorNames.Portis]: portis,
+    [ConnectorNames.Fortmatic]: fortmatic
 };
 
 export function getErrorMessage(error: Error) {
@@ -289,6 +294,10 @@ export function ConnectWalletModal() {
                                 return <WalletConnectIcon boxSize={8}/>;
                             case "Ledger":
                                 return <LedgerIcon boxSize={8}/>;
+                            case "Portis":
+                                return <PortisIcon boxSize={8}/>;
+                            case "Fortmatic":
+                                return <FortmaticIcon boxSize={8}/>;
                             default:
                                 return <MetaMaskIcon boxSize={8}/>;
                         }
