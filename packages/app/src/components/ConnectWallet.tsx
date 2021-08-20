@@ -48,8 +48,8 @@ enum ConnectorNames {
     WalletConnect = "Wallet Connect",
     CoinbaseWallet = "Coinbase Wallet",
     Ledger = "Ledger",
-    Portis= "Portis",
-    Fortmatic= "Fortmatic"
+    // Portis= "Portis",
+    // Fortmatic= "Fortmatic"
 
 }
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
@@ -57,8 +57,8 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.WalletConnect]: walletconnect,
     [ConnectorNames.CoinbaseWallet]: walletlink,
     [ConnectorNames.Ledger]: ledger,
-    [ConnectorNames.Portis]: portis,
-    [ConnectorNames.Fortmatic]: fortmatic
+    // [ConnectorNames.Portis]: portis,
+    // [ConnectorNames.Fortmatic]: fortmatic
 };
 
 export function getErrorMessage(error: Error) {
