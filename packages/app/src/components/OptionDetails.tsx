@@ -404,19 +404,19 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                     <Stack spacing="24px">
                         <Box mt={2} mb={8}>
                             <HStack spacing={3}>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="purple">
                                         <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
                                         <TagLabel>{optionType}</TagLabel>
                                     </Tag>
                                 </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="blue">
                                         <Icon as={MdDateRange} />
                                         <TagLabel> {formattedExpiry}</TagLabel>
                                     </Tag>
                                 </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="yellow">
                                         <Icon as={GiMoneyStack} />
                                         <TagLabel>{`${formattedStrike} USDC`}</TagLabel>
