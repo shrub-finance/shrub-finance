@@ -49,7 +49,7 @@ import {
     ApiOrder,
     AppCommon,
     GetOrdersParams,
-    IOrder,
+    IOrder, OptionData,
     OrderBook,
     OrderType,
     SellBuy,
@@ -64,10 +64,11 @@ import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
 
 const { Zero } = ethers.constants;
 
-function OptionDetails({ appCommon, sellBuy, hooks }: {
+function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     appCommon: AppCommon,
     sellBuy: SellBuy,
-    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}
+    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any},
+    optionData: OptionData
 }) {
 
     const [localError, setLocalError] = useState('');
@@ -103,7 +104,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
 
     let orderBookDepth = {buyOrderDepth: Zero, sellOrderDepth: Zero};
 
-    const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
+    // const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
     const params: GetOrdersParams = {
         baseAsset,
         quoteAsset,
@@ -112,24 +113,16 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
         strike: strike.toString()
     }
     const options = {params};
-    const {data: orderBookData, status} = useFetch<ApiOrder[]>(url, options);
     useEffect(() => {
-        if (status !== 'fetched' || !orderBookData) {
-            return;
-        }
-        // add perContract pricing
-        const appOrderBookData = orderBookData.map(o => transformOrderApiApp(o));
-        const buyOrders = appOrderBookData.filter(o => o.optionAction === 'BUY').sort((a, b) => b.unitPrice - a.unitPrice);
-        const sellOrders = appOrderBookData.filter(o => o.optionAction === 'SELL').sort((a, b) => a.unitPrice - b.unitPrice);
+        const buyOrders = optionData.buyOrders.sort((a, b) => b.unitPrice - a.unitPrice);
+        const sellOrders = optionData.sellOrders.sort((a, b) => a.unitPrice - b.unitPrice);
         const buyOrderDepth = buyOrders.reduce((tot, order) => tot.add(order.size), Zero)
         const sellOrderDepth = sellOrders.reduce((tot, order) => tot.add(order.size), Zero)
         orderBookDepth = {buyOrderDepth, sellOrderDepth};
-        console.log('sellOrders');
-        console.log(sellOrders);
         setOrderBook({ sellOrders, buyOrders })
-    }, [status])
+    }, [])
 
-    const {
+const {
         getRootProps: getOrderTypeRootProps,
         getRadioProps: getOrderTypeRadioProps,
     } = useRadioGroup({

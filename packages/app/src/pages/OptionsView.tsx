@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useReducer, useState} from 'react';
 import {
   Alert,
   AlertDescription,
@@ -17,14 +17,24 @@ import {
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 import useFetch from "../hooks/useFetch";
-import {ApiOrder, AppCommon, ContractData, LastOrders, OrderbookStats, OrderCommon, PutCall, SellBuy} from '../types';
+import {
+  ApiOrder,
+  AppCommon,
+  AppOrderSigned,
+  ContractData, IndexedAppOrderSigned,
+  LastOrders,
+  OrderbookStats,
+  OrderCommon,
+  PutCall,
+  SellBuy
+} from '../types';
 import {RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {
   formatDate,
   formatStrike,
   fromEthDate, getAnnouncedEvents, getLastOrders,
-  hashOrderCommon, optionTypeToNumber,
+  hashOrderCommon, isBuyToOptionAction, optionTypeToNumber, optionTypeToString,
   toEthDate,
   transformOrderApiApp
 } from "../utils/ethMethods";
@@ -32,6 +42,9 @@ import {BytesLike, ethers} from "ethers";
 import {FaEthereum} from "react-icons/fa";
 import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
+import {orderBookReducer} from "../components/orderBookReducer";
+
+const initialOrderBookState = {};
 
 function OptionsView(props: RouteComponentProps) {
   const {active, library, account, error: web3Error} = useWeb3React();
@@ -43,6 +56,7 @@ function OptionsView(props: RouteComponentProps) {
   const [strikePrices, setStrikePrices] = useState<{strikePrice: ethers.BigNumber, positionHash: string}[]>([]);
   const [expiryDates, setExpiryDates] = useState<string[]>([]);
   const [lastMatches, setLastMatches] = useState<LastOrders>({})
+  const [orderBookState, orderBookDispatch] = useReducer(orderBookReducer, initialOrderBookState)
 
   const optionRows: JSX.Element[] = [];
 
@@ -138,8 +152,31 @@ function OptionsView(props: RouteComponentProps) {
     async function getOrderData(positionHashes: BytesLike[]) {
       for (const positionHash of positionHashes) {
         const eventsForHash = await getAnnouncedEvents({provider: library, positionHash})
-        console.log(positionHash);
-        console.log(eventsForHash);
+        const formattedEventsForHash: AppOrderSigned[] = [];
+        for (const event of eventsForHash) {
+          const { args, address, transactionHash } = event;
+          const { common, order, sig } = args;
+          const { baseAsset, quoteAsset, strike } = common;
+          const { size, fee } = order;
+          const { r, s, v } = sig;
+
+          const expiry = fromEthDate(common.expiry.toNumber());
+          const optionType = optionTypeToString(common.optionType);
+          const formattedExpiry = expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"});
+          const formattedStrike = ethers.utils.formatUnits(strike, 6);  // Need to divide by 1M to get the actual strike
+          const nonce = order.nonce.toNumber();
+          const formattedSize = ethers.utils.formatUnits(size, 18);
+          const optionAction = isBuyToOptionAction(order.isBuy);
+          const totalPrice = ethers.BigNumber.from(order.price);
+          const unitPrice = Number(ethers.utils.formatUnits(totalPrice, 18)) / Number(formattedSize);
+          const offerExpire = fromEthDate(order.offerExpire.toNumber());
+          const formattedFee = ethers.utils.formatUnits(fee, 18);
+          const appOrderSigned: IndexedAppOrderSigned = {
+            baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, r, s, v, address, transactionHash
+          }
+          formattedEventsForHash.push(appOrderSigned);
+        }
+        orderBookDispatch({type: 'add', orders: formattedEventsForHash})
       }
     }
 
@@ -150,8 +187,17 @@ function OptionsView(props: RouteComponentProps) {
   }, [orderData])
 
   for (const {strikePrice, positionHash} of strikePrices) {
+    const niceExpiry = formatDate(fromEthDate(Number(expiryDate)));
 
-    if (!expiryDate) {
+    if (
+      !expiryDate ||
+      !orderBookState ||
+      !orderBookState[quoteAsset] ||
+      !orderBookState[quoteAsset][baseAsset] ||
+      !orderBookState[quoteAsset][baseAsset][niceExpiry] ||
+      !orderBookState[quoteAsset][baseAsset][niceExpiry][optionType] ||
+      !orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()]
+    ) {
       continue;
     }
 
@@ -165,23 +211,13 @@ function OptionsView(props: RouteComponentProps) {
         }
     );
 
-    const buyOrders =
-      filteredOrders &&
-      filteredOrders.filter((filteredOrder) => filteredOrder.optionAction === 'BUY');
 
-    const sellOrders =
-      filteredOrders &&
-      filteredOrders.filter((filteredOrder) => filteredOrder.optionAction === 'SELL');
 
-    const bestBid =
-      (buyOrders &&
-      buyOrders.length &&
-        Math.max(...buyOrders.map((buyOrder) => buyOrder.unitPrice)).toFixed(2)) || '';
-
-    const bestAsk =
-        (sellOrders &&
-      sellOrders.length &&
-        Math.min(...sellOrders.map((sellOrder) => sellOrder.unitPrice)).toFixed(2)) || '';
+    const optionData = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()];
+    const buyOrders = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].buyOrders;
+    const sellOrders = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].sellOrders;
+    const bestBid = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].bid?.toFixed(2) || '';
+    const bestAsk = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].ask?.toFixed(2) || '';
 
     const appCommon:AppCommon = {
       formattedStrike: formatStrike(strikePrice),
@@ -208,7 +244,7 @@ function OptionsView(props: RouteComponentProps) {
       // TODO: provide data for last
       last,
       bestBid,
-      bestAsk
+      bestAsk,
     }
 
     if (filteredOrders && filteredOrders[0]) {
@@ -217,7 +253,7 @@ function OptionsView(props: RouteComponentProps) {
     }
 
     optionRows.push(
-      <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} />
+      <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} optionData={optionData} />
     );
   }
   return (

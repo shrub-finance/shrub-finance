@@ -18,18 +18,19 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 
-import { AppCommon, SellBuy } from '../types';
+import {AppCommon, OptionData, SellBuy} from '../types';
 import OptionDetails from "./OptionDetails";
 import {Txmonitor} from "./TxMonitoring";
 
 const height = 100;
 
-function OptionRow({appCommon, last, ask, bid, option}: {
+function OptionRow({appCommon, last, ask, bid, option, optionData}: {
   appCommon: AppCommon,
   last: string,
   ask: string,
   bid: string,
-  option: SellBuy
+  option: SellBuy,
+  optionData: OptionData
 }) {
   const { optionType, formattedStrike } = appCommon;
   const { isOpen, onOpen, onClose} = useDisclosure();
@@ -75,7 +76,7 @@ function OptionRow({appCommon, last, ask, bid, option}: {
           <ModalCloseButton />
           <ModalHeader borderBottomWidth="1px">ETH Order</ModalHeader>
           <ModalBody>
-            { (!approving && !activeHash) && <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}}/> }
+            { (!approving && !activeHash) && <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData}/> }
             { (approving || activeHash) && <Txmonitor txHash={activeHash}/> }
           </ModalBody>
         </ModalContent>

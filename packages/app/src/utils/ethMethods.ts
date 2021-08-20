@@ -506,7 +506,11 @@ export function iOrderToPostOrder(order: IOrder): PostOrder {
   }
 }
 
-export function optionTypeToString(numericOptionType: 0 | 1) {
+export function unboundToBoundOptionType(unboundOptionType: number): 0 | 1 {
+  return unboundOptionType ? 1 : 0;
+}
+
+export function optionTypeToString(numericOptionType: number) {
   return numericOptionType ? 'CALL' : 'PUT';
 }
 
