@@ -25,6 +25,7 @@ import {useConnectWallet} from "../hooks/useConnectWallet";
 import {HelloBud} from "../assets/Icons";
 import {TxContext} from "./Store";
 import {confirmingCount, TxStatusList} from "./TxMonitoring";
+import {isMobile} from "react-device-detect";
 
 
 const NavLinks = ["Shrub"];
@@ -116,7 +117,9 @@ function handleModalClose() {
         {isOpen ? (<Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>{NavLinks.map((link) => (<NavLink key={link}>{link}</NavLink>))}</Stack></Box>) : null}</Box>
 
-      <Modal isOpen={isOpen} onClose={handleModalClose} motionPreset="slideInBottom">
+      <Modal isOpen={isOpen} onClose={handleModalClose} motionPreset="slideInBottom"
+             scrollBehavior={isMobile ?"inside" : "outside"}
+      >
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
           <ModalHeader>{ !active ? 'Connect Wallet' :
