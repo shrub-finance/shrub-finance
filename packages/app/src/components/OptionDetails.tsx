@@ -25,7 +25,7 @@ import {
     useRadioGroup,
     useToast
 } from '@chakra-ui/react';
-import {Icon} from "@chakra-ui/icons";
+import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
 import RadioCard from "./Radio";
 import {
@@ -456,16 +456,24 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                             </HStack>
                         </Box>
                         <Box>
-                            <FormLabel htmlFor="amount">Amount:</FormLabel>
+                            <FormLabel htmlFor="amount">Amount:
+                                <Tooltip p={3} label="The amount of asset to purchase option for" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                    <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                </Tooltip>
+                            </FormLabel>
                             <Input
-                              id="amount"
-                              placeholder="0"
-                              value={amount}
-                              onChange={(event: any) => setAmount(event.target.value)}
+                                id="amount"
+                                placeholder="0"
+                                value={amount}
+                                onChange={(event: any) => setAmount(event.target.value)}
                             />
                         </Box>
                         <Box>
-                            <FormLabel htmlFor="bid">Price per contract:</FormLabel>
+                            <FormLabel htmlFor="bid">Price per contract:
+                                <Tooltip p={3} label="The USDC required to purchase 1 contract (1 ETH)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                    <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                </Tooltip>
+                            </FormLabel>
                             <Input
                               id="bid"
                               placeholder="The USDC required to purchase 1 contract (1 ETH)"
