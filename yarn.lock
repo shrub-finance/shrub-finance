@@ -5910,6 +5910,7 @@ __metadata:
     lint-staged: 11.0.0
     prettier: 2.3.0
     react: 17.0.1
+    react-device-detect: 1.17.0
     react-dom: 17.0.1
     react-icons: 4.2.0
     react-scripts: 4.0.3
@@ -24268,6 +24269,18 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"react-device-detect@npm:1.17.0":
+  version: 1.17.0
+  resolution: "react-device-detect@npm:1.17.0"
+  dependencies:
+    ua-parser-js: ^0.7.24
+  peerDependencies:
+    react: ">= 0.14.0 < 18.0.0"
+    react-dom: ">= 0.14.0 < 18.0.0"
+  checksum: e6416af2a517cce221c5571b0ca1586a9e2ea512d4916b4f11bc7a56e63beb96ad420545240506210be517e068e728ba47e51671e3024cc945a66fe23323b9e4
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:17.0.1":
   version: 17.0.1
   resolution: "react-dom@npm:17.0.1"
@@ -28371,6 +28384,13 @@ typescript@4.3.2:
   version: 0.2.7
   resolution: "u2f-api@npm:0.2.7"
   checksum: 45700b5d30416ce7a6055d3cc262c51f31f3aadcb4e398c7359caa6b635a21f1901340196163ef4cf82664a3e90894336076600d1293ef702d5a1be25e5ca82c
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^0.7.24":
+  version: 0.7.28
+  resolution: "ua-parser-js@npm:0.7.28"
+  checksum: bf65a24eb48d8ec31f6396494bff16b92228e88d7ea15d0bdaa71505313979d2fd176d832418d849a8fa6e119e8dea482f52a2acffe51a3f1810087d295a9adf
   languageName: node
   linkType: hard
 
