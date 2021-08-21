@@ -40,7 +40,7 @@ function HomeView(props: RouteComponentProps) {
 
                 <Center mt={20}>
                 <Box
-                    maxW="55rem"
+                    maxW="60xsrem"
                     mb={12}
                     textAlign={'center'}
                 >
@@ -50,7 +50,7 @@ function HomeView(props: RouteComponentProps) {
                         mb={4}
                     >
                         {/*Defi Options for everyone*/}
-                        A DeFi Options Platform that's all about <i>you</i>
+                        Your friendly DeFi Options Platform
                     </Heading>
                     <Text fontSize="25px">
                         Trade instantly. Trade freely
@@ -116,12 +116,12 @@ function HomeView(props: RouteComponentProps) {
                     Uniswap V3 LP Insurance
                 </Box>
 
-                <Box>
-                    {property.formattedPrice}
-                    <Box as="span" color="gray.600" fontSize="sm">
-                        / call
-                    </Box>
-                </Box>
+                {/*<Box>*/}
+                {/*    {property.formattedPrice}*/}
+                {/*    <Box as="span" color="gray.600" fontSize="sm">*/}
+                {/*        / call*/}
+                {/*    </Box>*/}
+                {/*</Box>*/}
             </Box>
         </Box>
                <Spacer/>
@@ -157,12 +157,12 @@ function HomeView(props: RouteComponentProps) {
                             {property.title}
                         </Box>
 
-                        <Box>
-                            {property.formattedPrice}
-                            <Box as="span" color="gray.600" fontSize="sm">
-                                / call
-                            </Box>
-                        </Box>
+                        {/*<Box>*/}
+                        {/*    {property.formattedPrice}*/}
+                        {/*    <Box as="span" color="gray.600" fontSize="sm">*/}
+                        {/*        / call*/}
+                        {/*    </Box>*/}
+                        {/*</Box>*/}
                     </Box>
                 </Box>
                     <Spacer/>
@@ -189,12 +189,12 @@ function HomeView(props: RouteComponentProps) {
                             {property.title}
                         </Box>
 
-                        <Box>
-                            {property.formattedPrice}
-                            <Box as="span" color="gray.600" fontSize="sm">
-                                / call
-                            </Box>
-                        </Box>
+                        {/*<Box>*/}
+                        {/*    {property.formattedPrice}*/}
+                        {/*    <Box as="span" color="gray.600" fontSize="sm">*/}
+                        {/*        / call*/}
+                        {/*    </Box>*/}
+                        {/*</Box>*/}
                     </Box>
                 </Box>
                 </Flex>
