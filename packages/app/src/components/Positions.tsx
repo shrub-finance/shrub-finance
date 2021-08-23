@@ -77,7 +77,7 @@ function Positions() {
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
   const [localError, setLocalError] = useState('')
-  const [shrubBalance, setShrubBalance] = useState({locked: {}, available: {}} as ShrubBalance);
+  const [shrubBalance, setShrubBalance] = useState({locked: {ETH: 0, FK: 0}, available: {ETH: 0, FK: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast();
   const orderMap = new Map();
@@ -163,13 +163,20 @@ function Positions() {
               <Td>{optionType}</Td>
               <Td>{amount}</Td>
               <Td>
-                {amount > 0 && <Button
+                {amount > 0 ? <Button
                   colorScheme="teal"
                   size="xs"
-                  onClick={() => handleClickExercise(pair, strike, expiry, optionType)}
+                  onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
                 >
                   Exercise
-                </Button>
+                </Button> : amount > 0 ? <Button
+                  variant={"ghost"}
+                  isDisabled={true}
+                  colorScheme="teal"
+                  size="xs"
+                >
+                  Exercised
+                </Button> : ''
                 }
               </Td>
             </Tr>
@@ -194,7 +201,7 @@ function Positions() {
     }
     displayOptionsHandler()
       .catch(console.error);
-  }, [active, account, library])
+  }, [active, account, library, pendingTxsState])
 
 
   useEffect(() => {
@@ -209,7 +216,7 @@ function Positions() {
       }
     }
     handleApprove();
-  }, [modalCurrency, account])
+  }, [modalCurrency, account, pendingTxsState])
 
   function handleWithdrawDepositModalClose() {
     setApproving(false);
@@ -227,13 +234,19 @@ function Positions() {
       })
 
   }
-  async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string) {
+  async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string, amount: number) {
     const key = `${pair}${strike}${expiry}${optionType}`
     const {common, buyOrder, seller} = orderMap.get(key);
     const unsignedOrder = {...common, ...buyOrder};
     const signedOrder = await signOrder(unsignedOrder, library)
-    const exercised = await exercise(signedOrder, seller, library)
-    return exercised;
+    const tx = await exercise(signedOrder, seller, library)
+    const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
+    pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+    const receipt = await tx.wait()
+    const toastDescription = ToastDescription(description, receipt.transactionHash);
+    toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+    pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+    return tx;
   }
   function totalUserBalance(currency: string) {
     return shrubBalance.locked[currency] + shrubBalance.available[currency];
