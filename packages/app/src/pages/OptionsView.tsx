@@ -152,7 +152,7 @@ function OptionsView(props: RouteComponentProps) {
     async function getOrderData(positionHashes: BytesLike[]) {
       for (const positionHash of positionHashes) {
         const eventsForHash = await getAnnouncedEvents({provider: library, positionHash})
-        const formattedEventsForHash: AppOrderSigned[] = [];
+        const formattedEventsForHash: IndexedAppOrderSigned[] = [];
         for (const event of eventsForHash) {
           const { args, address, transactionHash } = event;
           const { common, order, sig } = args;
