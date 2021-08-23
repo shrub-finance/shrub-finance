@@ -200,9 +200,11 @@ export function ConnectionStatus({displayStatus}) {
 
     const shadow = useColorModeValue("base", "dark-lg");
     const {active, error, account} = useWeb3React();
-    const connector = Object.keys(connectorsByName).find(item =>
+    const { connector } = useConnectWallet();
+    const connectedName = Object.keys(connectorsByName).find((item) => {
         // @ts-ignore
-        connectorsByName[item]);
+        return connector === connectorsByName[item]
+    });
     const ethScanLink = `https://etherscan.io/address/${account}`;
     const [copyValue, setCopyValue] = React.useState("")
     const {hasCopied, onCopy} = useClipboard(copyValue)
@@ -217,7 +219,7 @@ export function ConnectionStatus({displayStatus}) {
                 <Box p={3} mb={5} boxShadow={shadow} rounded="lg">
                     <Flex pt={1}>
                         <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm" ml="2">
-                            Connected with {connector}
+                            Connected with {connectedName}
                         </Box>
                         <Spacer/>
                         <Box>
