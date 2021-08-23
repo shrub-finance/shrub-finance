@@ -36,7 +36,7 @@ import {
   NumberInputField,
   InputRightElement,
   Stack,
-  useRadioGroup
+  useRadioGroup, Tooltip
 } from '@chakra-ui/react';
 import {
   depositEth,
@@ -62,6 +62,7 @@ import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
+import {QuestionOutlineIcon} from '@chakra-ui/icons';
 
 function Positions() {
 
@@ -366,10 +367,23 @@ function Positions() {
         <Table variant="simple" size="lg">
           <Thead>
             <Tr>
-              <Th>Asset</Th>
-              <Th isNumeric>Total</Th>
-              <Th isNumeric>Locked</Th>
-              <Th isNumeric>Unlocked</Th>
+              <Th>Asset
+              </Th>
+              <Th isNumeric>Total
+                <Tooltip p={3} label="This is the total amount of assets you have (including locked and unlocked)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                </Tooltip>
+              </Th>
+              <Th isNumeric>Locked
+                <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                </Tooltip>
+              </Th>
+              <Th isNumeric>Unlocked
+                <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                </Tooltip>
+              </Th>
             </Tr>
           </Thead>
           <Tbody>{tableRows}</Tbody>
