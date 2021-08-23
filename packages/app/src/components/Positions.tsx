@@ -170,7 +170,7 @@ function Positions() {
                   onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
                 >
                   Exercise
-                </Button> : amount > 0 ? <Button
+                </Button> : Number(amount) === 0 ? <Button
                   variant={"ghost"}
                   isDisabled={true}
                   colorScheme="teal"
