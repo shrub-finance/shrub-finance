@@ -461,13 +461,13 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                         </Box>
                         <Box>
                             <FormLabel htmlFor="amount">Amount:
-                                <Tooltip p={3} label="The amount of asset to purchase option for" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                <Tooltip p={3} label="The amount of asset to purchase option for (minimum: 0.000001 ETH)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
                                     <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
                                 </Tooltip>
                             </FormLabel>
                             <Input
                                 id="amount"
-                                placeholder="0"
+                                placeholder="0.1"
                                 value={amount}
                                 onChange={(event: any) => setAmount(event.target.value)}
                             />
