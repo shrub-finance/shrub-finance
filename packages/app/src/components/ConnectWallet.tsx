@@ -1,10 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    CoinbaseIcon,
+    CoinbaseIcon, FortmaticIcon,
     LedgerIcon,
-    MetaMaskIcon,
+    MetaMaskIcon, PortisIcon,
     WalletConnectIcon,
-} from "../assets/Icons";
+} from '../assets/Icons';
 import {
     useWeb3React,
     UnsupportedChainIdError,
@@ -19,8 +19,8 @@ import {
     injected,
     walletconnect,
     walletlink,
-    ledger,
-} from "../utils/connectors";
+    ledger, portis, fortmatic,
+} from '../utils/connectors';
 import Jazzicon from "@metamask/jazzicon";
 import {
     Alert,
@@ -47,13 +47,18 @@ enum ConnectorNames {
     MetaMask = "MetaMask",
     WalletConnect = "Wallet Connect",
     CoinbaseWallet = "Coinbase Wallet",
-    Ledger = "Ledger"
+    Ledger = "Ledger",
+    // Portis= "Portis",
+    // Fortmatic= "Fortmatic"
+
 }
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.MetaMask]: injected,
     [ConnectorNames.WalletConnect]: walletconnect,
     [ConnectorNames.CoinbaseWallet]: walletlink,
     [ConnectorNames.Ledger]: ledger,
+    // [ConnectorNames.Portis]: portis,
+    // [ConnectorNames.Fortmatic]: fortmatic
 };
 
 export function getErrorMessage(error: Error) {
@@ -195,9 +200,11 @@ export function ConnectionStatus({displayStatus}) {
 
     const shadow = useColorModeValue("base", "dark-lg");
     const {active, error, account} = useWeb3React();
-    const connector = Object.keys(connectorsByName).find(item =>
+    const { connector } = useConnectWallet();
+    const connectedName = Object.keys(connectorsByName).find((item) => {
         // @ts-ignore
-        connectorsByName[item]);
+        return connector === connectorsByName[item]
+    });
     const ethScanLink = `https://etherscan.io/address/${account}`;
     const [copyValue, setCopyValue] = React.useState("")
     const {hasCopied, onCopy} = useClipboard(copyValue)
@@ -212,7 +219,7 @@ export function ConnectionStatus({displayStatus}) {
                 <Box p={3} mb={5} boxShadow={shadow} rounded="lg">
                     <Flex pt={1}>
                         <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm" ml="2">
-                            Connected with {connector}
+                            Connected with {connectedName}
                         </Box>
                         <Spacer/>
                         <Box>
@@ -289,6 +296,10 @@ export function ConnectWalletModal() {
                                 return <WalletConnectIcon boxSize={8}/>;
                             case "Ledger":
                                 return <LedgerIcon boxSize={8}/>;
+                            case "Portis":
+                                return <PortisIcon boxSize={8}/>;
+                            case "Fortmatic":
+                                return <FortmaticIcon boxSize={8}/>;
                             default:
                                 return <MetaMaskIcon boxSize={8}/>;
                         }

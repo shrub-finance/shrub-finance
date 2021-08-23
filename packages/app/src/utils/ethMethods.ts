@@ -440,7 +440,6 @@ export async function getFilledOrders(
     }
     const { positionHash, common, buyOrder, seller } = event.args;
     const { baseAsset, quoteAsset, strike, expiry, optionType } = common;
-    const dateExpiry = new Date(expiry.toNumber() * 1000);
     if (!openOrders[positionHash]) {
       const amount = await userOptionPosition(address, positionHash, provider);
       openOrders[positionHash] = {
@@ -451,7 +450,7 @@ export async function getFilledOrders(
         quoteAsset,
         pair: getPair(baseAsset, quoteAsset),
         strike: ethers.utils.formatUnits(strike, 6),  // Divide out the base shift of 1M
-        expiry: dateExpiry.toISOString().substr(0,10),
+        expiry: formatDate(expiry.toNumber()),
         optionType: optionType === 1 ? 'CALL' : 'PUT',
         amount
       };

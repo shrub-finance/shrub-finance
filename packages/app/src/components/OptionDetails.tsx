@@ -25,7 +25,7 @@ import {
     useRadioGroup,
     useToast
 } from '@chakra-ui/react';
-import {Icon} from "@chakra-ui/icons";
+import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
 import RadioCard from "./Radio";
 import {
@@ -273,6 +273,10 @@ const {
 
                 remainingSize = remainingSize.sub(order.size);
                 accumulatedPrice = accumulatedPrice.add(counterPartyOrder.price);
+                if (remainingSize.lt(Zero)) {
+                    accumulatedPrice = accumulatedPrice.add(remainingSize.mul(counterPartyOrder.price).div(counterPartyOrder.size));
+                    remainingSize = Zero;
+                }
                 counterPartyOrders.push(counterPartyOrder);
                 console.log('remaining size');
                 console.log(ethers.utils.formatUnits(remainingSize));
@@ -307,7 +311,7 @@ const {
             const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
-            const description = `${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
+            const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
             pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
             setActiveHash(tx.hash);
             console.log(pendingTxsState);
@@ -336,8 +340,8 @@ const {
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
     orderBook.sellOrders
+      .slice(0,6)
       .sort((a,b) => b.unitPrice - a.unitPrice)
-      .slice(-10)
       .forEach((sellOrder, index) => {
         if (index > 5) {
             return;
@@ -348,13 +352,13 @@ const {
         </Tr>)
     });
     orderBook.buyOrders
+      .slice(0, 6)
       .sort((a,b) => b.unitPrice - a.unitPrice)
-      .slice(0, 10)
       .forEach((buyOrder, index) => {
           if (index > 5) {
               return;
           }
-          orderbookBuyRows.push(<Tr key={index} color={Number(price) > buyOrder.unitPrice ? "orange": "white"}>
+          orderbookBuyRows.push(<Tr key={index}>
               <Td>{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
               <Td>{buyOrder.formattedSize}</Td>
           </Tr>)
@@ -397,22 +401,22 @@ const {
                     <Stack spacing="24px">
                         <Box mt={2} mb={8}>
                             <HStack spacing={3}>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="purple">
                                         <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
                                         <TagLabel>{optionType}</TagLabel>
                                     </Tag>
                                 </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="blue">
                                         <Icon as={MdDateRange} />
                                         <TagLabel> {formattedExpiry}</TagLabel>
                                     </Tag>
                                 </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="yellow">
                                         <Icon as={GiMoneyStack} />
-                                        <TagLabel>{`${formattedStrike} USDC`}</TagLabel>
+                                        <TagLabel>{`${formattedStrike} FK`}</TagLabel>
                                     </Tag>
                                 </Tooltip>
                             </HStack>
@@ -449,20 +453,29 @@ const {
                             </HStack>
                         </Box>
                         <Box>
-                            <FormLabel htmlFor="amount">Amount:</FormLabel>
+                            <FormLabel htmlFor="amount">Amount:
+                                <Tooltip p={3} label="The amount of asset to purchase option for (minimum: 0.000001 ETH)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                    <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                </Tooltip>
+                            </FormLabel>
                             <Input
-                              id="amount"
-                              placeholder="0"
-                              value={amount}
-                              onChange={(event: any) => setAmount(event.target.value)}
+                                id="amount"
+                                placeholder="0.1"
+                                value={amount}
+                                onChange={(event: any) => setAmount(event.target.value)}
                             />
                         </Box>
                         <Box>
-                            <FormLabel htmlFor="bid">Price per contract:</FormLabel>
+                            <FormLabel htmlFor="bid">Price per contract:
+                                  <Tooltip p={3} label={`The ${'FK'} required to purchase 1 xxx contract (1 ${'ETH'}) `} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                </Tooltip>
+                            </FormLabel>
                             <Input
                               id="bid"
-                              placeholder="The USDC required to purchase 1 contract (1 ETH)"
-                              value={price}
+                              placeholder="0"
+                              value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(2) : orderBook.buyOrders[0]?.unitPrice.toFixed(2)) : price}
+                              isDisabled={radioOrderType === 'Market'}
                               onChange={(event: any) => changePrice(event.target.value)}
                             />
                         </Box>

@@ -7,7 +7,7 @@ import {
 import React, {useContext} from "react";
 import {TxContext} from "./Store";
 import {CheckCircleIcon, ExternalLinkIcon, Icon, TimeIcon} from "@chakra-ui/icons";
-import {HappyBud} from "../assets/Icons";
+import {HappyBud, TradeBud} from '../assets/Icons';
 import {PendingTxState} from "../types";
 import {VscError} from "react-icons/all";
 
