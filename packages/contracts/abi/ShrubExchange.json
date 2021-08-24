@@ -569,6 +569,46 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "baseAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "quoteAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "strike",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum ShrubExchange.OptionType",
+            "name": "optionType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct ShrubExchange.OrderCommon",
+        "name": "common",
+        "type": "tuple"
+      }
+    ],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "token",
         "type": "address"
@@ -1767,6 +1807,25 @@
       }
     ],
     "name": "positionPoolTokenBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "positionPoolTokenTotalSupply",
     "outputs": [
       {
         "internalType": "uint256",

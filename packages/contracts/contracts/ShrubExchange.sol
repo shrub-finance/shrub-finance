@@ -58,7 +58,10 @@ contract ShrubExchange {
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
+
   mapping(bytes32 => mapping(address => uint256)) public positionPoolTokenBalance;
+  mapping(bytes32 => uint256) public positionPoolTokenTotalSupply;
+
   mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
   address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
@@ -262,6 +265,7 @@ contract ShrubExchange {
 
       userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
       positionPoolTokenBalance[positionHash][common.quoteAsset] += fillSize;
+      positionPoolTokenTotalSupply[positionHash] += fillSize;
 
       userTokenBalances[seller][common.baseAsset] += adjustedPrice;
       userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
@@ -275,6 +279,7 @@ contract ShrubExchange {
 
       userTokenLockedBalance[seller][common.baseAsset] += lockedCapital;
       positionPoolTokenBalance[positionHash][common.baseAsset] += lockedCapital;
+      positionPoolTokenTotalSupply[positionHash] += lockedCapital;
 
       userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
       userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
@@ -373,7 +378,28 @@ contract ShrubExchange {
       // deduct balance of tokens sold
       userTokenBalances[buyer][common.quoteAsset] -= buyOrderSize;
     }
+  }
 
+  function claim(OrderCommon memory common) public {
+    bytes32 positionHash = hashOrderCommon(common);
+    require(userOptionPosition[msg.sender][positionHash] < 0, "Must have sold an option to claim");
+    require(common.expiry < block.timestamp, "Cannot claim until options are expired");
+
+    uint256 poolOwnership =  uint256(-1 * userOptionPosition[msg.sender][positionHash]);
+    uint256 totalSupply = positionPoolTokenTotalSupply[positionHash];
+
+    uint256 quoteBalance = positionPoolTokenBalance[positionHash][common.quoteAsset];
+    uint256 quoteBalanceOwed = poolOwnership / totalSupply * quoteBalance;
+
+    uint256 baseBalance = positionPoolTokenBalance[positionHash][common.baseAsset];
+    uint256 baseBalanceOwed = poolOwnership / totalSupply * baseBalance;
+
+    userTokenBalances[msg.sender][common.baseAsset] += baseBalanceOwed;
+    userTokenBalances[msg.sender][common.quoteAsset] += quoteBalanceOwed;
+
+    // reduce pool size by amount claimed
+    positionPoolTokenTotalSupply[positionHash] -= poolOwnership;
+    userOptionPosition[msg.sender][positionHash] = 0;
   }
 
   function announce(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public {

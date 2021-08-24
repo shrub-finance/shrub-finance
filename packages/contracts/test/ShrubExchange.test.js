@@ -2,6 +2,7 @@ const Exchange = artifacts.require("ShrubExchange");
 const FakeToken = artifacts.require("FakeToken");
 const { Shrub712 } = require("../utils/EIP712");
 const utils = require("ethereumjs-util");
+const util = require('util');
 
 const Assets = {
   USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -13,6 +14,7 @@ const WeiInEth = web3.utils.toBN(10).pow(web3.utils.toBN(18))
 const BigHundred = web3.utils.toBN(100);
 const BigTwo = web3.utils.toBN(2);
 const BigMillion = web3.utils.toBN(1e6);
+const wait = util.promisify(setTimeout);
 
 
 contract("ShrubExchange", (accounts) => {
@@ -21,17 +23,18 @@ contract("ShrubExchange", (accounts) => {
   let fakeToken;
   let orderTypeHash;
 
+  const startTime = Date.now();
   let sellOrder = {
     size: WeiInEth.toString(),
     isBuy: false,
     nonce: 1,
     price: WeiInEth.mul(BigHundred).toString(),
-    offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
+    offerExpire: Math.floor((startTime + 5 * 1000 * 60) / 1000),
     fee: 1,
 
     baseAsset: Assets.USDC,
     quoteAsset: Assets.ETH,
-    expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
+    expiry: Math.floor((startTime + 30 * 1000) / 1000),
     strike: BigHundred.mul(BigMillion).toString(),
     optionType: 1,
   };
@@ -484,8 +487,8 @@ contract("ShrubExchange", (accounts) => {
     // Deposit ERC20 to pay STRIKE * SIZE
     const totalPrice =
       web3.utils.toBN(buyOrder.size)
-        .mul(web3.utils.toBN(buyOrder.strike))
-        .div(web3.utils.toBN(STRIKE_BASE_SHIFT));
+      .mul(web3.utils.toBN(buyOrder.strike))
+      .div(web3.utils.toBN(STRIKE_BASE_SHIFT));
     await fakeToken.approve(exchange.address, totalPrice, {
       from: buyer,
     });
@@ -528,5 +531,86 @@ contract("ShrubExchange", (accounts) => {
       buyOrder.size * buyOrder.strike / STRIKE_BASE_SHIFT,
       "Pool should now have the assets required to execute"
     );
+  });
+
+  it("should be able to claim funds as a seller that has been exercised against", async () => {
+    const fakeToken = await FakeToken.deployed();
+    const exchange = await Exchange.deployed();
+
+    const common = shrubInterface.toCommon(buyOrder);
+    const commonHash = await exchange.hashOrderCommon(common);
+    const seller = accounts[0];
+    const buyer = accounts[1];
+    const sellerPosition = await exchange.userOptionPosition(
+      seller,
+      commonHash
+    );
+
+    const sellerBalanceBefore = await exchange.userTokenBalances(
+      seller,
+      fakeToken.address
+    );
+
+    assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 ETH");
+
+    const waitTime = 30000 - (Date.now() - startTime);
+    console.log(`Waiting ${Math.floor(waitTime / 1000)} seconds for option to expire`);
+    await wait(waitTime);
+
+    const baseBalance = (await exchange.userTokenBalances(
+      seller,
+      common.baseAsset
+    )).toString();
+
+
+    const quoteBalance = (await exchange.userTokenBalances(
+      seller,
+      common.quoteAsset
+    )).toString();
+
+
+    await exchange.claim(common, {from: seller});
+
+    const sellerBalanceAfter = await exchange.userTokenBalances(
+      seller,
+      fakeToken.address
+    );
+
+    const baseBalanceAfter = (await exchange.userTokenBalances(
+      seller,
+      common.baseAsset
+    )).toString();
+
+
+    const quoteBalanceAfter = (await exchange.userTokenBalances(
+      seller,
+      common.quoteAsset
+    )).toString();
+
+
+
+    const sellerPositionAfter = await exchange.userOptionPosition(
+      seller,
+      commonHash
+    );
+
+    console.log({baseBalance, quoteBalance, baseBalanceAfter, quoteBalanceAfter});
+
+    assert.isTrue(
+      sellerBalanceBefore < sellerBalanceAfter,
+      "seller balance should increase"
+    );
+
+    assert.isTrue(
+      sellerPosition < sellerPositionAfter,
+      "seller balance should increase"
+    );
+
+    assert.isTrue(
+      sellerPositionAfter == 0,
+      "seller position should be zero"
+    );
+
+    console.log({ sellerPosition, sellerBalanceAfter });
   });
 });
