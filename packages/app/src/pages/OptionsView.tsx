@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useReducer, useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import {
   Alert,
   AlertDescription,
@@ -10,20 +10,15 @@ import {
   HStack,
   Spacer,
   Spinner,
-  Tooltip,
-  Text,
   useColorModeValue,
   useRadioGroup
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 import useFetch from "../hooks/useFetch";
 import {
-  ApiOrder,
   AppCommon,
-  AppOrderSigned,
   ContractData, IndexedAppOrderSigned,
   LastOrders,
-  OrderbookStats,
   OrderCommon,
   PutCall,
   SellBuy
@@ -35,19 +30,18 @@ import {
   formatStrike,
   fromEthDate, getAddressFromSignedOrder, getAnnouncedEvents, getLastOrders,
   hashOrderCommon, isBuyToOptionAction, optionTypeToNumber, optionTypeToString,
-  toEthDate,
-  transformOrderApiApp, transformOrderAppChain
+  transformOrderAppChain
 } from "../utils/ethMethods";
 import {BytesLike, ethers} from "ethers";
 import {FaEthereum} from "react-icons/fa";
-import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
+import {Icon} from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
 import {orderBookReducer} from "../components/orderBookReducer";
 
 const initialOrderBookState = {};
 
 function OptionsView(props: RouteComponentProps) {
-  const {active, library, account, error: web3Error} = useWeb3React();
+  const {library} = useWeb3React();
   const sellBuys = ['BUY', 'SELL']
   const optionTypes = ['PUT', 'CALL']
   const [sellBuy, setSellBuy] = useState<SellBuy>('BUY');
@@ -99,9 +93,6 @@ function OptionsView(props: RouteComponentProps) {
   const groupOptionType = getOptionTypeRootProps();
   const groupExpiry = getExpiryRootProps();
 
-  const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
-  // TODO: orderData should handle error just like contract data
-  const {data:orderData, status: orderDataStatus} = useFetch<ApiOrder[]>(url);
   const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
   const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
 
@@ -185,11 +176,7 @@ function OptionsView(props: RouteComponentProps) {
 
   },[expiryDate, optionType]);
 
-  const formattedOrderData = useMemo(() => {
-    return orderData && orderData.map(order => transformOrderApiApp(order));
-  }, [orderData])
-
-  for (const {strikePrice, positionHash} of strikePrices) {
+  for (const {strikePrice} of strikePrices) {
     const niceExpiry = formatDate(fromEthDate(Number(expiryDate)));
 
     if (
@@ -204,21 +191,7 @@ function OptionsView(props: RouteComponentProps) {
       continue;
     }
 
-    const filteredOrders =
-        formattedOrderData &&
-        orderDataStatus === "fetched"
-        && formattedOrderData.filter((order) => {
-          return order.strike.eq(strikePrice) &&
-              optionType === order.optionType &&
-              expiryDate === toEthDate(order.expiry).toString()
-        }
-    );
-
-
-
     const optionData = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()];
-    const buyOrders = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].buyOrders;
-    const sellOrders = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].sellOrders;
     const bestBid = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].bid?.toFixed(2) || '';
     const bestAsk = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].ask?.toFixed(2) || '';
 
@@ -240,20 +213,7 @@ function OptionsView(props: RouteComponentProps) {
       optionType: optionTypeToNumber(optionType)
     }
     const positionHash = hashOrderCommon(orderCommon)
-    console.log(positionHash);
     const last = lastMatches[positionHash] ? String(lastMatches[positionHash]) : ' -';
-
-    const stats: OrderbookStats = {
-      // TODO: provide data for last
-      last,
-      bestBid,
-      bestAsk,
-    }
-
-    if (filteredOrders && filteredOrders[0]) {
-      appCommon.expiry = filteredOrders[0].expiry;
-      appCommon.strike = filteredOrders[0].strike;
-    }
 
     optionRows.push(
       <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} optionData={optionData} />

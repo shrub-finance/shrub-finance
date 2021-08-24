@@ -7,7 +7,7 @@ export function orderBookReducer (
     state: OrderBookState,
     action: OrderBookAction) {
     const { type, orders } = action;
-    switch (action.type) {
+    switch (type) {
         case "add":
             for (const order of orders) {
                 const { baseAsset, quoteAsset, optionType, strike, formattedExpiry, optionAction, transactionHash } = order;
