@@ -27,28 +27,11 @@ import {TxContext} from "./Store";
 import {confirmingCount, TxStatusList} from "./TxMonitoring";
 import {isMobile} from "react-device-detect";
 
-
-const NavLinks = ["Shrub"];
-const NavLink = ({ children }: { children: ReactNode }) => (
-  <Link
-    px={2}
-    py={1}
-    rounded={"md"}
-    _hover={{
-      textDecoration: "none",
-      bg: useColorModeValue("gray.200", "gray.700"),
-    }}
-    href={"/"}
-  >
-    {children}
-  </Link>
-);
-
-const NavRoutes = ["Shrubfolio", "Options"];
+const NavRoutes = ["Home","Shrubfolio", "Options"];
 const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => (
     <Link
         px={2}
-        py={1}
+        py={isMobile? 2: 1}
         rounded={"md"}
         _hover={{
           textDecoration: "none",
@@ -64,6 +47,7 @@ const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => 
 function TopNav() {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   const {active, error: web3Error} = useConnectWallet();
   const [isHidden, setIsHidden] = useState(false);
@@ -79,19 +63,17 @@ function handleModalClose() {
 }
   return (
     <Box>
-
       <Box
           shadow={useColorModeValue("md", "md")}
           bg={useColorModeValue("white", "shrub.100")}
           px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <IconButton icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+          <IconButton icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label={"Open Menu"} display={{ md: "none" }}
-            onClick={isOpen ? onClose : onOpen}
+            onClick={isMenuOpen ? onMenuClose : onMenuOpen}
           />
           <HStack spacing={8} alignItems={"center"}>
             <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
-              {NavLinks.map((link) => (<NavLink key={link}><HelloBud boxSize={10}/></NavLink>))}
               {NavRoutes.map((route) => (<NavRoute key={route} path={route}>{route}</NavRoute>))}
             </HStack>
           </HStack>
@@ -104,7 +86,8 @@ function handleModalClose() {
                     <InfoOutlineIcon colorScheme="red"/> : undefined}> {!!web3Error && !active ?
                     getErrorMessage(web3Error).title :
                       confirmingCountNumber > 0 ?
-                        <><Spinner thickness="1px" speed="0.65s" color="cyan.500" size="xs" mr={2} /> {confirmingCountNumber} Pending...</> :
+                        <><Spinner thickness="1px" speed="0.65s" color="cyan.500" size="xs" mr={2} />
+                          {confirmingCountNumber} Pending...</> :
                         <Account/>}
               </Button>
             </Box>
@@ -114,8 +97,9 @@ function handleModalClose() {
           </Flex>
         </Flex>
 
-        {isOpen ? (<Box pb={4} display={{ md: "none" }}>
-            <Stack as={"nav"} spacing={4}>{NavLinks.map((link) => (<NavLink key={link}>{link}</NavLink>))}</Stack></Box>) : null}</Box>
+        {isMenuOpen ? (<Box pb={4} display={{ md: "none" }}>
+            <Stack as={"nav"} spacing={4}>{NavRoutes.map((route) =>
+                (<NavRoute key={route} path={route}>{route}</NavRoute>))}</Stack></Box>) : null}</Box>
 
       <Modal isOpen={isOpen} onClose={handleModalClose} motionPreset="slideInBottom"
              scrollBehavior={isMobile ?"inside" : "outside"}
