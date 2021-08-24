@@ -18,7 +18,7 @@ import {
   ModalBody,
   ModalCloseButton, Spinner
 } from "@chakra-ui/react";
-import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon} from "@chakra-ui/icons";
+import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon, Icon} from '@chakra-ui/icons';
 import { Link as ReachLink } from "@reach/router";
 import {Account, Balance, ChainId, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
@@ -26,23 +26,8 @@ import {HelloBud} from "../assets/Icons";
 import {TxContext} from "./Store";
 import {confirmingCount, TxStatusList} from "./TxMonitoring";
 import {isMobile} from "react-device-detect";
-
-const NavRoutes = ["Shrubfolio", "Options"];
-const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => (
-    <Link
-        px={2}
-        py={isMobile? 2: 1}
-        rounded={"md"}
-        _hover={{
-          textDecoration: "none",
-          bg: useColorModeValue("gray.200", "gray.700"),
-        }}
-        as={ReachLink}
-        to={path.toLowerCase()}
-    >
-      {children}
-    </Link>
-);
+import {GiCoins} from 'react-icons/gi';
+import {FaFileContract} from 'react-icons/all';
 
 function TopNav() {
 
@@ -54,26 +39,47 @@ function TopNav() {
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
   const confirmingCountNumber = confirmingCount(pendingTxsState);
-  const displayStatus = (val: boolean ) => {
-    setIsHidden(val);
-  }
+  const displayStatus = (val: boolean ) => {setIsHidden(val);}
+  const gradient = useColorModeValue(
+      "linear(to-r, gray.100, gray.200)",
+      "linear(to-l, gray.700, gray.700)"
+  );
+  const topNavShadow = useColorModeValue("md", "md");
+  const topNavBgColor = useColorModeValue("white", "shrub.100");
+
 function handleModalClose() {
     onClose();
     displayStatus(false);
 }
+
+  const NavRoutes = [{item:'Shrubfolio', itemIcon:GiCoins}, {item:'Options', itemIcon: FaFileContract}];
+
+  const NavRoute = ({ children, path, itemIcon }: { children: ReactNode, path: string, itemIcon?: any }) => (
+      <>
+      <Link px={2} py={{ base: "3", md: "1", lg: "1" }} rounded={"lg"}
+          _hover={{textDecoration: "none", bgGradient: gradient}}
+          as={ReachLink} to={path.toLowerCase()} onClick={onMenuClose}>
+        {children}
+      </Link>
+      </>
+);
+
+
   return (
     <Box>
       <Box
-          shadow={useColorModeValue("md", "md")}
-          bg={useColorModeValue("white", "shrub.100")}
+          shadow={topNavShadow}
+          bg={topNavBgColor}
           px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={8} alignItems={"center"}>
-            <NavRoute path={'home'}><HelloBud boxSize={10}/></NavRoute>
+            <NavRoute path={'home'} itemIcon={''}>
+              <HelloBud boxSize={10}/>
+            </NavRoute>
             <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
               {NavRoutes.map((route) => (
-                  <NavRoute key={route} path={route}>
-                    {route}
+                  <NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
+                   {route.item}
                   </NavRoute>))}
             </HStack>
           </HStack>
@@ -93,7 +99,7 @@ function handleModalClose() {
                         <Account/>}
               </Button>
             </Box>
-            <IconButton isRound variant="unstyled"
+            <IconButton variant="unstyled"
             icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label={"Open Menu"} display={{ md: "none" }}
             onClick={isMenuOpen ? onMenuClose : onMenuOpen}/>
@@ -109,10 +115,20 @@ function handleModalClose() {
             <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={3}>
                 {NavRoutes.map((route) =>
-                (<NavRoute key={route} path={route}>{route}</NavRoute>))}
+                (<NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
+                  <Icon as={route.itemIcon} mr={2} /> {route.item}
+                </NavRoute>))}
             </Stack>
-              <Box ml={2} mb={2} mt={4} onClick={toggleColorMode} variant="ghost" cursor='pointer'>
-                {colorMode === "light" ? 'Dark Mode' : 'Light Mode'}</Box>
+              <Box mb={2} mt={4} onClick={toggleColorMode} variant="ghost" cursor='pointer'
+                   rounded="lg" py={"3"} px={"2"}
+                   _hover={{
+                textDecoration: "none",
+                bgGradient: gradient
+              }}>
+                {colorMode === "light" ? <MoonIcon mr={'2'}/> : <SunIcon mr={'2'}/>}
+                {colorMode === "light" ? 'Dark Mode' : 'Light Mode'}
+
+              </Box>
             </Box>
         ) : null
         }
