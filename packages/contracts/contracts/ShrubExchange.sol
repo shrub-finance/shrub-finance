@@ -331,9 +331,13 @@ contract ShrubExchange {
     address buyer = msg.sender;
     bytes32 positionHash = hashOrderCommon(common);
 
-    require(userOptionPosition[buyer][positionHash] >= int(buyOrderSize), "Cannot exercise more than owned");
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to exercise");
+    require(userOptionPosition[buyer][positionHash] >= int(buyOrderSize), "Cannot exercise more than owned");
+    require(int(buyOrderSize) > 0, "buyOrderSize is too large");
     require(common.expiry >= block.timestamp, "Option has already expired");
+
+    // user has exercised this many
+    userOptionPosition[buyer][positionHash] -= int(buyOrderSize);
 
     uint256 totalPaid = adjustWithRatio(buyOrderSize, common.strike);
 
@@ -369,6 +373,7 @@ contract ShrubExchange {
       // deduct balance of tokens sold
       userTokenBalances[buyer][common.quoteAsset] -= buyOrderSize;
     }
+
   }
 
   function announce(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public {

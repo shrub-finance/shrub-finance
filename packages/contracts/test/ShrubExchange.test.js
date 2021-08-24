@@ -471,6 +471,7 @@ contract("ShrubExchange", (accounts) => {
 
     const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
     const common = shrubInterface.toCommon(sellOrder);
+    const commonHash = await exchange.hashOrderCommon(common);
 
     // Sign orders
     const signedBuyOrder = await shrubInterface.signOrderWithWeb3(
@@ -492,17 +493,21 @@ contract("ShrubExchange", (accounts) => {
       from: buyer,
     });
 
-    const sellerBalanceBefore = await exchange.userTokenBalances(
-      seller,
+    const poolBalanceBefore = await exchange.positionPoolTokenBalance(
+      commonHash,
       fakeToken.address
     );
     const buyerBalanceBefore = await exchange.userTokenBalances(
       buyer,
       fakeToken.address
     );
-    await exchange.execute(smallBuyOrder, common, seller, signedBuyOrder.sig);
-    const sellerBalanceAfter = await exchange.userTokenBalances(
-      seller,
+
+
+    const buyerPosition = await exchange.userOptionPosition(buyer, commonHash);
+    await exchange.exercise(buyerPosition, common, {from: buyer});
+
+    const poolBalanceAfter = await exchange.positionPoolTokenBalance(
+      commonHash,
       fakeToken.address
     );
     const buyerBalanceAfter = await exchange.userTokenBalances(
@@ -511,17 +516,17 @@ contract("ShrubExchange", (accounts) => {
     );
 
     assert.isTrue(
-      sellerBalanceBefore < sellerBalanceAfter,
-      "Seller balance should increase"
+      poolBalanceBefore < poolBalanceAfter,
+      "pool balance should increase"
     );
     assert.isTrue(
       buyerBalanceBefore > buyerBalanceAfter,
       "Buyer balance should decrease"
     );
     assert.equal(
-      sellerBalanceAfter - sellerBalanceBefore,
+      poolBalanceAfter - poolBalanceBefore,
       buyOrder.size * buyOrder.strike / STRIKE_BASE_SHIFT,
-      "Seller should now have the assets required to execute"
+      "Pool should now have the assets required to execute"
     );
   });
 });
