@@ -99,6 +99,9 @@ function OptionsView(props: RouteComponentProps) {
   // On load
   useEffect(() => {
     console.log('running onLoad useEffect')
+    if (!library) {
+      return;
+    }
     getLastOrders(library)
       .then(lasts => {
         setLastMatches(lasts)
@@ -120,7 +123,7 @@ function OptionsView(props: RouteComponentProps) {
       }, [contractDataStatus]);
 
   useEffect(() => {
-    if(contractData && expiryDate) {
+    if(contractData && expiryDate && library) {
       const strikeObjPrices = contractData['ETH-FK'][expiryDate][optionType].map((strikeNum) => {
         const strike = ethers.BigNumber.from(strikeNum);
         const common: OrderCommon = {
@@ -174,10 +177,19 @@ function OptionsView(props: RouteComponentProps) {
       }
     }
 
-  },[expiryDate, optionType]);
+  },[expiryDate, optionType, library]);
 
   for (const {strikePrice} of strikePrices) {
     const niceExpiry = formatDate(fromEthDate(Number(expiryDate)));
+    const appCommon:AppCommon = {
+      formattedStrike: formatStrike(strikePrice),
+      formattedExpiry: formatDate(Number(expiryDate)),
+      optionType,
+      quoteAsset,
+      baseAsset,
+      expiry: fromEthDate(Number(expiryDate)),
+      strike: strikePrice
+    }
 
     if (
       !expiryDate ||
@@ -188,6 +200,16 @@ function OptionsView(props: RouteComponentProps) {
       !orderBookState[quoteAsset][baseAsset][niceExpiry][optionType] ||
       !orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()]
     ) {
+      const emptyOptionData = {
+        buyOrdersIndexed: {},
+        sellOrdersIndexed: {},
+        buyOrders: [],
+        sellOrders: [],
+        last: ''
+      }
+      optionRows.push(
+        <OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={''} bid={''} key={appCommon.formattedStrike} optionData={emptyOptionData} />
+      );
       continue;
     }
 
@@ -195,15 +217,6 @@ function OptionsView(props: RouteComponentProps) {
     const bestBid = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].bid?.toFixed(2) || '';
     const bestAsk = orderBookState[quoteAsset][baseAsset][niceExpiry][optionType][strikePrice.toString()].ask?.toFixed(2) || '';
 
-    const appCommon:AppCommon = {
-      formattedStrike: formatStrike(strikePrice),
-      formattedExpiry: formatDate(Number(expiryDate)),
-      optionType,
-      quoteAsset,
-      baseAsset,
-      expiry: fromEthDate(Number(expiryDate)),
-      strike: strikePrice
-    }
 
     const orderCommon: OrderCommon = {
       baseAsset,
