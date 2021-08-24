@@ -1032,41 +1032,9 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ShrubExchange.SmallOrder",
-        "name": "buyOrder",
-        "type": "tuple"
+        "internalType": "uint256",
+        "name": "buyOrderSize",
+        "type": "uint256"
       },
       {
         "components": [
@@ -1099,36 +1067,9 @@
         "internalType": "struct ShrubExchange.OrderCommon",
         "name": "common",
         "type": "tuple"
-      },
-      {
-        "internalType": "address",
-        "name": "seller",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct ShrubExchange.Signature",
-        "name": "buySig",
-        "type": "tuple"
       }
     ],
-    "name": "execute",
+    "name": "exercise",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -1810,6 +1751,30 @@
     "name": "matchOrders",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "positionPoolTokenBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

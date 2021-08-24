@@ -58,6 +58,7 @@ contract ShrubExchange {
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
+  mapping(bytes32 => mapping(address => uint256)) public positionPoolTokenBalance;
   mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
   address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
@@ -258,15 +259,23 @@ contract ShrubExchange {
     if(common.optionType == OptionType.CALL) {
       require(getAvailableBalance(seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
       require(getAvailableBalance(buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
+
       userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
+      positionPoolTokenBalance[positionHash][common.quoteAsset] += fillSize;
+
       userTokenBalances[seller][common.baseAsset] += adjustedPrice;
       userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
     }
 
     if(common.optionType == OptionType.PUT) {
-      require(getAvailableBalance(seller, common.baseAsset) >= adjustWithRatio(fillSize, common.strike), "Put Seller must have enough free collateral");
+      uint lockedCapital = adjustWithRatio(fillSize, common.strike);
+
+      require(getAvailableBalance(seller, common.baseAsset) >= lockedCapital, "Put Seller must have enough free collateral");
       require(getAvailableBalance(buyer, common.quoteAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
-      userTokenLockedBalance[seller][common.baseAsset] += adjustWithRatio(fillSize, common.strike);
+
+      userTokenLockedBalance[seller][common.baseAsset] += lockedCapital;
+      positionPoolTokenBalance[positionHash][common.baseAsset] += lockedCapital;
+
       userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
       userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
     }
@@ -318,42 +327,47 @@ contract ShrubExchange {
     }
   }
 
-  function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
-    address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
-    //    console.log(buyer);
-    //    console.log(seller);
+  function exercise(uint256 buyOrderSize, OrderCommon memory common) public payable {
+    address buyer = msg.sender;
     bytes32 positionHash = hashOrderCommon(common);
-    //    console.logBytes32(positionHash);
-    //    console.logInt(userOptionPosition[buyer][positionHash]);
-    //    console.logInt(userOptionPosition[seller][positionHash]);
-    require(userOptionPosition[buyer][positionHash] >= buyerOrder.size, "Cannot execute more than owned");
-    require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
-    require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
+
+    require(userOptionPosition[buyer][positionHash] >= int(buyOrderSize), "Cannot exercise more than owned");
+    require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to exercise");
     require(common.expiry >= block.timestamp, "Option has already expired");
 
+    uint256 totalPaid = adjustWithRatio(buyOrderSize, common.strike);
+
     if(common.optionType == OptionType.CALL) {
-      // unlock the assets for seller
-      userTokenLockedBalance[seller][common.quoteAsset] -= buyOrder.size;
+      require(positionPoolTokenBalance[positionHash][common.quoteAsset] >= buyOrderSize, "Pool must have enough funds");
+      require(userTokenBalances[buyer][common.baseAsset] >= totalPaid, "Buyer must have enough funds to exercise CALL");
+
+      // deduct the quoteAsset from the pool
+      positionPoolTokenBalance[positionHash][common.quoteAsset] -= buyOrderSize;
 
       // Reduce seller's locked capital and token balance of quote asset
-      userTokenBalances[seller][common.quoteAsset] -= buyOrder.size;
-      userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
+      userTokenBalances[buyer][common.quoteAsset] += buyOrderSize;
 
       // Give the seller the buyer's funds, in terms of baseAsset
-      userTokenBalances[seller][common.baseAsset] += adjustWithRatio(buyOrder.size, common.strike);
-      userTokenBalances[buyer][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
+      positionPoolTokenBalance[positionHash][common.baseAsset] += totalPaid;
+
+      // deduct strike * size from buyer
+      userTokenBalances[buyer][common.baseAsset] -= totalPaid;
     }
     if(common.optionType == OptionType.PUT) {
-      // unlock the assets of the seller
-      userTokenLockedBalance[seller][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
+      require(positionPoolTokenBalance[positionHash][common.baseAsset] >= totalPaid, "Pool must have enough funds");
+      require(userTokenBalances[buyer][common.quoteAsset] >= buyOrderSize, "Buyer must have enough funds to exercise PUT");
 
-      // Reduce seller's locked capital and token balance of base asset
-      userTokenBalances[seller][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
-      userTokenBalances[buyer][common.baseAsset] += adjustWithRatio(buyOrder.size, common.strike);
+      // deduct baseAsset from pool
+      positionPoolTokenBalance[positionHash][common.baseAsset] -= totalPaid;
 
-      // Give the seller the buyer's funds, in terms of quoteAsset
-      userTokenBalances[seller][common.quoteAsset] += buyOrder.size;
-      userTokenBalances[buyer][common.quoteAsset] -= buyOrder.size;
+      // increase exercisee balance by strike * size
+      userTokenBalances[buyer][common.baseAsset] += totalPaid;
+
+      // credit the pool the amount of quote asset sold
+      positionPoolTokenBalance[positionHash][common.quoteAsset] += buyOrderSize;
+
+      // deduct balance of tokens sold
+      userTokenBalances[buyer][common.quoteAsset] -= buyOrderSize;
     }
   }
 
