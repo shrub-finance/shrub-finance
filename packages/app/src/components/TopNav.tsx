@@ -27,7 +27,7 @@ import {TxContext} from "./Store";
 import {confirmingCount, TxStatusList} from "./TxMonitoring";
 import {isMobile} from "react-device-detect";
 
-const NavRoutes = ["Home","Shrubfolio", "Options"];
+const NavRoutes = ["Shrubfolio", "Options"];
 const NavRoute = ({ children, path }: { children: ReactNode, path: string }) => (
     <Link
         px={2}
@@ -68,19 +68,21 @@ function handleModalClose() {
           bg={useColorModeValue("white", "shrub.100")}
           px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <IconButton icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
-            aria-label={"Open Menu"} display={{ md: "none" }}
-            onClick={isMenuOpen ? onMenuClose : onMenuOpen}
-          />
           <HStack spacing={8} alignItems={"center"}>
+            <NavRoute path={'home'}><HelloBud boxSize={10}/></NavRoute>
             <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
-              {NavRoutes.map((route) => (<NavRoute key={route} path={route}>{route}</NavRoute>))}
+              {NavRoutes.map((route) => (
+                  <NavRoute key={route} path={route}>
+                    {route}
+                  </NavRoute>))}
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            <Box pr={5}><Balance/></Box>
-            <Box><ChainId/></Box>
-            <Box onClick={onOpen}>
+            {!isMobile && <Box pr={5}><Balance/></Box>}
+            {!isMobile && <Box><ChainId/></Box>}
+            <Box onClick={onOpen}
+                 mr={isMobile ? '19.5': '0'}
+            >
               <Button variant={"outline"} colorScheme={!!web3Error ? "red":"teal"}
                   size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?
                     <InfoOutlineIcon colorScheme="red"/> : undefined}> {!!web3Error && !active ?
@@ -91,19 +93,32 @@ function handleModalClose() {
                         <Account/>}
               </Button>
             </Box>
-            <Button onClick={toggleColorMode} variant="ghost">
+            <IconButton isRound variant="unstyled"
+            icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
+            aria-label={"Open Menu"} display={{ md: "none" }}
+            onClick={isMenuOpen ? onMenuClose : onMenuOpen}/>
+
+            {!isMobile && <Button onClick={toggleColorMode} variant="ghost" display={{ base: "none", md: "block" }}>
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-            </Button>
+            </Button>}
           </Flex>
         </Flex>
 
-        {isMenuOpen ? (<Box pb={4} display={{ md: "none" }}>
-            <Stack as={"nav"} spacing={4}>{NavRoutes.map((route) =>
-                (<NavRoute key={route} path={route}>{route}</NavRoute>))}</Stack></Box>) : null}</Box>
+        {
+          isMenuOpen ? (
+            <Box pb={4} display={{ md: "none" }}>
+            <Stack as={"nav"} spacing={3}>
+                {NavRoutes.map((route) =>
+                (<NavRoute key={route} path={route}>{route}</NavRoute>))}
+            </Stack>
+              <Box ml={2} mb={2} mt={4} onClick={toggleColorMode} variant="ghost" cursor='pointer'>
+                {colorMode === "light" ? 'Dark Mode' : 'Light Mode'}</Box>
+            </Box>
+        ) : null
+        }
+      </Box>
 
-      <Modal isOpen={isOpen} onClose={handleModalClose} motionPreset="slideInBottom"
-             scrollBehavior={isMobile ?"inside" : "outside"}
-      >
+      <Modal isOpen={isOpen} onClose={handleModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"}>
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
           <ModalHeader>{ !active ? 'Connect Wallet' :
