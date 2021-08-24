@@ -203,9 +203,9 @@ export function ConnectionStatus({displayStatus}) {
     const shadow = useColorModeValue("base", "dark-lg");
     const {active, error, account} = useWeb3React();
     const { connector } = useConnectWallet();
-    const connectedName = Object.keys(connectorsByName).find((item) => {
+    const connectedName = Object.keys(connectorsByName).find((connectorName) => {
         // @ts-ignore
-        return connector === connectorsByName[item]
+        return connector === connectorsByName[connectorName]
     });
     const ethScanLink = `https://etherscan.io/address/${account}`;
     const [copyValue, setCopyValue] = React.useState("")
@@ -328,7 +328,7 @@ export function ConnectWalletModal() {
                                       onClick={() => {
                                           setActivatingConnector(currentConnector);
                                           // @ts-ignore
-                                          activate(connectorsByName[item]);}}>
+                                          activate(connectorsByName[connectorName]);}}>
                                     <Box p="4"
                                          fontSize={20}>
                                         {activating && (<Spinner mr={2} thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading"/>)}
@@ -349,11 +349,13 @@ export function ConnectWalletModal() {
                     }  else {
                         return (
                             <Stack spacing={8} key={connectorName}>
-                                <Flex cursor="pointer" p={isMobile? 0: 3} mb={isMobile? 2: 5} boxShadow={shadow} rounded="lg" _hover={{bgGradient: gradient}} disabled={disabled}
+                                <Flex cursor="pointer" p={isMobile? 0: 3} mb={isMobile? 2: 5} boxShadow={shadow} rounded="lg"
+                                      _hover={{bgGradient: gradient}}
+                                      disabled={disabled}
                                       onClick={() => {
                                           setActivatingConnector(currentConnector);
                                           // @ts-ignore
-                                          activate(connectorsByName[item]);
+                                          activate(connectorsByName[connectorName]);
                                       }}>
                                     <Box p="4" fontSize={20}>
                                         {activating && (

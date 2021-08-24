@@ -10,6 +10,7 @@ import {CheckCircleIcon, ExternalLinkIcon, Icon, TimeIcon} from "@chakra-ui/icon
 import {HappyBud, TradeBud} from '../assets/Icons';
 import {PendingTxState} from "../types";
 import {VscError} from "react-icons/all";
+import {isMobile} from "react-device-detect";
 
 
 export function Txmonitor({txHash}:{txHash?: string}) {
@@ -187,7 +188,7 @@ export function TxStatusList() {
                         </Box>
                     </>
                     :
-                      <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="lg" ml="2">
+                      <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize={isMobile? "md" : "lg"} ml="2">
                       Transactions will show up here...
                       </Center>
                   }
