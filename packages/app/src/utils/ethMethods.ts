@@ -394,6 +394,15 @@ export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provi
   return shrubContract.queryFilter(filter, fromBlock, toBlock);
 }
 
+export async function announceOrder(signedOrder: IOrder, provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const common = iOrderToCommon(signedOrder);
+  const smallOrder = iOrderToSmall(signedOrder);
+  const sig = iOrderToSig(signedOrder);
+  return shrubContract.announce(smallOrder, common, sig);
+}
+
 // export function getAnnouncedEvents(provider: JsonRpcProvider, fromBlock = 0, toBlock: string | number = 'latest') {
 export function getAnnouncedEvents({provider, positionHash, fromBlock = 0, toBlock = 'latest'}: {
   provider: JsonRpcProvider,

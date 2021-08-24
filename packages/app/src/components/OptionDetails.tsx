@@ -40,7 +40,7 @@ import {
     optionActionToIsBuy,
     transformOrderApiApp,
     transformOrderAppChain,
-    validateOrderAddress, formatDate, getSymbolFor
+    validateOrderAddress, formatDate, getSymbolFor, announceOrder
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
@@ -175,9 +175,8 @@ const {
             const signedOrder = await signOrder(unsignedOrder, library);
             const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
             console.log(`verifiedAddress: ${verifiedAddress}`);
-            const pOrder = iOrderToPostOrder(signedOrder);
             // TODO: handle success/failure responses
-            const res = await postOrder(pOrder);
+            const res = await announceOrder(signedOrder, library);
             setApproving(false);
         } catch (e) {
             handleErrorMessages({err:e});
