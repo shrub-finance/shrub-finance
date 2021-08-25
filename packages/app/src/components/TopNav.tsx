@@ -55,13 +55,11 @@ function handleModalClose() {
   const NavRoutes = [{item:'Shrubfolio', itemIcon:GiCoins}, {item:'Options', itemIcon: FaFileContract}];
 
   const NavRoute = ({ children, path, itemIcon }: { children: ReactNode, path: string, itemIcon?: any }) => (
-      <>
       <Link px={2} py={{ base: "3", md: "1", lg: "1" }} rounded={"lg"}
           _hover={{textDecoration: "none", bgGradient: gradient}}
           as={ReachLink} to={path.toLowerCase()} onClick={onMenuClose}>
         {children}
       </Link>
-      </>
 );
 
 
@@ -73,9 +71,9 @@ function handleModalClose() {
           px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={8} alignItems={"center"}>
-            <NavRoute path={'home'} itemIcon={''}>
+            <Link as={ReachLink} to={'home'} >
               <HelloBud boxSize={10}/>
-            </NavRoute>
+            </Link>
             <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
               {NavRoutes.map((route) => (
                   <NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
@@ -118,17 +116,21 @@ function handleModalClose() {
                 (<NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
                   <Icon as={route.itemIcon} mr={2} /> {route.item}
                 </NavRoute>))}
-            </Stack>
-              <Box mb={2} mt={4} onClick={toggleColorMode} variant="ghost" cursor='pointer'
-                   rounded="lg" py={"3"} px={"2"}
+              <Box
+                   onClick={toggleColorMode}
+                   variant="ghost"
+                   cursor="pointer"
+                   rounded="lg"
+                   py={'3'}
+                   px={'2'}
                    _hover={{
-                textDecoration: "none",
-                bgGradient: gradient
-              }}>
+                     textDecoration: "none",
+                     bgGradient: gradient
+                   }}>
                 {colorMode === "light" ? <MoonIcon mr={'2'}/> : <SunIcon mr={'2'}/>}
                 {colorMode === "light" ? 'Dark Mode' : 'Light Mode'}
-
               </Box>
+            </Stack>
             </Box>
         ) : null
         }
