@@ -4,3 +4,4 @@ REACT_APP_RPC_URL_1=https://mainnet.infura.io/v3/b77f34158b2146149a26adf19a4671e
 REACT_APP_RPC_URL_42=https://kovan.infura.io/v3/b77f34158b2146149a26adf19a4671e3
 REACT_APP_RPC_URL_1337=http://localhost:8545
 REACT_APP_API_ENDPOINT=http://localhost:8000
+REACT_APP_RPC_URL_80001=https://rpc-mumbai.maticvigil.com

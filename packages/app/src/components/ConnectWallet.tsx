@@ -174,7 +174,7 @@ export function Balance() {
                         'Error' :
                         balance
                             // @ts-ignore
-                            ? `${Number(formatEther(balance)).toPrecision(6)} ETH` : ''
+                            ? chainId===80001? `${Number(formatEther(balance)).toPrecision(6)} MATIC` :`${Number(formatEther(balance)).toPrecision(6)} ETH` : ''
                 }
             </Button>
             }

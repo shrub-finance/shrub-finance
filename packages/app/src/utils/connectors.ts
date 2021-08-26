@@ -13,14 +13,15 @@ const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.REACT_APP_RPC_URL_1 as string,
   42: process.env.REACT_APP_RPC_URL_42 as string,
   1337: process.env.REACT_APP_RPC_URL_1337 as string,
+  80001: process.env.REACT_APP_RPC_URL_80001 as string
 };
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1, 3, 4, 5, 42, 1337],
+  supportedChainIds: [1, 3, 4, 5, 42, 1337,80001],
 });
 
 export const network = new NetworkConnector({
-  urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 1337: RPC_URLS[1337] },
+  urls: { 1: RPC_URLS[1], 42: RPC_URLS[42], 1337: RPC_URLS[1337], 80001: RPC_URLS[80001] },
   defaultChainId: 1,
 });
 
