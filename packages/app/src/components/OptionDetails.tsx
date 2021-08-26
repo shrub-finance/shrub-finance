@@ -35,28 +35,22 @@ import {
     signOrder,
     toEthDate,
     getAvailableBalance,
-    iOrderToPostOrder,
     matchOrders,
     optionActionToIsBuy,
-    transformOrderApiApp,
     transformOrderAppChain,
-    validateOrderAddress, formatDate, getSymbolFor
+    validateOrderAddress, formatDate, getSymbolFor, announceOrder
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
 import React, {useContext, useEffect, useState} from "react";
 import {
-    ApiOrder,
     AppCommon,
-    GetOrdersParams,
-    IOrder,
+    IOrder, OptionData,
     OrderBook,
     OrderType,
     SellBuy,
     UnsignedOrder
 } from "../types";
-import {postOrder} from "../utils/requests";
-import useFetch from "../hooks/useFetch";
 import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
@@ -64,10 +58,11 @@ import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
 
 const { Zero } = ethers.constants;
 
-function OptionDetails({ appCommon, sellBuy, hooks }: {
+function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     appCommon: AppCommon,
     sellBuy: SellBuy,
-    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}
+    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any},
+    optionData: OptionData
 }) {
 
     const [localError, setLocalError] = useState('');
@@ -101,35 +96,13 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
 
-    let orderBookDepth = {buyOrderDepth: Zero, sellOrderDepth: Zero};
-
-    const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
-    const params: GetOrdersParams = {
-        baseAsset,
-        quoteAsset,
-        expiry: toEthDate(expiry),
-        optionType: optionTypeToNumber(optionType),
-        strike: strike.toString()
-    }
-    const options = {params};
-    const {data: orderBookData, status} = useFetch<ApiOrder[]>(url, options);
     useEffect(() => {
-        if (status !== 'fetched' || !orderBookData) {
-            return;
-        }
-        // add perContract pricing
-        const appOrderBookData = orderBookData.map(o => transformOrderApiApp(o));
-        const buyOrders = appOrderBookData.filter(o => o.optionAction === 'BUY').sort((a, b) => b.unitPrice - a.unitPrice);
-        const sellOrders = appOrderBookData.filter(o => o.optionAction === 'SELL').sort((a, b) => a.unitPrice - b.unitPrice);
-        const buyOrderDepth = buyOrders.reduce((tot, order) => tot.add(order.size), Zero)
-        const sellOrderDepth = sellOrders.reduce((tot, order) => tot.add(order.size), Zero)
-        orderBookDepth = {buyOrderDepth, sellOrderDepth};
-        console.log('sellOrders');
-        console.log(sellOrders);
+        const buyOrders = optionData.buyOrders.sort((a, b) => b.unitPrice - a.unitPrice);
+        const sellOrders = optionData.sellOrders.sort((a, b) => a.unitPrice - b.unitPrice);
         setOrderBook({ sellOrders, buyOrders })
-    }, [status])
+    }, [optionData.buyOrders, optionData.sellOrders])
 
-    const {
+const {
         getRootProps: getOrderTypeRootProps,
         getRadioProps: getOrderTypeRadioProps,
     } = useRadioGroup({
@@ -182,9 +155,8 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
             const signedOrder = await signOrder(unsignedOrder, library);
             const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
             console.log(`verifiedAddress: ${verifiedAddress}`);
-            const pOrder = iOrderToPostOrder(signedOrder);
             // TODO: handle success/failure responses
-            const res = await postOrder(pOrder);
+            announceOrder(signedOrder, library);
             setApproving(false);
         } catch (e) {
             handleErrorMessages({err:e});
@@ -232,7 +204,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                 if (!order) {
                     throw new Error('Insufficient market depth for this order');
                 }
-                const { address: counterpartyAddress, nonce: orderNonce, size, totalPrice: orderPrice, unitPrice: orderUnitPrice, formattedSize: orderFormattedSize } = order;
+                const { address: counterpartyAddress, nonce: orderNonce, size } = order;
                 if (!counterpartyAddress) {
                     console.error('no counterparty address on order');
                     index++;

@@ -1,5 +1,5 @@
-import {ethers} from "ethers";
-import {FakeToken__factory} from "@shrub/contracts/types/ethers-v5";
+import {BytesLike, ethers} from "ethers";
+import {FakeToken__factory, ShrubExchange} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
@@ -28,6 +28,17 @@ if (!SHRUB_CONTRACT_ADDRESS || !FK_TOKEN_ADDRESS) {
     "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS and REACT_APP_FK_TOKEN_ADDRESS to your .env file"
   );
 }
+
+let _shrubContract: ShrubExchange | undefined
+
+function getShrubContract(provider: JsonRpcProvider) {
+  if (!_shrubContract) {
+    _shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  }
+  return _shrubContract;
+}
+
+
 
 export function useGetProvider() {
   const { library: provider, active, account } = useWeb3React();
@@ -394,6 +405,38 @@ export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provi
   return shrubContract.queryFilter(filter, fromBlock, toBlock);
 }
 
+export async function announceOrder(signedOrder: IOrder, provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const common = iOrderToCommon(signedOrder);
+  const smallOrder = iOrderToSmall(signedOrder);
+  const sig = iOrderToSig(signedOrder);
+  return shrubContract.announce(smallOrder, common, sig);
+}
+
+// export function getAnnouncedEvents(provider: JsonRpcProvider, fromBlock = 0, toBlock: string | number = 'latest') {
+export function getAnnouncedEvents({provider, positionHash, fromBlock = 0, toBlock = 'latest'}: {
+  provider: JsonRpcProvider,
+  positionHash?: BytesLike,
+  fromBlock?: ethers.providers.BlockTag,
+  toBlock?: ethers.providers.BlockTag
+}) {
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
+  return shrubContract.queryFilter(filter, fromBlock, toBlock)
+}
+
+export function subscribeToAnnouncements(provider: JsonRpcProvider, positionHash: BytesLike, callback: any) {
+  const shrubContract = getShrubContract(provider);
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
+  shrubContract.on(filter, (common,positionHash,order,sig,eventInfo) => callback({common, positionHash, order, sig, eventInfo}));
+}
+
+export function unsubscribeFromAnnouncements(provider: JsonRpcProvider) {
+  const shrubContract = getShrubContract(provider);
+  return shrubContract.removeAllListeners()
+}
+
 export async function getLastOrders(provider: JsonRpcProvider) {
   const lastOrders: LastOrders = {}
   const matchEvents = await getMatchEvents({
@@ -493,7 +536,11 @@ export function iOrderToPostOrder(order: IOrder): PostOrder {
   }
 }
 
-export function optionTypeToString(numericOptionType: 0 | 1) {
+export function unboundToBoundOptionType(unboundOptionType: number): 0 | 1 {
+  return unboundOptionType ? 1 : 0;
+}
+
+export function optionTypeToString(numericOptionType: number) {
   return numericOptionType ? 'CALL' : 'PUT';
 }
 

@@ -55,7 +55,7 @@
             "type": "uint8"
           }
         ],
-        "indexed": true,
+        "indexed": false,
         "internalType": "struct ShrubExchange.OrderCommon",
         "name": "common",
         "type": "tuple"

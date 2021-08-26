@@ -53,7 +53,7 @@ contract ShrubExchange {
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
-  event OrderAnnounce(OrderCommon indexed common, bytes32 indexed positionHash, SmallOrder order, Signature sig);
+  event OrderAnnounce(OrderCommon common, bytes32 indexed positionHash, SmallOrder order, Signature sig);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
