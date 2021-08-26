@@ -76,7 +76,8 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
           <ModalCloseButton />
           <ModalHeader borderBottomWidth="1px">ETH Order</ModalHeader>
           <ModalBody>
-            { (!approving && !activeHash) && <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData}/> }
+            <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' } }>
+              <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
             { (approving || activeHash) && <Txmonitor txHash={activeHash}/> }
           </ModalBody>
         </ModalContent>
