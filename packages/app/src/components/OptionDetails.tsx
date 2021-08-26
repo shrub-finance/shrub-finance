@@ -108,7 +108,11 @@ const {
     } = useRadioGroup({
         name: "orderType",
         defaultValue: 'Market',
-        onChange: (nextValue: OrderType) => setRadioOrderType(nextValue),
+        onChange: (nextValue: OrderType) => {
+            radioOption === 'BUY' ? setPrice(orderBook.sellOrders[0]?.unitPrice.toFixed(2) ): setPrice(orderBook.buyOrders[0]?.unitPrice.toFixed(2))
+            setRadioOrderType(nextValue)
+
+        },
     });
 
     const groupOption = getOptionRootProps();
@@ -128,7 +132,7 @@ const {
             return;
         }
         if (!price) {
-            throw new Error('price is required');
+            throw new Error('Price is required');
         }
         const now = new Date();
         const oneWeekFromNow = new Date(now);
@@ -161,6 +165,8 @@ const {
         } catch (e) {
             handleErrorMessages({err:e});
             console.error(e);
+            setApproving(false);
+            handleErrorMessages({err:e});
         }
     }
 
@@ -233,7 +239,7 @@ const {
                         console.log(balance);
                         console.log(size)
                         if (balance.lt(size)) {
-                            throw new Error("not enough collateral of quoteAsset");
+                            throw new Error("Not enough collateral of quoteAsset");
                         }
                     } else {
                         // required collateral is strike * size of the baseAsset
@@ -244,7 +250,7 @@ const {
                         });
                         console.log(balance.toString());
                         if (balance.lt(price)) {
-                            throw new Error("not enough collateral of baseAsset");
+                            throw new Error("Not enough collateral of baseAsset");
                         }
                     }
                 }
@@ -441,6 +447,7 @@ const {
                                 id="amount"
                                 placeholder="0.1"
                                 value={amount}
+                                isInvalid={amount<=0 ||isNaN(Number(amount)) }
                                 onChange={(event: any) => setAmount(event.target.value)}
                             />
                         </Box>
@@ -456,6 +463,7 @@ const {
                               value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(2) : orderBook.buyOrders[0]?.unitPrice.toFixed(2)) : price}
                               isDisabled={radioOrderType === 'Market'}
                               onChange={(event: any) => changePrice(event.target.value)}
+                              isInvalid={Number(price)<=0 || price === '' || isNaN(Number(price))}
                             />
                         </Box>
                         <Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>
@@ -468,8 +476,7 @@ const {
                                   colorScheme="teal"
                                   type="submit"
                                   onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
-                                  isLoading={approving}
-                                  loadingText="Placing Order"
+                                  disabled={amount<=0 || Number(price)<=0 || (price) === '' || isNaN(Number(amount)) || isNaN(Number(price)) }
                                 >
                                     Place Order
                                 </Button>
