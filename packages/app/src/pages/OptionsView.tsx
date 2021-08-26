@@ -29,8 +29,8 @@ import {
   formatDate,
   formatStrike,
   fromEthDate, getAddressFromSignedOrder, getAnnouncedEvents, getLastOrders,
-  hashOrderCommon, isBuyToOptionAction, optionTypeToNumber, optionTypeToString,
-  transformOrderAppChain
+  hashOrderCommon, isBuyToOptionAction, optionTypeToNumber, optionTypeToString, subscribeToAnnouncements,
+  transformOrderAppChain, unsubscribeFromAnnouncements
 } from "../utils/ethMethods";
 import {BytesLike, ethers} from "ethers";
 import {FaEthereum} from "react-icons/fa";
@@ -105,7 +105,6 @@ function OptionsView(props: RouteComponentProps) {
     getLastOrders(library)
       .then(lasts => {
         setLastMatches(lasts)
-        console.log(lasts);
       })
       .catch(console.error);
   }, [library]);
@@ -123,28 +122,31 @@ function OptionsView(props: RouteComponentProps) {
       }, [contractDataStatus]);
 
   useEffect(() => {
-    if(contractData && expiryDate && library) {
-      const strikeObjPrices = contractData['ETH-FK'][expiryDate][optionType].map((strikeNum) => {
-        const strike = ethers.BigNumber.from(strikeNum);
-        const common: OrderCommon = {
-          baseAsset,
-          quoteAsset,
-          expiry: Number(expiryDate),
-          strike,
-          optionType: optionTypeToNumber(optionType)
-        }
-        const positionHash = hashOrderCommon(common)
-        return { strikePrice: strike, positionHash };
-      })
-      getOrderData(strikeObjPrices.map(s => s.positionHash))
-        .then(() => setStrikePrices(strikeObjPrices))
-        .catch(e => console.error(`Something went wrong with the orderbook: ${e}`));
+    const subscriptionPositionHashes = [];
+    if(!contractData || !expiryDate || !library) {
+      return;
     }
+    const strikeObjPrices = contractData['ETH-FK'][expiryDate][optionType].map((strikeNum) => {
+      const strike = ethers.BigNumber.from(strikeNum);
+      const common: OrderCommon = {
+        baseAsset,
+        quoteAsset,
+        expiry: Number(expiryDate),
+        strike,
+        optionType: optionTypeToNumber(optionType)
+      }
+      const positionHash = hashOrderCommon(common)
+      return { strikePrice: strike, positionHash };
+    })
+    getOrderData(strikeObjPrices.map(s => s.positionHash))
+      .then(() => setStrikePrices(strikeObjPrices))
+      .catch(e => console.error(`Something went wrong with the orderbook: ${e}`));
 
-    console.log('fetching orderbook data');
 
     async function getOrderData(positionHashes: BytesLike[]) {
       for (const positionHash of positionHashes) {
+        subscribeToAnnouncements(library, positionHash, processEvent);
+        subscriptionPositionHashes.push(positionHash)
         const eventsForHash = await getAnnouncedEvents({provider: library, positionHash})
         const formattedEventsForHash: IndexedAppOrderSigned[] = [];
         for (const event of eventsForHash) {
@@ -175,6 +177,40 @@ function OptionsView(props: RouteComponentProps) {
         }
         orderBookDispatch({type: 'add', orders: formattedEventsForHash})
       }
+    }
+
+    async function processEvent(event: any) {
+      const {common, positionHash, order, sig, eventInfo} = event;
+      const { baseAsset, quoteAsset, strike } = common;
+      const { size, fee } = order;
+      const { r, s, v } = sig;
+      const { transactionHash } = eventInfo;
+
+      const expiry = fromEthDate(common.expiry.toNumber());
+      const optionType = optionTypeToString(common.optionType);
+      const formattedExpiry = expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"});
+      const formattedStrike = ethers.utils.formatUnits(strike, 6);  // Need to divide by 1M to get the actual strike
+      const nonce = order.nonce.toNumber();
+      const formattedSize = ethers.utils.formatUnits(size, 18);
+      const optionAction = isBuyToOptionAction(order.isBuy);
+      const totalPrice = ethers.BigNumber.from(order.price);
+      const unitPrice = Number(ethers.utils.formatUnits(totalPrice, 18)) / Number(formattedSize);
+      const offerExpire = fromEthDate(order.offerExpire.toNumber());
+      const formattedFee = ethers.utils.formatUnits(fee, 18);
+      const appOrderSigned: IndexedAppOrderSigned = {
+        baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, r, s, v, transactionHash
+      }
+      const iOrder = transformOrderAppChain(appOrderSigned)
+      const address = await getAddressFromSignedOrder(iOrder, library);
+      appOrderSigned.address = address;
+      orderBookDispatch({type: 'add', orders: [appOrderSigned]})
+    }
+
+    return function cleanup() {
+      if (!library) {
+        return;
+      }
+      unsubscribeFromAnnouncements(library);
     }
 
   },[expiryDate, optionType, library]);

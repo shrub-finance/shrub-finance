@@ -1,5 +1,5 @@
 import {BytesLike, ethers} from "ethers";
-import {FakeToken__factory} from "@shrub/contracts/types/ethers-v5";
+import {FakeToken__factory, ShrubExchange} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
@@ -28,6 +28,17 @@ if (!SHRUB_CONTRACT_ADDRESS || !FK_TOKEN_ADDRESS) {
     "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS and REACT_APP_FK_TOKEN_ADDRESS to your .env file"
   );
 }
+
+let _shrubContract: ShrubExchange | undefined
+
+function getShrubContract(provider: JsonRpcProvider) {
+  if (!_shrubContract) {
+    _shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  }
+  return _shrubContract;
+}
+
+
 
 export function useGetProvider() {
   const { library: provider, active, account } = useWeb3React();
@@ -413,6 +424,17 @@ export function getAnnouncedEvents({provider, positionHash, fromBlock = 0, toBlo
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
   return shrubContract.queryFilter(filter, fromBlock, toBlock)
+}
+
+export function subscribeToAnnouncements(provider: JsonRpcProvider, positionHash: BytesLike, callback: any) {
+  const shrubContract = getShrubContract(provider);
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
+  shrubContract.on(filter, (common,positionHash,order,sig,eventInfo) => callback({common, positionHash, order, sig, eventInfo}));
+}
+
+export function unsubscribeFromAnnouncements(provider: JsonRpcProvider) {
+  const shrubContract = getShrubContract(provider);
+  return shrubContract.removeAllListeners()
 }
 
 export async function getLastOrders(provider: JsonRpcProvider) {
