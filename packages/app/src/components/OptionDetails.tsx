@@ -159,8 +159,24 @@ const {
             const signedOrder = await signOrder(unsignedOrder, library);
             const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
             console.log(`verifiedAddress: ${verifiedAddress}`);
-            // TODO: handle success/failure responses
-            announceOrder(signedOrder, library);
+            const tx = await announceOrder(signedOrder, library);
+            console.log(tx);
+            const quoteSymbol = await getSymbolFor(quoteAsset, library);
+            const description = `Submitted limit order to ${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${price}`;
+            pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+            setActiveHash(tx.hash);
+            console.log(pendingTxsState);
+            try {
+                const receipt = await tx.wait()
+                const toastDescription = ToastDescription(description, receipt.transactionHash);
+                toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+            } catch (e) {
+                const toastDescription = ToastDescription(description, e.transactionHash);
+                toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
+                pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
+            }
+            console.log(pendingTxsState);
             setApproving(false);
         } catch (e) {
             handleErrorMessages({err:e});
@@ -463,7 +479,7 @@ const {
                               value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(2) : orderBook.buyOrders[0]?.unitPrice.toFixed(2)) : price}
                               isDisabled={radioOrderType === 'Market'}
                               onChange={(event: any) => changePrice(event.target.value)}
-                              isInvalid={Number(price)<=0 || price === '' || isNaN(Number(price))}
+                              isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}
                             />
                         </Box>
                         <Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>
@@ -476,7 +492,17 @@ const {
                                   colorScheme="teal"
                                   type="submit"
                                   onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
-                                  disabled={amount<=0 || Number(price)<=0 || (price) === '' || isNaN(Number(amount)) || isNaN(Number(price)) }
+                                  disabled={
+                                      amount<=0 ||
+                                      (price) === '' ||
+                                      isNaN(Number(amount)) ||
+                                      (radioOrderType === 'Limit' && (
+                                          Number(price)<=0 ||
+                                          isNaN(Number(price))
+                                      ))
+                                  }
+
+
                                 >
                                     Place Order
                                 </Button>
