@@ -494,16 +494,12 @@ const {
                                   onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
                                   disabled={
                                       amount<=0 ||
-                                      (price) === '' ||
                                       isNaN(Number(amount)) ||
                                       (radioOrderType === 'Limit' && (
                                           Number(price)<=0 ||
                                           isNaN(Number(price))
                                       ))
-                                  }
-
-
-                                >
+                                  }>
                                     Place Order
                                 </Button>
                             </Flex>
