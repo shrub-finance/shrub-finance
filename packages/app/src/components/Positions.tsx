@@ -36,7 +36,7 @@ import {
   NumberInputField,
   InputRightElement,
   Stack,
-  useRadioGroup, Tooltip
+  useRadioGroup, Tooltip, Divider
 } from '@chakra-ui/react';
 import {
   depositEth,
@@ -97,113 +97,126 @@ function Positions() {
     onChange: (value: SupportedCurrencies) => setModalCurrency(value)
   })
   const currenciesRadiogroup = getRootProps();
+// Sample card from Airbnb
 
-  // shrub balance display
-  useEffect(() => {
-    setLocalError('');
-    async function shrubBalanceHandler() {
-      if (!active || !account) {
-        handleErrorMessages({ customMessage: 'Please connect your wallet'})
-        console.error('Please connect wallet');
-        return;
-      }
-
-      const shrubBalanceObj: ShrubBalance = {locked: {}, available: {}};
-      for (const currencyObj of Object.values(Currencies)) {
-        const {symbol, address: tokenContractAddress} = currencyObj;
-        const bigBalance = await getAvailableBalance({
-          address: account,
-          tokenContractAddress,
-          provider: library
-        })
-        const bigLockedBalance = await getLockedBalance(account, tokenContractAddress, library);
-        const balance = ethers.utils.formatUnits(bigBalance, 18);
-        const lockedBalance = ethers.utils.formatUnits(bigLockedBalance, 18);
-        shrubBalanceObj.available[symbol] = Number(balance);
-        shrubBalanceObj.locked[symbol] = Number(lockedBalance);
-      }
-      setShrubBalance(shrubBalanceObj)
+  function AirbnbExample() {
+    const property = {
+      imageUrl: "https://bit.ly/2Z4KKcF",
+      imageAlt: "Rear view of modern home with pool",
+      beds: 3,
+      baths: 2,
+      title: "Modern home in city center in the heart of historic Los Angeles",
+      formattedPrice: "$1,900.00",
+      reviewCount: 34,
+      rating: 4,
     }
-    shrubBalanceHandler()
-      .catch(console.error);
-  }, [active, account, library, pendingTxsState]);
 
-  // options display
-  useEffect(() => {
-    async function displayOptionsHandler() {
-      if (!active || !account) {
-        handleErrorMessages({customMessage:'Please connect your wallet'})
-        console.error('Please connect wallet');
-        return;
-      }
-      const filledOrders = await getFilledOrders(account, library);
-      if (typeof filledOrders === 'object' && filledOrders !== null && Object.keys(filledOrders).length !== 0) {
-        hasOptions.current = true;
-        // Populate Option Positions Table
-        for (const details of Object.values(filledOrders)) {
-          const {pair, strike, expiry, optionType, amount, common, buyOrder, seller}
-            = details as
-            {
-              baseAsset: string,
-              quoteAsset: string,
-              pair: string,
-              strike: string,
-              expiry: string,
-              optionType: string,
-              amount: number,
-              common: OrderCommon,
-              buyOrder: SmallOrder,
-              seller: string
-            };
-          orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
-          tableRowsOptions.push(
-            <Tr>
-              <Td>{pair}</Td>
-              <Td>{strike}</Td>
-              <Td>{expiry}</Td>
-              <Td>{optionType}</Td>
-              <Td>{amount}</Td>
-              <Td>
-                {amount > 0 ? <Button
-                  colorScheme="teal"
-                  size="xs"
-                  onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
-                >
-                  Exercise
-                </Button> : Number(amount) === 0 ? <Button
-                  variant={"ghost"}
-                  isDisabled={true}
-                  colorScheme="teal"
-                  size="xs"
-                >
-                  Exercised
-                </Button> : ''
-                }
-              </Td>
-            </Tr>
-          )
-        }
-      } else {
-        hasOptions.current = false;
-        tableRowsOptions.push(
-          <VStack>
-            <Center w="600px">
-              <HelloBud boxSize={200}/>
-            </Center>
-            <Center w="100%" h="100%">
-              <Box as="span" fontWeight="semibold" fontSize="lg">
-                You don't have any options yet!
-              </Box>
-            </Center>
-          </VStack>
-        )
-      }
-      setOptionsRows(tableRowsOptions);
-    }
-    displayOptionsHandler()
-      .catch(console.error);
-  }, [active, account, library, pendingTxsState])
-
+  }
+  // // shrub balance display
+  // useEffect(() => {
+  //   setLocalError('');
+  //   async function shrubBalanceHandler() {
+  //     if (!active || !account) {
+  //       handleErrorMessages({ customMessage: 'Please connect your wallet'})
+  //       console.error('Please connect wallet');
+  //       return;
+  //     }
+  //
+  //     const shrubBalanceObj: ShrubBalance = {locked: {}, available: {}};
+  //     for (const currencyObj of Object.values(Currencies)) {
+  //       const {symbol, address: tokenContractAddress} = currencyObj;
+  //       const bigBalance = await getAvailableBalance({
+  //         address: account,
+  //         tokenContractAddress,
+  //         provider: library
+  //       })
+  //       const bigLockedBalance = await getLockedBalance(account, tokenContractAddress, library);
+  //       const balance = ethers.utils.formatUnits(bigBalance, 18);
+  //       const lockedBalance = ethers.utils.formatUnits(bigLockedBalance, 18);
+  //       shrubBalanceObj.available[symbol] = Number(balance);
+  //       shrubBalanceObj.locked[symbol] = Number(lockedBalance);
+  //     }
+  //     setShrubBalance(shrubBalanceObj)
+  //   }
+  //   shrubBalanceHandler()
+  //     .catch(console.error);
+  // }, [active, account, library, pendingTxsState]);
+  //
+  // // options display
+  // useEffect(() => {
+  //   async function displayOptionsHandler() {
+  //     if (!active || !account) {
+  //       handleErrorMessages({customMessage:'Please connect your wallet'})
+  //       console.error('Please connect wallet');
+  //       return;
+  //     }
+  //     const filledOrders = await getFilledOrders(account, library);
+  //     if (typeof filledOrders === 'object' && filledOrders !== null && Object.keys(filledOrders).length !== 0) {
+  //       hasOptions.current = true;
+  //       // Populate Option Positions Table
+  //       for (const details of Object.values(filledOrders)) {
+  //         const {pair, strike, expiry, optionType, amount, common, buyOrder, seller}
+  //           = details as
+  //           {
+  //             baseAsset: string,
+  //             quoteAsset: string,
+  //             pair: string,
+  //             strike: string,
+  //             expiry: string,
+  //             optionType: string,
+  //             amount: number,
+  //             common: OrderCommon,
+  //             buyOrder: SmallOrder,
+  //             seller: string
+  //           };
+  //         orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
+  //         tableRowsOptions.push(
+  //           <Tr>
+  //             <Td>{pair}</Td>
+  //             <Td>{strike}</Td>
+  //             <Td>{expiry}</Td>
+  //             <Td>{optionType}</Td>
+  //             <Td>{amount}</Td>
+  //             <Td>
+  //               {amount > 0 ? <Button
+  //                 colorScheme="teal"
+  //                 size="xs"
+  //                 onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
+  //               >
+  //                 Exercise
+  //               </Button> : Number(amount) === 0 ? <Button
+  //                 variant={"ghost"}
+  //                 isDisabled={true}
+  //                 colorScheme="teal"
+  //                 size="xs"
+  //               >
+  //                 Exercised
+  //               </Button> : ''
+  //               }
+  //             </Td>
+  //           </Tr>
+  //         )
+  //       }
+  //     } else {
+  //       hasOptions.current = false;
+  //       tableRowsOptions.push(
+  //         <VStack>
+  //           <Center w="600px">
+  //             <HelloBud boxSize={200}/>
+  //           </Center>
+  //           <Center w="100%" h="100%">
+  //             <Box as="span" fontWeight="semibold" fontSize="lg">
+  //               You don't have any options yet!
+  //             </Box>
+  //           </Center>
+  //         </VStack>
+  //       )
+  //     }
+  //     setOptionsRows(tableRowsOptions);
+  //   }
+  //   displayOptionsHandler()
+  //     .catch(console.error);
+  // }, [active, account, library, pendingTxsState])
 
   useEffect(() => {
     async function handleApprove(){
@@ -351,6 +364,7 @@ function Positions() {
           </ModalContent>
         </Modal>
       </Container>
+      {/*withdraw deposit buttons*/}
       <Container mt={50} flex="1" borderRadius="2xl" maxW="container.md">
         <Center>
         <Button colorScheme="teal" variant="outline" borderRadius="full"
@@ -362,71 +376,116 @@ function Positions() {
         </Button>
         </Center>
       </Container>
-      {/*asset view*/}
-      <Container mt={50} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">
-        <Table variant="simple" size="lg">
-          <Thead>
-            <Tr>
-              <Th>Asset
-              </Th>
-              <Th isNumeric>Total
-                <Tooltip p={3} label="This is the total amount of assets you have (including locked and unlocked)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-              <Th isNumeric>Locked
+      {/*mobile positions view*/}
+      <Container mt={50} flex="1" borderRadius="2xl" maxW="container.sm" bgColor="white">
+        <Center>
+        <Box  borderRadius="lg" >
+          <Box p="4" >
+            <Box mt="1" fontWeight="semibold" as="h4" lineHeight="tight">
+              85,000 FK
+            </Box>
+            <Box d="flex" alignItems="baseline">
+              <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" textTransform="uppercase">
+                85,000 unlocked
+                          <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                            <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                          </Tooltip>
+              </Box>
+            </Box>
+            <Box d="flex" alignItems="baseline">
+              <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" textTransform="uppercase">
+                0 locked
                 <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-              <Th isNumeric>Unlocked
-                <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>{tableRows}</Tbody>
-        </Table>
+                         <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                            </Tooltip>
+              </Box>
+            </Box>
+          </Box>
+          <Divider/>
+          <Box p="4">
+          <Box mt="1" fontWeight="semibold" as="h4" lineHeight="tight">
+            10,000 ETH
+          </Box>
+          <Box d="flex" alignItems="baseline">
+            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" textTransform="uppercase">
+              4,000 unlocked
+            </Box>
+          </Box>
+            <Box d="flex" alignItems="baseline">
+              <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" textTransform="uppercase">
+                6,000 locked
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+        </Center>
       </Container>
+
+      {/*asset view*/}
+      {/*<Container mt={50} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">*/}
+      {/*  <Table variant="simple" size="lg">*/}
+      {/*    <Thead>*/}
+      {/*      <Tr>*/}
+      {/*        <Th>Asset*/}
+      {/*        </Th>*/}
+      {/*        <Th isNumeric>Total*/}
+      {/*          <Tooltip p={3} label="This is the total amount of assets you have (including locked and unlocked)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">*/}
+      {/*            <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>*/}
+      {/*          </Tooltip>*/}
+      {/*        </Th>*/}
+      {/*        <Th isNumeric>Locked*/}
+      {/*          <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">*/}
+      {/*            <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>*/}
+      {/*          </Tooltip>*/}
+      {/*        </Th>*/}
+      {/*        <Th isNumeric>Unlocked*/}
+      {/*          <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">*/}
+      {/*            <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>*/}
+      {/*          </Tooltip>*/}
+      {/*        </Th>*/}
+      {/*      </Tr>*/}
+      {/*    </Thead>*/}
+      {/*    <Tbody>{tableRows}</Tbody>*/}
+      {/*  </Table>*/}
+      {/*</Container>*/}
       {/*options view*/}
-      <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">
-        {hasOptions.current ?
-          (<Table variant="simple" size="lg">
-            <Thead>
-              <Tr>
-                <Th>Pair</Th>
-                <Th>Strike</Th>
-                <Th>Expiry</Th>
-                <Th>Option Type</Th>
-                <Th>Amount</Th>
-                <Th>
-                  <VisuallyHidden/>
-                </Th>
-              </Tr>
-            </Thead>
-            <Tbody>{optionsRows}</Tbody>
-          </Table>) : (
-            <VStack>
-              <Center>
-                <HelloBud boxSize={200}/>
-              </Center>
-              <Center pt={6}>
-                <Box as="span" fontWeight="semibold" fontSize="sm" color="gray.500">
-                  You don't have any options yet!
-                </Box>
-              </Center>
-              <Center pt={6}>
-                <Button rightIcon={<IoRocketSharp/>} colorScheme="teal"
-                        variant="outline"
-                        borderRadius={"full"} as={ReachLink} to="/options">
-                  Buy Some
-                </Button>
-              </Center>
-            </VStack>
-          )
-        }
-      </Container>
+      {/*<Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">*/}
+      {/*  {hasOptions.current ?*/}
+      {/*    (<Table variant="simple" size="lg">*/}
+      {/*      <Thead>*/}
+      {/*        <Tr>*/}
+      {/*          <Th>Pair</Th>*/}
+      {/*          <Th>Strike</Th>*/}
+      {/*          <Th>Expiry</Th>*/}
+      {/*          <Th>Option Type</Th>*/}
+      {/*          <Th>Amount</Th>*/}
+      {/*          <Th>*/}
+      {/*            <VisuallyHidden/>*/}
+      {/*          </Th>*/}
+      {/*        </Tr>*/}
+      {/*      </Thead>*/}
+      {/*      <Tbody>{optionsRows}</Tbody>*/}
+      {/*    </Table>) : (*/}
+      {/*      <VStack>*/}
+      {/*        <Center>*/}
+      {/*          <HelloBud boxSize={200}/>*/}
+      {/*        </Center>*/}
+      {/*        <Center pt={6}>*/}
+      {/*          <Box as="span" fontWeight="semibold" fontSize="sm" color="gray.500">*/}
+      {/*            You don't have any options yet!*/}
+      {/*          </Box>*/}
+      {/*        </Center>*/}
+      {/*        <Center pt={6}>*/}
+      {/*          <Button rightIcon={<IoRocketSharp/>} colorScheme="teal"*/}
+      {/*                  variant="outline"*/}
+      {/*                  borderRadius={"full"} as={ReachLink} to="/options">*/}
+      {/*            Buy Some*/}
+      {/*          </Button>*/}
+      {/*        </Center>*/}
+      {/*      </VStack>*/}
+      {/*    )*/}
+      {/*  }*/}
+      {/*</Container>*/}
       {/*withdraw deposit modal*/}
       <Modal motionPreset="slideInBottom" onClose={handleWithdrawDepositModalClose} isOpen={isOpenModal}>
         <ModalOverlay/>
