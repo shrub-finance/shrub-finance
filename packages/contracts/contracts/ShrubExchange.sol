@@ -85,6 +85,10 @@ contract ShrubExchange {
 
   bytes32 public constant COMMON_TYPEHASH = keccak256("OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
 
+  function min(uint256 a, uint256 b) pure private returns (uint256) {
+    return a < b ? a : b;
+  }
+
   function hashOrder(Order memory order) public pure returns (bytes32) {
     return keccak256(abi.encodePacked(
       ORDER_TYPEHASH,
@@ -269,6 +273,12 @@ contract ShrubExchange {
 
       userTokenBalances[seller][common.baseAsset] += adjustedPrice;
       userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
+
+
+      // unlock buyer's collateral if this user was short
+      if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.quoteAsset] > 0) {
+        userTokenLockedBalance[buyer][common.quoteAsset] -= min(fillSize, userTokenLockedBalance[buyer][common.quoteAsset]);
+      }
     }
 
     if(common.optionType == OptionType.PUT) {
@@ -283,6 +293,11 @@ contract ShrubExchange {
 
       userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
       userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
+
+      // unlock buyer's collateral if this user was short
+      if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.baseAsset] > 0) {
+        userTokenLockedBalance[buyer][common.baseAsset] -= min(lockedCapital, userTokenLockedBalance[buyer][common.baseAsset]);
+      }
     }
 
     userOptionPosition[seller][positionHash] -= int(fillSize);

@@ -34,7 +34,7 @@ contract("ShrubExchange", (accounts) => {
 
     baseAsset: Assets.USDC,
     quoteAsset: Assets.ETH,
-    expiry: Math.floor((startTime + 30 * 1000) / 1000),
+    expiry: Math.floor((startTime + (30 * 1000)) / 1000),
     strike: BigHundred.mul(BigMillion).toString(),
     optionType: 1,
   };
