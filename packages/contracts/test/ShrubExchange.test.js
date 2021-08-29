@@ -34,7 +34,7 @@ contract("ShrubExchange", (accounts) => {
 
     baseAsset: Assets.USDC,
     quoteAsset: Assets.ETH,
-    expiry: Math.floor((startTime + 30 * 1000) / 1000),
+    expiry: Math.floor((startTime + (30 * 1000)) / 1000),
     strike: BigHundred.mul(BigMillion).toString(),
     optionType: 1,
   };
@@ -553,7 +553,7 @@ contract("ShrubExchange", (accounts) => {
 
     assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 ETH");
 
-    const waitTime = 30000 - (Date.now() - startTime);
+    const waitTime = 19000 - (Date.now() - startTime);
     console.log(`Waiting ${Math.floor(waitTime / 1000)} seconds for option to expire`);
     await wait(waitTime);
 
