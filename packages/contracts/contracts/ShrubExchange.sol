@@ -401,6 +401,19 @@ contract ShrubExchange {
     require(common.expiry < block.timestamp, "Cannot claim until options are expired");
 
     uint256 poolOwnership =  uint256(-1 * userOptionPosition[msg.sender][positionHash]);
+
+    if(common.optionType == OptionType.CALL) {
+      // reset quoteAsset locked balance
+      userTokenLockedBalance[msg.sender][common.quoteAsset] -= poolOwnership;
+      userTokenBalances[msg.sender][common.quoteAsset] -= poolOwnership;
+    }
+    
+    if(common.optionType == OptionType.PUT) {
+      // reset baseAsset locked balance
+      userTokenLockedBalance[msg.sender][common.baseAsset] -= poolOwnership;
+      userTokenBalances[msg.sender][common.baseAsset] -= poolOwnership;
+    }
+
     uint256 totalSupply = positionPoolTokenTotalSupply[positionHash];
 
     uint256 quoteBalance = positionPoolTokenBalance[positionHash][common.quoteAsset];
