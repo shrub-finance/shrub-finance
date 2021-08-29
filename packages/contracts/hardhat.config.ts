@@ -102,7 +102,7 @@ const config: HardhatUserConfig & AbiExporter = {
         mnemonic:
         "palm weapon verb cream balcony acid book ring surround end race gaze",
       },
-      /*        mining: {
+      /*mining: {
             auto: false,
             interval: 5000
         },*/

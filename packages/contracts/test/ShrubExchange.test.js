@@ -17,7 +17,7 @@ const BigMillion = web3.utils.toBN(1e6);
 const wait = util.promisify(setTimeout);
 
 
-contract("ShrubExchange", function(accounts) {
+contract("ShrubExchange", (accounts) => {
   let exchange;
   let shrubInterface;
   let fakeToken;

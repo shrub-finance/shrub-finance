@@ -85,7 +85,7 @@ contract ShrubExchange {
 
   bytes32 public constant COMMON_TYPEHASH = keccak256("OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
 
-  function min(uint256 a, uint256 b) pure private returns(uint256) {
+  function min(uint256 a, uint256 b) pure private returns (uint256) {
     return a < b ? a : b;
   }
 
