@@ -10,6 +10,9 @@ import {CheckCircleIcon, ExternalLinkIcon, Icon, TimeIcon} from "@chakra-ui/icon
 import {HappyBud} from '../assets/Icons';
 import {PendingTxState} from "../types";
 import {VscError} from "react-icons/all";
+import {useConnectWallet} from '../hooks/useConnectWallet';
+import {useWeb3React} from '@web3-react/core';
+
 
 
 
@@ -134,6 +137,7 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
 // displayed inside connect wallet modal
 export function TxStatusList() {
     console.log('rendering TxStatusList');
+    const {account} = useWeb3React();
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const entries = Object.entries(pendingTxsState)
@@ -172,7 +176,7 @@ export function TxStatusList() {
 
     return (
       <>
-          <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg={bgColor}>
+          { account &&   <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg={bgColor}>
               <Flex pt={1}>
                   {list.length ?
                     <>
@@ -188,7 +192,7 @@ export function TxStatusList() {
                         </Box>
                     </>
                     :
-               <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize={["15px", "md", "lg", "lg"]} ml="1">
+                     <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize={["15px", "md", "lg", "lg"]} ml="1">
 
                           Transactions will show up here...
                       </Center>
@@ -197,7 +201,7 @@ export function TxStatusList() {
               </Flex>
               {list}
 
-          </Box>
+          </Box>}
       </>
 
     )
