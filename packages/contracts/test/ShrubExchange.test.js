@@ -17,7 +17,7 @@ const BigMillion = web3.utils.toBN(1e6);
 const wait = util.promisify(setTimeout);
 
 
-contract("ShrubExchange", (accounts) => {
+contract("ShrubExchange", function(accounts) {
   let exchange;
   let shrubInterface;
   let fakeToken;
@@ -553,7 +553,7 @@ contract("ShrubExchange", (accounts) => {
 
     assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 ETH");
 
-    const waitTime = 19000 - (Date.now() - startTime);
+    const waitTime = 30000 - (Date.now() - startTime);
     console.log(`Waiting ${Math.floor(waitTime / 1000)} seconds for option to expire`);
     await wait(waitTime);
 

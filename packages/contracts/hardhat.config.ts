@@ -100,9 +100,9 @@ const config: HardhatUserConfig & AbiExporter = {
     hardhat: {
       accounts: {
         mnemonic:
-          "palm weapon verb cream balcony acid book ring surround end race gaze",
+        "palm weapon verb cream balcony acid book ring surround end race gaze",
       },
-/*        mining: {
+      /*        mining: {
             auto: false,
             interval: 5000
         },*/
@@ -123,6 +123,9 @@ const config: HardhatUserConfig & AbiExporter = {
     flat: true,
     spacing: 2,
   },
+  mocha: {
+    timeout: 35000
+  }
 };
 
 export default config;
