@@ -516,7 +516,7 @@ export async function exercise(order: IOrder, seller: string, provider: JsonRpcP
   const buyOrder = iOrderToSmall(order);
   const common = iOrderToCommon(order);
   const buySig = iOrderToSig(order);
-  const executed = await shrubContract.execute(buyOrder,common,seller,buySig);
+  const executed = await shrubContract.exercise(buyOrder.size, common);
   return executed;
 }
 
