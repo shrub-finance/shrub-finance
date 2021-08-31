@@ -159,7 +159,8 @@ contract ShrubExchange {
     matches = matches && sellOrder.isBuy == false;
     matches = matches && buyOrder.isBuy == true;
 
-    matches = matches && sellOrder.price <= buyOrder.price;
+    // TODO: Commenting this out is a hack, but we need to get this to work with partial orders
+    // matches = matches && sellOrder.price <= buyOrder.price;
     matches = matches && sellOrder.offerExpire >= block.timestamp;
     matches = matches && buyOrder.offerExpire >= block.timestamp;
     return matches;
