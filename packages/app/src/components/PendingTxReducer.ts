@@ -1,6 +1,6 @@
-import {PendingStatuses, PendingTxAction, PendingTxState} from "../types";
+import {PendingTxAction, PendingTxState} from "../types";
 
-export function reducer (
+export function pendingTxReducer (
 
     state: PendingTxState,
     action: PendingTxAction) {

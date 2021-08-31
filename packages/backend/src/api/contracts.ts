@@ -1,7 +1,7 @@
 import Express from "express";
-import {pairExpiryTypeStrike} from "../processOptionContracts";
-import {ethers} from "ethers";
-import optionContracts from '../option-contracts.json'
+import { pairExpiryTypeStrike } from "../processOptionContracts";
+import { ethers } from "ethers";
+import optionContracts from "../option-contracts.json";
 
 export function ContractRoutes() {
   const router = Express.Router();
@@ -12,9 +12,9 @@ export function ContractRoutes() {
     return res.json(data);
   });
 
-  router.get('/raw', (req, res) => {
+  router.get("/raw", (req, res) => {
     return res.json(optionContracts);
-  })
+  });
 
   return router;
 }

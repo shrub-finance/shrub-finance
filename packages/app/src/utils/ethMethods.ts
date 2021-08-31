@@ -1,11 +1,11 @@
-import {ethers} from "ethers";
-import {FakeToken__factory} from "@shrub/contracts/types/ethers-v5";
+import {BytesLike, ethers} from "ethers";
+import {FakeToken__factory, ShrubExchange} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
   ApiOrder,
-AppOrderSigned,
-  IOrder,
+  AppOrderSigned,
+  IOrder, LastOrders,
   OrderCommon, PostOrder,
   Signature,
   SmallOrder,
@@ -21,14 +21,27 @@ declare let window: any;
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const FK_TOKEN_ADDRESS = process.env.REACT_APP_FK_TOKEN_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
+const COMMON_TYPEHASH = ethers.utils.id('OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
+const ORDER_TYPEHASH = ethers.utils.id('Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 if (!SHRUB_CONTRACT_ADDRESS || !FK_TOKEN_ADDRESS) {
   throw new Error(
     "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS and REACT_APP_FK_TOKEN_ADDRESS to your .env file"
   );
 }
 
+let _shrubContract: ShrubExchange | undefined
+
+function getShrubContract(provider: JsonRpcProvider) {
+  if (!_shrubContract) {
+    _shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  }
+  return _shrubContract;
+}
+
+
+
 export function useGetProvider() {
-  const { library: provider, active } = useWeb3React();
+  const { library: provider, active, account } = useWeb3React();
   if (!active) {
     return false;
   }
@@ -146,7 +159,7 @@ export async function getSymbolFor(token: string, provider: JsonRpcProvider) {
   return erc20Contract.symbol();
 }
 
-export async function getWalletBalance(address: string, provider: JsonRpcProvider) {
+export async function getBigWalletBalance(address: string, provider: JsonRpcProvider) {
   const signer = provider.getSigner();
   let bigBalance;
   let decimals = 18;
@@ -160,6 +173,11 @@ export async function getWalletBalance(address: string, provider: JsonRpcProvide
     bigBalance = await erc20Contract.balanceOf(signerAddress);
     decimals = await erc20Contract.decimals();
   }
+  return { bigBalance, decimals };
+}
+
+export async function getWalletBalance(address: string, provider: JsonRpcProvider) {
+  const { bigBalance, decimals } = await getBigWalletBalance(address, provider);
   return ethers.utils.formatUnits(bigBalance, decimals);
 }
 
@@ -169,18 +187,26 @@ export async function depositEth(amount: ethers.BigNumber, provider: JsonRpcProv
   return shrubContract.deposit(ZERO_ADDRESS, amount, { value: amount });
 }
 
+export async function getAllowance(
+    tokenContractAddress: string,
+    provider: JsonRpcProvider,
+) {
+  const signer = provider.getSigner();
+  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
+  const signerAddress = await signer.getAddress();
+  return await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
+}
+
 export async function depositToken(
   tokenContractAddress: string,
   amount: ethers.BigNumber,
   provider: JsonRpcProvider,
 ) {
   const signer = provider.getSigner();
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer)
-  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer)
-  const signerAddress = await signer.getAddress();
-  const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const allowance = await getAllowance(tokenContractAddress, provider);
   if (allowance.lt(amount)) {
-    throw new Error("need to approve");
+    throw new Error("Looks like you need to approve first.");
   }
   return shrubContract.deposit(tokenContractAddress, amount);
 }
@@ -193,12 +219,16 @@ export async function approveToken(
   const signer = provider.getSigner();
   const bigAmount = amount;
   const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
-  const signerAddress = await signer.getAddress();
-  const allowance = await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
-  if (allowance.gte(bigAmount)) {
-    throw new Error("allowance is sufficient - no need to approve");
+  const allowance = await getAllowance(tokenContractAddress, provider);
+  const {bigBalance: ethBalance} = await getBigWalletBalance(ethers.constants.AddressZero, provider);
+  if(ethBalance.eq(ethers.constants.Zero)) {
+    throw new Error("Looks like you don't have any ETH in this account. You need that to pay for gas.");
   }
-  return erc20Contract.approve(SHRUB_CONTRACT_ADDRESS, bigAmount);
+
+  if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
+    throw new Error("Allowance is sufficient. You don't need to approve.");
+  }
+  return erc20Contract.approve(SHRUB_CONTRACT_ADDRESS, ethers.constants.WeiPerEther.mul(1000000000));
 }
 
 export async function withdraw(
@@ -211,7 +241,7 @@ export async function withdraw(
   const signerAddress = await signer.getAddress();
   const availableBalance = await shrubContract.getAvailableBalance(signerAddress, tokenContractAddress);
   if (amount.gt(availableBalance)) {
-    throw new Error(`Not enough balance. You have ${availableBalance}.` );
+    throw new Error(`Not enough balance. You have ${ethers.utils.formatUnits(availableBalance, 18)}` );
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }
@@ -362,6 +392,68 @@ export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: I
   return shrubContract.matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
 }
 
+export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provider, fromBlock = 0, toBlock = 'latest'}: {
+  buyerAddress?: string,
+  sellerAddress?: string,
+  positionHash?: string,
+  provider: JsonRpcProvider,
+  fromBlock: ethers.providers.BlockTag,
+  toBlock: ethers.providers.BlockTag
+}) {
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  const filter = shrubContract.filters.OrderMatched(sellerAddress, buyerAddress)
+  return shrubContract.queryFilter(filter, fromBlock, toBlock);
+}
+
+export async function announceOrder(signedOrder: IOrder, provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const common = iOrderToCommon(signedOrder);
+  const smallOrder = iOrderToSmall(signedOrder);
+  const sig = iOrderToSig(signedOrder);
+  return shrubContract.announce(smallOrder, common, sig);
+}
+
+// export function getAnnouncedEvents(provider: JsonRpcProvider, fromBlock = 0, toBlock: string | number = 'latest') {
+export function getAnnouncedEvents({provider, positionHash, fromBlock = 0, toBlock = 'latest'}: {
+  provider: JsonRpcProvider,
+  positionHash?: BytesLike,
+  fromBlock?: ethers.providers.BlockTag,
+  toBlock?: ethers.providers.BlockTag
+}) {
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
+  return shrubContract.queryFilter(filter, fromBlock, toBlock)
+}
+
+export function subscribeToAnnouncements(provider: JsonRpcProvider, positionHash: BytesLike, callback: any) {
+  const shrubContract = getShrubContract(provider);
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
+  shrubContract.on(filter, (common,positionHash,order,sig,eventInfo) => callback({common, positionHash, order, sig, eventInfo}));
+}
+
+export function unsubscribeFromAnnouncements(provider: JsonRpcProvider) {
+  const shrubContract = getShrubContract(provider);
+  return shrubContract.removeAllListeners()
+}
+
+export async function getLastOrders(provider: JsonRpcProvider) {
+  const lastOrders: LastOrders = {}
+  const matchEvents = await getMatchEvents({
+    provider,
+    fromBlock: 0,
+    toBlock: 'latest'
+  });
+  for (const event of matchEvents) {
+    const { positionHash, buyOrder } = event.args;
+    const { size, price } = buyOrder;
+    const unitPrice = Number(ethers.utils.formatUnits(price, 18)) / Number(ethers.utils.formatUnits(size, 18));
+    if (!lastOrders[positionHash] || lastOrders[positionHash] < unitPrice) {
+      lastOrders[positionHash] = unitPrice;
+    }
+  }
+  return lastOrders;
+}
 
 export async function getFilledOrders(
     address: string,
@@ -369,13 +461,9 @@ export async function getFilledOrders(
     fromBlock: ethers.providers.BlockTag = 0,
     toBlock: ethers.providers.BlockTag = "latest",
 ) {
-  const signer = provider.getSigner();
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
   const openOrders = {} as any;
-  const sellFilter = shrubContract.filters.OrderMatched(address);
-  const buyFilter = shrubContract.filters.OrderMatched(null, address);
-  const sellOrdersMatched = await shrubContract.queryFilter(sellFilter, fromBlock, toBlock);
-  const buyOrdersMatched = await shrubContract.queryFilter(buyFilter, fromBlock, toBlock);
+  const sellOrdersMatched = await getMatchEvents({provider, sellerAddress: address, fromBlock, toBlock})
+  const buyOrdersMatched = await getMatchEvents({provider, buyerAddress: address, fromBlock, toBlock})
   const matchedOrders = [...sellOrdersMatched, ...buyOrdersMatched];
   for (const event of matchedOrders) {
     if (!event) {
@@ -383,7 +471,6 @@ export async function getFilledOrders(
     }
     const { positionHash, common, buyOrder, seller } = event.args;
     const { baseAsset, quoteAsset, strike, expiry, optionType } = common;
-    const dateExpiry = new Date(expiry.toNumber() * 1000);
     if (!openOrders[positionHash]) {
       const amount = await userOptionPosition(address, positionHash, provider);
       openOrders[positionHash] = {
@@ -394,7 +481,7 @@ export async function getFilledOrders(
         quoteAsset,
         pair: getPair(baseAsset, quoteAsset),
         strike: ethers.utils.formatUnits(strike, 6),  // Divide out the base shift of 1M
-        expiry: dateExpiry.toISOString().substr(0,10),
+        expiry: formatDate(expiry.toNumber()),
         optionType: optionType === 1 ? 'CALL' : 'PUT',
         amount
       };
@@ -429,8 +516,13 @@ export async function exercise(order: IOrder, seller: string, provider: JsonRpcP
   const buyOrder = iOrderToSmall(order);
   const common = iOrderToCommon(order);
   const buySig = iOrderToSig(order);
-  const executed = await shrubContract.execute(buyOrder,common,seller,buySig);
+  const executed = await shrubContract.exercise(buyOrder.size, common);
   return executed;
+}
+
+export function hashOrderCommon(common: OrderCommon) {
+  const { baseAsset, quoteAsset, expiry, strike, optionType } = common;
+  return ethers.utils.solidityKeccak256(['bytes32', 'address', 'address', 'uint', 'uint', 'uint8'],[COMMON_TYPEHASH, baseAsset, quoteAsset, expiry, strike, optionType]);
 }
 
 export function iOrderToPostOrder(order: IOrder): PostOrder {
@@ -444,7 +536,11 @@ export function iOrderToPostOrder(order: IOrder): PostOrder {
   }
 }
 
-export function optionTypeToString(numericOptionType: 0 | 1) {
+export function unboundToBoundOptionType(unboundOptionType: number): 0 | 1 {
+  return unboundOptionType ? 1 : 0;
+}
+
+export function optionTypeToString(numericOptionType: number) {
   return numericOptionType ? 'CALL' : 'PUT';
 }
 

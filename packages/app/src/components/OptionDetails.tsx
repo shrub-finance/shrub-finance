@@ -10,14 +10,16 @@ import {
     Input,
     SlideFade,
     Stack,
+    Table,
     Tag,
-    TagLabel,
+    TagLabel, Tbody, Td, Text, Tfoot, Th, Thead,
     Tooltip,
+    Tr,
     useColorModeValue,
     useRadioGroup,
     useToast
 } from '@chakra-ui/react';
-import {Icon} from "@chakra-ui/icons";
+import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
 import RadioCard from "./Radio";
 import {
@@ -27,19 +29,22 @@ import {
     signOrder,
     toEthDate,
     getAvailableBalance,
-    iOrderToPostOrder,
     matchOrders,
     optionActionToIsBuy,
-    transformOrderApiApp,
     transformOrderAppChain,
-    validateOrderAddress, formatDate, getSymbolFor
+    validateOrderAddress, formatDate, getSymbolFor, announceOrder
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
 import React, {useContext, useEffect, useState} from "react";
-import {ApiOrder, AppCommon, GetOrdersParams, IOrder, OrderBook, OrderType, SellBuy, UnsignedOrder} from "../types";
-import {postOrder} from "../utils/requests";
-import useFetch from "../hooks/useFetch";
+import {
+    AppCommon,
+    IOrder, OptionData,
+    OrderBook,
+    OrderType,
+    SellBuy,
+    UnsignedOrder
+} from "../types";
 import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
@@ -47,12 +52,18 @@ import {getErrorMessage} from './ConnectWallet';
 
 const { Zero } = ethers.constants;
 
-function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, sellBuy: SellBuy, hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}}) {
+function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
+    appCommon: AppCommon,
+    sellBuy: SellBuy,
+    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any},
+    optionData: OptionData
+}) {
 
-    const [localError, setlocalError] = useState('');
+    const [localError, setLocalError] = useState('');
 
-    const { approving, setApproving, setActiveHash } = hooks;
+    const {  setApproving, setActiveHash } = hooks;
     const { pendingTxs } = useContext(TxContext);
+    const alertColor = useColorModeValue("gray.100", "shrub.300")
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {active, library, account, error: web3Error} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
@@ -75,65 +86,42 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
 
-    let orderBookDepth = {buyOrderDepth: Zero, sellOrderDepth: Zero};
-
-    const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
-    const params: GetOrdersParams = {
-        baseAsset,
-        quoteAsset,
-        expiry: toEthDate(expiry),
-        optionType: optionTypeToNumber(optionType),
-        strike: strike.toString()
-    }
-    const options = {params};
-    const {data: orderBookData, status} = useFetch<ApiOrder[]>(url, options);
     useEffect(() => {
-        if (status !== 'fetched' || !orderBookData) {
-            return;
-        }
-        // add perContract pricing
-        const appOrderBookData = orderBookData.map(o => transformOrderApiApp(o));
-        const buyOrders = appOrderBookData.filter(o => o.optionAction === 'BUY').sort((a, b) => b.unitPrice - a.unitPrice);
-        const sellOrders = appOrderBookData.filter(o => o.optionAction === 'SELL').sort((a, b) => a.unitPrice - b.unitPrice);
-        const buyOrderDepth = buyOrders.reduce((tot, order) => tot.add(order.size), Zero)
-        const sellOrderDepth = sellOrders.reduce((tot, order) => tot.add(order.size), Zero)
-        orderBookDepth = {buyOrderDepth, sellOrderDepth};
-        console.log('sellOrders');
-        console.log(sellOrders);
-        setOrderBook((book) => {
-            book.sellOrders = sellOrders;
-            book.buyOrders = buyOrders;
-            return book;
-        })
-    }, [status])
+        const buyOrders = optionData.buyOrders.sort((a, b) => b.unitPrice - a.unitPrice);
+        const sellOrders = optionData.sellOrders.sort((a, b) => a.unitPrice - b.unitPrice);
+        setOrderBook({ sellOrders, buyOrders })
+    }, [optionData.buyOrders, optionData.sellOrders])
 
-    const {
+const {
         getRootProps: getOrderTypeRootProps,
         getRadioProps: getOrderTypeRadioProps,
     } = useRadioGroup({
         name: "orderType",
         defaultValue: 'Market',
-        onChange: (nextValue: OrderType) => setRadioOrderType(nextValue),
+        onChange: (nextValue: OrderType) => {
+            radioOption === 'BUY' ? setPrice(orderBook.sellOrders[0]?.unitPrice.toFixed(2) ): setPrice(orderBook.buyOrders[0]?.unitPrice.toFixed(2))
+            setRadioOrderType(nextValue)
+
+        },
     });
 
     const groupOption = getOptionRootProps();
     const groupOptionType = getOrderTypeRootProps();
 
-   const handleErrorMessages = handleErrorMessagesFactory(setlocalError);
-
+   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
     async function limitOrder() {
         try {
         setApproving(true);
         if (!active || !account) {
-            setlocalError('');
+            setLocalError('');
             handleErrorMessages({ customMessage: 'Please connect your wallet'})
             console.error('Please connect your wallet');
             setApproving(false);
             return;
         }
         if (!price) {
-            throw new Error('price is required');
+            throw new Error('Price is required');
         }
         const now = new Date();
         const oneWeekFromNow = new Date(now);
@@ -160,13 +148,30 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
             const signedOrder = await signOrder(unsignedOrder, library);
             const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
             console.log(`verifiedAddress: ${verifiedAddress}`);
-            const pOrder = iOrderToPostOrder(signedOrder);
-            // TODO: handle success/failure responses
-            const res = await postOrder(pOrder);
+            const tx = await announceOrder(signedOrder, library);
+            console.log(tx);
+            const quoteSymbol = await getSymbolFor(quoteAsset, library);
+            const description = `Submitted limit order to ${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${price}`;
+            pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+            setActiveHash(tx.hash);
+            console.log(pendingTxsState);
+            try {
+                const receipt = await tx.wait()
+                const toastDescription = ToastDescription(description, receipt.transactionHash);
+                toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+            } catch (e) {
+                const toastDescription = ToastDescription(description, e.transactionHash);
+                toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
+                pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
+            }
+            console.log(pendingTxsState);
             setApproving(false);
         } catch (e) {
             handleErrorMessages({err:e});
             console.error(e);
+            setApproving(false);
+            handleErrorMessages({err:e});
         }
     }
 
@@ -175,7 +180,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
             console.log('running marketOrderMany');
             setApproving(true);
             if (!active || !account) {
-                setlocalError('');
+                setLocalError('');
                 handleErrorMessages({ customMessage: 'Please connect your wallet'})
                 console.error('Please connect your wallet');
                 setApproving(false);
@@ -210,7 +215,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
                 if (!order) {
                     throw new Error('Insufficient market depth for this order');
                 }
-                const { address: counterpartyAddress, nonce: orderNonce, size} = order;
+                const { address: counterpartyAddress, nonce: orderNonce, size } = order;
                 if (!counterpartyAddress) {
                     console.error('no counterparty address on order');
                     index++;
@@ -239,7 +244,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
                         console.log(balance);
                         console.log(size)
                         if (balance.lt(size)) {
-                            throw new Error("not enough collateral of quoteAsset");
+                            throw new Error("Not enough collateral of quoteAsset");
                         }
                     } else {
                         // required collateral is strike * size of the baseAsset
@@ -250,7 +255,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
                         });
                         console.log(balance.toString());
                         if (balance.lt(price)) {
-                            throw new Error("not enough collateral of baseAsset");
+                            throw new Error("Not enough collateral of baseAsset");
                         }
                     }
                 }
@@ -258,6 +263,10 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
 
                 remainingSize = remainingSize.sub(order.size);
                 accumulatedPrice = accumulatedPrice.add(counterPartyOrder.price);
+                if (remainingSize.lt(Zero)) {
+                    accumulatedPrice = accumulatedPrice.add(remainingSize.mul(counterPartyOrder.price).div(counterPartyOrder.size));
+                    remainingSize = Zero;
+                }
                 counterPartyOrders.push(counterPartyOrder);
                 console.log('remaining size');
                 console.log(ethers.utils.formatUnits(remainingSize));
@@ -292,7 +301,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
             const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
-            const description = `${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
+            const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
             pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
             setActiveHash(tx.hash);
             console.log(pendingTxsState);
@@ -317,14 +326,45 @@ function OptionDetails({ appCommon, sellBuy, hooks }: { appCommon: AppCommon, se
 
     // TODO: get the symbols dynamically
     const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ETH for ${formattedStrike} FK up until ${formattedExpiry}`;
-console.log(web3Error);
+
+    const orderbookSellRows: JSX.Element[] = [];
+    const orderbookBuyRows: JSX.Element[] = [];
+    orderBook.sellOrders
+      .slice(0,6)
+      .sort((a,b) => b.unitPrice - a.unitPrice)
+      .forEach((sellOrder, index) => {
+        if (index > 5) {
+            return;
+        }
+        orderbookSellRows.push(<Tr key={index}>
+            <Td>{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
+            <Td isNumeric={true}>{sellOrder.formattedSize}</Td>
+        </Tr>)
+    });
+    orderBook.buyOrders
+      .slice(0, 6)
+      .sort((a,b) => b.unitPrice - a.unitPrice)
+      .forEach((buyOrder, index) => {
+          if (index > 5) {
+              return;
+          }
+          orderbookBuyRows.push(<Tr key={index}>
+              <Td>{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
+              <Td>{buyOrder.formattedSize}</Td>
+          </Tr>)
+      });
+
+    function changePrice(value: string) {
+        setPrice(value)
+    }
+
     return (
-        <>
-            {localError &&
-            <>
-                <SlideFade in={true} unmountOnExit={true}>
-                    <Flex>
-                        <Alert status="error" borderRadius={"2xl"} my={4}>
+      <>
+          {localError &&
+          <>
+              <SlideFade in={true} unmountOnExit={true}>
+                  <Flex>
+                      <Alert status="error" borderRadius={"2xl"} my={4}>
                             <AlertIcon/>
                             {!!web3Error ? getErrorMessage(web3Error).message : localError}
                         </Alert>
@@ -333,96 +373,145 @@ console.log(web3Error);
             </>
             }
 
-        <Stack spacing="24px">
-            <Box mt={2} mb={8}>
-                <HStack spacing={3}>
-                    <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
-                        <Tag colorScheme="purple">
-                            <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
-                            <TagLabel>{optionType}</TagLabel>
-                        </Tag>
-                    </Tooltip>
-                    <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
-                        <Tag colorScheme="blue">
-                            <Icon as={MdDateRange} />
-                            <TagLabel> {formattedExpiry}</TagLabel>
-                        </Tag>
-                    </Tooltip>
-                    <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
-                        <Tag colorScheme="yellow">
-                            <Icon as={GiMoneyStack} />
-                            <TagLabel>{`${formattedStrike} USDC`}</TagLabel>
-                        </Tag>
-                    </Tooltip>
-                </HStack>
-            </Box>
-            <Box>
-                <HStack {...groupOptionType}>
-                    <FormLabel htmlFor="orderType">Order:</FormLabel>
-                    {radioOrderTypes.map((value) => {
-                        const radio = getOrderTypeRadioProps({ value });
-                        return (
-                            <RadioCard key={value} {...radio}>
-                                {value}
-                            </RadioCard>
-                        );
-                    })}
-                </HStack>
-            </Box>
-            <Box>
-                <HStack>
-                    <Divider orientation="horizontal" mb={3} mt={3} />
-                </HStack>
-            </Box>
-            <Box>
-                <HStack {...groupOption}>
-                    <FormLabel htmlFor="option">Option:</FormLabel>
-                    {radioOptions.map((value) => {
-                        const radio = getOptionRadioProps({ value });
-                        return (
-                            <RadioCard key={value} {...radio}>
-                                {value}
-                            </RadioCard>
-                        );
-                    })}
-                </HStack>
-            </Box>
-            <Box>
-                <FormLabel htmlFor="amount">Amount:</FormLabel>
-                <Input
-                    id="amount"
-                    placeholder="0"
-                    value={amount}
-                    onChange={(event: any) => setAmount(event.target.value)}
-                />
-            </Box>
-            <Box>
-                <FormLabel htmlFor="bid">Price per contract:</FormLabel>
-                <Input
-                    id="bid"
-                    placeholder="The USDC required to purchase 1 contract (1 ETH)"
-                    value={price}
-                    onChange={(event: any) => setPrice(event.target.value)}
-                />
-            </Box>
-            <Alert status="info" borderRadius={"2xl"} bgColor={useColorModeValue("", "shrub.200")}>
-                <AlertIcon />
-                {tooltipLabel}
-            </Alert>
-            <Box>
-                <Flex justifyContent="flex-end">
-                    <Button
-                        colorScheme="teal"
-                        type="submit"
-                        onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
-                        isLoading={approving}
-                        loadingText="Placing Order"
-                    >
-                        Place Order
-                    </Button>
-                </Flex>
-            </Box>
-        </Stack>
+            <Flex>
+                <Box id={"order form"}>
+                    <Stack spacing="24px">
+                        <Box mt={2} mb={8}>
+                            <HStack spacing={3}>
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
+                                    <Tag colorScheme="purple">
+                                        <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
+                                        <TagLabel>{optionType}</TagLabel>
+                                    </Tag>
+                                </Tooltip>
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
+                                    <Tag colorScheme="blue">
+                                        <Icon as={MdDateRange} />
+                                        <TagLabel> {formattedExpiry}</TagLabel>
+                                    </Tag>
+                                </Tooltip>
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
+                                    <Tag colorScheme="yellow">
+                                        <Icon as={GiMoneyStack} />
+                                        <TagLabel>{`${formattedStrike} FK`}</TagLabel>
+                                    </Tag>
+                                </Tooltip>
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <HStack {...groupOptionType}>
+                                <FormLabel htmlFor="orderType">Order:</FormLabel>
+                                {radioOrderTypes.map((value) => {
+                                    const radio = getOrderTypeRadioProps({ value });
+                                    return (
+                                      <RadioCard key={value} {...radio}>
+                                          {value}
+                                      </RadioCard>
+                                    );
+                                })}
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <HStack>
+                                <Divider orientation="horizontal" mb={3} mt={3} />
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <HStack {...groupOption}>
+                                <FormLabel htmlFor="option">Option:</FormLabel>
+                                {radioOptions.map((value) => {
+                                    const radio = getOptionRadioProps({ value });
+                                    return (
+                                      <RadioCard key={value} {...radio}>
+                                          {value}
+                                      </RadioCard>
+                                    );
+                                })}
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <FormLabel htmlFor="amount">Amount:
+                                <Tooltip p={3} label="The amount of asset to purchase option for (minimum: 0.000001 ETH)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                    <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                </Tooltip>
+                            </FormLabel>
+                            <Input
+                                id="amount"
+                                placeholder="0.1"
+                                value={amount}
+                                isInvalid={amount<=0 ||isNaN(Number(amount)) }
+                                onChange={(event: any) => setAmount(event.target.value)}
+                            />
+                        </Box>
+                        <Box>
+                            <FormLabel htmlFor="bid">Price per contract:
+                                  <Tooltip p={3} label={`The ${'FK'} required to purchase 1 xxx contract (1 ${'ETH'}) `} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                </Tooltip>
+                            </FormLabel>
+                            <Input
+                              id="bid"
+                              placeholder="0"
+                              value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(2) : orderBook.buyOrders[0]?.unitPrice.toFixed(2)) : price}
+                              isDisabled={radioOrderType === 'Market'}
+                              onChange={(event: any) => changePrice(event.target.value)}
+                              isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}
+                            />
+                        </Box>
+                        <Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>
+                            <AlertIcon />
+                            {tooltipLabel}
+                        </Alert>
+                        <Box>
+                            <Flex justifyContent="flex-end">
+                                <Button
+                                  colorScheme="teal"
+                                  type="submit"
+                                  onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
+                                  disabled={
+                                      amount<=0 ||
+                                      (price) === '' ||
+                                      isNaN(Number(amount)) ||
+                                      (radioOrderType === 'Limit' && (
+                                          Number(price)<=0 ||
+                                          isNaN(Number(price))
+                                      ))
+                                  }
+
+
+                                >
+                                    Place Order
+                                </Button>
+                            </Flex>
+                        </Box>
+                    </Stack>
+
+                </Box>
+
+                <Box id={"orderbook"} ml={4}>
+                    <Table variant={'unstyled'} size={'sm'}>
+                        <Thead>
+                            <Tr>
+                                <Th>Price</Th>
+                                <Th>Amount</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {orderbookSellRows}
+                        </Tbody>
+                    </Table>
+                    <Divider/>
+                    <Table variant={'unstyled'} size={'sm'}>
+                        <Tbody>
+                            {orderbookBuyRows}
+                        </Tbody>
+                        <Tfoot>
+                            <Th>Price</Th>
+                            <Th>Amount</Th>
+                        </Tfoot>
+                    </Table>
+                </Box>
+            </Flex>
         </>
     )
 }

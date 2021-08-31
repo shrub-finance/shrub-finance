@@ -14,6 +14,9 @@ const apiPort = Number(process.env.API_PORT) || 8000;
 const WeiInEth = web3.utils.toBN(10).pow(web3.utils.toBN(18));
 const BigMillion = web3.utils.toBN(10).pow(web3.utils.toBN(6));
 
+const BASE_IV = 125;
+const IV_RANGE = 50;
+
 const Assets = {
   USDC: "",
   ETH: "0x0000000000000000000000000000000000000000",
@@ -40,7 +43,9 @@ async function generateRandomOrder(nonce) {
   const {expiry, strike:strikeUsdcMillion, optionType } = getRandomContract();
   const strikeUsdc = strikeUsdcMillion / STRIKE_BASE_SHIFT;
   const timeToExpiry = (expiry * 1000 - Date.now()) / (365 * 24 * 60 * 60 * 1000)
-  const volatility = (Math.random() * 75 + 75) / 100;
+  const isBuy = Math.random() * 100 > 50;
+  const volatility = ((isBuy ? -1 : 1) * Math.random() * IV_RANGE + BASE_IV) / 100;
+  // const volatility = (Math.random() * 75 + 75) / 100;
   console.log(`
     ETH price: ${ETH_PRICE}
     strike: ${strikeUsdc}
@@ -56,12 +61,12 @@ async function generateRandomOrder(nonce) {
   if(timeToExpiry < 0) {
     return null
   }
-  const price = web3.utils.toBN(Math.round(pricePerContractUsdc * 100)).mul(WeiInEth.div(web3.utils.toBN(100)));
+  const price = web3.utils.toBN(Math.round(pricePerContractUsdc * 100)).mul(WeiInEth.div(web3.utils.toBN(100))).mul(size).div(WeiInEth);
   const fee = web3.utils.toBN(Math.floor(Math.random() * 100))
   return {
     nonce,
     size,
-    isBuy: Math.random() * 100 > 50,
+    isBuy,
     price,
     offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
     fee,

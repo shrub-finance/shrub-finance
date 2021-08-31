@@ -12,6 +12,8 @@ export type BinaryNumber = 0 | 1;
 
 export type PendingTxState = {[txHash: string]: { description: string, status: PendingStatuses, created: Date, updated: Date}}
 
+export type LastOrders = {[positionHash: string]: number}
+
 export type PendingTxAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}
 
 export type SupportedCurrencies = 'ETH'|'FK'
@@ -91,6 +93,10 @@ export type AppOrder = AppCommon & AppSmall & {
 
 export type AppOrderSigned = AppOrder & Signature;
 
+export type IndexedAppOrderSigned = AppOrderSigned & {
+  transactionHash: string;
+}
+
 export type OrderbookStats = {
   bestAsk: string;
   bestBid: string;
@@ -118,6 +124,31 @@ export type OrderBook = {
     buyOrders: AppOrderSigned[];
     sellOrders: AppOrderSigned[];
 }
+
+export type OptionData = {
+  buyOrdersIndexed: {[positionHash: string]: IndexedAppOrderSigned};
+  sellOrdersIndexed: {[positionHash: string]: IndexedAppOrderSigned};
+  buyOrders: IndexedAppOrderSigned[];
+  sellOrders: IndexedAppOrderSigned[];
+  last: string;
+  ask?: number;
+  bid?: number;
+}
+
+export type OrderBookState = {
+  [quoteAsset : string]: {
+    [baseAsset : string]: {
+      [expiry: string]: {
+        [optionType: string]: {
+          [strike: string]: OptionData;
+        };
+      };
+    };
+  };
+};
+
+// export type OrderBookAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}
+export type OrderBookAction = { type: 'add', orders: IndexedAppOrderSigned[]}
 
 export type Stringify<Type> = {
   [Property in keyof Type]: string;

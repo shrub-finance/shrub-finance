@@ -7,13 +7,13 @@ import {
 import React, {useContext} from "react";
 import {TxContext} from "./Store";
 import {CheckCircleIcon, ExternalLinkIcon, Icon, TimeIcon} from "@chakra-ui/icons";
-import {HappyBud} from "../assets/Icons";
+import {HappyBud, TradeBud} from '../assets/Icons';
 import {PendingTxState} from "../types";
 import {VscError} from "react-icons/all";
+import {isMobile} from "react-device-detect";
 
 
 export function Txmonitor({txHash}:{txHash?: string}) {
-    console.log('rendering txmonitor');
     console.log(txHash);
 
     const { pendingTxs } = useContext(TxContext);
@@ -35,7 +35,8 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                   <Spinner
                     thickness="4px"
                     speed="0.65s"
-                    emptyColor="blue.200" color="teal.500"
+                    emptyColor="gray.200"
+                    color="bud.100"
                     size="xl"
                   />
                   <AlertTitle mt={4} mb={1} fontSize="lg">
@@ -86,7 +87,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
               height="400px"
               bg="none"
             >
-              <AlertIcon boxSize="40px" mr={0}/>
+              <AlertIcon boxSize="40px" mr={0} color={"bud.100"}/>
               <AlertTitle mt={4} mb={1} fontSize="lg">
                 Transaction Confirmed
               </AlertTitle>
@@ -96,7 +97,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                   </Link>
 
                   <Center>
-                      <HappyBud mt={8} boxSize={200} />
+                      <HappyBud mt={8} boxSize={260} />
                   </Center>
               </AlertDescription>
             </Alert>}
@@ -130,6 +131,7 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
     return Object.values(pendingTxsState).filter(txState => txState.status === 'confirming').length
 }
 
+// displayed inside connect wallet modal
 export function TxStatusList() {
     console.log('rendering TxStatusList');
     const { pendingTxs } = useContext(TxContext);
@@ -186,7 +188,7 @@ export function TxStatusList() {
                         </Box>
                     </>
                     :
-                      <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="lg" ml="2">
+                      <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize={isMobile? "md" : "lg"} ml="2">
                       Transactions will show up here...
                       </Center>
                   }
