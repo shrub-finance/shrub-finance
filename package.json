@@ -11,6 +11,8 @@
   ],
   "scripts": {
     "start": "lerna run start --parallel",
+    "build-app": "yarn workspace @shrub/app run build",
+    "app": "yarn workspace @shrub/app start",
     "contracts": "yarn workspace @shrub/contracts start",
     "app": "yarn workspace @shrub/app start",
     "backend": "yarn workspace @shrub/backend start",

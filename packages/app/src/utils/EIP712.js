@@ -73,7 +73,7 @@ const domain = {
   version: "1",
 };
 
-class Shrub712 extends EIP712Generator {
+export class Shrub712 extends EIP712Generator {
   constructor(chainId = 1, verifyingContract) {
     super(types, {
       ...domain,
@@ -162,4 +162,6 @@ class Shrub712 extends EIP712Generator {
   }
 }
 
-module.exports = { Shrub712 };
+// module.exports = { Shrub712 };
+
+
