@@ -36,7 +36,7 @@ import {
   NumberInputField,
   InputRightElement,
   Stack,
-  useRadioGroup, Tooltip
+  useRadioGroup, Tooltip, Divider
 } from '@chakra-ui/react';
 import {
   depositEth,
@@ -70,7 +70,7 @@ function Positions() {
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {active, library, account, error: web3Error} = useWeb3React();
   const alertColor = useColorModeValue("gray.100", "shrub.300");
-  const tableRows: TableRowProps[] = [];
+  const shrubfolioRows = [];
   const tableRowsOptions: any = [];
   const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
   const [isApproved, setIsApproved] = useState(false);
@@ -204,7 +204,6 @@ function Positions() {
       .catch(console.error);
   }, [active, account, library, pendingTxsState])
 
-
   useEffect(() => {
     async function handleApprove(){
       if (modalCurrency !== 'ETH') {
@@ -306,18 +305,30 @@ function Positions() {
         handleErrorMessages({customMessage: 'Nothing to withdraw :/'});
       }
     }
-
-
   }
   // populate balance table
   for (const currency of Object.keys(Currencies)) {
-    tableRows.push(
-      <Tr key={currency}>
-        <Td>{currency}</Td>
-        <Td isNumeric>{totalUserBalance(currency)}</Td>
-        <Td isNumeric>{shrubBalance.locked[currency]}</Td>
-        <Td isNumeric>{shrubBalance.available[currency]}</Td>
-      </Tr>
+    shrubfolioRows.push(
+        <>
+        <Box p="4" key={currency} d="flex" alignItems="baseline" direction="column">
+          <Box mt="1" fontWeight="semibold" fontSize="4xl" lineHeight="tight">
+            {totalUserBalance(currency)} {currency}
+          </Box>
+            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="md" textTransform="uppercase">
+              {shrubBalance.available[currency]} unlocked
+              <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+              </Tooltip>
+            </Box>
+            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="md" textTransform="uppercase">
+              {shrubBalance.locked[currency]} locked
+              <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+              </Tooltip>
+            </Box>
+          </Box>
+        <Divider/>
+        </>
     );
   }
   return (
@@ -351,6 +362,7 @@ function Positions() {
           </ModalContent>
         </Modal>
       </Container>
+      {/*withdraw deposit buttons*/}
       <Container mt={50} flex="1" borderRadius="2xl" maxW="container.md">
         <Center>
         <Button colorScheme="teal" variant="outline" borderRadius="full"
@@ -363,34 +375,15 @@ function Positions() {
         </Center>
       </Container>
       {/*asset view*/}
-      <Container mt={50} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">
-        <Table variant="simple" size="lg">
-          <Thead>
-            <Tr>
-              <Th>Asset
-              </Th>
-              <Th isNumeric>Total
-                <Tooltip p={3} label="This is the total amount of assets you have (including locked and unlocked)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-              <Th isNumeric>Locked
-                <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-              <Th isNumeric>Unlocked
-                <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>{tableRows}</Tbody>
-        </Table>
+      <Container mt={50} flex="1" borderRadius="2xl" maxW="container.sm">
+        <Center borderRadius="2xl" >
+        <Box  borderRadius="lg" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")}>
+          {shrubfolioRows}
+        </Box>
+        </Center>
       </Container>
       {/*options view*/}
-      <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">
+      <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
         {hasOptions.current ?
           (<Table variant="simple" size="lg">
             <Thead>
