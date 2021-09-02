@@ -15,7 +15,6 @@ import { explorerLink } from '../utils/explorerLink'
 import {useWeb3React} from "@web3-react/core";
 
 
-
 export function Txmonitor({txHash}:{txHash?: string}) {
     console.log(txHash);
     const {chainId} = useWeb3React();
@@ -141,6 +140,7 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
 export function TxStatusList() {
     console.log('rendering TxStatusList');
     const { pendingTxs } = useContext(TxContext);
+    const {chainId} = useWeb3React();
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const entries = Object.entries(pendingTxsState)
       .sort((a,b) => b[1].created.getTime() - a[1].created.getTime())
@@ -152,7 +152,7 @@ export function TxStatusList() {
         list.push(
           <Flex pt={3} pb={1}>
               <Box color={status === 'failed' ? 'red.500' : 'teal.500'} fontWeight="semibold" letterSpacing="tight" fontSize="xs" ml="2">
-                  <Link href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                  <Link href={explorerLink(chainId, txHash)} isExternal>
                       {description}
                   </Link>
               </Box>
