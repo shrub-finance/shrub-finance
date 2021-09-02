@@ -3870,6 +3870,37 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@gnosis.pm/safe-apps-provider@npm:0.7.1":
+  version: 0.7.1
+  resolution: "@gnosis.pm/safe-apps-provider@npm:0.7.1"
+  dependencies:
+    "@gnosis.pm/safe-apps-sdk": 4.2.0
+    events: ^3.3.0
+  checksum: 46dc5a57b47f8778e4e4e025b481aadca86f242f7992da994fc6ddaa16fd717ba6a9b1f6e77595b98e0acab41704ff9fc983a63f4d20f18329d20c4f2a471550
+  languageName: node
+  linkType: hard
+
+"@gnosis.pm/safe-apps-sdk@npm:4.2.0":
+  version: 4.2.0
+  resolution: "@gnosis.pm/safe-apps-sdk@npm:4.2.0"
+  checksum: cca23444e4e5356f40bf64a4e71f7de8b1794f45de6a075434c575e610715725462cdeaff5fa3f897085bcc57d085a5980aadfc5a142123ad7db07ff1296f9ce
+  languageName: node
+  linkType: hard
+
+"@gnosis.pm/safe-apps-web3-react@npm:0.6.2":
+  version: 0.6.2
+  resolution: "@gnosis.pm/safe-apps-web3-react@npm:0.6.2"
+  dependencies:
+    "@gnosis.pm/safe-apps-provider": 0.7.1
+    "@gnosis.pm/safe-apps-sdk": 4.2.0
+    "@web3-react/abstract-connector": 6.0.7
+  peerDependencies:
+    "@web3-react/core": 6.x.x
+    react: 16.x.x || 17.x.x
+  checksum: 263da9143d7aff46aff9ed3395b2d06734c2ec10387efb4323593648e06b29f31bb1272dbd599352872ed27cc954edab3ef4dcff4bedf5514dc37db47e73c9be
+  languageName: node
+  linkType: hard
+
 "@hapi/address@npm:2.x.x":
   version: 2.1.4
   resolution: "@hapi/address@npm:2.1.4"
@@ -5880,6 +5911,7 @@ __metadata:
     "@emotion/react": 11.1.5
     "@emotion/styled": 11.1.5
     "@fontsource/montserrat": 4.4.5
+    "@gnosis.pm/safe-apps-web3-react": 0.6.2
     "@harmony-js/core": 0.1.57
     "@metamask/jazzicon": 2.0.0
     "@reach/router": 1.3.4
@@ -7397,7 +7429,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@web3-react/abstract-connector@npm:^6.0.7":
+"@web3-react/abstract-connector@npm:6.0.7, @web3-react/abstract-connector@npm:^6.0.7":
   version: 6.0.7
   resolution: "@web3-react/abstract-connector@npm:6.0.7"
   dependencies:
@@ -14665,7 +14697,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"events@npm:^3.0.0":
+"events@npm:^3.0.0, events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: 56fa12567013e85b98782a1d971442ea29df057129d8a94432711fd68303357594ea37bfbe234860e28581a7768f943a8bea88c16b48aa01b96acf804bc01d52

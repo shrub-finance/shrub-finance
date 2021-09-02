@@ -75,7 +75,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     const { pendingTxs } = useContext(TxContext);
     const alertColor = useColorModeValue("gray.100", "shrub.300")
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-    const {active, library, account, error: web3Error} = useWeb3React();
+    const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [amount, setAmount] = React.useState(1);
@@ -168,11 +168,11 @@ const {
             console.log(pendingTxsState);
             try {
                 const receipt = await tx.wait()
-                const toastDescription = ToastDescription(description, receipt.transactionHash);
+                const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
             } catch (e) {
-                const toastDescription = ToastDescription(description, e.transactionHash);
+                const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
@@ -318,11 +318,11 @@ const {
             console.log(pendingTxsState);
             try {
                 const receipt = await tx.wait()
-                const toastDescription = ToastDescription(description, receipt.transactionHash);
+                const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
             } catch (e) {
-                const toastDescription = ToastDescription(description, e.transactionHash);
+                const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
