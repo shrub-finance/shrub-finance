@@ -11,21 +11,29 @@ export function useInactiveListener(suppress: boolean = false) {
     if (ethereum && ethereum.on && !active && !error && !suppress) {
       const handleConnect = () => {
         console.log("Handling 'connect' event");
-        activate(injected);
+        activate(injected, undefined, true).catch((error) => {
+          console.error('could not activate after handling connect event', error)
+        })
       };
       const handleChainChanged = (chainId: string | number) => {
         console.log("Handling 'chainChanged' event with payload", chainId);
-        activate(injected);
+        activate(injected, undefined, true).catch((error) => {
+          console.error('could not activate after chain changed', error)
+        })
       };
       const handleAccountsChanged = (accounts: string[]) => {
         console.log("Handling 'accountsChanged' event with payload", accounts);
         if (accounts.length > 0) {
-          activate(injected);
+          activate(injected, undefined, true).catch((error) => {
+            console.error('could not activate after accounts changed', error)
+          })
         }
       };
       const handleNetworkChanged = (networkId: string | number) => {
         console.log("Handling 'networkChanged' event with payload", networkId);
-        activate(injected);
+        activate(injected, undefined, true).catch((error) => {
+          console.error('could not activate after network changed', error)
+        })
       };
 
       ethereum.on("connect", handleConnect);

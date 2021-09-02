@@ -5,6 +5,8 @@ import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { LedgerConnector } from '@web3-react/ledger-connector';
 import {PortisConnector} from '@web3-react/portis-connector';
 import {FortmaticConnector} from '@web3-react/fortmatic-connector';
+import { SafeAppConnector } from '@gnosis.pm/safe-apps-web3-react'
+
 
 
 const POLLING_INTERVAL = 12000;
@@ -59,3 +61,5 @@ export const portis = new PortisConnector({
   dAppId: '',
   networks: [1],
 })
+
+export const gnosisSafe = new SafeAppConnector()

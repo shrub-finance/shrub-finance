@@ -16,7 +16,6 @@ import Web3 from "web3";
 import {useWeb3React} from "@web3-react/core";
 import {JsonRpcProvider} from "@ethersproject/providers";
 
-declare let window: any;
 
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const FK_TOKEN_ADDRESS = process.env.REACT_APP_FK_TOKEN_ADDRESS || "";
@@ -84,7 +83,7 @@ export async function signOrder(unsignedOrder: UnsignedOrder, provider: JsonRpcP
 
   // TODO: change this to sign with ethers to enable EIP712 metamask view
   // Sign with shrubInterface
-  const web3 = new Web3(window.ethereum);
+  const web3 = new Web3(window.ethereum as any);
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer)
   const orderTypeHash = await shrubContract.ORDER_TYPEHASH();
   const address = await signer.getAddress();

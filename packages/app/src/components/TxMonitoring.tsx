@@ -7,17 +7,20 @@ import {
 import React, {useContext} from "react";
 import {TxContext} from "./Store";
 import {CheckCircleIcon, ExternalLinkIcon, Icon, TimeIcon} from "@chakra-ui/icons";
-import {HappyBud, TradeBud} from '../assets/Icons';
+import {HappyBud} from '../assets/Icons';
 import {PendingTxState} from "../types";
 import {VscError} from "react-icons/all";
 import {isMobile} from "react-device-detect";
+import { explorerLink } from '../utils/explorerLink'
+import {useWeb3React} from "@web3-react/core";
+
 
 
 export function Txmonitor({txHash}:{txHash?: string}) {
     console.log(txHash);
-
+    const {chainId} = useWeb3React();
     const { pendingTxs } = useContext(TxContext);
-    const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+    const [pendingTxsState] = pendingTxs;
     console.log(txHash);
     if (!txHash) {
         return (
@@ -53,6 +56,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
     console.log(pendingTxsState[txHash]);
 
     console.log(status)
+
     return (
         <>
             {status === 'confirming' && <Alert
@@ -70,7 +74,9 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                     Transaction Confirming...
                 </AlertTitle>
                 <AlertDescription maxWidth="sm">
-                    <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                    <Link color={"gray"} fontSize={"sm"}
+                        // @ts-ignore
+                          href={explorerLink(chainId, txHash)} isExternal>
                         View on explorer <ExternalLinkIcon mx="2px" />
                     </Link>
                 </AlertDescription>
@@ -92,7 +98,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                 Transaction Confirmed
               </AlertTitle>
               <AlertDescription maxWidth="sm">
-                  <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                  <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash)} isExternal>
                       View on explorer <ExternalLinkIcon mx="2px" />
                   </Link>
 
@@ -117,7 +123,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                     Transaction Rejected
                 </AlertTitle>
                 <AlertDescription maxWidth="sm">
-                    <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                    <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash)} isExternal>
                         View on explorer <ExternalLinkIcon mx="2px" />
                     </Link>
 
@@ -203,13 +209,13 @@ export function TxStatusList() {
 
 }
 
-export function ToastDescription(description: string, txHash: string) {
+export function ToastDescription(description: string, txHash: string, chainId:any) {
     return <>
         <Box>
             {description}
         </Box>
         <Box>
-            <Link href={`https://etherscan.io/tx/${txHash}`} isExternal>View on etherscan</Link>
+            <Link href={explorerLink(chainId, txHash)} isExternal>View on explorer</Link>
         </Box>
     </>
 }

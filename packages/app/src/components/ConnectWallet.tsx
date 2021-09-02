@@ -19,7 +19,7 @@ import {
     injected,
     walletconnect,
     walletlink,
-    ledger, portis, fortmatic,
+    ledger, portis, fortmatic, gnosisSafe
 } from '../utils/connectors';
 import Jazzicon from "@metamask/jazzicon";
 import {
@@ -245,7 +245,7 @@ export function ConnectionStatus({displayStatus}) {
                         <Spacer/>
                         <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2">
                             <Link href={ethScanLink} isExternal>
-                                <ExternalLinkIcon/> View on Etherscan
+                                <ExternalLinkIcon/> View on explorer
                             </Link>
                         </Box>
                     </Flex>
