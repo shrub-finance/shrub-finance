@@ -3,41 +3,45 @@ import {mode} from "@chakra-ui/theme-tools"
 
 const config = extendTheme({
     initialColorMode: "dark" as ColorMode,
-    useSystemColorMode: false,
-    fonts: {
-        heading: "Montserrat",
-        body: "Montserrat",
-    },
-    colors: {
-        shrub: {
-            100: "rgb(31, 31, 65)",
-            200: "rgb(18, 18, 38)", // base
-            300: "rgb(21, 21, 38)"
-        },
-        bud: {
-            100: "#64A66A"
-        }
-    },
-    styles: {
-        global: (props) => ({
-            body: {
-                fontFamily: "body",
-                bg: mode("gray.50", "shrub.200")(props),
-            }
-        }),
-    },
-    components: {
-        Modal: {
-            baseStyle: ({colorMode}) => ({
-                dialog: {
-                    color: colorMode === "dark" ? "white" : "shrub.100",
-                    bg: colorMode === "dark" ? "shrub.100" : "white",
-                    boxShadow: "rgb(33 35 74 / 80%) 0px 22px 48px -9px",
-                }
-            })
-        }
-    }
+    useSystemColorMode: true,
 })
 
-const theme = extendTheme(config);
+const components =  {
+    Modal: {
+        baseStyle: (props: any) => ({
+            dialog: {
+                color: mode("shrub.100", "white")(props),
+                bg: mode("white", "shrub.100")(props),
+                boxShadow: "rgb(33 35 74 / 80%) 0px 22px 48px -9px",
+            }
+        })
+    }
+}
+
+const fonts = {
+        heading: "Montserrat",
+        body: "Montserrat",
+    }
+
+ const  styles =  {
+         global: (props: any) => ({
+             body: {
+                 fontFamily: "body",
+                 bg: mode("gray.50", "shrub.200")(props),
+             }
+         }),
+     }
+
+const colors = {
+    shrub: {
+        100: "rgb(31, 31, 65)",
+            200: "rgb(18, 18, 38)", // base
+            300: "rgb(21, 21, 38)"
+    },
+    bud: {
+        100: "#64A66A"
+    }
+}
+
+const theme = extendTheme({config, components, styles, fonts, colors});
 export default theme;
