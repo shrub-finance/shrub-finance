@@ -76,8 +76,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const amountToolTip = `The amount of asset to purchase option for (minimum: 0.000001 ${currencySymbol(chainId)})`
     const priceToolTip = `The ${'FK'} required to purchase 1 xxx contract (1 ${currencySymbol(chainId)}) `
-    const { pendingTxs } = useContext(TxContext);
     const alertColor = useColorModeValue("gray.100", "shrub.300")
+    const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
