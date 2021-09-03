@@ -11,7 +11,7 @@ import {HappyBud} from '../assets/Icons';
 import {PendingTxState} from "../types";
 import {VscError} from "react-icons/all";
 import {isMobile} from "react-device-detect";
-import { explorerLink } from '../utils/explorerLink'
+import { explorerLink } from '../utils/chainMethods'
 import {useWeb3React} from "@web3-react/core";
 
 

@@ -33,15 +33,15 @@ import {
   transformOrderAppChain, unsubscribeFromAnnouncements
 } from "../utils/ethMethods";
 import {BytesLike, ethers} from "ethers";
-import {FaEthereum} from "react-icons/fa";
 import {Icon} from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
 import {orderBookReducer} from "../components/orderBookReducer";
+import {currencyIcon, currencySymbol} from "../utils/chainMethods";
 
 const initialOrderBookState = {};
 
 function OptionsView(props: RouteComponentProps) {
-  const {library} = useWeb3React();
+  const {library, chainId} = useWeb3React();
   const sellBuys = ['BUY', 'SELL']
   const optionTypes = ['PUT', 'CALL']
   const [sellBuy, setSellBuy] = useState<SellBuy>('BUY');
@@ -98,7 +98,6 @@ function OptionsView(props: RouteComponentProps) {
 
   // On load
   useEffect(() => {
-    console.log('running onLoad useEffect')
     if (!library) {
       return;
     }
@@ -270,7 +269,7 @@ function OptionsView(props: RouteComponentProps) {
   }
   return (
       <>
-        <Heading mt={10}><Center><Icon as={FaEthereum} /> ETH Options</Center></Heading>
+        <Heading mt={10}><Center><Icon as={currencyIcon(chainId)} pr="1"/> {currencySymbol(chainId)} Options</Center></Heading>
 
   <Container
       mt={50}

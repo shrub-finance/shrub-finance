@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {
     CoinbaseIcon, FortmaticIcon,
     LedgerIcon,
-    MetaMaskIcon, PortisIcon,
+    MetaMaskIcon, PolygonIcon, PortisIcon,
     WalletConnectIcon,
 } from '../assets/Icons';
 import {
@@ -41,8 +41,8 @@ import {useConnectWallet} from "../hooks/useConnectWallet";
 import {formatEther} from "ethers/lib/utils";
 import {NETWORK_COLORS, NETWORK_LABELS} from "../constants/networks";
 import {RiSignalTowerLine} from "react-icons/all";
-import {FaEthereum} from "react-icons/fa";
 import {isMobile} from "react-device-detect";
+import {currencySymbol} from "../utils/chainMethods";
 
 enum ConnectorNames {
     MetaMask = "MetaMask",
@@ -132,6 +132,7 @@ export function ChainId() {
 export function Balance() {
     const {account, library, chainId} = useWeb3React()
     const networkColor = chainId && NETWORK_COLORS[chainId]
+    const currency = currencySymbol(chainId)
 
     const [balance, setBalance] = useState()
     useEffect((): any => {
@@ -162,7 +163,7 @@ export function Balance() {
     return (
         <>
             {balance && <Button
-                leftIcon={balance ? <FaEthereum/> : undefined}
+                // leftIcon={balance ? <FaEthereum/> : undefined}
                 variant={"ghost"}
                 //@ts-ignore
                 colorScheme={networkColor}
@@ -174,7 +175,7 @@ export function Balance() {
                         'Error' :
                         balance
                             // @ts-ignore
-                            ? chainId===80001? `${Number(formatEther(balance)).toPrecision(6)} MATIC` :`${Number(formatEther(balance)).toPrecision(6)} ETH` : ''
+                            ? `${Number(formatEther(balance)).toPrecision(6)} ${currencySymbol(chainId)}`: ''
                 }
             </Button>
             }
