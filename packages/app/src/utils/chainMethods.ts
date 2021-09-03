@@ -34,7 +34,7 @@ export function explorerLink(chainId: any, data: any, type: ExplorerDataType): s
                 return `https://rinkeby-explorer.arbitrum.io/`
         }
     }
-    if (chainId === SupportedChainId.POLYGON ||SupportedChainId.MUMBAI ) {
+    if (chainId === SupportedChainId.POLYGON || chainId === SupportedChainId.MUMBAI ) {
         const polygonPrefix = `https://${POLYGONSCAN_NETWORKS[chainId] ?? ''}polygonscan.com`
         switch (type) {
             case ExplorerDataType.TRANSACTION:
