@@ -496,7 +496,7 @@ const {
                                   onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
                                   disabled={
                                       amount<=0 ||
-                                      (price) === '' ||
+                                      Boolean(radioOption === 'BUY' ? orderBook.sellOrders[0] : orderBook.buyOrders[0]) ||
                                       isNaN(Number(amount)) ||
                                       (radioOrderType === 'Limit' && (
                                           Number(price)<=0 ||
