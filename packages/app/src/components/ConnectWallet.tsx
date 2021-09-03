@@ -42,7 +42,7 @@ import {formatEther} from "ethers/lib/utils";
 import {NETWORK_COLORS, NETWORK_LABELS} from "../constants/networks";
 import {RiSignalTowerLine} from "react-icons/all";
 import {isMobile} from "react-device-detect";
-import {currencySymbol} from "../utils/chainMethods";
+import {currencySymbol, ExplorerDataType, explorerLink} from "../utils/chainMethods";
 
 enum ConnectorNames {
     MetaMask = "MetaMask",
@@ -202,13 +202,12 @@ export function Account() {
 export function ConnectionStatus({displayStatus}) {
 
     const shadow = useColorModeValue("base", "dark-lg");
-    const {active, error, account} = useWeb3React();
+    const {active, error, account, chainId} = useWeb3React();
     const { connector } = useConnectWallet();
     const connectedName = Object.keys(connectorsByName).find((connectorName) => {
         // @ts-ignore
         return connector === connectorsByName[connectorName]
     });
-    const ethScanLink = `https://etherscan.io/address/${account}`;
     const [copyValue, setCopyValue] = React.useState("")
     const {hasCopied, onCopy} = useClipboard(copyValue)
     useEffect(() => {
@@ -245,7 +244,7 @@ export function ConnectionStatus({displayStatus}) {
                         </Box>
                         <Spacer/>
                         <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2">
-                            <Link href={ethScanLink} isExternal>
+                            <Link href={explorerLink(chainId, account, ExplorerDataType.ADDRESS)} isExternal>
                                 <ExternalLinkIcon/> View on explorer
                             </Link>
                         </Box>

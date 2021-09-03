@@ -11,7 +11,7 @@ import {HappyBud} from '../assets/Icons';
 import {PendingTxState} from "../types";
 import {VscError} from "react-icons/all";
 import {isMobile} from "react-device-detect";
-import { explorerLink } from '../utils/chainMethods'
+import {ExplorerDataType, explorerLink} from '../utils/chainMethods'
 import {useWeb3React} from "@web3-react/core";
 
 
@@ -75,7 +75,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                 <AlertDescription maxWidth="sm">
                     <Link color={"gray"} fontSize={"sm"}
                         // @ts-ignore
-                          href={explorerLink(chainId, txHash)} isExternal>
+                          href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                         View on explorer <ExternalLinkIcon mx="2px" />
                     </Link>
                 </AlertDescription>
@@ -97,7 +97,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                 Transaction Confirmed
               </AlertTitle>
               <AlertDescription maxWidth="sm">
-                  <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash)} isExternal>
+                  <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                       View on explorer <ExternalLinkIcon mx="2px" />
                   </Link>
 
@@ -122,7 +122,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                     Transaction Rejected
                 </AlertTitle>
                 <AlertDescription maxWidth="sm">
-                    <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash)} isExternal>
+                    <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                         View on explorer <ExternalLinkIcon mx="2px" />
                     </Link>
 
@@ -152,7 +152,7 @@ export function TxStatusList() {
         list.push(
           <Flex pt={3} pb={1}>
               <Box color={status === 'failed' ? 'red.500' : 'teal.500'} fontWeight="semibold" letterSpacing="tight" fontSize="xs" ml="2">
-                  <Link href={explorerLink(chainId, txHash)} isExternal>
+                  <Link href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                       {description}
                   </Link>
               </Box>
@@ -215,7 +215,7 @@ export function ToastDescription(description: string, txHash: string, chainId:an
             {description}
         </Box>
         <Box>
-            <Link href={explorerLink(chainId, txHash)} isExternal>View on explorer</Link>
+            <Link href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>View on explorer</Link>
         </Box>
     </>
 }
