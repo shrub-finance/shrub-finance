@@ -67,6 +67,12 @@
         "type": "bytes32"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "components": [
           {
             "internalType": "uint256",

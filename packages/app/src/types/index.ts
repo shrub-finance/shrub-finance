@@ -125,6 +125,14 @@ export type OrderBook = {
     sellOrders: AppOrderSigned[];
 }
 
+export type IndexedAppOrderSignedNumbered = IndexedAppOrderSigned & {
+  blockNumber: number
+}
+
+export type UserOrdersState = {[transactionHash: string]: IndexedAppOrderSignedNumbered}
+
+export type UserOrdersAction = { type: 'add', order: IndexedAppOrderSignedNumbered}
+
 export type OptionData = {
   buyOrdersIndexed: {[positionHash: string]: IndexedAppOrderSigned};
   sellOrdersIndexed: {[positionHash: string]: IndexedAppOrderSigned};
