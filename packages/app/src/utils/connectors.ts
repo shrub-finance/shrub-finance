@@ -7,8 +7,6 @@ import {PortisConnector} from '@web3-react/portis-connector';
 import {FortmaticConnector} from '@web3-react/fortmatic-connector';
 import { SafeAppConnector } from '@gnosis.pm/safe-apps-web3-react'
 
-
-
 const POLLING_INTERVAL = 12000;
 
 const RPC_URLS: { [chainId: number]: string } = {

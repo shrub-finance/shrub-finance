@@ -21,8 +21,6 @@ export const NETWORK_LABELS: { [chainId in SupportedChainId | number]: string } 
     [SupportedChainId.POLYGON]: 'Polygon',
     [SupportedChainId.MUMBAI]: 'Mumbai',
     [SupportedChainId.LOCAL]: 'Local'
-
-
 }
 
 export const NETWORK_COLORS: { [chainId in SupportedChainId | number]: string } = {
@@ -35,5 +33,5 @@ export const NETWORK_COLORS: { [chainId in SupportedChainId | number]: string } 
     [SupportedChainId.POLYGON]: 'purple',
     [SupportedChainId.MUMBAI]: 'blue',
     [SupportedChainId.LOCAL]: 'red'
-
 }
+

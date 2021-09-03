@@ -21,6 +21,8 @@ import {
 import {AppCommon, OptionData, SellBuy} from '../types';
 import OptionDetails from "./OptionDetails";
 import {Txmonitor} from "./TxMonitoring";
+import {currencySymbol} from "../utils/chainMethods";
+import {useWeb3React} from "@web3-react/core";
 
 const height = 100;
 
@@ -36,6 +38,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
   const { isOpen, onOpen, onClose} = useDisclosure();
   const [approving, setApproving] = React.useState(false);
   const [activeHash, setActiveHash] = useState<string>();
+  const {chainId} = useWeb3React();
 
   function handleModalClose() {
     setApproving(false);
@@ -74,7 +77,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
         <ModalOverlay />
         <ModalContent borderRadius="2xl">
           <ModalCloseButton />
-          <ModalHeader borderBottomWidth="1px">ETH Order</ModalHeader>
+          <ModalHeader borderBottomWidth="1px">{currencySymbol(chainId)} Order</ModalHeader>
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' } }>
               <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>

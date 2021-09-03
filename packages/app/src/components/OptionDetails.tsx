@@ -55,6 +55,7 @@ import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
+import {currencySymbol} from "../utils/chainMethods";
 
 const { Zero } = ethers.constants;
 
@@ -72,10 +73,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     } = useDisclosure();
 
     const { approving, setApproving, setActiveHash } = hooks;
+    const {active, library, account, error: web3Error, chainId} = useWeb3React();
+    const amountToolTip = `The amount of asset to purchase option for (minimum: 0.000001 ${currencySymbol(chainId)})`
+    const priceToolTip = `The ${'FK'} required to purchase 1 xxx contract (1 ${currencySymbol(chainId)}) `
     const { pendingTxs } = useContext(TxContext);
     const alertColor = useColorModeValue("gray.100", "shrub.300")
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-    const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [amount, setAmount] = React.useState(1);
@@ -334,9 +337,8 @@ const {
             console.error(e);
         }
     }
-
     // TODO: get the symbols dynamically
-    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ETH for ${formattedStrike} FK up until ${formattedExpiry}`;
+    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${currencySymbol(chainId)} for ${formattedStrike} FK up until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
@@ -455,7 +457,7 @@ const {
                         </Box>
                         <Box>
                             <FormLabel htmlFor="amount">Amount:
-                                <Tooltip p={3} label="The amount of asset to purchase option for (minimum: 0.000001 ETH)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                <Tooltip p={3} label={amountToolTip} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
                                     <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
                                 </Tooltip>
                             </FormLabel>
@@ -469,7 +471,7 @@ const {
                         </Box>
                         <Box>
                             <FormLabel htmlFor="bid">Price per contract:
-                                  <Tooltip p={3} label={`The ${'FK'} required to purchase 1 xxx contract (1 ${'ETH'}) `} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                  <Tooltip p={3} label={priceToolTip} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
                                   <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
                                 </Tooltip>
                             </FormLabel>
