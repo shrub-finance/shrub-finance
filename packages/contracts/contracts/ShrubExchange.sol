@@ -1,7 +1,6 @@
 pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "hardhat/console.sol";
 
 contract ShrubExchange {
 
@@ -159,34 +158,12 @@ contract ShrubExchange {
     matches = matches && sellOrder.isBuy == false;
     matches = matches && buyOrder.isBuy == true;
 
-    // TODO: Commenting this out is a hack, but we need to get this to work with partial orders
-    // matches = matches && sellOrder.price <= buyOrder.price;
     matches = matches && sellOrder.offerExpire >= block.timestamp;
     matches = matches && buyOrder.offerExpire >= block.timestamp;
     return matches;
   }
 
   function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public pure returns(address) {
-    //console.log('sig: v, r, s');
-    //console.log(sig.v);
-    //console.logBytes32(sig.r);
-    //console.logBytes32(sig.s);
-    //console.log('order: size, isBuy, nonce, price, offerExpire, fee');
-    //console.log(order.size);
-    //console.log(order.isBuy);
-    //console.log(order.nonce);
-    //console.log(order.price);
-    //console.log(order.offerExpire);
-    //console.log(order.fee);
-    //console.log('common: baseAsset, quoteAsset, expiry, strike');
-    //console.log(common.baseAsset);
-    //console.log(common.quoteAsset);
-    //console.log(common.expiry);
-    //console.log(common.strike);
-    //console.log('hashSmallOrder, getSignedHash, ecrecover');
-    //console.logBytes32(hashSmallOrder(order, common));
-    //console.logBytes32(getSignedHash(hashSmallOrder(order, common)));
-    //console.log(ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s));
     address recovered = ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s);
     require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
     return recovered;
@@ -245,8 +222,11 @@ contract ShrubExchange {
 
 
   function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal pure returns (uint, uint) {
-    uint fillSize = sellOrder.size < buyOrder.size ?  sellOrder.size : buyOrder.size;
+    uint fillSize = min(sellOrder.size, buyOrder.size);
     uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
+
+    uint buyerAdjustedPrice = fillSize * buyOrder.price / buyOrder.size;
+    require(adjustedPrice <= buyerAdjustedPrice, "Seller order price does not satisfy Buyer order price");
 
     return (fillSize, adjustedPrice);
   }
