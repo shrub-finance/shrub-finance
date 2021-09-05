@@ -158,7 +158,6 @@ contract ShrubExchange {
     matches = matches && sellOrder.isBuy == false;
     matches = matches && buyOrder.isBuy == true;
 
-    matches = matches && sellOrder.price <= buyOrder.price;
     matches = matches && sellOrder.offerExpire >= block.timestamp;
     matches = matches && buyOrder.offerExpire >= block.timestamp;
     return matches;
@@ -223,8 +222,11 @@ contract ShrubExchange {
 
 
   function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal pure returns (uint, uint) {
-    uint fillSize = sellOrder.size < buyOrder.size ?  sellOrder.size : buyOrder.size;
+    uint fillSize = min(sellOrder.size, buyOrder.size);
     uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
+
+    uint buyerAdjustedPrice = fillSize * buyOrder.price / buyOrder.size;
+    require(adjustedPrice <= buyerAdjustedPrice, "Seller order price does not satisfy Buyer order price");
 
     return (fillSize, adjustedPrice);
   }
