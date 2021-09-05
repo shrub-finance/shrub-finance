@@ -3,20 +3,20 @@ import {
     AlertIcon,
     Box,
     Button,
-    Center,
     Divider,
     Flex,
     FormLabel,
     HStack,
     Input,
-    Link,
-    Modal, ModalBody, ModalCloseButton,
+    Modal,
+    ModalBody,
+    ModalCloseButton,
     ModalContent,
     ModalHeader,
     ModalOverlay,
     SlideFade,
-    Spacer,
-    Stack, Table,
+    Stack,
+    Table,
     Tag,
     TagLabel, Tbody, Td, Text, Tfoot, Th, Thead,
     Tooltip,
@@ -25,7 +25,7 @@ import {
     useRadioGroup,
     useToast
 } from '@chakra-ui/react';
-import {Icon} from "@chakra-ui/icons";
+import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
 import RadioCard from "./Radio";
 import {
@@ -35,52 +35,50 @@ import {
     signOrder,
     toEthDate,
     getAvailableBalance,
-    iOrderToPostOrder,
     matchOrders,
     optionActionToIsBuy,
-    transformOrderApiApp,
     transformOrderAppChain,
-    validateOrderAddress, formatDate, getSymbolFor
+    validateOrderAddress, formatDate, getSymbolFor, announceOrder
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
 import React, {useContext, useEffect, useState} from "react";
 import {
-    ApiOrder,
     AppCommon,
-    GetOrdersParams,
-    IOrder,
+    IOrder, OptionData,
     OrderBook,
     OrderType,
     SellBuy,
     UnsignedOrder
 } from "../types";
-import {postOrder} from "../utils/requests";
-import useFetch from "../hooks/useFetch";
 import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
+import {currencySymbol} from "../utils/chainMethods";
 
 const { Zero } = ethers.constants;
 
-function OptionDetails({ appCommon, sellBuy, hooks }: {
+function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     appCommon: AppCommon,
     sellBuy: SellBuy,
-    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any}
+    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any},
+    optionData: OptionData
 }) {
 
     const [localError, setLocalError] = useState('');
     const {
         isOpen: isOpenConnectModal,
-        onOpen: onOpenConnectModal,
         onClose: onCloseConnectModal
     } = useDisclosure();
 
-    const { approving, setApproving, activeHash, setActiveHash } = hooks;
+    const { approving, setApproving, setActiveHash } = hooks;
+    const {active, library, account, error: web3Error, chainId} = useWeb3React();
+    const amountToolTip = `The amount of asset to purchase option for (minimum: 0.000001 ${currencySymbol(chainId)})`
+    const priceToolTip = `The ${'FK'} required to purchase 1 xxx contract (1 ${currencySymbol(chainId)}) `
+    const alertColor = useColorModeValue("gray.100", "shrub.300")
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-    const {active, library, account, error: web3Error} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [amount, setAmount] = React.useState(1);
@@ -101,41 +99,23 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
 
-    let orderBookDepth = {buyOrderDepth: Zero, sellOrderDepth: Zero};
-
-    const url = `${process.env.REACT_APP_API_ENDPOINT}/orders`;
-    const params: GetOrdersParams = {
-        baseAsset,
-        quoteAsset,
-        expiry: toEthDate(expiry),
-        optionType: optionTypeToNumber(optionType),
-        strike: strike.toString()
-    }
-    const options = {params};
-    const {data: orderBookData, status} = useFetch<ApiOrder[]>(url, options);
     useEffect(() => {
-        if (status !== 'fetched' || !orderBookData) {
-            return;
-        }
-        // add perContract pricing
-        const appOrderBookData = orderBookData.map(o => transformOrderApiApp(o));
-        const buyOrders = appOrderBookData.filter(o => o.optionAction === 'BUY').sort((a, b) => b.unitPrice - a.unitPrice);
-        const sellOrders = appOrderBookData.filter(o => o.optionAction === 'SELL').sort((a, b) => a.unitPrice - b.unitPrice);
-        const buyOrderDepth = buyOrders.reduce((tot, order) => tot.add(order.size), Zero)
-        const sellOrderDepth = sellOrders.reduce((tot, order) => tot.add(order.size), Zero)
-        orderBookDepth = {buyOrderDepth, sellOrderDepth};
-        console.log('sellOrders');
-        console.log(sellOrders);
+        const buyOrders = optionData.buyOrders.sort((a, b) => b.unitPrice - a.unitPrice);
+        const sellOrders = optionData.sellOrders.sort((a, b) => a.unitPrice - b.unitPrice);
         setOrderBook({ sellOrders, buyOrders })
-    }, [status])
+    }, [optionData.buyOrders, optionData.sellOrders])
 
-    const {
+const {
         getRootProps: getOrderTypeRootProps,
         getRadioProps: getOrderTypeRadioProps,
     } = useRadioGroup({
         name: "orderType",
         defaultValue: 'Market',
-        onChange: (nextValue: OrderType) => setRadioOrderType(nextValue),
+        onChange: (nextValue: OrderType) => {
+            radioOption === 'BUY' ? setPrice(orderBook.sellOrders[0]?.unitPrice.toFixed(2) ): setPrice(orderBook.buyOrders[0]?.unitPrice.toFixed(2))
+            setRadioOrderType(nextValue)
+
+        },
     });
 
     const groupOption = getOptionRootProps();
@@ -155,7 +135,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
             return;
         }
         if (!price) {
-            throw new Error('price is required');
+            throw new Error('Price is required');
         }
         const now = new Date();
         const oneWeekFromNow = new Date(now);
@@ -182,13 +162,30 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
             const signedOrder = await signOrder(unsignedOrder, library);
             const verifiedAddress = await getAddressFromSignedOrder(signedOrder, library);
             console.log(`verifiedAddress: ${verifiedAddress}`);
-            const pOrder = iOrderToPostOrder(signedOrder);
-            // TODO: handle success/failure responses
-            const res = await postOrder(pOrder);
+            const tx = await announceOrder(signedOrder, library);
+            console.log(tx);
+            const quoteSymbol = await getSymbolFor(quoteAsset, library);
+            const description = `Submitted limit order to ${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${price}`;
+            pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+            setActiveHash(tx.hash);
+            console.log(pendingTxsState);
+            try {
+                const receipt = await tx.wait()
+                const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
+                toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+            } catch (e) {
+                const toastDescription = ToastDescription(description, e.transactionHash, chainId);
+                toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
+                pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
+            }
+            console.log(pendingTxsState);
             setApproving(false);
         } catch (e) {
             handleErrorMessages({err:e});
             console.error(e);
+            setApproving(false);
+            handleErrorMessages({err:e});
         }
     }
 
@@ -232,7 +229,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                 if (!order) {
                     throw new Error('Insufficient market depth for this order');
                 }
-                const { address: counterpartyAddress, nonce: orderNonce, size, totalPrice: orderPrice, unitPrice: orderUnitPrice, formattedSize: orderFormattedSize } = order;
+                const { address: counterpartyAddress, nonce: orderNonce, size } = order;
                 if (!counterpartyAddress) {
                     console.error('no counterparty address on order');
                     index++;
@@ -261,7 +258,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                         console.log(balance);
                         console.log(size)
                         if (balance.lt(size)) {
-                            throw new Error("not enough collateral of quoteAsset");
+                            throw new Error("Not enough collateral of quoteAsset");
                         }
                     } else {
                         // required collateral is strike * size of the baseAsset
@@ -272,7 +269,7 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                         });
                         console.log(balance.toString());
                         if (balance.lt(price)) {
-                            throw new Error("not enough collateral of baseAsset");
+                            throw new Error("Not enough collateral of baseAsset");
                         }
                     }
                 }
@@ -280,6 +277,10 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
 
                 remainingSize = remainingSize.sub(order.size);
                 accumulatedPrice = accumulatedPrice.add(counterPartyOrder.price);
+                if (remainingSize.lt(Zero)) {
+                    accumulatedPrice = accumulatedPrice.add(remainingSize.mul(counterPartyOrder.price).div(counterPartyOrder.size));
+                    remainingSize = Zero;
+                }
                 counterPartyOrders.push(counterPartyOrder);
                 console.log('remaining size');
                 console.log(ethers.utils.formatUnits(remainingSize));
@@ -314,17 +315,17 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
             const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
-            const description = `${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
+            const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
             pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
             setActiveHash(tx.hash);
             console.log(pendingTxsState);
             try {
                 const receipt = await tx.wait()
-                const toastDescription = ToastDescription(description, receipt.transactionHash);
+                const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
             } catch (e) {
-                const toastDescription = ToastDescription(description, e.transactionHash);
+                const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
@@ -336,15 +337,14 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
             console.error(e);
         }
     }
-
     // TODO: get the symbols dynamically
-    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ETH for ${formattedStrike} FK up until ${formattedExpiry}`;
+    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${currencySymbol(chainId)} for ${formattedStrike} FK up until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
     orderBook.sellOrders
+      .slice(0,6)
       .sort((a,b) => b.unitPrice - a.unitPrice)
-      .slice(-10)
       .forEach((sellOrder, index) => {
         if (index > 5) {
             return;
@@ -355,13 +355,13 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
         </Tr>)
     });
     orderBook.buyOrders
+      .slice(0, 6)
       .sort((a,b) => b.unitPrice - a.unitPrice)
-      .slice(0, 10)
       .forEach((buyOrder, index) => {
           if (index > 5) {
               return;
           }
-          orderbookBuyRows.push(<Tr key={index} color={Number(price) > buyOrder.unitPrice ? "orange": "white"}>
+          orderbookBuyRows.push(<Tr key={index}>
               <Td>{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
               <Td>{buyOrder.formattedSize}</Td>
           </Tr>)
@@ -404,22 +404,22 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                     <Stack spacing="24px">
                         <Box mt={2} mb={8}>
                             <HStack spacing={3}>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="purple">
                                         <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
                                         <TagLabel>{optionType}</TagLabel>
                                     </Tag>
                                 </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="blue">
                                         <Icon as={MdDateRange} />
                                         <TagLabel> {formattedExpiry}</TagLabel>
                                     </Tag>
                                 </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800">
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="yellow">
                                         <Icon as={GiMoneyStack} />
-                                        <TagLabel>{`${formattedStrike} USDC`}</TagLabel>
+                                        <TagLabel>{`${formattedStrike} FK`}</TagLabel>
                                     </Tag>
                                 </Tooltip>
                             </HStack>
@@ -456,24 +456,35 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                             </HStack>
                         </Box>
                         <Box>
-                            <FormLabel htmlFor="amount">Amount:</FormLabel>
+                            <FormLabel htmlFor="amount">Amount:
+                                <Tooltip p={3} label={amountToolTip} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                    <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                </Tooltip>
+                            </FormLabel>
                             <Input
-                              id="amount"
-                              placeholder="0"
-                              value={amount}
-                              onChange={(event: any) => setAmount(event.target.value)}
+                                id="amount"
+                                placeholder="0.1"
+                                value={amount}
+                                isInvalid={amount<=0 ||isNaN(Number(amount)) }
+                                onChange={(event: any) => setAmount(event.target.value)}
                             />
                         </Box>
                         <Box>
-                            <FormLabel htmlFor="bid">Price per contract:</FormLabel>
+                            <FormLabel htmlFor="bid">Price per contract:
+                                  <Tooltip p={3} label={priceToolTip} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                </Tooltip>
+                            </FormLabel>
                             <Input
                               id="bid"
-                              placeholder="The USDC required to purchase 1 contract (1 ETH)"
-                              value={price}
+                              placeholder="0"
+                              value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(2) : orderBook.buyOrders[0]?.unitPrice.toFixed(2)) : price}
+                              isDisabled={radioOrderType === 'Market'}
                               onChange={(event: any) => changePrice(event.target.value)}
+                              isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}
                             />
                         </Box>
-                        <Alert status="info" borderRadius={"2xl"} bgColor={useColorModeValue("", "shrub.200")}>
+                        <Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>
                             <AlertIcon />
                             {tooltipLabel}
                         </Alert>
@@ -483,8 +494,17 @@ function OptionDetails({ appCommon, sellBuy, hooks }: {
                                   colorScheme="teal"
                                   type="submit"
                                   onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
-                                  isLoading={approving}
-                                  loadingText="Placing Order"
+                                  disabled={
+                                      amount<=0 ||
+                                      Boolean(radioOption === 'BUY' ? orderBook.sellOrders[0] : orderBook.buyOrders[0]) ||
+                                      isNaN(Number(amount)) ||
+                                      (radioOrderType === 'Limit' && (
+                                          Number(price)<=0 ||
+                                          isNaN(Number(price))
+                                      ))
+                                  }
+
+
                                 >
                                     Place Order
                                 </Button>

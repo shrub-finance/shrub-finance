@@ -52,7 +52,7 @@ contract ShrubExchange {
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
-  event OrderAnnounce(OrderCommon indexed common, bytes32 indexed positionHash, SmallOrder order, Signature sig);
+  event OrderAnnounce(OrderCommon common, bytes32 indexed positionHash, address indexed user, SmallOrder order, Signature sig);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
@@ -328,6 +328,11 @@ contract ShrubExchange {
     }
   }
 
+  function cancel(Order memory order) public {
+    require(order.nonce - 1 >= getCurrentNonce(msg.sender, order.quoteAsset, order.baseAsset), "Invalid order nonce");
+    userPairNonce[msg.sender][order.quoteAsset][order.baseAsset] = order.nonce;
+  }
+
   function exercise(uint256 buyOrderSize, OrderCommon memory common) public payable {
     address buyer = msg.sender;
     bytes32 positionHash = hashOrderCommon(common);
@@ -388,7 +393,7 @@ contract ShrubExchange {
       userTokenLockedBalance[msg.sender][common.quoteAsset] -= poolOwnership;
       userTokenBalances[msg.sender][common.quoteAsset] -= poolOwnership;
     }
-    
+
     if(common.optionType == OptionType.PUT) {
       // reset baseAsset locked balance
       userTokenLockedBalance[msg.sender][common.baseAsset] -= poolOwnership;
@@ -426,13 +431,13 @@ contract ShrubExchange {
 
     if(common.optionType == OptionType.PUT) {
       if(order.isBuy) {
-        require(getAvailableBalance(user, common.quoteAsset) >= order.price, "Put Buyer must have enough free collateral");
+        require(getAvailableBalance(user, common.baseAsset) >= order.price, "Put Buyer must have enough free collateral");
       } else {
         require(getAvailableBalance(user, common.baseAsset) >= adjustWithRatio(order.size, common.strike), "Put Seller must have enough free collateral");
       }
     }
 
-    emit OrderAnnounce(common, positionHash, order, sig);
+    emit OrderAnnounce(common, positionHash, user, order, sig);
   }
 
 
