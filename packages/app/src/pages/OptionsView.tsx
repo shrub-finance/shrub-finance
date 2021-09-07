@@ -55,7 +55,7 @@ import {
   optionTypeToString,
   orderStatus,
   shortOptionName,
-  subscribeToAnnouncements,
+  subscribeToAnnouncements, subscribeToMatches,
   transformOrderAppChain,
   unsubscribeFromAnnouncements,
 } from "../utils/ethMethods";
@@ -170,7 +170,6 @@ function OptionsView(props: RouteComponentProps) {
 
   }, [account, library])
 
-
   useEffect(() => {
       if (contractData && contractDataStatus === "fetched" && !contractDataError) {
         const expiryDatesString = Object.keys(contractData["ETH-FK"]);
@@ -200,6 +199,7 @@ function OptionsView(props: RouteComponentProps) {
       const positionHash = hashOrderCommon(common)
       return { strikePrice: strike, positionHash };
     })
+    subscribeToMatches(library, processMatchEvent);
     getOrderData(strikeObjPrices.map(s => s.positionHash))
       .then(() => setStrikePrices(strikeObjPrices))
       .catch(e => console.error(`Something went wrong with the orderbook: ${e}`));
@@ -209,7 +209,20 @@ function OptionsView(props: RouteComponentProps) {
       orderBookDispatch({type: 'add', orders: [appOrderSigned]})
     }
 
+    function processMatchEvent(event: any) {
+      console.log('processing match');
+      console.log(event);
+      const { buyOrder, sellOrder, orderCommon, buyer, seller } = event;
+      const { nonce: buyNonce } = buyOrder;
+      const { nonce: sellNonce } = sellOrder;
+      const { baseAsset, quoteAsset } = orderCommon;
+      const pair = getPair(baseAsset, quoteAsset);
+      noncesDispatch({type: 'update', user: buyer, pair, nonce: buyNonce});
+      noncesDispatch({type: 'update', user: seller, pair, nonce: sellNonce});
+    }
+
     async function getOrderData(positionHashes: BytesLike[]) {
+      const tempNonces: {[pair: string]: number} = {};
       for (const positionHash of positionHashes) {
         subscribeToAnnouncements(library, positionHash, null, processEvent);
         subscriptionPositionHashes.push(positionHash)
@@ -217,16 +230,26 @@ function OptionsView(props: RouteComponentProps) {
         const formattedEventsForHash: IndexedAppOrderSigned[] = [];
         for (const event of eventsForHash) {
           const { args, transactionHash } = event;
-          const { common, order, sig } = args;
+          const { common, order, sig, user } = args;
           const { baseAsset, quoteAsset, strike } = common;
           const { size, fee } = order;
           const { r, s, v } = sig;
+          const pair = getPair(baseAsset, quoteAsset);
+          if (!tempNonces[pair]) {
+            const userPairNonce = await getUserNonce({address: user, quoteAsset, baseAsset}, library);
+            tempNonces[pair] = userPairNonce;
+            noncesDispatch({type: 'update', user, pair, nonce: userPairNonce});
+          }
 
           const expiry = fromEthDate(common.expiry.toNumber());
           const optionType = optionTypeToString(common.optionType);
           const formattedExpiry = expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"});
           const formattedStrike = ethers.utils.formatUnits(strike, 6);  // Need to divide by 1M to get the actual strike
           const nonce = order.nonce.toNumber();
+          if (nonce <= tempNonces[pair]) {
+            // If nonce isn't valid, skip
+            continue;
+          }
           const formattedSize = ethers.utils.formatUnits(size, 18);
           const optionAction = isBuyToOptionAction(order.isBuy);
           const totalPrice = ethers.BigNumber.from(order.price);
@@ -237,8 +260,8 @@ function OptionsView(props: RouteComponentProps) {
             baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, r, s, v, transactionHash
           }
           const iOrder = transformOrderAppChain(appOrderSigned)
-          const address = await getAddressFromSignedOrder(iOrder, library);
-          appOrderSigned.address = address;
+          // const address = await getAddressFromSignedOrder(iOrder, library);
+          appOrderSigned.address = user;
           formattedEventsForHash.push(appOrderSigned);
         }
         orderBookDispatch({type: 'add', orders: formattedEventsForHash})

@@ -532,8 +532,10 @@ const {
                             {orderbookBuyRows}
                         </Tbody>
                         <Tfoot>
-                            <Th>Price</Th>
-                            <Th>Amount</Th>
+                            <Tr>
+                                <Th>Price</Th>
+                                <Th>Amount</Th>
+                            </Tr>
                         </Tfoot>
                     </Table>
                 </Box>

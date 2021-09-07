@@ -449,6 +449,12 @@ export function unsubscribeFromAnnouncements(provider: JsonRpcProvider) {
   return shrubContract.removeAllListeners()
 }
 
+export function subscribeToMatches(provider: JsonRpcProvider, callback: any) {
+  const shrubContract = getShrubContract(provider);
+  const filter = shrubContract.filters.OrderMatched();
+  shrubContract.on(filter, (seller,buyer,positionHash, sellOrder,buyOrder,orderCommon) => callback({seller, buyer, positionHash, sellOrder, buyOrder, orderCommon}));
+}
+
 export async function getLastOrders(provider: JsonRpcProvider) {
   const lastOrders: LastOrders = {}
   const matchEvents = await getMatchEvents({
