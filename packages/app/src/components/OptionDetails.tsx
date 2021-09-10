@@ -55,6 +55,7 @@ import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
+import {currencySymbol} from "../utils/chainMethods";
 
 const { Zero } = ethers.constants;
 
@@ -72,10 +73,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     } = useDisclosure();
 
     const { approving, setApproving, setActiveHash } = hooks;
-    const { pendingTxs } = useContext(TxContext);
+    const {active, library, account, error: web3Error, chainId} = useWeb3React();
+    const amountToolTip = `The amount of asset to purchase option for (minimum: 0.000001 ${currencySymbol(chainId)})`
+    const priceToolTip = `The ${'FK'} required to purchase 1 xxx contract (1 ${currencySymbol(chainId)}) `
     const alertColor = useColorModeValue("gray.100", "shrub.300")
+    const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-    const {active, library, account, error: web3Error} = useWeb3React();
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [amount, setAmount] = React.useState(1);
@@ -168,11 +171,11 @@ const {
             console.log(pendingTxsState);
             try {
                 const receipt = await tx.wait()
-                const toastDescription = ToastDescription(description, receipt.transactionHash);
+                const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
             } catch (e) {
-                const toastDescription = ToastDescription(description, e.transactionHash);
+                const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
@@ -318,11 +321,11 @@ const {
             console.log(pendingTxsState);
             try {
                 const receipt = await tx.wait()
-                const toastDescription = ToastDescription(description, receipt.transactionHash);
+                const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
             } catch (e) {
-                const toastDescription = ToastDescription(description, e.transactionHash);
+                const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
@@ -334,9 +337,8 @@ const {
             console.error(e);
         }
     }
-
     // TODO: get the symbols dynamically
-    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ETH for ${formattedStrike} FK up until ${formattedExpiry}`;
+    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${currencySymbol(chainId)} for ${formattedStrike} FK up until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
@@ -455,7 +457,7 @@ const {
                         </Box>
                         <Box>
                             <FormLabel htmlFor="amount">Amount:
-                                <Tooltip p={3} label="The amount of asset to purchase option for (minimum: 0.000001 ETH)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                <Tooltip p={3} label={amountToolTip} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
                                     <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
                                 </Tooltip>
                             </FormLabel>
@@ -469,7 +471,7 @@ const {
                         </Box>
                         <Box>
                             <FormLabel htmlFor="bid">Price per contract:
-                                  <Tooltip p={3} label={`The ${'FK'} required to purchase 1 xxx contract (1 ${'ETH'}) `} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                                  <Tooltip p={3} label={priceToolTip} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
                                   <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
                                 </Tooltip>
                             </FormLabel>
@@ -494,12 +496,16 @@ const {
                                   onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
                                   disabled={
                                       amount<=0 ||
+                                      Boolean(radioOption === 'BUY' ? orderBook.sellOrders[0] : orderBook.buyOrders[0]) ||
                                       isNaN(Number(amount)) ||
                                       (radioOrderType === 'Limit' && (
                                           Number(price)<=0 ||
                                           isNaN(Number(price))
                                       ))
-                                  }>
+                                  }
+
+
+                                >
                                     Place Order
                                 </Button>
                             </Flex>

@@ -4,9 +4,12 @@ import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
   ApiOrder,
+  AppOrder,
   AppOrderSigned,
   IOrder, LastOrders,
-  OrderCommon, PostOrder,
+  OrderCommon,
+  PostOrder,
+  SellBuy,
   Signature,
   SmallOrder,
   UnsignedOrder,
@@ -16,7 +19,6 @@ import Web3 from "web3";
 import {useWeb3React} from "@web3-react/core";
 import {JsonRpcProvider} from "@ethersproject/providers";
 
-declare let window: any;
 
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const FK_TOKEN_ADDRESS = process.env.REACT_APP_FK_TOKEN_ADDRESS || "";
@@ -39,6 +41,10 @@ function getShrubContract(provider: JsonRpcProvider) {
 }
 
 
+export function getAddress(provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  return signer.getAddress();
+}
 
 export function useGetProvider() {
   const { library: provider, active, account } = useWeb3React();
@@ -84,7 +90,7 @@ export async function signOrder(unsignedOrder: UnsignedOrder, provider: JsonRpcP
 
   // TODO: change this to sign with ethers to enable EIP712 metamask view
   // Sign with shrubInterface
-  const web3 = new Web3(window.ethereum);
+  const web3 = new Web3(window.ethereum as any);
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer)
   const orderTypeHash = await shrubContract.ORDER_TYPEHASH();
   const address = await signer.getAddress();
@@ -414,22 +420,28 @@ export async function announceOrder(signedOrder: IOrder, provider: JsonRpcProvid
   return shrubContract.announce(smallOrder, common, sig);
 }
 
-// export function getAnnouncedEvents(provider: JsonRpcProvider, fromBlock = 0, toBlock: string | number = 'latest') {
-export function getAnnouncedEvents({provider, positionHash, fromBlock = 0, toBlock = 'latest'}: {
+export function cancelOrder(order: IOrder, provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  return shrubContract.cancel(order);
+}
+
+export function getAnnouncedEvents({provider, positionHash, user, fromBlock = 0, toBlock = 'latest'}: {
   provider: JsonRpcProvider,
   positionHash?: BytesLike,
+  user?: string,
   fromBlock?: ethers.providers.BlockTag,
   toBlock?: ethers.providers.BlockTag
 }) {
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
-  const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash, user);
   return shrubContract.queryFilter(filter, fromBlock, toBlock)
 }
 
-export function subscribeToAnnouncements(provider: JsonRpcProvider, positionHash: BytesLike, callback: any) {
+export function subscribeToAnnouncements(provider: JsonRpcProvider, positionHash: BytesLike, user: string | null, callback: any) {
   const shrubContract = getShrubContract(provider);
-  const filter = shrubContract.filters.OrderAnnounce(null, positionHash);
-  shrubContract.on(filter, (common,positionHash,order,sig,eventInfo) => callback({common, positionHash, order, sig, eventInfo}));
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash, user);
+  shrubContract.on(filter, (common,positionHash,user, order,sig,eventInfo) => callback({common, positionHash, user, order, sig, eventInfo}));
 }
 
 export function unsubscribeFromAnnouncements(provider: JsonRpcProvider) {
@@ -455,6 +467,17 @@ export async function getLastOrders(provider: JsonRpcProvider) {
   return lastOrders;
 }
 
+export async function getMatchedOrders(
+  address: string,
+  provider: JsonRpcProvider,
+  fromBlock: ethers.providers.BlockTag = 0,
+  toBlock: ethers.providers.BlockTag = "latest",
+) {
+  const sellOrdersMatched = await getMatchEvents({provider, sellerAddress: address, fromBlock, toBlock})
+  const buyOrdersMatched = await getMatchEvents({provider, buyerAddress: address, fromBlock, toBlock})
+  return [...sellOrdersMatched, ...buyOrdersMatched];
+}
+
 export async function getFilledOrders(
     address: string,
     provider: JsonRpcProvider,
@@ -462,9 +485,7 @@ export async function getFilledOrders(
     toBlock: ethers.providers.BlockTag = "latest",
 ) {
   const openOrders = {} as any;
-  const sellOrdersMatched = await getMatchEvents({provider, sellerAddress: address, fromBlock, toBlock})
-  const buyOrdersMatched = await getMatchEvents({provider, buyerAddress: address, fromBlock, toBlock})
-  const matchedOrders = [...sellOrdersMatched, ...buyOrdersMatched];
+  const matchedOrders = await getMatchedOrders(address, provider, fromBlock, toBlock);
   for (const event of matchedOrders) {
     if (!event) {
       continue;
@@ -516,7 +537,7 @@ export async function exercise(order: IOrder, seller: string, provider: JsonRpcP
   const buyOrder = iOrderToSmall(order);
   const common = iOrderToCommon(order);
   const buySig = iOrderToSig(order);
-  const executed = await shrubContract.execute(buyOrder,common,seller,buySig);
+  const executed = await shrubContract.exercise(buyOrder.size, common);
   return executed;
 }
 
@@ -607,4 +628,63 @@ export function transformOrderAppChain(order: AppOrderSigned): IOrder {
     offerExpire: toEthDate(offerExpire),
     address: address || ''
   }
+}
+
+export function shortOptionName(order: AppOrder) {
+  const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
+  return `${optionAction} ${formattedSize}x${optionType}${formattedExpiry}$${formattedStrike}`
+}
+
+export function orderStatus(order: AppOrderSigned, userPairNonce: number, matchedOrders: any, date?: Date): 'expired'|'cancelled'|'completed'|'active' {
+  if (!date) {
+    date = new Date();
+  }
+  const { baseAsset, quoteAsset, fee, expiry, optionType, strike, nonce, offerExpire, totalPrice, size, optionAction } = order
+  const matchArr: AppOrder[] = optionAction === 'BUY' ? matchedOrders.buy : matchedOrders.sell;
+  if (matchArr.find((o) => {
+    return baseAsset === o.baseAsset &&
+      quoteAsset === o.quoteAsset &&
+      fee.eq(o.fee) &&
+      expiry.getTime() === o.expiry.getTime() &&
+      optionType === o.optionType &&
+      strike.eq(o.strike) &&
+      nonce === o.nonce &&
+      offerExpire.getTime() === o.offerExpire.getTime() &&
+      totalPrice.eq(o.totalPrice) &&
+      size.eq(o.size) &&
+      optionAction === o.optionAction;
+  })) {
+    return 'completed'
+  }
+  if (order.offerExpire < date) {
+    return 'expired';
+  }
+  console.log(nonce, userPairNonce);
+  if (nonce <= userPairNonce) {
+    return 'cancelled';
+  }
+  return 'active';
+}
+
+export function matchEventToAppOrder(userEvent: any, orderType: SellBuy) {
+  const { args } = userEvent;
+  const { common, user: address } = args;
+  const order = orderType === 'BUY' ? args.buyOrder : args.sellOrder;
+  const { baseAsset, quoteAsset, strike } = common;
+  const { size, fee } = order;
+  const expiry = fromEthDate(common.expiry.toNumber());
+  const optionType = optionTypeToString(common.optionType);
+  const formattedExpiry = expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"});
+  const formattedStrike = ethers.utils.formatUnits(strike, 6);  // Need to divide by 1M to get the actual strike
+  const nonce = order.nonce.toNumber();
+  const formattedSize = ethers.utils.formatUnits(size, 18);
+  const optionAction = isBuyToOptionAction(order.isBuy);
+  const totalPrice = ethers.BigNumber.from(order.price);
+  const unitPrice = Number(ethers.utils.formatUnits(totalPrice, 18)) / Number(formattedSize);
+  const offerExpire = fromEthDate(order.offerExpire.toNumber());
+  const formattedFee = ethers.utils.formatUnits(fee, 18);
+  const appOrderSignedNumbered: AppOrder = {
+    baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, address
+  }
+  return appOrderSignedNumbered;
 }

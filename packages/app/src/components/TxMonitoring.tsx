@@ -10,17 +10,16 @@ import {CheckCircleIcon, ExternalLinkIcon, Icon, TimeIcon} from "@chakra-ui/icon
 import {HappyBud} from '../assets/Icons';
 import {PendingTxState} from "../types";
 import {VscError} from "react-icons/all";
-import {useConnectWallet} from '../hooks/useConnectWallet';
-import {useWeb3React} from '@web3-react/core';
-
-
+import {isMobile} from "react-device-detect";
+import {ExplorerDataType, explorerLink} from '../utils/chainMethods'
+import {useWeb3React} from "@web3-react/core";
 
 
 export function Txmonitor({txHash}:{txHash?: string}) {
     console.log(txHash);
-
+    const {chainId} = useWeb3React();
     const { pendingTxs } = useContext(TxContext);
-    const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+    const [pendingTxsState] = pendingTxs;
     console.log(txHash);
     if (!txHash) {
         return (
@@ -56,6 +55,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
     console.log(pendingTxsState[txHash]);
 
     console.log(status)
+
     return (
         <>
             {status === 'confirming' && <Alert
@@ -73,7 +73,9 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                     Transaction Confirming...
                 </AlertTitle>
                 <AlertDescription maxWidth="sm">
-                    <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                    <Link color={"gray"} fontSize={"sm"}
+                        // @ts-ignore
+                          href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                         View on explorer <ExternalLinkIcon mx="2px" />
                     </Link>
                 </AlertDescription>
@@ -95,7 +97,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                 Transaction Confirmed
               </AlertTitle>
               <AlertDescription maxWidth="sm">
-                  <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                  <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                       View on explorer <ExternalLinkIcon mx="2px" />
                   </Link>
 
@@ -120,7 +122,7 @@ export function Txmonitor({txHash}:{txHash?: string}) {
                     Transaction Rejected
                 </AlertTitle>
                 <AlertDescription maxWidth="sm">
-                    <Link color={"gray"} fontSize={"sm"} href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                    <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                         View on explorer <ExternalLinkIcon mx="2px" />
                     </Link>
 
@@ -137,8 +139,8 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
 // displayed inside connect wallet modal
 export function TxStatusList() {
     console.log('rendering TxStatusList');
-    const {account} = useWeb3React();
     const { pendingTxs } = useContext(TxContext);
+    const {chainId} = useWeb3React();
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const entries = Object.entries(pendingTxsState)
       .sort((a,b) => b[1].created.getTime() - a[1].created.getTime())
@@ -150,7 +152,7 @@ export function TxStatusList() {
         list.push(
           <Flex pt={3} pb={1}>
               <Box color={status === 'failed' ? 'red.500' : 'teal.500'} fontWeight="semibold" letterSpacing="tight" fontSize="xs" ml="2">
-                  <Link href={`https://etherscan.io/tx/${txHash}`} isExternal>
+                  <Link href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                       {description}
                   </Link>
               </Box>
@@ -176,7 +178,7 @@ export function TxStatusList() {
 
     return (
       <>
-          { account &&   <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg={bgColor}>
+          <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg={bgColor}>
               <Flex pt={1}>
                   {list.length ?
                     <>
@@ -192,29 +194,28 @@ export function TxStatusList() {
                         </Box>
                     </>
                     :
-                     <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize={["15px", "md", "lg", "lg"]} ml="1">
-
-                          Transactions will show up here...
+                      <Center color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize={isMobile? "md" : "lg"} ml="2">
+                      Transactions will show up here...
                       </Center>
                   }
 
               </Flex>
               {list}
 
-          </Box>}
+          </Box>
       </>
 
     )
 
 }
 
-export function ToastDescription(description: string, txHash: string) {
+export function ToastDescription(description: string, txHash: string, chainId:any) {
     return <>
         <Box>
             {description}
         </Box>
         <Box>
-            <Link href={`https://etherscan.io/tx/${txHash}`} isExternal>View on etherscan</Link>
+            <Link href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>View on explorer</Link>
         </Box>
     </>
 }

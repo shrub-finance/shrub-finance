@@ -1,7 +1,6 @@
 pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "hardhat/console.sol";
 
 contract ShrubExchange {
 
@@ -53,11 +52,15 @@ contract ShrubExchange {
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
-  event OrderAnnounce(OrderCommon common, bytes32 indexed positionHash, SmallOrder order, Signature sig);
+  event OrderAnnounce(OrderCommon common, bytes32 indexed positionHash, address indexed user, SmallOrder order, Signature sig);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
   mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
+
+  mapping(bytes32 => mapping(address => uint256)) public positionPoolTokenBalance;
+  mapping(bytes32 => uint256) public positionPoolTokenTotalSupply;
+
   mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
   address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
@@ -80,6 +83,10 @@ contract ShrubExchange {
   bytes32 public constant ORDER_TYPEHASH = keccak256("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
 
   bytes32 public constant COMMON_TYPEHASH = keccak256("OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
+
+  function min(uint256 a, uint256 b) pure private returns (uint256) {
+    return a < b ? a : b;
+  }
 
   function hashOrder(Order memory order) public pure returns (bytes32) {
     return keccak256(abi.encodePacked(
@@ -151,33 +158,12 @@ contract ShrubExchange {
     matches = matches && sellOrder.isBuy == false;
     matches = matches && buyOrder.isBuy == true;
 
-    matches = matches && sellOrder.price <= buyOrder.price;
     matches = matches && sellOrder.offerExpire >= block.timestamp;
     matches = matches && buyOrder.offerExpire >= block.timestamp;
     return matches;
   }
 
   function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public pure returns(address) {
-    //console.log('sig: v, r, s');
-    //console.log(sig.v);
-    //console.logBytes32(sig.r);
-    //console.logBytes32(sig.s);
-    //console.log('order: size, isBuy, nonce, price, offerExpire, fee');
-    //console.log(order.size);
-    //console.log(order.isBuy);
-    //console.log(order.nonce);
-    //console.log(order.price);
-    //console.log(order.offerExpire);
-    //console.log(order.fee);
-    //console.log('common: baseAsset, quoteAsset, expiry, strike');
-    //console.log(common.baseAsset);
-    //console.log(common.quoteAsset);
-    //console.log(common.expiry);
-    //console.log(common.strike);
-    //console.log('hashSmallOrder, getSignedHash, ecrecover');
-    //console.logBytes32(hashSmallOrder(order, common));
-    //console.logBytes32(getSignedHash(hashSmallOrder(order, common)));
-    //console.log(ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s));
     address recovered = ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s);
     require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
     return recovered;
@@ -236,8 +222,11 @@ contract ShrubExchange {
 
 
   function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal pure returns (uint, uint) {
-    uint fillSize = sellOrder.size < buyOrder.size ?  sellOrder.size : buyOrder.size;
+    uint fillSize = min(sellOrder.size, buyOrder.size);
     uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
+
+    uint buyerAdjustedPrice = fillSize * buyOrder.price / buyOrder.size;
+    require(adjustedPrice <= buyerAdjustedPrice, "Seller order price does not satisfy Buyer order price");
 
     return (fillSize, adjustedPrice);
   }
@@ -258,17 +247,38 @@ contract ShrubExchange {
     if(common.optionType == OptionType.CALL) {
       require(getAvailableBalance(seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
       require(getAvailableBalance(buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
+
       userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
+      positionPoolTokenBalance[positionHash][common.quoteAsset] += fillSize;
+      positionPoolTokenTotalSupply[positionHash] += fillSize;
+
       userTokenBalances[seller][common.baseAsset] += adjustedPrice;
       userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
+
+
+      // unlock buyer's collateral if this user was short
+      if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.quoteAsset] > 0) {
+        userTokenLockedBalance[buyer][common.quoteAsset] -= min(fillSize, userTokenLockedBalance[buyer][common.quoteAsset]);
+      }
     }
 
     if(common.optionType == OptionType.PUT) {
-      require(getAvailableBalance(seller, common.baseAsset) >= adjustWithRatio(fillSize, common.strike), "Put Seller must have enough free collateral");
+      uint lockedCapital = adjustWithRatio(fillSize, common.strike);
+
+      require(getAvailableBalance(seller, common.baseAsset) >= lockedCapital, "Put Seller must have enough free collateral");
       require(getAvailableBalance(buyer, common.quoteAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
-      userTokenLockedBalance[seller][common.baseAsset] += adjustWithRatio(fillSize, common.strike);
+
+      userTokenLockedBalance[seller][common.baseAsset] += lockedCapital;
+      positionPoolTokenBalance[positionHash][common.baseAsset] += lockedCapital;
+      positionPoolTokenTotalSupply[positionHash] += lockedCapital;
+
       userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
       userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
+
+      // unlock buyer's collateral if this user was short
+      if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.baseAsset] > 0) {
+        userTokenLockedBalance[buyer][common.baseAsset] -= min(lockedCapital, userTokenLockedBalance[buyer][common.baseAsset]);
+      }
     }
 
     userOptionPosition[seller][positionHash] -= int(fillSize);
@@ -323,43 +333,87 @@ contract ShrubExchange {
     userPairNonce[msg.sender][order.quoteAsset][order.baseAsset] = order.nonce;
   }
 
-  function execute(SmallOrder memory buyOrder, OrderCommon memory common, address seller, Signature memory buySig) public payable {
-    address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
-    //    console.log(buyer);
-    //    console.log(seller);
+  function exercise(uint256 buyOrderSize, OrderCommon memory common) public payable {
+    address buyer = msg.sender;
     bytes32 positionHash = hashOrderCommon(common);
-    //    console.logBytes32(positionHash);
-    //    console.logInt(userOptionPosition[buyer][positionHash]);
-    //    console.logInt(userOptionPosition[seller][positionHash]);
-    require(userOptionPosition[buyer][positionHash] >= int(buyOrder.size), "Cannot execute more than owned");
-    require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to execute");
-    require(userOptionPosition[seller][positionHash] < 0, "Seller must still be short for this position");
+
+    require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to exercise");
+    require(userOptionPosition[buyer][positionHash] >= int(buyOrderSize), "Cannot exercise more than owned");
+    require(int(buyOrderSize) > 0, "buyOrderSize is too large");
     require(common.expiry >= block.timestamp, "Option has already expired");
 
+    // user has exercised this many
+    userOptionPosition[buyer][positionHash] -= int(buyOrderSize);
+
+    uint256 totalPaid = adjustWithRatio(buyOrderSize, common.strike);
+
     if(common.optionType == OptionType.CALL) {
-      // unlock the assets for seller
-      userTokenLockedBalance[seller][common.quoteAsset] -= buyOrder.size;
+      require(positionPoolTokenBalance[positionHash][common.quoteAsset] >= buyOrderSize, "Pool must have enough funds");
+      require(userTokenBalances[buyer][common.baseAsset] >= totalPaid, "Buyer must have enough funds to exercise CALL");
+
+      // deduct the quoteAsset from the pool
+      positionPoolTokenBalance[positionHash][common.quoteAsset] -= buyOrderSize;
 
       // Reduce seller's locked capital and token balance of quote asset
-      userTokenBalances[seller][common.quoteAsset] -= buyOrder.size;
-      userTokenBalances[buyer][common.quoteAsset] += buyOrder.size;
+      userTokenBalances[buyer][common.quoteAsset] += buyOrderSize;
 
       // Give the seller the buyer's funds, in terms of baseAsset
-      userTokenBalances[seller][common.baseAsset] += adjustWithRatio(buyOrder.size, common.strike);
-      userTokenBalances[buyer][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
+      positionPoolTokenBalance[positionHash][common.baseAsset] += totalPaid;
+
+      // deduct strike * size from buyer
+      userTokenBalances[buyer][common.baseAsset] -= totalPaid;
     }
     if(common.optionType == OptionType.PUT) {
-      // unlock the assets of the seller
-      userTokenLockedBalance[seller][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
+      require(positionPoolTokenBalance[positionHash][common.baseAsset] >= totalPaid, "Pool must have enough funds");
+      require(userTokenBalances[buyer][common.quoteAsset] >= buyOrderSize, "Buyer must have enough funds to exercise PUT");
 
-      // Reduce seller's locked capital and token balance of base asset
-      userTokenBalances[seller][common.baseAsset] -= adjustWithRatio(buyOrder.size, common.strike);
-      userTokenBalances[buyer][common.baseAsset] += adjustWithRatio(buyOrder.size, common.strike);
+      // deduct baseAsset from pool
+      positionPoolTokenBalance[positionHash][common.baseAsset] -= totalPaid;
 
-      // Give the seller the buyer's funds, in terms of quoteAsset
-      userTokenBalances[seller][common.quoteAsset] += buyOrder.size;
-      userTokenBalances[buyer][common.quoteAsset] -= buyOrder.size;
+      // increase exercisee balance by strike * size
+      userTokenBalances[buyer][common.baseAsset] += totalPaid;
+
+      // credit the pool the amount of quote asset sold
+      positionPoolTokenBalance[positionHash][common.quoteAsset] += buyOrderSize;
+
+      // deduct balance of tokens sold
+      userTokenBalances[buyer][common.quoteAsset] -= buyOrderSize;
     }
+  }
+
+  function claim(OrderCommon memory common) public {
+    bytes32 positionHash = hashOrderCommon(common);
+    require(userOptionPosition[msg.sender][positionHash] < 0, "Must have sold an option to claim");
+    require(common.expiry < block.timestamp, "Cannot claim until options are expired");
+
+    uint256 poolOwnership =  uint256(-1 * userOptionPosition[msg.sender][positionHash]);
+
+    if(common.optionType == OptionType.CALL) {
+      // reset quoteAsset locked balance
+      userTokenLockedBalance[msg.sender][common.quoteAsset] -= poolOwnership;
+      userTokenBalances[msg.sender][common.quoteAsset] -= poolOwnership;
+    }
+
+    if(common.optionType == OptionType.PUT) {
+      // reset baseAsset locked balance
+      userTokenLockedBalance[msg.sender][common.baseAsset] -= poolOwnership;
+      userTokenBalances[msg.sender][common.baseAsset] -= poolOwnership;
+    }
+
+    uint256 totalSupply = positionPoolTokenTotalSupply[positionHash];
+
+    uint256 quoteBalance = positionPoolTokenBalance[positionHash][common.quoteAsset];
+    uint256 quoteBalanceOwed = poolOwnership / totalSupply * quoteBalance;
+
+    uint256 baseBalance = positionPoolTokenBalance[positionHash][common.baseAsset];
+    uint256 baseBalanceOwed = poolOwnership / totalSupply * baseBalance;
+
+    userTokenBalances[msg.sender][common.baseAsset] += baseBalanceOwed;
+    userTokenBalances[msg.sender][common.quoteAsset] += quoteBalanceOwed;
+
+    // reduce pool size by amount claimed
+    positionPoolTokenTotalSupply[positionHash] -= poolOwnership;
+    userOptionPosition[msg.sender][positionHash] = 0;
   }
 
   function announce(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public {
@@ -383,7 +437,7 @@ contract ShrubExchange {
       }
     }
 
-    emit OrderAnnounce(common, positionHash, order, sig);
+    emit OrderAnnounce(common, positionHash, user, order, sig);
   }
 
 

@@ -68,7 +68,7 @@ function Positions() {
 
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-  const {active, library, account, error: web3Error} = useWeb3React();
+  const {active, library, account, error: web3Error, chainId} = useWeb3React();
   const alertColor = useColorModeValue("gray.100", "shrub.300");
   const shrubfolioRows = [];
   const tableRowsOptions: any = [];
@@ -243,7 +243,7 @@ function Positions() {
     const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
     pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
     const receipt = await tx.wait()
-    const toastDescription = ToastDescription(description, receipt.transactionHash);
+    const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
     toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
     pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
     return tx;
@@ -280,11 +280,11 @@ function Positions() {
       setActiveHash(tx.hash);
       try {
         const receipt = await tx.wait()
-        const toastDescription = ToastDescription(description, receipt.transactionHash);
+        const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
         toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
         pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
       } catch (e) {
-        const toastDescription = ToastDescription(description, e.transactionHash);
+        const toastDescription = ToastDescription(description, e.transactionHash, chainId);
         pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
         toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
       }
