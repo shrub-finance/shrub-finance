@@ -311,21 +311,25 @@ function Positions() {
     shrubfolioRows.push(
         <>
         <Box p="4" key={currency} d="flex" alignItems="baseline" direction="column">
-          <Box mt="1" fontWeight="semibold" fontSize="4xl" lineHeight="tight">
+          <Flex>
+          <Box mt="1" minW={60} fontWeight="semibold" fontSize="4xl" lineHeight="tight"  px={16}>
             {totalUserBalance(currency)} {currency}
           </Box>
+            <Box minW={60} px={6}>
+              <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="md" textTransform="uppercase">
+                {shrubBalance.locked[currency]} locked
+                <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
+                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                </Tooltip>
+              </Box>
             <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="md" textTransform="uppercase">
               {shrubBalance.available[currency]} unlocked
               <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
                 <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
               </Tooltip>
             </Box>
-            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="md" textTransform="uppercase">
-              {shrubBalance.locked[currency]} locked
-              <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-              </Tooltip>
             </Box>
+          </Flex>
           </Box>
         <Divider/>
         </>
