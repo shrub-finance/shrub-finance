@@ -54,7 +54,7 @@ contract ShrubExchange {
   event Withdraw(address user, address token, uint amount);
   event OrderAnnounce(OrderCommon common, bytes32 indexed positionHash, address indexed user, SmallOrder order, Signature sig);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
-  mapping(address => mapping(address => mapping(address => uint))) public userPairNonce;
+  mapping(address => mapping(bytes32 => uint)) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
 
@@ -86,6 +86,16 @@ contract ShrubExchange {
 
   function min(uint256 a, uint256 b) pure private returns (uint256) {
     return a < b ? a : b;
+  }
+
+  function getCommonFromOrder(Order memory order) public pure return (OrderCommon common) {
+    return OrderCommon({
+      baseAsset: order.baseAsset,
+      quoteAsset: order.quoteAsset,
+      expiry: order.expiry,
+      strike: order.strike,
+      optionType: order.optionType
+    })
   }
 
   function hashOrder(Order memory order) public pure returns (bytes32) {
@@ -136,8 +146,13 @@ contract ShrubExchange {
     ));
   }
 
-  function getCurrentNonce(address user, address quoteAsset, address baseAsset) public view returns(uint) {
-    return userPairNonce[user][quoteAsset][baseAsset];
+  function getCurrentNonce(address user, OrderCommon common) public view returns(uint) {
+    bytes32 positionHash = hashOrderCommon(common);
+    return userPairNonce[user][positionHash];
+  }
+
+  function getCurrentNonce(address user, bytes32 commonHash) public view returns(uint) {
+    return userPairNonce[user][commonHash];
   }
 
   function getAvailableBalance(address user, address asset) public view returns(uint) {
@@ -211,8 +226,9 @@ contract ShrubExchange {
   function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) public {
     (address buyer, address seller, bytes32 positionHash) = doPartialMatch(sellOrder, buyOrder, common, sellSig, buySig);
     emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
-    userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
-    userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
+    bytes32 positionHash = hashOrderCommon(common);
+    userPairNonce[buyer][positionHash] = buyOrder.nonce;
+    userPairNonce[seller][positionHash] = sellOrder.nonce;
   }
 
 
@@ -239,8 +255,8 @@ contract ShrubExchange {
     require(seller != buyer, "Seller and Buyer must be different");
     bytes32 positionHash = hashOrderCommon(common);
 
-    require(getCurrentNonce(seller, common.quoteAsset, common.baseAsset) == sellOrder.nonce - 1, "Seller nonce incorrect");
-    require(getCurrentNonce(buyer, common.quoteAsset, common.baseAsset) == buyOrder.nonce - 1, "Buyer nonce incorrect");
+    require(getCurrentNonce(seller, positionHash) == sellOrder.nonce - 1, "Seller nonce incorrect");
+    require(getCurrentNonce(buyer, positionHash) == buyOrder.nonce - 1, "Buyer nonce incorrect");
 
     (uint fillSize, uint adjustedPrice) = getAdjustedPriceAndFillSize(sellOrder, buyOrder);
 
@@ -307,30 +323,31 @@ contract ShrubExchange {
         buyIndex++;
         if(sellFilled == sellOrder.size || buyIndex == buysLen) {
           sellIndex++;
-          userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
+          userPairNonce[seller][positionHash] = sellOrder.nonce;
           // calculate remainder of selling order and add it to internal offers
           sellFilled = 0;
         }
         emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
-        userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
+        userPairNonce[buyer][positionHash] = buyOrder.nonce;
       } else if (sellOrder.size - sellFilled < buyOrder.size - buyFilled) {
         buyFilled += sellOrder.size;
         sellIndex++;
         if(buyFilled == buyOrder.size || sellIndex == sellsLen) {
           buyIndex++;
-          userPairNonce[buyer][common.quoteAsset][common.baseAsset] = buyOrder.nonce;
+          userPairNonce[buyer][positionHash] = buyOrder.nonce;
           // calculate remainder of buying order and add it to internal offers
           buyFilled = 0;
         }
         emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
-        userPairNonce[seller][common.quoteAsset][common.baseAsset] = sellOrder.nonce;
+        userPairNonce[seller][positionHash] = sellOrder.nonce;
       }
     }
   }
 
   function cancel(Order memory order) public {
-    require(order.nonce - 1 >= getCurrentNonce(msg.sender, order.quoteAsset, order.baseAsset), "Invalid order nonce");
-    userPairNonce[msg.sender][order.quoteAsset][order.baseAsset] = order.nonce;
+    bytes32 commonHash = hashOrderCommon(getCommonFromOrder(order));
+    require(order.nonce - 1 >= getCurrentNonce(msg.sender, commonHash), "Invalid order nonce");
+    userPairNonce[msg.sender][commonHash] = order.nonce;
   }
 
   function exercise(uint256 buyOrderSize, OrderCommon memory common) public payable {
@@ -419,7 +436,7 @@ contract ShrubExchange {
   function announce(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public {
     bytes32 positionHash = hashOrderCommon(common);
     address user = getAddressFromSignedOrder(order, common, sig);
-    require(getCurrentNonce(user, common.quoteAsset, common.baseAsset) == order.nonce - 1, "User nonce incorrect");
+    require(getCurrentNonce(user, positionHash) == order.nonce - 1, "User nonce incorrect");
 
     if(common.optionType == OptionType.CALL) {
       if(order.isBuy) {
