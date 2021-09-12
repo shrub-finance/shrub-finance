@@ -88,14 +88,14 @@ contract ShrubExchange {
     return a < b ? a : b;
   }
 
-  function getCommonFromOrder(Order memory order) public pure return (OrderCommon common) {
+  function getCommonFromOrder(Order memory order) internal pure returns (OrderCommon memory common) {
     return OrderCommon({
       baseAsset: order.baseAsset,
       quoteAsset: order.quoteAsset,
       expiry: order.expiry,
       strike: order.strike,
       optionType: order.optionType
-    })
+    });
   }
 
   function hashOrder(Order memory order) public pure returns (bytes32) {
@@ -146,7 +146,7 @@ contract ShrubExchange {
     ));
   }
 
-  function getCurrentNonce(address user, OrderCommon common) public view returns(uint) {
+  function getCurrentNonce(address user, OrderCommon memory common) public view returns(uint) {
     bytes32 positionHash = hashOrderCommon(common);
     return userPairNonce[user][positionHash];
   }
@@ -226,7 +226,6 @@ contract ShrubExchange {
   function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) public {
     (address buyer, address seller, bytes32 positionHash) = doPartialMatch(sellOrder, buyOrder, common, sellSig, buySig);
     emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
-    bytes32 positionHash = hashOrderCommon(common);
     userPairNonce[buyer][positionHash] = buyOrder.nonce;
     userPairNonce[seller][positionHash] = sellOrder.nonce;
   }

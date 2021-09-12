@@ -229,13 +229,11 @@ contract("ShrubExchange", (accounts) => {
     // Make sure the nonces match what we expect
     const sellerNonce = await exchange.getCurrentNonce(
       seller,
-      common.quoteAsset,
-      common.baseAsset
+      common
     );
     const buyerNonce = await exchange.getCurrentNonce(
       buyer,
-      common.quoteAsset,
-      common.baseAsset
+      common
     );
     assert.isTrue(
       sellerNonce == sellOrder.nonce - 1,
@@ -336,17 +334,16 @@ contract("ShrubExchange", (accounts) => {
 
     const sellerTokenBalanceBefore = (await exchange.userTokenBalances(seller, Assets.USDC));
 
+
     const sellerNonce = (await exchange.getCurrentNonce(
       seller,
-      Assets.ETH,
-      Assets.USDC
+      base
     )).toNumber();
 
 
     const buyerNonce = (await exchange.getCurrentNonce(
       buyer,
-      Assets.ETH,
-      Assets.USDC
+      base
     )).toNumber();
 
     console.log({buyerNonce, sellerNonce});
@@ -371,6 +368,7 @@ contract("ShrubExchange", (accounts) => {
     let buyOrders = [{
       ...base,
       size: WeiInEth.mul(web3.utils.toBN(2)).toString(),
+      price: WeiInEth.mul(web3.utils.toBN(2)).mul(BigHundred).toString(),
       isBuy: true,
       nonce: buyerNonce + 1
     }, {
@@ -617,10 +615,6 @@ contract("ShrubExchange", (accounts) => {
 
   it("should cancel an order if in correct nonce state", async () => {
     const user = accounts[0];
-    const userNoncePre = (
-      await exchange.getCurrentNonce(user, Assets.ETH, Assets.USDC)
-    ).toNumber();
-    console.log("Pre-cancel user nonce", userNoncePre);
 
     const order = {
       price: WeiInEth.mul(BigHundred).toString(),
@@ -633,12 +627,20 @@ contract("ShrubExchange", (accounts) => {
       optionType: 1,
       size: WeiInEth.toString(),
       isBuy: false,
-      nonce: userNoncePre + 1,
     };
+
+    const common = shrubInterface.toCommon(order);
+    const userNoncePre = (
+      await exchange.getCurrentNonce(user, common)
+    ).toNumber();
+    console.log("Pre-cancel user nonce", userNoncePre);
+    order.nonce = userNoncePre + 1;
+
+
     console.log('Order nonce', order.nonce);
     await exchange.cancel(order, { from: user });
     const userNoncePost = (
-      await exchange.getCurrentNonce(user, Assets.ETH, Assets.USDC)
+      await exchange.getCurrentNonce(user, common)
     ).toNumber();
     console.log('Post-cancel user nonce', userNoncePost);
     assert.isTrue(
