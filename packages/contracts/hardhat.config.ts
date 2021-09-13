@@ -122,7 +122,7 @@ task( 'maker', 'creates limit orders')
         return optionContracts[contractNumber];
       }
 
-      function generateRandomOrder(nonce: number) {
+      function generateRandomOrder() {
         const {expiry, strike:strikeUsdcMillion, optionType } = getRandomContract();
         const strikeUsdc = strikeUsdcMillion / STRIKE_BASE_SHIFT;
         const timeToExpiry = (expiry * 1000 - Date.now()) / (365 * 24 * 60 * 60 * 1000)
@@ -147,7 +147,7 @@ task( 'maker', 'creates limit orders')
         const smallOrder: SmallOrder = {
           size,
           isBuy,
-          nonce,
+          nonce: 0,
           price,
           fee,
           offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
@@ -167,11 +167,13 @@ task( 'maker', 'creates limit orders')
       const shrubContractAccount = ShrubExchange__factory.connect(shrubExchangeDeployed.address, account);
       const orderTypeHash = await shrubContractAccount.ORDER_TYPEHASH();
       for (let i = 0; i < count; i++) {
-        const nonce = await shrubContractAccount.userPairNonce(account.address, ethers.constants.AddressZero, fakeToken.address)
-        const { smallOrder, common } =  await generateRandomOrder(Number(nonce) + 1);
+        const { smallOrder, common } = await generateRandomOrder();
         if (!smallOrder || !common) {
           continue;
         }
+        const nonce = await shrubContractAccount["getCurrentNonce(address,(address,address,uint256,uint256,uint8))"](account.address, common)
+        //  Overwrite nonce
+        smallOrder.nonce = nonce.toNumber() + 1;
         console.log(orderTypeHash, smallOrder, account.address, common)
         const signedSellOrder = await shrubInterface.signOrderWithWeb3(
           web3,

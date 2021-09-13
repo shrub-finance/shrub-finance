@@ -1327,14 +1327,60 @@
         "type": "address"
       },
       {
+        "internalType": "bytes32",
+        "name": "commonHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getCurrentNonce",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
-        "name": "quoteAsset",
+        "name": "user",
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "baseAsset",
-        "type": "address"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "baseAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "quoteAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "strike",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum ShrubExchange.OptionType",
+            "name": "optionType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct ShrubExchange.OrderCommon",
+        "name": "common",
+        "type": "tuple"
       }
     ],
     "name": "getCurrentNonce",
@@ -1944,14 +1990,9 @@
         "type": "address"
       },
       {
-        "internalType": "address",
+        "internalType": "bytes32",
         "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        "type": "bytes32"
       }
     ],
     "name": "userPairNonce",
