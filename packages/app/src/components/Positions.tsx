@@ -49,6 +49,7 @@ import {
   signOrder,
   getLockedBalance,
   getAllowance,
+  getBlockNumber,
   getWalletBalance
 } from '../utils/ethMethods';
 import {OrderCommon, ShrubBalance, SmallOrder, SupportedCurrencies} from '../types';
@@ -63,6 +64,9 @@ import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
 import {QuestionOutlineIcon} from '@chakra-ui/icons';
+
+const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
+const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
 
 function Positions() {
 
@@ -136,8 +140,18 @@ function Positions() {
         console.error('Please connect wallet');
         return;
       }
-      const filledOrders = await getFilledOrders(account, library);
-      if (typeof filledOrders === 'object' && filledOrders !== null && Object.keys(filledOrders).length !== 0) {
+      let filledOrders = {};
+      const fromBlock = DEPLOY_BLOCKHEIGHT;
+      const latestBlockNumber = await getBlockNumber(library);
+      let cursor = Number(fromBlock);
+      while (cursor < latestBlockNumber) {
+        const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
+        const rangeFilledOrders = await getFilledOrders(account, library, cursor, to);
+        // TODO: this should cache in localStorage
+        filledOrders = { ...filledOrders, ...rangeFilledOrders };
+        cursor = to + 1;
+      }
+      if (typeof filledOrders === 'object' && Object.keys(filledOrders).length !== 0) {
         hasOptions.current = true;
         // Populate Option Positions Table
         for (const details of Object.values(filledOrders)) {

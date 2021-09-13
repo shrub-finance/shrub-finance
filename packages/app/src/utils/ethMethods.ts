@@ -25,6 +25,7 @@ const FK_TOKEN_ADDRESS = process.env.REACT_APP_FK_TOKEN_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id('OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const ORDER_TYPEHASH = ethers.utils.id('Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
+const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
 if (!SHRUB_CONTRACT_ADDRESS || !FK_TOKEN_ADDRESS) {
   throw new Error(
     "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS and REACT_APP_FK_TOKEN_ADDRESS to your .env file"
@@ -397,7 +398,26 @@ export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: I
   return shrubContract.matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
 }
 
-export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provider, fromBlock = 0, toBlock = 'latest'}: {
+function validateBlockRange(fromBlock: ethers.providers.BlockTag, toBlock: ethers.providers.BlockTag) {
+  if (isNaN(Number(fromBlock))) {
+    throw new Error(`fromBlock must be a number: ${fromBlock}-${toBlock}`);
+  }
+  if (toBlock === 'latest') {
+    if (fromBlock < -1 * MAX_SCAN_BLOCKS) {
+      throw new Error(`fromBlock out of range from "latest": ${fromBlock}-${toBlock}`);
+    }
+    if (fromBlock >= 0) {
+      throw new Error(`fromBlock must be relative to latest if toBlock is "latest": ${fromBlock}-${toBlock}`);
+    }
+  } else if (isNaN(Number(toBlock))) {
+    throw new Error(`toBlock must either be a number or "latest": ${fromBlock}-${toBlock}`);
+  }
+  if (Number(toBlock) - Number(fromBlock) > MAX_SCAN_BLOCKS) {
+    throw new Error(`fromBlock to toBlock range exceeds ${MAX_SCAN_BLOCKS}: ${fromBlock}-${toBlock}`);
+  }
+}
+
+export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provider, fromBlock = -1 * MAX_SCAN_BLOCKS, toBlock = 'latest'}: {
   buyerAddress?: string,
   sellerAddress?: string,
   positionHash?: string,
@@ -405,6 +425,7 @@ export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provi
   fromBlock: ethers.providers.BlockTag,
   toBlock: ethers.providers.BlockTag
 }) {
+  validateBlockRange(fromBlock, toBlock);
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const filter = shrubContract.filters.OrderMatched(sellerAddress, buyerAddress)
   return shrubContract.queryFilter(filter, fromBlock, toBlock);
@@ -425,13 +446,14 @@ export function cancelOrder(order: IOrder, provider: JsonRpcProvider) {
   return shrubContract.cancel(order);
 }
 
-export function getAnnouncedEvents({provider, positionHash, user, fromBlock = 0, toBlock = 'latest'}: {
+export function getAnnouncedEvents({provider, positionHash, user, fromBlock = -1 * MAX_SCAN_BLOCKS, toBlock = 'latest'}: {
   provider: JsonRpcProvider,
   positionHash?: BytesLike,
   user?: string,
   fromBlock?: ethers.providers.BlockTag,
   toBlock?: ethers.providers.BlockTag
 }) {
+  validateBlockRange(fromBlock, toBlock);
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const filter = shrubContract.filters.OrderAnnounce(null, positionHash, user);
   return shrubContract.queryFilter(filter, fromBlock, toBlock)
@@ -448,11 +470,12 @@ export function unsubscribeFromAnnouncements(provider: JsonRpcProvider) {
   return shrubContract.removeAllListeners()
 }
 
+// Only searches back 1000 blocks - in future we can search back further for options where no last is found
 export async function getLastOrders(provider: JsonRpcProvider) {
   const lastOrders: LastOrders = {}
   const matchEvents = await getMatchEvents({
     provider,
-    fromBlock: 0,
+    fromBlock: -1 * MAX_SCAN_BLOCKS,
     toBlock: 'latest'
   });
   for (const event of matchEvents) {
@@ -686,4 +709,8 @@ export function matchEventToAppOrder(userEvent: any, orderType: SellBuy) {
     baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, address
   }
   return appOrderSignedNumbered;
+}
+
+export function getBlockNumber(provider: JsonRpcProvider) {
+  return provider.getBlockNumber();
 }
