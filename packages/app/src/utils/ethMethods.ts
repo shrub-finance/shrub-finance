@@ -300,12 +300,12 @@ export async function validateOrderAddress(order: IOrder, provider: JsonRpcProvi
 }
 
 export async function getUserNonce(
-  params: Pick<IOrder, "address" | "quoteAsset" | "baseAsset">,
+  address: string,
+  common: OrderCommon,
   provider: JsonRpcProvider
 ) {
-  const { address, quoteAsset, baseAsset } = params;
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
-  const bigNonce = await shrubContract.getCurrentNonce(address, quoteAsset, baseAsset);
+  const bigNonce = await shrubContract["getCurrentNonce(address,(address,address,uint256,uint256,uint8))"](address, common)
   return bigNonce.toNumber();
 }
 
@@ -330,7 +330,7 @@ export async function matchOrder(params: {
 }, provider: JsonRpcProvider) {
   const { signedBuyOrder, signedSellOrder } = params;
   const shrubInterface = new Shrub712(1337, SHRUB_CONTRACT_ADDRESS);
-  const sellOrder = shrubInterface.toSmallOrder(signedSellOrder);
+  const sellOrder: SmallOrder = shrubInterface.toSmallOrder(signedSellOrder);
   const buyOrder = shrubInterface.toSmallOrder(signedBuyOrder);
   const common = shrubInterface.toCommon(signedBuyOrder);
   const sellSig = iOrderToSig(signedSellOrder);
@@ -342,9 +342,8 @@ export async function matchOrder(params: {
   //  All of the validations that the smart contract does
   const seller = await getAddressFromSignedOrder(signedSellOrder, provider);
   const buyer = await getAddressFromSignedOrder(signedBuyOrder, provider);
-  const { quoteAsset, baseAsset } = common;
-  const sellerNonce = await getUserNonce({ address: seller, quoteAsset, baseAsset }, provider);
-  const buyerNonce = await getUserNonce({ address: buyer, quoteAsset, baseAsset }, provider);
+  const sellerNonce = await getUserNonce(seller, common, provider);
+  const buyerNonce = await getUserNonce(buyer, common, provider);
   if (sellOrder.nonce - 1 !== sellerNonce) {
     throw new Error(
       `SellerNonce: ${sellerNonce} must be 1 less than the sell order nonce: ${sellOrder.nonce}`

@@ -270,8 +270,13 @@ function OptionsView(props: RouteComponentProps) {
         const { size, fee } = order;
         const { r, s, v } = sig;
         const pair = getPair(baseAsset, quoteAsset);
+        const appCommon: OrderCommon = {
+          ...common,
+          expiry: common.expiry.toNumber(),
+          optionType: common.optionType ? 1 : 0
+        }
         if (!tempNonces[pair]) {
-          const userPairNonce = await getUserNonce({address: user, quoteAsset, baseAsset}, library);
+          const userPairNonce = await getUserNonce(user, appCommon, library);
           tempNonces[pair] = userPairNonce;
           noncesDispatch({type: 'update', user, pair, nonce: userPairNonce});
         }

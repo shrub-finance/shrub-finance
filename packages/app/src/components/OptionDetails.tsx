@@ -38,7 +38,7 @@ import {
     matchOrders,
     optionActionToIsBuy,
     transformOrderAppChain,
-    validateOrderAddress, formatDate, getSymbolFor, announceOrder
+    validateOrderAddress, formatDate, getSymbolFor, announceOrder, iOrderToCommon
 } from "../utils/ethMethods";
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
@@ -47,6 +47,7 @@ import {
     AppCommon,
     IOrder, OptionData,
     OrderBook,
+    OrderCommon,
     OrderType,
     SellBuy,
     UnsignedOrder
@@ -140,12 +141,14 @@ const {
         const now = new Date();
         const oneWeekFromNow = new Date(now);
         oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
-        const nonce =
-            (await getUserNonce({
-                address: account,
-                quoteAsset,
-                baseAsset,
-            }, library)) + 1;
+        const common:OrderCommon = {
+            baseAsset,
+            quoteAsset,
+            expiry: toEthDate(expiry),
+            strike,
+            optionType: optionTypeToNumber(optionType)
+        }
+        const nonce = (await getUserNonce(account, common, library)) + 1;
         const unsignedOrder: UnsignedOrder = {
             size: ethers.utils.parseUnits(amount.toString(), 18),
             isBuy: optionActionToIsBuy(radioOption),
@@ -212,12 +215,6 @@ const {
             const now = new Date();
             const oneWeekFromNow = new Date(now);
             oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
-            const nonce =
-              (await getUserNonce({
-                  address: account,
-                  quoteAsset,
-                  baseAsset,
-              }, library)) + 1;
 
             // Create as many unsigned orders as needed to get the total amount up to the requested amount
             const counterPartyOrders: IOrder[] = [];
@@ -237,8 +234,9 @@ const {
                 }
                 const counterPartyOrder = transformOrderAppChain(order);
                 const doesAddressMatch: boolean = await validateOrderAddress(counterPartyOrder, library);
+                const counterPartyCommon = iOrderToCommon(counterPartyOrder);
                 console.log(doesAddressMatch);
-                const counterpartyNonce = await getUserNonce({ address: counterpartyAddress, quoteAsset, baseAsset, }, library) + 1;
+                const counterpartyNonce = await getUserNonce(counterpartyAddress, counterPartyCommon, library) + 1;
                 console.log(counterpartyNonce);
                 console.log(orderNonce);
                 if (orderNonce !== counterpartyNonce) {
@@ -286,15 +284,19 @@ const {
                 console.log(ethers.utils.formatUnits(remainingSize));
                 index++;
             }
-
-            const unsignedOrder: UnsignedOrder = {
-                size: bigSize,
-                isBuy: optionActionToIsBuy(radioOption),
-                optionType: optionTypeToNumber(optionType),
+            const common:OrderCommon = {
                 baseAsset,
                 quoteAsset,
                 expiry: toEthDate(expiry),
                 strike,
+                optionType: optionTypeToNumber(optionType)
+            }
+            const nonce = (await getUserNonce(account, common, library)) + 1;
+
+            const unsignedOrder: UnsignedOrder = {
+                ...common,
+                size: bigSize,
+                isBuy: optionActionToIsBuy(radioOption),
                 // TODO: update contract so that the commented out price logic works (with partial orders)
                 // price: size.lt(remainingSize) ? orderPrice : ethers.utils.parseUnits((orderUnitPrice * Number(ethers.utils.formatUnits(remainingSize, 18))).toString()),
                 price: accumulatedPrice,
@@ -496,7 +498,7 @@ const {
                                   onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
                                   disabled={
                                       amount<=0 ||
-                                      Boolean(radioOption === 'BUY' ? orderBook.sellOrders[0] : orderBook.buyOrders[0]) ||
+                                      Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0]) ||
                                       isNaN(Number(amount)) ||
                                       (radioOrderType === 'Limit' && (
                                           Number(price)<=0 ||
