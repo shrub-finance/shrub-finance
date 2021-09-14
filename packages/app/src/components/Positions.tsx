@@ -10,7 +10,6 @@ import {
   Th,
   Td,
   useDisclosure,
-  TableRowProps,
   Flex,
   Spacer,
   SlideFade,
@@ -28,7 +27,6 @@ import {
   Container,
   Center,
   Box,
-  VStack,
   useToast,
   FormControl,
   FormLabel,
@@ -36,7 +34,7 @@ import {
   NumberInputField,
   InputRightElement,
   Stack,
-  useRadioGroup, Tooltip
+  useRadioGroup, Tooltip, Divider
 } from '@chakra-ui/react';
 import {
   depositEth,
@@ -64,17 +62,17 @@ import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
 import {QuestionOutlineIcon} from '@chakra-ui/icons';
+import {currencySymbol} from "../utils/chainMethods";
 
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
 
 function Positions() {
-
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {active, library, account, error: web3Error, chainId} = useWeb3React();
   const alertColor = useColorModeValue("gray.100", "shrub.300");
-  const tableRows: TableRowProps[] = [];
+  const shrubfolioRows = [];
   const tableRowsOptions: any = [];
   const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
   const [isApproved, setIsApproved] = useState(false);
@@ -101,7 +99,6 @@ function Positions() {
     onChange: (value: SupportedCurrencies) => setModalCurrency(value)
   })
   const currenciesRadiogroup = getRootProps();
-
   // shrub balance display
   useEffect(() => {
     setLocalError('');
@@ -131,7 +128,6 @@ function Positions() {
     shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
-
   // options display
   useEffect(() => {
     async function displayOptionsHandler() {
@@ -200,7 +196,7 @@ function Positions() {
       } else {
         hasOptions.current = false;
         tableRowsOptions.push(
-          <VStack>
+          <Flex>
             <Center w="600px">
               <HelloBud boxSize={200}/>
             </Center>
@@ -209,7 +205,7 @@ function Positions() {
                 You don't have any options yet!
               </Box>
             </Center>
-          </VStack>
+          </Flex>
         )
       }
       setOptionsRows(tableRowsOptions);
@@ -217,8 +213,6 @@ function Positions() {
     displayOptionsHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState])
-
-
   useEffect(() => {
     async function handleApprove(){
       if (modalCurrency !== 'ETH') {
@@ -232,7 +226,6 @@ function Positions() {
     }
     handleApprove();
   }, [modalCurrency, account, pendingTxsState])
-
   function handleWithdrawDepositModalClose() {
     setApproving(false);
     setActiveHash(undefined);
@@ -264,7 +257,8 @@ function Positions() {
     return tx;
   }
   function totalUserBalance(currency: string) {
-    return shrubBalance.locked[currency] + shrubBalance.available[currency];
+    const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
+    return totBalance.toFixed(6) ;
   }
   // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
@@ -320,18 +314,45 @@ function Positions() {
         handleErrorMessages({customMessage: 'Nothing to withdraw :/'});
       }
     }
-
-
   }
   // populate balance table
   for (const currency of Object.keys(Currencies)) {
-    tableRows.push(
-      <Tr key={currency}>
-        <Td>{currency}</Td>
-        <Td isNumeric>{totalUserBalance(currency)}</Td>
-        <Td isNumeric>{shrubBalance.locked[currency]}</Td>
-        <Td isNumeric>{shrubBalance.available[currency]}</Td>
-      </Tr>
+    const fluidFontAsset = ['2xl','2xl','3xl','4xl'];
+    const fluidFontSplit = ['sm','sm','lg','lg'];
+    const fluidWidthAsset = [200,270,300,370];
+    const fluidPaddingSplit = [50,10,10,10];
+    shrubfolioRows.push(
+        <>
+          <HStack
+              key={currency}
+                  justify="center"
+              
+          >
+          <Box mt="1" fontSize={fluidFontAsset}fontWeight="semibold" lineHeight="tight"
+               minW={fluidWidthAsset}
+          >
+            {totalUserBalance(currency)} {currency}
+          </Box>
+            <Box fontSize={fluidFontSplit}
+            py={fluidPaddingSplit} >
+              <Box pb={2} color="gray.500" fontWeight="semibold"   textTransform="uppercase">
+                {shrubBalance.locked[currency]} locked
+                <Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">
+                  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
+                </Tooltip>
+              </Box>
+            <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
+              {shrubBalance.available[currency]} unlocked
+              <Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">
+                <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
+              </Tooltip>
+            </Box>
+            </Box>
+          </HStack>
+          <Divider
+              _last={{display: "none"}}
+          />
+        </>
     );
   }
   return (
@@ -365,6 +386,7 @@ function Positions() {
           </ModalContent>
         </Modal>
       </Container>
+      {/*withdraw deposit buttons*/}
       <Container mt={50} flex="1" borderRadius="2xl" maxW="container.md">
         <Center>
         <Button colorScheme="teal" variant="outline" borderRadius="full"
@@ -377,34 +399,11 @@ function Positions() {
         </Center>
       </Container>
       {/*asset view*/}
-      <Container mt={50} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">
-        <Table variant="simple" size="lg">
-          <Thead>
-            <Tr>
-              <Th>Asset
-              </Th>
-              <Th isNumeric>Total
-                <Tooltip p={3} label="This is the total amount of assets you have (including locked and unlocked)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-              <Th isNumeric>Locked
-                <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-              <Th isNumeric>Unlocked
-                <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>{tableRows}</Tbody>
-        </Table>
+      <Container  mt={25} borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")}>
+          {shrubfolioRows}
       </Container>
       {/*options view*/}
-      <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">
+      <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
         {hasOptions.current ?
           (<Table variant="simple" size="lg">
             <Thead>
@@ -421,7 +420,7 @@ function Positions() {
             </Thead>
             <Tbody>{optionsRows}</Tbody>
           </Table>) : (
-            <VStack>
+            <Flex direction="column">
               <Center>
                 <HelloBud boxSize={200}/>
               </Center>
@@ -437,7 +436,7 @@ function Positions() {
                   Buy Some
                 </Button>
               </Center>
-            </VStack>
+            </Flex>
           )
         }
       </Container>
