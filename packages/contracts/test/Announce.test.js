@@ -56,8 +56,7 @@ contract("ShrubExchange::announce", (accounts) => {
     const common = shrubInterface.toCommon(sellOrder);
     const sellerNonce = await exchange.getCurrentNonce(
       seller,
-      common.quoteAsset,
-      common.baseAsset
+      common
     );
     sellOrder.nonce = sellerNonce.toNumber() + 1;
 
@@ -82,8 +81,7 @@ contract("ShrubExchange::announce", (accounts) => {
     const common = shrubInterface.toCommon(sellOrder);
     const sellerNonce = await exchange.getCurrentNonce(
       seller,
-      common.quoteAsset,
-      common.baseAsset
+      common
     );
     sellOrder.nonce = sellerNonce.toNumber() + 1;
 

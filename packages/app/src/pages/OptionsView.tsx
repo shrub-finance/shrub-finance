@@ -24,7 +24,7 @@ import {
 import OptionRow from "../components/OptionRow";
 import useFetch from "../hooks/useFetch";
 import {
-  AppCommon,
+  AppCommon, AppOrder,
   AppOrderSigned,
   ContractData,
   IndexedAppOrderSigned,
@@ -43,7 +43,7 @@ import {
   fromEthDate,
   getAddress,
   getAddressFromSignedOrder,
-  getAnnouncedEvents,
+  getAnnouncedEvents, getBlockNumber,
   getLastOrders,
   getMatchEvents,
   getPair,
@@ -71,6 +71,8 @@ import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import {nonceReducer} from "../components/nonceReducer";
 
 const initialOrderBookState = {};
+const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
+const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
 
 function OptionsView(props: RouteComponentProps) {
   const {library, chainId, account} = useWeb3React();
@@ -156,13 +158,22 @@ function OptionsView(props: RouteComponentProps) {
     if (!account || !library) {
       return;
     }
-    const fromBlock = 0;
-    const toBlock = 'latest';
-    const buyMatches = await getMatchEvents({buyerAddress: account, provider: library, fromBlock, toBlock})
-    const sellMatches = await getMatchEvents({sellerAddress: account, provider: library, fromBlock, toBlock})
-    const processedBuyMatches = buyMatches.map(userEvent => matchEventToAppOrder(userEvent, 'BUY'));
-    const processedSellMatches = sellMatches.map(userEvent => matchEventToAppOrder(userEvent, 'SELL'));
-    setUserMatches({ buy: processedBuyMatches, sell: processedSellMatches });
+    const fromBlock = DEPLOY_BLOCKHEIGHT;
+    const latestBlockNumber = await getBlockNumber(library);
+    let cursor = Number(fromBlock);
+    const tempUserMatches: { buy: AppOrder[], sell: AppOrder[] } = { buy: [], sell: []};
+    while (cursor < latestBlockNumber) {
+      const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
+      const buyMatches = await getMatchEvents({buyerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
+      const sellMatches = await getMatchEvents({sellerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
+      const processedBuyMatches = buyMatches.map(userEvent => matchEventToAppOrder(userEvent, 'BUY'));
+      const processedSellMatches = sellMatches.map(userEvent => matchEventToAppOrder(userEvent, 'SELL'));
+      tempUserMatches.buy = { ...tempUserMatches.buy, ...processedBuyMatches };
+      tempUserMatches.sell = { ...tempUserMatches.sell, ...processedSellMatches };
+      cursor = to + 1;
+    }
+    // TODO: this should cache in localStorage
+    setUserMatches(tempUserMatches);
   }
   main()
     .then(() => {})
@@ -270,8 +281,13 @@ function OptionsView(props: RouteComponentProps) {
         const { size, fee } = order;
         const { r, s, v } = sig;
         const pair = getPair(baseAsset, quoteAsset);
+        const appCommon: OrderCommon = {
+          ...common,
+          expiry: common.expiry.toNumber(),
+          optionType: common.optionType ? 1 : 0
+        }
         if (!tempNonces[pair]) {
-          const userPairNonce = await getUserNonce({address: user, quoteAsset, baseAsset}, library);
+          const userPairNonce = await getUserNonce(user, appCommon, library);
           tempNonces[pair] = userPairNonce;
           noncesDispatch({type: 'update', user, pair, nonce: userPairNonce});
         }
