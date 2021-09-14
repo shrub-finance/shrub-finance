@@ -320,7 +320,7 @@ function Positions() {
     const fluidFontAsset = ['2xl','2xl','3xl','4xl'];
     const fluidFontSplit = ['sm','sm','lg','lg'];
     const fluidWidthAsset = [200,270,300,370];
-    const fluidPaddingSplit = [50,10,10,10];
+    const fluidPaddingSplit = [30,10,10,10];
     shrubfolioRows.push(
         <>
           <HStack
