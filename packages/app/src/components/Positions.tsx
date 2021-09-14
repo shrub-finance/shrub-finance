@@ -10,7 +10,6 @@ import {
   Th,
   Td,
   useDisclosure,
-  TableRowProps,
   Flex,
   Spacer,
   SlideFade,
@@ -28,7 +27,6 @@ import {
   Container,
   Center,
   Box,
-  VStack,
   useToast,
   FormControl,
   FormLabel,
@@ -63,9 +61,9 @@ import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
 import {QuestionOutlineIcon} from '@chakra-ui/icons';
+import {currencySymbol} from "../utils/chainMethods";
 
 function Positions() {
-
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {active, library, account, error: web3Error, chainId} = useWeb3React();
@@ -97,7 +95,6 @@ function Positions() {
     onChange: (value: SupportedCurrencies) => setModalCurrency(value)
   })
   const currenciesRadiogroup = getRootProps();
-
   // shrub balance display
   useEffect(() => {
     setLocalError('');
@@ -127,7 +124,6 @@ function Positions() {
     shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
-
   // options display
   useEffect(() => {
     async function displayOptionsHandler() {
@@ -186,7 +182,7 @@ function Positions() {
       } else {
         hasOptions.current = false;
         tableRowsOptions.push(
-          <VStack>
+          <Flex>
             <Center w="600px">
               <HelloBud boxSize={200}/>
             </Center>
@@ -195,7 +191,7 @@ function Positions() {
                 You don't have any options yet!
               </Box>
             </Center>
-          </VStack>
+          </Flex>
         )
       }
       setOptionsRows(tableRowsOptions);
@@ -203,7 +199,6 @@ function Positions() {
     displayOptionsHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState])
-
   useEffect(() => {
     async function handleApprove(){
       if (modalCurrency !== 'ETH') {
@@ -217,7 +212,6 @@ function Positions() {
     }
     handleApprove();
   }, [modalCurrency, account, pendingTxsState])
-
   function handleWithdrawDepositModalClose() {
     setApproving(false);
     setActiveHash(undefined);
@@ -249,7 +243,8 @@ function Positions() {
     return tx;
   }
   function totalUserBalance(currency: string) {
-    return shrubBalance.locked[currency] + shrubBalance.available[currency];
+    const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
+    return totBalance.toFixed(6) ;
   }
   // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
@@ -308,30 +303,37 @@ function Positions() {
   }
   // populate balance table
   for (const currency of Object.keys(Currencies)) {
+    const fluidFont = ["md", "lg", "xl", "2xl"];
     shrubfolioRows.push(
         <>
-        <Box p="4" key={currency} d="flex" alignItems="baseline" direction="column">
-          <Flex>
-          <Box mt="1" minW={60} fontWeight="semibold" fontSize="4xl" lineHeight="tight"  px={16}>
+          <HStack spacing="20%" key={currency}
+                  justify="center"
+              
+          >
+          <Box mt="1" fontSize={fluidFont}fontWeight="semibold" lineHeight="tight"
+               minW={[0, 220, 220, 220]}
+          >
             {totalUserBalance(currency)} {currency}
           </Box>
-            <Box minW={60} px={6}>
-              <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="md" textTransform="uppercase">
+            <Box fontSize={fluidFont}
+            py={10} >
+              <Box color="gray.500" fontWeight="semibold" letterSpacing="wide"  textTransform="uppercase">
                 {shrubBalance.locked[currency]} locked
-                <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                <Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFont} borderRadius="lg" bg="shrub.300" color="white">
+                  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
                 </Tooltip>
               </Box>
-            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="md" textTransform="uppercase">
+            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide"  textTransform="uppercase">
               {shrubBalance.available[currency]} unlocked
-              <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+              <Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFont} borderRadius="lg" bg="shrub.300" color="white">
+                <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
               </Tooltip>
             </Box>
             </Box>
-          </Flex>
-          </Box>
-        <Divider/>
+          </HStack>
+          <Divider
+              _last={{display: "none"}}
+          />
         </>
     );
   }
@@ -379,12 +381,8 @@ function Positions() {
         </Center>
       </Container>
       {/*asset view*/}
-      <Container mt={50} flex="1" borderRadius="2xl" maxW="container.sm">
-        <Center borderRadius="2xl" >
-        <Box  borderRadius="lg" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")}>
+      <Container  mt={25} borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")}>
           {shrubfolioRows}
-        </Box>
-        </Center>
       </Container>
       {/*options view*/}
       <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
@@ -404,7 +402,7 @@ function Positions() {
             </Thead>
             <Tbody>{optionsRows}</Tbody>
           </Table>) : (
-            <VStack>
+            <Flex direction="column">
               <Center>
                 <HelloBud boxSize={200}/>
               </Center>
@@ -420,7 +418,7 @@ function Positions() {
                   Buy Some
                 </Button>
               </Center>
-            </VStack>
+            </Flex>
           )
         }
       </Container>

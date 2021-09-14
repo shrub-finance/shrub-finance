@@ -175,7 +175,7 @@ export function Balance() {
                         'Error' :
                         balance
                             // @ts-ignore
-                            ? `${Number(formatEther(balance)).toPrecision(6)} ${currencySymbol(chainId)}`: ''
+                            ? `${Number(formatEther(balance)).toFixed(2)} ${currency}`: ''
                 }
             </Button>
             }
