@@ -317,29 +317,33 @@ function Positions() {
   }
   // populate balance table
   for (const currency of Object.keys(Currencies)) {
-    const fluidFont = ["md", "lg", "xl", "2xl"];
+    const fluidFontAsset = ['2xl','2xl','3xl','4xl'];
+    const fluidFontSplit = ['sm','sm','lg','lg'];
+    const fluidWidthAsset = [200,270,300,370];
+    const fluidPaddingSplit = [50,10,10,10];
     shrubfolioRows.push(
         <>
-          <HStack spacing="20%" key={currency}
+          <HStack
+              key={currency}
                   justify="center"
               
           >
-          <Box mt="1" fontSize={fluidFont}fontWeight="semibold" lineHeight="tight"
-               minW={[0, 220, 220, 220]}
+          <Box mt="1" fontSize={fluidFontAsset}fontWeight="semibold" lineHeight="tight"
+               minW={fluidWidthAsset}
           >
             {totalUserBalance(currency)} {currency}
           </Box>
-            <Box fontSize={fluidFont}
-            py={10} >
-              <Box color="gray.500" fontWeight="semibold" letterSpacing="wide"  textTransform="uppercase">
+            <Box fontSize={fluidFontSplit}
+            py={fluidPaddingSplit} >
+              <Box pb={2} color="gray.500" fontWeight="semibold"   textTransform="uppercase">
                 {shrubBalance.locked[currency]} locked
-                <Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFont} borderRadius="lg" bg="shrub.300" color="white">
+                <Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">
                   <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
                 </Tooltip>
               </Box>
-            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide"  textTransform="uppercase">
+            <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
               {shrubBalance.available[currency]} unlocked
-              <Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFont} borderRadius="lg" bg="shrub.300" color="white">
+              <Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">
                 <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
               </Tooltip>
             </Box>
