@@ -258,7 +258,7 @@ function Positions() {
   }
   function totalUserBalance(currency: string) {
     const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
-    return totBalance.toFixed(6) ;
+    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2}) ;
   }
   // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
