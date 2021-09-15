@@ -1,5 +1,5 @@
 import {createContext, useReducer} from "react";
-import {reducer} from "./Reducer";
+import {pendingTxReducer} from "./PendingTxReducer";
 import {PendingTxAction, PendingTxState} from "../types";
 
 let initialState: {
@@ -9,7 +9,7 @@ let initialState: {
 };
 
 const Store=({children}: any)=>{
-    const [pendingTxsState, pendingTxsDispatch] = useReducer(reducer, {})
+    const [pendingTxsState, pendingTxsDispatch] = useReducer(pendingTxReducer, {})
     initialState = {pendingTxs: [pendingTxsState, pendingTxsDispatch]};
 
     return (
