@@ -516,7 +516,7 @@ contract ShrubExchange {
     bytes32 positionHash = hashOrderCommon(tokenInfo.common);
 
     MintBurnToken token = MintBurnToken(tokenAddress);
-    token.transferFrom(msg.sender, address(this), size);
+    token.burn(msg.sender, size);
 
     if(tokenInfo.exposureType == ExposureType.LONG) {
       userOptionPosition[msg.sender][positionHash] += int(size);
