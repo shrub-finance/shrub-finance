@@ -1,10 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
 import {
-    CoinbaseIcon,
+    CoinbaseIcon, FortmaticIcon,
     LedgerIcon,
-    MetaMaskIcon,
+    MetaMaskIcon, PolygonIcon, PortisIcon,
     WalletConnectIcon,
-} from "../assets/Icons";
+} from '../assets/Icons';
 import {
     useWeb3React,
     UnsupportedChainIdError,
@@ -19,8 +19,8 @@ import {
     injected,
     walletconnect,
     walletlink,
-    ledger,
-} from "../utils/connectors";
+    ledger, portis, fortmatic, gnosisSafe
+} from '../utils/connectors';
 import Jazzicon from "@metamask/jazzicon";
 import {
     Alert,
@@ -41,20 +41,27 @@ import {useConnectWallet} from "../hooks/useConnectWallet";
 import {formatEther} from "ethers/lib/utils";
 import {NETWORK_COLORS, NETWORK_LABELS} from "../constants/networks";
 import {RiSignalTowerLine} from "react-icons/all";
-import {FaEthereum, FaPlug} from "react-icons/fa";
+import {isMobile} from "react-device-detect";
+import {currencySymbol, ExplorerDataType, explorerLink} from "../utils/chainMethods";
 
 enum ConnectorNames {
     MetaMask = "MetaMask",
     WalletConnect = "Wallet Connect",
     CoinbaseWallet = "Coinbase Wallet",
-    Ledger = "Ledger"
+    // Ledger = "Ledger",
+    // Portis= "Portis",
+    Fortmatic= "Fortmatic"
+
 }
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.MetaMask]: injected,
     [ConnectorNames.WalletConnect]: walletconnect,
     [ConnectorNames.CoinbaseWallet]: walletlink,
-    [ConnectorNames.Ledger]: ledger,
+    // [ConnectorNames.Ledger]: ledger,
+    // [ConnectorNames.Portis]: portis,
+    [ConnectorNames.Fortmatic]: fortmatic
 };
+
 
 export function getErrorMessage(error: Error) {
     if (error instanceof NoEthereumProviderError) {
@@ -125,6 +132,7 @@ export function ChainId() {
 export function Balance() {
     const {account, library, chainId} = useWeb3React()
     const networkColor = chainId && NETWORK_COLORS[chainId]
+    const currency = currencySymbol(chainId)
 
     const [balance, setBalance] = useState()
     useEffect((): any => {
@@ -155,7 +163,7 @@ export function Balance() {
     return (
         <>
             {balance && <Button
-                leftIcon={balance ? <FaEthereum/> : undefined}
+                // leftIcon={balance ? <FaEthereum/> : undefined}
                 variant={"ghost"}
                 //@ts-ignore
                 colorScheme={networkColor}
@@ -167,7 +175,7 @@ export function Balance() {
                         'Error' :
                         balance
                             // @ts-ignore
-                            ? `${Number(formatEther(balance)).toPrecision(6)} ETH` : ''
+                            ? `${Number(formatEther(balance)).toFixed(2)} ${currency}`: ''
                 }
             </Button>
             }
@@ -194,11 +202,12 @@ export function Account() {
 export function ConnectionStatus({displayStatus}) {
 
     const shadow = useColorModeValue("base", "dark-lg");
-    const {active, error, account} = useWeb3React();
-    const connector = Object.keys(connectorsByName).find(item =>
+    const {active, error, account, chainId} = useWeb3React();
+    const { connector } = useConnectWallet();
+    const connectedName = Object.keys(connectorsByName).find((connectorName) => {
         // @ts-ignore
-        connectorsByName[item]);
-    const ethScanLink = `https://etherscan.io/address/${account}`;
+        return connector === connectorsByName[connectorName]
+    });
     const [copyValue, setCopyValue] = React.useState("")
     const {hasCopied, onCopy} = useClipboard(copyValue)
     useEffect(() => {
@@ -212,7 +221,7 @@ export function ConnectionStatus({displayStatus}) {
                 <Box p={3} mb={5} boxShadow={shadow} rounded="lg">
                     <Flex pt={1}>
                         <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm" ml="2">
-                            Connected with {connector}
+                            Connected with {connectedName}
                         </Box>
                         <Spacer/>
                         <Box>
@@ -223,7 +232,7 @@ export function ConnectionStatus({displayStatus}) {
                         </Box>
                     </Flex>
                     <Flex pb={2}>
-                        <Button variant={"ghost"} colorScheme={"teal"} size={"lg"} mr={4} borderRadius="2xl">
+                        <Button variant={"ghost"} colorScheme={"teal"} size={"lg"} mr={4} borderRadius="2xl" onClick={onCopy}>
                             <Account/>
                         </Button>
                     </Flex>
@@ -235,8 +244,8 @@ export function ConnectionStatus({displayStatus}) {
                         </Box>
                         <Spacer/>
                         <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2">
-                            <Link href={ethScanLink} isExternal>
-                                <ExternalLinkIcon/> View on Etherscan
+                            <Link href={explorerLink(chainId, account, ExplorerDataType.ADDRESS)} isExternal>
+                                <ExternalLinkIcon/> View on explorer
                             </Link>
                         </Box>
                     </Flex>
@@ -251,6 +260,7 @@ export function ConnectionStatus({displayStatus}) {
     );
 }
 export function ConnectWalletModal() {
+
     const {
         activate, error, activatingConnector, connector,
         triedEager, setActivatingConnector
@@ -271,64 +281,107 @@ export function ConnectWalletModal() {
                 </Stack>
             )}
             <>
-                {Object.keys(connectorsByName).map((item) => {
+                {
+                    Object.keys(connectorsByName).map((connectorName) => {
                     // @ts-ignore
-                    const currentConnector = connectorsByName[item];
+                    const currentConnector = connectorsByName[connectorName];
                     const activating = currentConnector === activatingConnector;
                     const connected = currentConnector === connector;
                     const disabled = !triedEager || !!activatingConnector ||
                         connected || !!error;
 
+
+                    const mobileConnectors = ['Wallet Connect', 'Coinbase Wallet', 'Fortmatic'];
+
+                    const isMobileConnector =  mobileConnectors.includes(connectorName);
+
                     function WalletIconName(props: any) {
                         switch (props.type) {
                             case "MetaMask":
-                                return <MetaMaskIcon boxSize={8}/>;
+                                return !isMobile ? <MetaMaskIcon boxSize={8}/> : null;
                             case "Coinbase Wallet":
                                 return <CoinbaseIcon boxSize={8}/>;
                             case "Wallet Connect":
                                 return <WalletConnectIcon boxSize={8}/>;
                             case "Ledger":
-                                return <LedgerIcon boxSize={8}/>;
+                                return !isMobile ? <LedgerIcon boxSize={8}/> : null;
+                            case "Portis":
+                                return !isMobile ? <PortisIcon boxSize={8}/> : null;
+                            case "Fortmatic":
+                                return <FortmaticIcon boxSize={8}/>;
                             default:
                                 return <MetaMaskIcon boxSize={8}/>;
                         }
                     }
-                    return (
-                        <Stack spacing={8} key={item}>
-                            <Flex
-                                cursor="pointer" p={3} mb={5}
-                                boxShadow={shadow} rounded="lg"
-                                _hover={{bgGradient: gradient}} disabled={disabled}
-                                onClick={() => {
-                                    setActivatingConnector(currentConnector);
-                                    // @ts-ignore
-                                    activate(connectorsByName[item]);
-                                }}>
-                                <Box p="4" fontSize={20}>
-                                    {activating && (
-                                        <Spinner
-                                            mr={2} thickness="1px" speed="0.65s"
-                                            emptyColor="blue.200" color="teal.500"
-                                            size="xs" label="loading"
-                                        />
-                                    )}
-                                    {connected && !error && (
-                                        <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>
-                                    )}
 
-                                    {connected && error && (
-                                        <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>
-                                    )}
-                                    {item}
-                                </Box>
-                                <Spacer/>
-                                <Box p={4}>
-                                    <WalletIconName type={item}/>
-                                </Box>
-                            </Flex>
-                        </Stack>
-                    );
-                })}
+                    if(isMobile) {
+                        return isMobileConnector ? (
+                            <Stack spacing={8}
+                                   key={connectorName}>
+                                <Flex cursor="pointer"
+                                      p={isMobile ? 0 : 3}
+                                      mb={isMobile ? 2 : 5}
+                                      boxShadow={shadow}
+                                      rounded="lg"
+                                      _hover={{bgGradient: gradient}}
+                                      disabled={disabled}
+                                      onClick={() => {
+                                          setActivatingConnector(currentConnector);
+                                          // @ts-ignore
+                                          activate(connectorsByName[connectorName]);}}>
+                                    <Box p="4"
+                                         fontSize={20}>
+                                        {activating && (<Spinner mr={2} thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading"/>)}
+                                        {connected && !error && (
+                                            <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>)}
+                                        {connected && error && (
+                                            <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>)}
+                                        {connectorName}
+                                    </Box>
+                                    <Spacer/>
+                                    <Box p={4}>
+                                        <WalletIconName type={connectorName}/>
+                                    </Box>
+                                </Flex>
+                            </Stack>
+                        ) : null;
+
+                    }  else {
+                        return (
+                            <Stack spacing={8} key={connectorName}>
+                                <Flex cursor="pointer" p={isMobile? 0: 3} mb={isMobile? 2: 5} boxShadow={shadow} rounded="lg"
+                                      _hover={{bgGradient: gradient}}
+                                      disabled={disabled}
+                                      onClick={() => {
+                                          setActivatingConnector(currentConnector);
+                                          // @ts-ignore
+                                          activate(connectorsByName[connectorName]);
+                                      }}>
+                                    <Box p="4" fontSize={20}>
+                                        {activating && (
+                                            <Spinner
+                                                mr={2} thickness="1px" speed="0.65s"
+                                                emptyColor="blue.200" color="teal.500"
+                                                size="xs" label="loading"
+                                            />
+                                        )}
+                                        {connected && !error && (
+                                            <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>
+                                        )}
+
+                                        {connected && error && (
+                                            <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>
+                                        )}
+                                        {connectorName}
+                                    </Box>
+                                    <Spacer/>
+                                    <Box p={4}>
+                                        <WalletIconName type={connectorName}/>
+                                    </Box>
+                                </Flex>
+                            </Stack>
+                        );
+                    }})}
             </>
         </Box>
     );

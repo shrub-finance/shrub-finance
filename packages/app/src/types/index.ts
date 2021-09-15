@@ -93,6 +93,10 @@ export type AppOrder = AppCommon & AppSmall & {
 
 export type AppOrderSigned = AppOrder & Signature;
 
+export type IndexedAppOrderSigned = AppOrderSigned & {
+  transactionHash: string;
+}
+
 export type OrderbookStats = {
   bestAsk: string;
   bestBid: string;
@@ -120,6 +124,39 @@ export type OrderBook = {
     buyOrders: AppOrderSigned[];
     sellOrders: AppOrderSigned[];
 }
+
+export type IndexedAppOrderSignedNumbered = IndexedAppOrderSigned & {
+  blockNumber: number
+}
+
+export type UserOrdersState = {[transactionHash: string]: IndexedAppOrderSignedNumbered}
+
+export type UserOrdersAction = { type: 'add', order: IndexedAppOrderSignedNumbered}
+
+export type OptionData = {
+  buyOrdersIndexed: {[positionHash: string]: IndexedAppOrderSigned};
+  sellOrdersIndexed: {[positionHash: string]: IndexedAppOrderSigned};
+  buyOrders: IndexedAppOrderSigned[];
+  sellOrders: IndexedAppOrderSigned[];
+  last: string;
+  ask?: number;
+  bid?: number;
+}
+
+export type OrderBookState = {
+  [quoteAsset : string]: {
+    [baseAsset : string]: {
+      [expiry: string]: {
+        [optionType: string]: {
+          [strike: string]: OptionData;
+        };
+      };
+    };
+  };
+};
+
+// export type OrderBookAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}
+export type OrderBookAction = { type: 'add', orders: IndexedAppOrderSigned[]}
 
 export type Stringify<Type> = {
   [Property in keyof Type]: string;
