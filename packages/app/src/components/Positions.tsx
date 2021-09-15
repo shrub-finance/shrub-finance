@@ -336,13 +336,13 @@ function Positions() {
             <Box fontSize={fluidFontSplit}
             py={fluidPaddingSplit} >
               <Box pb={2} color="gray.500" fontWeight="semibold"   textTransform="uppercase">
-                {shrubBalance.locked[currency]} locked
+                {shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2})} locked
                 <Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">
                   <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
                 </Tooltip>
               </Box>
             <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
-              {shrubBalance.available[currency]} unlocked
+              {shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2})} unlocked
               <Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">
                 <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
               </Tooltip>
