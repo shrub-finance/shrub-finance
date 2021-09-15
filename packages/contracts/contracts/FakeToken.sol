@@ -4,7 +4,7 @@ import "hardhat/console.sol";
 
 
 contract FakeToken is ERC20 {
-  constructor() ERC20("FAKE", "FK") public {
+  constructor() ERC20("FAKE", "FK") {
     _mint(msg.sender, 10000e18);
   }
 }

@@ -4,7 +4,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 
 contract MintBurnToken is ERC20, Ownable {
-  constructor (string memory name, string memory symbol) ERC20(name, symbol) public {}
+  constructor (string memory name, string memory symbol) ERC20(name, symbol) {}
 
   function mint(address mintTo, uint amount) public onlyOwner {
     _mint(mintTo, amount);

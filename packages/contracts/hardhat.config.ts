@@ -112,7 +112,15 @@ const config: HardhatUserConfig & AbiExporter = {
   namedAccounts: {
     deployer: 0,
   },
-  solidity: "0.7.3",
+  solidity: {
+    version: "0.7.3",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 1000,
+      },
+    },
+  },
   gasReporter: {
     currency: "USD",
     enabled: !!process.env.REPORT_GAS,
