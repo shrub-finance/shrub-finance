@@ -511,6 +511,8 @@ contract ShrubExchange {
 
   function unwrapPositionToken(address tokenAddress, uint256 size) public {
     PositionToken storage tokenInfo = positionTokenInfo[tokenAddress];
+    require(tokenInfo.token == tokenAddress, "ShrubExchange: Cannot unwrap a token not deployed by Shrub");
+
     bytes32 positionHash = hashOrderCommon(tokenInfo.common);
 
     MintBurnToken token = MintBurnToken(tokenAddress);
