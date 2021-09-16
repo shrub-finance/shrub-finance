@@ -317,35 +317,35 @@ function Positions() {
   }
   // populate balance table
   for (const currency of Object.keys(Currencies)) {
-    const fluidFontAsset = ['2xl','2xl','3xl','4xl'];
-    const fluidFontSplit = ['sm','sm','lg','lg'];
-    const fluidWidthAsset = [200,270,300,370];
-    const fluidPaddingSplit = [30,10,10,10];
+
+    const balanceSize = totalUserBalance(currency).length
+    const fluidFontAsset = balanceSize > 9? ['md','2xl','3xl','3xl']:['2xl','2xl','3xl','4xl'];
+    const fluidFontSplit = balanceSize > 9? ['xs','sm','lg','md']:['sm','sm','lg','lg'];
+    const fluidWidthAsset = balanceSize > 9? [170,225,300,300]:[200,270,300,370];
+    const fluidWidthSplit = balanceSize > 9? { sm: "300", md: "300", lg: "300", xl: "200" }: "auto";
+    const fluidPaddingSplitY = [30,10,10,10];
+    const fluidPaddingSplitL = [3,3,3,3];
+    const fluidPaddingAssetL = [3,5,3,3];
     shrubfolioRows.push(
         <>
-          <HStack
-              key={currency}
-                  justify="center"
-              
-          >
-          <Box mt="1" fontSize={fluidFontAsset}fontWeight="semibold" lineHeight="tight"
-               minW={fluidWidthAsset}
-          >
+          <HStack key={currency}>
+          <Box mt="1" fontSize={fluidFontAsset} fontWeight="semibold" lineHeight="tight" pl={fluidPaddingAssetL}
+               minW={fluidWidthAsset}>
             {totalUserBalance(currency)} {currency}
           </Box>
-            <Box fontSize={fluidFontSplit}
-            py={fluidPaddingSplit} >
+            <Box fontSize={fluidFontSplit} minW={fluidWidthSplit}
+            py={fluidPaddingSplitY} pl={fluidPaddingSplitL}>
               <Box pb={2} color="gray.500" fontWeight="semibold"   textTransform="uppercase">
                 {shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2})} locked
-                <Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
-                </Tooltip>
+                {/*<Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">*/}
+                {/*  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>*/}
+                {/*</Tooltip>*/}
               </Box>
             <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
               {shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2})} unlocked
-              <Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">
-                <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>
-              </Tooltip>
+              {/*<Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">*/}
+              {/*  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>*/}
+              {/*</Tooltip>*/}
             </Box>
             </Box>
           </HStack>
