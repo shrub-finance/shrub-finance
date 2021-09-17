@@ -80,14 +80,14 @@ function Positions() {
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
   const [localError, setLocalError] = useState('')
-  const [shrubBalance, setShrubBalance] = useState({locked: {ETH: 0, FK: 0}, available: {ETH: 0, FK: 0}} as ShrubBalance);
+  const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SUSD: 0}, available: {MATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast();
   const orderMap = new Map();
   const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
   const {isOpen: isOpenConnectWalletModal, onClose: onCloseConnectWalletModal} = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
-  const [modalCurrency, setModalCurrency] = useState('ETH' as keyof typeof Currencies);
+  const [modalCurrency, setModalCurrency] = useState('MATIC' as keyof typeof Currencies);
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   // radio buttons
   const currencies = Object.keys(Currencies)
@@ -215,7 +215,7 @@ function Positions() {
   }, [active, account, library, pendingTxsState])
   useEffect(() => {
     async function handleApprove(){
-      if (modalCurrency !== 'ETH') {
+      if (modalCurrency !== 'MATIC') {
         const allowance = await getAllowance(Currencies[modalCurrency].address, library);
         if(allowance.gt(ethers.BigNumber.from(0))) {
           setIsApproved(true);
@@ -258,7 +258,7 @@ function Positions() {
   }
   function totalUserBalance(currency: string) {
     const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
-    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2}) ;
+    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) ;
   }
   // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
@@ -272,10 +272,10 @@ function Positions() {
       if (approve === 'approve') {
         tx = await approveToken( Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue || '0'), library);
       } else if (withdrawDepositAction === "Deposit") {
-        if (modalCurrency === "ETH") {
+        if (modalCurrency === "MATIC") {
           tx = await depositEth(ethers.utils.parseUnits(amountValue), library)
         } else {
-          // Deposit FK
+          // Deposit SUSD
           tx = await depositToken(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library);
         }
       } else {
@@ -284,7 +284,7 @@ function Positions() {
       }
       setApproving(false)
       console.log(tx);
-      const description = approve === 'approve' ? 'Approving FK' : `${withdrawDepositAction} ${amountValue} ${modalCurrency}`;
+      const description = approve === 'approve' ? 'Approving SUSD' : `${withdrawDepositAction} ${amountValue} ${modalCurrency}`;
       pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
       setActiveHash(tx.hash);
       try {
@@ -336,13 +336,13 @@ function Positions() {
             <Box fontSize={fluidFontSplit} minW={fluidWidthSplit}
             py={fluidPaddingSplitY} pl={fluidPaddingSplitL}>
               <Box pb={2} color="gray.500" fontWeight="semibold"   textTransform="uppercase">
-                {shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2})} locked
+                {shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} locked
                 {/*<Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">*/}
                 {/*  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>*/}
                 {/*</Tooltip>*/}
               </Box>
             <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
-              {shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2})} unlocked
+              {shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} unlocked
               {/*<Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">*/}
               {/*  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>*/}
               {/*</Tooltip>*/}
@@ -472,7 +472,7 @@ function Positions() {
                     })}
                   </HStack>
                   </FormControl>
-                  {(modalCurrency === "ETH"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
+                  {(modalCurrency === "MATIC"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
                     <FormLabel>Amount</FormLabel>
                     <NumberInput
                         onChange={(valueString) => setAmountValue(parse(valueString))}
@@ -487,7 +487,7 @@ function Positions() {
                     </NumberInput>
                   </FormControl>}
                 </Stack>
-                {modalCurrency !== "ETH" && withdrawDepositAction === "Deposit" && !isApproved &&
+                {modalCurrency !== "MATIC" && withdrawDepositAction === "Deposit" && !isApproved &&
                 <>
                   <Alert
                       bgColor={alertColor}
@@ -512,7 +512,7 @@ function Positions() {
                   </ Button>
                 </>
                 }
-                {((modalCurrency === "ETH")|| isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
+                {((modalCurrency === "MATIC")|| isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
                   {withdrawDepositAction}
                 </Button>}
               </>

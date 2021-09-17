@@ -98,7 +98,7 @@ function OptionsView(props: RouteComponentProps) {
 
   // TODO un-hardcode this
   const quoteAsset = ethers.constants.AddressZero;
-  const baseAsset = process.env.REACT_APP_FK_TOKEN_ADDRESS;
+  const baseAsset = process.env.REACT_APP_SUSD_TOKEN_ADDRESS;
 
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
@@ -184,7 +184,7 @@ function OptionsView(props: RouteComponentProps) {
 
   useEffect(() => {
       if (contractData && contractDataStatus === "fetched" && !contractDataError) {
-        const expiryDatesString = Object.keys(contractData["ETH-FK"]);
+        const expiryDatesString = Object.keys(contractData["MATIC-SUSD"]);
         console.log(expiryDatesString);
         console.log(contractData);
         setExpiryDates(expiryDatesString);
@@ -199,7 +199,7 @@ function OptionsView(props: RouteComponentProps) {
     if(!contractData || !expiryDate || !library) {
       return;
     }
-    const strikeObjPrices = contractData['ETH-FK'][expiryDate][optionType].map((strikeNum) => {
+    const strikeObjPrices = contractData['MATIC-SUSD'][expiryDate][optionType].map((strikeNum) => {
       const strike = ethers.BigNumber.from(strikeNum);
       const common: OrderCommon = {
         baseAsset,
@@ -494,7 +494,7 @@ function OptionsView(props: RouteComponentProps) {
           {/* do not delete, leave it commented out for now*/}
           {/*<RadioCard>*/}
           {/*  Special Dates*/}
-          {/*  <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in ETH land as your expiry. " fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">*/}
+          {/*  <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in MATIC land as your expiry. " fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">*/}
           {/*  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>*/}
           {/*</Tooltip>*/}
           {/*</RadioCard>*/}

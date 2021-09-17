@@ -13,7 +13,7 @@ const apiPort = Number(process.env.API_PORT) || 8000;
 
 const Assets = {
   USDC: "",
-  ETH: "0x0000000000000000000000000000000000000000",
+  MATIC: "0x0000000000000000000000000000000000000000",
 };
 const currentNonce = {};
 
@@ -51,17 +51,17 @@ async function topupAddress(address, value, token, exchange, from) {
   await token.methods.approve(exchange._address, value).send({ from: address });
   await exchange.methods.deposit(token._address, value).send({ from: address });
   await exchange.methods
-    .deposit(Assets.ETH, value)
+    .deposit(Assets.MATIC, value)
     .send({ value, from: address });
 
   await token.methods.approve(exchange._address, value).send({ from });
   await exchange.methods.deposit(token._address, value).send({ from });
-  await exchange.methods.deposit(Assets.ETH, value).send({ value, from });
+  await exchange.methods.deposit(Assets.MATIC, value).send({ value, from });
 }
 
 async function printBalances(address, exchange, order) {
   const ethBalance = await exchange.methods
-    .getAvailableBalance(address, Assets.ETH)
+    .getAvailableBalance(address, Assets.MATIC)
     .call();
   const tokenBalance = await exchange.methods
     .getAvailableBalance(address, Assets.USDC)
