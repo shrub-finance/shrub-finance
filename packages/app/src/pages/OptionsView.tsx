@@ -168,8 +168,8 @@ function OptionsView(props: RouteComponentProps) {
       const sellMatches = await getMatchEvents({sellerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
       const processedBuyMatches = buyMatches.map(userEvent => matchEventToAppOrder(userEvent, 'BUY'));
       const processedSellMatches = sellMatches.map(userEvent => matchEventToAppOrder(userEvent, 'SELL'));
-      tempUserMatches.buy = { ...tempUserMatches.buy, ...processedBuyMatches };
-      tempUserMatches.sell = { ...tempUserMatches.sell, ...processedSellMatches };
+      tempUserMatches.buy = [ ...tempUserMatches.buy, ...processedBuyMatches ];
+      tempUserMatches.sell = [ ...tempUserMatches.sell, ...processedSellMatches ];
       cursor = to + 1;
     }
     // TODO: this should cache in localStorage
