@@ -27,7 +27,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, env) => {
 
 task(
   "fundAccounts",
-  "deposits ETH and FK into first two accounts",
+  "deposits MATIC and SUSD into first two accounts",
   async (taskArgs, env) => {
     const { ethers, deployments } = env;
     const weiInEth = ethers.BigNumber.from(10).pow(18);
@@ -59,7 +59,7 @@ task(
     const fkBalance0 = await fakeToken.balanceOf(account0.address);
     const fkBalance1 = await fakeToken.balanceOf(account1.address);
 
-    // Deposit 10 ETH and 500 FK in the shrubExchange
+    // Deposit 10 MATIC and 500 SUSD in the shrubExchange
     // Ensure that shrubExchange is deployed
     // await shrubExchange.deployTransaction.wait();
     await shrubExchange.deposit(ethers.constants.AddressZero, tenEth, {
@@ -96,7 +96,7 @@ task( 'maker', 'creates limit orders')
   .addOptionalParam('count', 'number of orders to generate', 100, types.int)
   .addOptionalParam('baseIv', 'the centered IV for the generator', 125, types.float)
   .addOptionalParam('ivRange', 'maximum deviation from the baseIv', 50, types.float)
-  .addOptionalParam('ethPrice', 'price of ETH in USD', 2500, types.float)
+  .addOptionalParam('ethPrice', 'price of MATIC in USD', 2500, types.float)
   .addOptionalParam('riskFreeRate', 'annual risk free rate of return (0.05 means 5%)', 0.05, types.float)
   .setAction(
     async (taskArgs, env) => {
@@ -129,7 +129,7 @@ task( 'maker', 'creates limit orders')
         const isBuy = Math.random() * 100 > 50;
         const volatility = ((isBuy ? -1 : 1) * Math.random() * ivRange + baseIv) / 100;
         console.log(`
-          ETH price: ${ethPrice}
+          MATIC price: ${ethPrice}
           strike: ${strikeUsdc}
           time to expiry (years): ${timeToExpiry}
           volatility: ${volatility}

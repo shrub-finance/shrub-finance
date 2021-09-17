@@ -36,7 +36,7 @@ export async function pairExpiryTypeStrike(provider: JsonRpcProvider) {
 
 function getSymbolFor(token: string, provider: JsonRpcProvider) {
   if (token === ethers.constants.AddressZero) {
-    return "ETH";
+    return "MATIC";
   }
   const erc20Contract = FakeToken__factory.connect(token, provider);
   return erc20Contract.symbol();

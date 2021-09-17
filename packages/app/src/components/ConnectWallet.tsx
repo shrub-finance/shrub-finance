@@ -175,7 +175,7 @@ export function Balance() {
                         'Error' :
                         balance
                             // @ts-ignore
-                            ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'ETH'? 6 : 2})} ${currency}`: ''
+                            ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} ${currency}`: ''
                 }
             </Button>
             }

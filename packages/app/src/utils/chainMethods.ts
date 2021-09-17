@@ -69,7 +69,7 @@ export function currencySymbol(chainId: any) {
     if (chainId === SupportedChainId.POLYGON ||  chainId === SupportedChainId.MUMBAI) {
         return 'MATIC'
     }
-    return 'ETH'
+    return 'MATIC'
 }
 
 export function currencyIcon(chainId: any) {

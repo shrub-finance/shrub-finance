@@ -21,14 +21,14 @@ import {JsonRpcProvider} from "@ethersproject/providers";
 
 
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
-const FK_TOKEN_ADDRESS = process.env.REACT_APP_FK_TOKEN_ADDRESS || "";
+const SUSD_TOKEN_ADDRESS = process.env.REACT_APP_SUSD_TOKEN_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id('OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const ORDER_TYPEHASH = ethers.utils.id('Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
-if (!SHRUB_CONTRACT_ADDRESS || !FK_TOKEN_ADDRESS) {
+if (!SHRUB_CONTRACT_ADDRESS || !SUSD_TOKEN_ADDRESS) {
   throw new Error(
-    "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS and REACT_APP_FK_TOKEN_ADDRESS to your .env file"
+    "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS and REACT_APP_SUSD_TOKEN_ADDRESS to your .env file"
   );
 }
 
@@ -160,7 +160,7 @@ export async function getDecimalsFor(token: string, provider: JsonRpcProvider) {
 
 export async function getSymbolFor(token: string, provider: JsonRpcProvider) {
   if (token === ethers.constants.AddressZero) {
-    return 'ETH';
+    return 'MATIC';
   }
   const erc20Contract = FakeToken__factory.connect(token, provider);
   return erc20Contract.symbol();
@@ -170,8 +170,8 @@ export async function getBigWalletBalance(address: string, provider: JsonRpcProv
   const signer = provider.getSigner();
   let bigBalance;
   let decimals = 18;
-  if (address === Currencies.ETH.address) {
-    // Basically it is ETH
+  if (address === Currencies.MATIC.address) {
+    // Basically it is MATIC
     bigBalance = await provider.getBalance(signer.getAddress());
   } else {
     // ERC-20 token logic
@@ -229,7 +229,7 @@ export async function approveToken(
   const allowance = await getAllowance(tokenContractAddress, provider);
   const {bigBalance: ethBalance} = await getBigWalletBalance(ethers.constants.AddressZero, provider);
   if(ethBalance.eq(ethers.constants.Zero)) {
-    throw new Error("Looks like you don't have any ETH in this account. You need that to pay for gas.");
+    throw new Error("Looks like you don't have any MATIC in this account. You need that to pay for gas.");
   }
 
   if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
@@ -539,10 +539,10 @@ export function getPair(baseAsset: string, quoteAsset: string) {
 
 export function addressToLabel(address: string) {
   if (address === ZERO_ADDRESS) {
-    return 'ETH';
+    return 'MATIC';
   }
-  if (process.env.REACT_APP_FK_TOKEN_ADDRESS && address.toLowerCase() === process.env.REACT_APP_FK_TOKEN_ADDRESS.toLowerCase()) {
-    return 'FK';
+  if (process.env.REACT_APP_SUSD_TOKEN_ADDRESS && address.toLowerCase() === process.env.REACT_APP_SUSD_TOKEN_ADDRESS.toLowerCase()) {
+    return 'SUSD';
   }
   return 'XXX'
 }

@@ -66,7 +66,7 @@ Hardhat Commands (These can all be run from the project root):
     yarn hh:test                        # Run contract tests
     yarn hh:gas                         # Run tests with a gas report
     yarn hh:coverage                    # Run coverage on contract tests
-    yarn hh:fundAccounts                # Script to fund account[0] and account[1] and deposit ETH and FK into shrub contract
+    yarn hh:fundAccounts                # Script to fund account[0] and account[1] and deposit MATIC and SUSD into shrub contract
     yarn hh:maker                       # Script to generate orders using announce
     yarn hh:console                     # Console connected to the localhost blockchain (web3 and ethers available along with top level await)
 
@@ -80,7 +80,7 @@ Useful scripts:
 
     yarn script:maker                   # Generates orders and submits them to API
     yarn script:taker                   # Matches an order from the API and executes
-    yarn script:deposit                 # deposits 1 ETH from account[0]
+    yarn script:deposit                 # deposits 1 MATIC from account[0]
 
 # Planned Contract Methods
 
