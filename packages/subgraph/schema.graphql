@@ -1,0 +1,26 @@
+type Order @entity{
+  id: ID!
+  baseAsset: String
+  quoteAsset: String
+  expiry: Int
+  strike: Int
+  optionType: String
+  size: Int
+  isBuy: Boolean
+  nonce: Int
+  price: Int
+  offerExpire: Int
+  fee: Int
+}
+
+type User @entity {
+  id: ID!
+  balance: BigInt
+}
+
+type Gravatar @entity {
+  id: ID!
+  owner: Bytes!
+  displayName: String!
+  imageUrl: String!
+}

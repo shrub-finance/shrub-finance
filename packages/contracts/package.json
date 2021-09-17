@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "start": "yarn hh:compile && hardhat node --show-accounts",
+    "start": "yarn hh:compile && hardhat node --show-accounts --hostname 0.0.0.0",
     "typechain": "yarn typechain:ethers && yarn typechain:web3",
     "typechain:ethers": "typechain --target ethers-v5 --out-dir types/ethers-v5 './abi/**/*.json'",
     "typechain:web3": "typechain --target web3-v1 --out-dir types/web3-v1 './abi/**/*.json'",
