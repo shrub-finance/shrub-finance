@@ -166,8 +166,13 @@ task( 'maker', 'creates limit orders')
       const account = account0
       const shrubContractAccount = ShrubExchange__factory.connect(shrubExchangeDeployed.address, account);
       const orderTypeHash = await shrubContractAccount.ORDER_TYPEHASH();
+
       for (let i = 0; i < count; i++) {
-        const { smallOrder, common } = await generateRandomOrder();
+          const randomOrder = generateRandomOrder();
+          if(!randomOrder) {
+              continue;
+          }
+        const { smallOrder, common } = randomOrder;
         if (!smallOrder || !common) {
           continue;
         }
