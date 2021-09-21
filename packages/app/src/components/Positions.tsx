@@ -243,18 +243,24 @@ function Positions() {
 
   }
   async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string, amount: number) {
-    const key = `${pair}${strike}${expiry}${optionType}`
-    const {common, buyOrder, seller} = orderMap.get(key);
-    const unsignedOrder = {...common, ...buyOrder};
-    const signedOrder = await signOrder(unsignedOrder, library)
-    const tx = await exercise(signedOrder, seller, library)
-    const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
-    pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
-    const receipt = await tx.wait()
-    const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
-    toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
-    pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
-    return tx;
+    try {
+      const key = `${pair}${strike}${expiry}${optionType}`
+      const {common, buyOrder, seller} = orderMap.get(key);
+      const unsignedOrder = {...common, ...buyOrder};
+      const signedOrder = await signOrder(unsignedOrder, library)
+      const tx = await exercise(signedOrder, seller, library)
+      const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
+      pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+      const receipt = await tx.wait()
+      const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
+      toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+      pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+      return tx;
+    } catch (e) {
+      console.error(e);
+      handleErrorMessages({err:e});
+    }
+
   }
   function totalUserBalance(currency: string) {
     const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];

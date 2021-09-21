@@ -1,11 +1,11 @@
 // @ts-ignore
 const ShrubExchange = artifacts.require("ShrubExchange");
 // @ts-ignore
-const FakeToken = artifacts.require("FakeToken");
+const SUSDToken = artifacts.require("SUSDToken");
 
 module.exports = async () => {
   const shrubExchange = await ShrubExchange.new();
   ShrubExchange.setAsDeployed(shrubExchange);
-  const fakeToken = await FakeToken.new();
-  FakeToken.setAsDeployed(fakeToken);
+  const susdToken = await SUSDToken.new();
+  SUSDToken.setAsDeployed(susdToken);
 };

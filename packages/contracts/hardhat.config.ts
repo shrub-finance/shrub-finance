@@ -34,30 +34,30 @@ task(
     const tenEth = ethers.BigNumber.from(10).mul(weiInEth);
     const [account0, account1] = await ethers.getSigners();
     const shrubExchangeDeployment = await deployments.get("ShrubExchange");
-    const fakeTokenDeployment = await deployments.get("FakeToken");
+    const susdTokenDeployment = await deployments.get("SUSDToken");
     const shrubExchange = await ethers.getContractAt(
       "ShrubExchange",
       shrubExchangeDeployment.address
     );
-    const fakeToken = await ethers.getContractAt(
-      "FakeToken",
-      fakeTokenDeployment.address
+    const susdToken = await ethers.getContractAt(
+      "SUSDToken",
+      susdTokenDeployment.address
     );
 
-    // ensure that fakeToken deploy is confirmed
-    // await fakeToken.deployTransaction.wait();
+    // ensure that susdToken deploy is confirmed
+    // await susdToken.deployTransaction.wait();
     await (
-      await fakeToken.approve(
+      await susdToken.approve(
         shrubExchange.address,
         ethers.BigNumber.from(100000).mul(weiInEth)
       )
     ).wait();
-    await fakeToken.transfer(
+    await susdToken.transfer(
       account1.address,
       ethers.BigNumber.from(1000).mul(weiInEth)
     );
-    const fkBalance0 = await fakeToken.balanceOf(account0.address);
-    const fkBalance1 = await fakeToken.balanceOf(account1.address);
+    const susdBalance0 = await susdToken.balanceOf(account0.address);
+    const susdBalance1 = await susdToken.balanceOf(account1.address);
 
     // Deposit 10 MATIC and 500 SUSD in the shrubExchange
     // Ensure that shrubExchange is deployed
@@ -66,15 +66,15 @@ task(
       value: tenEth,
     });
     await shrubExchange.deposit(
-      fakeToken.address,
+      susdToken.address,
       ethers.BigNumber.from(85000).mul(weiInEth)
     );
 
     // Setup contracts for account1
-    const fakeTokenAcct1 = fakeToken.connect(account1);
+    const susdTokenAcct1 = susdToken.connect(account1);
     const shrubExchangeAcct1 = shrubExchange.connect(account1);
     await (
-      await fakeTokenAcct1.approve(
+      await susdTokenAcct1.approve(
         shrubExchange.address,
         ethers.BigNumber.from(10000).mul(weiInEth)
       )
@@ -83,12 +83,12 @@ task(
       value: tenEth,
     });
     await shrubExchangeAcct1.deposit(
-      fakeToken.address,
+      susdToken.address,
       ethers.BigNumber.from(500).mul(weiInEth)
     );
 
     console.log(`ShrubContractAddress: ${shrubExchange.address}`);
-    console.log(`FkContractAddress: ${fakeToken.address}`);
+    console.log(`SUSDContractAddress: ${susdToken.address}`);
   }
 );
 
@@ -107,14 +107,14 @@ task( 'maker', 'creates limit orders')
       const WeiInEth = ethers.constants.WeiPerEther
       const [account0, account1] = await ethers.getSigners();
       const shrubExchangeDeployment = await deployments.get("ShrubExchange");
-      const fakeTokenDeployment = await deployments.get("FakeToken");
+      const susdTokenDeployment = await deployments.get("SUSDToken");
       const shrubExchangeDeployed = await ethers.getContractAt(
         "ShrubExchange",
         shrubExchangeDeployment.address
       );
-      const fakeToken = await ethers.getContractAt(
-        "FakeToken",
-        fakeTokenDeployment.address
+      const susdToken = await ethers.getContractAt(
+        "SUSDToken",
+        susdTokenDeployment.address
       );
       const shrubInterface = new Shrub712(17, shrubExchangeDeployment.address);
       function getRandomContract() {
@@ -153,7 +153,7 @@ task( 'maker', 'creates limit orders')
           offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
         }
         const common: OrderCommon = {
-          baseAsset: fakeToken.address,
+          baseAsset: susdToken.address,
           quoteAsset: ethers.constants.AddressZero,
           expiry,
           strike,

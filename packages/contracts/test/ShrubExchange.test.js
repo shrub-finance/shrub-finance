@@ -1,5 +1,5 @@
 const Exchange = artifacts.require("ShrubExchange");
-const FakeToken = artifacts.require("FakeToken");
+const SUSDToken = artifacts.require("SUSDToken");
 const { Shrub712 } = require("../utils/EIP712");
 const utils = require("ethereumjs-util");
 const { assert } = require("chai");
@@ -21,7 +21,7 @@ const wait = util.promisify(setTimeout);
 contract("ShrubExchange", (accounts) => {
   let exchange;
   let shrubInterface;
-  let fakeToken;
+  let susdToken;
   let orderTypeHash;
 
   const startTime = Date.now();
@@ -48,12 +48,12 @@ contract("ShrubExchange", (accounts) => {
   before(async () => {
     exchange = await Exchange.deployed();
     shrubInterface = new Shrub712(17, exchange.address);
-    fakeToken = await FakeToken.deployed();
+    susdToken = await SUSDToken.deployed();
     orderTypeHash = await exchange.ORDER_TYPEHASH.call();
 
-    Assets.USDC = fakeToken.address;
-    sellOrder.baseAsset = fakeToken.address;
-    buyOrder.baseAsset = fakeToken.address;
+    Assets.USDC = susdToken.address;
+    sellOrder.baseAsset = susdToken.address;
+    buyOrder.baseAsset = susdToken.address;
 
     console.log("Sending tokens to buyer account");
     if (accounts.length < 2) {
@@ -63,7 +63,7 @@ contract("ShrubExchange", (accounts) => {
       accounts.push(created.address);
     }
     console.log({ accounts });
-    await fakeToken.transfer(accounts[1], WeiInEth.mul(web3.utils.toBN(10000)), { from: accounts[0] });
+    await susdToken.transfer(accounts[1], WeiInEth.mul(web3.utils.toBN(10000)), { from: accounts[0] });
   });
 
   it("should hash an order and match the contract's hash", async () => {
@@ -176,8 +176,8 @@ contract("ShrubExchange", (accounts) => {
     await exchange.deposit(Assets.MATIC, WeiInEth.mul(BigHundred).mul(BigTwo), { value: WeiInEth.mul(BigHundred).mul(BigTwo), from: seller });
 
     // Deposit ERC20 to pay PRICE
-    await fakeToken.approve(exchange.address, WeiInEth.mul(BigHundred), { from: buyer });
-    await exchange.deposit(fakeToken.address, WeiInEth.mul(BigHundred), { from: buyer });
+    await susdToken.approve(exchange.address, WeiInEth.mul(BigHundred), { from: buyer });
+    await exchange.deposit(susdToken.address, WeiInEth.mul(BigHundred), { from: buyer });
 
     // Sign orders
     const signedSellOrder = await shrubInterface.signOrderWithWeb3(
@@ -293,7 +293,7 @@ contract("ShrubExchange", (accounts) => {
 
     // Make sure the buyer paid us sellOrder.price
     const paidToken =
-      sellOrder.optionType == 1 ? fakeToken.address : Assets.MATIC;
+      sellOrder.optionType == 1 ? susdToken.address : Assets.MATIC;
     const paidBalance = await exchange.userTokenBalances(seller, paidToken);
     assert.equal(paidBalance, smallSellOrder.price);
     const paid = { paidToken, paidBalance: paidBalance.toString() };
@@ -310,8 +310,8 @@ contract("ShrubExchange", (accounts) => {
     await exchange.deposit(Assets.MATIC, BigTwo.mul(BigHundred).mul(WeiInEth), { value: BigTwo.mul(BigHundred).mul(WeiInEth), from: seller });
 
     // Deposit ERC20 to pay PRICE
-    await fakeToken.approve(exchange.address, web3.utils.toBN(300).mul(WeiInEth), { from: buyer });
-    await exchange.deposit(fakeToken.address, web3.utils.toBN(300).mul(WeiInEth), { from: buyer });
+    await susdToken.approve(exchange.address, web3.utils.toBN(300).mul(WeiInEth), { from: buyer });
+    await exchange.deposit(susdToken.address, web3.utils.toBN(300).mul(WeiInEth), { from: buyer });
 
 
 
@@ -437,7 +437,7 @@ contract("ShrubExchange", (accounts) => {
 
     // Make sure the buyer paid us sellOrder.price
     const paidToken =
-      sellOrder.optionType == 1 ? fakeToken.address : Assets.MATIC;
+      sellOrder.optionType == 1 ? susdToken.address : Assets.MATIC;
     const paidBalance = (await exchange.userTokenBalances(seller, paidToken));
     assert.isTrue(paidBalance.sub(sellerTokenBalanceBefore).eq(web3.utils.toBN(300).mul(WeiInEth)));
     const paid = { paidToken, paidBalance };
@@ -446,7 +446,7 @@ contract("ShrubExchange", (accounts) => {
   });
 
   it("should have an option position", async () => {
-    const fakeToken = await FakeToken.deployed();
+    const susdToken = await SUSDToken.deployed();
     const exchange = await Exchange.deployed();
 
     const common = shrubInterface.toCommon(buyOrder);
@@ -468,7 +468,7 @@ contract("ShrubExchange", (accounts) => {
     const seller = accounts[0];
     const buyer = accounts[1];
 
-    const fakeToken = await FakeToken.deployed();
+    const susdToken = await SUSDToken.deployed();
     const exchange = await Exchange.deployed();
 
     const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
@@ -488,20 +488,20 @@ contract("ShrubExchange", (accounts) => {
       web3.utils.toBN(buyOrder.size)
       .mul(web3.utils.toBN(buyOrder.strike))
       .div(web3.utils.toBN(STRIKE_BASE_SHIFT));
-    await fakeToken.approve(exchange.address, totalPrice, {
+    await susdToken.approve(exchange.address, totalPrice, {
       from: buyer,
     });
-    await exchange.deposit(fakeToken.address, totalPrice, {
+    await exchange.deposit(susdToken.address, totalPrice, {
       from: buyer,
     });
 
     const poolBalanceBefore = await exchange.positionPoolTokenBalance(
       commonHash,
-      fakeToken.address
+      susdToken.address
     );
     const buyerBalanceBefore = await exchange.userTokenBalances(
       buyer,
-      fakeToken.address
+      susdToken.address
     );
 
 
@@ -510,11 +510,11 @@ contract("ShrubExchange", (accounts) => {
 
     const poolBalanceAfter = await exchange.positionPoolTokenBalance(
       commonHash,
-      fakeToken.address
+      susdToken.address
     );
     const buyerBalanceAfter = await exchange.userTokenBalances(
       buyer,
-      fakeToken.address
+      susdToken.address
     );
 
     assert.isTrue(
@@ -533,7 +533,7 @@ contract("ShrubExchange", (accounts) => {
   });
 
   it("should be able to claim funds as a seller that has been exercised against", async () => {
-    const fakeToken = await FakeToken.deployed();
+    const susdToken = await SUSDToken.deployed();
     const exchange = await Exchange.deployed();
 
     const common = shrubInterface.toCommon(buyOrder);
@@ -547,7 +547,7 @@ contract("ShrubExchange", (accounts) => {
 
     const sellerBalanceBefore = await exchange.userTokenBalances(
       seller,
-      fakeToken.address
+      susdToken.address
     );
 
     assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 MATIC");
@@ -572,7 +572,7 @@ contract("ShrubExchange", (accounts) => {
 
     const sellerBalanceAfter = await exchange.userTokenBalances(
       seller,
-      fakeToken.address
+      susdToken.address
     );
 
     const baseBalanceAfter = (await exchange.userTokenBalances(
