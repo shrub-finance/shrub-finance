@@ -1,21 +1,77 @@
 type Order @entity{
   id: ID!
-  baseAsset: String
-  quoteAsset: String
-  expiry: Int
-  strike: Int
-  optionType: String
-  size: Int
-  isBuy: Boolean
-  nonce: Int
-  price: Int
-  offerExpire: Int
-  fee: Int
+  option: Option!
+  size: BigDecimal!
+  isBuy: Boolean!
+  nonce: Int!
+  price: BigDecimal!
+  offerExpire: Int!
+  fee: BigDecimal!
+}
+
+type OptionPosition @entity {
+  id: ID!
+  user: User!
+  option: Option!
+  balance: BigDecimal!
+  block: Int!
+  timestamp: Int!
+}
+
+type UserMatch @entity {
+  id: ID!
+  user: User!
+  match: Match!
+}
+
+type Match @entity {
+  id: ID!
+  buyOrder: Order!
+  sellOrder: Order!
+  totalFee: BigDecimal!
+  size: BigDecimal!
+  finalPrice: BigDecimal!
+  finalPricePerContract: BigDecimal!
+  block: Int!
+  timestamp: Int!
+  userMatches: [UserMatch!]! @derivedFrom(field: "match")
+}
+
+type Option @entity {
+  id: ID!
+  name: String
+  baseAsset: Token!
+  quoteAsset: Token!
+  expiry: Int!
+  strike: BigDecimal!
+  optionType: String!
+  lastPrice: BigDecimal
+  openInterest: BigDecimal!
+  orders: [Order!]! @derivedFrom(field: "option")
 }
 
 type User @entity {
   id: ID!
-  balance: BigInt
+  tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
+  userMatches: [UserMatch!]! @derivedFrom(field: "user")
+}
+
+type Token @entity {
+  id: ID!
+  symbol: String!
+  name: String!
+  decimals: BigInt!
+}
+
+type TokenBalance @entity {
+  id: ID!
+  user: User!
+  token: Token!
+  unlockedBalance: BigDecimal!
+  lockedBalance: BigDecimal!
+#  snapshots: [TokenBalanceSnapshot!]!
+  block: Int!
+  timestamp: Int!
 }
 
 type Gravatar @entity {

@@ -18,9 +18,14 @@ dataSources:
       entities:
         - Gravatar
         - Order
+        - Option
+        - Token
+        - User
       abis:
         - name: ShrubExchange
           file: ../contracts/abi/ShrubExchange.json
+        - name: ERC20
+          file: ../contracts/abi/ERC20.json
 #        - name: Gravity
 #          file: ./abis/Gravity.json
       eventHandlers:
