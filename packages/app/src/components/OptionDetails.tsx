@@ -185,7 +185,6 @@ const {
             console.log(pendingTxsState);
             setApproving(false);
         } catch (e) {
-            handleErrorMessages({err:e});
             console.error(e);
             setApproving(false);
             handleErrorMessages({err:e});

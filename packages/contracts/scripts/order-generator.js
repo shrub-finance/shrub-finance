@@ -1,6 +1,6 @@
 const { Shrub712 } = require("../utils/EIP712");
 const ExchangeJson = require("../deployments/localhost/ShrubExchange.json");
-const TokenJson = require("../deployments/localhost/FakeToken.json");
+const TokenJson = require("../deployments/localhost/SUSDToken.json");
 const Web3 = require("web3");
 const util = require("util");
 const fetch = require("node-fetch");

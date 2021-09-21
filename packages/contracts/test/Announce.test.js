@@ -1,5 +1,5 @@
 const Exchange = artifacts.require("ShrubExchange");
-const FakeToken = artifacts.require("FakeToken");
+const SUSDToken = artifacts.require("SUSDToken");
 const { Shrub712 } = require("../utils/EIP712");
 const utils = require("ethereumjs-util");
 
@@ -22,7 +22,7 @@ const BigMillion = web3.utils.toBN(1e6);
 contract("ShrubExchange::announce", (accounts) => {
   let exchange;
   let shrubInterface;
-  let fakeToken;
+  let susdToken;
   let orderTypeHash;
 
   let sellOrder = {
@@ -44,11 +44,11 @@ contract("ShrubExchange::announce", (accounts) => {
   before(async () => {
     exchange = await Exchange.deployed();
     shrubInterface = new Shrub712(17, exchange.address);
-    fakeToken = await FakeToken.deployed();
+    susdToken = await SUSDToken.deployed();
     orderTypeHash = await exchange.ORDER_TYPEHASH.call();
 
-    Assets.USDC = fakeToken.address;
-    sellOrder.baseAsset = fakeToken.address;
+    Assets.USDC = susdToken.address;
+    sellOrder.baseAsset = susdToken.address;
   });
 
   it("should be able to announce an order", async () => {

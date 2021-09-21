@@ -1,5 +1,5 @@
 import {BytesLike, ethers} from "ethers";
-import {FakeToken__factory, ShrubExchange} from "@shrub/contracts/types/ethers-v5";
+import {SUSDToken__factory, ShrubExchange} from "@shrub/contracts/types/ethers-v5";
 import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
@@ -154,7 +154,7 @@ export async function getDecimalsFor(token: string, provider: JsonRpcProvider) {
     return decimals;
   }
 
-  const erc20Contract = FakeToken__factory.connect(token, provider)
+  const erc20Contract = SUSDToken__factory.connect(token, provider)
   return erc20Contract.decimals();
 }
 
@@ -162,7 +162,7 @@ export async function getSymbolFor(token: string, provider: JsonRpcProvider) {
   if (token === ethers.constants.AddressZero) {
     return 'MATIC';
   }
-  const erc20Contract = FakeToken__factory.connect(token, provider);
+  const erc20Contract = SUSDToken__factory.connect(token, provider);
   return erc20Contract.symbol();
 }
 
@@ -175,7 +175,7 @@ export async function getBigWalletBalance(address: string, provider: JsonRpcProv
     bigBalance = await provider.getBalance(signer.getAddress());
   } else {
     // ERC-20 token logic
-    const erc20Contract = FakeToken__factory.connect(address, provider)
+    const erc20Contract = SUSDToken__factory.connect(address, provider)
     const signerAddress = await signer.getAddress();
     bigBalance = await erc20Contract.balanceOf(signerAddress);
     decimals = await erc20Contract.decimals();
@@ -199,7 +199,7 @@ export async function getAllowance(
     provider: JsonRpcProvider,
 ) {
   const signer = provider.getSigner();
-  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
+  const erc20Contract = SUSDToken__factory.connect(tokenContractAddress, signer);
   const signerAddress = await signer.getAddress();
   return await erc20Contract.allowance(signerAddress, SHRUB_CONTRACT_ADDRESS);
 }
@@ -225,7 +225,7 @@ export async function approveToken(
 ) {
   const signer = provider.getSigner();
   const bigAmount = amount;
-  const erc20Contract = FakeToken__factory.connect(tokenContractAddress, signer);
+  const erc20Contract = SUSDToken__factory.connect(tokenContractAddress, signer);
   const allowance = await getAllowance(tokenContractAddress, provider);
   const {bigBalance: ethBalance} = await getBigWalletBalance(ethers.constants.AddressZero, provider);
   if(ethBalance.eq(ethers.constants.Zero)) {
