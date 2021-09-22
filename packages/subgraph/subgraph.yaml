@@ -17,7 +17,8 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Gravatar
-        - Order
+        - BuyOrder
+        - SellOrder
         - Option
         - Token
         - User

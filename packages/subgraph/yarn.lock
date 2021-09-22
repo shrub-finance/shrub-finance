@@ -109,12 +109,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@protofire/subgraph-prettier-config@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@protofire/subgraph-prettier-config@npm:0.1.1"
+  peerDependencies:
+    "@graphprotocol/graph-ts": ">=0.12.0"
+    prettier: ">=1.17.0"
+  checksum: a0cfee1056ac4aca49c91617473154ec031ddd5522aa0df7cc8cde9bab6c0ca47a2616d227f75ad1ec71e32a1e44a64d35b4051478d6f102bd6eae90aa8a95ba
+  languageName: node
+  linkType: hard
+
+"@protofire/subgraph-toolkit@npm:0.1.2":
+  version: 0.1.2
+  resolution: "@protofire/subgraph-toolkit@npm:0.1.2"
+  dependencies:
+    "@protofire/subgraph-prettier-config": ^0.1.1
+  peerDependencies:
+    "@graphprotocol/graph-ts": ">=0.20.0"
+  checksum: eb3c3c10eef1f89c8abb24b81f2d31d69b08653424be12059bdccf705163d710ff219840b4e39c18af5246d6915f0ffb4eef739f2754f54bf68f9c49b69c988b
+  languageName: node
+  linkType: hard
+
 "@shrub/subgraph@workspace:.":
   version: 0.0.0-use.local
   resolution: "@shrub/subgraph@workspace:."
   dependencies:
     "@graphprotocol/graph-cli": ^0.20.1
     "@graphprotocol/graph-ts": ^0.20.0
+    "@protofire/subgraph-toolkit": 0.1.2
     babel-polyfill: ^6.26.0
     babel-register: ^6.26.0
     truffle: ^5.0.4

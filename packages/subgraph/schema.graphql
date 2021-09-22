@@ -1,18 +1,46 @@
-type Order @entity{
+type BuyOrder @entity{
   id: ID!
-  option: Option!
+#  option: Option!
+#  user: User!
+  userOption: UserOption!
   size: BigDecimal!
-  isBuy: Boolean!
   nonce: Int!
   price: BigDecimal!
+  pricePerContract: BigDecimal!
+  expiredNonce: Boolean!
+  funded: Boolean!
   offerExpire: Int!
   fee: BigDecimal!
+  block: Int!
+  timestamp: Int!
+  matches: [Match!]! @derivedFrom(field: "buyOrder")
+  cancelDate: Int!
+}
+
+type SellOrder @entity{
+  id: ID!
+#  option: Option!
+#  user: User!
+  userOption: UserOption!
+  size: BigDecimal!
+  nonce: Int!
+  price: BigDecimal!
+  pricePerContract: BigDecimal!
+  expiredNonce: Boolean!
+  funded: Boolean!
+  offerExpire: Int!
+  fee: BigDecimal!
+  block: Int!
+  timestamp: Int!
+  matches: [Match!]! @derivedFrom(field: "sellOrder")
+  cancelDate: Int!
 }
 
 type OptionPosition @entity {
   id: ID!
-  user: User!
-  option: Option!
+#  user: User!
+#  option: Option!
+  userOption: UserOption!
   balance: BigDecimal!
   block: Int!
   timestamp: Int!
@@ -26,8 +54,8 @@ type UserMatch @entity {
 
 type Match @entity {
   id: ID!
-  buyOrder: Order!
-  sellOrder: Order!
+  buyOrder: BuyOrder!
+  sellOrder: SellOrder!
   totalFee: BigDecimal!
   size: BigDecimal!
   finalPrice: BigDecimal!
@@ -47,20 +75,34 @@ type Option @entity {
   optionType: String!
   lastPrice: BigDecimal
   openInterest: BigDecimal!
-  orders: [Order!]! @derivedFrom(field: "option")
+  userOptions: [UserOption!]! @derivedFrom(field: "option")
+#  buyOrders: [BuyOrder!]! @derivedFrom(field: "option")
+#  sellOrders: [SellOrder!]! @derivedFrom(field: "option")
 }
 
 type User @entity {
   id: ID!
   tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
   userMatches: [UserMatch!]! @derivedFrom(field: "user")
+  userOptions: [UserOption!]! @derivedFrom(field: "user")
+#  buyOrders: [BuyOrder!]! @derivedFrom(field: "user")
+#  sellOrders: [SellOrder!]! @derivedFrom(field: "user")
+}
+
+type UserOption @entity {
+  id: ID!
+  user: User!
+  option: Option!
+  optionPositions: [OptionPosition!]! @derivedFrom(field: "userOption")
+  buyOrders: [BuyOrder!]! @derivedFrom(field: "userOption")
+  sellOrders: [SellOrder!]! @derivedFrom(field: "userOption")
 }
 
 type Token @entity {
   id: ID!
   symbol: String!
   name: String!
-  decimals: BigInt!
+  decimals: Int!
 }
 
 type TokenBalance @entity {
