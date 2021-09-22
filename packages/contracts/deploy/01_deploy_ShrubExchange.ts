@@ -7,9 +7,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer } = await getNamedAccounts();
 
+  const OrderLib = await deploy("OrderLib", {
+    from: deployer,
+    log: true,
+  });
+
   await deploy("ShrubExchange", {
     from: deployer,
     log: true,
+    libraries: {
+      OrderLib: OrderLib.address,
+    },
   });
 };
 export default func;

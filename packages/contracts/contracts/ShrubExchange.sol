@@ -1,60 +1,22 @@
 pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./OrderLib.sol";
 
 contract ShrubExchange {
 
-  enum OptionType {
-    PUT,
-    CALL
-  }
-
-  // Data that is common between a buy and sell
-  struct OrderCommon {
-    address baseAsset;      // MATIC-USD, USD is the base
-    address quoteAsset;     // MATIC-USD MATIC is the quote
-    uint expiry;            // timestamp expires
-    uint strike;            // The price of the pair
-    OptionType optionType;
-  }
-
-  struct Signature {
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
-  }
-
-
-  // Meant to be hashed with OrderCommon
-  struct SmallOrder {
-    uint size;              // number of contracts in terms of the smallest unit of the quoteAsset (i.e. 1e18 for 1 MATIC call contract)
-    bool isBuy;
-    uint nonce;             // unique id of order
-    uint price;             // total price of the order in terms of the smallest unit of the baseAsset (i.e. 200e6 for an order costing a total of 200 USDC) (price goes up with size)
-    uint offerExpire;       // time this order expires
-    uint fee;               // matcherFee in terms of wei
-  }
-
-  struct Order {
-    uint size;
-    bool isBuy;
-    uint nonce;             // unique id of order
-    uint price;
-    uint offerExpire;       // time this order expires
-    uint fee;               // matcherFee
-
-    address baseAsset;      // MATIC-USD, USD is the base
-    address quoteAsset;     // MATIC-USD MATIC is the quote
-    uint expiry;            // timestamp expires
-    uint strike;            // The price of the pair in terms of the exercise price in the baseAsset times 1e6 (i.e. 2000e6 for a 2000 USDC strike price)
-    OptionType optionType;
-  }
+  using OrderLib for OrderLib.OrderCommon;
+  using OrderLib for OrderLib.SmallOrder;
+  using OrderLib for OrderLib.Order;
+  using OrderLib for OrderLib.OptionType;
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
-  event OrderAnnounce(OrderCommon common, bytes32 indexed positionHash, address indexed user, SmallOrder order, Signature sig);
-  event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
+  event OrderAnnounce(OrderLib.OrderCommon common, bytes32 indexed positionHash, address indexed user, OrderLib.SmallOrder order, OrderLib.Signature sig);
+  event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, OrderLib.SmallOrder sellOrder, OrderLib.SmallOrder buyOrder, OrderLib.OrderCommon common);
 
+
+  bytes32 public ORDER_TYPEHASH = OrderLib.ORDER_TYPEHASH;
   mapping(address => mapping(bytes32 => uint)) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
@@ -65,91 +27,16 @@ contract ShrubExchange {
 
   mapping(address => mapping(bytes32 => int)) public userOptionPosition;
 
-  address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
 
   // Used to shift price and strike up and down by factors of 1 million
   uint private constant BASE_SHIFT = 1000000;
-
-  bytes32 public constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
-  bytes public constant EIP712_DOMAIN = "EIP712Domain(string name, string version, uint256 chainId, address verifyingContract, bytes32 salt)";
-  bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
-  bytes32 public constant DOMAIN_SEPARATOR = keccak256(abi.encode(
-    EIP712_DOMAIN_TYPEHASH,
-    keccak256("Shrub Trade"),
-    keccak256("1"),
-    1,
-    0x6e80C53f2cdCad7843aD765E4918298427AaC550,
-    SALT
-  ));
-
-  bytes32 public constant ORDER_TYPEHASH = keccak256("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
-
-  bytes32 public constant COMMON_TYPEHASH = keccak256("OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
 
   function min(uint256 a, uint256 b) pure private returns (uint256) {
     return a < b ? a : b;
   }
 
-  function getCommonFromOrder(Order memory order) internal pure returns (OrderCommon memory common) {
-    return OrderCommon({
-      baseAsset: order.baseAsset,
-      quoteAsset: order.quoteAsset,
-      expiry: order.expiry,
-      strike: order.strike,
-      optionType: order.optionType
-    });
-  }
-
-  function hashOrder(Order memory order) public pure returns (bytes32) {
-    return keccak256(abi.encodePacked(
-      ORDER_TYPEHASH,
-      order.size,
-      order.isBuy,
-      order.nonce,
-      order.price,
-      order.offerExpire,
-      order.fee,
-
-      order.baseAsset,
-      order.quoteAsset,
-      order.expiry,
-      order.strike,
-      order.optionType
-    ));
-  }
-
-
-  function hashSmallOrder(SmallOrder memory order, OrderCommon memory common) public pure returns (bytes32) {
-    return keccak256(abi.encodePacked(
-      ORDER_TYPEHASH,
-      order.size,
-      order.isBuy,
-      order.nonce,
-      order.price,
-      order.offerExpire,
-      order.fee,
-
-      common.baseAsset,
-      common.quoteAsset,
-      common.expiry,
-      common.strike,
-      common.optionType
-    ));
-  }
-
-  function hashOrderCommon(OrderCommon memory common) public pure returns(bytes32) {
-    return keccak256(abi.encodePacked(
-      COMMON_TYPEHASH,
-      common.baseAsset,
-      common.quoteAsset,
-      common.expiry,
-      common.strike,
-      common.optionType
-    ));
-  }
-
-  function getCurrentNonce(address user, OrderCommon memory common) public view returns(uint) {
-    bytes32 positionHash = hashOrderCommon(common);
+  function getCurrentNonce(address user, OrderLib.OrderCommon memory common) public view returns(uint) {
+    bytes32 positionHash = OrderLib.hashOrderCommon(common);
     return userPairNonce[user][positionHash];
   }
 
@@ -161,37 +48,8 @@ contract ShrubExchange {
     return userTokenBalances[user][asset] - userTokenLockedBalance[user][asset];
   }
 
-  function getSignedHash(bytes32 hash) internal pure returns (bytes32) {
-    return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
-  }
-
-  function validateSignature(address user, bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns(bool) {
-    bytes32 payloadHash = getSignedHash(hash);
-    return ecrecover(payloadHash, v, r, s) == user;
-  }
-
-  function checkOrderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal view returns (bool) {
-    bool matches = true;
-    matches = matches && sellOrder.isBuy == false;
-    matches = matches && buyOrder.isBuy == true;
-
-    matches = matches && sellOrder.offerExpire >= block.timestamp;
-    matches = matches && buyOrder.offerExpire >= block.timestamp;
-    return matches;
-  }
-
-  function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public pure returns(address) {
-    return getAddressFromOrderHash(hashSmallOrder(order, common), sig);
-  }
-
-  function getAddressFromOrderHash(bytes32 orderHash, Signature memory sig) public pure returns(address) {
-    address recovered = ecrecover(getSignedHash(orderHash), sig.v, sig.r, sig.s);
-    require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
-    return recovered;
-  }
-
   function deposit(address token, uint amount) public payable {
-    if(token != ZERO_ADDRESS) {
+    if(token != OrderLib.ZERO_ADDRESS) {
       require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
       userTokenBalances[msg.sender][token] += amount;
     }
@@ -201,18 +59,18 @@ contract ShrubExchange {
     emit Deposit(msg.sender, token, amount);
   }
 
-  function depositAndMatch(address token, uint amount, SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) public payable {
+  function depositAndMatch(address token, uint amount, OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig) public payable {
     deposit(token, amount);
     matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
   }
 
-  function depositAndAnnounce(address token, uint amount, SmallOrder memory order, OrderCommon memory common, Signature memory sig) public payable {
+  function depositAndAnnounce(address token, uint amount, OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, OrderLib.Signature memory sig) public payable {
     deposit(token, amount);
     announce(order, common, sig);
   }
 
 
-  function depositAndMatchMany(address token, uint amount, SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public payable {
+  function depositAndMatchMany(address token, uint amount, OrderLib.SmallOrder[] memory sellOrders, OrderLib.SmallOrder[] memory buyOrders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sellSigs, OrderLib.Signature[] memory buySigs) public payable {
     deposit(token, amount);
     matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
   }
@@ -221,7 +79,7 @@ contract ShrubExchange {
     uint balance = getAvailableBalance(msg.sender, token);
     require(amount <= balance, "Cannot withdraw more than available balance");
     userTokenBalances[msg.sender][token] -= amount;
-    if(token == ZERO_ADDRESS) {
+    if(token == OrderLib.ZERO_ADDRESS) {
       payable(msg.sender).transfer(amount);
     } else {
       require(ERC20(token).transfer(msg.sender, amount), "ERC20 transfer must succeed");
@@ -229,9 +87,18 @@ contract ShrubExchange {
     emit Withdraw(msg.sender, token, amount);
   }
 
-  function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) public {
+  function matchOrder(OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig) public {
     (address buyer, address seller, bytes32 positionHash) = doPartialMatch(sellOrder, buyOrder, common, sellSig, buySig);
     emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
+
+    if(sellOrder.size > buyOrder.size) {
+      partialFill(sellOrder, common, buyOrder.size);
+    }
+
+    if(sellOrder.size < buyOrder.size) {
+      partialFill(buyOrder, common, sellOrder.size);
+    }
+
     userPairNonce[buyer][positionHash] = buyOrder.nonce;
     userPairNonce[seller][positionHash] = sellOrder.nonce;
   }
@@ -242,7 +109,7 @@ contract ShrubExchange {
   }
 
 
-  function getOrderSize(SmallOrder memory order, bytes32 orderHash) internal view returns (uint) {
+  function getOrderSize(OrderLib.SmallOrder memory order, bytes32 orderHash) internal view returns (uint) {
     if(orderPartialFill[orderHash] == 0) {
       return order.size;
     } else {
@@ -250,7 +117,7 @@ contract ShrubExchange {
     }
   }
 
-  function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal pure returns (uint, uint) {
+  function getAdjustedPriceAndFillSize(OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder) internal pure returns (uint, uint) {
     uint fillSize = min(sellOrder.size, buyOrder.size);
     uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
 
@@ -260,7 +127,7 @@ contract ShrubExchange {
     return (fillSize, adjustedPrice);
   }
 
-  function checkValidNonce(address user, bytes32 positionHash, SmallOrder memory order, bytes32 orderHash) internal view returns(bool) {
+  function checkValidNonce(address user, bytes32 positionHash, OrderLib.SmallOrder memory order, bytes32 orderHash) internal view returns(bool) {
     if(getCurrentNonce(user, positionHash) == order.nonce - 1) {
       return true;
     } else {
@@ -270,7 +137,7 @@ contract ShrubExchange {
 
 
 
-  function fillCallOption(address buyer, address seller, OrderCommon memory common, uint fillSize, uint adjustedPrice, bytes32 positionHash) internal {
+  function fillCallOption(address buyer, address seller, OrderLib.OrderCommon memory common, uint fillSize, uint adjustedPrice, bytes32 positionHash) internal {
     require(getAvailableBalance(seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
     require(getAvailableBalance(buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
 
@@ -288,7 +155,7 @@ contract ShrubExchange {
     }
   }
 
-  function fillPutOption(address buyer, address seller, OrderCommon memory common, uint fillSize, uint adjustedPrice, bytes32 positionHash) internal {
+  function fillPutOption(address buyer, address seller, OrderLib.OrderCommon memory common, uint fillSize, uint adjustedPrice, bytes32 positionHash) internal {
     uint lockedCapital = adjustWithRatio(fillSize, common.strike);
 
     require(getAvailableBalance(seller, common.baseAsset) >= lockedCapital, "Put Seller must have enough free collateral");
@@ -307,16 +174,16 @@ contract ShrubExchange {
     }
   }
 
-  function doPartialMatch(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig)
+  function doPartialMatch(OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig)
   internal returns(address, address, bytes32) {
-    require(checkOrderMatches(sellOrder, buyOrder), "Buy and sell order do not match");
-    bytes32 sellOrderHash = hashSmallOrder(sellOrder, common);
-    bytes32 buyOrderHash = hashSmallOrder(buyOrder, common);
+    require(OrderLib.checkOrderMatches(sellOrder, buyOrder), "Buy and sell order do not match");
+    bytes32 sellOrderHash = OrderLib.hashSmallOrder(sellOrder, common);
+    bytes32 buyOrderHash = OrderLib.hashSmallOrder(buyOrder, common);
 
-    address seller = getAddressFromOrderHash(sellOrderHash, sellSig);
-    address buyer = getAddressFromOrderHash(buyOrderHash, buySig);
+    address seller = OrderLib.getAddressFromOrderHash(sellOrderHash, sellSig);
+    address buyer = OrderLib.getAddressFromOrderHash(buyOrderHash, buySig);
     require(seller != buyer, "Seller and Buyer must be different");
-    bytes32 positionHash = hashOrderCommon(common);
+    bytes32 positionHash = OrderLib.hashOrderCommon(common);
 
     require(checkValidNonce(seller, positionHash, sellOrder, sellOrderHash), "Seller nonce incorrect");
     require(checkValidNonce(buyer, positionHash, buyOrder, buyOrderHash), "Buyer nonce incorrect");
@@ -326,11 +193,11 @@ contract ShrubExchange {
 
     (uint fillSize, uint adjustedPrice) = getAdjustedPriceAndFillSize(sellOrder, buyOrder);
 
-    if(common.optionType == OptionType.CALL) {
+    if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.CALL) {
       fillCallOption(buyer, seller, common, fillSize, adjustedPrice, positionHash);
     }
 
-    if(common.optionType == OptionType.PUT) {
+    if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.PUT) {
       fillPutOption(buyer, seller, common, fillSize, adjustedPrice, positionHash);
     }
 
@@ -340,13 +207,13 @@ contract ShrubExchange {
     return (buyer, seller, positionHash);
   }
 
-  function partialFill(SmallOrder memory order, OrderCommon memory common, uint filledSize) internal {
+  function partialFill(OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, uint filledSize) internal {
     if(order.size - filledSize > 0) {
-      orderPartialFill[hashSmallOrder(order, common)] = order.size - filledSize;
+      orderPartialFill[OrderLib.hashSmallOrder(order, common)] = order.size - filledSize;
     }
   }
 
-  function matchOrders(SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public {
+  function matchOrders(OrderLib.SmallOrder[] memory sellOrders, OrderLib.SmallOrder[] memory buyOrders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sellSigs, OrderLib.Signature[] memory buySigs) public {
     uint sellIndex = 0;
     uint buyIndex = 0;
     uint sellFilled = 0;
@@ -354,11 +221,11 @@ contract ShrubExchange {
     uint sellsLen = sellOrders.length;
     uint buysLen = buyOrders.length;
     while(sellIndex < sellOrders.length && buyIndex < buysLen) {
-      SmallOrder memory sellOrder = sellOrders[sellIndex];
-      OrderCommon memory common = commons[sellIndex];
-      Signature memory sellSig = sellSigs[sellIndex];
-      SmallOrder memory buyOrder = buyOrders[buyIndex];
-      Signature memory buySig = buySigs[buyIndex];
+      OrderLib.SmallOrder memory sellOrder = sellOrders[sellIndex];
+      OrderLib.OrderCommon memory common = commons[sellIndex];
+      OrderLib.Signature memory sellSig = sellSigs[sellIndex];
+      OrderLib.SmallOrder memory buyOrder = buyOrders[buyIndex];
+      OrderLib.Signature memory buySig = buySigs[buyIndex];
       (address buyer, address seller, bytes32 positionHash) = doPartialMatch(sellOrder, buyOrder, common, sellSig, buySig);
 
       if(sellOrder.size - sellFilled >= buyOrder.size - buyFilled) {
@@ -387,10 +254,10 @@ contract ShrubExchange {
     }
   }
 
-  function cancel(Order memory order) public {
-    OrderCommon memory common = getCommonFromOrder(order);
-    bytes32 commonHash = hashOrderCommon(common);
-    bytes32 orderHash = hashOrder(order);
+  function cancel(OrderLib.Order memory order) public {
+    OrderLib.OrderCommon memory common = OrderLib.getCommonFromOrder(order);
+    bytes32 commonHash = OrderLib.hashOrderCommon(common);
+    bytes32 orderHash = OrderLib.hashOrder(order);
     if(orderPartialFill[orderHash] > 0) {
       orderPartialFill[orderHash] = 0;
     } else {
@@ -399,9 +266,9 @@ contract ShrubExchange {
     }
   }
 
-  function exercise(uint256 buyOrderSize, OrderCommon memory common) public payable {
+  function exercise(uint256 buyOrderSize, OrderLib.OrderCommon memory common) public payable {
     address buyer = msg.sender;
-    bytes32 positionHash = hashOrderCommon(common);
+    bytes32 positionHash = OrderLib.hashOrderCommon(common);
 
     require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to exercise");
     require(userOptionPosition[buyer][positionHash] >= int(buyOrderSize), "Cannot exercise more than owned");
@@ -413,7 +280,7 @@ contract ShrubExchange {
 
     uint256 totalPaid = adjustWithRatio(buyOrderSize, common.strike);
 
-    if(common.optionType == OptionType.CALL) {
+    if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.CALL) {
       require(positionPoolTokenBalance[positionHash][common.quoteAsset] >= buyOrderSize, "Pool must have enough funds");
       require(userTokenBalances[buyer][common.baseAsset] >= totalPaid, "Buyer must have enough funds to exercise CALL");
 
@@ -429,7 +296,7 @@ contract ShrubExchange {
       // deduct strike * size from buyer
       userTokenBalances[buyer][common.baseAsset] -= totalPaid;
     }
-    if(common.optionType == OptionType.PUT) {
+    if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.PUT) {
       require(positionPoolTokenBalance[positionHash][common.baseAsset] >= totalPaid, "Pool must have enough funds");
       require(userTokenBalances[buyer][common.quoteAsset] >= buyOrderSize, "Buyer must have enough funds to exercise PUT");
 
@@ -447,20 +314,20 @@ contract ShrubExchange {
     }
   }
 
-  function claim(OrderCommon memory common) public {
-    bytes32 positionHash = hashOrderCommon(common);
+  function claim(OrderLib.OrderCommon memory common) public {
+    bytes32 positionHash = OrderLib.hashOrderCommon(common);
     require(userOptionPosition[msg.sender][positionHash] < 0, "Must have sold an option to claim");
     require(common.expiry < block.timestamp, "Cannot claim until options are expired");
 
     uint256 poolOwnership =  uint256(-1 * userOptionPosition[msg.sender][positionHash]);
 
-    if(common.optionType == OptionType.CALL) {
+    if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.CALL) {
       // reset quoteAsset locked balance
       userTokenLockedBalance[msg.sender][common.quoteAsset] -= poolOwnership;
       userTokenBalances[msg.sender][common.quoteAsset] -= poolOwnership;
     }
 
-    if(common.optionType == OptionType.PUT) {
+    if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.PUT) {
       // reset baseAsset locked balance
       userTokenLockedBalance[msg.sender][common.baseAsset] -= poolOwnership;
       userTokenBalances[msg.sender][common.baseAsset] -= poolOwnership;
@@ -482,12 +349,12 @@ contract ShrubExchange {
     userOptionPosition[msg.sender][positionHash] = 0;
   }
 
-  function announce(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public {
-    bytes32 positionHash = hashOrderCommon(common);
-    address user = getAddressFromSignedOrder(order, common, sig);
+  function announce(OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, OrderLib.Signature memory sig) public {
+    bytes32 positionHash = OrderLib.hashOrderCommon(common);
+    address user = OrderLib.getAddressFromSignedOrder(order, common, sig);
     require(getCurrentNonce(user, positionHash) == order.nonce - 1, "User nonce incorrect");
 
-    if(common.optionType == OptionType.CALL) {
+    if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.CALL) {
       if(order.isBuy) {
         require(getAvailableBalance(user, common.baseAsset) >= order.price, "Call Buyer must have enough free collateral");
       } else {
@@ -495,7 +362,7 @@ contract ShrubExchange {
       }
     }
 
-    if(common.optionType == OptionType.PUT) {
+    if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.PUT) {
       if(order.isBuy) {
         require(getAvailableBalance(user, common.baseAsset) >= order.price, "Put Buyer must have enough free collateral");
       } else {
@@ -507,11 +374,47 @@ contract ShrubExchange {
   }
 
 
-  function announceMany(SmallOrder[] memory orders, OrderCommon[] memory commons, Signature[] memory sigs) public {
+  function announceMany(OrderLib.SmallOrder[] memory orders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sigs) public {
     require(orders.length == commons.length, "Array length mismatch");
     require(orders.length == sigs.length, "Array length mismatch");
     for(uint i = 0; i < orders.length; i++) {
       announce(orders[i], commons[i], sigs[i]);
     }
+  }
+
+  function getCommonFromOrder(OrderLib.Order memory order) internal pure returns (OrderLib.OrderCommon memory common) {
+    return OrderLib.getCommonFromOrder(order);
+  }
+
+  function hashOrder(OrderLib.Order memory order) public pure returns (bytes32) {
+    return OrderLib.hashOrder(order);
+  }
+
+  function hashSmallOrder(OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common) public pure returns (bytes32) {
+    return OrderLib.hashSmallOrder(order, common);
+  }
+
+  function hashOrderCommon(OrderLib.OrderCommon memory common) public pure returns(bytes32) {
+    return hashOrderCommon(common);
+  }
+
+  function getSignedHash(bytes32 hash) internal pure returns (bytes32) {
+    return OrderLib.getSignedHash(hash);
+  }
+
+  function validateSignature(address user, bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns(bool) {
+    return OrderLib.validateSignature(user, hash, v, r, s);
+  }
+
+  function checkOrderMatches(OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder) internal view returns (bool) {
+    return OrderLib.checkOrderMatches(sellOrder, buyOrder);
+  }
+
+  function getAddressFromSignedOrder(OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, OrderLib.Signature memory sig) public pure returns(address) {
+    return OrderLib.getAddressFromSignedOrder(order, common, sig);
+  }
+
+  function getAddressFromOrderHash(bytes32 orderHash, OrderLib.Signature memory sig) public pure returns(address) {
+    return OrderLib.getAddressFromOrderHash(orderHash, sig);
   }
 }
