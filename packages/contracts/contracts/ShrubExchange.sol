@@ -341,7 +341,9 @@ contract ShrubExchange {
   }
 
   function partialFill(SmallOrder memory order, OrderCommon memory common, uint filledSize) internal {
-    orderPartialFill[hashSmallOrder(order, common)] = order.size - filledSize;
+    if(order.size - filledSize > 0) {
+      orderPartialFill[hashSmallOrder(order, common)] = order.size - filledSize;
+    }
   }
 
   function matchOrders(SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public {
