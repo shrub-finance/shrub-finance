@@ -54,9 +54,11 @@ contract ShrubExchange {
   event Withdraw(address user, address token, uint amount);
   event OrderAnnounce(OrderCommon common, bytes32 indexed positionHash, address indexed user, SmallOrder order, Signature sig);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
+
   mapping(address => mapping(bytes32 => uint)) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
+  mapping(bytes32 => uint) orderPartialFill;
 
   mapping(bytes32 => mapping(address => uint256)) public positionPoolTokenBalance;
   mapping(bytes32 => uint256) public positionPoolTokenTotalSupply;
@@ -179,7 +181,11 @@ contract ShrubExchange {
   }
 
   function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public pure returns(address) {
-    address recovered = ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s);
+    return getAddressFromOrderHash(hashSmallOrder(order, common), sig);
+  }
+
+  function getAddressFromOrderHash(bytes32 orderHash, Signature memory sig) public pure returns(address) {
+    address recovered = ecrecover(getSignedHash(orderHash), sig.v, sig.r, sig.s);
     require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
     return recovered;
   }
@@ -236,6 +242,14 @@ contract ShrubExchange {
   }
 
 
+  function getOrderSize(SmallOrder memory order, bytes32 orderHash) internal view returns (uint) {
+    if(orderPartialFill[orderHash] == 0) {
+      return order.size;
+    } else {
+      return orderPartialFill[orderHash];
+    }
+  }
+
   function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal pure returns (uint, uint) {
     uint fillSize = min(sellOrder.size, buyOrder.size);
     uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
@@ -246,60 +260,88 @@ contract ShrubExchange {
     return (fillSize, adjustedPrice);
   }
 
+  function checkValidNonce(address user, bytes32 positionHash, SmallOrder memory order, bytes32 orderHash) internal view returns(bool) {
+    if(getCurrentNonce(user, positionHash) == order.nonce - 1) {
+      return true;
+    } else {
+      return orderPartialFill[orderHash] > 0;
+    }
+  }
+
+
+
+  function fillCallOption(address buyer, address seller, OrderCommon memory common, uint fillSize, uint adjustedPrice, bytes32 positionHash) internal {
+    require(getAvailableBalance(seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
+    require(getAvailableBalance(buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
+
+    userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
+    positionPoolTokenBalance[positionHash][common.quoteAsset] += fillSize;
+    positionPoolTokenTotalSupply[positionHash] += fillSize;
+
+    userTokenBalances[seller][common.baseAsset] += adjustedPrice;
+    userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
+
+
+    // unlock buyer's collateral if this user was short
+    if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.quoteAsset] > 0) {
+      userTokenLockedBalance[buyer][common.quoteAsset] -= min(fillSize, userTokenLockedBalance[buyer][common.quoteAsset]);
+    }
+  }
+
+  function fillPutOption(address buyer, address seller, OrderCommon memory common, uint fillSize, uint adjustedPrice, bytes32 positionHash) internal {
+    uint lockedCapital = adjustWithRatio(fillSize, common.strike);
+
+    require(getAvailableBalance(seller, common.baseAsset) >= lockedCapital, "Put Seller must have enough free collateral");
+    require(getAvailableBalance(buyer, common.quoteAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
+
+    userTokenLockedBalance[seller][common.baseAsset] += lockedCapital;
+    positionPoolTokenBalance[positionHash][common.baseAsset] += lockedCapital;
+    positionPoolTokenTotalSupply[positionHash] += lockedCapital;
+
+    userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
+    userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
+
+    // unlock buyer's collateral if this user was short
+    if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.baseAsset] > 0) {
+      userTokenLockedBalance[buyer][common.baseAsset] -= min(lockedCapital, userTokenLockedBalance[buyer][common.baseAsset]);
+    }
+  }
+
   function doPartialMatch(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig)
   internal returns(address, address, bytes32) {
     require(checkOrderMatches(sellOrder, buyOrder), "Buy and sell order do not match");
-    address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
-    address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
+    bytes32 sellOrderHash = hashSmallOrder(sellOrder, common);
+    bytes32 buyOrderHash = hashSmallOrder(buyOrder, common);
+
+    address seller = getAddressFromOrderHash(sellOrderHash, sellSig);
+    address buyer = getAddressFromOrderHash(buyOrderHash, buySig);
     require(seller != buyer, "Seller and Buyer must be different");
     bytes32 positionHash = hashOrderCommon(common);
 
-    require(getCurrentNonce(seller, positionHash) == sellOrder.nonce - 1, "Seller nonce incorrect");
-    require(getCurrentNonce(buyer, positionHash) == buyOrder.nonce - 1, "Buyer nonce incorrect");
+    require(checkValidNonce(seller, positionHash, sellOrder, sellOrderHash), "Seller nonce incorrect");
+    require(checkValidNonce(buyer, positionHash, buyOrder, buyOrderHash), "Buyer nonce incorrect");
+
+    sellOrder.size = getOrderSize(sellOrder, sellOrderHash);
+    buyOrder.size = getOrderSize(buyOrder, buyOrderHash);
 
     (uint fillSize, uint adjustedPrice) = getAdjustedPriceAndFillSize(sellOrder, buyOrder);
 
     if(common.optionType == OptionType.CALL) {
-      require(getAvailableBalance(seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
-
-      userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
-      positionPoolTokenBalance[positionHash][common.quoteAsset] += fillSize;
-      positionPoolTokenTotalSupply[positionHash] += fillSize;
-
-      userTokenBalances[seller][common.baseAsset] += adjustedPrice;
-      userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
-
-
-      // unlock buyer's collateral if this user was short
-      if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.quoteAsset] > 0) {
-        userTokenLockedBalance[buyer][common.quoteAsset] -= min(fillSize, userTokenLockedBalance[buyer][common.quoteAsset]);
-      }
+      fillCallOption(buyer, seller, common, fillSize, adjustedPrice, positionHash);
     }
 
     if(common.optionType == OptionType.PUT) {
-      uint lockedCapital = adjustWithRatio(fillSize, common.strike);
-
-      require(getAvailableBalance(seller, common.baseAsset) >= lockedCapital, "Put Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.quoteAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
-
-      userTokenLockedBalance[seller][common.baseAsset] += lockedCapital;
-      positionPoolTokenBalance[positionHash][common.baseAsset] += lockedCapital;
-      positionPoolTokenTotalSupply[positionHash] += lockedCapital;
-
-      userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
-      userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
-
-      // unlock buyer's collateral if this user was short
-      if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.baseAsset] > 0) {
-        userTokenLockedBalance[buyer][common.baseAsset] -= min(lockedCapital, userTokenLockedBalance[buyer][common.baseAsset]);
-      }
+      fillPutOption(buyer, seller, common, fillSize, adjustedPrice, positionHash);
     }
 
     userOptionPosition[seller][positionHash] -= int(fillSize);
     userOptionPosition[buyer][positionHash] += int(fillSize);
 
     return (buyer, seller, positionHash);
+  }
+
+  function partialFill(SmallOrder memory order, OrderCommon memory common, uint filledSize) internal {
+    orderPartialFill[hashSmallOrder(order, common)] = order.size - filledSize;
   }
 
   function matchOrders(SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public {
@@ -323,7 +365,7 @@ contract ShrubExchange {
         if(sellFilled == sellOrder.size || buyIndex == buysLen) {
           sellIndex++;
           userPairNonce[seller][positionHash] = sellOrder.nonce;
-          // calculate remainder of selling order and add it to internal offers
+          partialFill(sellOrder, common, sellFilled);
           sellFilled = 0;
         }
         emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
@@ -334,7 +376,7 @@ contract ShrubExchange {
         if(buyFilled == buyOrder.size || sellIndex == sellsLen) {
           buyIndex++;
           userPairNonce[buyer][positionHash] = buyOrder.nonce;
-          // calculate remainder of buying order and add it to internal offers
+          partialFill(buyOrder, common, buyFilled);
           buyFilled = 0;
         }
         emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
@@ -344,9 +386,15 @@ contract ShrubExchange {
   }
 
   function cancel(Order memory order) public {
-    bytes32 commonHash = hashOrderCommon(getCommonFromOrder(order));
-    require(order.nonce - 1 >= getCurrentNonce(msg.sender, commonHash), "Invalid order nonce");
-    userPairNonce[msg.sender][commonHash] = order.nonce;
+    OrderCommon memory common = getCommonFromOrder(order);
+    bytes32 commonHash = hashOrderCommon(common);
+    bytes32 orderHash = hashOrder(order);
+    if(orderPartialFill[orderHash] > 0) {
+      orderPartialFill[orderHash] = 0;
+    } else {
+      require(order.nonce - 1 >= getCurrentNonce(msg.sender, commonHash), "Invalid order nonce");
+      userPairNonce[msg.sender][commonHash] = order.nonce;
+    }
   }
 
   function exercise(uint256 buyOrderSize, OrderCommon memory common) public payable {
