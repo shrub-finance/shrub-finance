@@ -58,7 +58,7 @@ contract ShrubExchange {
   mapping(address => mapping(bytes32 => uint)) public userPairNonce;
   mapping(address => mapping(address => uint)) public userTokenBalances;
   mapping(address => mapping(address => uint)) public userTokenLockedBalance;
-  mapping(bytes32 => uint) orderPartialFill;
+  mapping(bytes32 => uint) public orderPartialFill;
 
   mapping(bytes32 => mapping(address => uint256)) public positionPoolTokenBalance;
   mapping(bytes32 => uint256) public positionPoolTokenTotalSupply;
