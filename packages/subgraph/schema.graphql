@@ -1,6 +1,7 @@
 type BuyOrder @entity{
+  "hashSmallOrder"
   id: ID!
-#  option: Option!
+  option: Option!
 #  user: User!
   userOption: UserOption!
   size: BigDecimal!
@@ -13,13 +14,16 @@ type BuyOrder @entity{
   fee: BigDecimal!
   block: Int!
   timestamp: Int!
+  fullyMatched: Boolean!
+  tradable: Boolean!
   matches: [Match!]! @derivedFrom(field: "buyOrder")
   cancelDate: Int!
 }
 
 type SellOrder @entity{
+  "hashSmallOrder"
   id: ID!
-#  option: Option!
+  option: Option!
 #  user: User!
   userOption: UserOption!
   size: BigDecimal!
@@ -32,6 +36,8 @@ type SellOrder @entity{
   fee: BigDecimal!
   block: Int!
   timestamp: Int!
+  fullyMatched: Boolean!
+  tradable: Boolean!
   matches: [Match!]! @derivedFrom(field: "sellOrder")
   cancelDate: Int!
 }
@@ -53,6 +59,7 @@ type UserMatch @entity {
 }
 
 type Match @entity {
+  "buyOrderId-sellOrderId"
   id: ID!
   buyOrder: BuyOrder!
   sellOrder: SellOrder!
@@ -66,6 +73,7 @@ type Match @entity {
 }
 
 type Option @entity {
+  "positionHash"
   id: ID!
   name: String
   baseAsset: Token!
@@ -76,11 +84,12 @@ type Option @entity {
   lastPrice: BigDecimal
   openInterest: BigDecimal!
   userOptions: [UserOption!]! @derivedFrom(field: "option")
-#  buyOrders: [BuyOrder!]! @derivedFrom(field: "option")
-#  sellOrders: [SellOrder!]! @derivedFrom(field: "option")
+  buyOrders: [BuyOrder!]! @derivedFrom(field: "option")
+  sellOrders: [SellOrder!]! @derivedFrom(field: "option")
 }
 
 type User @entity {
+  "address"
   id: ID!
   tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
   userMatches: [UserMatch!]! @derivedFrom(field: "user")
@@ -90,15 +99,21 @@ type User @entity {
 }
 
 type UserOption @entity {
+  "userAddress-positionHash"
   id: ID!
   user: User!
   option: Option!
+  balance: BigDecimal!
+  nonce: BigInt!
   optionPositions: [OptionPosition!]! @derivedFrom(field: "userOption")
   buyOrders: [BuyOrder!]! @derivedFrom(field: "userOption")
   sellOrders: [SellOrder!]! @derivedFrom(field: "userOption")
+  block: Int!
+  timestamp: Int!
 }
 
 type Token @entity {
+  "address"
   id: ID!
   symbol: String!
   name: String!
@@ -106,6 +121,7 @@ type Token @entity {
 }
 
 type TokenBalance @entity {
+  "userAddress-tokenAddress"
   id: ID!
   user: User!
   token: Token!
@@ -114,11 +130,4 @@ type TokenBalance @entity {
 #  snapshots: [TokenBalanceSnapshot!]!
   block: Int!
   timestamp: Int!
-}
-
-type Gravatar @entity {
-  id: ID!
-  owner: Bytes!
-  displayName: String!
-  imageUrl: String!
 }

@@ -38,7 +38,8 @@ export function createSellOrder(
   let order = new SellOrder(id);
   let user = getUser(orderAddress);
   let option = getOption(positionHash, common);
-  order.userOption = getUserOption(user, option).id;
+  order.userOption = getUserOption(user, option, shrubAddress, block).id;
+  order.option = option.id;
   order.size = decimal.fromBigInt(smallOrder.size, getToken(common.quoteAsset).decimals);
   order.nonce = smallOrder.nonce.toI32();
   order.price = decimal.fromBigInt(smallOrder.price, getToken(common.baseAsset).decimals);
@@ -52,6 +53,7 @@ export function createSellOrder(
   order.block = block.number.toI32();
   order.timestamp = block.timestamp.toI32();
   order.cancelDate = 0;
+  order.fullyMatched = false;
   order.save();
   return order;
 }
@@ -68,7 +70,8 @@ export function createBuyOrder(
   let order = new BuyOrder(id);
   let user = getUser(orderAddress);
   let option = getOption(positionHash, common);
-  order.userOption = getUserOption(user, option).id;
+  order.userOption = getUserOption(user, option, shrubAddress, block).id;
+  order.option = option.id;
   order.size = decimal.fromBigInt(smallOrder.size, getToken(common.quoteAsset).decimals);
   order.nonce = smallOrder.nonce.toI32();
   order.price = decimal.fromBigInt(smallOrder.price, getToken(common.baseAsset).decimals);
@@ -82,6 +85,7 @@ export function createBuyOrder(
   order.block = block.number.toI32();
   order.timestamp = block.timestamp.toI32();
   order.cancelDate = 0;
+  order.fullyMatched = false;
   order.save();
   return order;
 }

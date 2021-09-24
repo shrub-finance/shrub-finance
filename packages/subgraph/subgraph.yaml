@@ -16,7 +16,6 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Gravatar
         - BuyOrder
         - SellOrder
         - Option
@@ -27,8 +26,6 @@ dataSources:
           file: ../contracts/abi/ShrubExchange.json
         - name: ERC20
           file: ../contracts/abi/ERC20.json
-#        - name: Gravity
-#          file: ./abis/Gravity.json
       eventHandlers:
         - event: Deposit(address,address,uint256)
           handler: handleDeposit
@@ -38,12 +35,4 @@ dataSources:
           handler: handleOrderAnnounce
         - event: OrderMatched(indexed address,indexed address,bytes32,(uint256,bool,uint256,uint256,uint256,uint256),(uint256,bool,uint256,uint256,uint256,uint256),(address,address,uint256,uint256,uint8))
           handler: handleOrderMatched
-#          common: address,address,uint256,uint256,uint8
-#          smallOrder: uint256,boolean,uint256,uint256,uint256,uint256
-#          sig: uint8,bytes32,bytes32
-
-#        - event: NewGravatar(uint256,address,string,string)
-#          handler: handleNewGravatar
-#        - event: UpdatedGravatar(uint256,address,string,string)
-#          handler: handleUpdatedGravatar
       file: ./src/mapping.ts

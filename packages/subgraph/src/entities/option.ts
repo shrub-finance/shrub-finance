@@ -1,7 +1,11 @@
 import { Option } from "../../generated/schema";
-import {Address, BigDecimal, BigInt, Bytes, log} from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes, log, Value } from '@graphprotocol/graph-ts'
 import { ERC20 } from "../../generated/ShrubExchange/ERC20";
-import {OrderAnnounceCommonStruct} from "../../generated/ShrubExchange/ShrubExchange";
+import {
+  OrderAnnounceCommonStruct,
+  ShrubExchange,
+  ShrubExchange__hashOrderCommonInputCommonStruct,
+} from '../../generated/ShrubExchange/ShrubExchange'
 import {weiToEth} from "../utils"
 import {getToken} from "./token";
 import { decimal } from '@protofire/subgraph-toolkit/index'
@@ -28,6 +32,35 @@ export function getOption(positionHash: Bytes, common: OrderAnnounceCommonStruct
   }
   return option as Option;
 }
+
+// export function getPositionHash(option: Option, shrubAddress: Address): Bytes {
+//   let shrubExchange = ShrubExchange.bind(shrubAddress);
+//   // get baseAsset(): Address {
+//   //   return this[0].toAddress();
+//   // }
+//   //
+//   // get quoteAsset(): Address {
+//   //   return this[1].toAddress();
+//   // }
+//   //
+//   // get expiry(): BigInt {
+//   //   return this[2].toBigInt();
+//   // }
+//   //
+//   // get strike(): BigInt {
+//   //   return this[3].toBigInt();
+//   // }
+//   //
+//   // get optionType(): i32 {
+//   //   return this[4].toI32();
+//   // }
+//   let baseAsset = Value.fromString(option.baseAsset);
+//   let quoteAsset = Value.fromString(option.quoteAsset);
+//   let expiry = Value.fromI32(option.expiry);
+//   let strike = Value.from
+//   let commonStruct = new ShrubExchange__hashOrderCommonInputCommonStruct([Value.fromString(option.baseAsset), option.quoteAsset, option.expiry, option.strike, option.optionType])
+//   shrubExchange.hashOrderCommon(commonStruct)
+// }
 
 export function setOptionOnMatch(positionHash: Bytes, size: BigDecimal, pricePerContract: BigDecimal): void {
   let option = Option.load(positionHash.toHex());

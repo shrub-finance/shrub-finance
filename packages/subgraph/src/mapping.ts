@@ -9,7 +9,7 @@ import {
   ShrubExchange__hashSmallOrderInputOrderStruct,
   ShrubExchange__hashSmallOrderInputCommonStruct, OrderAnnounceCommonStruct, OrderAnnounceOrderStruct,
 } from '../generated/ShrubExchange/ShrubExchange'
-import { Gravatar, BuyOrder, SellOrder, User, Match, Option } from '../generated/schema'
+import { BuyOrder, SellOrder, User, Match, Option } from '../generated/schema'
 import {Address, BigDecimal, BigInt, log} from '@graphprotocol/graph-ts'
 import {getUser} from "./entities/user";
 import {getToken} from "./entities/token";
@@ -96,6 +96,9 @@ export function handleOrderMatched(event: OrderMatched): void {
     if (sellOrderObj == null) {
       sellOrderObj = createSellOrder(shrubAddress, seller, sellOrder as OrderAnnounceOrderStruct, positionHash, common as OrderAnnounceCommonStruct, event.block);
     }
+    // TODO: once we support partial matching, we need to check if the full size of the order has been consumed
+    buyOrderObj.fullyMatched = true;
+    sellOrderObj.fullyMatched = true;
     match.buyOrder = buyOrderObj.id;
     match.sellOrder = sellOrderObj.id;
     match.totalFee = decimal.fromBigInt(buyOrder.fee.plus(sellOrder.fee));
@@ -108,26 +111,8 @@ export function handleOrderMatched(event: OrderMatched): void {
 
     setOptionOnMatch(positionHash, match.size, match.finalPricePerContract);
     // TODO: Check if there are any orders from the users that need to be invalidated due to nonce increment
+    buyOrderObj.save();
+    sellOrderObj.save();
     match.save();
   }
-}
-
-  export function handleNewGravatar(event: NewGravatar): void {
-  let gravatar = new Gravatar(event.params.id.toHex())
-  gravatar.owner = event.params.owner
-  gravatar.displayName = event.params.displayName
-  gravatar.imageUrl = event.params.imageUrl
-  gravatar.save()
-}
-
-export function handleUpdatedGravatar(event: UpdatedGravatar): void {
-  let id = event.params.id.toHex()
-  let gravatar = Gravatar.load(id)
-  if (gravatar == null) {
-    gravatar = new Gravatar(id)
-  }
-  gravatar.owner = event.params.owner
-  gravatar.displayName = event.params.displayName
-  gravatar.imageUrl = event.params.imageUrl
-  gravatar.save()
 }
