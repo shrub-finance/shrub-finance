@@ -1,6 +1,6 @@
 import optionContracts from "./option-contracts.json";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { FakeToken__factory } from "../../contracts/types/ethers-v5";
+import { SUSDToken__factory } from "../../contracts/types/ethers-v5";
 import { ethers } from "ethers";
 
 export async function pairExpiryTypeStrike(provider: JsonRpcProvider) {
@@ -36,9 +36,9 @@ export async function pairExpiryTypeStrike(provider: JsonRpcProvider) {
 
 function getSymbolFor(token: string, provider: JsonRpcProvider) {
   if (token === ethers.constants.AddressZero) {
-    return "ETH";
+    return "MATIC";
   }
-  const erc20Contract = FakeToken__factory.connect(token, provider);
+  const erc20Contract = SUSDToken__factory.connect(token, provider);
   return erc20Contract.symbol();
 }
 

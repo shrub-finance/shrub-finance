@@ -76,7 +76,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     const { approving, setApproving, setActiveHash } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const amountToolTip = `The amount of asset to purchase option for (minimum: 0.000001 ${currencySymbol(chainId)})`
-    const priceToolTip = `The ${'FK'} required to purchase 1 xxx contract (1 ${currencySymbol(chainId)}) `
+    const priceToolTip = `The ${'SUSD'} required to purchase 1 contract (1 ${currencySymbol(chainId)}) `
     const alertColor = useColorModeValue("gray.100", "shrub.300")
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
@@ -185,7 +185,6 @@ const {
             console.log(pendingTxsState);
             setApproving(false);
         } catch (e) {
-            handleErrorMessages({err:e});
             console.error(e);
             setApproving(false);
             handleErrorMessages({err:e});
@@ -224,7 +223,7 @@ const {
             while (remainingSize.gt(Zero)) {
                 const order = localOrderBook[index];
                 if (!order) {
-                    throw new Error('Insufficient market depth for this order');
+                    throw new Error('Insufficient market depth for this order. Try making a smaller order.');
                 }
                 const { address: counterpartyAddress, nonce: orderNonce, size } = order;
                 if (!counterpartyAddress) {
@@ -340,7 +339,7 @@ const {
         }
     }
     // TODO: get the symbols dynamically
-    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${currencySymbol(chainId)} for ${formattedStrike} FK up until ${formattedExpiry}`;
+    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${currencySymbol(chainId)} for ${formattedStrike} SUSD up until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
@@ -421,7 +420,7 @@ const {
                                 <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="yellow">
                                         <Icon as={GiMoneyStack} />
-                                        <TagLabel>{`${formattedStrike} FK`}</TagLabel>
+                                        <TagLabel>{`${formattedStrike} SUSD`}</TagLabel>
                                     </Tag>
                                 </Tooltip>
                             </HStack>

@@ -10,7 +10,6 @@ import {
   Th,
   Td,
   useDisclosure,
-  TableRowProps,
   Flex,
   Spacer,
   SlideFade,
@@ -28,7 +27,6 @@ import {
   Container,
   Center,
   Box,
-  VStack,
   useToast,
   FormControl,
   FormLabel,
@@ -36,7 +34,7 @@ import {
   NumberInputField,
   InputRightElement,
   Stack,
-  useRadioGroup, Tooltip
+  useRadioGroup, Tooltip, Divider
 } from '@chakra-ui/react';
 import {
   depositEth,
@@ -64,17 +62,17 @@ import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
 import {QuestionOutlineIcon} from '@chakra-ui/icons';
+import {currencySymbol} from "../utils/chainMethods";
 
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
 
 function Positions() {
-
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {active, library, account, error: web3Error, chainId} = useWeb3React();
   const alertColor = useColorModeValue("gray.100", "shrub.300");
-  const tableRows: TableRowProps[] = [];
+  const shrubfolioRows = [];
   const tableRowsOptions: any = [];
   const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
   const [isApproved, setIsApproved] = useState(false);
@@ -82,14 +80,14 @@ function Positions() {
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
   const [localError, setLocalError] = useState('')
-  const [shrubBalance, setShrubBalance] = useState({locked: {ETH: 0, FK: 0}, available: {ETH: 0, FK: 0}} as ShrubBalance);
+  const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SUSD: 0}, available: {MATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast();
   const orderMap = new Map();
   const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
   const {isOpen: isOpenConnectWalletModal, onClose: onCloseConnectWalletModal} = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
-  const [modalCurrency, setModalCurrency] = useState('ETH' as keyof typeof Currencies);
+  const [modalCurrency, setModalCurrency] = useState('MATIC' as keyof typeof Currencies);
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   // radio buttons
   const currencies = Object.keys(Currencies)
@@ -101,7 +99,6 @@ function Positions() {
     onChange: (value: SupportedCurrencies) => setModalCurrency(value)
   })
   const currenciesRadiogroup = getRootProps();
-
   // shrub balance display
   useEffect(() => {
     setLocalError('');
@@ -131,7 +128,6 @@ function Positions() {
     shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
-
   // options display
   useEffect(() => {
     async function displayOptionsHandler() {
@@ -200,7 +196,7 @@ function Positions() {
       } else {
         hasOptions.current = false;
         tableRowsOptions.push(
-          <VStack>
+          <Flex>
             <Center w="600px">
               <HelloBud boxSize={200}/>
             </Center>
@@ -209,7 +205,7 @@ function Positions() {
                 You don't have any options yet!
               </Box>
             </Center>
-          </VStack>
+          </Flex>
         )
       }
       setOptionsRows(tableRowsOptions);
@@ -217,11 +213,9 @@ function Positions() {
     displayOptionsHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState])
-
-
   useEffect(() => {
     async function handleApprove(){
-      if (modalCurrency !== 'ETH') {
+      if (modalCurrency !== 'MATIC') {
         const allowance = await getAllowance(Currencies[modalCurrency].address, library);
         if(allowance.gt(ethers.BigNumber.from(0))) {
           setIsApproved(true);
@@ -232,7 +226,6 @@ function Positions() {
     }
     handleApprove();
   }, [modalCurrency, account, pendingTxsState])
-
   function handleWithdrawDepositModalClose() {
     setApproving(false);
     setActiveHash(undefined);
@@ -250,21 +243,28 @@ function Positions() {
 
   }
   async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string, amount: number) {
-    const key = `${pair}${strike}${expiry}${optionType}`
-    const {common, buyOrder, seller} = orderMap.get(key);
-    const unsignedOrder = {...common, ...buyOrder};
-    const signedOrder = await signOrder(unsignedOrder, library)
-    const tx = await exercise(signedOrder, seller, library)
-    const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
-    pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
-    const receipt = await tx.wait()
-    const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
-    toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
-    pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
-    return tx;
+    try {
+      const key = `${pair}${strike}${expiry}${optionType}`
+      const {common, buyOrder, seller} = orderMap.get(key);
+      const unsignedOrder = {...common, ...buyOrder};
+      const signedOrder = await signOrder(unsignedOrder, library)
+      const tx = await exercise(signedOrder, seller, library)
+      const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
+      pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+      const receipt = await tx.wait()
+      const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
+      toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+      pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+      return tx;
+    } catch (e) {
+      console.error(e);
+      handleErrorMessages({err:e});
+    }
+
   }
   function totalUserBalance(currency: string) {
-    return shrubBalance.locked[currency] + shrubBalance.available[currency];
+    const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
+    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) ;
   }
   // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
@@ -278,10 +278,10 @@ function Positions() {
       if (approve === 'approve') {
         tx = await approveToken( Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue || '0'), library);
       } else if (withdrawDepositAction === "Deposit") {
-        if (modalCurrency === "ETH") {
+        if (modalCurrency === "MATIC") {
           tx = await depositEth(ethers.utils.parseUnits(amountValue), library)
         } else {
-          // Deposit FK
+          // Deposit SUSD
           tx = await depositToken(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library);
         }
       } else {
@@ -290,7 +290,7 @@ function Positions() {
       }
       setApproving(false)
       console.log(tx);
-      const description = approve === 'approve' ? 'Approving FK' : `${withdrawDepositAction} ${amountValue} ${modalCurrency}`;
+      const description = approve === 'approve' ? 'Approving SUSD' : `${withdrawDepositAction} ${amountValue} ${modalCurrency}`;
       pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
       setActiveHash(tx.hash);
       try {
@@ -320,18 +320,45 @@ function Positions() {
         handleErrorMessages({customMessage: 'Nothing to withdraw :/'});
       }
     }
-
-
   }
   // populate balance table
   for (const currency of Object.keys(Currencies)) {
-    tableRows.push(
-      <Tr key={currency}>
-        <Td>{currency}</Td>
-        <Td isNumeric>{totalUserBalance(currency)}</Td>
-        <Td isNumeric>{shrubBalance.locked[currency]}</Td>
-        <Td isNumeric>{shrubBalance.available[currency]}</Td>
-      </Tr>
+
+    const balanceSize = totalUserBalance(currency).length
+    const fluidFontAsset = balanceSize > 9? ['md','2xl','3xl','3xl']:['2xl','2xl','3xl','4xl'];
+    const fluidFontSplit = balanceSize > 9? ['xs','sm','lg','md']:['sm','sm','lg','lg'];
+    const fluidWidthAsset = balanceSize > 9? [170,225,300,300]:[200,270,300,370];
+    const fluidWidthSplit = balanceSize > 9? { sm: "300", md: "300", lg: "300", xl: "200" }: "auto";
+    const fluidPaddingSplitY = [30,10,10,10];
+    const fluidPaddingSplitL = [3,3,3,3];
+    const fluidPaddingAssetL = [3,5,3,3];
+    shrubfolioRows.push(
+        <>
+          <HStack key={currency}>
+          <Box mt="1" fontSize={fluidFontAsset} fontWeight="semibold" lineHeight="tight" pl={fluidPaddingAssetL}
+               minW={fluidWidthAsset}>
+            {totalUserBalance(currency)} {currency}
+          </Box>
+            <Box fontSize={fluidFontSplit} minW={fluidWidthSplit}
+            py={fluidPaddingSplitY} pl={fluidPaddingSplitL}>
+              <Box pb={2} color="gray.500" fontWeight="semibold"   textTransform="uppercase">
+                {shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} locked
+                {/*<Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">*/}
+                {/*  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>*/}
+                {/*</Tooltip>*/}
+              </Box>
+            <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
+              {shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} unlocked
+              {/*<Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">*/}
+              {/*  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>*/}
+              {/*</Tooltip>*/}
+            </Box>
+            </Box>
+          </HStack>
+          <Divider
+              _last={{display: "none"}}
+          />
+        </>
     );
   }
   return (
@@ -365,6 +392,7 @@ function Positions() {
           </ModalContent>
         </Modal>
       </Container>
+      {/*withdraw deposit buttons*/}
       <Container mt={50} flex="1" borderRadius="2xl" maxW="container.md">
         <Center>
         <Button colorScheme="teal" variant="outline" borderRadius="full"
@@ -377,34 +405,11 @@ function Positions() {
         </Center>
       </Container>
       {/*asset view*/}
-      <Container mt={50} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">
-        <Table variant="simple" size="lg">
-          <Thead>
-            <Tr>
-              <Th>Asset
-              </Th>
-              <Th isNumeric>Total
-                <Tooltip p={3} label="This is the total amount of assets you have (including locked and unlocked)" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-              <Th isNumeric>Locked
-                <Tooltip p={3} label="This amount is locked as collateral" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-              <Th isNumeric>Unlocked
-                <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                </Tooltip>
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>{tableRows}</Tbody>
-        </Table>
+      <Container  mt={25} borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")}>
+          {shrubfolioRows}
       </Container>
       {/*options view*/}
-      <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.md">
+      <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
         {hasOptions.current ?
           (<Table variant="simple" size="lg">
             <Thead>
@@ -421,7 +426,7 @@ function Positions() {
             </Thead>
             <Tbody>{optionsRows}</Tbody>
           </Table>) : (
-            <VStack>
+            <Flex direction="column">
               <Center>
                 <HelloBud boxSize={200}/>
               </Center>
@@ -437,7 +442,7 @@ function Positions() {
                   Buy Some
                 </Button>
               </Center>
-            </VStack>
+            </Flex>
           )
         }
       </Container>
@@ -473,7 +478,7 @@ function Positions() {
                     })}
                   </HStack>
                   </FormControl>
-                  {(modalCurrency === "ETH"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
+                  {(modalCurrency === "MATIC"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
                     <FormLabel>Amount</FormLabel>
                     <NumberInput
                         onChange={(valueString) => setAmountValue(parse(valueString))}
@@ -488,7 +493,7 @@ function Positions() {
                     </NumberInput>
                   </FormControl>}
                 </Stack>
-                {modalCurrency !== "ETH" && withdrawDepositAction === "Deposit" && !isApproved &&
+                {modalCurrency !== "MATIC" && withdrawDepositAction === "Deposit" && !isApproved &&
                 <>
                   <Alert
                       bgColor={alertColor}
@@ -513,7 +518,7 @@ function Positions() {
                   </ Button>
                 </>
                 }
-                {((modalCurrency === "ETH")|| isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
+                {((modalCurrency === "MATIC")|| isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
                   {withdrawDepositAction}
                 </Button>}
               </>

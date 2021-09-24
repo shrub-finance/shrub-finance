@@ -7,11 +7,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer } = await getNamedAccounts();
 
-  await deploy("FakeToken", {
+  await deploy("SUSDToken", {
     from: deployer,
     log: true,
   });
 };
 export default func;
-func.id = "deploy_fake_token"; // id to prevent re-execution
-func.tags = ["FakeToken"];
+func.id = "deploy_susd_token"; // id to prevent re-execution
+func.tags = ["SUSDToken"];

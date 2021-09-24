@@ -175,7 +175,7 @@ export function Balance() {
                         'Error' :
                         balance
                             // @ts-ignore
-                            ? `${Number(formatEther(balance)).toPrecision(6)} ${currencySymbol(chainId)}`: ''
+                            ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} ${currency}`: ''
                 }
             </Button>
             }
@@ -232,7 +232,7 @@ export function ConnectionStatus({displayStatus}) {
                         </Box>
                     </Flex>
                     <Flex pb={2}>
-                        <Button variant={"ghost"} colorScheme={"teal"} size={"lg"} mr={4} borderRadius="2xl">
+                        <Button variant={"ghost"} colorScheme={"teal"} size={"lg"} mr={4} borderRadius="2xl" onClick={onCopy}>
                             <Account/>
                         </Button>
                     </Flex>
