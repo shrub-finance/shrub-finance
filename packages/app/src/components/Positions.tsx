@@ -73,7 +73,7 @@ function Positions() {
   const {active, library, account, error: web3Error, chainId} = useWeb3React();
   const alertColor = useColorModeValue("gray.100", "shrub.300");
   const shrubfolioRows = [];
-  const tableRowsOptions: any = [];
+  const ownedOptions: any = [];
   const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
   const [isApproved, setIsApproved] = useState(false);
   const [approving, setApproving] = useState(false);
@@ -166,36 +166,46 @@ function Positions() {
               seller: string
             };
           orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
-          tableRowsOptions.push(
-            <Tr>
-              <Td>{pair}</Td>
-              <Td>{strike}</Td>
-              <Td>{expiry}</Td>
-              <Td>{optionType}</Td>
-              <Td>{amount}</Td>
-              <Td>
-                {amount > 0 ? <Button
-                  colorScheme="teal"
-                  size="xs"
-                  onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
-                >
-                  Exercise
-                </Button> : Number(amount) === 0 ? <Button
-                  variant={"ghost"}
-                  isDisabled={true}
-                  colorScheme="teal"
-                  size="xs"
-                >
-                  Exercised
-                </Button> : ''
-                }
-              </Td>
-            </Tr>
+          ownedOptions.push(
+              <Center>
+                <HStack p={5} spacing="80">
+                  <Box mt="1" fontSize={"md"} fontWeight="medium" pl={"auto"}
+                       minW={"auto"}>
+                    <Box>
+                      MATIC ${strike} {optionType === "CALL" ? "Call" : "Buy"}
+                    </Box>
+                      <Box as="span" color="gray.600" fontSize="xs" fontWeight="medium">
+                        {expiry} Exp. {buyOrder.isBuy ? "Buy": "Sell"}
+                      </Box>
+                  </Box>
+                  {amount > 0 && <Box fontSize={"auto"} minW={"auto"}
+                       py={"auto"} pl={"auto"}>
+                    {amount > 0 ? <Button
+                        colorScheme="teal"
+                        borderRadius="full" size={"sm"}
+                        onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
+                    >
+                      Exercise
+                    </Button> : Number(amount) === 0 ? <Button
+                        variant={"ghost"}
+                        isDisabled={true}
+                        colorScheme="teal"
+                        size="xs"
+                    >
+                      Exercised
+                    </Button> : ''
+                    }
+                  </Box>}
+                </HStack>
+                <Divider
+                    _last={{display: "none"}}
+                />
+              </Center>
           )
         }
       } else {
         hasOptions.current = false;
-        tableRowsOptions.push(
+        ownedOptions.push(
           <Flex>
             <Center w="600px">
               <HelloBud boxSize={200}/>
@@ -208,7 +218,7 @@ function Positions() {
           </Flex>
         )
       }
-      setOptionsRows(tableRowsOptions);
+      setOptionsRows(ownedOptions);
     }
     displayOptionsHandler()
       .catch(console.error);
@@ -411,21 +421,9 @@ function Positions() {
       {/*options view*/}
       <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
         {hasOptions.current ?
-          (<Table variant="simple" size="lg">
-            <Thead>
-              <Tr>
-                <Th>Pair</Th>
-                <Th>Strike</Th>
-                <Th>Expiry</Th>
-                <Th>Option Type</Th>
-                <Th>Amount</Th>
-                <Th>
-                  <VisuallyHidden/>
-                </Th>
-              </Tr>
-            </Thead>
-            <Tbody>{optionsRows}</Tbody>
-          </Table>) : (
+          (<Box>
+            {optionsRows}
+          </Box>) : (
             <Flex direction="column">
               <Center>
                 <HelloBud boxSize={200}/>
@@ -442,8 +440,7 @@ function Positions() {
                   Buy Some
                 </Button>
               </Center>
-            </Flex>
-          )
+            </Flex>)
         }
       </Container>
       {/*withdraw deposit modal*/}
