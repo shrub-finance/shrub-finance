@@ -15,9 +15,10 @@ library TokenizeLib {
   function tokenizePosition(AppStateLib.AppState storage self, uint256 size, OrderLib.OrderCommon memory common) public {
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     int exposure = self.userOptionPosition[msg.sender][positionHash];
+
     require(exposure != 0, "Must have an open position to tokenize");
-    require(exposure <= int(size));
     if(exposure > 0) {
+      require(exposure >= int(size));
       // we are tokenizing a long position
 
       MintBurnToken token;
@@ -38,7 +39,7 @@ library TokenizeLib {
       self.userOptionPosition[msg.sender][positionHash] -= int(size);
       token.mint(msg.sender, size);
     } else if(exposure < 0) {
-      revert("ShrubExchange: tokenizing short positions not implemented yet");
+      require(exposure * -1 >= int(size));
       // we are tokenizing a short position
 
       MintBurnToken token;
