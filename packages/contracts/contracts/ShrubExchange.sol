@@ -83,7 +83,7 @@ contract ShrubExchange {
   }
 
   function unwrapPositionToken(address tokenAddress, uint256 size) public {
-    TokenizeLib.unwrapPositionToken(state, tokenAddress, size); 
+    TokenizeLib.unwrapPositionToken(state, tokenAddress, size);
   }
 
   function userOptionPosition(address user, bytes32 positionHash) public view returns (int) {
