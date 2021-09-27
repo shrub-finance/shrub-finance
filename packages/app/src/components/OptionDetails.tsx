@@ -258,6 +258,7 @@ const {
                             throw new Error("Not enough collateral of quoteAsset");
                         }
                     } else {
+                        // Case: PUT
                         // required collateral is strike * size of the baseAsset
                         const balance = await getAvailableBalance({
                             address: counterpartyAddress,
@@ -265,9 +266,11 @@ const {
                             provider: library
                         });
                         console.log(balance.toString());
-                        if (balance.lt(price)) {
-                            throw new Error("Not enough collateral of baseAsset");
-                        }
+                        const pricePerContract = orderBook.sellOrders[0]?.unitPrice.toFixed(2)
+                        // TODO: Add this validation back where it properly checks if the user has sufficient funds to buy the put
+                        // if (balance.lt(ethers.BigNumber.from(pricePerContract).mul(size))) {
+                        //     throw new Error("Not enough collateral of baseAsset");
+                        // }
                     }
                 }
                 // TODO: If selling, check that you have sufficient collateral

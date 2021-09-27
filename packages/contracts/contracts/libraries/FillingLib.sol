@@ -57,14 +57,14 @@ library FillingLib {
     uint lockedCapital = MathLib.adjustWithRatio(fillSize, common.strike);
 
     require(FundsLib.getAvailableBalance(self, seller, common.baseAsset) >= lockedCapital, "Put Seller must have enough free collateral");
-    require(FundsLib.getAvailableBalance(self, buyer, common.quoteAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
+    require(FundsLib.getAvailableBalance(self, buyer, common.baseAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
 
     self.userTokenLockedBalance[seller][common.baseAsset] += lockedCapital;
     self.positionPoolTokenBalance[positionHash][common.baseAsset] += lockedCapital;
     self.positionPoolTokenTotalSupply[positionHash] += lockedCapital;
 
-    self.userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
-    self.userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
+    self.userTokenBalances[seller][common.baseAsset] += adjustedPrice;
+    self.userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
 
     // unlock buyer's collateral if this user was short
     if(self.userOptionPosition[buyer][positionHash] < 0 && self.userTokenLockedBalance[buyer][common.baseAsset] > 0) {
