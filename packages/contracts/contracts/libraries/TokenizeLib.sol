@@ -15,30 +15,50 @@ library TokenizeLib {
   function tokenizePosition(AppStateLib.AppState storage self, uint256 size, OrderLib.OrderCommon memory common) public {
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     int exposure = self.userOptionPosition[msg.sender][positionHash];
+
     require(exposure != 0, "Must have an open position to tokenize");
     if(exposure > 0) {
+      require(exposure >= int(size));
       // we are tokenizing a long position
-      require(exposure <= int(size));
 
       MintBurnToken token;
-      if(self.groupCommonToken[AppStateLib.ExposureType.LONG][positionHash] == OrderLib.ZERO_ADDRESS) {
+      if(self.positionTokenAddress[AppStateLib.ExposureType.LONG][positionHash] == OrderLib.ZERO_ADDRESS) {
         string memory tokenName = string(abi.encodePacked("SHRUB-LONG: ", positionHash));
         token = new MintBurnToken(tokenName, "SHRUB-LONG");
         address tokenAddress = address(token);
-        self.groupCommonToken[AppStateLib.ExposureType.LONG][positionHash] = tokenAddress;
+        self.positionTokenAddress[AppStateLib.ExposureType.LONG][positionHash] = tokenAddress;
         self.positionTokenInfo[tokenAddress] = AppStateLib.PositionToken({
           exposureType: AppStateLib.ExposureType.LONG,
           token: tokenAddress,
           common: common
         });
       } else {
-        token = MintBurnToken(self.groupCommonToken[AppStateLib.ExposureType.LONG][positionHash]);
+        token = MintBurnToken(self.positionTokenAddress[AppStateLib.ExposureType.LONG][positionHash]);
       }
 
       self.userOptionPosition[msg.sender][positionHash] -= int(size);
       token.mint(msg.sender, size);
-    } else {
-      revert("ShrubExchange: tokenizing short positions not implemented yet");
+    } else if(exposure < 0) {
+      require(exposure * -1 >= int(size));
+      // we are tokenizing a short position
+
+      MintBurnToken token;
+      if(self.positionTokenAddress[AppStateLib.ExposureType.SHORT][positionHash] == OrderLib.ZERO_ADDRESS) {
+        string memory tokenName = string(abi.encodePacked("SHRUB-SHORT: ", positionHash));
+        token = new MintBurnToken(tokenName, "SHRUB-SHORT");
+        address tokenAddress = address(token);
+        self.positionTokenAddress[AppStateLib.ExposureType.SHORT][positionHash] = tokenAddress;
+        self.positionTokenInfo[tokenAddress] = AppStateLib.PositionToken({
+          exposureType: AppStateLib.ExposureType.SHORT,
+          token: tokenAddress,
+          common: common
+        });
+      } else {
+        token = MintBurnToken(self.positionTokenAddress[AppStateLib.ExposureType.SHORT][positionHash]);
+      }
+
+      self.userOptionPosition[msg.sender][positionHash] += int(size);
+      token.mint(msg.sender, size);
     }
   }
 
@@ -53,6 +73,8 @@ library TokenizeLib {
 
     if(tokenInfo.exposureType == AppStateLib.ExposureType.LONG) {
       self.userOptionPosition[msg.sender][positionHash] += int(size);
+    } else if(tokenInfo.exposureType == AppStateLib.ExposureType.SHORT) {
+      self.userOptionPosition[msg.sender][positionHash] -= int(size);
     }
   }
 }

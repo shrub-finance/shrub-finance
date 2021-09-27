@@ -16,6 +16,8 @@ contract ShrubExchange {
   using OrderLib for OrderLib.SmallOrder;
   using OrderLib for OrderLib.Order;
   using OrderLib for OrderLib.OptionType;
+  using AppStateLib for AppStateLib.PositionToken;
+  using AppStateLib for AppStateLib.ExposureType;
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
@@ -100,5 +102,13 @@ contract ShrubExchange {
 
   function positionPoolTokenBalance(bytes32 positionHash, address user) public view returns (uint) {
     return state.positionPoolTokenBalance[positionHash][user];
+  }
+
+  function positionTokenInfo(address tokenAddress) public view returns (AppStateLib.PositionToken memory token) {
+    return state.positionTokenInfo[tokenAddress];
+  }
+
+  function positionTokenAddress(uint8 exposureType, bytes32 positionHash) public view returns (address info) {
+    return state.positionTokenAddress[AppStateLib.ExposureType(exposureType)][positionHash];
   }
 }

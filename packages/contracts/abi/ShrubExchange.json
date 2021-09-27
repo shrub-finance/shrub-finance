@@ -1230,6 +1230,93 @@
   {
     "inputs": [
       {
+        "internalType": "uint8",
+        "name": "exposureType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "positionHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "positionTokenAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "info",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tokenAddress",
+        "type": "address"
+      }
+    ],
+    "name": "positionTokenInfo",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "enum AppStateLib.ExposureType",
+            "name": "exposureType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "baseAsset",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "quoteAsset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "expiry",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "strike",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "optionType",
+                "type": "uint8"
+              }
+            ],
+            "internalType": "struct OrderLib.OrderCommon",
+            "name": "common",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct AppStateLib.PositionToken",
+        "name": "token",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "size",
         "type": "uint256"
