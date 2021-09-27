@@ -16,6 +16,10 @@ library AppStateLib {
     mapping(bytes32 => uint256) positionPoolTokenTotalSupply;
 
     mapping(address => mapping(bytes32 => int)) userOptionPosition;
- 
+
+
+    // Tokenize Positions
+    mapping(ExposureType => mapping(bytes32 => address)) groupCommonToken;
+    mapping(address => PositionToken) positionTokenInfo;
   }
 }
