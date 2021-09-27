@@ -5,9 +5,16 @@ const SUSDToken = artifacts.require("SUSDToken");
 // @ts-ignore
 const TestTokenFactory = artifacts.require("TestTokenFactory");
 
+// @ts-ignore
+const HashUtil = artifacts.require("HashUtil");
+
+
+
 module.exports = async () => {
   const shrubExchange = await ShrubExchange.new();
   ShrubExchange.setAsDeployed(shrubExchange);
+  const hashUtil = await HashUtil.new();
+  HashUtil.setAsDeployed(hashUtil);
   const susdToken = await SUSDToken.new();
   SUSDToken.setAsDeployed(susdToken);
 

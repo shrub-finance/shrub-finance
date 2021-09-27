@@ -50,13 +50,13 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
         "indexed": false,
-        "internalType": "struct ShrubExchange.OrderCommon",
+        "internalType": "struct OrderLib.OrderCommon",
         "name": "common",
         "type": "tuple"
       },
@@ -106,7 +106,7 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct ShrubExchange.SmallOrder",
+        "internalType": "struct OrderLib.SmallOrder",
         "name": "order",
         "type": "tuple"
       },
@@ -129,7 +129,7 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct ShrubExchange.Signature",
+        "internalType": "struct OrderLib.Signature",
         "name": "sig",
         "type": "tuple"
       }
@@ -192,7 +192,7 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct ShrubExchange.SmallOrder",
+        "internalType": "struct OrderLib.SmallOrder",
         "name": "sellOrder",
         "type": "tuple"
       },
@@ -230,7 +230,7 @@
           }
         ],
         "indexed": false,
-        "internalType": "struct ShrubExchange.SmallOrder",
+        "internalType": "struct OrderLib.SmallOrder",
         "name": "buyOrder",
         "type": "tuple"
       },
@@ -257,13 +257,13 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
         "indexed": false,
-        "internalType": "struct ShrubExchange.OrderCommon",
+        "internalType": "struct OrderLib.OrderCommon",
         "name": "common",
         "type": "tuple"
       }
@@ -311,59 +311,7 @@
   },
   {
     "inputs": [],
-    "name": "DOMAIN_SEPARATOR",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "EIP712_DOMAIN",
-    "outputs": [
-      {
-        "internalType": "bytes",
-        "name": "",
-        "type": "bytes"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "EIP712_DOMAIN_TYPEHASH",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "ORDER_TYPEHASH",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SALT",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -409,7 +357,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ShrubExchange.SmallOrder",
+        "internalType": "struct OrderLib.SmallOrder",
         "name": "order",
         "type": "tuple"
       },
@@ -436,12 +384,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.OrderCommon",
+        "internalType": "struct OrderLib.OrderCommon",
         "name": "common",
         "type": "tuple"
       },
@@ -463,7 +411,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct ShrubExchange.Signature",
+        "internalType": "struct OrderLib.Signature",
         "name": "sig",
         "type": "tuple"
       }
@@ -508,7 +456,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ShrubExchange.SmallOrder[]",
+        "internalType": "struct OrderLib.SmallOrder[]",
         "name": "orders",
         "type": "tuple[]"
       },
@@ -535,12 +483,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.OrderCommon[]",
+        "internalType": "struct OrderLib.OrderCommon[]",
         "name": "commons",
         "type": "tuple[]"
       },
@@ -562,7 +510,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct ShrubExchange.Signature[]",
+        "internalType": "struct OrderLib.Signature[]",
         "name": "sigs",
         "type": "tuple[]"
       }
@@ -627,12 +575,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.Order",
+        "internalType": "struct OrderLib.Order",
         "name": "order",
         "type": "tuple"
       }
@@ -667,12 +615,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.OrderCommon",
+        "internalType": "struct OrderLib.OrderCommon",
         "name": "common",
         "type": "tuple"
       }
@@ -745,7 +693,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ShrubExchange.SmallOrder",
+        "internalType": "struct OrderLib.SmallOrder",
         "name": "order",
         "type": "tuple"
       },
@@ -772,12 +720,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.OrderCommon",
+        "internalType": "struct OrderLib.OrderCommon",
         "name": "common",
         "type": "tuple"
       },
@@ -799,7 +747,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct ShrubExchange.Signature",
+        "internalType": "struct OrderLib.Signature",
         "name": "sig",
         "type": "tuple"
       }
@@ -854,175 +802,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ShrubExchange.SmallOrder",
-        "name": "sellOrder",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ShrubExchange.SmallOrder",
-        "name": "buyOrder",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "enum ShrubExchange.OptionType",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct ShrubExchange.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct ShrubExchange.Signature",
-        "name": "sellSig",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct ShrubExchange.Signature",
-        "name": "buySig",
-        "type": "tuple"
-      }
-    ],
-    "name": "depositAndMatch",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ShrubExchange.SmallOrder[]",
+        "internalType": "struct OrderLib.SmallOrder[]",
         "name": "sellOrders",
         "type": "tuple[]"
       },
@@ -1059,7 +839,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ShrubExchange.SmallOrder[]",
+        "internalType": "struct OrderLib.SmallOrder[]",
         "name": "buyOrders",
         "type": "tuple[]"
       },
@@ -1086,12 +866,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.OrderCommon[]",
+        "internalType": "struct OrderLib.OrderCommon[]",
         "name": "commons",
         "type": "tuple[]"
       },
@@ -1113,7 +893,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct ShrubExchange.Signature[]",
+        "internalType": "struct OrderLib.Signature[]",
         "name": "sellSigs",
         "type": "tuple[]"
       },
@@ -1135,7 +915,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct ShrubExchange.Signature[]",
+        "internalType": "struct OrderLib.Signature[]",
         "name": "buySigs",
         "type": "tuple[]"
       }
@@ -1175,12 +955,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.OrderCommon",
+        "internalType": "struct OrderLib.OrderCommon",
         "name": "common",
         "type": "tuple"
       }
@@ -1188,111 +968,6 @@
     "name": "exercise",
     "outputs": [],
     "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ShrubExchange.SmallOrder",
-        "name": "order",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "enum ShrubExchange.OptionType",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct ShrubExchange.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct ShrubExchange.Signature",
-        "name": "sig",
-        "type": "tuple"
-      }
-    ],
-    "name": "getAddressFromSignedOrder",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1327,30 +1002,6 @@
         "type": "address"
       },
       {
-        "internalType": "bytes32",
-        "name": "commonHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getCurrentNonce",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
         "components": [
           {
             "internalType": "address",
@@ -1373,12 +1024,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.OrderCommon",
+        "internalType": "struct OrderLib.OrderCommon",
         "name": "common",
         "type": "tuple"
       }
@@ -1427,372 +1078,9 @@
             "internalType": "uint256",
             "name": "fee",
             "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "enum ShrubExchange.OptionType",
-            "name": "optionType",
-            "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.Order",
-        "name": "order",
-        "type": "tuple"
-      }
-    ],
-    "name": "hashOrder",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "enum ShrubExchange.OptionType",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct ShrubExchange.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      }
-    ],
-    "name": "hashOrderCommon",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ShrubExchange.SmallOrder",
-        "name": "order",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "enum ShrubExchange.OptionType",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct ShrubExchange.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      }
-    ],
-    "name": "hashSmallOrder",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ShrubExchange.SmallOrder",
-        "name": "sellOrder",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ShrubExchange.SmallOrder",
-        "name": "buyOrder",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "enum ShrubExchange.OptionType",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct ShrubExchange.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct ShrubExchange.Signature",
-        "name": "sellSig",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct ShrubExchange.Signature",
-        "name": "buySig",
-        "type": "tuple"
-      }
-    ],
-    "name": "matchOrder",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ShrubExchange.SmallOrder[]",
+        "internalType": "struct OrderLib.SmallOrder[]",
         "name": "sellOrders",
         "type": "tuple[]"
       },
@@ -1829,7 +1117,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ShrubExchange.SmallOrder[]",
+        "internalType": "struct OrderLib.SmallOrder[]",
         "name": "buyOrders",
         "type": "tuple[]"
       },
@@ -1856,12 +1144,12 @@
             "type": "uint256"
           },
           {
-            "internalType": "enum ShrubExchange.OptionType",
+            "internalType": "uint8",
             "name": "optionType",
             "type": "uint8"
           }
         ],
-        "internalType": "struct ShrubExchange.OrderCommon[]",
+        "internalType": "struct OrderLib.OrderCommon[]",
         "name": "commons",
         "type": "tuple[]"
       },
@@ -1883,7 +1171,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct ShrubExchange.Signature[]",
+        "internalType": "struct OrderLib.Signature[]",
         "name": "sellSigs",
         "type": "tuple[]"
       },
@@ -1905,7 +1193,7 @@
             "type": "bytes32"
           }
         ],
-        "internalType": "struct ShrubExchange.Signature[]",
+        "internalType": "struct OrderLib.Signature[]",
         "name": "buySigs",
         "type": "tuple[]"
       }
@@ -1919,12 +1207,12 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "",
+        "name": "positionHash",
         "type": "bytes32"
       },
       {
         "internalType": "address",
-        "name": "",
+        "name": "user",
         "type": "address"
       }
     ],
@@ -1942,32 +1230,76 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "positionPoolTokenTotalSupply",
-    "outputs": [
-      {
         "internalType": "uint256",
-        "name": "",
+        "name": "size",
         "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "baseAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "quoteAsset",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "expiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "strike",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "optionType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct OrderLib.OrderCommon",
+        "name": "common",
+        "type": "tuple"
       }
     ],
-    "stateMutability": "view",
+    "name": "tokenizePosition",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "tokenAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "size",
+        "type": "uint256"
+      }
+    ],
+    "name": "unwrapPositionToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
         "type": "address"
       },
       {
         "internalType": "bytes32",
-        "name": "",
+        "name": "positionHash",
         "type": "bytes32"
       }
     ],
@@ -1986,36 +1318,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "userPairNonce",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
+        "name": "user",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "",
+        "name": "token",
         "type": "address"
       }
     ],
@@ -2034,12 +1342,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "user",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "",
+        "name": "token",
         "type": "address"
       }
     ],
@@ -2052,45 +1360,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "hash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      }
-    ],
-    "name": "validateSignature",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   },
   {
