@@ -7,11 +7,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { deployer } = await getNamedAccounts();
 
-  await deploy("ShrubExchange", {
+  await deploy("HashUtil", {
     from: deployer,
     log: true,
   });
 };
 export default func;
-func.id = "deploy_shrub_exchange"; // id to prevent re-execution
-func.tags = ["ShrubExchange"];
+func.id = "deploy_hash_util"; // id to prevent re-execution
+func.tags = ["HashUtil"];

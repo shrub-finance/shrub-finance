@@ -298,6 +298,19 @@
   },
   {
     "inputs": [],
+    "name": "COMMON_TYPEHASH",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "ORDER_TYPEHASH",
     "outputs": [
       {
@@ -789,174 +802,6 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct OrderLib.SmallOrder",
-        "name": "sellOrder",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct OrderLib.SmallOrder",
-        "name": "buyOrder",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint8",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct OrderLib.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct OrderLib.Signature",
-        "name": "sellSig",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct OrderLib.Signature",
-        "name": "buySig",
-        "type": "tuple"
-      }
-    ],
-    "name": "depositAndMatch",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
         "internalType": "struct OrderLib.SmallOrder[]",
         "name": "sellOrders",
         "type": "tuple[]"
@@ -1128,152 +973,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "orderHash",
-        "type": "bytes32"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct OrderLib.Signature",
-        "name": "sig",
-        "type": "tuple"
-      }
-    ],
-    "name": "getAddressFromOrderHash",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct OrderLib.SmallOrder",
-        "name": "order",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint8",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct OrderLib.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct OrderLib.Signature",
-        "name": "sig",
-        "type": "tuple"
-      }
-    ],
-    "name": "getAddressFromSignedOrder",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -1303,30 +1002,6 @@
         "type": "address"
       },
       {
-        "internalType": "bytes32",
-        "name": "commonHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getCurrentNonce",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
         "components": [
           {
             "internalType": "address",
@@ -1368,369 +1043,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint8",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct OrderLib.Order",
-        "name": "order",
-        "type": "tuple"
-      }
-    ],
-    "name": "hashOrder",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint8",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct OrderLib.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      }
-    ],
-    "name": "hashOrderCommon",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct OrderLib.SmallOrder",
-        "name": "order",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint8",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct OrderLib.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      }
-    ],
-    "name": "hashSmallOrder",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct OrderLib.SmallOrder",
-        "name": "sellOrder",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "size",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isBuy",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "nonce",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "offerExpire",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "fee",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct OrderLib.SmallOrder",
-        "name": "buyOrder",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "address",
-            "name": "baseAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "quoteAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "expiry",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "strike",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint8",
-            "name": "optionType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct OrderLib.OrderCommon",
-        "name": "common",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct OrderLib.Signature",
-        "name": "sellSig",
-        "type": "tuple"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "v",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "r",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "s",
-            "type": "bytes32"
-          }
-        ],
-        "internalType": "struct OrderLib.Signature",
-        "name": "buySig",
-        "type": "tuple"
-      }
-    ],
-    "name": "matchOrder",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1895,150 +1207,16 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "orderPartialFill",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
+        "name": "positionHash",
         "type": "bytes32"
       },
       {
         "internalType": "address",
-        "name": "",
+        "name": "user",
         "type": "address"
       }
     ],
     "name": "positionPoolTokenBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "positionPoolTokenTotalSupply",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "userOptionPosition",
-    "outputs": [
-      {
-        "internalType": "int256",
-        "name": "",
-        "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "userPairNonce",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "userTokenBalances",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "userTokenLockedBalance",
     "outputs": [
       {
         "internalType": "uint256",
@@ -2058,34 +1236,67 @@
       },
       {
         "internalType": "bytes32",
-        "name": "hash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
+        "name": "positionHash",
         "type": "bytes32"
       }
     ],
-    "name": "validateSignature",
+    "name": "userOptionPosition",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "int256",
         "name": "",
-        "type": "bool"
+        "type": "int256"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "userTokenBalances",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "userTokenLockedBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

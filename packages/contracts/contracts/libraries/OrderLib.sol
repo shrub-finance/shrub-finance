@@ -77,7 +77,7 @@ library OrderLib {
     });
   }
 
-  function hashOrder(Order memory order) public pure returns (bytes32) {
+  function hashOrder(Order memory order) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(
       ORDER_TYPEHASH,
       order.size,
@@ -96,7 +96,7 @@ library OrderLib {
   }
 
 
-  function hashSmallOrder(SmallOrder memory order, OrderCommon memory common) public pure returns (bytes32) {
+  function hashSmallOrder(SmallOrder memory order, OrderCommon memory common) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(
       ORDER_TYPEHASH,
       order.size,
@@ -114,7 +114,7 @@ library OrderLib {
     ));
   }
 
-  function hashOrderCommon(OrderCommon memory common) public pure returns(bytes32) {
+  function hashOrderCommon(OrderCommon memory common) internal pure returns(bytes32) {
     return keccak256(abi.encodePacked(
       COMMON_TYPEHASH,
       common.baseAsset,
@@ -129,7 +129,7 @@ library OrderLib {
     return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
   }
 
-  function validateSignature(address user, bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns(bool) {
+  function validateSignature(address user, bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns(bool) {
     bytes32 payloadHash = getSignedHash(hash);
     return ecrecover(payloadHash, v, r, s) == user;
   }
@@ -144,11 +144,11 @@ library OrderLib {
     return matches;
   }
 
-  function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public pure returns(address) {
+  function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) internal pure returns(address) {
     return getAddressFromOrderHash(hashSmallOrder(order, common), sig);
   }
 
-  function getAddressFromOrderHash(bytes32 orderHash, Signature memory sig) public pure returns(address) {
+  function getAddressFromOrderHash(bytes32 orderHash, Signature memory sig) internal pure returns(address) {
     address recovered = ecrecover(getSignedHash(orderHash), sig.v, sig.r, sig.s);
     require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
     return recovered;
