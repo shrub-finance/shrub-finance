@@ -12,7 +12,7 @@ library TokenizeLib {
   using AppStateLib for AppStateLib.ExposureType;
   using AppStateLib for AppStateLib.PositionToken;
 
-  function tokenizePosition(AppStateLib.AppState storage self, uint256 size, OrderLib.OrderCommon memory common) public {
+  function tokenizePosition(AppStateLib.AppState storage self, uint256 size, OrderLib.OrderCommon memory common) internal {
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     int exposure = self.userOptionPosition[msg.sender][positionHash];
 
@@ -62,7 +62,7 @@ library TokenizeLib {
     }
   }
 
-  function unwrapPositionToken(AppStateLib.AppState storage self, address tokenAddress, uint256 size) public {
+  function unwrapPositionToken(AppStateLib.AppState storage self, address tokenAddress, uint256 size) internal {
     AppStateLib.PositionToken storage tokenInfo = self.positionTokenInfo[tokenAddress];
     require(tokenInfo.token == tokenAddress, "ShrubExchange: Cannot unwrap a token not deployed by Shrub");
 
