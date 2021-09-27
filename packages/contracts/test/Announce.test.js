@@ -1,11 +1,11 @@
 const Exchange = artifacts.require("ShrubExchange");
-const FakeToken = artifacts.require("FakeToken");
+const SUSDToken = artifacts.require("SUSDToken");
 const { Shrub712 } = require("../utils/EIP712");
 const utils = require("ethereumjs-util");
 
 const Assets = {
   USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-  ETH: "0x0000000000000000000000000000000000000000",
+  MATIC: "0x0000000000000000000000000000000000000000",
 };
 const OptionTypes = {
   PUT: 0,
@@ -22,7 +22,7 @@ const BigMillion = web3.utils.toBN(1e6);
 contract("ShrubExchange::announce", (accounts) => {
   let exchange;
   let shrubInterface;
-  let fakeToken;
+  let susdToken;
   let orderTypeHash;
 
   let sellOrder = {
@@ -34,7 +34,7 @@ contract("ShrubExchange::announce", (accounts) => {
     fee: 1,
 
     baseAsset: Assets.USDC,
-    quoteAsset: Assets.ETH,
+    quoteAsset: Assets.MATIC,
     expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
     strike: BigHundred.mul(BigMillion).toString(),
     optionType: OptionTypes.CALL,
@@ -44,11 +44,11 @@ contract("ShrubExchange::announce", (accounts) => {
   before(async () => {
     exchange = await Exchange.deployed();
     shrubInterface = new Shrub712(17, exchange.address);
-    fakeToken = await FakeToken.deployed();
+    susdToken = await SUSDToken.deployed();
     orderTypeHash = await exchange.ORDER_TYPEHASH.call();
 
-    Assets.USDC = fakeToken.address;
-    sellOrder.baseAsset = fakeToken.address;
+    Assets.USDC = susdToken.address;
+    sellOrder.baseAsset = susdToken.address;
   });
 
   it("should be able to announce an order", async () => {
@@ -70,7 +70,7 @@ contract("ShrubExchange::announce", (accounts) => {
 
 
     const value = WeiInEth;
-    await exchange.deposit(Assets.ETH, value, { value, from: seller });
+    await exchange.deposit(Assets.MATIC, value, { value, from: seller });
     console.log(smallSellOrder, common, signedSellOrder.sig);
     await exchange.announce(smallSellOrder, common, signedSellOrder.sig, {from: seller});
   });
@@ -95,7 +95,7 @@ contract("ShrubExchange::announce", (accounts) => {
 
 
     const value = WeiInEth;
-    await exchange.deposit(Assets.ETH, value, { value, from: seller });
+    await exchange.deposit(Assets.MATIC, value, { value, from: seller });
 
     const orders = new Array(10).fill(smallSellOrder);
     const commons = new Array(10).fill(common);

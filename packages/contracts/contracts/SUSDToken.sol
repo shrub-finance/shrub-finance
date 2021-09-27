@@ -3,8 +3,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "hardhat/console.sol";
 
 
-contract FakeToken is ERC20 {
-  constructor() ERC20("FAKE", "FK") public {
+contract SUSDToken is ERC20 {
+  constructor() ERC20("USD", "SUSD") {
     _mint(msg.sender, 1000000e18);
   }
 }

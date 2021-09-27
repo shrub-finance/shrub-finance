@@ -1,6 +1,6 @@
 const { Shrub712 } = require("../utils/EIP712");
 const ExchangeJson = require("../deployments/localhost/ShrubExchange.json");
-const TokenJson = require("../deployments/localhost/FakeToken.json");
+const TokenJson = require("../deployments/localhost/SUSDToken.json");
 const Web3 = require("web3");
 const util = require("util");
 const fetch = require("node-fetch");
@@ -19,7 +19,7 @@ const IV_RANGE = 50;
 
 const Assets = {
   USDC: "",
-  ETH: "0x0000000000000000000000000000000000000000",
+  MATIC: "0x0000000000000000000000000000000000000000",
 };
 
 const ETH_PRICE = process.argv[2] || 2500;
@@ -47,7 +47,7 @@ async function generateRandomOrder(nonce) {
   const volatility = ((isBuy ? -1 : 1) * Math.random() * IV_RANGE + BASE_IV) / 100;
   // const volatility = (Math.random() * 75 + 75) / 100;
   console.log(`
-    ETH price: ${ETH_PRICE}
+    MATIC price: ${ETH_PRICE}
     strike: ${strikeUsdc}
     time to expiry (years): ${timeToExpiry}
     volatility: ${volatility}
@@ -71,7 +71,7 @@ async function generateRandomOrder(nonce) {
     offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
     fee,
     baseAsset: Assets.USDC,
-    quoteAsset: Assets.ETH,
+    quoteAsset: Assets.MATIC,
     expiry,
     strike,
     optionType: optionType === 'CALL' ? 1 : 0,
@@ -102,7 +102,7 @@ async function main() {
     const nonce =
       Number(
         await exchange.methods
-          .userPairNonce(from, Assets.ETH, Assets.USDC)
+          .userPairNonce(from, Assets.MATIC, Assets.USDC)
           .call()
       ) + 1;
     const order = await generateRandomOrder(Number(nonce));

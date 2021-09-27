@@ -11,8 +11,8 @@ contract ShrubExchange {
 
   // Data that is common between a buy and sell
   struct OrderCommon {
-    address baseAsset;      // ETH-USD, USD is the base
-    address quoteAsset;     // ETH-USD ETH is the quote
+    address baseAsset;      // MATIC-USD, USD is the base
+    address quoteAsset;     // MATIC-USD MATIC is the quote
     uint expiry;            // timestamp expires
     uint strike;            // The price of the pair
     OptionType optionType;
@@ -27,7 +27,7 @@ contract ShrubExchange {
 
   // Meant to be hashed with OrderCommon
   struct SmallOrder {
-    uint size;              // number of contracts in terms of the smallest unit of the quoteAsset (i.e. 1e18 for 1 ETH call contract)
+    uint size;              // number of contracts in terms of the smallest unit of the quoteAsset (i.e. 1e18 for 1 MATIC call contract)
     bool isBuy;
     uint nonce;             // unique id of order
     uint price;             // total price of the order in terms of the smallest unit of the baseAsset (i.e. 200e6 for an order costing a total of 200 USDC) (price goes up with size)
@@ -43,8 +43,8 @@ contract ShrubExchange {
     uint offerExpire;       // time this order expires
     uint fee;               // matcherFee
 
-    address baseAsset;      // ETH-USD, USD is the base
-    address quoteAsset;     // ETH-USD ETH is the quote
+    address baseAsset;      // MATIC-USD, USD is the base
+    address quoteAsset;     // MATIC-USD MATIC is the quote
     uint expiry;            // timestamp expires
     uint strike;            // The price of the pair in terms of the exercise price in the baseAsset times 1e6 (i.e. 2000e6 for a 2000 USDC strike price)
     OptionType optionType;
