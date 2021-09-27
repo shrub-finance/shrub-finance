@@ -1,5 +1,6 @@
 const Exchange = artifacts.require("ShrubExchange");
 const SUSDToken = artifacts.require("SUSDToken");
+const HashUtil = artifacts.require("HashUtil");
 const { Shrub712 } = require("../utils/EIP712");
 const utils = require("ethereumjs-util");
 const { assert } = require("chai");
@@ -21,6 +22,7 @@ const wait = util.promisify(setTimeout);
 contract("ShrubExchange", (accounts) => {
   let exchange;
   let shrubInterface;
+  let hashUtil;
   let susdToken;
   let orderTypeHash;
 
@@ -46,6 +48,7 @@ contract("ShrubExchange", (accounts) => {
   };
 
   before(async () => {
+    hashUtil = await HashUtil.deployed();
     exchange = await Exchange.deployed();
     shrubInterface = new Shrub712(17, exchange.address);
     susdToken = await SUSDToken.deployed();
@@ -95,7 +98,7 @@ contract("ShrubExchange", (accounts) => {
     const s = "0x" + sig.substr(64, 64);
     const v = web3.utils.toDecimal("0x" + sig.substr(128, 2)) + 27;
 
-    const hashedOrder = await exchange.hashOrder(order);
+    const hashedOrder = await hashUtil.hashOrder(order);
     console.log({ hash, hashedOrder, v, r, s });
     assert.equal(hash, hashedOrder);
   });
@@ -109,7 +112,7 @@ contract("ShrubExchange", (accounts) => {
     console.log(sha3Message);
 
     const hash = await web3.utils.soliditySha3(...sha3Message);
-    const hashedOrder = await exchange.hashSmallOrder(buyOrder, common);
+    const hashedOrder = await hashUtil.hashSmallOrder(buyOrder, common);
     console.log({ hash, hashedOrder });
     assert.equal(hash, hashedOrder);
   });
@@ -132,7 +135,7 @@ contract("ShrubExchange", (accounts) => {
     console.log(sha3Message);
     const hash = await web3.utils.soliditySha3(...sha3Message);
 
-    const hashedOrder = await exchange.hashOrderCommon(common);
+    const hashedOrder = await hashUtil.hashOrderCommon(common);
     console.log({ hash, hashedOrder });
     assert.equal(hash, hashedOrder);
   });
@@ -145,7 +148,7 @@ contract("ShrubExchange", (accounts) => {
     const r = "0x" + sig.substr(0, 64);
     const s = "0x" + sig.substr(64, 64);
     const v = web3.utils.toDecimal("0x" + sig.substr(128, 2));
-    const validSig = await exchange.validateSignature(
+    const validSig = await hashUtil.validateSignature(
       accounts[0],
       hash,
       v,
@@ -219,7 +222,7 @@ contract("ShrubExchange", (accounts) => {
     );
 
     // Make sure the signature recovers to our address
-    const sellerRecovered = await exchange.getAddressFromSignedOrder(
+    const sellerRecovered = await hashUtil.getAddressFromSignedOrder(
       smallSellOrder,
       common,
       signedSellOrder.sig
@@ -264,12 +267,12 @@ contract("ShrubExchange", (accounts) => {
     }
 
     // Match the order, make sure seller has correct amount of asset locked up
-    await exchange.matchOrder(
-      smallSellOrder,
-      smallBuyOrder,
-      common,
-      signedSellOrder.sig,
-      signedBuyOrder.sig,
+    await exchange.matchOrders(
+      [smallSellOrder],
+      [smallBuyOrder],
+      [common],
+      [signedSellOrder.sig],
+      [signedBuyOrder.sig],
       { from: accounts[0] }
     );
 
@@ -399,7 +402,7 @@ contract("ShrubExchange", (accounts) => {
     const commons = sellOrders.map(s => shrubInterface.toCommon(s));
 
     for(const b of signedBuyOrders) {
-      const buyerRecovered = await exchange.getAddressFromSignedOrder(
+      const buyerRecovered = await hashUtil.getAddressFromSignedOrder(
         shrubInterface.toSmallOrder(b.order),
         commons[0],
         b.sig
@@ -450,7 +453,7 @@ contract("ShrubExchange", (accounts) => {
     const exchange = await Exchange.deployed();
 
     const common = shrubInterface.toCommon(buyOrder);
-    const commonHash = await exchange.hashOrderCommon(common);
+    const commonHash = await hashUtil.hashOrderCommon(common);
     const seller = accounts[0];
     const buyer = accounts[1];
     const sellerPosition = await exchange.userOptionPosition(
@@ -473,7 +476,7 @@ contract("ShrubExchange", (accounts) => {
 
     const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
     const common = shrubInterface.toCommon(sellOrder);
-    const commonHash = await exchange.hashOrderCommon(common);
+    const commonHash = await hashUtil.hashOrderCommon(common);
 
     // Sign orders
     const signedBuyOrder = await shrubInterface.signOrderWithWeb3(
@@ -537,7 +540,7 @@ contract("ShrubExchange", (accounts) => {
     const exchange = await Exchange.deployed();
 
     const common = shrubInterface.toCommon(buyOrder);
-    const commonHash = await exchange.hashOrderCommon(common);
+    const commonHash = await hashUtil.hashOrderCommon(common);
     const seller = accounts[0];
     const buyer = accounts[1];
     const sellerPosition = await exchange.userOptionPosition(

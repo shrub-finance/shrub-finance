@@ -1,467 +1,114 @@
 pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./libraries/OrderLib.sol";
+import "./libraries/FundsLib.sol";
+import "./libraries/FillingLib.sol";
+import "./libraries/MatchingLib.sol";
+import "./libraries/AnnounceLib.sol";
+import "./libraries/ExercisingLib.sol";
+import "./libraries/AppStateLib.sol";
+import "./libraries/TokenizeLib.sol";
 
 contract ShrubExchange {
 
-  enum OptionType {
-    PUT,
-    CALL
-  }
-
-  // Data that is common between a buy and sell
-  struct OrderCommon {
-    address baseAsset;      // MATIC-USD, USD is the base
-    address quoteAsset;     // MATIC-USD MATIC is the quote
-    uint expiry;            // timestamp expires
-    uint strike;            // The price of the pair
-    OptionType optionType;
-  }
-
-  struct Signature {
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
-  }
-
-
-  // Meant to be hashed with OrderCommon
-  struct SmallOrder {
-    uint size;              // number of contracts in terms of the smallest unit of the quoteAsset (i.e. 1e18 for 1 MATIC call contract)
-    bool isBuy;
-    uint nonce;             // unique id of order
-    uint price;             // total price of the order in terms of the smallest unit of the baseAsset (i.e. 200e6 for an order costing a total of 200 USDC) (price goes up with size)
-    uint offerExpire;       // time this order expires
-    uint fee;               // matcherFee in terms of wei
-  }
-
-  struct Order {
-    uint size;
-    bool isBuy;
-    uint nonce;             // unique id of order
-    uint price;
-    uint offerExpire;       // time this order expires
-    uint fee;               // matcherFee
-
-    address baseAsset;      // MATIC-USD, USD is the base
-    address quoteAsset;     // MATIC-USD MATIC is the quote
-    uint expiry;            // timestamp expires
-    uint strike;            // The price of the pair in terms of the exercise price in the baseAsset times 1e6 (i.e. 2000e6 for a 2000 USDC strike price)
-    OptionType optionType;
-  }
+  using AppStateLib for AppStateLib.AppState;
+  using OrderLib for OrderLib.OrderCommon;
+  using OrderLib for OrderLib.SmallOrder;
+  using OrderLib for OrderLib.Order;
+  using OrderLib for OrderLib.OptionType;
+  using AppStateLib for AppStateLib.PositionToken;
+  using AppStateLib for AppStateLib.ExposureType;
 
   event Deposit(address user, address token, uint amount);
   event Withdraw(address user, address token, uint amount);
-  event OrderAnnounce(OrderCommon common, bytes32 indexed positionHash, address indexed user, SmallOrder order, Signature sig);
-  event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, SmallOrder sellOrder, SmallOrder buyOrder, OrderCommon common);
-  mapping(address => mapping(bytes32 => uint)) public userPairNonce;
-  mapping(address => mapping(address => uint)) public userTokenBalances;
-  mapping(address => mapping(address => uint)) public userTokenLockedBalance;
-
-  mapping(bytes32 => mapping(address => uint256)) public positionPoolTokenBalance;
-  mapping(bytes32 => uint256) public positionPoolTokenTotalSupply;
-
-  mapping(address => mapping(bytes32 => int)) public userOptionPosition;
-
-  address private constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
-
-  // Used to shift price and strike up and down by factors of 1 million
-  uint private constant BASE_SHIFT = 1000000;
-
-  bytes32 public constant SALT = keccak256("0x43efba454ccb1b6fff2625fe562bdd9a23260359");
-  bytes public constant EIP712_DOMAIN = "EIP712Domain(string name, string version, uint256 chainId, address verifyingContract, bytes32 salt)";
-  bytes32 public constant EIP712_DOMAIN_TYPEHASH = keccak256(EIP712_DOMAIN);
-  bytes32 public constant DOMAIN_SEPARATOR = keccak256(abi.encode(
-    EIP712_DOMAIN_TYPEHASH,
-    keccak256("Shrub Trade"),
-    keccak256("1"),
-    1,
-    0x6e80C53f2cdCad7843aD765E4918298427AaC550,
-    SALT
-  ));
-
-  bytes32 public constant ORDER_TYPEHASH = keccak256("Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
-
-  bytes32 public constant COMMON_TYPEHASH = keccak256("OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)");
-
-  function min(uint256 a, uint256 b) pure private returns (uint256) {
-    return a < b ? a : b;
-  }
-
-  function getCommonFromOrder(Order memory order) internal pure returns (OrderCommon memory common) {
-    return OrderCommon({
-      baseAsset: order.baseAsset,
-      quoteAsset: order.quoteAsset,
-      expiry: order.expiry,
-      strike: order.strike,
-      optionType: order.optionType
-    });
-  }
-
-  function hashOrder(Order memory order) public pure returns (bytes32) {
-    return keccak256(abi.encodePacked(
-      ORDER_TYPEHASH,
-      order.size,
-      order.isBuy,
-      order.nonce,
-      order.price,
-      order.offerExpire,
-      order.fee,
-
-      order.baseAsset,
-      order.quoteAsset,
-      order.expiry,
-      order.strike,
-      order.optionType
-    ));
-  }
+  event OrderAnnounce(OrderLib.OrderCommon common, bytes32 indexed positionHash, address indexed user, OrderLib.SmallOrder order, OrderLib.Signature sig);
+  event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, OrderLib.SmallOrder sellOrder, OrderLib.SmallOrder buyOrder, OrderLib.OrderCommon common);
 
 
-  function hashSmallOrder(SmallOrder memory order, OrderCommon memory common) public pure returns (bytes32) {
-    return keccak256(abi.encodePacked(
-      ORDER_TYPEHASH,
-      order.size,
-      order.isBuy,
-      order.nonce,
-      order.price,
-      order.offerExpire,
-      order.fee,
+  bytes32 public ORDER_TYPEHASH = OrderLib.ORDER_TYPEHASH;
+  bytes32 public COMMON_TYPEHASH = OrderLib.COMMON_TYPEHASH;
 
-      common.baseAsset,
-      common.quoteAsset,
-      common.expiry,
-      common.strike,
-      common.optionType
-    ));
-  }
+  AppStateLib.AppState state;
 
-  function hashOrderCommon(OrderCommon memory common) public pure returns(bytes32) {
-    return keccak256(abi.encodePacked(
-      COMMON_TYPEHASH,
-      common.baseAsset,
-      common.quoteAsset,
-      common.expiry,
-      common.strike,
-      common.optionType
-    ));
-  }
-
-  function getCurrentNonce(address user, OrderCommon memory common) public view returns(uint) {
-    bytes32 positionHash = hashOrderCommon(common);
-    return userPairNonce[user][positionHash];
-  }
-
-  function getCurrentNonce(address user, bytes32 commonHash) public view returns(uint) {
-    return userPairNonce[user][commonHash];
+  function getCurrentNonce(address user, OrderLib.OrderCommon memory common) public view returns(uint) {
+    return MatchingLib.getCurrentNonce(state, user, common);
   }
 
   function getAvailableBalance(address user, address asset) public view returns(uint) {
-    return userTokenBalances[user][asset] - userTokenLockedBalance[user][asset];
-  }
-
-  function getSignedHash(bytes32 hash) internal pure returns (bytes32) {
-    return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
-  }
-
-  function validateSignature(address user, bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns(bool) {
-    bytes32 payloadHash = getSignedHash(hash);
-    return ecrecover(payloadHash, v, r, s) == user;
-  }
-
-  function checkOrderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal view returns (bool) {
-    bool matches = true;
-    matches = matches && sellOrder.isBuy == false;
-    matches = matches && buyOrder.isBuy == true;
-
-    matches = matches && sellOrder.offerExpire >= block.timestamp;
-    matches = matches && buyOrder.offerExpire >= block.timestamp;
-    return matches;
-  }
-
-  function getAddressFromSignedOrder(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public pure returns(address) {
-    address recovered = ecrecover(getSignedHash(hashSmallOrder(order, common)), sig.v, sig.r, sig.s);
-    require(recovered != ZERO_ADDRESS, "Invalid signature, recovered ZERO_ADDRESS");
-    return recovered;
+    return FundsLib.getAvailableBalance(state, user, asset);
   }
 
   function deposit(address token, uint amount) public payable {
-    if(token != ZERO_ADDRESS) {
-      require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
-      userTokenBalances[msg.sender][token] += amount;
-    }
-    if(msg.value > 0) {
-      userTokenBalances[msg.sender][token] += msg.value;
-    }
-    emit Deposit(msg.sender, token, amount);
+    FundsLib.deposit(state, token, amount, msg.value);
   }
 
-  function depositAndMatch(address token, uint amount, SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) public payable {
-    deposit(token, amount);
-    matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
-  }
-
-  function depositAndAnnounce(address token, uint amount, SmallOrder memory order, OrderCommon memory common, Signature memory sig) public payable {
+  function depositAndAnnounce(address token, uint amount, OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, OrderLib.Signature memory sig) public payable {
     deposit(token, amount);
     announce(order, common, sig);
   }
 
-
-  function depositAndMatchMany(address token, uint amount, SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public payable {
+  function depositAndMatchMany(address token, uint amount, OrderLib.SmallOrder[] memory sellOrders, OrderLib.SmallOrder[] memory buyOrders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sellSigs, OrderLib.Signature[] memory buySigs) public payable {
     deposit(token, amount);
     matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
   }
 
   function withdraw(address token, uint amount) public {
-    uint balance = getAvailableBalance(msg.sender, token);
-    require(amount <= balance, "Cannot withdraw more than available balance");
-    userTokenBalances[msg.sender][token] -= amount;
-    if(token == ZERO_ADDRESS) {
-      payable(msg.sender).transfer(amount);
-    } else {
-      require(ERC20(token).transfer(msg.sender, amount), "ERC20 transfer must succeed");
-    }
-    emit Withdraw(msg.sender, token, amount);
+    FundsLib.withdraw(state, token, amount);
   }
 
-  function matchOrder(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig) public {
-    (address buyer, address seller, bytes32 positionHash) = doPartialMatch(sellOrder, buyOrder, common, sellSig, buySig);
-    emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
-    userPairNonce[buyer][positionHash] = buyOrder.nonce;
-    userPairNonce[seller][positionHash] = sellOrder.nonce;
+  function matchOrders(OrderLib.SmallOrder[] memory sellOrders, OrderLib.SmallOrder[] memory buyOrders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sellSigs, OrderLib.Signature[] memory buySigs) public {
+    MatchingLib.matchOrders(state, sellOrders, buyOrders, commons, sellSigs, buySigs);
   }
 
-
-  function adjustWithRatio(uint number, uint partsPerMillion) internal pure returns (uint) {
-    return (number * partsPerMillion) / BASE_SHIFT;
+  function cancel(OrderLib.Order memory order) public {
+    MatchingLib.cancel(state, order);
   }
 
-
-  function getAdjustedPriceAndFillSize(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal pure returns (uint, uint) {
-    uint fillSize = min(sellOrder.size, buyOrder.size);
-    uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
-
-    uint buyerAdjustedPrice = fillSize * buyOrder.price / buyOrder.size;
-    require(adjustedPrice <= buyerAdjustedPrice, "Seller order price does not satisfy Buyer order price");
-
-    return (fillSize, adjustedPrice);
+  function exercise(uint256 buyOrderSize, OrderLib.OrderCommon memory common) public payable {
+    ExercisingLib.exercise(state, buyOrderSize, common);
   }
 
-  function doPartialMatch(SmallOrder memory sellOrder, SmallOrder memory buyOrder, OrderCommon memory common, Signature memory sellSig, Signature memory buySig)
-  internal returns(address, address, bytes32) {
-    require(checkOrderMatches(sellOrder, buyOrder), "Buy and sell order do not match");
-    address seller = getAddressFromSignedOrder(sellOrder, common, sellSig);
-    address buyer = getAddressFromSignedOrder(buyOrder, common, buySig);
-    require(seller != buyer, "Seller and Buyer must be different");
-    bytes32 positionHash = hashOrderCommon(common);
-
-    require(getCurrentNonce(seller, positionHash) == sellOrder.nonce - 1, "Seller nonce incorrect");
-    require(getCurrentNonce(buyer, positionHash) == buyOrder.nonce - 1, "Buyer nonce incorrect");
-
-    (uint fillSize, uint adjustedPrice) = getAdjustedPriceAndFillSize(sellOrder, buyOrder);
-
-    if(common.optionType == OptionType.CALL) {
-      require(getAvailableBalance(seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
-
-      userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
-      positionPoolTokenBalance[positionHash][common.quoteAsset] += fillSize;
-      positionPoolTokenTotalSupply[positionHash] += fillSize;
-
-      userTokenBalances[seller][common.baseAsset] += adjustedPrice;
-      userTokenBalances[buyer][common.baseAsset] -= adjustedPrice;
-
-
-      // unlock buyer's collateral if this user was short
-      if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.quoteAsset] > 0) {
-        userTokenLockedBalance[buyer][common.quoteAsset] -= min(fillSize, userTokenLockedBalance[buyer][common.quoteAsset]);
-      }
-    }
-
-    if(common.optionType == OptionType.PUT) {
-      uint lockedCapital = adjustWithRatio(fillSize, common.strike);
-
-      require(getAvailableBalance(seller, common.baseAsset) >= lockedCapital, "Put Seller must have enough free collateral");
-      require(getAvailableBalance(buyer, common.quoteAsset) >= adjustedPrice, "Put Buyer must have enough free collateral");
-
-      userTokenLockedBalance[seller][common.baseAsset] += lockedCapital;
-      positionPoolTokenBalance[positionHash][common.baseAsset] += lockedCapital;
-      positionPoolTokenTotalSupply[positionHash] += lockedCapital;
-
-      userTokenBalances[seller][common.quoteAsset] += adjustedPrice;
-      userTokenBalances[buyer][common.quoteAsset] -= adjustedPrice;
-
-      // unlock buyer's collateral if this user was short
-      if(userOptionPosition[buyer][positionHash] < 0 && userTokenLockedBalance[buyer][common.baseAsset] > 0) {
-        userTokenLockedBalance[buyer][common.baseAsset] -= min(lockedCapital, userTokenLockedBalance[buyer][common.baseAsset]);
-      }
-    }
-
-    userOptionPosition[seller][positionHash] -= int(fillSize);
-    userOptionPosition[buyer][positionHash] += int(fillSize);
-
-    return (buyer, seller, positionHash);
+  function claim(OrderLib.OrderCommon memory common) public {
+    ExercisingLib.claim(state, common);
   }
 
-  function matchOrders(SmallOrder[] memory sellOrders, SmallOrder[] memory buyOrders, OrderCommon[] memory commons, Signature[] memory sellSigs, Signature[] memory buySigs) public {
-    uint sellIndex = 0;
-    uint buyIndex = 0;
-    uint sellFilled = 0;
-    uint buyFilled = 0;
-    uint sellsLen = sellOrders.length;
-    uint buysLen = buyOrders.length;
-    while(sellIndex < sellOrders.length && buyIndex < buysLen) {
-      SmallOrder memory sellOrder = sellOrders[sellIndex];
-      OrderCommon memory common = commons[sellIndex];
-      Signature memory sellSig = sellSigs[sellIndex];
-      SmallOrder memory buyOrder = buyOrders[buyIndex];
-      Signature memory buySig = buySigs[buyIndex];
-      (address buyer, address seller, bytes32 positionHash) = doPartialMatch(sellOrder, buyOrder, common, sellSig, buySig);
-
-      if(sellOrder.size - sellFilled >= buyOrder.size - buyFilled) {
-        sellFilled += buyOrder.size;
-        buyIndex++;
-        if(sellFilled == sellOrder.size || buyIndex == buysLen) {
-          sellIndex++;
-          userPairNonce[seller][positionHash] = sellOrder.nonce;
-          // calculate remainder of selling order and add it to internal offers
-          sellFilled = 0;
-        }
-        emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
-        userPairNonce[buyer][positionHash] = buyOrder.nonce;
-      } else if (sellOrder.size - sellFilled < buyOrder.size - buyFilled) {
-        buyFilled += sellOrder.size;
-        sellIndex++;
-        if(buyFilled == buyOrder.size || sellIndex == sellsLen) {
-          buyIndex++;
-          userPairNonce[buyer][positionHash] = buyOrder.nonce;
-          // calculate remainder of buying order and add it to internal offers
-          buyFilled = 0;
-        }
-        emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
-        userPairNonce[seller][positionHash] = sellOrder.nonce;
-      }
-    }
+  function announce(OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, OrderLib.Signature memory sig) public {
+    AnnounceLib.announce(state, order, common, sig);
   }
 
-  function cancel(Order memory order) public {
-    bytes32 commonHash = hashOrderCommon(getCommonFromOrder(order));
-    require(order.nonce - 1 >= getCurrentNonce(msg.sender, commonHash), "Invalid order nonce");
-    userPairNonce[msg.sender][commonHash] = order.nonce;
+  function announceMany(OrderLib.SmallOrder[] memory orders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sigs) public {
+    AnnounceLib.announceMany(state, orders, commons, sigs);
   }
 
-  function exercise(uint256 buyOrderSize, OrderCommon memory common) public payable {
-    address buyer = msg.sender;
-    bytes32 positionHash = hashOrderCommon(common);
-
-    require(userOptionPosition[buyer][positionHash] > 0, "Must have an open position to exercise");
-    require(userOptionPosition[buyer][positionHash] >= int(buyOrderSize), "Cannot exercise more than owned");
-    require(int(buyOrderSize) > 0, "buyOrderSize is too large");
-    require(common.expiry >= block.timestamp, "Option has already expired");
-
-    // user has exercised this many
-    userOptionPosition[buyer][positionHash] -= int(buyOrderSize);
-
-    uint256 totalPaid = adjustWithRatio(buyOrderSize, common.strike);
-
-    if(common.optionType == OptionType.CALL) {
-      require(positionPoolTokenBalance[positionHash][common.quoteAsset] >= buyOrderSize, "Pool must have enough funds");
-      require(userTokenBalances[buyer][common.baseAsset] >= totalPaid, "Buyer must have enough funds to exercise CALL");
-
-      // deduct the quoteAsset from the pool
-      positionPoolTokenBalance[positionHash][common.quoteAsset] -= buyOrderSize;
-
-      // Reduce seller's locked capital and token balance of quote asset
-      userTokenBalances[buyer][common.quoteAsset] += buyOrderSize;
-
-      // Give the seller the buyer's funds, in terms of baseAsset
-      positionPoolTokenBalance[positionHash][common.baseAsset] += totalPaid;
-
-      // deduct strike * size from buyer
-      userTokenBalances[buyer][common.baseAsset] -= totalPaid;
-    }
-    if(common.optionType == OptionType.PUT) {
-      require(positionPoolTokenBalance[positionHash][common.baseAsset] >= totalPaid, "Pool must have enough funds");
-      require(userTokenBalances[buyer][common.quoteAsset] >= buyOrderSize, "Buyer must have enough funds to exercise PUT");
-
-      // deduct baseAsset from pool
-      positionPoolTokenBalance[positionHash][common.baseAsset] -= totalPaid;
-
-      // increase exercisee balance by strike * size
-      userTokenBalances[buyer][common.baseAsset] += totalPaid;
-
-      // credit the pool the amount of quote asset sold
-      positionPoolTokenBalance[positionHash][common.quoteAsset] += buyOrderSize;
-
-      // deduct balance of tokens sold
-      userTokenBalances[buyer][common.quoteAsset] -= buyOrderSize;
-    }
+  function tokenizePosition(uint256 size, OrderLib.OrderCommon memory common) public {
+    TokenizeLib.tokenizePosition(state, size, common);
   }
 
-  function claim(OrderCommon memory common) public {
-    bytes32 positionHash = hashOrderCommon(common);
-    require(userOptionPosition[msg.sender][positionHash] < 0, "Must have sold an option to claim");
-    require(common.expiry < block.timestamp, "Cannot claim until options are expired");
-
-    uint256 poolOwnership =  uint256(-1 * userOptionPosition[msg.sender][positionHash]);
-
-    if(common.optionType == OptionType.CALL) {
-      // reset quoteAsset locked balance
-      userTokenLockedBalance[msg.sender][common.quoteAsset] -= poolOwnership;
-      userTokenBalances[msg.sender][common.quoteAsset] -= poolOwnership;
-    }
-
-    if(common.optionType == OptionType.PUT) {
-      // reset baseAsset locked balance
-      userTokenLockedBalance[msg.sender][common.baseAsset] -= poolOwnership;
-      userTokenBalances[msg.sender][common.baseAsset] -= poolOwnership;
-    }
-
-    uint256 totalSupply = positionPoolTokenTotalSupply[positionHash];
-
-    uint256 quoteBalance = positionPoolTokenBalance[positionHash][common.quoteAsset];
-    uint256 quoteBalanceOwed = poolOwnership / totalSupply * quoteBalance;
-
-    uint256 baseBalance = positionPoolTokenBalance[positionHash][common.baseAsset];
-    uint256 baseBalanceOwed = poolOwnership / totalSupply * baseBalance;
-
-    userTokenBalances[msg.sender][common.baseAsset] += baseBalanceOwed;
-    userTokenBalances[msg.sender][common.quoteAsset] += quoteBalanceOwed;
-
-    // reduce pool size by amount claimed
-    positionPoolTokenTotalSupply[positionHash] -= poolOwnership;
-    userOptionPosition[msg.sender][positionHash] = 0;
+  function unwrapPositionToken(address tokenAddress, uint256 size) public {
+    TokenizeLib.unwrapPositionToken(state, tokenAddress, size);
   }
 
-  function announce(SmallOrder memory order, OrderCommon memory common, Signature memory sig) public {
-    bytes32 positionHash = hashOrderCommon(common);
-    address user = getAddressFromSignedOrder(order, common, sig);
-    require(getCurrentNonce(user, positionHash) == order.nonce - 1, "User nonce incorrect");
-
-    if(common.optionType == OptionType.CALL) {
-      if(order.isBuy) {
-        require(getAvailableBalance(user, common.baseAsset) >= order.price, "Call Buyer must have enough free collateral");
-      } else {
-        require(getAvailableBalance(user, common.quoteAsset) >= order.size, "Call Seller must have enough free collateral");
-      }
-    }
-
-    if(common.optionType == OptionType.PUT) {
-      if(order.isBuy) {
-        require(getAvailableBalance(user, common.baseAsset) >= order.price, "Put Buyer must have enough free collateral");
-      } else {
-        require(getAvailableBalance(user, common.baseAsset) >= adjustWithRatio(order.size, common.strike), "Put Seller must have enough free collateral");
-      }
-    }
-
-    emit OrderAnnounce(common, positionHash, user, order, sig);
+  function userOptionPosition(address user, bytes32 positionHash) public view returns (int) {
+    return state.userOptionPosition[user][positionHash];
   }
 
+  function userTokenBalances(address user, address token) public view returns (uint) {
+    return state.userTokenBalances[user][token];
+  }
 
-  function announceMany(SmallOrder[] memory orders, OrderCommon[] memory commons, Signature[] memory sigs) public {
-    require(orders.length == commons.length, "Array length mismatch");
-    require(orders.length == sigs.length, "Array length mismatch");
-    for(uint i = 0; i < orders.length; i++) {
-      announce(orders[i], commons[i], sigs[i]);
-    }
+  function userTokenLockedBalance(address user, address token) public view returns (uint) {
+    return state.userTokenLockedBalance[user][token];
+  }
+
+  function positionPoolTokenBalance(bytes32 positionHash, address user) public view returns (uint) {
+    return state.positionPoolTokenBalance[positionHash][user];
+  }
+
+  function positionTokenInfo(address tokenAddress) public view returns (AppStateLib.PositionToken memory token) {
+    return state.positionTokenInfo[tokenAddress];
+  }
+
+  function positionTokenAddress(uint8 exposureType, bytes32 positionHash) public view returns (address info) {
+    return state.positionTokenAddress[AppStateLib.ExposureType(exposureType)][positionHash];
   }
 }
