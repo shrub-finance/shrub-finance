@@ -1,5 +1,4 @@
 const Exchange = artifacts.require("ShrubExchange");
-const OrderLib = artifacts.require("OrderLib");
 const SUSDToken = artifacts.require("SUSDToken");
 const HashUtil = artifacts.require("HashUtil");
 const { Shrub712 } = require("../utils/EIP712");

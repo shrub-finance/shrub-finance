@@ -165,7 +165,6 @@ task( 'maker', 'creates limit orders')
 
       const account = account0
       const shrubContractAccount = ShrubExchange__factory.connect(shrubExchangeDeployed.address, account);
-      // @ts-ignore-line
       const orderTypeHash = await shrubContractAccount.ORDER_TYPEHASH();
 
       for (let i = 0; i < count; i++) {
