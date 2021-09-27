@@ -12,7 +12,7 @@ contract TestTokenFactory is Ownable {
 
   event TokenCreated(address indexed token, string name, string symbol, uint rate);
 
-  function createTestToken(string memory tokenName, string memory symbol, uint tokenRate) onlyOwner external returns (address) {
+  function createToken(string memory tokenName, string memory symbol, uint tokenRate) onlyOwner external returns (address) {
     address newToken = address(new MintBurnToken(tokenName, symbol));
     tokens.push(newToken);
     require(tokenRate > 0, "TestTokenFactory: Must have a value for tokenRate");

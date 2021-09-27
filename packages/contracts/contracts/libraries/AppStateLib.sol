@@ -1,7 +1,22 @@
 pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 
+import "./OrderLib.sol";
+
 library AppStateLib {
+
+  using OrderLib for OrderLib.OrderCommon;
+
+  enum ExposureType {
+    SHORT,
+    LONG
+  }
+
+  struct PositionToken {
+    ExposureType exposureType;
+    address token;
+    OrderLib.OrderCommon common;
+  }
 
   struct AppState {
     // Order filling and matching

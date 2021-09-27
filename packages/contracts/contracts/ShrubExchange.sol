@@ -7,6 +7,7 @@ import "./libraries/MatchingLib.sol";
 import "./libraries/AnnounceLib.sol";
 import "./libraries/ExercisingLib.sol";
 import "./libraries/AppStateLib.sol";
+import "./libraries/TokenizeLib.sol";
 
 contract ShrubExchange {
 
@@ -75,6 +76,14 @@ contract ShrubExchange {
 
   function announceMany(OrderLib.SmallOrder[] memory orders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sigs) public {
     AnnounceLib.announceMany(state, orders, commons, sigs);
+  }
+
+  function tokenizePosition(uint256 size, OrderLib.OrderCommon memory common) public {
+    TokenizeLib.tokenizePosition(state, size, common);
+  }
+
+  function unwrapPositionToken(address tokenAddress, uint256 size) public {
+    TokenizeLib.unwrapPositionToken(state, tokenAddress, size); 
   }
 
   function userOptionPosition(address user, bytes32 positionHash) public view returns (int) {
