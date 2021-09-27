@@ -22,18 +22,18 @@ library TokenizeLib {
       // we are tokenizing a long position
 
       MintBurnToken token;
-      if(self.groupCommonToken[AppStateLib.ExposureType.LONG][positionHash] == OrderLib.ZERO_ADDRESS) {
+      if(self.positionTokenAddress[AppStateLib.ExposureType.LONG][positionHash] == OrderLib.ZERO_ADDRESS) {
         string memory tokenName = string(abi.encodePacked("SHRUB-LONG: ", positionHash));
         token = new MintBurnToken(tokenName, "SHRUB-LONG");
         address tokenAddress = address(token);
-        self.groupCommonToken[AppStateLib.ExposureType.LONG][positionHash] = tokenAddress;
+        self.positionTokenAddress[AppStateLib.ExposureType.LONG][positionHash] = tokenAddress;
         self.positionTokenInfo[tokenAddress] = AppStateLib.PositionToken({
           exposureType: AppStateLib.ExposureType.LONG,
           token: tokenAddress,
           common: common
         });
       } else {
-        token = MintBurnToken(self.groupCommonToken[AppStateLib.ExposureType.LONG][positionHash]);
+        token = MintBurnToken(self.positionTokenAddress[AppStateLib.ExposureType.LONG][positionHash]);
       }
 
       self.userOptionPosition[msg.sender][positionHash] -= int(size);
@@ -43,18 +43,18 @@ library TokenizeLib {
       // we are tokenizing a short position
 
       MintBurnToken token;
-      if(self.groupCommonToken[AppStateLib.ExposureType.SHORT][positionHash] == OrderLib.ZERO_ADDRESS) {
+      if(self.positionTokenAddress[AppStateLib.ExposureType.SHORT][positionHash] == OrderLib.ZERO_ADDRESS) {
         string memory tokenName = string(abi.encodePacked("SHRUB-SHORT: ", positionHash));
         token = new MintBurnToken(tokenName, "SHRUB-SHORT");
         address tokenAddress = address(token);
-        self.groupCommonToken[AppStateLib.ExposureType.SHORT][positionHash] = tokenAddress;
+        self.positionTokenAddress[AppStateLib.ExposureType.SHORT][positionHash] = tokenAddress;
         self.positionTokenInfo[tokenAddress] = AppStateLib.PositionToken({
           exposureType: AppStateLib.ExposureType.SHORT,
           token: tokenAddress,
           common: common
         });
       } else {
-        token = MintBurnToken(self.groupCommonToken[AppStateLib.ExposureType.SHORT][positionHash]);
+        token = MintBurnToken(self.positionTokenAddress[AppStateLib.ExposureType.SHORT][positionHash]);
       }
 
       self.userOptionPosition[msg.sender][positionHash] += int(size);

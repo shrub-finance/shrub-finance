@@ -34,7 +34,7 @@ library AppStateLib {
 
 
     // Tokenize Positions
-    mapping(ExposureType => mapping(bytes32 => address)) groupCommonToken;
+    mapping(ExposureType => mapping(bytes32 => address)) positionTokenAddress;
     mapping(address => PositionToken) positionTokenInfo;
   }
 }
