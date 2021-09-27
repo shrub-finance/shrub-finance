@@ -1,6 +1,6 @@
 import {BytesLike, ethers} from "ethers";
 import {SUSDToken__factory, ShrubExchange} from "@shrub/contracts/types/ethers-v5";
-import {ShrubExchange__factory} from "@shrub/contracts/types/ethers-v5";
+import {ShrubExchange__factory, HashUtil__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
   ApiOrder,
@@ -21,14 +21,25 @@ import {JsonRpcProvider} from "@ethersproject/providers";
 
 
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
+const HASH_UTIL_CONTRACT_ADDRESS = process.env.REACT_APP_HASH_UTIL_ADDRESS || "";
 const SUSD_TOKEN_ADDRESS = process.env.REACT_APP_SUSD_TOKEN_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id('OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const ORDER_TYPEHASH = ethers.utils.id('Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
-if (!SHRUB_CONTRACT_ADDRESS || !SUSD_TOKEN_ADDRESS) {
+if (!SHRUB_CONTRACT_ADDRESS) {
   throw new Error(
-    "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS and REACT_APP_SUSD_TOKEN_ADDRESS to your .env file"
+    "Missing configuration. Please add REACT_APP_SHRUB_ADDRESS to your .env file"
+  );
+}
+if (!HASH_UTIL_CONTRACT_ADDRESS) {
+  throw new Error(
+    "Missing configuration. Please add REACT_APP_HASH_UTIL_ADDRESS to your .env file"
+  );
+}
+if (!SUSD_TOKEN_ADDRESS) {
+  throw new Error(
+    "Missing configuration. Please add REACT_APP_SUSD_TOKEN_ADDRESS to your .env file"
   );
 }
 
@@ -290,8 +301,9 @@ export async function getAddressFromSignedOrder(order: IOrder, provider: JsonRpc
   const smallOrder = iOrderToSmall(order);
   const commonOrder = iOrderToCommon(order);
 
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
-  return shrubContract.getAddressFromSignedOrder(smallOrder, commonOrder, sig);
+  // const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  const hashUtil = HashUtil__factory.connect(HASH_UTIL_CONTRACT_ADDRESS, provider);
+  return hashUtil.getAddressFromSignedOrder(smallOrder, commonOrder, sig);
 }
 
 export async function validateOrderAddress(order: IOrder, provider: JsonRpcProvider) {
@@ -306,7 +318,7 @@ export async function getUserNonce(
   provider: JsonRpcProvider
 ) {
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
-  const bigNonce = await shrubContract["getCurrentNonce(address,(address,address,uint256,uint256,uint8))"](address, common)
+  const bigNonce = await shrubContract.getCurrentNonce(address, common);
   return bigNonce.toNumber();
 }
 
@@ -325,55 +337,55 @@ export function getLockedBalance(address: string, tokenContractAddress: string, 
   return shrubContract.userTokenLockedBalance(address, tokenContractAddress);
 }
 
-export async function matchOrder(params: {
-  signedBuyOrder: IOrder;
-  signedSellOrder: IOrder;
-}, provider: JsonRpcProvider) {
-  const { signedBuyOrder, signedSellOrder } = params;
-  const shrubInterface = new Shrub712(1337, SHRUB_CONTRACT_ADDRESS);
-  const sellOrder: SmallOrder = shrubInterface.toSmallOrder(signedSellOrder);
-  const buyOrder = shrubInterface.toSmallOrder(signedBuyOrder);
-  const common = shrubInterface.toCommon(signedBuyOrder);
-  const sellSig = iOrderToSig(signedSellOrder);
-  const buySig = iOrderToSig(signedBuyOrder);
-
-  const signer = provider.getSigner();
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
-
-  //  All of the validations that the smart contract does
-  const seller = await getAddressFromSignedOrder(signedSellOrder, provider);
-  const buyer = await getAddressFromSignedOrder(signedBuyOrder, provider);
-  const sellerNonce = await getUserNonce(seller, common, provider);
-  const buyerNonce = await getUserNonce(buyer, common, provider);
-  if (sellOrder.nonce - 1 !== sellerNonce) {
-    throw new Error(
-      `SellerNonce: ${sellerNonce} must be 1 less than the sell order nonce: ${sellOrder.nonce}`
-    );
-  }
-  if (buyOrder.nonce - 1 !== buyerNonce) {
-    throw new Error(
-      `BuyerNonce: ${buyerNonce} must be 1 less than the buy order nonce: ${buyOrder.nonce}`
-    );
-  }
-  if (common.optionType === 1) {
-    //  CALL OPTION
-    const sellerQuoteAssetBalance = await getAvailableBalance({
-      address: seller,
-      tokenContractAddress: common.quoteAsset,
-      provider
-    });
-    if (sellerQuoteAssetBalance.lt(sellOrder.size)) {
-      throw new Error(
-        `SellerQuoteAssetBalance: ${sellerQuoteAssetBalance} must be larger than the sellOrder size: ${sellOrder.size}`
-      );
-    }
-  } else {
-    //  PUT OPTION
-  }
-
-  console.log({ sellOrder, buyOrder, common, sellSig, buySig });
-  return shrubContract.matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
-}
+// export async function matchOrder(params: {
+//   signedBuyOrder: IOrder;
+//   signedSellOrder: IOrder;
+// }, provider: JsonRpcProvider) {
+//   const { signedBuyOrder, signedSellOrder } = params;
+//   const shrubInterface = new Shrub712(1337, SHRUB_CONTRACT_ADDRESS);
+//   const sellOrder: SmallOrder = shrubInterface.toSmallOrder(signedSellOrder);
+//   const buyOrder = shrubInterface.toSmallOrder(signedBuyOrder);
+//   const common = shrubInterface.toCommon(signedBuyOrder);
+//   const sellSig = iOrderToSig(signedSellOrder);
+//   const buySig = iOrderToSig(signedBuyOrder);
+//
+//   const signer = provider.getSigner();
+//   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+//
+//   //  All of the validations that the smart contract does
+//   const seller = await getAddressFromSignedOrder(signedSellOrder, provider);
+//   const buyer = await getAddressFromSignedOrder(signedBuyOrder, provider);
+//   const sellerNonce = await getUserNonce(seller, common, provider);
+//   const buyerNonce = await getUserNonce(buyer, common, provider);
+//   if (sellOrder.nonce - 1 !== sellerNonce) {
+//     throw new Error(
+//       `SellerNonce: ${sellerNonce} must be 1 less than the sell order nonce: ${sellOrder.nonce}`
+//     );
+//   }
+//   if (buyOrder.nonce - 1 !== buyerNonce) {
+//     throw new Error(
+//       `BuyerNonce: ${buyerNonce} must be 1 less than the buy order nonce: ${buyOrder.nonce}`
+//     );
+//   }
+//   if (common.optionType === 1) {
+//     //  CALL OPTION
+//     const sellerQuoteAssetBalance = await getAvailableBalance({
+//       address: seller,
+//       tokenContractAddress: common.quoteAsset,
+//       provider
+//     });
+//     if (sellerQuoteAssetBalance.lt(sellOrder.size)) {
+//       throw new Error(
+//         `SellerQuoteAssetBalance: ${sellerQuoteAssetBalance} must be larger than the sellOrder size: ${sellOrder.size}`
+//       );
+//     }
+//   } else {
+//     //  PUT OPTION
+//   }
+//
+//   console.log({ sellOrder, buyOrder, common, sellSig, buySig });
+//   return shrubContract.matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
+// }
 
 export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: IOrder[], provider: JsonRpcProvider) {
   const signer = provider.getSigner();
@@ -394,6 +406,8 @@ export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: I
     sellSigs.push(iOrderToSig(signedSellOrder));
     commons.push(iOrderToCommon(signedSellOrder));
   }
+
+  // TODO: Add some validation on here like there was for matchOrder
 
   return shrubContract.matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
 }
