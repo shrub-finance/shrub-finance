@@ -16,9 +16,9 @@ library TokenizeLib {
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     int exposure = self.userOptionPosition[msg.sender][positionHash];
     require(exposure != 0, "Must have an open position to tokenize");
+    require(exposure <= int(size));
     if(exposure > 0) {
       // we are tokenizing a long position
-      require(exposure <= int(size));
 
       MintBurnToken token;
       if(self.groupCommonToken[AppStateLib.ExposureType.LONG][positionHash] == OrderLib.ZERO_ADDRESS) {
@@ -37,8 +37,27 @@ library TokenizeLib {
 
       self.userOptionPosition[msg.sender][positionHash] -= int(size);
       token.mint(msg.sender, size);
-    } else {
+    } else if(exposure < 0) {
       revert("ShrubExchange: tokenizing short positions not implemented yet");
+      // we are tokenizing a short position
+
+      MintBurnToken token;
+      if(self.groupCommonToken[AppStateLib.ExposureType.SHORT][positionHash] == OrderLib.ZERO_ADDRESS) {
+        string memory tokenName = string(abi.encodePacked("SHRUB-SHORT: ", positionHash));
+        token = new MintBurnToken(tokenName, "SHRUB-SHORT");
+        address tokenAddress = address(token);
+        self.groupCommonToken[AppStateLib.ExposureType.SHORT][positionHash] = tokenAddress;
+        self.positionTokenInfo[tokenAddress] = AppStateLib.PositionToken({
+          exposureType: AppStateLib.ExposureType.SHORT,
+          token: tokenAddress,
+          common: common
+        });
+      } else {
+        token = MintBurnToken(self.groupCommonToken[AppStateLib.ExposureType.SHORT][positionHash]);
+      }
+
+      self.userOptionPosition[msg.sender][positionHash] += int(size);
+      token.mint(msg.sender, size);
     }
   }
 
@@ -53,6 +72,8 @@ library TokenizeLib {
 
     if(tokenInfo.exposureType == AppStateLib.ExposureType.LONG) {
       self.userOptionPosition[msg.sender][positionHash] += int(size);
+    } else if(tokenInfo.exposureType == AppStateLib.ExposureType.SHORT) {
+      self.userOptionPosition[msg.sender][positionHash] -= int(size);
     }
   }
 }
