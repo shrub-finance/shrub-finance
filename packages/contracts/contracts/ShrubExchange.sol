@@ -34,6 +34,10 @@ contract ShrubExchange {
     return MatchingLib.getCurrentNonce(state, user, common);
   }
 
+  function getCurrentNonceFromHash(address user, bytes32 commonHash) public view returns(uint) {
+    return MatchingLib.getCurrentNonce(state, user, commonHash);
+  }
+
   function getAvailableBalance(address user, address asset) public view returns(uint) {
     return FundsLib.getAvailableBalance(state, user, asset);
   }

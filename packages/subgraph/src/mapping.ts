@@ -1,20 +1,20 @@
 /// <reference path="../node_modules/assemblyscript/index.d.ts" />
 
-import { NewGravatar, UpdatedGravatar } from '../generated/Gravity/Gravity'
 import {
   Deposit,
   Withdraw,
   OrderAnnounce,
   OrderMatched,
-  ShrubExchange__hashSmallOrderInputOrderStruct,
-  ShrubExchange__hashSmallOrderInputCommonStruct, OrderAnnounceCommonStruct, OrderAnnounceOrderStruct,
+  OrderAnnounceCommonStruct,
+  OrderAnnounceOrderStruct,
 } from '../generated/ShrubExchange/ShrubExchange'
-import { BuyOrder, SellOrder, User, Match, Option } from '../generated/schema'
+import { BuyOrder, SellOrder, User, Match, Option, UserOption, TokenBalance } from '../generated/schema'
 import {Address, BigDecimal, BigInt, log} from '@graphprotocol/graph-ts'
 import {getUser} from "./entities/user";
 import {getToken} from "./entities/token";
+import { getUserOption, getBalance, updateUserOptionBalance } from './entities/userOption'
 import { getOrderId, createSellOrder, createBuyOrder } from './entities/order'
-import {getTokenBalance} from "./entities/tokenBalance";
+import { getTokenBalance, updateTokenBalance } from './entities/tokenBalance'
 import {getOption, setOptionOnMatch} from "./entities/option";
 import { integer, decimal, DEFAULT_DECIMALS, ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 import { ShrubExchange } from "../generated/ShrubExchange/ShrubExchange";
@@ -77,6 +77,9 @@ export function handleOrderMatched(event: OrderMatched): void {
   let buyer = event.params.buyer;
   let seller = event.params.seller;
   let shrubAddress = event.address;
+  let buyerUser = getUser(buyer);
+  let sellerUser = getUser(seller);
+  let option = getOption(positionHash, common as OrderAnnounceCommonStruct);
   let buyId = getOrderId(shrubAddress, buyOrder as OrderAnnounceOrderStruct, common as OrderAnnounceCommonStruct);
   let sellId = getOrderId(shrubAddress, sellOrder as OrderAnnounceOrderStruct, common as OrderAnnounceCommonStruct);
   log.info('Matching: buyOrder: {}, sellOrder: {}', [buyId, sellId]);
@@ -98,7 +101,28 @@ export function handleOrderMatched(event: OrderMatched): void {
     }
     // TODO: once we support partial matching, we need to check if the full size of the order has been consumed
     buyOrderObj.fullyMatched = true;
+    buyOrderObj.tradable = false;
     sellOrderObj.fullyMatched = true;
+    sellOrderObj.tradable = false;
+
+    // Load the relevant userOptions and update them
+    let buyUserOption = UserOption.load(buyOrderObj.userOption);
+    let sellUserOption = UserOption.load(sellOrderObj.userOption);
+    updateUserOptionBalance(buyUserOption as UserOption, shrubAddress);
+    updateUserOptionBalance(sellUserOption as UserOption, shrubAddress);
+
+    // Load the relevant tokenBalances and update them
+    let buyBaseTokenBalance = getTokenBalance(buyer, common.baseAsset, event.block);
+    let buyQuoteTokenBalance = getTokenBalance(buyer, common.quoteAsset, event.block);
+    let sellBaseTokenBalance = getTokenBalance(seller, common.baseAsset, event.block);
+    let sellQuoteTokenBalance = getTokenBalance(seller, common.quoteAsset, event.block);
+    updateTokenBalance(buyBaseTokenBalance, shrubAddress);
+    updateTokenBalance(buyQuoteTokenBalance, shrubAddress);
+    updateTokenBalance(sellBaseTokenBalance, shrubAddress);
+    updateTokenBalance(sellQuoteTokenBalance, shrubAddress);
+
+    // Find other orders for the same option with the same user and see if they got disqualified due to nonce
+
     match.buyOrder = buyOrderObj.id;
     match.sellOrder = sellOrderObj.id;
     match.totalFee = decimal.fromBigInt(buyOrder.fee.plus(sellOrder.fee));

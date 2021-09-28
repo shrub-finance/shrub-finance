@@ -7488,7 +7488,7 @@ __metadata:
     ethereum-waffle: ^3.3.0
     ethers: ^5.3.1
     hardhat: ^2.4.1
-    hardhat-abi-exporter: ^2.2.1
+    hardhat-abi-exporter: ^2.3.0
     hardhat-deploy: ^0.8.6
     hardhat-gas-reporter: ^1.0.4
     solidity-coverage: ^0.7.16
@@ -21197,12 +21197,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"hardhat-abi-exporter@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "hardhat-abi-exporter@npm:2.2.1"
+"hardhat-abi-exporter@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "hardhat-abi-exporter@npm:2.3.0"
   peerDependencies:
     hardhat: ^2.0.0
-  checksum: f343d5ec2238ac21f4b90a168b67a4ae07bdfc66810886382564dca458acb1ff81684e8e3d24b878279d0e8e747730825c36cac915da8f15c5fa6dcb02a6b2dc
+  checksum: 8702495452484dff24d05ed024973f081965bc0aa79ab8ddd6c2aa30c71d2d6fcbcefd0b51e50453c8e592a7e6ae8b23b143ed61851872c692c7487c5dce1e3c
   languageName: node
   linkType: hard
 

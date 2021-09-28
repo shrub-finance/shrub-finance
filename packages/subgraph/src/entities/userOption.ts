@@ -19,7 +19,7 @@ export function createUserOption(user: User, option: Option, shrubAddress: Addre
 
 export function getNonce(user: User, option: Option, shrubAddress: Address): BigInt {
   let shrubExchange = ShrubExchange.bind(shrubAddress);
-  let nonce = shrubExchange.userPairNonce(Address.fromString(user.id), Bytes.fromHexString(option.id) as Bytes);
+  let nonce = shrubExchange.getCurrentNonceFromHash(Address.fromString(user.id), Bytes.fromHexString(option.id) as Bytes);
   return nonce;
 }
 
@@ -33,6 +33,14 @@ export function getBalance(user: User, option: Option, shrubAddress: Address): B
     balance = decimal.fromBigInt(optionPosition.value as BigInt, decimals);
   }
   return balance as BigDecimal;
+}
+
+export function updateUserOptionBalance(userOption: UserOption, shrubAddress: Address): UserOption {
+  let user = User.load(userOption.user);
+  let option = Option.load(userOption.option);
+  userOption.balance = getBalance(user as User, option as Option, shrubAddress);
+  userOption.save();
+  return userOption;
 }
 
 export function getUserOptionId(user: User, option: Option): string {

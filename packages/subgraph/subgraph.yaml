@@ -26,6 +26,8 @@ dataSources:
           file: ../contracts/abi/ShrubExchange.json
         - name: ERC20
           file: ../contracts/abi/ERC20.json
+        - name: HashUtil
+          file: ../contracts/abi/HashUtil.json
       eventHandlers:
         - event: Deposit(address,address,uint256)
           handler: handleDeposit

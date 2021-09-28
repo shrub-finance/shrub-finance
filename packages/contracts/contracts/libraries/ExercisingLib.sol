@@ -13,6 +13,8 @@ library ExercisingLib {
   using OrderLib for OrderLib.Order;
   using OrderLib for OrderLib.OptionType;
 
+  event Exercised(address indexed user, bytes32 indexed positionHash, uint amount);
+
   function exercise(AppStateLib.AppState storage self, uint256 buyOrderSize, OrderLib.OrderCommon memory common) internal {
     address buyer = msg.sender;
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
@@ -60,6 +62,7 @@ library ExercisingLib {
       // deduct balance of tokens sold
       self.userTokenBalances[buyer][common.quoteAsset] -= buyOrderSize;
     }
+    emit Exercised(buyer, positionHash, buyOrderSize)
   }
 
 

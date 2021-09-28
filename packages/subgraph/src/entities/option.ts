@@ -1,13 +1,8 @@
 import { Option } from "../../generated/schema";
 import { Address, BigDecimal, BigInt, Bytes, log, Value } from '@graphprotocol/graph-ts'
-import { ERC20 } from "../../generated/ShrubExchange/ERC20";
 import {
   OrderAnnounceCommonStruct,
-  ShrubExchange,
-  ShrubExchange__hashOrderCommonInputCommonStruct,
 } from '../../generated/ShrubExchange/ShrubExchange'
-import {weiToEth} from "../utils"
-import {getToken} from "./token";
 import { decimal } from '@protofire/subgraph-toolkit/index'
 
 const STRIKE_BASE_SHIFT_DECIMALS = 6;

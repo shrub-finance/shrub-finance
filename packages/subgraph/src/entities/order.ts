@@ -2,10 +2,12 @@ import { Address, BigInt, Bytes, ethereum, log } from '@graphprotocol/graph-ts'
 import {
   OrderAnnounceCommonStruct,
   OrderAnnounceOrderStruct,
-  ShrubExchange,
-  ShrubExchange__hashSmallOrderInputCommonStruct,
-  ShrubExchange__hashSmallOrderInputOrderStruct,
-} from '../../generated/ShrubExchange/ShrubExchange'
+} from '../../generated/ShrubExchange/ShrubExchange';
+import {
+  HashUtil,
+  HashUtil__hashSmallOrderInputCommonStruct,
+  HashUtil__hashSmallOrderInputOrderStruct,
+} from '../../generated/ShrubExchange/HashUtil'
 import { BuyOrder, SellOrder } from '../../generated/schema'
 import { getOption } from './option'
 import { getUser } from './user'
@@ -13,16 +15,18 @@ import { decimal } from '@protofire/subgraph-toolkit/index'
 import { getToken } from './token'
 import { getUserOption } from './userOption'
 
+let HASH_UTIL_ADDRESS = Address.fromString('0x6c33305176a646a355d66dc35317db370cd6977b');
+
 export function getOrderId(
   shrubAddress: Address,
   smallOrder: OrderAnnounceOrderStruct,
   common: OrderAnnounceCommonStruct
 ): string {
-    let shrubExchange = ShrubExchange.bind(shrubAddress);
-    return shrubExchange.hashSmallOrder(
-      smallOrder as ShrubExchange__hashSmallOrderInputOrderStruct,
-      common as ShrubExchange__hashSmallOrderInputCommonStruct
-    ).toHex()
+  let hashUtil = HashUtil.bind(HASH_UTIL_ADDRESS);
+  return hashUtil.hashSmallOrder(
+    smallOrder as HashUtil__hashSmallOrderInputOrderStruct,
+    common as HashUtil__hashSmallOrderInputCommonStruct
+  ).toHex()
 }
 
 
@@ -54,6 +58,7 @@ export function createSellOrder(
   order.timestamp = block.timestamp.toI32();
   order.cancelDate = 0;
   order.fullyMatched = false;
+  order.tradable = true;
   order.save();
   return order;
 }
@@ -86,6 +91,7 @@ export function createBuyOrder(
   order.timestamp = block.timestamp.toI32();
   order.cancelDate = 0;
   order.fullyMatched = false;
+  order.tradable = true;
   order.save();
   return order;
 }
