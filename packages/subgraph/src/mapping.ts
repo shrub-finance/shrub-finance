@@ -6,10 +6,10 @@ import {
   OrderAnnounce,
   OrderMatched,
   OrderAnnounceCommonStruct,
-  OrderAnnounceOrderStruct,
+  OrderAnnounceOrderStruct, ExerciseCall, Exercised,
 } from '../generated/ShrubExchange/ShrubExchange'
-import { BuyOrder, SellOrder, User, Match, Option, UserOption, TokenBalance } from '../generated/schema'
-import {Address, BigDecimal, BigInt, log} from '@graphprotocol/graph-ts'
+import { BuyOrder, SellOrder, User, Match, Option, UserOption, TokenBalance, Token } from '../generated/schema'
+import { Address, BigDecimal, BigInt, ethereum, log } from '@graphprotocol/graph-ts'
 import {getUser} from "./entities/user";
 import {getToken} from "./entities/token";
 import { getUserOption, getBalance, updateUserOptionBalance } from './entities/userOption'
@@ -45,7 +45,56 @@ export function handleWithdraw(event: Withdraw): void {
   tokenBalance.timestamp = event.block.timestamp.toI32();
   tokenBalance.unlockedBalance = tokenBalance.unlockedBalance.minus(amount);
   tokenBalance.save();
+}
 
+export function handleExercised(event: Exercised) {
+  let user = event.params.user;
+  let positionHash = event.params.positionHash;
+  let amount = event.params.amount;
+  let shrubAddress = event.address;
+  let block = event.block;
+  let option = Option.load(positionHash.toHex());
+  let userObj = getUser(user);
+  let userOption = getUserOption(userObj, option, shrubAddress, block);
+
+  // Update userOptions of the exerciser
+  updateUserOptionBalance(userOption, shrubAddress);
+
+  // Update tokenBalance of the exerciser
+  let baseTokenBalance = getTokenBalance(user, Address.fromString(option.baseAsset), block)
+  let quoteTokenBalance = getTokenBalance(user, Address.fromString(option.quoteAsset), block);
+  updateTokenBalance(baseTokenBalance, shrubAddress);
+  updateTokenBalance(quoteTokenBalance, shrubAddress);
+
+  // Run check collateral for orders that user the currency that was used to exercise
+
+  // Update tokenBalance of the optionPool (need to make concept of optionPool first)
+}
+
+function checkCollateralForOutstandingOrders(user: User, tokenAddresses: Address[], block: ethereum.Block) {
+  // Collateral Requirements for an order
+  // BuyOrder
+  //  Call - total price of the order in baseAsset (USD)
+  //  Put - total price of the order in baseAsset (USD)
+  // SellOrder
+  //  Call - size of the order in quoteAsset (MATIC)
+  //  Put - size of the order * strike price in baseAsset (USD)
+
+  // get all relevant tokenBalances
+  let relevantTokenBalances = tokenAddresses.map((tokenAddress) => {
+    return getTokenBalance(Address.fromString(user.id), tokenAddress, block)
+  })
+
+  for (let userOptionStr of user.userOptions) {
+    let userOption = UserOption.load(userOptionStr);
+    let option = Option.load(userOption.option);
+    const baseAssetMatches = tokenAddresses.find(tokenAddress => tokenAddress.toHex() == option.baseAsset)
+    const quoteAssetMatches = tokenAddresses.find(tokenAddress => tokenAddress.toHex() == option.quoteAsset)
+  }
+
+  // Find buyOrders for user that have baseAsset=token and totalPrice < tokenbalance
+  // Find sellOrders that are PUT and baseAsset=token and size * totalPrice < tokenbalance
+  // Find sellOrders that are CALL and quoteAsset=token and size < tokenbalance
 }
 
 export function handleOrderAnnounce(event: OrderAnnounce): void {

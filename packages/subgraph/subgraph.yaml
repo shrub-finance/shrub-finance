@@ -37,4 +37,6 @@ dataSources:
           handler: handleOrderAnnounce
         - event: OrderMatched(indexed address,indexed address,bytes32,(uint256,bool,uint256,uint256,uint256,uint256),(uint256,bool,uint256,uint256,uint256,uint256),(address,address,uint256,uint256,uint8))
           handler: handleOrderMatched
+        - event: Exercised(indexed address,indexed bytes32,uint)
+          handler: handleExercised
       file: ./src/mapping.ts

@@ -62,7 +62,7 @@ library ExercisingLib {
       // deduct balance of tokens sold
       self.userTokenBalances[buyer][common.quoteAsset] -= buyOrderSize;
     }
-    emit Exercised(buyer, positionHash, buyOrderSize)
+    emit Exercised(buyer, positionHash, buyOrderSize);
   }
 
 
