@@ -99,6 +99,7 @@ function Positions() {
     onChange: (value: SupportedCurrencies) => setModalCurrency(value)
   })
   const currenciesRadiogroup = getRootProps();
+
   // shrub balance display
   useEffect(() => {
     setLocalError('');
@@ -226,11 +227,23 @@ function Positions() {
     }
     handleApprove();
   }, [modalCurrency, account, pendingTxsState])
+
   function handleWithdrawDepositModalClose() {
     setApproving(false);
     setActiveHash(undefined);
     onCloseModal();
   }
+
+  function goToDeposit() {
+          onCloseModal();
+          setApproving(false);
+          setActiveHash(undefined);
+          onOpenModal();
+          setLocalError('');
+          setAmountValue('');
+          setModalCurrency(modalCurrency);
+  }
+
   function handleWithdrawDepositModalOpen(buttonText?: any) {
     return (
         async function handleClick() {
@@ -524,6 +537,13 @@ function Positions() {
               </>
               }
             {(approving || activeHash) && <Txmonitor txHash={activeHash}/>}
+            {isApproved && (approving || activeHash) && <Button variant={"ghost"}
+              mb={1.5}
+              colorScheme="teal"
+              size={"lg"}
+              isFullWidth={true}
+              onClick={goToDeposit}
+              >Let's Deposit Now!</Button>}
           </ModalBody>
         </ModalContent>
       </Modal>
