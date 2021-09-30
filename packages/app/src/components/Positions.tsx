@@ -99,6 +99,8 @@ function Positions() {
     onChange: (value: SupportedCurrencies) => setModalCurrency(value)
   })
   const currenciesRadiogroup = getRootProps();
+  const [showDepositButton, setShowDepositButton] = useState(false);
+
   // shrub balance display
   useEffect(() => {
     setLocalError('');
@@ -226,11 +228,23 @@ function Positions() {
     }
     handleApprove();
   }, [modalCurrency, account, pendingTxsState])
+
   function handleWithdrawDepositModalClose() {
     setApproving(false);
     setActiveHash(undefined);
     onCloseModal();
   }
+
+  function goToDeposit() {
+          onCloseModal();
+          setApproving(false);
+          setActiveHash(undefined);
+          onOpenModal();
+          setLocalError('');
+          setAmountValue('');
+          setModalCurrency(modalCurrency);
+  }
+
   function handleWithdrawDepositModalOpen(buttonText?: any) {
     return (
         async function handleClick() {
@@ -276,8 +290,10 @@ function Positions() {
       setApproving(true);
       let tx;
       if (approve === 'approve') {
+        setShowDepositButton(true)
         tx = await approveToken( Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue || '0'), library);
       } else if (withdrawDepositAction === "Deposit") {
+        setShowDepositButton(false)
         if (modalCurrency === "MATIC") {
           tx = await depositEth(ethers.utils.parseUnits(amountValue), library)
         } else {
@@ -285,6 +301,7 @@ function Positions() {
           tx = await depositToken(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library);
         }
       } else {
+        setShowDepositButton(false)
         // Withdraw
         tx = await withdraw(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library)
       }
@@ -307,6 +324,7 @@ function Positions() {
 
     } catch (e) {
       setApproving(false)
+      setShowDepositButton(false)
       handleErrorMessages({err: e})
     }
   }
@@ -493,37 +511,25 @@ function Positions() {
                     </NumberInput>
                   </FormControl>}
                 </Stack>
-                {modalCurrency !== "MATIC" && withdrawDepositAction === "Deposit" && !isApproved &&
-                <>
-                  <Alert
-                      bgColor={alertColor}
-                      status="info"
-                      borderRadius={"md"}
-                      mb={3}
-                  >
+                {modalCurrency !== "MATIC" && withdrawDepositAction === "Deposit" && !isApproved && <>
+                  <Alert bgColor={alertColor} status="info" borderRadius={"md"} mb={3}>
                     <AlertIcon />
                     You will only have to approve once
                   </Alert>
-                  <Button
-                      mb={1.5}
-                      colorScheme="teal"
-                      size={"lg"}
-                      isFullWidth={true}
+                  <Button mb={1.5} colorScheme="teal" size={"lg"} isFullWidth={true}
                       onClick={() => {
                         if (active) {
                           handleDepositWithdraw(undefined, 'approve')
                         }
-                      }}>
-                    Approve
-                  </ Button>
+                      }}>Approve</ Button>
                 </>
                 }
-                {((modalCurrency === "MATIC")|| isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
+                {(modalCurrency === "MATIC" || isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
                   {withdrawDepositAction}
                 </Button>}
               </>
               }
-            {(approving || activeHash) && <Txmonitor txHash={activeHash}/>}
+            {(approving || activeHash) && <Txmonitor txHash={activeHash} showDeposit={showDepositButton} goToDeposit={goToDeposit}/>}
           </ModalBody>
         </ModalContent>
       </Modal>
