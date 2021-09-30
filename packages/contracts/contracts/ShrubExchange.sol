@@ -24,6 +24,7 @@ contract ShrubExchange {
   event OrderAnnounce(OrderLib.OrderCommon common, bytes32 indexed positionHash, address indexed user, OrderLib.SmallOrder order, OrderLib.Signature sig);
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, OrderLib.SmallOrder sellOrder, OrderLib.SmallOrder buyOrder, OrderLib.OrderCommon common);
   event Exercised(address indexed user, bytes32 indexed positionHash, uint amount);
+  event Cancelled(address indexed user, bytes32 indexed positionHash, uint nonce);
 
 
   bytes32 public ORDER_TYPEHASH = OrderLib.ORDER_TYPEHASH;

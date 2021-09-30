@@ -91,6 +91,7 @@ type Option @entity {
 type User @entity {
   "address"
   id: ID!
+  activeUserOptions: [UserOption!]!
   tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
   userMatches: [UserMatch!]! @derivedFrom(field: "user")
   userOptions: [UserOption!]! @derivedFrom(field: "user")
@@ -105,6 +106,8 @@ type UserOption @entity {
   option: Option!
   balance: BigDecimal!
   nonce: BigInt!
+  activeBuyOrders: [BuyOrder!]!
+  activeSellOrders: [SellOrder!]!
   optionPositions: [OptionPosition!]! @derivedFrom(field: "userOption")
   buyOrders: [BuyOrder!]! @derivedFrom(field: "userOption")
   sellOrders: [SellOrder!]! @derivedFrom(field: "userOption")

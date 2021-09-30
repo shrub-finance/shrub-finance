@@ -8,12 +8,12 @@ import {
   HashUtil__hashSmallOrderInputCommonStruct,
   HashUtil__hashSmallOrderInputOrderStruct,
 } from '../../generated/ShrubExchange/HashUtil'
-import { BuyOrder, SellOrder } from '../../generated/schema'
+import { BuyOrder, SellOrder, UserOption } from '../../generated/schema'
 import { getOption } from './option'
 import { getUser } from './user'
 import { decimal } from '@protofire/subgraph-toolkit/index'
 import { getToken } from './token'
-import { getUserOption } from './userOption'
+import { getUserOption, removeActiveBuyOrder, removeActiveSellOrder } from './userOption'
 
 let HASH_UTIL_ADDRESS = Address.fromString('0x6c33305176a646a355d66dc35317db370cd6977b');
 
@@ -42,7 +42,8 @@ export function createSellOrder(
   let order = new SellOrder(id);
   let user = getUser(orderAddress);
   let option = getOption(positionHash, common);
-  order.userOption = getUserOption(user, option, shrubAddress, block).id;
+  let userOption = getUserOption(user, option, shrubAddress, block);
+  order.userOption = userOption.id;
   order.option = option.id;
   order.size = decimal.fromBigInt(smallOrder.size, getToken(common.quoteAsset).decimals);
   order.nonce = smallOrder.nonce.toI32();
@@ -60,6 +61,12 @@ export function createSellOrder(
   order.fullyMatched = false;
   order.tradable = true;
   order.save();
+
+  let activeSellOrders = userOption.activeSellOrders;
+  activeSellOrders.push(order.id);
+  userOption.activeSellOrders = activeSellOrders;
+  userOption.save();
+
   return order;
 }
 
@@ -75,7 +82,8 @@ export function createBuyOrder(
   let order = new BuyOrder(id);
   let user = getUser(orderAddress);
   let option = getOption(positionHash, common);
-  order.userOption = getUserOption(user, option, shrubAddress, block).id;
+  let userOption = getUserOption(user, option, shrubAddress, block);
+  order.userOption = userOption.id;
   order.option = option.id;
   order.size = decimal.fromBigInt(smallOrder.size, getToken(common.quoteAsset).decimals);
   order.nonce = smallOrder.nonce.toI32();
@@ -93,5 +101,51 @@ export function createBuyOrder(
   order.fullyMatched = false;
   order.tradable = true;
   order.save();
+
+  let activeBuyOrders = userOption.activeBuyOrders;
+  activeBuyOrders.push(order.id);
+  userOption.activeBuyOrders = activeBuyOrders;
+  userOption.save();
+
   return order;
+}
+
+export function setSellOrderExpiredNonce(sellOrder: SellOrder, block: ethereum.Block): SellOrder {
+  sellOrder.expiredNonce = true;
+  sellOrder.tradable = false;
+  sellOrder.cancelDate = block.timestamp.toI32();
+
+  let userOption = UserOption.load(sellOrder.userOption) as UserOption;
+  removeActiveSellOrder(userOption, sellOrder.id);
+
+  sellOrder.save();
+  return sellOrder
+}
+
+export function setBuyOrderExpiredNonce(buyOrder: BuyOrder, block: ethereum.Block): BuyOrder {
+  buyOrder.expiredNonce = true;
+  buyOrder.tradable = false;
+  buyOrder.cancelDate = block.timestamp.toI32();
+  let userOption = UserOption.load(buyOrder.userOption) as UserOption;
+  removeActiveBuyOrder(userOption, buyOrder.id);
+  buyOrder.save();
+  return buyOrder
+}
+
+export function setSellOrderUnfunded(sellOrder: SellOrder): SellOrder {
+  sellOrder.funded = false;
+  sellOrder.tradable = false;
+  let userOption = UserOption.load(sellOrder.userOption) as UserOption;
+  removeActiveSellOrder(userOption, sellOrder.id);
+  sellOrder.save();
+  return sellOrder;
+}
+
+export function setBuyOrderUnfunded(buyOrder: BuyOrder): BuyOrder {
+  buyOrder.funded = false;
+  buyOrder.tradable = false;
+  let userOption = UserOption.load(buyOrder.userOption) as UserOption;
+  removeActiveBuyOrder(userOption, buyOrder.id);
+  buyOrder.save();
+  return buyOrder;
 }

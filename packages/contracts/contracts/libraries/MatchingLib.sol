@@ -25,6 +25,7 @@ library MatchingLib {
   }
 
   event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, OrderLib.SmallOrder sellOrder, OrderLib.SmallOrder buyOrder, OrderLib.OrderCommon common);
+  event Cancelled(address indexed user, bytes32 indexed positionHash, uint nonce);
 
   function getCurrentNonce(AppStateLib.AppState storage self, address user, OrderLib.OrderCommon memory common) internal view returns(uint) {
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
@@ -174,5 +175,6 @@ library MatchingLib {
       require(order.nonce - 1 >= getCurrentNonce(self, msg.sender, commonHash), "Invalid order nonce");
       self.userPairNonce[msg.sender][commonHash] = order.nonce;
     }
+    emit Cancelled(msg.sender, commonHash, order.nonce);
   }
 }

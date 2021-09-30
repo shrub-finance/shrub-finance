@@ -3,6 +3,7 @@ import {Address} from "@graphprotocol/graph-ts";
 
 export function createUser(address: Address): User {
   let user = new User(address.toHex())
+  user.activeUserOptions = [];
   user.save();
   return user;
 }
