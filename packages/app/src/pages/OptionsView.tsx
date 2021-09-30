@@ -340,7 +340,7 @@ function OptionsView(props: RouteComponentProps) {
         <Text  fontSize="xs">{unitPrice}</Text>
       </Td>
       <Td>
-        <Tag size={'sm'} colorScheme={status === 'cancelled' ? 'red' : 'yellow'} borderRadius={'full'}>
+        <Tag size={'sm'} colorScheme={status === 'cancelled' ? 'red' : status === 'expired'? 'gray' : status === 'completed'? 'cyan' : status === 'active'? 'yellow': 'blue'} borderRadius={'full'}>
           <TagLabel>{status}</TagLabel>
         </Tag>
         </Td>
@@ -490,13 +490,14 @@ function OptionsView(props: RouteComponentProps) {
       </Box>
       }
 
-      {contractDataStatus === "fetched" && (Number(expiryDate)*1000) > Date.now() ?
+      {contractDataStatus === "fetched" ?
           <>
       <Box mb={10}>
         <HStack {...groupExpiry}>
           {expiryDates.map((expiry) => {
             const radio = getExpiryRadioProps({ value: expiry });
             return (
+                (Number(expiry)*1000) > Date.now() &&
                   <RadioCard key={expiry} {...radio}>
                     {formatDate(Number(expiry))}
                   </RadioCard>
@@ -547,8 +548,7 @@ function OptionsView(props: RouteComponentProps) {
             </Center>
           </Flex>
       }
-    {(Number(expiryDate)*1000) > Date.now() &&
-    {optionRows}}
+    {optionRows}
     </Container>
         {!!userOrderRows.length && <Container
         mt={50}
@@ -565,7 +565,7 @@ function OptionsView(props: RouteComponentProps) {
               <Th>Option</Th>
               <Th isNumeric>Price per Contract</Th>
               <Th>Status</Th>
-              <Th>Cancel</Th>
+              <Th></Th>
             </Tr>
           </Thead>
           <Tbody>
