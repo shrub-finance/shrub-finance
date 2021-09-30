@@ -9,10 +9,10 @@ import {
   Container,
   Flex, Heading,
   HStack,
-  Link,
+  Text,
   Spacer,
   Spinner,
-  Table,
+  Table, Tag, TagLabel,
   Tbody,
   Td,
   Th,
@@ -69,6 +69,7 @@ import {ToastDescription} from "../components/TxMonitoring";
 import {TxContext} from "../components/Store";
 import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import {nonceReducer} from "../components/nonceReducer";
+import {HelloBud} from "../assets/Icons";
 
 const initialOrderBookState = {};
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
@@ -92,6 +93,8 @@ function OptionsView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState('');
   const [userMatches, setUserMatches] = useState<{buy: any[], sell: any[]}>({ buy: [], sell: []})
   const toast = useToast();
+  const boxShadow = useColorModeValue("2xl", "2xl");
+  const backgroundColor = useColorModeValue("white", "shrub.100");
 
   const optionRows: JSX.Element[] = [];
   const userOrderRows: JSX.Element[] = [];
@@ -325,15 +328,22 @@ function OptionsView(props: RouteComponentProps) {
     } else {
       status = ''
     }
-    userOrderRows.push(<Tr>
-      <Td>
-        <Link color={"gray"} fontSize={"sm"}
-          href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}> {blockNumber}
-        </Link>
+    userOrderRows.push(
+       <Tr>
+      <Td >
+        <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
+          {blockNumber}
+        </Button>
       </Td>
-      <Td>{shortOptionName(order)}</Td>
-      <Td isNumeric={true}>{unitPrice}</Td>
-      <Td>{status}</Td>
+      <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(order)}</Td>
+      <Td maxWidth={"10px"} isNumeric={true}>
+        <Text  fontSize="xs">{unitPrice}</Text>
+      </Td>
+      <Td>
+        <Tag size={'sm'} colorScheme={status === 'cancelled' ? 'red' : status === 'expired'? 'gray' : status === 'completed'? 'cyan' : status === 'active'? 'yellow': 'blue'} borderRadius={'full'}>
+          <TagLabel>{status}</TagLabel>
+        </Tag>
+        </Td>
       <Td>
         {
           status === 'active' &&
@@ -342,7 +352,8 @@ function OptionsView(props: RouteComponentProps) {
           </Button>
         }
       </Td>
-    </Tr>)
+    </Tr>
+    )
   }
 
   function cancelOrderFunc(order: AppOrderSigned) {
@@ -468,8 +479,8 @@ function OptionsView(props: RouteComponentProps) {
       <Center >
         <Spinner color="bud.100" size="xl"/>
       </Center>
-
       }
+
       {contractDataError &&
       <Box>
         <Alert status="error" borderRadius={9}>
@@ -478,7 +489,8 @@ function OptionsView(props: RouteComponentProps) {
         </Alert>
       </Box>
       }
-      {contractDataStatus === "fetched" &&
+
+      {contractDataStatus === "fetched" ?
           <>
       <Box mb={10}>
         <HStack {...groupExpiry}>
@@ -500,7 +512,7 @@ function OptionsView(props: RouteComponentProps) {
           {/*</RadioCard>*/}
         </HStack>
       </Box>
-        <Flex mb={10}>
+       <Flex mb={10}>
             <HStack {...groupOption}>
               {sellBuys.map((value) => {
                 const radio = getOptionRadioProps({ value });
@@ -524,16 +536,27 @@ function OptionsView(props: RouteComponentProps) {
             </HStack>
         </Flex>
           </>
+          :
+          <Flex direction="column">
+            <Center>
+              <HelloBud boxSize={200}/>
+            </Center>
+            <Center pt={6}>
+              <Box as="span" fontWeight="semibold" fontSize="md" color="gray.500">
+                No options available yet, but you should check back again!
+              </Box>
+            </Center>
+          </Flex>
       }
-      {optionRows}
+    {optionRows}
     </Container>
-      <Container
+        {!!userOrderRows.length && <Container
         mt={50}
         p={5}
-        shadow={useColorModeValue("2xl", "2xl")}
+        shadow={boxShadow}
         flex="1"
         borderRadius="2xl"
-        bg={useColorModeValue("white", "shrub.100")}
+        bg={backgroundColor}
       >
         <Table variant="simple">
           <Thead>
@@ -542,14 +565,14 @@ function OptionsView(props: RouteComponentProps) {
               <Th>Option</Th>
               <Th isNumeric>Price per Contract</Th>
               <Th>Status</Th>
-              <Th>Cancel</Th>
+              <Th></Th>
             </Tr>
           </Thead>
           <Tbody>
             {userOrderRows}
           </Tbody>
         </Table>
-      </Container>
+      </Container>}
       </>
   );
 }
