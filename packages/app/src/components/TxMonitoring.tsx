@@ -2,7 +2,7 @@ import {
     Alert,
     AlertDescription,
     AlertIcon,
-    AlertTitle, Box, Button, Center, Flex, Link, Spacer, Spinner, useColorModeValue
+    AlertTitle, Box, Button, Center, Container, Flex, Link, Spacer, Spinner, useColorModeValue
 } from '@chakra-ui/react';
 import React, {useContext} from "react";
 import {TxContext} from "./Store";
@@ -15,7 +15,7 @@ import {ExplorerDataType, explorerLink} from '../utils/chainMethods'
 import {useWeb3React} from "@web3-react/core";
 
 
-export function Txmonitor({txHash}:{txHash?: string}) {
+export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, showDeposit?: boolean, goToDeposit?: any} ) {
     console.log(txHash);
     const {chainId} = useWeb3React();
     const { pendingTxs } = useContext(TxContext);
@@ -92,20 +92,25 @@ export function Txmonitor({txHash}:{txHash?: string}) {
               height="400px"
               bg="none"
             >
-              <AlertIcon boxSize="40px" mr={0} color={"bud.100"}/>
-              <AlertTitle mt={4} mb={1} fontSize="lg">
+              <AlertIcon boxSize={showDeposit ? "140px" : "40px"} mr={0} color={"bud.100"}/>
+              <AlertTitle mt={showDeposit ? 12 : 4} mb={1} fontSize="lg">
                 Transaction Confirmed
               </AlertTitle>
               <AlertDescription maxWidth="sm">
                   <Link color={"gray"} fontSize={"sm"} href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)} isExternal>
                       View on explorer <ExternalLinkIcon mx="2px" />
                   </Link>
-
-                  <Center>
+                  {!showDeposit &&<Center>
                       <HappyBud mt={8} boxSize={260} />
-                  </Center>
+                      </Center>}
+                  {showDeposit &&
+                  <Button variant={"ghost"} mt={10}
+                          colorScheme="teal" size={"lg"} isFullWidth={true}
+                      onClick={goToDeposit}
+                  >Go to Deposit</Button>}
               </AlertDescription>
-            </Alert>}
+            </Alert>
+            }
 
 
             {status === 'failed' && <Alert

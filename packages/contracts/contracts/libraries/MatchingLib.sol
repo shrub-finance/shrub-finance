@@ -84,6 +84,7 @@ library MatchingLib {
 
   function doPartialMatch(AppStateLib.AppState storage self, OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig)
   internal returns(address, address, bytes32) {
+    require(common.expiry > block.timestamp, "Cannot match orders for expired options");
     require(OrderLib.checkOrderMatches(sellOrder, buyOrder), "Buy and sell order do not match");
     PartialMatchRound memory round = getPartialMatchRound(sellOrder, buyOrder, common, sellSig, buySig);
     require(round.seller != round.buyer, "Seller and Buyer must be different");
