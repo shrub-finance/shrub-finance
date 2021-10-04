@@ -69,6 +69,7 @@ import {ToastDescription} from "../components/TxMonitoring";
 import {TxContext} from "../components/Store";
 import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import {nonceReducer} from "../components/nonceReducer";
+import SummaryView from '../components/SummaryView'
 import {HelloBud} from "../assets/Icons";
 
 const initialOrderBookState = {};
@@ -183,7 +184,6 @@ function OptionsView(props: RouteComponentProps) {
     .catch(console.error);
 
   }, [account, library])
-
 
   useEffect(() => {
       if (contractData && contractDataStatus === "fetched" && !contractDataError) {
@@ -465,6 +465,7 @@ function OptionsView(props: RouteComponentProps) {
   }
   return (
       <>
+        <SummaryView />
         <Heading mt={10}><Center><Icon as={currencyIcon(chainId)} pr="1"/> {currencySymbol(chainId)} Options</Center></Heading>
 
   <Container

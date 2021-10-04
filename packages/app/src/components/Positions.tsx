@@ -63,6 +63,8 @@ import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
 import {QuestionOutlineIcon} from '@chakra-ui/icons';
 import {currencySymbol} from "../utils/chainMethods";
+import { useQuery } from '@apollo/client'
+import { SHRUBFOLIO_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries'
 
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
@@ -101,6 +103,14 @@ function Positions() {
   const currenciesRadiogroup = getRootProps();
   const [showDepositButton, setShowDepositButton] = useState(false);
 
+
+  const { loading, error, data } = useQuery(SHRUBFOLIO_QUERY, {
+    variables: {
+      id: account
+    }
+  })
+
+
   // shrub balance display
   useEffect(() => {
     setLocalError('');
@@ -130,91 +140,96 @@ function Positions() {
     shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
+
   // options display
-  useEffect(() => {
-    async function displayOptionsHandler() {
-      if (!active || !account) {
-        handleErrorMessages({customMessage:'Please connect your wallet'})
-        console.error('Please connect wallet');
-        return;
-      }
-      let filledOrders = {};
-      const fromBlock = DEPLOY_BLOCKHEIGHT;
-      const latestBlockNumber = await getBlockNumber(library);
-      let cursor = Number(fromBlock);
-      while (cursor < latestBlockNumber) {
-        const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
-        const rangeFilledOrders = await getFilledOrders(account, library, cursor, to);
-        // TODO: this should cache in localStorage
-        filledOrders = { ...filledOrders, ...rangeFilledOrders };
-        cursor = to + 1;
-      }
-      if (typeof filledOrders === 'object' && Object.keys(filledOrders).length !== 0) {
-        hasOptions.current = true;
-        // Populate Option Positions Table
-        for (const details of Object.values(filledOrders)) {
-          const {pair, strike, expiry, optionType, amount, common, buyOrder, seller}
-            = details as
-            {
-              baseAsset: string,
-              quoteAsset: string,
-              pair: string,
-              strike: string,
-              expiry: string,
-              optionType: string,
-              amount: number,
-              common: OrderCommon,
-              buyOrder: SmallOrder,
-              seller: string
-            };
-          orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
-          tableRowsOptions.push(
-            <Tr>
-              <Td>{pair}</Td>
-              <Td>{strike}</Td>
-              <Td>{expiry}</Td>
-              <Td>{optionType}</Td>
-              <Td>{amount}</Td>
-              <Td>
-                {amount > 0 ? <Button
-                  colorScheme="teal"
-                  size="xs"
-                  onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
-                >
-                  Exercise
-                </Button> : Number(amount) === 0 ? <Button
-                  variant={"ghost"}
-                  isDisabled={true}
-                  colorScheme="teal"
-                  size="xs"
-                >
-                  Exercised
-                </Button> : ''
-                }
-              </Td>
-            </Tr>
-          )
-        }
-      } else {
-        hasOptions.current = false;
-        tableRowsOptions.push(
-          <Flex>
-            <Center w="600px">
-              <HelloBud boxSize={200}/>
-            </Center>
-            <Center w="100%" h="100%">
-              <Box as="span" fontWeight="semibold" fontSize="lg">
-                You don't have any options yet!
-              </Box>
-            </Center>
-          </Flex>
-        )
-      }
-      setOptionsRows(tableRowsOptions);
-    }
-    displayOptionsHandler()
-      .catch(console.error);
-  }, [active, account, library, pendingTxsState])
+  // useEffect(() => {
+  //   async function displayOptionsHandler() {
+  //     if (!active || !account) {
+  //       handleErrorMessages({customMessage:'Please connect your wallet'})
+  //       console.error('Please connect wallet');
+  //       return;
+  //     }
+  //     let filledOrders = {};
+  //     const fromBlock = DEPLOY_BLOCKHEIGHT;
+  //     const latestBlockNumber = await getBlockNumber(library);
+  //     let cursor = Number(fromBlock);
+  //     while (cursor < latestBlockNumber) {
+  //       const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
+  //       const rangeFilledOrders = await getFilledOrders(account, library, cursor, to);
+  //       // TODO: this should cache in localStorage
+  //       filledOrders = { ...filledOrders, ...rangeFilledOrders };
+  //       cursor = to + 1;
+  //     }
+  //     if (typeof filledOrders === 'object' && Object.keys(filledOrders).length !== 0) {
+  //       hasOptions.current = true;
+  //       // Populate Option Positions Table
+  //       for (const details of Object.values(filledOrders)) {
+  //         const {pair, strike, expiry, optionType, amount, common, buyOrder, seller}
+  //           = details as
+  //           {
+  //             baseAsset: string,
+  //             quoteAsset: string,
+  //             pair: string,
+  //             strike: string,
+  //             expiry: string,
+  //             optionType: string,
+  //             amount: number,
+  //             common: OrderCommon,
+  //             buyOrder: SmallOrder,
+  //             seller: string
+  //           };
+  //         orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
+  //         tableRowsOptions.push(
+  //           <Tr>
+  //             <Td>{pair}</Td>
+  //             <Td>{strike}</Td>
+  //             <Td>{expiry}</Td>
+  //             <Td>{optionType}</Td>
+  //             <Td>{amount}</Td>
+  //             <Td>
+  //               {amount > 0 ? <Button
+  //                 colorScheme="teal"
+  //                 size="xs"
+  //                 onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
+  //               >
+  //                 Exercise
+  //               </Button> : Number(amount) === 0 ? <Button
+  //                 variant={"ghost"}
+  //                 isDisabled={true}
+  //                 colorScheme="teal"
+  //                 size="xs"
+  //               >
+  //                 Exercised
+  //               </Button> : ''
+  //               }
+  //             </Td>
+  //           </Tr>
+  //         )
+  //       }
+  //     } else {
+  //       hasOptions.current = false;
+  //       tableRowsOptions.push(
+  //         <Flex>
+  //           <Center w="600px">
+  //             <HelloBud boxSize={200}/>
+  //           </Center>
+  //           <Center w="100%" h="100%">
+  //             <Box as="span" fontWeight="semibold" fontSize="lg">
+  //               You don't have any options yet!
+  //             </Box>
+  //           </Center>
+  //         </Flex>
+  //       )
+  //     }
+  //     setOptionsRows(tableRowsOptions);
+  //   }
+  //   displayOptionsHandler()
+  //     .catch(console.error);
+  // }, [active, account, library, pendingTxsState])
+
+
+
+
   useEffect(() => {
     async function handleApprove(){
       if (modalCurrency !== 'MATIC') {

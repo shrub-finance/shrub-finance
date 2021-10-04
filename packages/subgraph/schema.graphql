@@ -72,6 +72,11 @@ type Match @entity {
   userMatches: [UserMatch!]! @derivedFrom(field: "match")
 }
 
+enum OptionType {
+  CALL
+  PUT
+}
+
 type Option @entity {
   "positionHash"
   id: ID!
@@ -80,7 +85,8 @@ type Option @entity {
   quoteAsset: Token!
   expiry: Int!
   strike: BigDecimal!
-  optionType: String!
+#  optionType: String!
+  optionType: OptionType!
   lastPrice: BigDecimal
   openInterest: BigDecimal!
   userOptions: [UserOption!]! @derivedFrom(field: "option")

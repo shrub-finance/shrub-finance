@@ -197,6 +197,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@apollo/client@npm:^3.4.15":
+  version: 3.4.15
+  resolution: "@apollo/client@npm:3.4.15"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.0.0
+    "@wry/context": ^0.6.0
+    "@wry/equality": ^0.5.0
+    "@wry/trie": ^0.3.0
+    graphql-tag: ^2.12.3
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.16.1
+    prop-types: ^15.7.2
+    symbol-observable: ^4.0.0
+    ts-invariant: ^0.9.0
+    tslib: ^2.3.0
+    zen-observable-ts: ~1.1.0
+  peerDependencies:
+    graphql: ^14.0.0 || ^15.0.0
+    react: ^16.8.0 || ^17.0.0
+    subscriptions-transport-ws: ^0.9.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: e1931c30db98f568b3d56fab5b821c85b9aebc107474fa5768a58ef85a27891f6461ebc54b194d96f7ec2a37d4ffa78a4474d6e86973847387638bbff9cb332c
+  languageName: node
+  linkType: hard
+
 "@apollo/protobufjs@npm:1.2.2":
   version: 1.2.2
   resolution: "@apollo/protobufjs@npm:1.2.2"
@@ -7393,6 +7422,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shrub/app@workspace:packages/app"
   dependencies:
+    "@apollo/client": ^3.4.15
     "@chakra-ui/icons": 1.0.15
     "@chakra-ui/react": 1.6.7
     "@craco/craco": 6.1.2
@@ -7426,6 +7456,7 @@ __metadata:
     ethereumjs-util: 7.0.9
     ethers: 5.1.4
     framer-motion: 3.10.2
+    graphql: ^15.6.0
     husky: 6.0.0
     lint-staged: 11.0.0
     prettier: 2.3.0
@@ -21091,7 +21122,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graphql@npm:^15.3.0, graphql@npm:^15.5.0":
+"graphql@npm:^15.3.0, graphql@npm:^15.5.0, graphql@npm:^15.6.0":
   version: 15.6.0
   resolution: "graphql@npm:15.6.0"
   checksum: e0cf4519e221f88c905d0d0e3473e90ba6f50d37d8674fb025fb6beeee937baa9e435ddd7baa13814989f6ee4f0dda534c98e1e43bb97cd33042adce3ab5a3be
