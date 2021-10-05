@@ -666,7 +666,7 @@ export function transformOrderAppChain(order: AppOrderSigned): IOrder {
   }
 }
 
-export function shortOptionName(order: AppOrder) {
+export function shortOptionName(order: Pick<AppOrder, 'optionAction' | 'formattedSize' | 'optionType' | 'formattedStrike' | 'formattedExpiry'>) {
   const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
   return `${optionAction} ${formattedSize}x${optionType}${formattedExpiry}$${formattedStrike}`
 }

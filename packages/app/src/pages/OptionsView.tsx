@@ -72,7 +72,7 @@ import {nonceReducer} from "../components/nonceReducer";
 import SummaryView from '../components/SummaryView'
 import {HelloBud} from "../assets/Icons";
 import {useQuery} from "@apollo/client";
-import {SUMMARY_VIEW_QUERY} from "../constants/queries";
+import { ORDER_HISTORY_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries'
 
 const initialOrderBookState = {};
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
@@ -99,22 +99,23 @@ function OptionsView(props: RouteComponentProps) {
   const boxShadow = useColorModeValue("2xl", "2xl");
   const backgroundColor = useColorModeValue("white", "shrub.100");
   const [optionRows, setOptionRows] = useState<JSX.Element[]>([]);
-
-  // const optionRows: JSX.Element[] = [];
-  const userOrderRows: JSX.Element[] = [];
+  const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
 
   // TODO un-hardcode this
   const quoteAsset = ethers.constants.AddressZero;
   const baseAsset = process.env.REACT_APP_SUSD_TOKEN_ADDRESS;
 
-  const variables = {
-    expiry: Number(expiryDate),
-    optionType,
-    baseAsset: baseAsset && baseAsset.toLowerCase(),
-    quoteAsset: quoteAsset && quoteAsset.toLowerCase()
-  };
-  // console.log(variables);
-  const { loading: summaryLoading, error: summaryError, data: summaryData } = useQuery(SUMMARY_VIEW_QUERY, {variables })
+  const { loading: summaryLoading, error: summaryError, data: summaryData } = useQuery(SUMMARY_VIEW_QUERY, {variables: {
+      expiry: Number(expiryDate),
+      optionType,
+      baseAsset: baseAsset && baseAsset.toLowerCase(),
+      quoteAsset: quoteAsset && quoteAsset.toLowerCase()
+    }
+  });
+  const { loading: orderHistoryLoading, error: orderHistoryError, data: orderHistoryData } = useQuery(ORDER_HISTORY_QUERY, {variables:{
+      id: account && account.toLowerCase()
+    }
+  });
 
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
@@ -175,7 +176,7 @@ function OptionsView(props: RouteComponentProps) {
     if (!summaryData || !summaryData.options) {
       return;
     }
-    let tempOptionRows:JSX.Element[] = [];
+    const tempOptionRows:JSX.Element[] = [];
     for (const option of summaryData.options) {
       const emptyOptionData = {
         buyOrdersIndexed: {},
@@ -205,32 +206,111 @@ function OptionsView(props: RouteComponentProps) {
     }
   }, [summaryData])
 
+  // On Change of user order history data
   useEffect(() => {
-    console.log('finding user matches')
-  async function main() {
-    if (!account || !library) {
+    const tempUserOrderRows:JSX.Element[] = [];
+    if (!orderHistoryData || !orderHistoryData.user || !orderHistoryData.user.userOptions) {
       return;
     }
-    const fromBlock = DEPLOY_BLOCKHEIGHT;
-    const latestBlockNumber = await getBlockNumber(library);
-    let cursor = Number(fromBlock);
-    const tempUserMatches: { buy: AppOrder[], sell: AppOrder[] } = { buy: [], sell: []};
-    while (cursor < latestBlockNumber) {
-      const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
-      const buyMatches = await getMatchEvents({buyerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
-      const sellMatches = await getMatchEvents({sellerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
-      const processedBuyMatches = buyMatches.map(userEvent => matchEventToAppOrder(userEvent, 'BUY'));
-      const processedSellMatches = sellMatches.map(userEvent => matchEventToAppOrder(userEvent, 'SELL'));
-      tempUserMatches.buy = [ ...tempUserMatches.buy, ...processedBuyMatches ];
-      tempUserMatches.sell = [ ...tempUserMatches.sell, ...processedSellMatches ];
-      cursor = to + 1;
+    let orders:any[] = [];
+    for (const userOption of orderHistoryData.user.userOptions) {
+      const { buyOrders, sellOrders, option } = userOption;
+      const { baseAsset, quoteAsset, expiry, lastPrice, optionType, strike } = option;
+      const { symbol: baseAssetSymbol } = baseAsset;
+      const { symbol: quoteAssetSymbol } = quoteAsset;
+      orders = orders.concat(buyOrders.map((o: any) => {
+        return { ...o, optionAction: 'BUY', strike, expiry }
+      }))
+      orders = orders.concat(sellOrders.map((o: any) => {
+        return { ...o, optionAction: 'SELL', strike, expiry }
+      }))
     }
-    // TODO: this should cache in localStorage
-    setUserMatches(tempUserMatches);
-  }
-  main()
-    .then(() => {})
-    .catch(console.error);
+    const sortedOrders = orders.sort((a: any, b: any) => a.block - b.block);
+    if (sortedOrders) {
+      for (const order of sortedOrders) {
+        const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry } = order;
+        // const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
+        const orderToName = {
+          optionAction,
+          formattedSize: size,
+          optionType,
+          formattedStrike: strike,
+          formattedExpiry: fromEthDate(expiry).toLocaleDateString('en-us', {month: "short", day: "numeric"})
+        }
+        const status =
+          fullyMatched ? 'completed' :
+            expiredNonce ? 'cancelled' :
+              fromEthDate(offerExpire) < new Date() ? 'expired' :
+                tradable ? 'active' :
+                  'non-tradable';
+
+        console.log(fromEthDate(offerExpire));
+        console.log(fromEthDate(offerExpire));
+
+        tempUserOrderRows.push(
+          <Tr>
+            <Td >
+              <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
+                {blockNumber}
+              </Button>
+            </Td>
+            <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(orderToName)}</Td>
+            {/*<Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{optionType + strike}</Td>*/}
+            <Td maxWidth={"10px"} isNumeric={true}>
+              <Text  fontSize="xs">{pricePerContract}</Text>
+            </Td>
+            <Td>
+              <Tag size={'sm'} colorScheme={status === 'cancelled' ?
+                'red' : status === 'expired' ?
+                  'gray' : status === 'completed' ?
+                    'cyan' : status === 'active' ?
+                      'yellow': 'blue'} borderRadius={'full'}>
+                <TagLabel>{status}</TagLabel>
+              </Tag>
+            </Td>
+            <Td>
+              {
+                status === 'active' &&
+                // <Button colorScheme="teal" size="xs" onClick={cancelOrderFunc.bind(null, order)}>
+                <Button colorScheme="teal" size="xs" onClick={() => console.log('cancel does not work yet')}>
+                  Cancel
+                </Button>
+              }
+            </Td>
+          </Tr>
+        )
+
+      }
+    }
+    setUserOrderRows(tempUserOrderRows)
+  }, [orderHistoryLoading])
+
+  useEffect(() => {
+    console.log('finding user matches')
+    async function main() {
+      if (!account || !library) {
+        return;
+      }
+      const fromBlock = DEPLOY_BLOCKHEIGHT;
+      const latestBlockNumber = await getBlockNumber(library);
+      let cursor = Number(fromBlock);
+      const tempUserMatches: { buy: AppOrder[], sell: AppOrder[] } = { buy: [], sell: []};
+      while (cursor < latestBlockNumber) {
+        const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
+        const buyMatches = await getMatchEvents({buyerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
+        const sellMatches = await getMatchEvents({sellerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
+        const processedBuyMatches = buyMatches.map(userEvent => matchEventToAppOrder(userEvent, 'BUY'));
+        const processedSellMatches = sellMatches.map(userEvent => matchEventToAppOrder(userEvent, 'SELL'));
+        tempUserMatches.buy = [ ...tempUserMatches.buy, ...processedBuyMatches ];
+        tempUserMatches.sell = [ ...tempUserMatches.sell, ...processedSellMatches ];
+        cursor = to + 1;
+      }
+      // TODO: this should cache in localStorage
+      setUserMatches(tempUserMatches);
+    }
+    main()
+      .then(() => {})
+      .catch(console.error);
 
   }, [account, library])
 
@@ -366,7 +446,7 @@ function OptionsView(props: RouteComponentProps) {
       .catch(console.error)
   }, [library])
 
-  userOrderRows.splice(0, userOrderRows.length)
+  // userOrderRows.splice(0, userOrderRows.length)
   for (const [transactionHash, order] of Object.entries(userOrders)) {
     const { unitPrice, blockNumber, quoteAsset, baseAsset} = order;
     const pair = getPair(baseAsset, quoteAsset);
@@ -377,33 +457,34 @@ function OptionsView(props: RouteComponentProps) {
     } else {
       status = ''
     }
-    userOrderRows.push(
-       <Tr>
-      <Td >
-        <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
-          {blockNumber}
-        </Button>
-      </Td>
-      <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(order)}</Td>
-      <Td maxWidth={"10px"} isNumeric={true}>
-        <Text  fontSize="xs">{unitPrice}</Text>
-      </Td>
-      <Td>
-        <Tag size={'sm'} colorScheme={status === 'cancelled' ? 'red' : status === 'expired'? 'gray' : status === 'completed'? 'cyan' : status === 'active'? 'yellow': 'blue'} borderRadius={'full'}>
-          <TagLabel>{status}</TagLabel>
-        </Tag>
-        </Td>
-      <Td>
-        {
-          status === 'active' &&
-          <Button colorScheme="teal" size="xs" onClick={cancelOrderFunc.bind(null, order)}>
-            Cancel
-          </Button>
-        }
-      </Td>
-    </Tr>
-    )
+    // tempUserOrderRows.push(
+    //    <Tr>
+    //   <Td >
+    //     <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
+    //       {blockNumber}
+    //     </Button>
+    //   </Td>
+    //   <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(order)}</Td>
+    //   <Td maxWidth={"10px"} isNumeric={true}>
+    //     <Text  fontSize="xs">{unitPrice}</Text>
+    //   </Td>
+    //   <Td>
+    //     <Tag size={'sm'} colorScheme={status === 'cancelled' ? 'red' : status === 'expired'? 'gray' : status === 'completed'? 'cyan' : status === 'active'? 'yellow': 'blue'} borderRadius={'full'}>
+    //       <TagLabel>{status}</TagLabel>
+    //     </Tag>
+    //     </Td>
+    //   <Td>
+    //     {
+    //       status === 'active' &&
+    //       <Button colorScheme="teal" size="xs" onClick={cancelOrderFunc.bind(null, order)}>
+    //         Cancel
+    //       </Button>
+    //     }
+    //   </Td>
+    // </Tr>
+    // )
   }
+  // setUserOrderRows(tempUserOrderRows);
 
   function cancelOrderFunc(order: AppOrderSigned) {
     async function main() {

@@ -55,6 +55,7 @@ export const ORDER_HISTORY_QUERY = gql`
                     funded
                     expiredNonce
                     offerExpire
+                    block
                     timestamp
                 }
                 sellOrders(orderBy:nonce,orderDirection:desc){
@@ -65,6 +66,7 @@ export const ORDER_HISTORY_QUERY = gql`
                     matches{size}
                     funded
                     expiredNonce
+                    block
                     offerExpire
                     timestamp
                 }
