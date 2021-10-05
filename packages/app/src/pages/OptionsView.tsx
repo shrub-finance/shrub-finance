@@ -71,6 +71,8 @@ import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import {nonceReducer} from "../components/nonceReducer";
 import SummaryView from '../components/SummaryView'
 import {HelloBud} from "../assets/Icons";
+import {useQuery} from "@apollo/client";
+import {SUMMARY_VIEW_QUERY} from "../constants/queries";
 
 const initialOrderBookState = {};
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
@@ -96,13 +98,23 @@ function OptionsView(props: RouteComponentProps) {
   const toast = useToast();
   const boxShadow = useColorModeValue("2xl", "2xl");
   const backgroundColor = useColorModeValue("white", "shrub.100");
+  const [optionRows, setOptionRows] = useState<JSX.Element[]>([]);
 
-  const optionRows: JSX.Element[] = [];
+  // const optionRows: JSX.Element[] = [];
   const userOrderRows: JSX.Element[] = [];
 
   // TODO un-hardcode this
   const quoteAsset = ethers.constants.AddressZero;
   const baseAsset = process.env.REACT_APP_SUSD_TOKEN_ADDRESS;
+
+  const variables = {
+    expiry: Number(expiryDate),
+    optionType,
+    baseAsset: baseAsset && baseAsset.toLowerCase(),
+    quoteAsset: quoteAsset && quoteAsset.toLowerCase()
+  };
+  // console.log(variables);
+  const { loading: summaryLoading, error: summaryError, data: summaryData } = useQuery(SUMMARY_VIEW_QUERY, {variables })
 
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
@@ -155,6 +167,43 @@ function OptionsView(props: RouteComponentProps) {
       })
       .catch(console.error);
   }, [library]);
+
+  // On Change of expiry of optionType
+  useEffect(() => {
+    console.log('summaryData changed');
+    console.log(summaryData);
+    if (!summaryData || !summaryData.options) {
+      return;
+    }
+    let tempOptionRows:JSX.Element[] = [];
+    for (const option of summaryData.options) {
+      const emptyOptionData = {
+        buyOrdersIndexed: {},
+        sellOrdersIndexed: {},
+        buyOrders: [],
+        sellOrders: [],
+        last: ''
+      }
+      const { strike: decimalStrike, lastPrice, sellOrders, buyOrders, id } = option;
+      console.log(`${decimalStrike} - last: ${lastPrice} - ask: ${sellOrders[0] && sellOrders[0].pricePerContract} - bid: ${buyOrders[0] && buyOrders[0].pricePerContract}`)
+      const ask = (sellOrders[0] && sellOrders[0].pricePerContract) || '';
+      const bid = (buyOrders[0] && buyOrders[0].pricePerContract) || '';
+      const appCommon:AppCommon = {
+        formattedStrike: decimalStrike,
+        formattedExpiry: formatDate(Number(expiryDate)),
+        optionType,
+        quoteAsset,
+        baseAsset,
+        expiry: fromEthDate(Number(expiryDate)),
+        // TODO: 18 should be the number of decimals
+        strike: ethers.utils.parseUnits(decimalStrike, 18)
+      }
+      tempOptionRows.push(
+        <OptionRow appCommon={appCommon} option={sellBuy} last={lastPrice} ask={ask} bid={bid} key={id} optionData={emptyOptionData} />
+      );
+      setOptionRows(tempOptionRows);
+    }
+  }, [summaryData])
 
   useEffect(() => {
     console.log('finding user matches')
@@ -438,9 +487,9 @@ function OptionsView(props: RouteComponentProps) {
         sellOrders: [],
         last: ''
       }
-      optionRows.push(
-        <OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={''} bid={''} key={appCommon.formattedStrike} optionData={emptyOptionData} />
-      );
+      // optionRows.push(
+      //   <OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={''} bid={''} key={appCommon.formattedStrike} optionData={emptyOptionData} />
+      // );
       continue;
     }
 
@@ -459,9 +508,9 @@ function OptionsView(props: RouteComponentProps) {
     const positionHash = hashOrderCommon(orderCommon)
     const last = lastMatches[positionHash] ? String(lastMatches[positionHash]) : ' -';
 
-    optionRows.push(
-      <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} optionData={optionData} />
-    );
+    // optionRows.push(
+    //   <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} optionData={optionData} />
+    // );
   }
   return (
       <>

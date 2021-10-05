@@ -7,7 +7,7 @@ export const SUMMARY_VIEW_QUERY = gql`
             optionType:$optionType,
             baseAsset:$baseAsset,
             quoteAsset:$quoteAsset
-        }){
+        }, orderBy: strike, orderDirection: asc){
             name
             strike
             id
