@@ -48,7 +48,7 @@ import {
   getLockedBalance,
   getAllowance,
   getBlockNumber,
-  getWalletBalance
+  getWalletBalance, formatDate
 } from '../utils/ethMethods';
 import {OrderCommon, ShrubBalance, SmallOrder, SupportedCurrencies} from '../types';
 import {Currencies} from "../constants/currencies";
@@ -104,9 +104,9 @@ function Positions() {
   const [showDepositButton, setShowDepositButton] = useState(false);
 
 
-  const { loading, error, data } = useQuery(SHRUBFOLIO_QUERY, {
+  const { loading:shrubfolioLoading, error:shrubfolioError, data:shrubfolioData } = useQuery(SHRUBFOLIO_QUERY, {
     variables: {
-      id: account
+      id: account && account.toLowerCase()
     }
   })
 
@@ -140,6 +140,56 @@ function Positions() {
     shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
+
+  // options display
+  useEffect(() => {
+    const tableRowOptions:JSX.Element[] = [];
+    console.log(account);
+    if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
+      return
+    }
+    for (const userOption of shrubfolioData.user.activeUserOptions) {
+      const { balance, option, buyOrders, sellOrders} = userOption
+      const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice } = option;
+      const { symbol: baseAssetSymbol } = baseAsset;
+      const { symbol: quoteAssetSymbol } = quoteAsset;
+
+      const pair = `${quoteAssetSymbol}/${baseAssetSymbol}`;
+      const expiry = formatDate(expiryRaw);
+      const amount = balance;
+
+
+      hasOptions.current = true;
+      tableRowsOptions.push(
+        <Tr>
+          <Td>{pair}</Td>
+          <Td>{strike}</Td>
+          <Td>{expiry}</Td>
+          <Td>{optionType}</Td>
+          <Td>{amount}</Td>
+          <Td>
+            {amount > 0 ? <Button
+              colorScheme="teal"
+              size="xs"
+              onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
+            >
+              Exercise
+            </Button> : Number(amount) === 0 ? <Button
+              variant={"ghost"}
+              isDisabled={true}
+              colorScheme="teal"
+              size="xs"
+            >
+              Exercised
+            </Button> : ''
+            }
+          </Td>
+        </Tr>
+      )
+    }
+    console.log(shrubfolioData);
+    setOptionsRows(tableRowsOptions);
+  }, [shrubfolioLoading])
 
   // options display
   // useEffect(() => {

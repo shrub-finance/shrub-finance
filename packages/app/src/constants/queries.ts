@@ -85,17 +85,43 @@ export const ORDER_HISTORY_QUERY = gql`
     }
 `
 
+// export const SHRUBFOLIO_QUERY = gql`
+//     query Shrubfolio($id: ID){
+//         user(id:$id){
+//             id
+//             tokenBalances{
+//                 token{symbol}
+//                 unlockedBalance
+//                 lockedBalance
+//                 block
+//             }
+//             userOptions{
+//                 balance
+//                 option{
+//                     baseAsset{symbol}
+//                     quoteAsset{symbol}
+//                     expiry
+//                     strike
+//                     optionType
+//                     lastPrice
+//                 }
+//                 buyOrders(where:{fullyMatched:true}){
+//                     pricePerContract
+//                     size
+//                 }
+//                 sellOrders(where:{fullyMatched:true}){
+//                     pricePerContract
+//                     size
+//                 }
+//             }
+//         }
+//     }
+// `
+
 export const SHRUBFOLIO_QUERY = gql`
     query Shrubfolio($id: ID){
         user(id:$id){
-            id
-            tokenBalances{
-                token{symbol}
-                unlockedBalance
-                lockedBalance
-                block
-            }
-            userOptions{
+            activeUserOptions(where:{balance_not:0}){
                 balance
                 option{
                     baseAsset{symbol}
@@ -106,12 +132,32 @@ export const SHRUBFOLIO_QUERY = gql`
                     lastPrice
                 }
                 buyOrders(where:{fullyMatched:true}){
-                    pricePerContract
                     size
+                    price
+                    pricePerContract
+                    tradable
+                    fullyMatched
+                    matches{
+                        size
+                        finalPrice
+                        finalPricePerContract
+                        totalFee
+                        sellOrder{userOption{user{id}}}
+                    }
                 }
                 sellOrders(where:{fullyMatched:true}){
-                    pricePerContract
                     size
+                    price
+                    pricePerContract
+                    tradable
+                    fullyMatched
+                    matches{
+                        size
+                        finalPrice
+                        finalPricePerContract
+                        totalFee
+                        buyOrder{userOption{user{id}}}
+                    }
                 }
             }
         }
