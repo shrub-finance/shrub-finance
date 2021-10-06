@@ -197,7 +197,7 @@ function OptionsView(props: RouteComponentProps) {
         baseAsset,
         expiry: fromEthDate(Number(expiryDate)),
         // TODO: 18 should be the number of decimals
-        strike: ethers.utils.parseUnits(decimalStrike, 18)
+        strike: ethers.utils.parseUnits(decimalStrike, 6)
       }
       const optionData = {
         buyOrdersIndexed: {},
