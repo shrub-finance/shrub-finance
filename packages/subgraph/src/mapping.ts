@@ -110,51 +110,62 @@ function checkCollateralForOutstandingOrders(user: User, tokenAddresses: Address
 
   var unlockedBalances = new Map<Address, BigDecimal>();
   log.info("tokenAddresses: {}, {}", [tokenAddresses[0].toHex(), tokenAddresses[1].toHex()]);
-  tokenAddresses.forEach((tokenAddress) => {
+  for (let i = 0; i < tokenAddresses.length; i++) {
+    let tokenAddress = tokenAddresses[i];
     let tokenBalance = getTokenBalance(Address.fromString(user.id), tokenAddress, block);
     unlockedBalances.set(tokenAddress, tokenBalance.unlockedBalance);
-  })
+  }
 
-  user.activeUserOptions.forEach((userOptionStr) => {
+  let activeUserOptions = user.activeUserOptions;
+  for (let i = 0; i < activeUserOptions.length; i++) {
+    let userOptionStr = activeUserOptions[i];
     userOption = UserOption.load(userOptionStr) as UserOption;
     option = Option.load(userOption.option) as Option;
     let baseAssetMatches = tokenAddresses.filter(tokenAddress => tokenAddress.toHex() == option.baseAsset)
     let quoteAssetMatches = tokenAddresses.filter(tokenAddress => tokenAddress.toHex() == option.quoteAsset)
     // Iterate through baseAssetMatches
-    baseAssetMatches.forEach((baseAsset) => {
+    for (let j = 0; j < baseAssetMatches.length; j++) {
+      let baseAsset = baseAssetMatches[j];
       // Test the buyOrders for this userOption
       // Find buyOrders for user that have baseAsset=token and totalPrice < tokenbalance
-      userOption.activeBuyOrders.forEach((buyOrderStr) => {
+      let activeBuyOrders = userOption.activeBuyOrders;
+      for (let k = 0; k < activeBuyOrders.length; k++) {
+        let buyOrderStr = activeBuyOrders[k];
         let buyOrder = BuyOrder.load(buyOrderStr) as BuyOrder;
         if (buyOrder.price > unlockedBalances.get(baseAsset)) {
           setBuyOrderUnfunded(buyOrder);
         }
-      })
+      }
       // Test the sellOrders for this userOption
       // Find sellOrders that are PUT and baseAsset=token and size * strike < tokenbalance
-      userOption.activeSellOrders.forEach((sellOrderStr) => {
+      let activeSellOrders = userOption.activeSellOrders;
+      for (let k = 0; k < activeSellOrders.length; k++) {
+        let sellOrderStr = activeSellOrders[k];
         if (option.optionType == 'PUT') {
           let sellOrder = SellOrder.load(sellOrderStr) as SellOrder;
           if (sellOrder.size.times(option.strike) > unlockedBalances.get(baseAsset)) {
             setSellOrderUnfunded(sellOrder);
           }
         }
-      })
-    })
+      }
+    }
     // Iterate through quoteAssetMatches
-    quoteAssetMatches.forEach((quoteAsset) => {
+    for (let j = 0; j < quoteAssetMatches.length; j++) {
+      let quoteAsset = quoteAssetMatches[j];
       // Test the sellOrders for the userOption
       // Find sellOrders that are CALL and quoteAsset=token and size < tokenbalance
-      userOption.activeSellOrders.forEach((sellOrderStr) => {
+      let activeSellOrders = userOption.activeSellOrders;
+      for (let k = 0; k < activeSellOrders.length; k++) {
+        let sellOrderStr = activeSellOrders[k];
         if (option.optionType == 'CALL') {
           let sellOrder = SellOrder.load(sellOrderStr) as SellOrder;
           if (sellOrder.size.lt(unlockedBalances.get(quoteAsset))) {
             setSellOrderUnfunded(sellOrder);
           }
         }
-      })
-    })
-  })
+      }
+    }
+  }
 }
 
 export function handleOrderAnnounce(event: OrderAnnounce): void {

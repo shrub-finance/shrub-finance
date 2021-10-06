@@ -48,7 +48,7 @@ import {
   getLockedBalance,
   getAllowance,
   getBlockNumber,
-  getWalletBalance, formatDate
+  getWalletBalance, formatDate, optionTypeToNumber, exerciseLight
 } from '../utils/ethMethods';
 import {OrderCommon, ShrubBalance, SmallOrder, SupportedCurrencies} from '../types';
 import {Currencies} from "../constants/currencies";
@@ -148,6 +148,17 @@ function Positions() {
     if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
       return
     }
+    function graphqlOptionToOrderCommon(option: any) {
+      const { baseAsset, quoteAsset, strike, expiry, optionType } = option;
+      const common: OrderCommon = {
+        quoteAsset: quoteAsset.id,
+        baseAsset: baseAsset.id,
+        expiry,
+        optionType: optionTypeToNumber(optionType),
+        strike: ethers.utils.parseUnits(strike, 6)
+      }
+      return common;
+    }
     for (const userOption of shrubfolioData.user.activeUserOptions) {
       const { balance, option, buyOrders, sellOrders} = userOption
       const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice } = option;
@@ -157,6 +168,9 @@ function Positions() {
       const pair = `${quoteAssetSymbol}/${baseAssetSymbol}`;
       const expiry = formatDate(expiryRaw);
       const amount = balance;
+
+      const common = graphqlOptionToOrderCommon(option);
+
 
 
       hasOptions.current = true;
@@ -171,7 +185,7 @@ function Positions() {
             {amount > 0 ? <Button
               colorScheme="teal"
               size="xs"
-              onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
+              onClick={() => handleClickExercise(pair, common, amount)}
             >
               Exercise
             </Button> : Number(amount) === 0 ? <Button
@@ -321,14 +335,34 @@ function Positions() {
       })
 
   }
-  async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string, amount: number) {
+  // async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string, amount: number) {
+  //   try {
+  //     const key = `${pair}${strike}${expiry}${optionType}`
+  //     const {common, buyOrder, seller} = orderMap.get(key);
+  //     const unsignedOrder = {...common, ...buyOrder};
+  //     const signedOrder = await signOrder(unsignedOrder, library)
+  //     const tx = await exercise(signedOrder, seller, library)
+  //     const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
+  //     pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+  //     const receipt = await tx.wait()
+  //     const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
+  //     toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+  //     pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+  //     return tx;
+  //   } catch (e) {
+  //     console.error(e);
+  //     handleErrorMessages({err:e});
+  //   }
+  //
+  // }
+
+  async function handleClickExercise(pair: string, common: OrderCommon, amount: string) {
     try {
-      const key = `${pair}${strike}${expiry}${optionType}`
-      const {common, buyOrder, seller} = orderMap.get(key);
-      const unsignedOrder = {...common, ...buyOrder};
-      const signedOrder = await signOrder(unsignedOrder, library)
-      const tx = await exercise(signedOrder, seller, library)
-      const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
+      const bigAmount = ethers.utils.parseUnits(amount, 18);
+      const tx = await exerciseLight(common, bigAmount, library);
+      const { optionType, strike } = common;
+      const formattedStrike = ethers.utils.formatUnits(strike,6);
+      const description = `Exercise ${pair} ${optionType} option for $${Number(amount) * Number(formattedStrike)} at strike $${formattedStrike}`
       pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
       const receipt = await tx.wait()
       const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
@@ -341,6 +375,7 @@ function Positions() {
     }
 
   }
+
   function totalUserBalance(currency: string) {
     const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
     return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) ;

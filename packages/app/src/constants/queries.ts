@@ -124,8 +124,8 @@ export const SHRUBFOLIO_QUERY = gql`
             activeUserOptions(where:{balance_not:0}){
                 balance
                 option{
-                    baseAsset{symbol}
-                    quoteAsset{symbol}
+                    baseAsset{symbol, id}
+                    quoteAsset{symbol, id}
                     expiry
                     strike
                     optionType
