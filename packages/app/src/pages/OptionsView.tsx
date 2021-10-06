@@ -55,10 +55,10 @@ import {
   optionTypeToString,
   orderStatus,
   shortOptionName,
-  subscribeToAnnouncements,
+  subscribeToAnnouncements, toEthDate,
   transformOrderAppChain,
   unsubscribeFromAnnouncements,
-} from "../utils/ethMethods";
+} from '../utils/ethMethods'
 import {BytesLike, ethers} from "ethers";
 import {Icon} from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
@@ -199,8 +199,31 @@ function OptionsView(props: RouteComponentProps) {
         // TODO: 18 should be the number of decimals
         strike: ethers.utils.parseUnits(decimalStrike, 18)
       }
+      const optionData = {
+        buyOrdersIndexed: {},
+        sellOrdersIndexed: {},
+        buyOrders: buyOrders.map((order: any) => {
+          return {
+            unitPrice: Number(order.pricePerContract),
+            formattedSize: order.size,
+            positionHash: order.option.id,
+            user: order.userOption.user.id,
+            blockHeight: order.block
+          };
+        }),
+        sellOrders: sellOrders.map((order: any) => {
+          return {
+            unitPrice: Number(order.pricePerContract),
+            formattedSize: order.size,
+            positionHash: order.option.id,
+            user: order.userOption.user.id,
+            blockHeight: order.block
+          };
+        }),
+        last: ''
+      }
       tempOptionRows.push(
-        <OptionRow appCommon={appCommon} option={sellBuy} last={lastPrice} ask={ask} bid={bid} key={id} optionData={emptyOptionData} />
+        <OptionRow appCommon={appCommon} option={sellBuy} last={lastPrice} ask={ask} bid={bid} key={id} optionData={optionData} />
       );
       setOptionRows(tempOptionRows);
     }

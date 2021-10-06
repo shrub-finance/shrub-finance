@@ -38,8 +38,8 @@ import {
     matchOrders,
     optionActionToIsBuy,
     transformOrderAppChain,
-    validateOrderAddress, formatDate, getSymbolFor, announceOrder, iOrderToCommon
-} from "../utils/ethMethods";
+    validateOrderAddress, formatDate, getSymbolFor, announceOrder, iOrderToCommon, getAnnouncedEvent,
+} from '../utils/ethMethods'
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
 import React, {useContext, useEffect, useState} from "react";
@@ -205,7 +205,8 @@ const {
             let signedBuyOrders: IOrder[] = [];
             let signedSellOrders: IOrder[] = [];
             const localOrderBook = radioOption === 'BUY' ? orderBook.sellOrders : orderBook.buyOrders;
-            const depth = localOrderBook.reduce((tot, order) => tot.add(order.size), Zero)
+            // const depth = localOrderBook.reduce((tot, order) => tot.add(order.size), Zero)
+            const depth = localOrderBook.reduce((tot, order) => tot.add(ethers.utils.parseUnits(order.formattedSize, 18)), Zero)
             const bigSize = ethers.utils.parseUnits(amount.toString(), 18);
             if (bigSize.gt(depth)) {
                 throw new Error('Order size exceeds available depth in orderbook');
@@ -221,10 +222,18 @@ const {
             let index = 0;
             let accumulatedPrice = Zero;
             while (remainingSize.gt(Zero)) {
-                const order = localOrderBook[index];
-                if (!order) {
+                // const order = localOrderBook[index];
+                const lightOrder = localOrderBook[index];
+                if (!lightOrder) {
                     throw new Error('Insufficient market depth for this order. Try making a smaller order.');
                 }
+                // @ts-ignore
+                const {positionHash, blockHeight, user} = lightOrder;
+                const order = await getAnnouncedEvent(library, positionHash, user, blockHeight);
+                if (!order) {
+                    continue;
+                }
+                // Need to convert order into AppOrderSigned
                 const { address: counterpartyAddress, nonce: orderNonce, size } = order;
                 if (!counterpartyAddress) {
                     console.error('no counterparty address on order');

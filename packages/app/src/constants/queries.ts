@@ -12,11 +12,21 @@ export const SUMMARY_VIEW_QUERY = gql`
             strike
             id
             lastPrice
-            sellOrders(where:{tradable:true}, orderBy:pricePerContract, orderDirection:asc, first:1){
+            sellOrders(where:{tradable:true}, orderBy:pricePerContract, orderDirection:asc, first:6){
                 pricePerContract
+                size
+                id
+                option{id}
+                userOption{user{id}}
+                block
             }
-            buyOrders(where:{tradable:true}, orderBy:pricePerContract, orderDirection:desc, first:1){
+            buyOrders(where:{tradable:true}, orderBy:pricePerContract, orderDirection:desc, first:6){
                 pricePerContract
+                size
+                id
+                option{id}
+                userOption{user{id}}
+                block
             }
         }
     }
