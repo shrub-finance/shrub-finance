@@ -109,7 +109,8 @@ function OptionsView(props: RouteComponentProps) {
       expiry: Number(expiryDate),
       optionType,
       baseAsset: baseAsset && baseAsset.toLowerCase(),
-      quoteAsset: quoteAsset && quoteAsset.toLowerCase()
+      quoteAsset: quoteAsset && quoteAsset.toLowerCase(),
+      offerExpire: toEthDate(new Date())
     }
   });
   const { loading: orderHistoryLoading, error: orderHistoryError, data: orderHistoryData } = useQuery(ORDER_HISTORY_QUERY, {variables:{

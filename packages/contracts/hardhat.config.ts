@@ -220,6 +220,13 @@ const config: HardhatUserConfig & AbiExporter = {
         },*/
       chainId: 1337,
     },
+    mumbai: {
+        chainId: 80001,
+        url: "https://rpc-mumbai.maticvigil.com",
+        accounts: {
+            mnemonic: "palm weapon verb cream balcony acid book ring surround end race gaze"
+        }
+    }
   },
   namedAccounts: {
     deployer: 0,

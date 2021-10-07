@@ -12,7 +12,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 function App() {
 
   const client = new ApolloClient({
-    uri: 'http://127.0.0.1:8000/subgraphs/name/jguthrie7/shrub-subgraph',
+    uri: process.env.REACT_APP_SUBGRAPH_QUERY,
     cache: new InMemoryCache()
   })
 

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 export const SUMMARY_VIEW_QUERY = gql`
-    query SummaryView($expiry: Int, $optionType: OptionType, $baseAsset: String, $quoteAsset: String){
+    query SummaryView($expiry: Int, $optionType: OptionType, $baseAsset: String, $quoteAsset: String, $offerExpire: Int){
         options(where:{
             expiry:$expiry,
             optionType:$optionType,
@@ -12,7 +12,7 @@ export const SUMMARY_VIEW_QUERY = gql`
             strike
             id
             lastPrice
-            sellOrders(where:{tradable:true}, orderBy:pricePerContract, orderDirection:asc, first:6){
+            sellOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:asc, first:6){
                 pricePerContract
                 size
                 id
@@ -20,7 +20,7 @@ export const SUMMARY_VIEW_QUERY = gql`
                 userOption{user{id}}
                 block
             }
-            buyOrders(where:{tradable:true}, orderBy:pricePerContract, orderDirection:desc, first:6){
+            buyOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:desc, first:6){
                 pricePerContract
                 size
                 id
