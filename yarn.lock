@@ -3827,7 +3827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/address@npm:5.4.0, @ethersproject/address@npm:>=5.0.0-beta.128, @ethersproject/address@npm:^5.0.4, @ethersproject/address@npm:^5.1.0, @ethersproject/address@npm:^5.3.0, @ethersproject/address@npm:^5.4.0":
+"@ethersproject/address@npm:5.4.0, @ethersproject/address@npm:>=5.0.0-beta.128, @ethersproject/address@npm:^5.0.2, @ethersproject/address@npm:^5.0.4, @ethersproject/address@npm:^5.1.0, @ethersproject/address@npm:^5.3.0, @ethersproject/address@npm:^5.4.0":
   version: 5.4.0
   resolution: "@ethersproject/address@npm:5.4.0"
   dependencies:
@@ -6622,6 +6622,23 @@ __metadata:
     ethers: ^5.0.0
     hardhat: ^2.0.0
   checksum: ce262e93cbb66c04051cc26f2f2227c49d2d19f4579a104c9335e9a4105c81c45176bb2424504978404374d34324fe2554e996c7792e7268d32ca22ec23274fd
+  languageName: node
+  linkType: hard
+
+"@nomiclabs/hardhat-etherscan@npm:^2.1.6":
+  version: 2.1.6
+  resolution: "@nomiclabs/hardhat-etherscan@npm:2.1.6"
+  dependencies:
+    "@ethersproject/abi": ^5.1.2
+    "@ethersproject/address": ^5.0.2
+    cbor: ^5.0.2
+    debug: ^4.1.1
+    fs-extra: ^7.0.1
+    node-fetch: ^2.6.0
+    semver: ^6.3.0
+  peerDependencies:
+    hardhat: ^2.0.4
+  checksum: 3b3ed5fce0eec94d94b4f265e98830ca0276034be3c91bcdff1b78948885ed6b72ef6957dd2c560328887893fe1e0acb39137c2b17c9fe275d268c491f998460
   languageName: node
   linkType: hard
 
@@ -13842,7 +13859,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cbor@npm:^5.1.0":
+"cbor@npm:^5.0.2, cbor@npm:^5.1.0":
   version: 5.2.0
   resolution: "cbor@npm:5.2.0"
   dependencies:
@@ -34488,6 +34505,7 @@ resolve@^2.0.0-next.3:
   version: 0.0.0-use.local
   resolution: "shrub@workspace:."
   dependencies:
+    "@nomiclabs/hardhat-etherscan": ^2.1.6
     eslint: ^7.28.0
     husky: ^6.0.0
     lerna: ^4.0.0

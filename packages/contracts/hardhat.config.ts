@@ -7,6 +7,7 @@ import "@nomiclabs/hardhat-solhint";
 import "solidity-coverage";
 import "hardhat-abi-exporter";
 import "hardhat-gas-reporter";
+import "@nomiclabs/hardhat-etherscan";
 
 import optionContracts from "./option-contracts.json";
 import {ShrubExchange, ShrubExchange__factory} from "./types/ethers-v5";
@@ -249,6 +250,10 @@ const config: HardhatUserConfig & AbiExporter = {
     clear: true,
     flat: true,
     spacing: 2,
+  },
+  etherscan: {
+    // apiKey: '5TPEWR3JA9S4APSU2QJ7CNGTCFJM5G8PYC'  // For etherscan
+    apiKey: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'    // For polygonscan
   },
   mocha: {
     timeout: 35000
