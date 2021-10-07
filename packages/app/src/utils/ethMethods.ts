@@ -655,7 +655,7 @@ export function optionActionToIsBuy(optionAction: 'BUY' | 'SELL') {
 }
 
 export function formatStrike(strike: ethers.BigNumber) {
-  return Number(ethers.utils.formatUnits(strike, 6)).toFixed(0);
+  return Number(ethers.utils.formatUnits(strike, 6)).toFixed(2);
 }
 
 export function formatDate(date: number | Date) {
