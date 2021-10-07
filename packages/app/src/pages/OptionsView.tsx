@@ -70,6 +70,7 @@ import {TxContext} from "../components/Store";
 import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import {nonceReducer} from "../components/nonceReducer";
 import {HelloBud} from "../assets/Icons";
+import contractData from "../constants/common"
 
 const initialOrderBookState = {};
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
@@ -140,9 +141,6 @@ function OptionsView(props: RouteComponentProps) {
   const groupOptionType = getOptionTypeRootProps();
   const groupExpiry = getExpiryRootProps();
 
-  const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
-  const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
-
   // On load
   useEffect(() => {
     if (!library) {
@@ -185,24 +183,13 @@ function OptionsView(props: RouteComponentProps) {
   }, [account, library])
 
 
-  useEffect(() => {
-      if (contractData && contractDataStatus === "fetched" && !contractDataError) {
-        const expiryDatesString = Object.keys(contractData["MATIC-SUSD"]);
-        console.log(expiryDatesString);
-        console.log(contractData);
-        setExpiryDates(expiryDatesString);
-        if(!expiryDate) {
-          setExpiryDate(expiryDatesString[0]);
-        }
-      }
-      }, [contractDataStatus]);
 
   useEffect(() => {
     const subscriptionPositionHashes = [];
     if(!contractData || !expiryDate || !library) {
       return;
     }
-    const strikeObjPrices = contractData['MATIC-SUSD'][expiryDate][optionType].map((strikeNum) => {
+    const strikeObjPrices = contractData['SMATIC-SUSD'][expiryDate][optionType].map((strikeNum) => {
       const strike = ethers.BigNumber.from(strikeNum);
       const common: OrderCommon = {
         baseAsset,
@@ -316,6 +303,19 @@ function OptionsView(props: RouteComponentProps) {
       .then(() => {})
       .catch(console.error)
   }, [library])
+
+  useEffect(() => {
+    if (contractData) {
+      const expiryDatesString = Object.keys(contractData["SMATIC-SUSD"]);
+      console.log(expiryDatesString);
+      console.log(contractData);
+      console.log(JSON.stringify(contractData));
+      setExpiryDates(expiryDatesString);
+      if(!expiryDate) {
+        setExpiryDate(expiryDatesString[0]);
+      }
+    }
+  }, []);
 
   userOrderRows.splice(0, userOrderRows.length)
   for (const [transactionHash, order] of Object.entries(userOrders)) {
@@ -475,22 +475,9 @@ function OptionsView(props: RouteComponentProps) {
       borderRadius="2xl"
       bg={useColorModeValue("white", "shrub.100")}
     >
-      {contractDataStatus === "fetching" &&
-      <Center >
-        <Spinner color="bud.100" size="xl"/>
-      </Center>
-      }
 
-      {contractDataError &&
-      <Box>
-        <Alert status="error" borderRadius={9}>
-          <AlertIcon />
-          <AlertDescription>{contractDataError}</AlertDescription>
-        </Alert>
-      </Box>
-      }
 
-      {contractDataStatus === "fetched" ?
+      {expiryDates && expiryDates[0] ?
           <>
       <Box mb={10}>
         <HStack {...groupExpiry}>
