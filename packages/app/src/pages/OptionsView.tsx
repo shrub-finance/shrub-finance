@@ -233,7 +233,7 @@ function OptionsView(props: RouteComponentProps) {
         tempOptionRows.push(row);
       } else {
         const appCommon:AppCommon = {
-          formattedStrike: ethers.utils.formatUnits(strike.strikePrice, 6),
+          formattedStrike: Number(ethers.utils.formatUnits(strike.strikePrice, 6)).toFixed(2),
           formattedExpiry: formatDate(Number(expiryDate)),
           optionType,
           quoteAsset,

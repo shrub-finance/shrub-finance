@@ -82,14 +82,14 @@ function Positions() {
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
   const [localError, setLocalError] = useState('')
-  const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SUSD: 0}, available: {MATIC: 0, SUSD: 0}} as ShrubBalance);
+  const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SMATIC: 0, SUSD: 0}, available: {MATIC: 0, SMATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast();
   const orderMap = new Map();
   const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
   const {isOpen: isOpenConnectWalletModal, onClose: onCloseConnectWalletModal} = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
-  const [modalCurrency, setModalCurrency] = useState('MATIC' as keyof typeof Currencies);
+  const [modalCurrency, setModalCurrency] = useState<SupportedCurrencies>('MATIC');
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   // radio buttons
   const currencies = Object.keys(Currencies)
@@ -378,7 +378,7 @@ function Positions() {
 
   function totalUserBalance(currency: string) {
     const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
-    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) ;
+    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: ['MATIC','SMATIC'].includes(currency) ? 6 : 2}) ;
   }
   // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
