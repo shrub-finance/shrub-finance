@@ -103,7 +103,7 @@ function OptionsView(props: RouteComponentProps) {
   const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
 
   // TODO un-hardcode this
-  const quoteAsset = ethers.constants.AddressZero;
+  const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
   const baseAsset = process.env.REACT_APP_SUSD_TOKEN_ADDRESS;
 
   const { loading: summaryLoading, error: summaryError, data: summaryData } = useQuery(SUMMARY_VIEW_QUERY, {variables: {
@@ -172,61 +172,81 @@ function OptionsView(props: RouteComponentProps) {
   useEffect(() => {
     console.log('summaryData changed');
     console.log(summaryData);
-    if (!summaryData || !summaryData.options) {
-      return;
-    }
     const tempOptionRows:JSX.Element[] = [];
-    for (const option of summaryData.options) {
-      const emptyOptionData = {
-        buyOrdersIndexed: {},
-        sellOrdersIndexed: {},
-        buyOrders: [],
-        sellOrders: [],
-        last: ''
-      }
-      const { strike: decimalStrike, lastPrice, sellOrders, buyOrders, id } = option;
-      console.log(`${decimalStrike} - last: ${lastPrice} - ask: ${sellOrders[0] && sellOrders[0].pricePerContract} - bid: ${buyOrders[0] && buyOrders[0].pricePerContract}`)
-      const ask = (sellOrders[0] && sellOrders[0].pricePerContract) || '';
-      const bid = (buyOrders[0] && buyOrders[0].pricePerContract) || '';
-      const appCommon:AppCommon = {
-        formattedStrike: decimalStrike,
-        formattedExpiry: formatDate(Number(expiryDate)),
-        optionType,
-        quoteAsset,
-        baseAsset,
-        expiry: fromEthDate(Number(expiryDate)),
-        // TODO: 18 should be the number of decimals
-        strike: ethers.utils.parseUnits(decimalStrike, 6)
-      }
-      const optionData = {
-        buyOrdersIndexed: {},
-        sellOrdersIndexed: {},
-        buyOrders: buyOrders.map((order: any) => {
-          return {
-            unitPrice: Number(order.pricePerContract),
-            formattedSize: order.size,
-            positionHash: order.option.id,
-            user: order.userOption.user.id,
-            blockHeight: order.block
-          };
-        }),
-        sellOrders: sellOrders.map((order: any) => {
-          return {
-            unitPrice: Number(order.pricePerContract),
-            formattedSize: order.size,
-            positionHash: order.option.id,
-            user: order.userOption.user.id,
-            blockHeight: order.block
-          };
-        }),
-        last: ''
-      }
-      tempOptionRows.push(
-        <OptionRow appCommon={appCommon} option={sellBuy} last={lastPrice} ask={ask} bid={bid} key={id} optionData={optionData} />
-      );
-      setOptionRows(tempOptionRows);
+    const tempOptionMap:Map<ethers.BigNumber, JSX.Element> = new Map();
+    const emptyOptionData = {
+      buyOrdersIndexed: {},
+      sellOrdersIndexed: {},
+      buyOrders: [],
+      sellOrders: [],
+      last: ''
     }
-  }, [summaryData])
+    if (summaryData && summaryData.options) {
+      for (const option of summaryData.options) {
+        const { strike: decimalStrike, lastPrice, sellOrders, buyOrders, id } = option;
+        console.log(`${decimalStrike} - last: ${lastPrice} - ask: ${sellOrders[0] && sellOrders[0].pricePerContract} - bid: ${buyOrders[0] && buyOrders[0].pricePerContract}`)
+        const ask = (sellOrders[0] && sellOrders[0].pricePerContract) || '';
+        const bid = (buyOrders[0] && buyOrders[0].pricePerContract) || '';
+        const appCommon:AppCommon = {
+          formattedStrike: decimalStrike,
+          formattedExpiry: formatDate(Number(expiryDate)),
+          optionType,
+          quoteAsset,
+          baseAsset,
+          expiry: fromEthDate(Number(expiryDate)),
+          // TODO: 18 should be the number of decimals
+          strike: ethers.utils.parseUnits(decimalStrike, 6)
+        }
+        const optionData = {
+          buyOrdersIndexed: {},
+          sellOrdersIndexed: {},
+          buyOrders: buyOrders.map((order: any) => {
+            return {
+              unitPrice: Number(order.pricePerContract),
+              formattedSize: order.size,
+              positionHash: order.option.id,
+              user: order.userOption.user.id,
+              blockHeight: order.block
+            };
+          }),
+          sellOrders: sellOrders.map((order: any) => {
+            return {
+              unitPrice: Number(order.pricePerContract),
+              formattedSize: order.size,
+              positionHash: order.option.id,
+              user: order.userOption.user.id,
+              blockHeight: order.block
+            };
+          }),
+          last: ''
+        }
+        tempOptionMap.set(
+          ethers.utils.parseUnits(decimalStrike, 6),
+          <OptionRow appCommon={appCommon} option={sellBuy} last={lastPrice} ask={ask} bid={bid} key={id} optionData={optionData} />
+        );
+      }
+    }
+    for (const strike of strikePrices) {
+      console.log(strike.strikePrice);
+      const row = tempOptionMap.get(strike.strikePrice);
+      if (row) {
+        tempOptionRows.push(row);
+      } else {
+        const appCommon:AppCommon = {
+          formattedStrike: ethers.utils.formatUnits(strike.strikePrice, 6),
+          formattedExpiry: formatDate(Number(expiryDate)),
+          optionType,
+          quoteAsset,
+          baseAsset,
+          expiry: fromEthDate(Number(expiryDate)),
+          // TODO: 18 should be the number of decimals
+          strike: strike.strikePrice
+        }
+        tempOptionRows.push(<OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={''} bid={''} key={strike.positionHash} optionData={emptyOptionData} />)
+      }
+    }
+    setOptionRows(tempOptionRows);
+  }, [summaryData, strikePrices])
 
   // On Change of user order history data
   useEffect(() => {
