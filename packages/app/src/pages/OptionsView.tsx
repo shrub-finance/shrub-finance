@@ -173,7 +173,7 @@ function OptionsView(props: RouteComponentProps) {
     console.log('summaryData changed');
     console.log(summaryData);
     const tempOptionRows:JSX.Element[] = [];
-    const tempOptionMap:Map<ethers.BigNumber, JSX.Element> = new Map();
+    const tempOptionMap:Map<string, JSX.Element> = new Map();
     const emptyOptionData = {
       buyOrdersIndexed: {},
       sellOrdersIndexed: {},
@@ -221,14 +221,14 @@ function OptionsView(props: RouteComponentProps) {
           last: ''
         }
         tempOptionMap.set(
-          ethers.utils.parseUnits(decimalStrike, 6),
+          ethers.utils.parseUnits(decimalStrike, 6).toString(),
           <OptionRow appCommon={appCommon} option={sellBuy} last={lastPrice} ask={ask} bid={bid} key={id} optionData={optionData} />
         );
       }
     }
     for (const strike of strikePrices) {
-      console.log(strike.strikePrice);
-      const row = tempOptionMap.get(strike.strikePrice);
+      console.log(strike.strikePrice.toString());
+      const row = tempOptionMap.get(strike.strikePrice.toString());
       if (row) {
         tempOptionRows.push(row);
       } else {
