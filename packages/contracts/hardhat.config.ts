@@ -198,6 +198,35 @@ task( 'maker', 'creates limit orders')
     }
   );
 
+task('faucet', 'initializes faucet with SUSD and SMATIC')
+  .addOptionalParam('susdAmount', 'amount of SUSD to add to faucet', 1e7, types.int)
+  .addOptionalParam('smaticAmount', 'amount of SMATIC to add to faucet', 1e7, types.int)
+  .addOptionalParam('susdRate', 'how many SUSD to sell/buy for 1 MATIC', 10000, types.int)
+  .addOptionalParam('smaticRate', 'how many SMATIC to sell/buy for 1 MATIC', 10000, types.int)
+  .setAction(
+    async (taskArgs, env) => {
+      const { susdAmount, smaticAmount, susdRate, smaticRate } = taskArgs;
+      const { ethers, deployments } = env;
+
+      const [account0] = await ethers.provider.listAccounts()
+
+      const sUSDDeployment = await deployments.get("SUSDToken")
+      const sMATICDeployment = await deployments.get("SMATICToken")
+      const tfDeployment = await deployments.get("TokenFaucet")
+
+      const sUsd = await ethers.getContractAt('SUSDToken', sUSDDeployment.address)
+      const sMatic = await ethers.getContractAt('SMATICToken', sMATICDeployment.address)
+      const faucet = await ethers.getContractAt('TokenFaucet', tfDeployment.address)
+
+      await sMatic.approve(account0, faucet.address)
+      await sUsd.approve(account0, faucet.address)
+      await faucet.addToken(sMatic.address, smaticRate)
+      await faucet.addToken(sUsd.address, susdRate)
+      await sMatic.transfer(faucet.address, ethers.constants.WeiPerEther.mul(smaticAmount))
+      await sUsd.transfer(faucet.address, ethers.constants.WeiPerEther.mul(susdAmount))
+    }
+  )
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
