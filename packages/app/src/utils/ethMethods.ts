@@ -116,7 +116,13 @@ export async function signOrder(unsignedOrder: UnsignedOrder, provider: JsonRpcP
   const { order: resOrder, sig } = await shrubInterface.signOrderWithWeb3(
     web3,
     orderTypeHash,
-    unsignedOrder,
+    {
+      ...unsignedOrder,
+      fee: unsignedOrder.fee.toString(),
+      price: unsignedOrder.price.toString(),
+      size: unsignedOrder.size.toString(),
+      strike: unsignedOrder.strike.toString(),
+    },
     address
   );
   const signedOrder: IOrder = { ...resOrder, ...sig, address };
