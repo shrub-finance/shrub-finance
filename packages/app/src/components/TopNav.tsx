@@ -16,13 +16,13 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton, Spinner
+  ModalCloseButton, Spinner, Image
 } from "@chakra-ui/react";
 import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon, Icon} from '@chakra-ui/icons';
 import { Link as ReachLink } from "@reach/router";
 import {Account, Balance, ChainId, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
-import {HelloBud} from "../assets/Icons";
+import {ShrubLogo} from "../assets/Icons";
 import {TxContext} from "./Store";
 import {confirmingCount, TxStatusList} from "./TxMonitoring";
 import {isMobile} from "react-device-detect";
@@ -71,8 +71,8 @@ function handleModalClose() {
           px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={8} alignItems={"center"}>
-            <Link as={ReachLink} to={'home'} >
-              <HelloBud boxSize={10}/>
+            <Link as={ReachLink} to={'/'} >
+              <ShrubLogo boxSize={10}/>
             </Link>
             <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
               {NavRoutes.map((route) => (
