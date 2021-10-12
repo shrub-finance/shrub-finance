@@ -55,10 +55,10 @@ import {
   optionTypeToString,
   orderStatus,
   shortOptionName,
-  subscribeToAnnouncements,
+  subscribeToAnnouncements, toEthDate,
   transformOrderAppChain,
   unsubscribeFromAnnouncements,
-} from "../utils/ethMethods";
+} from '../utils/ethMethods'
 import {BytesLike, ethers} from "ethers";
 import {Icon} from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
@@ -69,7 +69,11 @@ import {ToastDescription} from "../components/TxMonitoring";
 import {TxContext} from "../components/Store";
 import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import {nonceReducer} from "../components/nonceReducer";
+import SummaryView from '../components/SummaryView'
 import {HelloBud} from "../assets/Icons";
+import {useQuery} from "@apollo/client";
+import { ORDER_HISTORY_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries'
+import contractData from "../constants/common"
 
 const initialOrderBookState = {};
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
@@ -95,13 +99,25 @@ function OptionsView(props: RouteComponentProps) {
   const toast = useToast();
   const boxShadow = useColorModeValue("2xl", "2xl");
   const backgroundColor = useColorModeValue("white", "shrub.100");
-
-  const optionRows: JSX.Element[] = [];
-  const userOrderRows: JSX.Element[] = [];
+  const [optionRows, setOptionRows] = useState<JSX.Element[]>([]);
+  const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
 
   // TODO un-hardcode this
-  const quoteAsset = ethers.constants.AddressZero;
+  const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
   const baseAsset = process.env.REACT_APP_SUSD_TOKEN_ADDRESS;
+
+  const { loading: summaryLoading, error: summaryError, data: summaryData } = useQuery(SUMMARY_VIEW_QUERY, {variables: {
+      expiry: Number(expiryDate),
+      optionType,
+      baseAsset: baseAsset && baseAsset.toLowerCase(),
+      quoteAsset: quoteAsset && quoteAsset.toLowerCase(),
+      offerExpire: toEthDate(new Date())
+    }
+  });
+  const { loading: orderHistoryLoading, error: orderHistoryError, data: orderHistoryData } = useQuery(ORDER_HISTORY_QUERY, {variables:{
+      id: account && account.toLowerCase()
+    }
+  });
 
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
@@ -140,9 +156,6 @@ function OptionsView(props: RouteComponentProps) {
   const groupOptionType = getOptionTypeRootProps();
   const groupExpiry = getExpiryRootProps();
 
-  const contractsUrl = `${process.env.REACT_APP_API_ENDPOINT}/contracts`;
-  const {error:contractDataError, data: contractData, status: contractDataStatus} = useFetch<ContractData>(contractsUrl);
-
   // On load
   useEffect(() => {
     if (!library) {
@@ -155,54 +168,202 @@ function OptionsView(props: RouteComponentProps) {
       .catch(console.error);
   }, [library]);
 
+  // On Change of expiry of optionType
   useEffect(() => {
-    console.log('finding user matches')
-  async function main() {
-    if (!account || !library) {
+    console.log('summaryData changed');
+    console.log(summaryData);
+    const tempOptionRows:JSX.Element[] = [];
+    const tempOptionMap:Map<string, JSX.Element> = new Map();
+    const emptyOptionData = {
+      buyOrdersIndexed: {},
+      sellOrdersIndexed: {},
+      buyOrders: [],
+      sellOrders: [],
+      last: ''
+    }
+    if (summaryData && summaryData.options) {
+      for (const option of summaryData.options) {
+        const { strike: decimalStrike, lastPrice, sellOrders, buyOrders, id } = option;
+        console.log(`${decimalStrike} - last: ${lastPrice} - ask: ${sellOrders[0] && sellOrders[0].pricePerContract} - bid: ${buyOrders[0] && buyOrders[0].pricePerContract}`)
+        const ask = (sellOrders[0] && sellOrders[0].pricePerContract) || '';
+        const bid = (buyOrders[0] && buyOrders[0].pricePerContract) || '';
+        const appCommon:AppCommon = {
+          formattedStrike: decimalStrike,
+          formattedExpiry: formatDate(Number(expiryDate)),
+          optionType,
+          quoteAsset,
+          baseAsset,
+          expiry: fromEthDate(Number(expiryDate)),
+          // TODO: 18 should be the number of decimals
+          strike: ethers.utils.parseUnits(decimalStrike, 6)
+        }
+        const optionData = {
+          buyOrdersIndexed: {},
+          sellOrdersIndexed: {},
+          buyOrders: buyOrders.map((order: any) => {
+            return {
+              unitPrice: Number(order.pricePerContract),
+              formattedSize: order.size,
+              positionHash: order.option.id,
+              user: order.userOption.user.id,
+              blockHeight: order.block
+            };
+          }),
+          sellOrders: sellOrders.map((order: any) => {
+            return {
+              unitPrice: Number(order.pricePerContract),
+              formattedSize: order.size,
+              positionHash: order.option.id,
+              user: order.userOption.user.id,
+              blockHeight: order.block
+            };
+          }),
+          last: ''
+        }
+        tempOptionMap.set(
+          ethers.utils.parseUnits(decimalStrike, 6).toString(),
+          <OptionRow appCommon={appCommon} option={sellBuy} last={lastPrice} ask={ask} bid={bid} key={id} optionData={optionData} />
+        );
+      }
+    }
+    for (const strike of strikePrices) {
+      console.log(strike.strikePrice.toString());
+      const row = tempOptionMap.get(strike.strikePrice.toString());
+      if (row) {
+        tempOptionRows.push(row);
+      } else {
+        const appCommon:AppCommon = {
+          formattedStrike: Number(ethers.utils.formatUnits(strike.strikePrice, 6)).toFixed(2),
+          formattedExpiry: formatDate(Number(expiryDate)),
+          optionType,
+          quoteAsset,
+          baseAsset,
+          expiry: fromEthDate(Number(expiryDate)),
+          // TODO: 18 should be the number of decimals
+          strike: strike.strikePrice
+        }
+        tempOptionRows.push(<OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={''} bid={''} key={strike.positionHash} optionData={emptyOptionData} />)
+      }
+    }
+    setOptionRows(tempOptionRows);
+  }, [summaryData, strikePrices])
+
+  // On Change of user order history data
+  useEffect(() => {
+    const tempUserOrderRows:JSX.Element[] = [];
+    if (!orderHistoryData || !orderHistoryData.user || !orderHistoryData.user.userOptions) {
       return;
     }
-    const fromBlock = DEPLOY_BLOCKHEIGHT;
-    const latestBlockNumber = await getBlockNumber(library);
-    let cursor = Number(fromBlock);
-    const tempUserMatches: { buy: AppOrder[], sell: AppOrder[] } = { buy: [], sell: []};
-    while (cursor < latestBlockNumber) {
-      const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
-      const buyMatches = await getMatchEvents({buyerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
-      const sellMatches = await getMatchEvents({sellerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
-      const processedBuyMatches = buyMatches.map(userEvent => matchEventToAppOrder(userEvent, 'BUY'));
-      const processedSellMatches = sellMatches.map(userEvent => matchEventToAppOrder(userEvent, 'SELL'));
-      tempUserMatches.buy = [ ...tempUserMatches.buy, ...processedBuyMatches ];
-      tempUserMatches.sell = [ ...tempUserMatches.sell, ...processedSellMatches ];
-      cursor = to + 1;
+    let orders:any[] = [];
+    for (const userOption of orderHistoryData.user.userOptions) {
+      const { buyOrders, sellOrders, option } = userOption;
+      const { baseAsset, quoteAsset, expiry, lastPrice, optionType, strike } = option;
+      const { symbol: baseAssetSymbol } = baseAsset;
+      const { symbol: quoteAssetSymbol } = quoteAsset;
+      orders = orders.concat(buyOrders.map((o: any) => {
+        return { ...o, optionAction: 'BUY', strike, expiry }
+      }))
+      orders = orders.concat(sellOrders.map((o: any) => {
+        return { ...o, optionAction: 'SELL', strike, expiry }
+      }))
     }
-    // TODO: this should cache in localStorage
-    setUserMatches(tempUserMatches);
-  }
-  main()
-    .then(() => {})
-    .catch(console.error);
+    const sortedOrders = orders.sort((a: any, b: any) => a.block - b.block);
+    if (sortedOrders) {
+      for (const order of sortedOrders) {
+        const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry } = order;
+        // const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
+        const orderToName = {
+          optionAction,
+          formattedSize: size,
+          optionType,
+          formattedStrike: strike,
+          formattedExpiry: fromEthDate(expiry).toLocaleDateString('en-us', {month: "short", day: "numeric"})
+        }
+        const status =
+          fullyMatched ? 'completed' :
+            expiredNonce ? 'cancelled' :
+              fromEthDate(offerExpire) < new Date() ? 'expired' :
+                tradable ? 'active' :
+                  'non-tradable';
+
+        console.log(fromEthDate(offerExpire));
+        console.log(fromEthDate(offerExpire));
+
+        tempUserOrderRows.push(
+          <Tr>
+            <Td >
+              <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
+                {blockNumber}
+              </Button>
+            </Td>
+            <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(orderToName)}</Td>
+            {/*<Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{optionType + strike}</Td>*/}
+            <Td maxWidth={"10px"} isNumeric={true}>
+              <Text  fontSize="xs">{pricePerContract}</Text>
+            </Td>
+            <Td>
+              <Tag size={'sm'} colorScheme={status === 'cancelled' ?
+                'red' : status === 'expired' ?
+                  'gray' : status === 'completed' ?
+                    'cyan' : status === 'active' ?
+                      'yellow': 'blue'} borderRadius={'full'}>
+                <TagLabel>{status}</TagLabel>
+              </Tag>
+            </Td>
+            <Td>
+              {
+                status === 'active' &&
+                // <Button colorScheme="teal" size="xs" onClick={cancelOrderFunc.bind(null, order)}>
+                <Button colorScheme="teal" size="xs" onClick={() => console.log('cancel does not work yet')}>
+                  Cancel
+                </Button>
+              }
+            </Td>
+          </Tr>
+        )
+
+      }
+    }
+    setUserOrderRows(tempUserOrderRows)
+  }, [orderHistoryLoading])
+
+  useEffect(() => {
+    console.log('finding user matches')
+    async function main() {
+      if (!account || !library) {
+        return;
+      }
+      const fromBlock = DEPLOY_BLOCKHEIGHT;
+      const latestBlockNumber = await getBlockNumber(library);
+      let cursor = Number(fromBlock);
+      const tempUserMatches: { buy: AppOrder[], sell: AppOrder[] } = { buy: [], sell: []};
+      while (cursor < latestBlockNumber) {
+        const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
+        const buyMatches = await getMatchEvents({buyerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
+        const sellMatches = await getMatchEvents({sellerAddress: account, provider: library, fromBlock: cursor, toBlock: to})
+        const processedBuyMatches = buyMatches.map(userEvent => matchEventToAppOrder(userEvent, 'BUY'));
+        const processedSellMatches = sellMatches.map(userEvent => matchEventToAppOrder(userEvent, 'SELL'));
+        tempUserMatches.buy = [ ...tempUserMatches.buy, ...processedBuyMatches ];
+        tempUserMatches.sell = [ ...tempUserMatches.sell, ...processedSellMatches ];
+        cursor = to + 1;
+      }
+      // TODO: this should cache in localStorage
+      setUserMatches(tempUserMatches);
+    }
+    main()
+      .then(() => {})
+      .catch(console.error);
 
   }, [account, library])
 
 
-  useEffect(() => {
-      if (contractData && contractDataStatus === "fetched" && !contractDataError) {
-        const expiryDatesString = Object.keys(contractData["MATIC-SUSD"]);
-        console.log(expiryDatesString);
-        console.log(contractData);
-        setExpiryDates(expiryDatesString);
-        if(!expiryDate) {
-          setExpiryDate(expiryDatesString[0]);
-        }
-      }
-      }, [contractDataStatus]);
 
   useEffect(() => {
     const subscriptionPositionHashes = [];
     if(!contractData || !expiryDate || !library) {
       return;
     }
-    const strikeObjPrices = contractData['MATIC-SUSD'][expiryDate][optionType].map((strikeNum) => {
+    const strikeObjPrices = contractData['SMATIC-SUSD'][expiryDate][optionType].map((strikeNum) => {
       const strike = ethers.BigNumber.from(strikeNum);
       const common: OrderCommon = {
         baseAsset,
@@ -317,6 +478,19 @@ function OptionsView(props: RouteComponentProps) {
       .catch(console.error)
   }, [library])
 
+  useEffect(() => {
+    if (contractData) {
+      const expiryDatesString = Object.keys(contractData["SMATIC-SUSD"]);
+      console.log(expiryDatesString);
+      console.log(contractData);
+      console.log(JSON.stringify(contractData));
+      setExpiryDates(expiryDatesString);
+      if(!expiryDate) {
+        setExpiryDate(expiryDatesString[0]);
+      }
+    }
+  }, []);
+
   userOrderRows.splice(0, userOrderRows.length)
   for (const [transactionHash, order] of Object.entries(userOrders)) {
     const { unitPrice, blockNumber, quoteAsset, baseAsset} = order;
@@ -328,33 +502,34 @@ function OptionsView(props: RouteComponentProps) {
     } else {
       status = ''
     }
-    userOrderRows.push(
-       <Tr>
-      <Td >
-        <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
-          {blockNumber}
-        </Button>
-      </Td>
-      <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(order)}</Td>
-      <Td maxWidth={"10px"} isNumeric={true}>
-        <Text  fontSize="xs">{unitPrice}</Text>
-      </Td>
-      <Td>
-        <Tag size={'sm'} colorScheme={status === 'cancelled' ? 'red' : status === 'expired'? 'gray' : status === 'completed'? 'cyan' : status === 'active'? 'yellow': 'blue'} borderRadius={'full'}>
-          <TagLabel>{status}</TagLabel>
-        </Tag>
-        </Td>
-      <Td>
-        {
-          status === 'active' &&
-          <Button colorScheme="teal" size="xs" onClick={cancelOrderFunc.bind(null, order)}>
-            Cancel
-          </Button>
-        }
-      </Td>
-    </Tr>
-    )
+    // tempUserOrderRows.push(
+    //    <Tr>
+    //   <Td >
+    //     <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
+    //       {blockNumber}
+    //     </Button>
+    //   </Td>
+    //   <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(order)}</Td>
+    //   <Td maxWidth={"10px"} isNumeric={true}>
+    //     <Text  fontSize="xs">{unitPrice}</Text>
+    //   </Td>
+    //   <Td>
+    //     <Tag size={'sm'} colorScheme={status === 'cancelled' ? 'red' : status === 'expired'? 'gray' : status === 'completed'? 'cyan' : status === 'active'? 'yellow': 'blue'} borderRadius={'full'}>
+    //       <TagLabel>{status}</TagLabel>
+    //     </Tag>
+    //     </Td>
+    //   <Td>
+    //     {
+    //       status === 'active' &&
+    //       <Button colorScheme="teal" size="xs" onClick={cancelOrderFunc.bind(null, order)}>
+    //         Cancel
+    //       </Button>
+    //     }
+    //   </Td>
+    // </Tr>
+    // )
   }
+  // setUserOrderRows(tempUserOrderRows);
 
   function cancelOrderFunc(order: AppOrderSigned) {
     async function main() {
@@ -438,9 +613,9 @@ function OptionsView(props: RouteComponentProps) {
         sellOrders: [],
         last: ''
       }
-      optionRows.push(
-        <OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={''} bid={''} key={appCommon.formattedStrike} optionData={emptyOptionData} />
-      );
+      // optionRows.push(
+      //   <OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={''} bid={''} key={appCommon.formattedStrike} optionData={emptyOptionData} />
+      // );
       continue;
     }
 
@@ -459,12 +634,13 @@ function OptionsView(props: RouteComponentProps) {
     const positionHash = hashOrderCommon(orderCommon)
     const last = lastMatches[positionHash] ? String(lastMatches[positionHash]) : ' -';
 
-    optionRows.push(
-      <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} optionData={optionData} />
-    );
+    // optionRows.push(
+    //   <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} optionData={optionData} />
+    // );
   }
   return (
       <>
+        <SummaryView />
         <Heading mt={10}>
           <Center>
             <Icon as={currencyIcon(chainId)} pr="1"/> {currencySymbol(chainId)} Options
@@ -479,22 +655,9 @@ function OptionsView(props: RouteComponentProps) {
       borderRadius="2xl"
       bg={useColorModeValue("white", "shrub.100")}
     >
-      {contractDataStatus === "fetching" &&
-      <Center >
-        <Spinner color="bud.100" size="xl"/>
-      </Center>
-      }
 
-      {contractDataError &&
-      <Box>
-        <Alert status="error" borderRadius={9}>
-          <AlertIcon />
-          <AlertDescription>{contractDataError}</AlertDescription>
-        </Alert>
-      </Box>
-      }
 
-      {contractDataStatus === "fetched" ?
+      {expiryDates && expiryDates[0] ?
           <>
       <Box mb={10}>
         <HStack {...groupExpiry}>

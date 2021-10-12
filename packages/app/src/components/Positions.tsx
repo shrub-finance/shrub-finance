@@ -48,7 +48,7 @@ import {
   getLockedBalance,
   getAllowance,
   getBlockNumber,
-  getWalletBalance
+  getWalletBalance, formatDate, optionTypeToNumber, exerciseLight
 } from '../utils/ethMethods';
 import {OrderCommon, ShrubBalance, SmallOrder, SupportedCurrencies} from '../types';
 import {Currencies} from "../constants/currencies";
@@ -63,6 +63,8 @@ import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
 import {QuestionOutlineIcon} from '@chakra-ui/icons';
 import {currencySymbol} from "../utils/chainMethods";
+import { useQuery } from '@apollo/client'
+import { SHRUBFOLIO_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries'
 
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
@@ -80,14 +82,14 @@ function Positions() {
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState(<></>)
   const [localError, setLocalError] = useState('')
-  const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SUSD: 0}, available: {MATIC: 0, SUSD: 0}} as ShrubBalance);
+  const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SMATIC: 0, SUSD: 0}, available: {MATIC: 0, SMATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast();
   const orderMap = new Map();
   const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
   const {isOpen: isOpenConnectWalletModal, onClose: onCloseConnectWalletModal} = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
-  const [modalCurrency, setModalCurrency] = useState('MATIC' as keyof typeof Currencies);
+  const [modalCurrency, setModalCurrency] = useState<SupportedCurrencies>('MATIC');
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   // radio buttons
   const currencies = Object.keys(Currencies)
@@ -100,6 +102,14 @@ function Positions() {
   })
   const currenciesRadiogroup = getRootProps();
   const [showDepositButton, setShowDepositButton] = useState(false);
+
+
+  const { loading:shrubfolioLoading, error:shrubfolioError, data:shrubfolioData } = useQuery(SHRUBFOLIO_QUERY, {
+    variables: {
+      id: account && account.toLowerCase()
+    }
+  })
+
 
   // shrub balance display
   useEffect(() => {
@@ -130,91 +140,160 @@ function Positions() {
     shrubBalanceHandler()
       .catch(console.error);
   }, [active, account, library, pendingTxsState]);
+
   // options display
   useEffect(() => {
-    async function displayOptionsHandler() {
-      if (!active || !account) {
-        handleErrorMessages({customMessage:'Please connect your wallet'})
-        console.error('Please connect wallet');
-        return;
-      }
-      let filledOrders = {};
-      const fromBlock = DEPLOY_BLOCKHEIGHT;
-      const latestBlockNumber = await getBlockNumber(library);
-      let cursor = Number(fromBlock);
-      while (cursor < latestBlockNumber) {
-        const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
-        const rangeFilledOrders = await getFilledOrders(account, library, cursor, to);
-        // TODO: this should cache in localStorage
-        filledOrders = { ...filledOrders, ...rangeFilledOrders };
-        cursor = to + 1;
-      }
-      if (typeof filledOrders === 'object' && Object.keys(filledOrders).length !== 0) {
-        hasOptions.current = true;
-        // Populate Option Positions Table
-        for (const details of Object.values(filledOrders)) {
-          const {pair, strike, expiry, optionType, amount, common, buyOrder, seller}
-            = details as
-            {
-              baseAsset: string,
-              quoteAsset: string,
-              pair: string,
-              strike: string,
-              expiry: string,
-              optionType: string,
-              amount: number,
-              common: OrderCommon,
-              buyOrder: SmallOrder,
-              seller: string
-            };
-          orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
-          tableRowsOptions.push(
-            <Tr>
-              <Td>{pair}</Td>
-              <Td>{strike}</Td>
-              <Td>{expiry}</Td>
-              <Td>{optionType}</Td>
-              <Td>{amount}</Td>
-              <Td>
-                {amount > 0 ? <Button
-                  colorScheme="teal"
-                  size="xs"
-                  onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
-                >
-                  Exercise
-                </Button> : Number(amount) === 0 ? <Button
-                  variant={"ghost"}
-                  isDisabled={true}
-                  colorScheme="teal"
-                  size="xs"
-                >
-                  Exercised
-                </Button> : ''
-                }
-              </Td>
-            </Tr>
-          )
-        }
-      } else {
-        hasOptions.current = false;
-        tableRowsOptions.push(
-          <Flex>
-            <Center w="600px">
-              <HelloBud boxSize={200}/>
-            </Center>
-            <Center w="100%" h="100%">
-              <Box as="span" fontWeight="semibold" fontSize="lg">
-                You don't have any options yet!
-              </Box>
-            </Center>
-          </Flex>
-        )
-      }
-      setOptionsRows(tableRowsOptions);
+    const tableRowOptions:JSX.Element[] = [];
+    console.log(account);
+    if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
+      return
     }
-    displayOptionsHandler()
-      .catch(console.error);
-  }, [active, account, library, pendingTxsState])
+    function graphqlOptionToOrderCommon(option: any) {
+      const { baseAsset, quoteAsset, strike, expiry, optionType } = option;
+      const common: OrderCommon = {
+        quoteAsset: quoteAsset.id,
+        baseAsset: baseAsset.id,
+        expiry,
+        optionType: optionTypeToNumber(optionType),
+        strike: ethers.utils.parseUnits(strike, 6)
+      }
+      return common;
+    }
+    for (const userOption of shrubfolioData.user.activeUserOptions) {
+      const { balance, option, buyOrders, sellOrders} = userOption
+      const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice } = option;
+      const { symbol: baseAssetSymbol } = baseAsset;
+      const { symbol: quoteAssetSymbol } = quoteAsset;
+
+      const pair = `${quoteAssetSymbol}/${baseAssetSymbol}`;
+      const expiry = formatDate(expiryRaw);
+      const amount = balance;
+
+      const common = graphqlOptionToOrderCommon(option);
+
+
+
+      hasOptions.current = true;
+      tableRowsOptions.push(
+        <Tr>
+          <Td>{pair}</Td>
+          <Td>{strike}</Td>
+          <Td>{expiry}</Td>
+          <Td>{optionType}</Td>
+          <Td>{amount}</Td>
+          <Td>
+            {amount > 0 ? <Button
+              colorScheme="teal"
+              size="xs"
+              onClick={() => handleClickExercise(pair, common, amount)}
+            >
+              Exercise
+            </Button> : Number(amount) === 0 ? <Button
+              variant={"ghost"}
+              isDisabled={true}
+              colorScheme="teal"
+              size="xs"
+            >
+              Exercised
+            </Button> : ''
+            }
+          </Td>
+        </Tr>
+      )
+    }
+    console.log(shrubfolioData);
+    setOptionsRows(tableRowsOptions);
+  }, [shrubfolioLoading])
+
+  // options display
+  // useEffect(() => {
+  //   async function displayOptionsHandler() {
+  //     if (!active || !account) {
+  //       handleErrorMessages({customMessage:'Please connect your wallet'})
+  //       console.error('Please connect wallet');
+  //       return;
+  //     }
+  //     let filledOrders = {};
+  //     const fromBlock = DEPLOY_BLOCKHEIGHT;
+  //     const latestBlockNumber = await getBlockNumber(library);
+  //     let cursor = Number(fromBlock);
+  //     while (cursor < latestBlockNumber) {
+  //       const to = Math.min(cursor + 1000, MAX_SCAN_BLOCKS);
+  //       const rangeFilledOrders = await getFilledOrders(account, library, cursor, to);
+  //       // TODO: this should cache in localStorage
+  //       filledOrders = { ...filledOrders, ...rangeFilledOrders };
+  //       cursor = to + 1;
+  //     }
+  //     if (typeof filledOrders === 'object' && Object.keys(filledOrders).length !== 0) {
+  //       hasOptions.current = true;
+  //       // Populate Option Positions Table
+  //       for (const details of Object.values(filledOrders)) {
+  //         const {pair, strike, expiry, optionType, amount, common, buyOrder, seller}
+  //           = details as
+  //           {
+  //             baseAsset: string,
+  //             quoteAsset: string,
+  //             pair: string,
+  //             strike: string,
+  //             expiry: string,
+  //             optionType: string,
+  //             amount: number,
+  //             common: OrderCommon,
+  //             buyOrder: SmallOrder,
+  //             seller: string
+  //           };
+  //         orderMap.set(`${pair}${strike}${expiry}${optionType}`, {common, buyOrder, seller});
+  //         tableRowsOptions.push(
+  //           <Tr>
+  //             <Td>{pair}</Td>
+  //             <Td>{strike}</Td>
+  //             <Td>{expiry}</Td>
+  //             <Td>{optionType}</Td>
+  //             <Td>{amount}</Td>
+  //             <Td>
+  //               {amount > 0 ? <Button
+  //                 colorScheme="teal"
+  //                 size="xs"
+  //                 onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
+  //               >
+  //                 Exercise
+  //               </Button> : Number(amount) === 0 ? <Button
+  //                 variant={"ghost"}
+  //                 isDisabled={true}
+  //                 colorScheme="teal"
+  //                 size="xs"
+  //               >
+  //                 Exercised
+  //               </Button> : ''
+  //               }
+  //             </Td>
+  //           </Tr>
+  //         )
+  //       }
+  //     } else {
+  //       hasOptions.current = false;
+  //       tableRowsOptions.push(
+  //         <Flex>
+  //           <Center w="600px">
+  //             <HelloBud boxSize={200}/>
+  //           </Center>
+  //           <Center w="100%" h="100%">
+  //             <Box as="span" fontWeight="semibold" fontSize="lg">
+  //               You don't have any options yet!
+  //             </Box>
+  //           </Center>
+  //         </Flex>
+  //       )
+  //     }
+  //     setOptionsRows(tableRowsOptions);
+  //   }
+  //   displayOptionsHandler()
+  //     .catch(console.error);
+  // }, [active, account, library, pendingTxsState])
+
+
+
+
   useEffect(() => {
     async function handleApprove(){
       if (modalCurrency !== 'MATIC') {
@@ -256,14 +335,34 @@ function Positions() {
       })
 
   }
-  async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string, amount: number) {
+  // async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string, amount: number) {
+  //   try {
+  //     const key = `${pair}${strike}${expiry}${optionType}`
+  //     const {common, buyOrder, seller} = orderMap.get(key);
+  //     const unsignedOrder = {...common, ...buyOrder};
+  //     const signedOrder = await signOrder(unsignedOrder, library)
+  //     const tx = await exercise(signedOrder, seller, library)
+  //     const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
+  //     pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+  //     const receipt = await tx.wait()
+  //     const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
+  //     toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+  //     pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+  //     return tx;
+  //   } catch (e) {
+  //     console.error(e);
+  //     handleErrorMessages({err:e});
+  //   }
+  //
+  // }
+
+  async function handleClickExercise(pair: string, common: OrderCommon, amount: string) {
     try {
-      const key = `${pair}${strike}${expiry}${optionType}`
-      const {common, buyOrder, seller} = orderMap.get(key);
-      const unsignedOrder = {...common, ...buyOrder};
-      const signedOrder = await signOrder(unsignedOrder, library)
-      const tx = await exercise(signedOrder, seller, library)
-      const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
+      const bigAmount = ethers.utils.parseUnits(amount, 18);
+      const tx = await exerciseLight(common, bigAmount, library);
+      const { optionType, strike } = common;
+      const formattedStrike = ethers.utils.formatUnits(strike,6);
+      const description = `Exercise ${pair} ${optionType} option for $${Number(amount) * Number(formattedStrike)} at strike $${formattedStrike}`
       pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
       const receipt = await tx.wait()
       const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
@@ -276,9 +375,10 @@ function Positions() {
     }
 
   }
+
   function totalUserBalance(currency: string) {
     const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
-    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) ;
+    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: ['MATIC','SMATIC'].includes(currency) ? 6 : 2}) ;
   }
   // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {

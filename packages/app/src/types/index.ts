@@ -16,7 +16,7 @@ export type LastOrders = {[positionHash: string]: number}
 
 export type PendingTxAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}
 
-export type SupportedCurrencies = 'MATIC'|'SUSD'
+export type SupportedCurrencies = 'MATIC'|'SMATIC'|'SUSD'
 
 export type SmallOrder = {
   size: BigNumber;
