@@ -1,5 +1,10 @@
 import {BytesLike, ethers} from "ethers";
-import {SUSDToken__factory, ShrubExchange} from "@shrub/contracts/types/ethers-v5";
+import {
+  SUSDToken__factory,
+  ShrubExchange,
+  ERC20__factory,
+  TokenFaucet__factory,
+} from '@shrub/contracts/types/ethers-v5'
 import {ShrubExchange__factory, HashUtil__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
@@ -24,6 +29,7 @@ import {JsonRpcProvider} from "@ethersproject/providers";
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const HASH_UTIL_CONTRACT_ADDRESS = process.env.REACT_APP_HASH_UTIL_ADDRESS || "";
 const SUSD_TOKEN_ADDRESS = process.env.REACT_APP_SUSD_TOKEN_ADDRESS || "";
+const FAUCET_CONTRACT_ADDRESS = process.env.REACT_APP_FAUCET_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id('OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const ORDER_TYPEHASH = ethers.utils.id('Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
@@ -264,6 +270,25 @@ export async function withdraw(
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }
+
+export async function buyFromFaucet(
+  tokenContractAddress: string,
+  amount: ethers.BigNumber,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const tokenContract = ERC20__factory.connect(tokenContractAddress, signer);
+  const faucetContract = TokenFaucet__factory.connect(FAUCET_CONTRACT_ADDRESS, signer);
+  const signerAddress = await signer.getAddress();
+  const maticBalance = await provider.getBalance(signerAddress);
+  const rate = await faucetContract.tokenRates(tokenContractAddress);
+  if (amount.gt(maticBalance)) {
+    throw new Error(`Not enough MATIC balance. You have ${ethers.utils.formatUnits(maticBalance, 18)}` );
+  }
+  return faucetContract.buyFromFaucet(tokenContractAddress, { value: amount })
+};
+
+export async function sellToFaucet() {};
 
 export function iOrderToSmall(order: IOrder) {
   const { size, isBuy, nonce, price, offerExpire, fee } = order;

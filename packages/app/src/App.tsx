@@ -23,11 +23,11 @@ function App() {
       <Web3ReactProvider getLibrary={getLibrary}>
         <ApolloProvider client={client}>
         <Store>
-                    <TopNav/>
-                <Router>
-                    <HomeView path="/"/>
-                    <PositionsView path='shrubfolio'/>
-                    <OptionsView path='options' />
+          <TopNav />
+          <Router>
+            <HomeView path="/"/>
+            <PositionsView path='shrubfolio' />
+            <OptionsView path='options' />
           </Router>
         </Store>
         </ApolloProvider>
