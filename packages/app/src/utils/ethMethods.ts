@@ -1,11 +1,17 @@
 import {BytesLike, ethers} from "ethers";
-import {SUSDToken__factory, ShrubExchange} from "@shrub/contracts/types/ethers-v5";
+import {
+  SUSDToken__factory,
+  ShrubExchange,
+  ERC20__factory,
+  TokenFaucet__factory,
+} from '@shrub/contracts/types/ethers-v5'
 import {ShrubExchange__factory, HashUtil__factory} from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
   ApiOrder,
   AppOrder,
   AppOrderSigned,
+  IndexedAppOrderSigned,
   IOrder, LastOrders,
   OrderCommon,
   PostOrder,
@@ -13,7 +19,7 @@ import {
   Signature,
   SmallOrder,
   UnsignedOrder,
-} from "../types";
+} from '../types'
 import { Shrub712 } from "./EIP712";
 import Web3 from "web3";
 import {useWeb3React} from "@web3-react/core";
@@ -23,6 +29,7 @@ import {JsonRpcProvider} from "@ethersproject/providers";
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const HASH_UTIL_CONTRACT_ADDRESS = process.env.REACT_APP_HASH_UTIL_ADDRESS || "";
 const SUSD_TOKEN_ADDRESS = process.env.REACT_APP_SUSD_TOKEN_ADDRESS || "";
+const FAUCET_CONTRACT_ADDRESS = process.env.REACT_APP_FAUCET_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id('OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const ORDER_TYPEHASH = ethers.utils.id('Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
@@ -109,7 +116,13 @@ export async function signOrder(unsignedOrder: UnsignedOrder, provider: JsonRpcP
   const { order: resOrder, sig } = await shrubInterface.signOrderWithWeb3(
     web3,
     orderTypeHash,
-    unsignedOrder,
+    {
+      ...unsignedOrder,
+      fee: unsignedOrder.fee.toString(),
+      price: unsignedOrder.price.toString(),
+      size: unsignedOrder.size.toString(),
+      strike: unsignedOrder.strike.toString(),
+    },
     address
   );
   const signedOrder: IOrder = { ...resOrder, ...sig, address };
@@ -263,6 +276,25 @@ export async function withdraw(
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }
+
+export async function buyFromFaucet(
+  tokenContractAddress: string,
+  amount: ethers.BigNumber,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const tokenContract = ERC20__factory.connect(tokenContractAddress, signer);
+  const faucetContract = TokenFaucet__factory.connect(FAUCET_CONTRACT_ADDRESS, signer);
+  const signerAddress = await signer.getAddress();
+  const maticBalance = await provider.getBalance(signerAddress);
+  const rate = await faucetContract.tokenRates(tokenContractAddress);
+  if (amount.gt(maticBalance)) {
+    throw new Error(`Not enough MATIC balance. You have ${ethers.utils.formatUnits(maticBalance, 18)}` );
+  }
+  return faucetContract.buyFromFaucet(tokenContractAddress, { value: amount })
+};
+
+export async function sellToFaucet() {};
 
 export function iOrderToSmall(order: IOrder) {
   const { size, isBuy, nonce, price, offerExpire, fee } = order;
@@ -441,7 +473,7 @@ export function getMatchEvents({buyerAddress, sellerAddress, positionHash, provi
 }) {
   validateBlockRange(fromBlock, toBlock);
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
-  const filter = shrubContract.filters.OrderMatched(sellerAddress, buyerAddress)
+  const filter = shrubContract.filters.OrderMatched(sellerAddress, buyerAddress);
   return shrubContract.queryFilter(filter, fromBlock, toBlock);
 }
 
@@ -471,6 +503,39 @@ export function getAnnouncedEvents({provider, positionHash, user, fromBlock = -1
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const filter = shrubContract.filters.OrderAnnounce(null, positionHash, user);
   return shrubContract.queryFilter(filter, fromBlock, toBlock)
+}
+
+export async function getAnnouncedEvent(provider: JsonRpcProvider, positionHash: BytesLike, user: string, blockNumber: number): Promise<AppOrderSigned | null> {
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
+  const filter = shrubContract.filters.OrderAnnounce(null, positionHash, user);
+  const matchingEvents = await shrubContract.queryFilter(filter, blockNumber, blockNumber);
+  if (!matchingEvents || !matchingEvents[0] || !matchingEvents[0].args) {
+    return null;
+  }
+  // TODO: Deal with the case where there is more than 1 match (user could announce multiple in 1 block)
+  const { transactionHash, args: event } = matchingEvents[0]
+  const {common, order, sig} = event;
+  const { baseAsset, quoteAsset, strike } = common;
+  const { size, fee } = order;
+  const { r, s, v } = sig;
+
+  const expiry = fromEthDate(common.expiry.toNumber());
+  const optionType = optionTypeToString(common.optionType);
+  const formattedExpiry = expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"});
+  const formattedStrike = ethers.utils.formatUnits(strike, 6);  // Need to divide by 1M to get the actual strike
+  const nonce = order.nonce.toNumber();
+  const formattedSize = ethers.utils.formatUnits(size, 18);
+  const optionAction = isBuyToOptionAction(order.isBuy);
+  const totalPrice = ethers.BigNumber.from(order.price);
+  const unitPrice = Number(ethers.utils.formatUnits(totalPrice, 18)) / Number(formattedSize);
+  const offerExpire = fromEthDate(order.offerExpire.toNumber());
+  const formattedFee = ethers.utils.formatUnits(fee, 18);
+  const appOrderSigned: IndexedAppOrderSigned = {
+    baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, r, s, v, transactionHash
+  }
+  const address = user;
+  appOrderSigned.address = address;
+  return appOrderSigned;
 }
 
 export function subscribeToAnnouncements(provider: JsonRpcProvider, positionHash: BytesLike, user: string | null, callback: any) {
@@ -577,6 +642,13 @@ export async function exercise(order: IOrder, seller: string, provider: JsonRpcP
   return executed;
 }
 
+export async function exerciseLight(common: OrderCommon, size: ethers.BigNumber, provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const executed = await shrubContract.exercise(size, common);
+  return executed;
+}
+
 export function hashOrderCommon(common: OrderCommon) {
   const { baseAsset, quoteAsset, expiry, strike, optionType } = common;
   return ethers.utils.solidityKeccak256(['bytes32', 'address', 'address', 'uint', 'uint', 'uint8'],[COMMON_TYPEHASH, baseAsset, quoteAsset, expiry, strike, optionType]);
@@ -614,7 +686,7 @@ export function optionActionToIsBuy(optionAction: 'BUY' | 'SELL') {
 }
 
 export function formatStrike(strike: ethers.BigNumber) {
-  return Number(ethers.utils.formatUnits(strike, 6)).toFixed(0);
+  return Number(ethers.utils.formatUnits(strike, 6)).toFixed(2);
 }
 
 export function formatDate(date: number | Date) {
@@ -666,7 +738,7 @@ export function transformOrderAppChain(order: AppOrderSigned): IOrder {
   }
 }
 
-export function shortOptionName(order: AppOrder) {
+export function shortOptionName(order: Pick<AppOrder, 'optionAction' | 'formattedSize' | 'optionType' | 'formattedStrike' | 'formattedExpiry'>) {
   const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
   return `${optionAction} ${formattedSize}x${optionType}${formattedExpiry}$${formattedStrike}`
 }

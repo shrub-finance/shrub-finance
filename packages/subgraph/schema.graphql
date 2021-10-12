@@ -1,0 +1,142 @@
+type BuyOrder @entity{
+  "hashSmallOrder"
+  id: ID!
+  option: Option!
+#  user: User!
+  userOption: UserOption!
+  size: BigDecimal!
+  nonce: Int!
+  price: BigDecimal!
+  pricePerContract: BigDecimal!
+  expiredNonce: Boolean!
+  funded: Boolean!
+  offerExpire: Int!
+  fee: BigDecimal!
+  block: Int!
+  timestamp: Int!
+  fullyMatched: Boolean!
+  tradable: Boolean!
+  matches: [Match!]! @derivedFrom(field: "buyOrder")
+  cancelDate: Int!
+}
+
+type SellOrder @entity{
+  "hashSmallOrder"
+  id: ID!
+  option: Option!
+#  user: User!
+  userOption: UserOption!
+  size: BigDecimal!
+  nonce: Int!
+  price: BigDecimal!
+  pricePerContract: BigDecimal!
+  expiredNonce: Boolean!
+  funded: Boolean!
+  offerExpire: Int!
+  fee: BigDecimal!
+  block: Int!
+  timestamp: Int!
+  fullyMatched: Boolean!
+  tradable: Boolean!
+  matches: [Match!]! @derivedFrom(field: "sellOrder")
+  cancelDate: Int!
+}
+
+type OptionPosition @entity {
+  id: ID!
+#  user: User!
+#  option: Option!
+  userOption: UserOption!
+  balance: BigDecimal!
+  block: Int!
+  timestamp: Int!
+}
+
+type UserMatch @entity {
+  id: ID!
+  user: User!
+  match: Match!
+}
+
+type Match @entity {
+  "buyOrderId-sellOrderId"
+  id: ID!
+  buyOrder: BuyOrder!
+  sellOrder: SellOrder!
+  totalFee: BigDecimal!
+  size: BigDecimal!
+  finalPrice: BigDecimal!
+  finalPricePerContract: BigDecimal!
+  block: Int!
+  timestamp: Int!
+  userMatches: [UserMatch!]! @derivedFrom(field: "match")
+}
+
+enum OptionType {
+  CALL
+  PUT
+}
+
+type Option @entity {
+  "positionHash"
+  id: ID!
+  name: String
+  baseAsset: Token!
+  quoteAsset: Token!
+  expiry: Int!
+  strike: BigDecimal!
+#  optionType: String!
+  optionType: OptionType!
+  lastPrice: BigDecimal
+  openInterest: BigDecimal!
+  userOptions: [UserOption!]! @derivedFrom(field: "option")
+  buyOrders: [BuyOrder!]! @derivedFrom(field: "option")
+  sellOrders: [SellOrder!]! @derivedFrom(field: "option")
+}
+
+type User @entity {
+  "address"
+  id: ID!
+  activeUserOptions: [UserOption!]!
+  tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
+  userMatches: [UserMatch!]! @derivedFrom(field: "user")
+  userOptions: [UserOption!]! @derivedFrom(field: "user")
+#  buyOrders: [BuyOrder!]! @derivedFrom(field: "user")
+#  sellOrders: [SellOrder!]! @derivedFrom(field: "user")
+}
+
+type UserOption @entity {
+  "userAddress-positionHash"
+  id: ID!
+  user: User!
+  option: Option!
+  balance: BigDecimal!
+  nonce: BigInt!
+  activeBuyOrders: [BuyOrder!]!
+  activeSellOrders: [SellOrder!]!
+  optionPositions: [OptionPosition!]! @derivedFrom(field: "userOption")
+  buyOrders: [BuyOrder!]! @derivedFrom(field: "userOption")
+  sellOrders: [SellOrder!]! @derivedFrom(field: "userOption")
+  block: Int!
+  timestamp: Int!
+}
+
+type Token @entity {
+  "address"
+  id: ID!
+  symbol: String!
+  name: String!
+  decimals: Int!
+}
+
+type TokenBalance @entity {
+  "userAddress-tokenAddress"
+  id: ID!
+  user: User!
+  token: Token!
+  unlockedBalance: BigDecimal!
+  lockedBalance: BigDecimal!
+#  snapshots: [TokenBalanceSnapshot!]!
+  block: Int!
+  timestamp: Int!
+}

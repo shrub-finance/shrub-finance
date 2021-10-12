@@ -5,25 +5,25 @@ const SUSDToken = artifacts.require("SUSDToken");
 // @ts-ignore
 const TestTokenFactory = artifacts.require("TestTokenFactory");
 // @ts-ignore
+const TokenFaucet = artifacts.require("TokenFaucet");
+// @ts-ignore
 const HashUtil = artifacts.require("HashUtil");
 
 // @ts-ignore
 const TokenizeLib = artifacts.require("TokenizeLib");
 
-
-
 let linked = false;
 module.exports = async () => {
-
-
-  const tokenizeLib = await TokenizeLib.new();
-  TokenizeLib.setAsDeployed(tokenizeLib);
-
-  if(!linked) {
+  if (!linked) {
     linked = true;
-    await ShrubExchange.link(tokenizeLib);
+    try {
+      const tokenizeLib = await TokenizeLib.new();
+      TokenizeLib.setAsDeployed(tokenizeLib);
+      await ShrubExchange.link(tokenizeLib);
+    } catch (e) {
+      console.error(e);
+    }
   }
-
 
   const shrubExchange = await ShrubExchange.new();
   ShrubExchange.setAsDeployed(shrubExchange);
@@ -36,4 +36,7 @@ module.exports = async () => {
 
   const tokenFactory = await TestTokenFactory.new();
   TestTokenFactory.setAsDeployed(tokenFactory);
+
+  const tokenFaucet = await TokenFaucet.new();
+  TokenFaucet.setAsDeployed(tokenFaucet);
 };
