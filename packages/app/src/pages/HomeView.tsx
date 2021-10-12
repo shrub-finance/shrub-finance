@@ -31,28 +31,14 @@ function HomeView(props: RouteComponentProps) {
 
     return (
         <>
-            <Container
-                mt={50}
-                p={5}
-                flex="1"
-                borderRadius="2xl"
-                maxW="container.lg"
-            >
+            <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center mt={20}>
-                    <Box
-                        maxW="60xsrem"
-                        mb={12}
-                        textAlign={'center'}
-                    >
-                        <Heading
-                            fontSize="65px"x
-                            letterSpacing={"tight"}
-                            mb={4}
-                        >
-                            DeFi Options for everyone
+                    <Box maxW="60rem" mb={12} textAlign={'center'}>
+                        <Heading fontSize="60px" letterSpacing={"tight"} mb={4}>
+                            Familiar with Options?
                         </Heading>
                         <Text fontSize="25px">
-                            Trade instantly. Trade freely.
+                            March ahead. Buy or sell options at your price, of your choosing!
                         </Text>
                         <Button
                             rightIcon={<ArrowForwardIcon/>}
@@ -67,28 +53,23 @@ function HomeView(props: RouteComponentProps) {
                             _hover={{bgGradient:"linear(to-r,green.500,green.500,green.500)"}}
                             as={ReachLink} to={'/options'}
                         >
-                            Start trading
+                            Start Trading
                         </Button>
                     </Box>
                 </Center>
             </Container>
 
-            <Container
-                mt={50}
-                p={5}
-                flex="1"
-                borderRadius="2xl"
-                maxW="container.lg"
-            >
-                <Box align={{base: "center", md: "left", lg:"left"}} mb={8}
-                >
-                    <Text fontSize="25px"
-                          fontWeight='bold'
-                          >
-                        Instant Trades
-                </Text>
-                    <Text >Not sure what to buy? Here are some options for you!  </Text>
-                </Box>
+            <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+                <Center mt={20}>
+                    <Box maxW="60rem" mb={12} textAlign={'center'}>
+                        <Heading fontSize="60px" letterSpacing={"tight"} mb={4}>
+                            First time? Not sure what to buy?
+                        </Heading>
+                        <Text fontSize="25px">
+                            Try these quick options
+                        </Text>
+                    </Box>
+                </Center>
 
                 <Flex
                     direction={{base: "column", md: "row", lg:"row"}}
