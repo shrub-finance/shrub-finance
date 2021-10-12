@@ -107,7 +107,7 @@ function Faucet() {
           }
           <Box>
             <FormControl id="faucetCurrency">
-              <FormLabel>Currency</FormLabel>
+              <FormLabel>Token I want:</FormLabel>
               <HStack {...currenciesRadiogroup}>
                 {currencyArray.map((value) => {
                   const radio = getRadioProps({ value })
@@ -121,23 +121,8 @@ function Faucet() {
             </FormControl>
           </Box>
 
-          <Box>
-            <FormControl id="faucetOption">
-              <HStack {...groupOption}>
-                <FormLabel htmlFor="option">Option:</FormLabel>
-                {radioOptions.map((value) => {
-                  const radio = getOptionRadioProps({ value });
-                  return (
-                    <RadioCard key={value} {...radio}>
-                      {value}
-                    </RadioCard>
-                  );
-                })}
-              </HStack>
-            </FormControl>
-          </Box>
         <FormControl id="amount">
-          <FormLabel>MATIC to convert</FormLabel>
+          <FormLabel>MATIC I will pay:</FormLabel>
           <NumberInput
             onChange={(valueString) => setAmountValue(parse(valueString))}
             value={format(amountValue)} size="lg"
@@ -145,6 +130,15 @@ function Faucet() {
             <NumberInputField/>
           </NumberInput>
         </FormControl>
+          <FormControl id="amount">
+            <FormLabel>{modalCurrency} I will get:</FormLabel>
+            <NumberInput isDisabled
+              onChange={(valueString) => setAmountValue(parse(valueString))}
+              value={format((10000 * Number(amountValue)).toString())} size="lg"
+            >
+              <NumberInputField/>
+            </NumberInput>
+          </FormControl>
         </Stack>
         <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleFaucet}>
           Exchange
