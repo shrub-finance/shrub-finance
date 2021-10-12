@@ -76,5 +76,5 @@ export function currencyIcon(chainId: any) {
     if (chainId === SupportedChainId.POLYGON ||  chainId === SupportedChainId.MUMBAI) {
         return PolygonIcon
     }
-    return FaEthereum
+    return PolygonIcon
 }

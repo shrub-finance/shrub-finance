@@ -465,7 +465,11 @@ function OptionsView(props: RouteComponentProps) {
   }
   return (
       <>
-        <Heading mt={10}><Center><Icon as={currencyIcon(chainId)} pr="1"/> {currencySymbol(chainId)} Options</Center></Heading>
+        <Heading mt={10}>
+          <Center>
+            <Icon as={currencyIcon(chainId)} pr="1"/> {currencySymbol(chainId)} Options
+          </Center>
+        </Heading>
 
   <Container
       mt={50}
@@ -537,7 +541,7 @@ function OptionsView(props: RouteComponentProps) {
         </Flex>
           </>
           :
-          <Flex direction="column">
+          <Flex direction="column" mt={10}>
             <Center>
               <HelloBud boxSize={200}/>
             </Center>
