@@ -6,26 +6,34 @@ import {Web3ReactProvider} from "@web3-react/core";
 import {getLibrary} from "./components/ConnectWallet";
 import React from 'react';
 import Store from "./components/Store";
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 import HomeView from "./pages/HomeView";
 
 
 function App() {
 
+  const client = new ApolloClient({
+    uri: process.env.REACT_APP_SUBGRAPH_QUERY,
+    cache: new InMemoryCache()
+  })
 
-    return (
-        <div className="App">
-            <Web3ReactProvider getLibrary={getLibrary}>
-                <Store>
+
+  return (
+    <div className='App'>
+      <Web3ReactProvider getLibrary={getLibrary}>
+        <ApolloProvider client={client}>
+        <Store>
                     <TopNav/>
                 <Router>
                     <HomeView path="/"/>
-                    <PositionsView path="shrubfolio"/>
-                    <OptionsView path="options"/>
-                </Router>
-                </Store>
-            </Web3ReactProvider>
-        </div>
-    );
+                    <PositionsView path='shrubfolio'/>
+                    <OptionsView path='options' />
+          </Router>
+        </Store>
+        </ApolloProvider>
+      </Web3ReactProvider>
+    </div>
+  )
 
 
 }
