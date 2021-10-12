@@ -28,6 +28,7 @@ import {confirmingCount, TxStatusList} from "./TxMonitoring";
 import {isMobile} from "react-device-detect";
 import {GiCoins} from 'react-icons/gi';
 import {FaFileContract} from 'react-icons/all';
+import Faucet from './Faucet'
 
 function TopNav() {
 
@@ -97,6 +98,12 @@ function handleModalClose() {
                         <Account/>}
               </Button>
             </Box>
+            <Box onClick={onOpen}
+                 mr={isMobile ? '19.5': '0'}
+            >
+              <Button variant={"outline"} colorScheme={!!web3Error ? "red":"teal"}
+                      size={"md"} mr={4} borderRadius="full">Get tokens</Button>
+            </Box>
             <IconButton variant="unstyled"
             icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label={"Open Menu"} display={{ md: "none" }}
@@ -147,6 +154,18 @@ function handleModalClose() {
           <ModalBody>
             {!active || isHidden? <ConnectWalletModal/> : !isHidden &&<ConnectionStatus displayStatus={displayStatus}/>}
             <TxStatusList/>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isOpen} onClose={handleModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"}>
+        <ModalOverlay />
+        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
+          <ModalHeader> <Text fontSize={16}>Test Faucet</Text>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Faucet/>
           </ModalBody>
         </ModalContent>
       </Modal>
