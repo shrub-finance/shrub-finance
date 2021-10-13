@@ -102,7 +102,7 @@ function handleModalClose() {
             <Box onClick={onFaucetModalOpen}
                  mr={isMobile ? '19.5': '0'}
             >
-              <Button variant={"outline"} colorScheme={!!web3Error ? "red":"teal"}
+              <Button variant={"outline"} colorScheme={ "teal"}
                       size={"md"} mr={4} borderRadius="full">Get Test Tokens</Button>
             </Box>
             <IconButton variant="unstyled"
@@ -162,8 +162,7 @@ function handleModalClose() {
       <Modal isOpen={isFaucetModalOpen} onClose={onFaucetModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"}>
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
-          <ModalHeader> <Text fontSize={16}>Test Faucet</Text>
-          </ModalHeader>
+          <ModalHeader> Test Faucet</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Faucet/>

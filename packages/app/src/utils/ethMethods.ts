@@ -289,7 +289,7 @@ export async function buyFromFaucet(
   const maticBalance = await provider.getBalance(signerAddress);
   const rate = await faucetContract.tokenRates(tokenContractAddress);
   if (amount.gt(maticBalance)) {
-    throw new Error(`Not enough MATIC balance. You have ${ethers.utils.formatUnits(maticBalance, 18)}` );
+    throw new Error(`Only ${ethers.utils.formatUnits(maticBalance, 18)} MATIC detected in your wallet. Try increasing the MATIC balance.` );
   }
   return faucetContract.buyFromFaucet(tokenContractAddress, { value: amount })
 };

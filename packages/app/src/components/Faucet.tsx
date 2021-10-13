@@ -57,6 +57,7 @@ function Faucet() {
   const toast = useToast();
   const currenciesRadiogroup = getRootProps();
   const groupOption = getOptionRootProps();
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleFaucet(event: any) {
     try {
@@ -70,6 +71,7 @@ function Faucet() {
         return;
       }
       if (option === 'BUY') {
+        setIsLoading(true);
         tx = await buyFromFaucet(tokenAddress, ethers.utils.parseUnits(amountValue), library)
         const description =  `BUYING ${modalCurrency} for ${amountValue} MATIC`;
         pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
@@ -79,7 +81,9 @@ function Faucet() {
           const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
           toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
           pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+          setIsLoading(false);
         } catch (e) {
+          setIsLoading(false);
           const toastDescription = ToastDescription(description, e.transactionHash, chainId);
           pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
           toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
@@ -87,6 +91,7 @@ function Faucet() {
       }
 
     } catch (e) {
+      setIsLoading(false);
       handleErrorMessages({err: e})
     }
   }
@@ -107,7 +112,7 @@ function Faucet() {
           }
           <Box>
             <FormControl id="faucetCurrency">
-              <FormLabel>Token I want:</FormLabel>
+              <FormLabel>Which token would you like to get?</FormLabel>
               <HStack {...currenciesRadiogroup}>
                 {currencyArray.map((value) => {
                   const radio = getRadioProps({ value })
@@ -122,7 +127,7 @@ function Faucet() {
           </Box>
 
         <FormControl id="amount">
-          <FormLabel>MATIC I will pay:</FormLabel>
+          <FormLabel>How much MATIC do you want to swap?</FormLabel>
           <NumberInput
             onChange={(valueString) => setAmountValue(parse(valueString))}
             value={format(amountValue)} size="lg"
@@ -131,7 +136,7 @@ function Faucet() {
           </NumberInput>
         </FormControl>
           <FormControl id="amount">
-            <FormLabel>{modalCurrency} I will get:</FormLabel>
+            <FormLabel>{modalCurrency} you will get:</FormLabel>
             <NumberInput isDisabled
               onChange={(valueString) => setAmountValue(parse(valueString))}
               value={format((10000 * Number(amountValue)).toString())} size="lg"
@@ -140,8 +145,8 @@ function Faucet() {
             </NumberInput>
           </FormControl>
         </Stack>
-        <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleFaucet}>
-          Exchange
+        <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
+          Swap
         </Button>
       </>
   )
