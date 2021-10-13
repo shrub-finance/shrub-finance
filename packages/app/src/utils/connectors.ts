@@ -48,8 +48,8 @@ export const ledger = new LedgerConnector({
 
 // mainnet only
 export const fortmatic = new FortmaticConnector({
-  // apiKey: FORMATIC_KEY ?? '',
-  apiKey: '',
+  apiKey: process.env.REACT_APP_FORTMATIC_KEY ?? '',
+  // apiKey: '',
   chainId: 1,
 })
 
