@@ -1,22 +1,17 @@
 import {
-  Alert, AlertIcon, Box, Button, FormControl, FormLabel, HStack, InputRightElement,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay, NumberInput, NumberInputField,
+  Alert, AlertIcon, Box, Button, FormControl, FormLabel, HStack, NumberInput, NumberInputField,
   SlideFade,
-  Stack, useDisclosure, useRadioGroup, useToast,
+  Stack, useColorModeValue, useDisclosure, useRadioGroup, useToast,
 } from '@chakra-ui/react'
 import RadioCard from './Radio'
-import { ToastDescription, Txmonitor } from './TxMonitoring'
+import { ToastDescription } from './TxMonitoring'
 import React, { useContext, useState } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { handleErrorMessagesFactory } from '../utils/handleErrorMessages'
-import { buyFromFaucet, depositEth } from '../utils/ethMethods'
+import { buyFromFaucet } from '../utils/ethMethods'
 import { ethers } from 'ethers'
 import { TxContext } from './Store'
+import { SUSDIcon } from "../assets/Icons";
 
 function Faucet() {
   // Constants
@@ -33,7 +28,6 @@ function Faucet() {
   // Hooks
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-  const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
   const [activeHash, setActiveHash] = useState<string>();
   const [localError, setLocalError] = useState('');
   const [amountValue, setAmountValue] = useState("0.01");
@@ -58,6 +52,7 @@ function Faucet() {
   const currenciesRadiogroup = getRootProps();
   const groupOption = getOptionRootProps();
   const [isLoading, setIsLoading] = useState(false);
+  const invalidEntry = Number(amountValue)<0 ||isNaN(Number(amountValue));
 
   async function handleFaucet(event: any) {
     try {
@@ -118,7 +113,7 @@ function Faucet() {
                   const radio = getRadioProps({ value })
                   return (
                     <RadioCard key={value} {...radio}>
-                      {value}
+                    {value}
                     </RadioCard>
                   )
                 })}
@@ -126,26 +121,25 @@ function Faucet() {
             </FormControl>
           </Box>
 
-        <FormControl id="amount">
+        <FormControl id="maticAmount">
           <FormLabel>How much MATIC do you want to swap?</FormLabel>
           <NumberInput
+              isInvalid={invalidEntry}
             onChange={(valueString) => setAmountValue(parse(valueString))}
             value={format(amountValue)} size="lg"
           >
-            <NumberInputField/>
+          <NumberInputField/>
           </NumberInput>
         </FormControl>
-          <FormControl id="amount">
-            <FormLabel>{modalCurrency} you will get:</FormLabel>
-            <NumberInput isDisabled
-              onChange={(valueString) => setAmountValue(parse(valueString))}
-              value={format((10000 * Number(amountValue)).toString())} size="lg"
-            >
-              <NumberInputField/>
-            </NumberInput>
+          <FormControl id="tokenAmount">
+            <FormLabel>Token amount you get for {invalidEntry ? '' : amountValue} MATIC:</FormLabel>
+            <Box fontWeight={"bold"} fontSize={"lg"} bg={useColorModeValue("gray.100", "gray.400")} p={3} borderRadius={6}
+            color={useColorModeValue("black", "black")}>
+             <SUSDIcon/> {invalidEntry ? '?' : format((10000 * Number(amountValue)).toString())} {modalCurrency}
+            </Box>
           </FormControl>
         </Stack>
-        <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
+        <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
           Swap
         </Button>
       </>

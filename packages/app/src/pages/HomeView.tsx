@@ -38,7 +38,7 @@ function HomeView(props: RouteComponentProps) {
                             Familiar with Options?
                         </Heading>
                         <Text fontSize="25px">
-                            March ahead. Buy or sell options at your price, of your choosing!
+                            Sweet. Buy or sell options of your choosing, at your price!
                         </Text>
                         <Button
                             rightIcon={<ArrowForwardIcon/>}
@@ -50,7 +50,7 @@ function HomeView(props: RouteComponentProps) {
                             mt="50px"
                             borderRadius="full"
                             bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
-                            _hover={{bgGradient:"linear(to-r,green.500,green.500,green.500)"}}
+                            _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}
                             as={ReachLink} to={'/options'}
                         >
                             Start Trading
@@ -63,7 +63,8 @@ function HomeView(props: RouteComponentProps) {
                 <Center mt={20}>
                     <Box maxW="60rem" mb={12} textAlign={'center'}>
                         <Heading fontSize="60px" letterSpacing={"tight"} mb={4}>
-                            First time? Not sure what to buy?
+                            {/*First time? */}
+                            Not sure what to buy?
                         </Heading>
                         <Text fontSize="25px">
                             Try these quick options
