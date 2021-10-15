@@ -34,8 +34,8 @@ import {
   NumberInputField,
   InputRightElement,
   Stack,
-  useRadioGroup, Tooltip, Divider
-} from '@chakra-ui/react';
+  useRadioGroup, Tooltip, Divider, Tag, StatHelpText, StatNumber, StatLabel, Stat, TagLabel,
+} from '@chakra-ui/react'
 import {
   depositEth,
   depositToken,
@@ -171,28 +171,26 @@ function Positions() {
           tableRowsOptions.push(
             <Tr>
               <Td>{pair}</Td>
-              <Td>{strike}</Td>
-              <Td>{expiry}</Td>
-              <Td>{optionType}</Td>
+              <Td fontSize={'sm'} fontWeight={'bold'}>{`${strike} ${expiry} ${optionType}`}</Td>
               <Td>{amount}</Td>
               <Td>
                 {amount > 0 ? <Button
-                  colorScheme="teal"
-                  size="xs"
+                  colorScheme='teal'
+                  size='xs'
                   onClick={() => handleClickExercise(pair, strike, expiry, optionType, amount)}
                 >
                   Exercise
                 </Button> : Number(amount) === 0 ? <Button
-                  variant={"ghost"}
+                  variant={'ghost'}
                   isDisabled={true}
-                  colorScheme="teal"
-                  size="xs"
+                  colorScheme='teal'
+                  size='xs'
                 >
                   Exercised
                 </Button> : ''
                 }
               </Td>
-            </Tr>
+            </Tr>,
           )
         }
       } else {
@@ -433,8 +431,6 @@ function Positions() {
             <Thead>
               <Tr>
                 <Th>Pair</Th>
-                <Th>Strike</Th>
-                <Th>Expiry</Th>
                 <Th>Option Type</Th>
                 <Th>Amount</Th>
                 <Th>

@@ -54,7 +54,7 @@ task(
     ).wait();
     await susdToken.transfer(
       account1.address,
-      ethers.BigNumber.from(1000).mul(weiInEth)
+      ethers.BigNumber.from(5000).mul(weiInEth)
     );
     const susdBalance0 = await susdToken.balanceOf(account0.address);
     const susdBalance1 = await susdToken.balanceOf(account1.address);
