@@ -132,7 +132,7 @@ function OptionsView(props: RouteComponentProps) {
     getRadioProps: getExpiryRadioProps,
   } = useRadioGroup({
     name: "expiryDate",
-    defaultValue: '',
+    defaultValue: '1634774400',
     onChange: (nextValue) => setExpiryDate(nextValue),
   });
 

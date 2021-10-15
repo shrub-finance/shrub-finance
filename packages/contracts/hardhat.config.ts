@@ -150,7 +150,7 @@ task( 'maker', 'creates limit orders')
           nonce: 0,
           price,
           fee,
-          offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
+          offerExpire: Math.floor((new Date().getTime() + 600 * 1000 * 60) / 1000),
         }
         const common: OrderCommon = {
           baseAsset: susdToken.address,
@@ -214,10 +214,10 @@ const config: HardhatUserConfig & AbiExporter = {
         mnemonic:
         "palm weapon verb cream balcony acid book ring surround end race gaze",
       },
-      /*mining: {
+      mining: {
             auto: false,
-            interval: 5000
-        },*/
+            interval: 2000
+        },
       chainId: 1337,
     },
   },

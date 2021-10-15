@@ -5970,6 +5970,7 @@ __metadata:
     "@web3-react/walletlink-connector": 6.2.0
     axios: 0.22.0
     chai: 4.3.3
+    chart.js: 3.5.1
     eslint-plugin-react-hooks: 4.2.0
     ethereumjs-abi: 0.6.8
     ethereumjs-util: 7.0.9
@@ -5979,6 +5980,7 @@ __metadata:
     lint-staged: 11.0.0
     prettier: 2.3.0
     react: 17.0.1
+    react-chartjs-2: ^3.0.5
     react-device-detect: 1.17.0
     react-dom: 17.0.1
     react-icons: 4.3.1
@@ -10662,6 +10664,13 @@ __metadata:
   version: 0.0.2
   resolution: "charenc@npm:0.0.2"
   checksum: ff8199e90334dc7bb60a9fe0aa2bef3e72b1d125e801151459db1cf1c9b77c437ad4a5d9248ee0003720bcb537a90787a53f6e2e1613dbf5fba46f59d5547307
+  languageName: node
+  linkType: hard
+
+"chart.js@npm:3.5.1":
+  version: 3.5.1
+  resolution: "chart.js@npm:3.5.1"
+  checksum: 54bc3c9c373303c3bbc41bbb2e05df621634df41c91e0ce75245323ecd184be460b5341f9ad388f1ee0840f9e6dd2fc5f2d5132802ca22bdaa030711f5a16993
   languageName: node
   linkType: hard
 
@@ -16363,11 +16372,11 @@ fsevents@~2.1.1:
   linkType: hard
 
 "hardhat-abi-exporter@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "hardhat-abi-exporter@npm:2.2.1"
+  version: 2.3.0
+  resolution: "hardhat-abi-exporter@npm:2.3.0"
   peerDependencies:
     hardhat: ^2.0.0
-  checksum: f343d5ec2238ac21f4b90a168b67a4ae07bdfc66810886382564dca458acb1ff81684e8e3d24b878279d0e8e747730825c36cac915da8f15c5fa6dcb02a6b2dc
+  checksum: 8702495452484dff24d05ed024973f081965bc0aa79ab8ddd6c2aa30c71d2d6fcbcefd0b51e50453c8e592a7e6ae8b23b143ed61851872c692c7487c5dce1e3c
   languageName: node
   linkType: hard
 
@@ -24304,6 +24313,18 @@ fsevents@~2.1.1:
     regenerator-runtime: ^0.13.7
     whatwg-fetch: ^3.4.1
   checksum: 96b8bb3bdeb5279ebb73622744dcaba75a2f48861e8353052cb758e33db850845b11fa7da87c52663a4e4ee9ed356069f6a1e42151a74f01dc24bbfbbc5ad79a
+  languageName: node
+  linkType: hard
+
+"react-chartjs-2@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "react-chartjs-2@npm:3.0.5"
+  dependencies:
+    lodash: ^4.17.19
+  peerDependencies:
+    chart.js: ^3.5.0
+    react: ^16.8.0 || ^17.0.0
+  checksum: 12a3f088e8ca40fcc882063d261bd6ec37a35fb6db53ccd56d9bdcc876e88980cbfedd8be176d6c97c80608fa370f3cb6d609e851ab38d454ba09b9e38a70c2c
   languageName: node
   linkType: hard
 
