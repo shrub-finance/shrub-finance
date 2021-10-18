@@ -214,10 +214,10 @@ const config: HardhatUserConfig & AbiExporter = {
         mnemonic:
         "palm weapon verb cream balcony acid book ring surround end race gaze",
       },
-      mining: {
-            auto: false,
-            interval: 2000
-        },
+      // mining: {
+      //       auto: false,
+      //       interval: 2000
+      //   },
       chainId: 1337,
     },
   },
