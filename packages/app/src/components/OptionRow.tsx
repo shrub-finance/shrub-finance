@@ -52,7 +52,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
       <Flex>
         <Box h={height}>
           <Text fontSize={"2xl"} pb={3}>
-            ${formattedStrike}
+            ${Number(formattedStrike).toFixed(2)}
           </Text>
           <Tag size={"sm"} colorScheme="teal">
             {optionType}
