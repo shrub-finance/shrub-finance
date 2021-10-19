@@ -177,9 +177,10 @@ function Positions() {
       tableRowsOptions.push(
         <Tr>
           <Td>{pair}</Td>
-          <Td>{strike}</Td>
-          <Td>{expiry}</Td>
-          <Td>{optionType}</Td>
+          <Td fontSize={'sm'} fontWeight={'bold'}>{`${strike} ${expiry} ${optionType}`}</Td>
+          {/*<Td>{strike}</Td>*/}
+          {/*<Td>{expiry}</Td>*/}
+          {/*<Td>{optionType}</Td>*/}
           <Td>{amount}</Td>
           <Td>
             {amount > 0 ? <Button
@@ -533,8 +534,6 @@ function Positions() {
             <Thead>
               <Tr>
                 <Th>Pair</Th>
-                <Th>Strike</Th>
-                <Th>Expiry</Th>
                 <Th>Option Type</Th>
                 <Th>Amount</Th>
                 <Th>
