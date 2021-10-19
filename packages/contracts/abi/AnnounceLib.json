@@ -107,6 +107,12 @@
         "internalType": "struct OrderLib.Signature",
         "name": "sig",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "orderId",
+        "type": "bytes32"
       }
     ],
     "name": "OrderAnnounce",

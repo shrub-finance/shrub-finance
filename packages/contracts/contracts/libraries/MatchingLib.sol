@@ -24,7 +24,7 @@ library MatchingLib {
     bytes32 positionHash;
   }
 
-  event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, OrderLib.SmallOrder sellOrder, OrderLib.SmallOrder buyOrder, OrderLib.OrderCommon common);
+  event OrderMatched(address indexed seller, address indexed buyer, bytes32 positionHash, OrderLib.SmallOrder sellOrder, OrderLib.SmallOrder buyOrder, OrderLib.OrderCommon common, bytes32 buyOrderId, bytes32 sellOrderId);
   event Cancelled(address indexed user, bytes32 indexed positionHash, uint nonce);
 
   function getCurrentNonce(AppStateLib.AppState storage self, address user, OrderLib.OrderCommon memory common) internal view returns(uint) {
@@ -49,7 +49,9 @@ library MatchingLib {
   function matchOrder(AppStateLib.AppState storage self, OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig) internal {
 
     (address buyer, address seller, bytes32 positionHash) = doPartialMatch(self, sellOrder, buyOrder, common, sellSig, buySig);
-    emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common);
+    bytes32 buyOrderId = OrderLib.hashSmallOrder(buyOrder, common);
+    bytes32 sellOrderId = OrderLib.hashSmallOrder(sellOrder, common);
+    emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common, buyOrderId, sellOrderId);
 
     if(sellOrder.size > buyOrder.size) {
       FillingLib.partialFill(self, sellOrder, common, buyOrder.size);
@@ -148,7 +150,7 @@ library MatchingLib {
           FillingLib.partialFill(self, round.sellOrder, round.common, sellFilled);
           sellFilled = 0;
         }
-        emit OrderMatched(seller, buyer, positionHash, round.sellOrder, round.buyOrder, round.common);
+        emit OrderMatched(seller, buyer, positionHash, round.sellOrder, round.buyOrder, round.common, OrderLib.hashSmallOrder(round.buyOrder, round.common), OrderLib.hashSmallOrder(round.sellOrder, round.common));
         self.userPairNonce[buyer][positionHash] = round.buyOrder.nonce;
       } else if (round.sellOrder.size - sellFilled < round.buyOrder.size - buyFilled) {
         buyFilled += round.sellOrder.size;
@@ -159,7 +161,7 @@ library MatchingLib {
           FillingLib.partialFill(self, round.buyOrder, round.common, buyFilled);
           buyFilled = 0;
         }
-        emit OrderMatched(seller, buyer, positionHash, round.sellOrder, round.buyOrder, round.common);
+        emit OrderMatched(seller, buyer, positionHash, round.sellOrder, round.buyOrder, round.common, OrderLib.hashSmallOrder(round.buyOrder, round.common), OrderLib.hashSmallOrder(round.sellOrder, round.common));
         self.userPairNonce[seller][positionHash] = round.sellOrder.nonce;
       }
     }

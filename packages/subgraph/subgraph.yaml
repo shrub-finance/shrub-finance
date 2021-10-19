@@ -6,10 +6,13 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: ShrubExchange
+#    network: mumbai
     network: mainnet
     source:
-      address: '0x6a9d4af8bf697679f4441dded9e2b8f1f31d3e85'
-      startBlock: 1
+      address: '0xc779eD4Bb728AD6B263aE9b72eDECB26E6Fef91A'
+      startBlock: 20382915
+#      address: '0x6a9d4af8bf697679f4441dded9e2b8f1f31d3e85'
+#      startBlock: 1
       abi: ShrubExchange
     mapping:
       kind: ethereum/events
@@ -18,9 +21,15 @@ dataSources:
       entities:
         - BuyOrder
         - SellOrder
+        - OptionPosition
+        - UserMatch
+        - Match
+        - OptionType
         - Option
-        - Token
         - User
+        - UserOption
+        - Token
+        - TokenBalance
       abis:
         - name: ShrubExchange
           file: ../contracts/abi/ShrubExchange.json
@@ -33,9 +42,9 @@ dataSources:
           handler: handleDeposit
         - event: Withdraw(address,address,uint256)
           handler: handleWithdraw
-        - event: OrderAnnounce((address,address,uint256,uint256,uint8),indexed bytes32,indexed address,(uint256,bool,uint256,uint256,uint256,uint256),(uint8,bytes32,bytes32))
+        - event: OrderAnnounce((address,address,uint256,uint256,uint8),indexed bytes32,indexed address,(uint256,bool,uint256,uint256,uint256,uint256),(uint8,bytes32,bytes32),bytes32)
           handler: handleOrderAnnounce
-        - event: OrderMatched(indexed address,indexed address,bytes32,(uint256,bool,uint256,uint256,uint256,uint256),(uint256,bool,uint256,uint256,uint256,uint256),(address,address,uint256,uint256,uint8))
+        - event: OrderMatched(indexed address,indexed address,bytes32,(uint256,bool,uint256,uint256,uint256,uint256),(uint256,bool,uint256,uint256,uint256,uint256),(address,address,uint256,uint256,uint8),bytes32,bytes32)
           handler: handleOrderMatched
         - event: Exercised(indexed address,indexed bytes32,uint256)
           handler: handleExercised

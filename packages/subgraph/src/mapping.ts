@@ -9,12 +9,12 @@ import {
   OrderAnnounceOrderStruct, ExerciseCall, Exercised, Cancelled,
 } from '../generated/ShrubExchange/ShrubExchange'
 import { BuyOrder, SellOrder, User, Match, Option, UserOption, TokenBalance, Token } from '../generated/schema'
-import { Address, BigDecimal, BigInt, ethereum, log } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, Bytes, ethereum, log } from '@graphprotocol/graph-ts'
 import {getUser} from "./entities/user";
 import {getToken} from "./entities/token";
 import { getUserOption, getBalance, updateUserOptionBalance, updateUserOptionNonce } from './entities/userOption'
 import {
-  getOrderId,
+  // getOrderId,
   createSellOrder,
   createBuyOrder,
   setBuyOrderUnfunded,
@@ -174,17 +174,18 @@ export function handleOrderAnnounce(event: OrderAnnounce): void {
   let common = event.params.common;
   let positionHash = event.params.positionHash;
   let address = event.address;
-  let id = getOrderId(address, smallOrder, common);
+  let id = event.params.orderId;
+  // let id = getOrderId(address, smallOrder, common);
   if (smallOrder.isBuy) {
-    let order = BuyOrder.load(id);
+    let order = BuyOrder.load(id.toHex());
     if (order === null) {
       // We would expect this
-      createBuyOrder(event.address, userAddress, smallOrder, positionHash, common, event.block);
+      createBuyOrder(event.address, userAddress, smallOrder, positionHash, common, event.block, id);
     }
   } else {
-    let order = SellOrder.load(id);
+    let order = SellOrder.load(id.toHex());
     if (order === null) {
-      createSellOrder(event.address, userAddress, smallOrder, positionHash, common, event.block);
+      createSellOrder(event.address, userAddress, smallOrder, positionHash, common, event.block, id);
     }
   }
 }
@@ -196,11 +197,13 @@ export function handleOrderMatched(event: OrderMatched): void {
   let positionHash = event.params.positionHash;
   let buyer = event.params.buyer;
   let seller = event.params.seller;
+  let buyId = event.params.buyOrderId.toHex();
+  let sellId = event.params.sellOrderId.toHex();
   let shrubAddress = event.address;
   let block = event.block;
   option = getOption(positionHash, common as OrderAnnounceCommonStruct);
-  let buyId = getOrderId(shrubAddress, buyOrder as OrderAnnounceOrderStruct, common as OrderAnnounceCommonStruct);
-  let sellId = getOrderId(shrubAddress, sellOrder as OrderAnnounceOrderStruct, common as OrderAnnounceCommonStruct);
+  // let buyId = getOrderId(shrubAddress, buyOrder as OrderAnnounceOrderStruct, common as OrderAnnounceCommonStruct);
+  // let sellId = getOrderId(shrubAddress, sellOrder as OrderAnnounceOrderStruct, common as OrderAnnounceCommonStruct);
   log.info('Matching: buyOrder: {}, sellOrder: {}', [buyId, sellId]);
   let id = buyId + "-" + sellId;
   let match = Match.load(id);
@@ -211,12 +214,12 @@ export function handleOrderMatched(event: OrderMatched): void {
     let fillSize = integer.min(sellOrder.size, buyOrder.size);
     match = new Match(id);
     let buyOrderObj = BuyOrder.load(buyId);
-    let sellOrderObj = SellOrder.load(buyId);
+    let sellOrderObj = SellOrder.load(sellId);
     if (buyOrderObj == null) {
-      buyOrderObj = createBuyOrder(shrubAddress, buyer, buyOrder as OrderAnnounceOrderStruct, positionHash, common as OrderAnnounceCommonStruct, block);
+      buyOrderObj = createBuyOrder(shrubAddress, buyer, buyOrder as OrderAnnounceOrderStruct, positionHash, common as OrderAnnounceCommonStruct, block, event.params.buyOrderId);
     }
     if (sellOrderObj == null) {
-      sellOrderObj = createSellOrder(shrubAddress, seller, sellOrder as OrderAnnounceOrderStruct, positionHash, common as OrderAnnounceCommonStruct, block);
+      sellOrderObj = createSellOrder(shrubAddress, seller, sellOrder as OrderAnnounceOrderStruct, positionHash, common as OrderAnnounceCommonStruct, block, event.params.sellOrderId);
     }
     // TODO: once we support partial matching, we need to check if the full size of the order has been consumed
     buyOrderObj.fullyMatched = true;
