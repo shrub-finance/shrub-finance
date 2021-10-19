@@ -64,7 +64,8 @@ import RadioCard from './Radio';
 import {QuestionOutlineIcon} from '@chakra-ui/icons';
 import {currencySymbol} from "../utils/chainMethods";
 import { useQuery } from '@apollo/client'
-import { SHRUBFOLIO_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries'
+import { SHRUBFOLIO_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries';
+import {isMobile} from "react-device-detect";
 
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
@@ -178,9 +179,6 @@ function Positions() {
         <Tr>
           <Td>{pair}</Td>
           <Td fontSize={'sm'} fontWeight={'bold'}>{`${strike} ${expiry} ${optionType}`}</Td>
-          {/*<Td>{strike}</Td>*/}
-          {/*<Td>{expiry}</Td>*/}
-          {/*<Td>{optionType}</Td>*/}
           <Td>{amount}</Td>
           <Td>
             {amount > 0 ? <Button
@@ -379,7 +377,11 @@ function Positions() {
 
   function totalUserBalance(currency: string) {
     const totBalance = shrubBalance.locked[currency] + shrubBalance.available[currency];
-    return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: ['MATIC','SMATIC'].includes(currency) ? 6 : 2}) ;
+    if(totBalance) {
+      return Number(totBalance).toLocaleString(undefined, {minimumFractionDigits: ['MATIC'].includes(currency) ? 6 : 2}) ;
+    }
+    else
+      return "--"
   }
   // inside withdraw deposit modal
   async function handleDepositWithdraw(event: any, approve?: string) {
@@ -453,27 +455,42 @@ function Positions() {
     const fluidPaddingAssetL = [3,5,3,3];
     shrubfolioRows.push(
         <>
-          <HStack key={currency}>
+          <Flex key={currency}
+                align="center"
+                justify="space-evenly">
+
           <Box mt="1" fontSize={fluidFontAsset} fontWeight="semibold" lineHeight="tight" pl={fluidPaddingAssetL}
                minW={fluidWidthAsset}>
             {totalUserBalance(currency)} {currency}
           </Box>
-            <Box fontSize={fluidFontSplit} minW={fluidWidthSplit}
-            py={fluidPaddingSplitY} pl={fluidPaddingSplitL}>
-              <Box pb={2} color="gray.500" fontWeight="semibold"   textTransform="uppercase">
-                {shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} locked
-                {/*<Tooltip p={4} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">*/}
-                {/*  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>*/}
-                {/*</Tooltip>*/}
+
+          <Box fontSize={fluidFontSplit} minW={fluidWidthSplit}
+            py={fluidPaddingSplitY} pl={fluidPaddingSplitL}
+               flexBasis="60">
+
+              <Box pb={2} color="gray.500" fontWeight="semibold" textTransform="uppercase">
+                {shrubBalance.locked[currency]? shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) : "--"} locked
+                {!isMobile &&
+                <Text as="sup">
+                <Tooltip p={3} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg"
+                         bg="shrub.300" color="white">
+                  <QuestionOutlineIcon boxSize={4} pl={1}/>
+                </Tooltip></Text>
+              }
               </Box>
-            <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
-              {shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} unlocked
-              {/*<Tooltip p={4} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit} borderRadius="lg" bg="shrub.300" color="white">*/}
-              {/*  <Text as="sup" pl={1}><QuestionOutlineIcon boxSize={4}/></Text>*/}
-              {/*</Tooltip>*/}
+
+              <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
+              {shrubBalance.available[currency] ? shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}): "--"} unlocked
+                {!isMobile &&
+                <Text as="sup">
+                <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit}
+                         borderRadius="lg" bg="shrub.300" color="white">
+                  <QuestionOutlineIcon boxSize={4} pl={1}/>
+                </Tooltip>
+              </Text>}
             </Box>
-            </Box>
-          </HStack>
+          </Box>
+          </Flex>
           <Divider
               _last={{display: "none"}}
           />

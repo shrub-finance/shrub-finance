@@ -15,7 +15,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure,
+  useDisclosure
 } from "@chakra-ui/react";
 
 import {AppCommon, OptionData, SellBuy} from '../types';
@@ -59,10 +59,10 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
           </Tag>
         </Box>
         <Spacer/>
-        <Box h={height} fontWeight="semibold" lineHeight={1.8}>
-          <Text>Last: ${last}</Text>
-          <Text>Ask: ${ask}</Text>
-          <Text>Bid: ${bid}</Text>
+        <Box h={height} fontWeight="semibold" lineHeight={1.8} flexBasis="100">
+          <Text>Last: ${last? last: "--"}</Text>
+          <Text>Ask: ${ask? ask: "--"}</Text>
+          <Text>Bid: ${bid? bid: "--"}</Text>
         </Box>
         <Spacer/>
         <Box h={height}>
