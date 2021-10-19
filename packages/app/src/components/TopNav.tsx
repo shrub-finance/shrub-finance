@@ -16,11 +16,11 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton, Spinner, Image
+  ModalCloseButton, Spinner
 } from "@chakra-ui/react";
 import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon, Icon} from '@chakra-ui/icons';
 import { Link as ReachLink } from "@reach/router";
-import {Account, Balance, ChainId, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
+import {Account, Balance, Chain, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {ShrubLogo} from "../assets/Icons";
 import {TxContext} from "./Store";
@@ -29,6 +29,8 @@ import {isMobile} from "react-device-detect";
 import {GiCoins} from 'react-icons/gi';
 import {FaFileContract} from 'react-icons/all';
 import Faucet from './Faucet'
+import {testEnvironment} from "../utils/chainMethods";
+import {useWeb3React} from "@web3-react/core";
 
 function TopNav() {
 
@@ -37,6 +39,7 @@ function TopNav() {
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   const {active, error: web3Error} = useConnectWallet();
+  const {chainId} = useWeb3React();
   const [isHidden, setIsHidden] = useState(false);
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
@@ -85,7 +88,7 @@ function handleModalClose() {
           </HStack>
           <Flex alignItems={"center"}>
             {!isMobile && <Box pr={5} display={{ base: "none", sm: "flex" }}><Balance/></Box>}
-            {!isMobile && <Box display={{ base: "none", sm: "flex" }}><ChainId/></Box>}
+            {!isMobile && <Box display={{ base: "none", sm: "flex" }}><Chain/></Box>}
             <Box onClick={onOpen}
                  mr={isMobile ? '19.5': '0'}
             >
@@ -99,12 +102,10 @@ function handleModalClose() {
                         <Account/>}
               </Button>
             </Box>
-            <Box onClick={onFaucetModalOpen}
-                 mr={isMobile ? '19.5': '0'}
-            >
-              <Button variant={"outline"} colorScheme={ "teal"}
+              {!isMobile && <Box display={{ base: "none", sm: "none", md: "flex" }} onClick={onFaucetModalOpen}>
+              <Button variant={"solid"} colorScheme={ "gray"}
                       size={"md"} mr={4} borderRadius="full">Get Test Tokens</Button>
-            </Box>
+            </Box>}
             <IconButton variant="unstyled"
             icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label={"Open Menu"} display={{ md: "none" }}
@@ -138,6 +139,19 @@ function handleModalClose() {
                 {colorMode === "light" ? <MoonIcon mr={'2'}/> : <SunIcon mr={'2'}/>}
                 {colorMode === "light" ? 'Dark Mode' : 'Light Mode'}
               </Box>
+              {testEnvironment(chainId) &&
+              <Box
+                  onClick={onFaucetModalOpen}
+                  size={"md"}
+                  cursor="pointer"
+                  rounded="lg"
+                  py={'3'}
+                  px={'2'}
+                 >
+                <Button variant="solid" colorScheme={ "gray"}>Get Test Tokens</Button>
+              </Box>
+
+              }
             </Stack>
             </Box>
         ) : null

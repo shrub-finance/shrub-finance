@@ -1,6 +1,6 @@
 import { SupportedChainId } from '../constants/networks'
 import {PolygonIcon} from "../assets/Icons";
-import {FaEthereum} from "react-icons/fa";
+
 
 const ETHERSCAN_NETWORKS: { [chainId: number]: string } = {
     [SupportedChainId.MAINNET]: '',
@@ -77,4 +77,10 @@ export function currencyIcon(chainId: any) {
         return PolygonIcon
     }
     return PolygonIcon
+}
+
+export function testEnvironment(chainId: any) {
+
+    return chainId !== SupportedChainId.POLYGON;
+
 }

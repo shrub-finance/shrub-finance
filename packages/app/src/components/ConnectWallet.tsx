@@ -100,7 +100,7 @@ export function getErrorMessage(error: Error) {
 export function getLibrary(provider: any) {
     return new ethers.providers.Web3Provider(provider);
 }
-export function ChainId() {
+export function Chain() {
 
     const {chainId} = useWeb3React()
     const network = chainId && NETWORK_LABELS[chainId]
