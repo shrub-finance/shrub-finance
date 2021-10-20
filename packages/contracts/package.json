@@ -21,6 +21,7 @@
     "hh:coverage": "hardhat coverage",
     "hh:fundAccounts": "hardhat fundAccounts --network localhost",
     "hh:maker": "hardhat maker --network localhost",
+    "hh:maker-mumbai": "hardhat maker --network mumbai",
     "hh:faucet": "hardhat faucet --network localhost",
     "hh:test": "yarn test",
     "hh:console": "hardhat console --network localhost",

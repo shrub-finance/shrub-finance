@@ -12,8 +12,17 @@ import "@nomiclabs/hardhat-etherscan";
 import optionContracts from "./option-contracts.json";
 import {ShrubExchange, ShrubExchange__factory} from "./types/ethers-v5";
 import {OrderCommon, SmallOrder} from "@shrub/app/src/types";
+import { toEthDate } from '@shrub/app/src/utils/ethMethods'
 const bs = require('./utils/black-scholes');
 const { Shrub712 } = require("./utils/EIP712");
+
+const strikeDates = [
+  new Date('2021-11-02'),
+  new Date('2021-11-15'),
+  new Date('2021-12-02'),
+];
+const callsArr = [1.3e6, 1.6e6, 2e6];
+const putsArr = [1.2e6, 1.0e6, 0.8e6];
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -97,7 +106,7 @@ task( 'maker', 'creates limit orders')
   .addOptionalParam('count', 'number of orders to generate', 100, types.int)
   .addOptionalParam('baseIv', 'the centered IV for the generator', 125, types.float)
   .addOptionalParam('ivRange', 'maximum deviation from the baseIv', 50, types.float)
-  .addOptionalParam('ethPrice', 'price of MATIC in USD', 2500, types.float)
+  .addOptionalParam('ethPrice', 'price of MATIC in USD', 1.5, types.float)
   .addOptionalParam('riskFreeRate', 'annual risk free rate of return (0.05 means 5%)', 0.05, types.float)
   .setAction(
     async (taskArgs, env) => {
@@ -109,6 +118,7 @@ task( 'maker', 'creates limit orders')
       const [account0, account1] = await ethers.getSigners();
       const shrubExchangeDeployment = await deployments.get("ShrubExchange");
       const susdTokenDeployment = await deployments.get("SUSDToken");
+      const smaticTokenDeployment = await deployments.get("SMATICToken");
       const shrubExchangeDeployed = await ethers.getContractAt(
         "ShrubExchange",
         shrubExchangeDeployment.address
@@ -117,10 +127,23 @@ task( 'maker', 'creates limit orders')
         "SUSDToken",
         susdTokenDeployment.address
       );
+      const smaticToken = await ethers.getContractAt(
+        "SMATICToken",
+        smaticTokenDeployment.address
+      )
       const shrubInterface = new Shrub712(17, shrubExchangeDeployment.address);
+
+      function getRandomArrayElement(arr) {
+        return arr[Math.floor(Math.random() * arr.length)]
+      }
+
       function getRandomContract() {
-        const contractNumber = Math.floor(Math.random() * optionContracts.length);
-        return optionContracts[contractNumber];
+        // const contractNumber = Math.floor(Math.random() * optionContracts.length);
+        // return optionContracts[contractNumber];
+        const optionType = Math.random() > 0.5 ? 'CALL' : 'PUT';
+        const expiry = Number(getRandomArrayElement(strikeDates)) / 1000;
+        const strike = optionType === 'CALL' ? getRandomArrayElement(callsArr) : getRandomArrayElement(putsArr);
+        return { optionType, expiry, strike };
       }
 
       function generateRandomOrder() {
@@ -155,7 +178,7 @@ task( 'maker', 'creates limit orders')
         }
         const common: OrderCommon = {
           baseAsset: susdToken.address,
-          quoteAsset: ethers.constants.AddressZero,
+          quoteAsset: smaticToken.address,
           expiry,
           strike,
           optionType: optionType === 'CALL' ? 1 : 0,
@@ -194,7 +217,7 @@ task( 'maker', 'creates limit orders')
           },
           account.address
         );
-        await shrubContractAccount.announce(smallOrder, common, signedSellOrder.sig)
+        await shrubContractAccount.announce(smallOrder, common, signedSellOrder.sig, {gasLimit: 50000})
       }
     }
   );

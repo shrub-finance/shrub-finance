@@ -10,11 +10,12 @@ library AnnounceLib {
 
   using AppStateLib for AppStateLib.AppState;
 
-  event OrderAnnounce(OrderLib.OrderCommon common, bytes32 indexed positionHash, address indexed user, OrderLib.SmallOrder order, OrderLib.Signature sig);
+  event OrderAnnounce(OrderLib.OrderCommon common, bytes32 indexed positionHash, address indexed user, OrderLib.SmallOrder order, OrderLib.Signature sig, bytes32 orderId);
 
 
   function announce(AppStateLib.AppState storage self, OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, OrderLib.Signature memory sig) internal {
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
+    bytes32 orderId = OrderLib.hashSmallOrder(order, common);
     address user = OrderLib.getAddressFromSignedOrder(order, common, sig);
     require(MatchingLib.getCurrentNonce(self, user, positionHash) == order.nonce - 1, "User nonce incorrect");
 
@@ -34,7 +35,7 @@ library AnnounceLib {
       }
     }
 
-    emit OrderAnnounce(common, positionHash, user, order, sig);
+    emit OrderAnnounce(common, positionHash, user, order, sig, orderId);
   }
 
 

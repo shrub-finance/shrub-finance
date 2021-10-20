@@ -153,6 +153,18 @@
         "internalType": "struct OrderLib.OrderCommon",
         "name": "common",
         "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "buyOrderId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "sellOrderId",
+        "type": "bytes32"
       }
     ],
     "name": "OrderMatched",

@@ -17,17 +17,17 @@ import { getUserOption, removeActiveBuyOrder, removeActiveSellOrder } from './us
 
 let HASH_UTIL_ADDRESS = Address.fromString('0x6c33305176a646a355d66dc35317db370cd6977b');
 
-export function getOrderId(
-  shrubAddress: Address,
-  smallOrder: OrderAnnounceOrderStruct,
-  common: OrderAnnounceCommonStruct
-): string {
-  let hashUtil = HashUtil.bind(HASH_UTIL_ADDRESS);
-  return hashUtil.hashSmallOrder(
-    smallOrder as HashUtil__hashSmallOrderInputOrderStruct,
-    common as HashUtil__hashSmallOrderInputCommonStruct
-  ).toHex()
-}
+// export function getOrderId(
+//   shrubAddress: Address,
+//   smallOrder: OrderAnnounceOrderStruct,
+//   common: OrderAnnounceCommonStruct
+// ): string {
+//   let hashUtil = HashUtil.bind(HASH_UTIL_ADDRESS);
+//   return hashUtil.hashSmallOrder(
+//     smallOrder as HashUtil__hashSmallOrderInputOrderStruct,
+//     common as HashUtil__hashSmallOrderInputCommonStruct
+//   ).toHex()
+// }
 
 
 export function createSellOrder(
@@ -36,10 +36,11 @@ export function createSellOrder(
   smallOrder: OrderAnnounceOrderStruct,
   positionHash: Bytes,
   common: OrderAnnounceCommonStruct,
-  block: ethereum.Block
+  block: ethereum.Block,
+  id: Bytes
 ): SellOrder {
-  let id = getOrderId(shrubAddress, smallOrder, common);
-  let order = new SellOrder(id);
+  // let id = getOrderId(shrubAddress, smallOrder, common);
+  let order = new SellOrder(id.toHex());
   let user = getUser(orderAddress);
   let option = getOption(positionHash, common);
   let userOption = getUserOption(user, option, shrubAddress, block);
@@ -76,10 +77,11 @@ export function createBuyOrder(
   smallOrder: OrderAnnounceOrderStruct,
   positionHash: Bytes,
   common: OrderAnnounceCommonStruct,
-  block: ethereum.Block
+  block: ethereum.Block,
+  id: Bytes
 ): BuyOrder {
-  let id = getOrderId(shrubAddress, smallOrder, common);
-  let order = new BuyOrder(id);
+  // let id = getOrderId(shrubAddress, smallOrder, common);
+  let order = new BuyOrder(id.toHex());
   let user = getUser(orderAddress);
   let option = getOption(positionHash, common);
   let userOption = getUserOption(user, option, shrubAddress, block);
