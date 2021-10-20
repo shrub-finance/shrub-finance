@@ -75,13 +75,12 @@ function Positions() {
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {active, library, account, error: web3Error, chainId} = useWeb3React();
   const alertColor = useColorModeValue("gray.100", "shrub.300");
-  const shrubfolioRows = [];
-  const tableRowsOptions: any = [];
   const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
+  const [shrubfolioRows, setShrubfolioRows] = useState<JSX.Element[]>([]);
   const [isApproved, setIsApproved] = useState(false);
   const [approving, setApproving] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
-  const [optionsRows, setOptionsRows] = useState(<></>)
+  const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([<></>])
   const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SMATIC: 0, SUSD: 0}, available: {MATIC: 0, SMATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
@@ -104,13 +103,13 @@ function Positions() {
   const currenciesRadiogroup = getRootProps();
   const [showDepositButton, setShowDepositButton] = useState(false);
 
+  const SHRUB_CURRENCIES = ['SMATIC', 'SUSD'];
 
   const { loading:shrubfolioLoading, error:shrubfolioError, data:shrubfolioData } = useQuery(SHRUBFOLIO_QUERY, {
     variables: {
       id: account && account.toLowerCase()
     }
   })
-
 
   // shrub balance display
   useEffect(() => {
@@ -144,7 +143,7 @@ function Positions() {
 
   // options display
   useEffect(() => {
-    const tableRowOptions:JSX.Element[] = [];
+    const tableRowsOptions:JSX.Element[] = [];
     console.log(account);
     if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
       return
@@ -290,9 +289,6 @@ function Positions() {
   //     .catch(console.error);
   // }, [active, account, library, pendingTxsState])
 
-
-
-
   useEffect(() => {
     async function handleApprove(){
       if (modalCurrency !== 'MATIC') {
@@ -306,6 +302,67 @@ function Positions() {
     }
     handleApprove();
   }, [modalCurrency, account, pendingTxsState])
+
+  // set shrubfolio rows
+  useEffect(() => {
+    // populate balance table
+    const tempShrubfolioRows = [];
+    for (const currency of SHRUB_CURRENCIES) {
+
+      const balanceSize = totalUserBalance(currency).length
+      const fluidFontAsset = balanceSize > 9? ['md','2xl','3xl','3xl']:['2xl','2xl','3xl','4xl'];
+      const fluidFontSplit = balanceSize > 9? ['xs','sm','lg','md']:['sm','sm','lg','lg'];
+      const fluidWidthAsset = balanceSize > 9? [170,225,300,300]:[200,270,300,370];
+      const fluidWidthSplit = balanceSize > 9? { sm: "300", md: "300", lg: "300", xl: "200" }: "auto";
+      const fluidPaddingSplitY = [30,10,10,10];
+      const fluidPaddingSplitL = [3,3,3,3];
+      const fluidPaddingAssetL = [3,5,3,3];
+      tempShrubfolioRows.push(
+        <>
+          <Flex key={currency}
+                align="center"
+                justify="space-evenly">
+
+            <Box mt="1" fontSize={fluidFontAsset} fontWeight="semibold" lineHeight="tight" pl={fluidPaddingAssetL}
+                 minW={fluidWidthAsset}>
+              {totalUserBalance(currency)} {currency}
+            </Box>
+
+            <Box fontSize={fluidFontSplit} minW={fluidWidthSplit}
+                 py={fluidPaddingSplitY} pl={fluidPaddingSplitL}
+                 flexBasis="60">
+
+              <Box pb={2} color="gray.500" fontWeight="semibold" textTransform="uppercase">
+                {shrubBalance.locked[currency]? shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) : "--"} locked
+                {!isMobile &&
+                <Text as="sup">
+                  <Tooltip p={3} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg"
+                           bg="shrub.300" color="white">
+                    <QuestionOutlineIcon boxSize={4} pl={1}/>
+                  </Tooltip></Text>
+                }
+              </Box>
+
+              <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
+                {shrubBalance.available[currency] ? shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}): "--"} unlocked
+                {!isMobile &&
+                <Text as="sup">
+                  <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit}
+                           borderRadius="lg" bg="shrub.300" color="white">
+                    <QuestionOutlineIcon boxSize={4} pl={1}/>
+                  </Tooltip>
+                </Text>}
+              </Box>
+            </Box>
+          </Flex>
+          <Divider
+            _last={{display: "none"}}
+          />
+        </>
+      );
+    }
+    setShrubfolioRows(tempShrubfolioRows);
+  }, [shrubBalance])
 
   function handleWithdrawDepositModalClose() {
     setApproving(false);
@@ -441,61 +498,6 @@ function Positions() {
         handleErrorMessages({customMessage: 'Nothing to withdraw :/'});
       }
     }
-  }
-  // populate balance table
-  for (const currency of Object.keys(Currencies)) {
-
-    const balanceSize = totalUserBalance(currency).length
-    const fluidFontAsset = balanceSize > 9? ['md','2xl','3xl','3xl']:['2xl','2xl','3xl','4xl'];
-    const fluidFontSplit = balanceSize > 9? ['xs','sm','lg','md']:['sm','sm','lg','lg'];
-    const fluidWidthAsset = balanceSize > 9? [170,225,300,300]:[200,270,300,370];
-    const fluidWidthSplit = balanceSize > 9? { sm: "300", md: "300", lg: "300", xl: "200" }: "auto";
-    const fluidPaddingSplitY = [30,10,10,10];
-    const fluidPaddingSplitL = [3,3,3,3];
-    const fluidPaddingAssetL = [3,5,3,3];
-    shrubfolioRows.push(
-        <>
-          <Flex key={currency}
-                align="center"
-                justify="space-evenly">
-
-          <Box mt="1" fontSize={fluidFontAsset} fontWeight="semibold" lineHeight="tight" pl={fluidPaddingAssetL}
-               minW={fluidWidthAsset}>
-            {totalUserBalance(currency)} {currency}
-          </Box>
-
-          <Box fontSize={fluidFontSplit} minW={fluidWidthSplit}
-            py={fluidPaddingSplitY} pl={fluidPaddingSplitL}
-               flexBasis="60">
-
-              <Box pb={2} color="gray.500" fontWeight="semibold" textTransform="uppercase">
-                {shrubBalance.locked[currency]? shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) : "--"} locked
-                {!isMobile &&
-                <Text as="sup">
-                <Tooltip p={3} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg"
-                         bg="shrub.300" color="white">
-                  <QuestionOutlineIcon boxSize={4} pl={1}/>
-                </Tooltip></Text>
-              }
-              </Box>
-
-              <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
-              {shrubBalance.available[currency] ? shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}): "--"} unlocked
-                {!isMobile &&
-                <Text as="sup">
-                <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit}
-                         borderRadius="lg" bg="shrub.300" color="white">
-                  <QuestionOutlineIcon boxSize={4} pl={1}/>
-                </Tooltip>
-              </Text>}
-            </Box>
-          </Box>
-          </Flex>
-          <Divider
-              _last={{display: "none"}}
-          />
-        </>
-    );
   }
   return (
     <>
