@@ -33,7 +33,7 @@ var userOption: UserOption;
 export function handleDeposit(event: Deposit): void {
   let userAddress = event.params.user;
   let tokenAddress = event.params.token;
-  log.info('user: {} - amount: {} - token: {}', [userAddress.toHex(), event.params.amount.toString(), tokenAddress.toHex()]);
+  // log.info('user: {} - amount: {} - token: {}', [userAddress.toHex(), event.params.amount.toString(), tokenAddress.toHex()]);
   let user = getUser(userAddress);
   let token = getToken(tokenAddress);
   let amount = decimal.fromBigInt(event.params.amount, token.decimals)
@@ -48,7 +48,7 @@ export function handleWithdraw(event: Withdraw): void {
   let userAddress = event.params.user;
   let tokenAddress = event.params.token;
   let block = event.block;
-  log.info('user: {} - amount: {} - token: {}', [userAddress.toHex(), event.params.amount.toString(), tokenAddress.toHex()]);
+  // log.info('user: {} - amount: {} - token: {}', [userAddress.toHex(), event.params.amount.toString(), tokenAddress.toHex()]);
   let user = getUser(userAddress);
   let token = getToken(tokenAddress);
   let amount = decimal.fromBigInt(event.params.amount, token.decimals)
@@ -100,22 +100,20 @@ export function handleCancelled(event: Cancelled): void {
 }
 
 function checkCollateralForOutstandingOrders(user: User, tokenAddresses: Address[], block: ethereum.Block): void {
-  // Collateral Requirements for an order
-  // BuyOrder
-  //  Call - total price of the order in baseAsset (USD)
-  //  Put - total price of the order in baseAsset (USD)
-  // SellOrder
-  //  Call - size of the order in quoteAsset (MATIC)
-  //  Put - size of the order * strike price in baseAsset (USD)
-
+  // // Collateral Requirements for an order
+  // // BuyOrder
+  // //  Call - total price of the order in baseAsset (USD)
+  // //  Put - total price of the order in baseAsset (USD)
+  // // SellOrder
+  // //  Call - size of the order in quoteAsset (MATIC)
+  // //  Put - size of the order * strike price in baseAsset (USD)
+  //
   var unlockedBalances = new Map<Address, BigDecimal>();
-  log.info("tokenAddresses: {}, {}", [tokenAddresses[0].toHex(), tokenAddresses[1].toHex()]);
   for (let i = 0; i < tokenAddresses.length; i++) {
     let tokenAddress = tokenAddresses[i];
     let tokenBalance = getTokenBalance(Address.fromString(user.id), tokenAddress, block);
     unlockedBalances.set(tokenAddress, tokenBalance.unlockedBalance);
   }
-
   let activeUserOptions = user.activeUserOptions;
   for (let i = 0; i < activeUserOptions.length; i++) {
     let userOptionStr = activeUserOptions[i];
@@ -204,7 +202,7 @@ export function handleOrderMatched(event: OrderMatched): void {
   option = getOption(positionHash, common as OrderAnnounceCommonStruct);
   // let buyId = getOrderId(shrubAddress, buyOrder as OrderAnnounceOrderStruct, common as OrderAnnounceCommonStruct);
   // let sellId = getOrderId(shrubAddress, sellOrder as OrderAnnounceOrderStruct, common as OrderAnnounceCommonStruct);
-  log.info('Matching: buyOrder: {}, sellOrder: {}', [buyId, sellId]);
+  // log.info('Matching: buyOrder: {}, sellOrder: {}', [buyId, sellId]);
   let id = buyId + "-" + sellId;
   let match = Match.load(id);
   if (match === null) {
