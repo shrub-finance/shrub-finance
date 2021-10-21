@@ -201,7 +201,7 @@ function Positions() {
     }
     console.log(shrubfolioData);
     setOptionsRows(tableRowsOptions);
-  }, [shrubfolioLoading])
+  }, [shrubfolioLoading, pendingTxsState])
 
   // options display
   // useEffect(() => {
