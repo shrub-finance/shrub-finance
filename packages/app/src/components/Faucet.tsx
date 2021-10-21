@@ -11,9 +11,10 @@ import { handleErrorMessagesFactory } from '../utils/handleErrorMessages'
 import { buyFromFaucet } from '../utils/ethMethods'
 import { ethers } from 'ethers'
 import { TxContext } from './Store'
-import { SUSDIcon } from "../assets/Icons";
+import {SUSDIcon} from "../assets/Icons";
 
 function Faucet() {
+
   // Constants
   const faucetCurrencies = new Map<'SUSD'|'SMATIC', string>();
   faucetCurrencies.set('SUSD', process.env.REACT_APP_SUSD_TOKEN_ADDRESS || '')
@@ -25,7 +26,6 @@ function Faucet() {
   const parse = (val: string) => val.replace(/^\$/, "");
 
 
-  // Hooks
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const [activeHash, setActiveHash] = useState<string>();
@@ -55,6 +55,7 @@ function Faucet() {
   const invalidEntry = Number(amountValue)<0 ||isNaN(Number(amountValue));
 
   async function handleFaucet(event: any) {
+
     try {
       if (!active || !account) {
         handleErrorMessages({customMessage: 'Please connect your wallet'});
@@ -77,8 +78,38 @@ function Faucet() {
           toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
           pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
           setIsLoading(false);
+        // add token to metamask
+          const tokenImage = modalCurrency === "SMATIC" ? "https://shrub.finance/smatic.svg" : "https://shrub.finance/susd.svg";
+          try {
+            // @ts-ignore
+            window.ethereum.request({
+              method: 'wallet_watchAsset',
+              params: {
+                type: 'ERC20',
+                options: {
+                  address: tokenAddress,
+                  symbol: modalCurrency,
+                  decimals: 18,
+                  image: tokenImage,
+                },
+              },
+            }).then(
+                // @ts-ignore
+                (success) => {
+              if (success) {
+                console.log('Test Shrub token successfully added to wallet!')
+              } else {
+                throw new Error('Something went wrong.')
+              }
+            })
+            .catch(console.error)
+          } catch (e) {
+            console.log(e);
+            handleErrorMessages({err: e});
+          }
         } catch (e) {
           setIsLoading(false);
+          handleErrorMessages({err: e});
           const toastDescription = ToastDescription(description, e.transactionHash, chainId);
           pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
           toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
