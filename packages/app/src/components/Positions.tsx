@@ -604,7 +604,7 @@ function Positions() {
                   <FormControl id="currency">
                   <FormLabel>Currency</FormLabel>
                   <HStack {...currenciesRadiogroup}>
-                    {currencies.map((value) => {
+                    {SHRUB_CURRENCIES.map((value) => {
                       const radio = getRadioProps({ value })
                       return (
                           <RadioCard key={value} {...radio}>
