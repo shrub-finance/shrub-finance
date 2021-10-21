@@ -221,6 +221,7 @@ const {
 
             let index = 0;
             let accumulatedPrice = Zero;
+            let temporaryWorkaroundPrice = Zero;
             while (remainingSize.gt(Zero)) {
                 // const order = localOrderBook[index];
                 const lightOrder = localOrderBook[index];
@@ -291,6 +292,8 @@ const {
                     remainingSize = Zero;
                 }
                 counterPartyOrders.push(counterPartyOrder);
+                // TODO: the matchOrders method of the contract needs to accomadate accumulatedPrice - see chat logs from Oct 21
+                temporaryWorkaroundPrice = bigSize.mul(counterPartyOrder.price).div(counterPartyOrder.size);
                 console.log('remaining size');
                 console.log(ethers.utils.formatUnits(remainingSize));
                 index++;
@@ -309,8 +312,8 @@ const {
                 size: bigSize,
                 isBuy: optionActionToIsBuy(radioOption),
                 // TODO: update contract so that the commented out price logic works (with partial orders)
-                // price: size.lt(remainingSize) ? orderPrice : ethers.utils.parseUnits((orderUnitPrice * Number(ethers.utils.formatUnits(remainingSize, 18))).toString()),
-                price: accumulatedPrice,
+                // price: accumulatedPrice,
+                price: temporaryWorkaroundPrice,
                 fee: ethers.utils.parseUnits('0', 18),
                 offerExpire: toEthDate(oneWeekFromNow),
                 nonce,
