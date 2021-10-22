@@ -47,10 +47,8 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
   }
 
   function formatDisplay(item: string) {
-    if(item.length > 4) {
-      return Number(item).toFixed(4)
-    }
-    return item
+
+    return Number(item).toLocaleString('en-US', {currency: 'USD', style: 'currency', maximumFractionDigits:4, maximumSignificantDigits: 7})
   }
 
   return (
@@ -67,9 +65,9 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
         </Box>
         <Spacer/>
         <Box h={height} fontWeight="semibold" lineHeight={1.8} flexBasis="100">
-          <Text>Last: ${last? formatDisplay(last) : "--"}</Text>
-          <Text>Ask: ${ask? formatDisplay(ask) : "--"}</Text>
-          <Text>Bid: ${bid? formatDisplay(bid) : "--"}</Text>
+          <Text>Last: {last? formatDisplay(last) : "--"}</Text>
+          <Text>Ask: {ask? formatDisplay(ask) : "--"}</Text>
+          <Text>Bid: {bid? formatDisplay(bid) : "--"}</Text>
         </Box>
         <Spacer/>
         <Box h={height}>
