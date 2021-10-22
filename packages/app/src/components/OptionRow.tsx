@@ -46,6 +46,13 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
     onClose();
   }
 
+  function formatDisplay(item: string) {
+    if(item.length > 4) {
+      return Number(item).toFixed(4)
+    }
+    return item
+  }
+
   return (
     <Box>
       <Divider mb={5} />
@@ -60,9 +67,9 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
         </Box>
         <Spacer/>
         <Box h={height} fontWeight="semibold" lineHeight={1.8} flexBasis="100">
-          <Text>Last: ${last? last: "--"}</Text>
-          <Text>Ask: ${ask? ask: "--"}</Text>
-          <Text>Bid: ${bid? bid: "--"}</Text>
+          <Text>Last: ${last? formatDisplay(last) : "--"}</Text>
+          <Text>Ask: ${ask? formatDisplay(ask) : "--"}</Text>
+          <Text>Bid: ${bid? formatDisplay(bid) : "--"}</Text>
         </Box>
         <Spacer/>
         <Box h={height}>
