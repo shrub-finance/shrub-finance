@@ -270,7 +270,7 @@ function OptionsView(props: RouteComponentProps) {
     const sortedOrders = orders.sort((a: any, b: any) => a.block - b.block);
     if (sortedOrders) {
       for (const order of sortedOrders) {
-        const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry } = order;
+        const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry, id } = order;
         // const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
         const orderToName = {
           optionAction,
@@ -290,7 +290,7 @@ function OptionsView(props: RouteComponentProps) {
         console.log(fromEthDate(offerExpire));
 
         tempUserOrderRows.push(
-          <Tr>
+          <Tr key={id}>
             <Td >
               <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
                 {blockNumber}

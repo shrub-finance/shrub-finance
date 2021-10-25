@@ -57,6 +57,7 @@ export const ORDER_HISTORY_QUERY = gql`
                     lastPrice
                 }
                 buyOrders(orderBy:nonce,orderDirection:desc){
+                    id
                     pricePerContract
                     size
                     tradable
@@ -69,6 +70,7 @@ export const ORDER_HISTORY_QUERY = gql`
                     timestamp
                 }
                 sellOrders(orderBy:nonce,orderDirection:desc){
+                    id
                     pricePerContract
                     size
                     tradable
