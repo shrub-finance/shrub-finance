@@ -170,8 +170,6 @@ function OptionsView(props: RouteComponentProps) {
 
   // On Change of expiry of optionType
   useEffect(() => {
-    console.log('summaryData changed');
-    console.log(summaryData);
     const tempOptionRows:JSX.Element[] = [];
     const tempOptionMap:Map<string, JSX.Element> = new Map();
     const emptyOptionData = {
@@ -184,7 +182,6 @@ function OptionsView(props: RouteComponentProps) {
     if (summaryData && summaryData.options) {
       for (const option of summaryData.options) {
         const { strike: decimalStrike, lastPrice, sellOrders, buyOrders, id } = option;
-        console.log(`${decimalStrike} - last: ${lastPrice} - ask: ${sellOrders[0] && sellOrders[0].pricePerContract} - bid: ${buyOrders[0] && buyOrders[0].pricePerContract}`)
         const ask = (sellOrders[0] && sellOrders[0].pricePerContract) || '';
         const bid = (buyOrders[0] && buyOrders[0].pricePerContract) || '';
         const appCommon:AppCommon = {
@@ -227,7 +224,6 @@ function OptionsView(props: RouteComponentProps) {
       }
     }
     for (const strike of strikePrices) {
-      console.log(strike.strikePrice.toString());
       const row = tempOptionMap.get(strike.strikePrice.toString());
       if (row) {
         tempOptionRows.push(row);
@@ -286,9 +282,6 @@ function OptionsView(props: RouteComponentProps) {
                 tradable ? 'active' :
                   'non-tradable';
 
-        console.log(fromEthDate(offerExpire));
-        console.log(fromEthDate(offerExpire));
-
         tempUserOrderRows.push(
           <Tr key={id}>
             <Td >
@@ -328,7 +321,6 @@ function OptionsView(props: RouteComponentProps) {
   }, [orderHistoryLoading])
 
   useEffect(() => {
-    console.log('finding user matches')
     async function main() {
       if (!account || !library) {
         return;
@@ -434,7 +426,6 @@ function OptionsView(props: RouteComponentProps) {
       return;
     }
     async function main() {
-      console.log('running userOrders useEffect')
       const user = await getAddress(library);
       const userEvents = await getAnnouncedEvents({provider: library, user })
       const tempNonces: {[pair: string]: number} = {};
@@ -481,9 +472,6 @@ function OptionsView(props: RouteComponentProps) {
   useEffect(() => {
     if (contractData) {
       const expiryDatesString = Object.keys(contractData["SMATIC-SUSD"]);
-      console.log(expiryDatesString);
-      console.log(contractData);
-      console.log(JSON.stringify(contractData));
       setExpiryDates(expiryDatesString);
       if(!expiryDate) {
         setExpiryDate(expiryDatesString[0]);
