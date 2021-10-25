@@ -148,7 +148,7 @@ function OptionsView(props: RouteComponentProps) {
     getRadioProps: getExpiryRadioProps,
   } = useRadioGroup({
     name: "expiryDate",
-    defaultValue: '',
+    defaultValue: getDefaultExpiryDate(),
     onChange: (nextValue) => setExpiryDate(nextValue),
   });
 
@@ -170,8 +170,6 @@ function OptionsView(props: RouteComponentProps) {
 
   // On Change of expiry of optionType
   useEffect(() => {
-    console.log('summaryData changed');
-    console.log(summaryData);
     const tempOptionRows:JSX.Element[] = [];
     const tempOptionMap:Map<string, JSX.Element> = new Map();
     const emptyOptionData = {
@@ -184,7 +182,6 @@ function OptionsView(props: RouteComponentProps) {
     if (summaryData && summaryData.options) {
       for (const option of summaryData.options) {
         const { strike: decimalStrike, lastPrice, sellOrders, buyOrders, id } = option;
-        console.log(`${decimalStrike} - last: ${lastPrice} - ask: ${sellOrders[0] && sellOrders[0].pricePerContract} - bid: ${buyOrders[0] && buyOrders[0].pricePerContract}`)
         const ask = (sellOrders[0] && sellOrders[0].pricePerContract) || '';
         const bid = (buyOrders[0] && buyOrders[0].pricePerContract) || '';
         const appCommon:AppCommon = {
@@ -227,7 +224,6 @@ function OptionsView(props: RouteComponentProps) {
       }
     }
     for (const strike of strikePrices) {
-      console.log(strike.strikePrice.toString());
       const row = tempOptionMap.get(strike.strikePrice.toString());
       if (row) {
         tempOptionRows.push(row);
@@ -270,7 +266,7 @@ function OptionsView(props: RouteComponentProps) {
     const sortedOrders = orders.sort((a: any, b: any) => a.block - b.block);
     if (sortedOrders) {
       for (const order of sortedOrders) {
-        const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry } = order;
+        const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry, id } = order;
         // const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
         const orderToName = {
           optionAction,
@@ -286,11 +282,8 @@ function OptionsView(props: RouteComponentProps) {
                 tradable ? 'active' :
                   'non-tradable';
 
-        console.log(fromEthDate(offerExpire));
-        console.log(fromEthDate(offerExpire));
-
         tempUserOrderRows.push(
-          <Tr>
+          <Tr key={id}>
             <Td >
               <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
                 {blockNumber}
@@ -328,7 +321,6 @@ function OptionsView(props: RouteComponentProps) {
   }, [orderHistoryLoading])
 
   useEffect(() => {
-    console.log('finding user matches')
     async function main() {
       if (!account || !library) {
         return;
@@ -360,7 +352,7 @@ function OptionsView(props: RouteComponentProps) {
 
   useEffect(() => {
     const subscriptionPositionHashes = [];
-    if(!contractData || !expiryDate || !library) {
+    if(!contractData || !expiryDate) {
       return;
     }
     const strikeObjPrices = contractData['SMATIC-SUSD'][expiryDate][optionType].map((strikeNum) => {
@@ -375,8 +367,11 @@ function OptionsView(props: RouteComponentProps) {
       const positionHash = hashOrderCommon(common)
       return { strikePrice: strike, positionHash };
     })
+    setStrikePrices(strikeObjPrices);
+    if (!library) {
+      return;
+    }
     getOrderData(strikeObjPrices.map(s => s.positionHash))
-      .then(() => setStrikePrices(strikeObjPrices))
       .catch(e => console.error(`Something went wrong with the orderbook: ${e}`));
 
     function processEvent(event: any) {
@@ -434,7 +429,6 @@ function OptionsView(props: RouteComponentProps) {
       return;
     }
     async function main() {
-      console.log('running userOrders useEffect')
       const user = await getAddress(library);
       const userEvents = await getAnnouncedEvents({provider: library, user })
       const tempNonces: {[pair: string]: number} = {};
@@ -481,9 +475,6 @@ function OptionsView(props: RouteComponentProps) {
   useEffect(() => {
     if (contractData) {
       const expiryDatesString = Object.keys(contractData["SMATIC-SUSD"]);
-      console.log(expiryDatesString);
-      console.log(contractData);
-      console.log(JSON.stringify(contractData));
       setExpiryDates(expiryDatesString);
       if(!expiryDate) {
         setExpiryDate(expiryDatesString[0]);
@@ -556,6 +547,15 @@ function OptionsView(props: RouteComponentProps) {
 
   }
 
+  function getDefaultExpiryDate() {
+    const now = new Date();
+    const expiryDatesString = Object.keys(contractData["SMATIC-SUSD"]);
+    const filteredSortedExpiryDates = expiryDatesString
+      .map(ethDate => fromEthDate(Number(ethDate)))
+      .filter(date => date > now)
+      .sort((a,b) => Number(a) - Number(b));
+    return filteredSortedExpiryDates[0] ? toEthDate(filteredSortedExpiryDates[0]).toString() : '';
+  }
 
   function processEventIntoAppOrderSigned(event: any) {
     const {common, positionHash, order, sig, eventInfo, user} = event;

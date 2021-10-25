@@ -57,6 +57,7 @@ export const ORDER_HISTORY_QUERY = gql`
                     lastPrice
                 }
                 buyOrders(orderBy:nonce,orderDirection:desc){
+                    id
                     pricePerContract
                     size
                     tradable
@@ -69,6 +70,7 @@ export const ORDER_HISTORY_QUERY = gql`
                     timestamp
                 }
                 sellOrders(orderBy:nonce,orderDirection:desc){
+                    id
                     pricePerContract
                     size
                     tradable
@@ -124,6 +126,7 @@ export const SHRUBFOLIO_QUERY = gql`
             activeUserOptions(where:{balance_not:0}){
                 balance
                 option{
+                    id
                     baseAsset{symbol, id}
                     quoteAsset{symbol, id}
                     expiry

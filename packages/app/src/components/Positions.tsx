@@ -89,7 +89,7 @@ function Positions() {
   const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
   const {isOpen: isOpenConnectWalletModal, onClose: onCloseConnectWalletModal} = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
-  const [modalCurrency, setModalCurrency] = useState<SupportedCurrencies>('MATIC');
+  const [modalCurrency, setModalCurrency] = useState<SupportedCurrencies>('SUSD');
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   // radio buttons
   const currencies = Object.keys(Currencies)
@@ -144,7 +144,6 @@ function Positions() {
   // options display
   useEffect(() => {
     const tableRowsOptions:JSX.Element[] = [];
-    console.log(account);
     if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
       return
     }
@@ -161,7 +160,7 @@ function Positions() {
     }
     for (const userOption of shrubfolioData.user.activeUserOptions) {
       const { balance, option, buyOrders, sellOrders} = userOption
-      const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice } = option;
+      const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice, id: optionId } = option;
       const { symbol: baseAssetSymbol } = baseAsset;
       const { symbol: quoteAssetSymbol } = quoteAsset;
 
@@ -175,7 +174,7 @@ function Positions() {
 
       hasOptions.current = true;
       tableRowsOptions.push(
-        <Tr>
+        <Tr key={optionId}>
           <Td>{pair}</Td>
           <Td fontSize={'sm'} fontWeight={'bold'}>{`${strike} ${expiry} ${optionType}`}</Td>
           <Td>{amount}</Td>
@@ -199,24 +198,32 @@ function Positions() {
         </Tr>
       )
     }
-    console.log(shrubfolioData);
     setOptionsRows(tableRowsOptions);
   }, [shrubfolioLoading, pendingTxsState])
 
   
   useEffect(() => {
+    console.log('running handleApprove');
+    if (!library) {
+      return;
+    }
     async function handleApprove(){
       if (modalCurrency !== 'MATIC') {
-        const allowance = await getAllowance(Currencies[modalCurrency].address, library);
-        if(allowance.gt(ethers.BigNumber.from(0))) {
-          setIsApproved(true);
-        } else {
-          setIsApproved(false);
+        try {
+          const allowance = await getAllowance(Currencies[modalCurrency].address, library);
+          console.log(allowance);
+          if(allowance.gt(ethers.BigNumber.from(0))) {
+            setIsApproved(true);
+          } else {
+            setIsApproved(false);
+          }
+        } catch (e) {
+          console.error()
         }
       }
     }
     handleApprove();
-  }, [modalCurrency, account, pendingTxsState])
+  }, [modalCurrency, account, pendingTxsState, library])
 
   // set shrubfolio rows
   useEffect(() => {
@@ -233,8 +240,8 @@ function Positions() {
       const fluidPaddingSplitL = [3,3,3,3];
       const fluidPaddingAssetL = [3,5,3,3];
       tempShrubfolioRows.push(
-        <>
-          <Flex key={currency}
+        <div key={currency}>
+          <Flex
                 align="center"
                 justify="space-evenly">
 
@@ -273,7 +280,7 @@ function Positions() {
           <Divider
             _last={{display: "none"}}
           />
-        </>
+        </div>
       );
     }
     setShrubfolioRows(tempShrubfolioRows);
@@ -381,7 +388,6 @@ function Positions() {
         tx = await withdraw(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library)
       }
       setApproving(false)
-      console.log(tx);
       const description = approve === 'approve' ? 'Approving SUSD' : `${withdrawDepositAction} ${amountValue} ${modalCurrency}`;
       pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
       setActiveHash(tx.hash);
@@ -395,8 +401,6 @@ function Positions() {
         pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
         toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
       }
-      console.log(pendingTxsState);
-
     } catch (e) {
       setApproving(false)
       setShowDepositButton(false)
