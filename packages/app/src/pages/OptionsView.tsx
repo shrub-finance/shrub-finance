@@ -352,7 +352,7 @@ function OptionsView(props: RouteComponentProps) {
 
   useEffect(() => {
     const subscriptionPositionHashes = [];
-    if(!contractData || !expiryDate || !library) {
+    if(!contractData || !expiryDate) {
       return;
     }
     const strikeObjPrices = contractData['SMATIC-SUSD'][expiryDate][optionType].map((strikeNum) => {
@@ -367,8 +367,11 @@ function OptionsView(props: RouteComponentProps) {
       const positionHash = hashOrderCommon(common)
       return { strikePrice: strike, positionHash };
     })
+    setStrikePrices(strikeObjPrices);
+    if (!library) {
+      return;
+    }
     getOrderData(strikeObjPrices.map(s => s.positionHash))
-      .then(() => setStrikePrices(strikeObjPrices))
       .catch(e => console.error(`Something went wrong with the orderbook: ${e}`));
 
     function processEvent(event: any) {
