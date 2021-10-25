@@ -491,7 +491,6 @@ function OptionsView(props: RouteComponentProps) {
     }
   }, []);
 
-  userOrderRows.splice(0, userOrderRows.length)
   for (const [transactionHash, order] of Object.entries(userOrders)) {
     const { unitPrice, blockNumber, quoteAsset, baseAsset} = order;
     const pair = getPair(baseAsset, quoteAsset);
@@ -529,7 +528,6 @@ function OptionsView(props: RouteComponentProps) {
     // </Tr>
     // )
   }
-  // setUserOrderRows(tempUserOrderRows);
 
   function cancelOrderFunc(order: AppOrderSigned) {
     async function main() {
@@ -717,7 +715,7 @@ function OptionsView(props: RouteComponentProps) {
       }
     {optionRows}
     </Container>
-        {!!userOrderRows.length && <Container
+        {<Container
         mt={50}
         p={5}
         shadow={boxShadow}
