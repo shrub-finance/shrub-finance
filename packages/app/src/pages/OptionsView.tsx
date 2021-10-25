@@ -148,7 +148,7 @@ function OptionsView(props: RouteComponentProps) {
     getRadioProps: getExpiryRadioProps,
   } = useRadioGroup({
     name: "expiryDate",
-    defaultValue: '',
+    defaultValue: getDefaultExpiryDate(),
     onChange: (nextValue) => setExpiryDate(nextValue),
   });
 
@@ -556,6 +556,15 @@ function OptionsView(props: RouteComponentProps) {
 
   }
 
+  function getDefaultExpiryDate() {
+    const now = new Date();
+    const expiryDatesString = Object.keys(contractData["SMATIC-SUSD"]);
+    const filteredSortedExpiryDates = expiryDatesString
+      .map(ethDate => fromEthDate(Number(ethDate)))
+      .filter(date => date > now)
+      .sort((a,b) => Number(a) - Number(b));
+    return filteredSortedExpiryDates[0] ? toEthDate(filteredSortedExpiryDates[0]).toString() : '';
+  }
 
   function processEventIntoAppOrderSigned(event: any) {
     const {common, positionHash, order, sig, eventInfo, user} = event;
