@@ -366,8 +366,8 @@ const {
             return;
         }
         orderbookSellRows.push(<Tr key={index}>
-            <Td>{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
-            <Td isNumeric={true}>{sellOrder.formattedSize}</Td>
+            <Td colorScheme="gray.800">{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
+            <Td isNumeric={true} colorScheme="gray.800">{sellOrder.formattedSize}</Td>
         </Tr>)
     });
     orderBook.buyOrders
@@ -377,9 +377,10 @@ const {
           if (index > 5) {
               return;
           }
-          orderbookBuyRows.push(<Tr key={index}>
-              <Td>{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
-              <Td>{buyOrder.formattedSize}</Td>
+          orderbookBuyRows.push(
+              <Tr key={index}>
+              <Td colorScheme="gray.800" >{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
+              <Td colorScheme="gray.800" >{buyOrder.formattedSize}</Td>
           </Tr>)
       });
 
@@ -533,11 +534,24 @@ const {
                 </Box>
 
                 <Box id={"orderbook"} ml={4}>
+                    <Box
+                        color="gray.500"
+                        fontWeight="semibold"
+                        letterSpacing="wide"
+                        fontSize="xs"
+                        ml="2"
+                        bgColor="gray.100"
+                        borderRadius="md"
+                        px="2"
+                        py="1"
+                    >
+                        Sell Offers
+                    </Box>
                     <Table variant={'unstyled'} size={'sm'}>
                         <Thead>
                             <Tr>
-                                <Th>Price</Th>
-                                <Th>Amount</Th>
+                                <Th color="gray.400">Price</Th>
+                                <Th color="gray.400">Amount</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -545,14 +559,29 @@ const {
                         </Tbody>
                     </Table>
                     <Divider/>
+                    <Box
+                        color="gray.500"
+                        fontWeight="semibold"
+                        letterSpacing="wide"
+                        fontSize="xs"
+                        ml="2"
+                        bgColor="gray.100"
+                        borderRadius="md"
+                        px="2"
+                        py="1"
+                    >
+                        Buy Offers
+                    </Box>
                     <Table variant={'unstyled'} size={'sm'}>
+                        <Thead>
+                            <Tr>
+                                <Th color="gray.400">Price</Th>
+                                <Th color="gray.400">Amount</Th>
+                            </Tr>
+                        </Thead>
                         <Tbody>
                             {orderbookBuyRows}
                         </Tbody>
-                        <Tfoot>
-                            <Th>Price</Th>
-                            <Th>Amount</Th>
-                        </Tfoot>
                     </Table>
                 </Box>
             </Flex>
