@@ -157,7 +157,7 @@ function checkCollateralForOutstandingOrders(user: User, tokenAddresses: Address
         let sellOrderStr = activeSellOrders[k];
         if (option.optionType == 'CALL') {
           let sellOrder = SellOrder.load(sellOrderStr) as SellOrder;
-          if (sellOrder.size.lt(unlockedBalances.get(quoteAsset))) {
+          if (sellOrder.size.gt(unlockedBalances.get(quoteAsset))) {
             setSellOrderUnfunded(sellOrder);
           }
         }
