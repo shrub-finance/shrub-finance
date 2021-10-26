@@ -19,7 +19,7 @@ import {
   Thead,
   Tr,
   useColorModeValue,
-  useRadioGroup, useToast
+  useRadioGroup, useToast, Tooltip
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 import useFetch from "../hooks/useFetch";
@@ -60,7 +60,7 @@ import {
   unsubscribeFromAnnouncements,
 } from '../utils/ethMethods'
 import {BytesLike, ethers} from "ethers";
-import {Icon} from '@chakra-ui/icons';
+import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
 import {orderBookReducer} from "../components/orderBookReducer";
 import {currencyIcon, currencySymbol, ExplorerDataType, explorerLink} from "../utils/chainMethods";
@@ -74,6 +74,7 @@ import {HelloBud} from "../assets/Icons";
 import {useQuery} from "@apollo/client";
 import { ORDER_HISTORY_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries'
 import contractData from "../constants/common"
+import { MdHistoryToggleOff } from 'react-icons/md';
 
 const initialOrderBookState = {};
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
@@ -267,7 +268,6 @@ function OptionsView(props: RouteComponentProps) {
     if (sortedOrders) {
       for (const order of sortedOrders) {
         const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry, id } = order;
-        // const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
         const orderToName = {
           optionAction,
           formattedSize: size,
@@ -290,7 +290,6 @@ function OptionsView(props: RouteComponentProps) {
               </Button>
             </Td>
             <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(orderToName)}</Td>
-            {/*<Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{optionType + strike}</Td>*/}
             <Td maxWidth={"10px"} isNumeric={true}>
               <Text  fontSize="xs">{pricePerContract}</Text>
             </Td>
@@ -306,7 +305,6 @@ function OptionsView(props: RouteComponentProps) {
             <Td>
               {
                 status === 'active' &&
-                // <Button colorScheme="teal" size="xs" onClick={cancelOrderFunc.bind(null, order)}>
                 <Button colorScheme="teal" size="xs" onClick={() => console.log('cancel does not work yet')}>
                   Cancel
                 </Button>
@@ -492,32 +490,6 @@ function OptionsView(props: RouteComponentProps) {
     } else {
       status = ''
     }
-    // tempUserOrderRows.push(
-    //    <Tr>
-    //   <Td >
-    //     <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
-    //       {blockNumber}
-    //     </Button>
-    //   </Td>
-    //   <Td h={"100"} fontWeight="semibold" lineHeight={1.8} fontSize={"xs"}>{shortOptionName(order)}</Td>
-    //   <Td maxWidth={"10px"} isNumeric={true}>
-    //     <Text  fontSize="xs">{unitPrice}</Text>
-    //   </Td>
-    //   <Td>
-    //     <Tag size={'sm'} colorScheme={status === 'cancelled' ? 'red' : status === 'expired'? 'gray' : status === 'completed'? 'cyan' : status === 'active'? 'yellow': 'blue'} borderRadius={'full'}>
-    //       <TagLabel>{status}</TagLabel>
-    //     </Tag>
-    //     </Td>
-    //   <Td>
-    //     {
-    //       status === 'active' &&
-    //       <Button colorScheme="teal" size="xs" onClick={cancelOrderFunc.bind(null, order)}>
-    //         Cancel
-    //       </Button>
-    //     }
-    //   </Td>
-    // </Tr>
-    // )
   }
 
   function cancelOrderFunc(order: AppOrderSigned) {
@@ -611,9 +583,7 @@ function OptionsView(props: RouteComponentProps) {
         sellOrders: [],
         last: ''
       }
-      // optionRows.push(
-      //   <OptionRow appCommon={appCommon} option={sellBuy} last={''} ask={''} bid={''} key={appCommon.formattedStrike} optionData={emptyOptionData} />
-      // );
+
       continue;
     }
 
@@ -632,21 +602,18 @@ function OptionsView(props: RouteComponentProps) {
     const positionHash = hashOrderCommon(orderCommon)
     const last = lastMatches[positionHash] ? String(lastMatches[positionHash]) : ' -';
 
-    // optionRows.push(
-    //   <OptionRow appCommon={appCommon} option={sellBuy} last={last} ask={bestAsk} bid={bestBid} key={appCommon.formattedStrike} optionData={optionData} />
-    // );
   }
   return (
       <>
         <SummaryView />
         <Heading mt={10}>
           <Center>
-            <Icon as={currencyIcon(chainId)} pr="1"/> {currencySymbol(chainId)} Options
+            <Icon as={currencyIcon(chainId)} pr="2"/> SMATIC Options
           </Center>
         </Heading>
 
   <Container
-      mt={50}
+      mt={30}
       p={5}
       shadow={useColorModeValue("2xl", "2xl")}
       flex="1"
@@ -715,29 +682,48 @@ function OptionsView(props: RouteComponentProps) {
       }
     {optionRows}
     </Container>
-        {<Container
-        mt={50}
+        {
+          <>
+          <Heading mt={14}>
+            <Center>
+              <Icon as={MdHistoryToggleOff} pr="2"/> Order History
+            </Center>
+          </Heading>
+          <Container
+        mt={30}
         p={5}
         shadow={boxShadow}
         flex="1"
         borderRadius="2xl"
         bg={backgroundColor}
       >
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Block Number</Th>
-              <Th>Option</Th>
-              <Th isNumeric>Price per Contract</Th>
-              <Th>Status</Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {userOrderRows}
-          </Tbody>
-        </Table>
-      </Container>}
+            {userOrderRows.length ?  <Table variant="simple">
+                  <Thead>
+                    <Tr>
+                      <Th>Block Number</Th>
+                      <Th>Option</Th>
+                      <Th isNumeric>Price per Contract</Th>
+                      <Th>Status</Th>
+                      <Th></Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {userOrderRows}
+                  </Tbody>
+                </Table> :
+                <Flex direction="column" mt={10}>
+                  <Center>
+                    <HelloBud boxSize={200}/>
+                  </Center>
+                  <Center pt={6}>
+                    <Box as="span" fontWeight="semibold" fontSize="md" color="gray.500">
+                      No orders from you yet, but your order history will show up here!
+                    </Box>
+                  </Center>
+                </Flex>}
+      </Container>
+          </>
+        }
       </>
   );
 }
