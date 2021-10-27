@@ -166,7 +166,7 @@ function handleModalClose() {
           <ModalCloseButton />
           <ModalBody>
             {!active || isHidden? <ConnectWalletModal/> : !isHidden &&<ConnectionStatus displayStatus={displayStatus}/>}
-            <TxStatusList/>
+            { !(web3Error && getErrorMessage(web3Error).title === "Wrong Network") && <TxStatusList/>}
           </ModalBody>
         </ModalContent>
       </Modal>

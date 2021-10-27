@@ -84,10 +84,10 @@ function HomeView(props: RouteComponentProps) {
                                         </Circle>
                                     </Stack>
                                     <Stack spacing={0} align={'center'} mb={5}>
-                                        <Heading fontSize={'xl'} fontWeight={500}>
+                                        <Heading fontSize={'xl'} fontWeight={"500"}>
                                             Connect to Mumbai
                                         </Heading>
-                                        <Text fontSize={'sm'} color={'gray.500'} fontWeight={"semibold"} pt={5}>To beta
+                                        <Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>To beta
                                             test Shrub, your wallet needs to be connected to the Polygon
                                             Test Network.</Text>
                                     </Stack>
@@ -123,17 +123,17 @@ function HomeView(props: RouteComponentProps) {
                                         </Circle>
                                     </Stack>
                                     <Stack spacing={0} align={'center'} mb={5}>
-                                        <Heading fontSize={'xl'} fontWeight={500}>
+                                        <Heading fontSize={'xl'} fontWeight={"500"}>
                                             Buy SUSD with MATIC
                                         </Heading>
-                                        <List spacing={3}>
-                                            <ListItem fontSize={'sm'} color={'gray.500'} fontWeight={"semibold"} pt={5}>
+                                        <List spacing={3} textAlign={"left"}>
+                                            <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5} >
                                                 <ListIcon as={MdCheckCircle} color="green.200" />
                                                 <Link href="https://faucet.polygon.technology/" isExternal>
                                                     First, get some MATIC here <ExternalLinkIcon mx="2px" />
                                                 </Link>
                                             </ListItem>
-                                            <ListItem fontSize={'sm'} color={'gray.500'} fontWeight={"semibold"}>
+                                            <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"}>
                                                 <ListIcon as={MdCheckCircle} color="green.200" />
                                                 Then, buy SUSD with it
                                                 <Popover>
@@ -151,11 +151,11 @@ function HomeView(props: RouteComponentProps) {
                                             </ListItem>
                                         </List>
                                     </Stack>
-                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.100")} fontWeight={"extrabold"} pt={1} letterSpacing={"1px"}>
-                                        1 MATIC = 10,000 SMATIC
+                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"} letterSpacing={"1px"} pb={.5}>
+                                        1 test MATIC = 10,000 SMATIC
                                     </Text>
-                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.100")} fontWeight={"extrabold"}  pt={1} letterSpacing={"1px"}>
-                                        1 MATIC = 10,000 SUSD
+                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"}   letterSpacing={"1px"}>
+                                        1 test MATIC = 10,000 SUSD
                                     </Text>
                                     <Button
                                         onClick={onTestTokenModalOpen}
@@ -187,10 +187,10 @@ function HomeView(props: RouteComponentProps) {
                                         </Circle>
                                     </Stack>
                                     <Stack spacing={0} align={'center'} mb={5}>
-                                        <Heading fontSize={'xl'} fontWeight={500}>
+                                        <Heading fontSize={'xl'} fontWeight={"500"}>
                                             Deposit SUSD
                                         </Heading>
-                                        <Text fontSize={'sm'} color={'gray.500'} fontWeight={"semibold"} pt={5}>In order
+                                        <Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>In order
                                             to buy Options, you need to deposit SUSD to
                                             the Shrub platform.</Text>
                                     </Stack>
