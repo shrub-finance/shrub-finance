@@ -15,7 +15,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure
+  useDisclosure, useColorModeValue
 } from "@chakra-ui/react";
 
 import {AppCommon, OptionData, SellBuy} from '../types';
@@ -40,6 +40,8 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
   const [activeHash, setActiveHash] = useState<string>();
   const {chainId} = useWeb3React();
 
+  const bg = useColorModeValue("green", "teal");
+
   function handleModalClose() {
     setApproving(false);
     setActiveHash(undefined);
@@ -59,7 +61,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
           <Text fontSize={"2xl"} pb={3}>
             ${Number(formattedStrike).toFixed(2)}
           </Text>
-          <Tag size={"sm"} colorScheme="teal">
+          <Tag size={"sm"} colorScheme={bg}>
             {optionType}
           </Tag>
         </Box>
@@ -72,7 +74,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
         <Spacer/>
         <Box h={height}>
           <Stack spacing={4} direction="row" align="center">
-            <Button colorScheme="teal" onClick={onOpen} size="sm" variant="outline" borderRadius="2xl">
+            <Button colorScheme={bg} onClick={onOpen} size="sm" variant="outline" borderRadius="2xl">
               {option === 'BUY' ? "Buy Options" : "Sell Options"}
             </Button>
           </Stack>
