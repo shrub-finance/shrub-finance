@@ -139,8 +139,8 @@ const {
             throw new Error('Price is required');
         }
         const now = new Date();
-        const oneWeekFromNow = new Date(now);
-        oneWeekFromNow.setUTCDate(oneWeekFromNow.getUTCDate() + 7);
+        const oneDayFromNow = new Date(now);
+        oneDayFromNow.setUTCDate(oneDayFromNow.getUTCDate() + 1);
         const common:OrderCommon = {
             baseAsset,
             quoteAsset,
@@ -159,7 +159,7 @@ const {
             strike,
             price: ethers.utils.parseUnits((Number(price) * amount).toString(), 18),
             fee: ethers.utils.parseUnits('0', 18),
-            offerExpire: toEthDate(oneWeekFromNow),
+            offerExpire: toEthDate(oneDayFromNow),
             nonce,
         };
             const signedOrder = await signOrder(unsignedOrder, library);
