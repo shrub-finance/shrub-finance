@@ -49,6 +49,7 @@ export const ORDER_HISTORY_QUERY = gql`
             id
             userOptions(orderBy:nonce,orderDirection:desc){
                 option{
+                    id
                     baseAsset{symbol}
                     quoteAsset{symbol}
                     expiry

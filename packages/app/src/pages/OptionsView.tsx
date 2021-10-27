@@ -43,7 +43,9 @@ import {
   fromEthDate,
   getAddress,
   getAddressFromSignedOrder,
-  getAnnouncedEvents, getBlockNumber,
+  getAnnouncedEvent,
+  getAnnouncedEvents,
+  getBlockNumber,
   getLastOrders,
   getMatchEvents,
   getPair,
@@ -252,22 +254,23 @@ function OptionsView(props: RouteComponentProps) {
       return;
     }
     let orders:any[] = [];
+    const {id: userAccount} = orderHistoryData.user;
     for (const userOption of orderHistoryData.user.userOptions) {
       const { buyOrders, sellOrders, option } = userOption;
-      const { baseAsset, quoteAsset, expiry, lastPrice, optionType, strike } = option;
+      const { baseAsset, quoteAsset, expiry, lastPrice, optionType, strike, id: positionHash } = option;
       const { symbol: baseAssetSymbol } = baseAsset;
       const { symbol: quoteAssetSymbol } = quoteAsset;
       orders = orders.concat(buyOrders.map((o: any) => {
-        return { ...o, optionAction: 'BUY', strike, expiry }
+        return { ...o, optionAction: 'BUY', strike, expiry, positionHash }
       }))
       orders = orders.concat(sellOrders.map((o: any) => {
-        return { ...o, optionAction: 'SELL', strike, expiry }
+        return { ...o, optionAction: 'SELL', strike, expiry, positionHash }
       }))
     }
     const sortedOrders = orders.sort((a: any, b: any) => a.block - b.block);
     if (sortedOrders) {
       for (const order of sortedOrders) {
-        const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry, id } = order;
+        const { expiredNonce, optionAction, fullyMatched, funded, matches, offerExpire, pricePerContract, size, timestamp, tradable, block:blockNumber, strike, expiry, id, positionHash } = order;
         const orderToName = {
           optionAction,
           formattedSize: size,
@@ -305,7 +308,7 @@ function OptionsView(props: RouteComponentProps) {
             <Td>
               {
                 status === 'active' &&
-                <Button colorScheme="teal" size="xs" onClick={() => console.log('cancel does not work yet')}>
+                <Button colorScheme="teal" size="xs" onClick={() => cancelOrderFunc(positionHash, userAccount, blockNumber)}>
                   Cancel
                 </Button>
               }
@@ -492,8 +495,12 @@ function OptionsView(props: RouteComponentProps) {
     }
   }
 
-  function cancelOrderFunc(order: AppOrderSigned) {
+  function cancelOrderFunc(positionHash: BytesLike, user: string, blockHeight: number) {
     async function main() {
+      const order = await getAnnouncedEvent(library, positionHash, user, blockHeight);
+      if (!order) {
+        throw new Error('Order could not be found');
+      }
       const iOrder = transformOrderAppChain(order);
       const tx = await cancelOrder(iOrder, library);
       const description = `cancel order for ${shortOptionName(order)}`;
