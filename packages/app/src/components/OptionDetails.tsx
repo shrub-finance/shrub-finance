@@ -75,8 +75,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
 
     const { approving, setApproving, setActiveHash } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
-    const amountToolTip = `The amount of asset to purchase option for (minimum: 0.000001 ${currencySymbol(chainId)})`
-    const priceToolTip = `The ${'SUSD'} required to purchase 1 contract (1 ${currencySymbol(chainId)}) `
     const alertColor = useColorModeValue("gray.100", "shrub.300")
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
@@ -99,6 +97,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
         defaultValue: sellBuy,
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
+    const amountToolTip = `Number of contracts to ${sellBuy}. 1 contract = 1 SMATIC. Min: 0.000001`
+    const priceToolTip = `The ${'SUSD'} required to purchase 1 contract (1 ${currencySymbol(chainId)}) `
 
     useEffect(() => {
         const buyOrders = optionData.buyOrders.sort((a, b) => b.unitPrice - a.unitPrice);
@@ -508,7 +508,7 @@ const {
                         <Box>
                             <Flex justifyContent="flex-end">
                                 <Button
-                                  colorScheme="teal"
+                                    colorScheme={useColorModeValue("green", "teal")}
                                   type="submit"
                                   onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
                                   disabled={
@@ -535,12 +535,12 @@ const {
 
                 <Box id={"orderbook"} ml={4}>
                     <Box
-                        color="gray.500"
+                        color={useColorModeValue("gray.500", "black")}
+                        bgColor={useColorModeValue("gray.100", "gray.400")}
                         fontWeight="semibold"
                         letterSpacing="wide"
                         fontSize="xs"
                         ml="2"
-                        bgColor="gray.100"
                         borderRadius="md"
                         px="2"
                         py="1"
@@ -560,12 +560,12 @@ const {
                     </Table>
                     <Divider/>
                     <Box
-                        color="gray.500"
+                        color={useColorModeValue("gray.500", "black")}
+                        bgColor={useColorModeValue("gray.100", "gray.400")}
                         fontWeight="semibold"
                         letterSpacing="wide"
                         fontSize="xs"
                         ml="2"
-                        bgColor="gray.100"
                         borderRadius="md"
                         px="2"
                         py="1"

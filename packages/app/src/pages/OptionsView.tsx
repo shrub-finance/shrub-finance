@@ -120,6 +120,8 @@ function OptionsView(props: RouteComponentProps) {
     }
   });
 
+  const bg = useColorModeValue("green", "teal");
+
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
   if (!quoteAsset || !baseAsset) {
@@ -285,7 +287,7 @@ function OptionsView(props: RouteComponentProps) {
         tempUserOrderRows.push(
           <Tr key={id}>
             <Td >
-              <Button fontSize={"xs"} colorScheme="teal" variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
+              <Button fontSize={"xs"} colorScheme={bg} variant="link" href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)}>
                 {blockNumber}
               </Button>
             </Td>
@@ -305,7 +307,7 @@ function OptionsView(props: RouteComponentProps) {
             <Td>
               {
                 status === 'active' &&
-                <Button colorScheme="teal" size="xs" onClick={() => console.log('cancel does not work yet')}>
+                <Button colorScheme={bg} size="xs" onClick={() => console.log('cancel does not work yet')}>
                   Cancel
                 </Button>
               }
@@ -611,6 +613,11 @@ function OptionsView(props: RouteComponentProps) {
             <Icon as={currencyIcon(chainId)} pr="2"/> SMATIC Options
           </Center>
         </Heading>
+        <Center pt={6}>
+          <Box as="span" fontWeight="semibold" fontSize="sm" color="gray.500">
+            Buy some options!
+          </Box>
+        </Center>
 
   <Container
       mt={30}

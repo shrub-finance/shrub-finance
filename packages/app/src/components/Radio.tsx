@@ -15,10 +15,10 @@ function RadioCard(props) {
         cursor="pointer"
         borderRadius="2xl"
         borderWidth="1px"
-        borderColor={useColorModeValue("teal.500", "gray.700")}
+        borderColor={useColorModeValue("green.500", "gray.700")}
         boxShadow="md"
         _checked={{
-          bg: useColorModeValue("teal.500", "gray.400"),
+          bg: useColorModeValue("green.500", "gray.400"),
           fontWeight: "semibold",
           color: useColorModeValue("white", "black")
         }}
@@ -26,7 +26,7 @@ function RadioCard(props) {
           boxShadow: "outline",
         }}
         _hover={{
-            borderColor: useColorModeValue("teal.500", "gray.400"),
+            borderColor: useColorModeValue("green.500", "gray.400"),
             borderWidth: "1px"
         }}
         px={8}

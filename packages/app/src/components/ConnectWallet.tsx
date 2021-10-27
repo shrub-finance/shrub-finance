@@ -36,7 +36,7 @@ import {
 } from "@chakra-ui/react";
 import {Flex, Spacer} from "@chakra-ui/react";
 import {CheckCircleIcon, CopyIcon, ExternalLinkIcon, Icon, InfoOutlineIcon} from "@chakra-ui/icons";
-import {ethers} from "ethers";
+import {BigNumber, ethers} from "ethers";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {formatEther} from "ethers/lib/utils";
 import {NETWORK_COLORS, NETWORK_LABELS} from "../constants/networks";
@@ -50,7 +50,7 @@ enum ConnectorNames {
     CoinbaseWallet = "Coinbase Wallet",
     // Ledger = "Ledger",
     // Portis= "Portis",
-    Fortmatic= "Fortmatic"
+    // Fortmatic= "Fortmatic"
 
 }
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
@@ -59,7 +59,7 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.CoinbaseWallet]: walletlink,
     // [ConnectorNames.Ledger]: ledger,
     // [ConnectorNames.Portis]: portis,
-    [ConnectorNames.Fortmatic]: fortmatic
+    // [ConnectorNames.Fortmatic]: fortmatic
 };
 
 
@@ -72,7 +72,7 @@ export function getErrorMessage(error: Error) {
     } else if (error instanceof UnsupportedChainIdError) {
         return ({
             title: "Wrong Network",
-            message: "You are connected, but not to Ethereum. Check your settings."
+            message: "You are connected, but not to Polygon Mumbai Testnet."
         });
     } else if (
         error instanceof UserRejectedRequestErrorInjected ||
@@ -134,30 +134,24 @@ export function Balance() {
     const networkColor = chainId && NETWORK_COLORS[chainId]
     const currency = currencySymbol(chainId)
 
-    const [balance, setBalance] = useState()
-    useEffect((): any => {
-        if (!!account && !!library) {
+    const [balance, setBalance] = useState<BigNumber>()
+    useEffect(() => {
+        async function main() {
+            if(!account || !library) {
+                return
+            }
             let stale = false
-            library
-                .getBalance(account)
-                .then((balance: any) => {
-
-                    if (!stale) {
-                        setBalance(balance)
-                    }
-                })
-                .catch(() => {
-                    if (!stale) {
-                        // @ts-ignore
-                        setBalance(null)
-                    }
-                })
+            const b = await library.getBalance(account)
+            if(!stale) {
+                setBalance(b)
+            }
 
             return () => {
                 stale = true
-                setBalance(undefined)
             }
         }
+        main()
+            .catch(e => console.error(e))
     }, [account, library, chainId]) // ensures refresh if referential identity of library doesn't change across chainIds
 
     return (
@@ -171,10 +165,11 @@ export function Balance() {
                 borderRadius="2xl"
             >
                 {
-                    balance === null ?
-                        'Error' :
+
+                    !balance ?
+                        '-' :
                         balance
-                            // @ts-ignore
+
                             ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} ${currency}`: ''
                 }
             </Button>
@@ -202,6 +197,7 @@ export function Account() {
 export function ConnectionStatus({displayStatus}) {
 
     const shadow = useColorModeValue("base", "dark-lg");
+    const bg = useColorModeValue("green", "teal");
     const {active, error, account, chainId} = useWeb3React();
     const { connector } = useConnectWallet();
     const connectedName = Object.keys(connectorsByName).find((connectorName) => {
@@ -226,13 +222,13 @@ export function ConnectionStatus({displayStatus}) {
                         <Spacer/>
                         <Box>
                             <Button size={"sm"} borderRadius="full" cursor="pointer"
-                                    variant="outline" colorScheme="green" onClick={() => displayStatus(true)}>
+                                    variant="outline" colorScheme={bg} onClick={() => displayStatus(true)}>
                                 Change
                             </Button>
                         </Box>
                     </Flex>
                     <Flex pb={2}>
-                        <Button variant={"ghost"} colorScheme={"teal"} size={"lg"} mr={4} borderRadius="2xl" onClick={onCopy}>
+                        <Button variant={"ghost"} colorScheme={bg} size={"lg"} mr={4} borderRadius="2xl" onClick={onCopy}>
                             <Account/>
                         </Button>
                     </Flex>
@@ -291,7 +287,7 @@ export function ConnectWalletModal() {
                         connected || !!error;
 
 
-                    const mobileConnectors = ['Wallet Connect', 'Coinbase Wallet', 'Fortmatic'];
+                    const mobileConnectors = ['Wallet Connect', 'Coinbase Wallet'];
 
                     const isMobileConnector =  mobileConnectors.includes(connectorName);
 
