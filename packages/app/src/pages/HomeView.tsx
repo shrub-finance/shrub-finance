@@ -143,18 +143,18 @@ function HomeView(props: RouteComponentProps) {
                                                         <PopoverContent>
                                                             <PopoverArrow />
                                                             <PopoverCloseButton />
-                                                            <PopoverBody>
-                                                                To facilitate testing with reasonable amounts of tokens, we have created SMATIC and SUSD. These are meant to represent MATIC and USD stable coin in our test environment. Options in the test environment have these as their underlying assets. You may purchase SMATIC and SUSD at a rate of 10,000 per test MATIC
+                                                            <PopoverBody letterSpacing="wide" textAlign={"left"}>
+                                                                <Text> To facilitate testing with reasonable amounts of tokens, we have created SMATIC and SUSD.</Text> <Text>These represent MATIC and USD stable coin in our test environment.</Text> <Text>Options in the test environment have these as their underlying assets.</Text><Text> You may buy SMATIC and SUSD at a rate of 10,000/test MATIC.</Text>
                                                             </PopoverBody>
                                                         </PopoverContent>
                                                 </Popover>
                                             </ListItem>
                                         </List>
                                     </Stack>
-                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.100")} fontWeight={"bold"} pt={1}>
+                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.100")} fontWeight={"extrabold"} pt={1} letterSpacing={"1px"}>
                                         1 MATIC = 10,000 SMATIC
                                     </Text>
-                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.100")} fontWeight={"bold"}  pt={1}>
+                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.100")} fontWeight={"extrabold"}  pt={1} letterSpacing={"1px"}>
                                         1 MATIC = 10,000 SUSD
                                     </Text>
                                     <Button

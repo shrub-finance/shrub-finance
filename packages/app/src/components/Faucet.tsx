@@ -180,19 +180,19 @@ const addNetwork = useAddNetwork();
               <Box>
                 <Box pb={4}>
                   <Link fontSize='xs' fontWeight="extrabold" letterSpacing='wide' color={linkColor} href="https://faucet.polygon.technology/" isExternal>
-                  Don't have Polygon MATIC? Get some from the faucet first<ExternalLinkIcon mx="2px" />
+                  Don't have test MATIC? Get some from the Polygon faucet<ExternalLinkIcon mx="2px" />
                 </Link>
                 </Box>
                 <FormControl id="faucetCurrency">
-                  <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Select a Test Shrub token<Popover>
+                  <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Select a test Shrub token<Popover>
                     <PopoverTrigger>
                       <Text ml="1" color={popOverColor} as="sup" cursor="pointer">What's this?</Text>
                     </PopoverTrigger>
                     <PopoverContent>
                       <PopoverArrow />
                       <PopoverCloseButton />
-                      <PopoverBody>
-                        To facilitate testing with reasonable amounts of tokens, we have created SMATIC and SUSD. These are meant to represent MATIC and USD stable coin in our test environment. Options in the test environment have these as their underlying assets. You may purchase SMATIC and SUSD at a rate of 10,000 per test MATIC
+                      <PopoverBody letterSpacing="wide">
+                        <Text> To facilitate testing with reasonable amounts of tokens, we have created SMATIC and SUSD.</Text> <Text>These represent MATIC and USD stable coin in our test environment.</Text> <Text>Options in the test environment have these as their underlying assets.</Text><Text> You may buy SMATIC and SUSD at a rate of 10,000/test MATIC.</Text>
                       </PopoverBody>
                     </PopoverContent>
                   </Popover></FormLabel>
@@ -209,7 +209,7 @@ const addNetwork = useAddNetwork();
                 </FormControl>
               </Box>
             <FormControl id="maticAmount">
-            <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Enter Polygon MATIC you want to spend</FormLabel>
+            <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Enter test MATIC you want to spend</FormLabel>
             <NumberInput
             isInvalid={invalidEntry}
             onChange={(valueString) => setAmountValue(parse(valueString))}
@@ -219,7 +219,7 @@ const addNetwork = useAddNetwork();
             </NumberInput>
             </FormControl>
             <FormControl id="tokenAmount">
-            <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Test Shrub token you get for {invalidEntry ? '' : amountValue} MATIC</FormLabel>
+            <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Test Shrub token you get for {invalidEntry ? '' : amountValue} test MATIC</FormLabel>
             <Box fontWeight={"bold"} fontSize={"lg"} bg={bgColor} p={3} borderRadius={6} color="black">
               { modalCurrency === "SMATIC" ? <PolygonIcon/> : <SUSDIcon/> } {invalidEntry ? '?' : format((10000 * Number(amountValue)).toString())} {modalCurrency}
             </Box>
