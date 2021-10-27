@@ -54,6 +54,7 @@ enum ConnectorNames {
     // Fortmatic= "Fortmatic"
 
 }
+
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.MetaMask]: injected,
     [ConnectorNames.WalletConnect]: walletconnect,
@@ -98,9 +99,11 @@ export function getErrorMessage(error: Error) {
         });
     }
 }
+
 export function getLibrary(provider: any) {
     return new ethers.providers.Web3Provider(provider);
 }
+
 export function Chain() {
 
     const {chainId} = useWeb3React()
@@ -130,6 +133,7 @@ export function Chain() {
 
 
 }
+
 export function Balance() {
     const {account, library, chainId} = useWeb3React()
     const networkColor = chainId && NETWORK_COLORS[chainId]
@@ -138,12 +142,12 @@ export function Balance() {
     const [balance, setBalance] = useState<BigNumber>()
     useEffect(() => {
         async function main() {
-            if(!account || !library) {
+            if (!account || !library) {
                 return
             }
             let stale = false
             const b = await library.getBalance(account)
-            if(!stale) {
+            if (!stale) {
                 setBalance(b)
             }
 
@@ -151,6 +155,7 @@ export function Balance() {
                 stale = true
             }
         }
+
         main()
             .catch(e => console.error(e))
     }, [account, library, chainId]) // ensures refresh if referential identity of library doesn't change across chainIds
@@ -171,13 +176,14 @@ export function Balance() {
                         '-' :
                         balance
 
-                            ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} ${currency}`: ''
+                            ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC' ? 6 : 2})} ${currency}` : ''
                 }
             </Button>
             }
         </>
     )
 }
+
 export function Account() {
     const ref = useRef<HTMLDivElement>();
     const {account} = useWeb3React();
@@ -194,13 +200,14 @@ export function Account() {
         </>
     );
 }
+
 // @ts-ignore
 export function ConnectionStatus({displayStatus}) {
 
     const shadow = useColorModeValue("base", "dark-lg");
     const bg = useColorModeValue("green", "teal");
     const {active, error, account, chainId} = useWeb3React();
-    const { connector } = useConnectWallet();
+    const {connector} = useConnectWallet();
     const connectedName = Object.keys(connectorsByName).find((connectorName) => {
         // @ts-ignore
         return connector === connectorsByName[connectorName]
@@ -210,43 +217,45 @@ export function ConnectionStatus({displayStatus}) {
     useEffect(() => {
         if (account) {
             setCopyValue(account);
-        }}, [account])
+        }
+    }, [account])
 
     return (
         <>
             {active && !error ? (
-                <Box p={3} mb={5} boxShadow={shadow} rounded="lg">
-                    <Flex pt={1}>
-                        <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm" ml="2">
-                            Connected with {connectedName}
-                        </Box>
-                        <Spacer/>
-                        <Box>
-                            <Button size={"sm"} borderRadius="full" cursor="pointer"
-                                    variant="outline" colorScheme={bg} onClick={() => displayStatus(true)}>
-                                Change
+                    <Box p={3} mb={5} boxShadow={shadow} rounded="lg">
+                        <Flex pt={1}>
+                            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="sm" ml="2">
+                                Connected with {connectedName}
+                            </Box>
+                            <Spacer/>
+                            <Box>
+                                <Button size={"sm"} borderRadius="full" cursor="pointer"
+                                        variant="outline" colorScheme={bg} onClick={() => displayStatus(true)}>
+                                    Change
+                                </Button>
+                            </Box>
+                        </Flex>
+                        <Flex pb={2}>
+                            <Button variant={"ghost"} colorScheme={bg} size={"lg"} mr={4} borderRadius="2xl"
+                                    onClick={onCopy}>
+                                <Account/>
                             </Button>
-                        </Box>
-                    </Flex>
-                    <Flex pb={2}>
-                        <Button variant={"ghost"} colorScheme={bg} size={"lg"} mr={4} borderRadius="2xl" onClick={onCopy}>
-                            <Account/>
-                        </Button>
-                    </Flex>
-                    <Flex pb={1}>
-                        <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2"
-                             onClick={onCopy}>
-                            {hasCopied ? <CheckCircleIcon mr={1}/> : <CopyIcon mr={1}/>}
-                            {hasCopied ? 'Copied' : 'Copy Address'}
-                        </Box>
-                        <Spacer/>
-                        <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2">
-                            <Link href={explorerLink(chainId, account, ExplorerDataType.ADDRESS)} isExternal>
-                                <ExternalLinkIcon/> View on explorer
-                            </Link>
-                        </Box>
-                    </Flex>
-                </Box>) :
+                        </Flex>
+                        <Flex pb={1}>
+                            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2"
+                                 onClick={onCopy}>
+                                {hasCopied ? <CheckCircleIcon mr={1}/> : <CopyIcon mr={1}/>}
+                                {hasCopied ? 'Copied' : 'Copy Address'}
+                            </Box>
+                            <Spacer/>
+                            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2">
+                                <Link href={explorerLink(chainId, account, ExplorerDataType.ADDRESS)} isExternal>
+                                    <ExternalLinkIcon/> View on explorer
+                                </Link>
+                            </Box>
+                        </Flex>
+                    </Box>) :
                 (<Flex mb="10px">
                     <Spacer/>
                     <Badge borderRadius="md" variant="outline" colorScheme="yellow">
@@ -256,6 +265,7 @@ export function ConnectionStatus({displayStatus}) {
         </>
     );
 }
+
 export function ConnectWalletModal() {
 
     const {activate, error, activatingConnector, connector, triedEager, setActivatingConnector} = useConnectWallet();
@@ -278,116 +288,121 @@ export function ConnectWalletModal() {
                 </Stack>
             )}
 
-            { !wrongNetwork ? <>
-                {
-                    Object.keys(connectorsByName).map((connectorName) => {
-                        // @ts-ignore
-                        const currentConnector = connectorsByName[connectorName];
-                        const activating = currentConnector === activatingConnector;
-                        const connected = currentConnector === connector;
-                        const disabled = !triedEager || !!activatingConnector ||
-                            connected || !!error;
+            {!wrongNetwork ? <>
+                    {
+                        Object.keys(connectorsByName).map((connectorName) => {
+                            // @ts-ignore
+                            const currentConnector = connectorsByName[connectorName];
+                            const activating = currentConnector === activatingConnector;
+                            const connected = currentConnector === connector;
+                            const disabled = !triedEager || !!activatingConnector ||
+                                connected || !!error;
 
 
-                        const mobileConnectors = ['Wallet Connect', 'Coinbase Wallet'];
+                            const mobileConnectors = ['Wallet Connect', 'Coinbase Wallet'];
 
-                        const isMobileConnector =  mobileConnectors.includes(connectorName);
+                            const isMobileConnector = mobileConnectors.includes(connectorName);
 
-                        function WalletIconName(props: any) {
-                            switch (props.type) {
-                                case "MetaMask":
-                                    return !isMobile ? <MetaMaskIcon boxSize={8}/> : null;
-                                case "Coinbase Wallet":
-                                    return <CoinbaseIcon boxSize={8}/>;
-                                case "Wallet Connect":
-                                    return <WalletConnectIcon boxSize={8}/>;
-                                case "Ledger":
-                                    return !isMobile ? <LedgerIcon boxSize={8}/> : null;
-                                case "Portis":
-                                    return !isMobile ? <PortisIcon boxSize={8}/> : null;
-                                case "Fortmatic":
-                                    return <FortmaticIcon boxSize={8}/>;
-                                default:
-                                    return <MetaMaskIcon boxSize={8}/>;
+                            function WalletIconName(props: any) {
+                                switch (props.type) {
+                                    case "MetaMask":
+                                        return !isMobile ? <MetaMaskIcon boxSize={8}/> : null;
+                                    case "Coinbase Wallet":
+                                        return <CoinbaseIcon boxSize={8}/>;
+                                    case "Wallet Connect":
+                                        return <WalletConnectIcon boxSize={8}/>;
+                                    case "Ledger":
+                                        return !isMobile ? <LedgerIcon boxSize={8}/> : null;
+                                    case "Portis":
+                                        return !isMobile ? <PortisIcon boxSize={8}/> : null;
+                                    case "Fortmatic":
+                                        return <FortmaticIcon boxSize={8}/>;
+                                    default:
+                                        return <MetaMaskIcon boxSize={8}/>;
+                                }
                             }
-                        }
 
-                        if(isMobile) {
-                            return isMobileConnector ? (
-                                <Stack spacing={8}
-                                       key={connectorName}>
-                                    <Flex cursor="pointer"
-                                          p={isMobile ? 0 : 3}
-                                          mb={isMobile ? 2 : 5}
-                                          boxShadow={shadow}
-                                          rounded="lg"
-                                          _hover={{bgGradient: gradient}}
-                                          disabled={disabled}
-                                          onClick={() => {
-                                              setActivatingConnector(currentConnector);
-                                              // @ts-ignore
-                                              activate(connectorsByName[connectorName]);}}>
-                                        <Box p="4"
-                                             fontSize={20}>
-                                            {activating && (<Spinner mr={2} thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading"/>)}
-                                            {connected && !error && (
-                                                <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>)}
-                                            {connected && error && (
-                                                <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>)}
-                                            {connectorName}
-                                        </Box>
-                                        <Spacer/>
-                                        <Box p={4}>
-                                            <WalletIconName type={connectorName}/>
-                                        </Box>
-                                    </Flex>
-                                </Stack>
-                            ) : null;
+                            if (isMobile) {
+                                return isMobileConnector ? (
+                                    <Stack spacing={8}
+                                           key={connectorName}>
+                                        <Flex cursor="pointer"
+                                              p={isMobile ? 0 : 3}
+                                              mb={isMobile ? 2 : 5}
+                                              boxShadow={shadow}
+                                              rounded="lg"
+                                              _hover={{bgGradient: gradient}}
+                                              disabled={disabled}
+                                              onClick={() => {
+                                                  setActivatingConnector(currentConnector);
+                                                  // @ts-ignore
+                                                  activate(connectorsByName[connectorName]);
+                                              }}>
+                                            <Box p="4"
+                                                 fontSize={20}>
+                                                {activating && (
+                                                    <Spinner mr={2} thickness="1px" speed="0.65s" emptyColor="blue.200"
+                                                             color="teal.500" size="xs" label="loading"/>)}
+                                                {connected && !error && (
+                                                    <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>)}
+                                                {connected && error && (
+                                                    <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>)}
+                                                {connectorName}
+                                            </Box>
+                                            <Spacer/>
+                                            <Box p={4}>
+                                                <WalletIconName type={connectorName}/>
+                                            </Box>
+                                        </Flex>
+                                    </Stack>
+                                ) : null;
 
-                        }  else {
-                            return (
-                                <Stack spacing={8} key={connectorName}>
-                                    <Flex cursor="pointer" p={isMobile? 0: 3} mb={isMobile? 2: 5} boxShadow={shadow} rounded="lg"
-                                          _hover={{bgGradient: gradient}}
-                                          disabled={disabled}
-                                          onClick={() => {
-                                              setActivatingConnector(currentConnector);
-                                              // @ts-ignore
-                                              activate(connectorsByName[connectorName]);
-                                          }}>
-                                        <Box p="4" fontSize={20}>
-                                            {activating && (
-                                                <Spinner
-                                                    mr={2} thickness="1px" speed="0.65s"
-                                                    emptyColor="blue.200" color="teal.500"
-                                                    size="xs" label="loading"
-                                                />
-                                            )}
-                                            {connected && !error && (
-                                                <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>
-                                            )}
+                            } else {
+                                return (
+                                    <Stack spacing={8} key={connectorName}>
+                                        <Flex cursor="pointer" p={isMobile ? 0 : 3} mb={isMobile ? 2 : 5} boxShadow={shadow}
+                                              rounded="lg"
+                                              _hover={{bgGradient: gradient}}
+                                              disabled={disabled}
+                                              onClick={() => {
+                                                  setActivatingConnector(currentConnector);
+                                                  // @ts-ignore
+                                                  activate(connectorsByName[connectorName]);
+                                              }}>
+                                            <Box p="4" fontSize={20}>
+                                                {activating && (
+                                                    <Spinner
+                                                        mr={2} thickness="1px" speed="0.65s"
+                                                        emptyColor="blue.200" color="teal.500"
+                                                        size="xs" label="loading"
+                                                    />
+                                                )}
+                                                {connected && !error && (
+                                                    <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>
+                                                )}
 
-                                            {connected && error && (
-                                                <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>
-                                            )}
-                                            {connectorName}
-                                        </Box>
-                                        <Spacer/>
-                                        <Box p={4}>
-                                            <WalletIconName type={connectorName}/>
-                                        </Box>
-                                    </Flex>
-                                </Stack>
-                            );
-                        }})}
-            </> :
+                                                {connected && error && (
+                                                    <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>
+                                                )}
+                                                {connectorName}
+                                            </Box>
+                                            <Spacer/>
+                                            <Box p={4}>
+                                                <WalletIconName type={connectorName}/>
+                                            </Box>
+                                        </Flex>
+                                    </Stack>
+                                );
+                            }
+                        })}
+                </> :
 
-    <Stack>
+                <Stack>
                     <Button size={"md"} cursor="pointer" borderRadius={9}
-                              variant="ghost" colorScheme={bg} onClick={addNetwork}>
-                    Switch to Mumbai Network
-                </Button>
-    </Stack>
+                            variant="ghost" colorScheme={bg} onClick={addNetwork}>
+                        Switch to Mumbai Network
+                    </Button>
+                </Stack>
 
             }
 
