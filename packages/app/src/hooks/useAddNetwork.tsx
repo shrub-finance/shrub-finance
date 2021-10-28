@@ -15,7 +15,7 @@ export default function useAddNetwork ()  {
                 symbol: 'Matic',
                 decimals: 18
             },
-            rpcUrls: ['https://rpc-mumbai.matic.today'],
+            rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
             blockExplorerUrls: ['https://mumbai.polygonscan.com/']
         }]
         // @ts-ignore
