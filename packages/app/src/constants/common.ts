@@ -1,7 +1,7 @@
 import { toEthDate } from '../utils/ethMethods'
 
-const callsArr = [1.3e6, 1.6e6, 2e6];
-const putsArr = [1.2e6, 1.0e6, 0.8e6];
+const callsArr = [2e6, 2.3e6, 2.5e6, 2.7e6];
+const putsArr = [2e6, 1.8e6, 1.6e6, 1.4e6];
 const standardStrikes = {
   CALL: callsArr,
   PUT: putsArr,
@@ -12,7 +12,8 @@ const generator = {
   'SMATIC-SUSD': {
     [toEthDate(new Date('2021-11-02')).toString()] : standardStrikes,
     [toEthDate(new Date('2021-11-15')).toString()] : standardStrikes,
-    [toEthDate(new Date('2021-12-02')).toString()] : standardStrikes
+    [toEthDate(new Date('2021-12-02')).toString()] : standardStrikes,
+    [toEthDate(new Date('2022-01-02')).toString()] : standardStrikes
   }
 }
 

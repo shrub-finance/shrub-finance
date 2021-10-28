@@ -20,9 +20,10 @@ const strikeDates = [
   new Date('2021-11-02'),
   new Date('2021-11-15'),
   new Date('2021-12-02'),
+  new Date('2022-01-02'),
 ];
-const callsArr = [1.3e6, 1.6e6, 2e6];
-const putsArr = [1.2e6, 1.0e6, 0.8e6];
+const callsArr = [2e6, 2.3e6, 2.5e6, 2.7e6];
+const putsArr = [2e6, 1.8e6, 1.6e6, 1.4e6];
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -174,7 +175,7 @@ task( 'maker', 'creates limit orders')
           nonce: 0,
           price,
           fee,
-          offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60) / 1000),
+          offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60 * 8) / 1000),
         }
         const common: OrderCommon = {
           baseAsset: susdToken.address,
