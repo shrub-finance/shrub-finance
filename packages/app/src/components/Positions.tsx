@@ -34,8 +34,8 @@ import {
   NumberInputField,
   InputRightElement,
   Stack,
-  useRadioGroup, Tooltip, Divider
-} from '@chakra-ui/react';
+  useRadioGroup, Tooltip, Divider, StatArrow, StatHelpText,
+} from '@chakra-ui/react'
 import {
   depositEth,
   depositToken,
@@ -48,8 +48,8 @@ import {
   getLockedBalance,
   getAllowance,
   getBlockNumber,
-  getWalletBalance, formatDate, optionTypeToNumber, exerciseLight
-} from '../utils/ethMethods';
+  getWalletBalance, formatDate, optionTypeToNumber, exerciseLight, getOrderStack,
+} from '../utils/ethMethods'
 import {OrderCommon, ShrubBalance, SmallOrder, SupportedCurrencies} from '../types';
 import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
@@ -159,14 +159,16 @@ function Positions() {
       return common;
     }
     for (const userOption of shrubfolioData.user.activeUserOptions) {
+      const orderStack = getOrderStack(userOption);
       const { balance, option, buyOrders, sellOrders} = userOption
       const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice, id: optionId } = option;
       const { symbol: baseAssetSymbol } = baseAsset;
       const { symbol: quoteAssetSymbol } = quoteAsset;
 
-      const pair = `${quoteAssetSymbol}/${baseAssetSymbol}`;
       const expiry = formatDate(expiryRaw);
       const amount = balance;
+      const pair = `${quoteAssetSymbol} ${optionType}`;
+      const pair2 = `${Number(strike).toLocaleString(undefined, {style: 'currency', currency: 'USD'})} ${expiry}`;
 
       const common = graphqlOptionToOrderCommon(option);
 
@@ -175,24 +177,41 @@ function Positions() {
       hasOptions.current = true;
       tableRowsOptions.push(
         <Tr key={optionId}>
-          <Td>{pair}</Td>
-          <Td fontSize={'sm'} fontWeight={'bold'}>{`${strike} ${expiry} ${optionType}`}</Td>
+          <Td fontWeight={'bold'} fontSize={"xs"}>
+            <Box>{pair}</Box>
+            <Box>{pair2}</Box>
+          </Td>
+          <Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
           <Td>{amount}</Td>
+          <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
           <Td>
-            {amount > 0 ? <Button
-              colorScheme="teal"
-              size="xs"
-              onClick={() => handleClickExercise(pair, common, amount)}
-            >
-              Exercise
-            </Button> : Number(amount) === 0 ? <Button
-              variant={"ghost"}
-              isDisabled={true}
-              colorScheme="teal"
-              size="xs"
-            >
-              Exercised
-            </Button> : ''
+            <Box>
+              <StatHelpText>
+                {
+                  !!orderStack.totalUnrealizedGain && <StatArrow type={orderStack.totalUnrealizedGain > 0 ? "increase" : "decrease"} />
+                }
+                {orderStack.totalUnrealizedGain.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}
+              </StatHelpText>
+            </Box>
+            {amount >= 0 && <Box pt={4}>
+              <Button
+                colorScheme="teal"
+                variant={"link"}
+                size="sm"
+                onClick={() => handleClickExercise(pair, common, amount)}
+              >
+                Exercise
+              {/*  Old Exercised logic */}
+              {/*</Button>Number(amount) === 0 ? <Button*/}
+              {/*  variant={"ghost"}*/}
+              {/*  isDisabled={true}*/}
+              {/*  colorScheme="teal"*/}
+              {/*  size="xs"*/}
+              {/*>*/}
+              {/*  Exercised*/}
+              {/*</Button>*/}
+              </Button>
+            </Box>
             }
           </Td>
         </Tr>
@@ -471,12 +490,11 @@ function Positions() {
           (<Table variant="simple" size="lg">
             <Thead>
               <Tr>
-                <Th>Pair</Th>
-                <Th>Option Type</Th>
-                <Th>Amount</Th>
-                <Th>
-                  <VisuallyHidden/>
-                </Th>
+                <Th color={"gray.400"}>Position</Th>
+                <Th color={"gray.400"}>Balance</Th>
+                <Th color={"gray.400"}>Qty</Th>
+                <Th color={"gray.400"}>Price</Th>
+                <Th color={"gray.400"}>Gain/Loss</Th>
               </Tr>
             </Thead>
             <Tbody>{optionsRows}</Tbody>
