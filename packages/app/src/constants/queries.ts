@@ -49,6 +49,7 @@ export const ORDER_HISTORY_QUERY = gql`
             id
             userOptions(orderBy:nonce,orderDirection:desc){
                 option{
+                    id
                     baseAsset{symbol}
                     quoteAsset{symbol}
                     expiry
@@ -123,7 +124,7 @@ export const ORDER_HISTORY_QUERY = gql`
 export const SHRUBFOLIO_QUERY = gql`
     query Shrubfolio($id: ID){
         user(id:$id){
-            activeUserOptions(where:{balance_not:0}){
+            activeUserOptions(where:{balance_not:0}, orderBy: balance, orderDirection: desc){
                 balance
                 option{
                     id
@@ -141,6 +142,8 @@ export const SHRUBFOLIO_QUERY = gql`
                     tradable
                     fullyMatched
                     matches{
+                        id
+                        block
                         size
                         finalPrice
                         finalPricePerContract
@@ -155,6 +158,8 @@ export const SHRUBFOLIO_QUERY = gql`
                     tradable
                     fullyMatched
                     matches{
+                        id
+                        block
                         size
                         finalPrice
                         finalPricePerContract

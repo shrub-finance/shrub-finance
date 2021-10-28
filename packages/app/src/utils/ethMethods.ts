@@ -31,6 +31,7 @@ const HASH_UTIL_CONTRACT_ADDRESS = process.env.REACT_APP_HASH_UTIL_ADDRESS || ""
 const SUSD_TOKEN_ADDRESS = process.env.REACT_APP_SUSD_TOKEN_ADDRESS || "";
 const FAUCET_CONTRACT_ADDRESS = process.env.REACT_APP_FAUCET_ADDRESS || "";
 const ZERO_ADDRESS = ethers.constants.AddressZero;
+const { Zero } = ethers.constants;
 const COMMON_TYPEHASH = ethers.utils.id('OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const ORDER_TYPEHASH = ethers.utils.id('Order(uint size, address signer, bool isBuy, uint nonce, uint price, uint offerExpire, uint fee, address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)');
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
@@ -294,39 +295,7 @@ export async function buyFromFaucet(
   return faucetContract.buyFromFaucet(tokenContractAddress, { value: amount })
 };
 
-export async function sellToFaucet() {};
-
-export function iOrderToSmall(order: IOrder) {
-  const { size, isBuy, nonce, price, offerExpire, fee } = order;
-  return {
-    size,
-    isBuy,
-    nonce,
-    price,
-    offerExpire,
-    fee,
-  } as SmallOrder;
-}
-
-export function iOrderToCommon(order: IOrder) {
-  const { baseAsset, quoteAsset, expiry, strike, optionType } = order;
-  return {
-    baseAsset,
-    quoteAsset,
-    expiry,
-    strike,
-    optionType,
-  } as OrderCommon;
-}
-
-export function iOrderToSig(order: IOrder) {
-  const { v, r, s } = order;
-  return {
-    v,
-    r,
-    s,
-  } as Signature;
-}
+export async function sellToFaucet() {}
 
 export async function getAddressFromSignedOrder(order: IOrder, provider: JsonRpcProvider) {
   const sig = iOrderToSig(order);
@@ -654,17 +623,6 @@ export function hashOrderCommon(common: OrderCommon) {
   return ethers.utils.solidityKeccak256(['bytes32', 'address', 'address', 'uint', 'uint', 'uint8'],[COMMON_TYPEHASH, baseAsset, quoteAsset, expiry, strike, optionType]);
 }
 
-export function iOrderToPostOrder(order: IOrder): PostOrder {
-  const { strike, size, price, fee } = order;
-  return {
-    ...order,
-    strike: strike.toString(),
-    size: size.toString(),
-    price: price.toString(),
-    fee: fee.toString(),
-  }
-}
-
 export function unboundToBoundOptionType(unboundOptionType: number): 0 | 1 {
   return unboundOptionType ? 1 : 0;
 }
@@ -694,6 +652,187 @@ export function formatDate(date: number | Date) {
     return date.toLocaleDateString('en-us', {month: "short", day: "numeric"})
   }
   return fromEthDate(date).toLocaleDateString('en-us', {month: "short", day: "numeric"})
+}
+
+export function shortOptionName(order: Pick<AppOrder, 'optionAction' | 'formattedSize' | 'optionType' | 'formattedStrike' | 'formattedExpiry'>) {
+  const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
+  return `${optionAction} ${formattedSize}x${optionType}${formattedExpiry}$${formattedStrike}`
+}
+
+export function orderStatus(order: AppOrderSigned, userPairNonce: number, matchedOrders: any, date?: Date): 'expired'|'cancelled'|'completed'|'active' {
+  if (!date) {
+    date = new Date();
+  }
+  const { baseAsset, quoteAsset, fee, expiry, optionType, strike, nonce, offerExpire, totalPrice, size, optionAction } = order
+  const matchArr: AppOrder[] = optionAction === 'BUY' ? matchedOrders.buy : matchedOrders.sell;
+  if (matchArr.find((o) => {
+    return baseAsset === o.baseAsset &&
+      quoteAsset === o.quoteAsset &&
+      fee.eq(o.fee) &&
+      expiry.getTime() === o.expiry.getTime() &&
+      optionType === o.optionType &&
+      strike.eq(o.strike) &&
+      nonce === o.nonce &&
+      offerExpire.getTime() === o.offerExpire.getTime() &&
+      totalPrice.eq(o.totalPrice) &&
+      size.eq(o.size) &&
+      optionAction === o.optionAction;
+  })) {
+    return 'completed'
+  }
+  if (order.offerExpire < date) {
+    return 'expired';
+  }
+  console.log(nonce, userPairNonce);
+  if (nonce <= userPairNonce) {
+    return 'cancelled';
+  }
+  return 'active';
+}
+
+export function getBlockNumber(provider: JsonRpcProvider) {
+  return provider.getBlockNumber();
+}
+
+export function getOrderStack(userOptionResult: any) {
+  const { balance, option, buyOrders, sellOrders } = userOptionResult;
+  const { lastPrice } = option
+  const bigLastPrice = ethers.utils.parseUnits(lastPrice, 18);
+  let runningBalance = Zero;
+  const orderStack = [];
+  const matches = [];
+  for (const buyOrder of buyOrders) {
+    for (const match of buyOrder.matches) {
+      matches.push({...match, type: 'buy'})
+    }
+  }
+  for (const sellOrder of sellOrders) {
+    for (const match of sellOrder.matches) {
+      matches.push({...match, type: 'sell'})
+    }
+  }
+  const sortedMatches = matches.sort((a: any, b:any) => a.block - b.block);
+  for (const match of sortedMatches) {
+    const { finalPrice, finalPricePerContract, size, totalFee, type, block, id: matchId } = match;
+    let remainingSize = ethers.utils.parseUnits(size, 6);
+    let remainingFinalPrice = ethers.utils.parseUnits(finalPrice, 18);
+    if (type === 'sell') {
+      remainingSize = remainingSize.mul(-1);
+      remainingFinalPrice = remainingFinalPrice.mul(-1);
+    }
+    if (
+      (type === 'sell' && runningBalance.gt(0)) ||
+      (type === 'buy' && runningBalance.lt(0))
+    ) {
+      // If type is sell and runningBalance is positive or
+      // if type is buy and runningBalance is negative then
+      // the order should be used to work through the stack in a FIFO manner to realize gains/losses
+      // any remainder of this should be added to a new stack
+
+      const unrealizedStack = orderStack.filter(o => !o.unrealizedSize.eq(Zero));
+      for (const stackElem of unrealizedStack) {
+        if (stackElem.unrealizedSize.abs().lte(remainingSize.abs())) {
+          // Case: stackElem will become fully realized
+          const amount = stackElem.unrealizedSize;
+          const partialCostBasis = amount.mul(stackElem.pricePerContract).div(1e6);
+          const partialSalePrice = amount.mul(finalPricePerContract).div(1e6);
+          const realizedGain = type === 'buy' ? partialCostBasis.sub(partialSalePrice): partialSalePrice.sub(partialCostBasis);
+          stackElem.realizedSize = type === 'buy' ? stackElem.realizedSize.sub(amount) : stackElem.realizedSize.add(amount);
+          stackElem.unrealizedSize = Zero;
+          stackElem.realizedGain = stackElem.realizedGain.add(realizedGain);
+          stackElem.unrealizedGain = Zero;
+          stackElem.realizedCostBasis = stackElem.realizedCostBasis.add(partialCostBasis);
+          stackElem.realizedMatches.push(matchId);
+          remainingSize = remainingSize.sub(amount);
+          remainingFinalPrice = remainingFinalPrice.sub(partialSalePrice);
+          runningBalance = runningBalance.sub(amount)
+        } else {
+          // Case: stackElem will be partially realized - match totally consumed
+          const partialCostBasis = remainingSize.mul(stackElem.pricePerContract).div(1e6)
+          const realizedGain = type === 'buy' ? partialCostBasis.sub(remainingFinalPrice) : remainingFinalPrice.sub(partialCostBasis);
+          stackElem.realizedSize = type === 'buy' ? stackElem.realizedSize.sub(remainingSize) : stackElem.realizedSize.add(remainingSize);
+          stackElem.unrealizedSize = type === 'buy' ? stackElem.unrealizedSize.add(remainingSize) : stackElem.unrealizedSize.sub(remainingSize);
+          stackElem.realizedGain = stackElem.realizedGain.add(realizedGain);
+          stackElem.unrealizedGain = Zero // This is to be filled in at the end;
+          stackElem.realizedCostBasis = stackElem.realizedCostBasis.add(partialCostBasis);
+          stackElem.realizedMatches.push(matchId);
+          remainingSize = Zero;
+          runningBalance = runningBalance.add(remainingSize);
+          break;
+        }
+      }
+    }
+    // if there is remainingSize - a new record should be added to the stack
+    if (remainingSize.eq(Zero)) {
+      break;
+    }
+    runningBalance = runningBalance.add(remainingSize)
+    orderStack.push({
+      blockNumber: block,
+      size: remainingSize,
+      totalPrice: remainingFinalPrice,
+      pricePerContract: ethers.utils.parseUnits(finalPricePerContract, 18),
+      realizedSize: Zero,
+      realizedGain: Zero,
+      realizedCostBasis: Zero,
+      unrealizedSize: remainingSize,
+      unrealizedGain: Zero, // This is to be filled in at the end
+      realizedMatches: ['']
+    })
+  }
+  // Calculate unrealized gain/loss
+  let totalRealizedCostBasis = Zero;
+  let totalUnrealizedCostBasis = Zero;
+  let totalRealizedGain = Zero;
+  let totalUnrealizedGain = Zero;
+  let totalValue = balance * lastPrice;
+  for (const stackElem of orderStack) {
+    if (!stackElem.unrealizedSize.eq(Zero)) {
+      const unrealizedCostBasis = stackElem.totalPrice.abs().sub(stackElem.realizedCostBasis);
+      const lastValue = stackElem.unrealizedSize.mul(bigLastPrice).div(1e6)
+      stackElem.unrealizedGain = stackElem.unrealizedSize.gt(0) ? lastValue.sub(unrealizedCostBasis) : unrealizedCostBasis.add(lastValue);
+      totalUnrealizedCostBasis = totalUnrealizedCostBasis.add(unrealizedCostBasis);
+      totalUnrealizedGain = totalUnrealizedGain.add(stackElem.unrealizedGain);
+    }
+    totalRealizedCostBasis = totalRealizedCostBasis.add(stackElem.realizedCostBasis);
+    totalRealizedGain = totalRealizedGain.add(stackElem.realizedGain);
+  }
+
+  return {
+    totalRealizedCostBasis: ethers.utils.formatUnits(totalRealizedCostBasis, 18),
+    totalRealizedGain: ethers.utils.formatUnits(totalRealizedGain, 18),
+    totalUnrealizedCostBasis: ethers.utils.formatUnits(totalUnrealizedCostBasis, 18),
+    totalUnrealizedGain: Number(ethers.utils.formatUnits(totalUnrealizedGain, 18)),
+    amount: balance,
+    lastPrice: Number(lastPrice),
+    totalValue,
+    orderStack
+  };
+}
+
+// Order Conversion
+
+export function matchEventToAppOrder(userEvent: any, orderType: SellBuy) {
+  const { args } = userEvent;
+  const { common, user: address } = args;
+  const order = orderType === 'BUY' ? args.buyOrder : args.sellOrder;
+  const { baseAsset, quoteAsset, strike } = common;
+  const { size, fee } = order;
+  const expiry = fromEthDate(common.expiry.toNumber());
+  const optionType = optionTypeToString(common.optionType);
+  const formattedExpiry = expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"});
+  const formattedStrike = ethers.utils.formatUnits(strike, 6);  // Need to divide by 1M to get the actual strike
+  const nonce = order.nonce.toNumber();
+  const formattedSize = ethers.utils.formatUnits(size, 18);
+  const optionAction = isBuyToOptionAction(order.isBuy);
+  const totalPrice = ethers.BigNumber.from(order.price);
+  const unitPrice = Number(ethers.utils.formatUnits(totalPrice, 18)) / Number(formattedSize);
+  const offerExpire = fromEthDate(order.offerExpire.toNumber());
+  const formattedFee = ethers.utils.formatUnits(fee, 18);
+  const appOrderSignedNumbered: AppOrder = {
+    baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, address
+  }
+  return appOrderSignedNumbered;
 }
 
 export function transformOrderApiApp(order: ApiOrder): AppOrderSigned {
@@ -738,65 +877,47 @@ export function transformOrderAppChain(order: AppOrderSigned): IOrder {
   }
 }
 
-export function shortOptionName(order: Pick<AppOrder, 'optionAction' | 'formattedSize' | 'optionType' | 'formattedStrike' | 'formattedExpiry'>) {
-  const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
-  return `${optionAction} ${formattedSize}x${optionType}${formattedExpiry}$${formattedStrike}`
+export function iOrderToPostOrder(order: IOrder): PostOrder {
+  const { strike, size, price, fee } = order;
+  return {
+    ...order,
+    strike: strike.toString(),
+    size: size.toString(),
+    price: price.toString(),
+    fee: fee.toString(),
+  }
 }
 
-export function orderStatus(order: AppOrderSigned, userPairNonce: number, matchedOrders: any, date?: Date): 'expired'|'cancelled'|'completed'|'active' {
-  if (!date) {
-    date = new Date();
-  }
-  const { baseAsset, quoteAsset, fee, expiry, optionType, strike, nonce, offerExpire, totalPrice, size, optionAction } = order
-  const matchArr: AppOrder[] = optionAction === 'BUY' ? matchedOrders.buy : matchedOrders.sell;
-  if (matchArr.find((o) => {
-    return baseAsset === o.baseAsset &&
-      quoteAsset === o.quoteAsset &&
-      fee.eq(o.fee) &&
-      expiry.getTime() === o.expiry.getTime() &&
-      optionType === o.optionType &&
-      strike.eq(o.strike) &&
-      nonce === o.nonce &&
-      offerExpire.getTime() === o.offerExpire.getTime() &&
-      totalPrice.eq(o.totalPrice) &&
-      size.eq(o.size) &&
-      optionAction === o.optionAction;
-  })) {
-    return 'completed'
-  }
-  if (order.offerExpire < date) {
-    return 'expired';
-  }
-  console.log(nonce, userPairNonce);
-  if (nonce <= userPairNonce) {
-    return 'cancelled';
-  }
-  return 'active';
+export function iOrderToSmall(order: IOrder) {
+  const { size, isBuy, nonce, price, offerExpire, fee } = order;
+  return {
+    size,
+    isBuy,
+    nonce,
+    price,
+    offerExpire,
+    fee,
+  } as SmallOrder;
 }
 
-export function matchEventToAppOrder(userEvent: any, orderType: SellBuy) {
-  const { args } = userEvent;
-  const { common, user: address } = args;
-  const order = orderType === 'BUY' ? args.buyOrder : args.sellOrder;
-  const { baseAsset, quoteAsset, strike } = common;
-  const { size, fee } = order;
-  const expiry = fromEthDate(common.expiry.toNumber());
-  const optionType = optionTypeToString(common.optionType);
-  const formattedExpiry = expiry.toLocaleDateString('en-us', {month: "short", day: "numeric"});
-  const formattedStrike = ethers.utils.formatUnits(strike, 6);  // Need to divide by 1M to get the actual strike
-  const nonce = order.nonce.toNumber();
-  const formattedSize = ethers.utils.formatUnits(size, 18);
-  const optionAction = isBuyToOptionAction(order.isBuy);
-  const totalPrice = ethers.BigNumber.from(order.price);
-  const unitPrice = Number(ethers.utils.formatUnits(totalPrice, 18)) / Number(formattedSize);
-  const offerExpire = fromEthDate(order.offerExpire.toNumber());
-  const formattedFee = ethers.utils.formatUnits(fee, 18);
-  const appOrderSignedNumbered: AppOrder = {
-    baseAsset, quoteAsset, expiry, strike, optionType, formattedExpiry, formattedStrike, formattedSize, optionAction, nonce, unitPrice, offerExpire, fee, size, totalPrice, formattedFee, address
-  }
-  return appOrderSignedNumbered;
+export function iOrderToCommon(order: IOrder) {
+  const { baseAsset, quoteAsset, expiry, strike, optionType } = order;
+  return {
+    baseAsset,
+    quoteAsset,
+    expiry,
+    strike,
+    optionType,
+  } as OrderCommon;
 }
 
-export function getBlockNumber(provider: JsonRpcProvider) {
-  return provider.getBlockNumber();
+export function iOrderToSig(order: IOrder) {
+  const { v, r, s } = order;
+  return {
+    v,
+    r,
+    s,
+  } as Signature;
 }
+
+// End Order Conversion
