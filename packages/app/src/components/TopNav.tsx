@@ -38,6 +38,7 @@ function TopNav() {
   const { isOpen: isFaucetModalOpen, onOpen: onFaucetModalOpen, onClose: onFaucetModalClose } = useDisclosure();
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
+  const spinnerBg = useColorModeValue("white","cyan.500")
   const {active, error: web3Error} = useConnectWallet();
   const {chainId} = useWeb3React();
   const [isHidden, setIsHidden] = useState(false);
@@ -52,6 +53,7 @@ function TopNav() {
   const topNavShadow = useColorModeValue("md", "md");
   const topNavBgColor = useColorModeValue("white", "shrub.100");
 
+  const bg = useColorModeValue("green", "teal")
 function handleModalClose() {
     onClose();
     displayStatus(false);
@@ -70,10 +72,7 @@ function handleModalClose() {
 
   return (
     <Box>
-      <Box
-          shadow={topNavShadow}
-          bg={topNavBgColor}
-          px={4}>
+      <Box shadow={topNavShadow} bg={topNavBgColor} px={4}  >
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={8} alignItems={"center"}>
             <Link as={ReachLink} to={'/'} >
@@ -92,20 +91,21 @@ function handleModalClose() {
             <Box onClick={onOpen}
                  mr={isMobile ? '19.5': '0'}
             >
-              <Button variant={"outline"} colorScheme={!!web3Error ? "red":"teal"}
+              {/*connect wallet button*/}
+              <Button variant={"solid"} colorScheme={!!web3Error ? "red": "yellow"}
                   size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?
                     <InfoOutlineIcon colorScheme="red"/> : undefined}> {!!web3Error && !active ?
                     getErrorMessage(web3Error).title :
                       confirmingCountNumber > 0 ?
-                        <><Spinner thickness="1px" speed="0.65s" color="cyan.500" size="xs" mr={2} />
+                        <><Spinner thickness="1px" speed="0.65s" color={spinnerBg} size="xs" mr={2} />
                           {confirmingCountNumber} Pending...</> :
                         <Account/>}
               </Button>
             </Box>
-              {!isMobile && <Box display={{ base: "none", sm: "none", md: "flex" }} onClick={onFaucetModalOpen}>
-              <Button variant={"solid"} colorScheme={ "gray"}
-                      size={"md"} mr={4} borderRadius="full">Get Test Tokens</Button>
-            </Box>}
+            {/*  {!isMobile && <Box display={{ base: "none", sm: "none", md: "flex" }} onClick={onFaucetModalOpen}>*/}
+            {/*  <Button variant={"solid"} colorScheme={ "gray"}*/}
+            {/*          size={"md"} mr={4} borderRadius="full">Test Faucet</Button>*/}
+            {/*</Box>}*/}
             <IconButton variant="unstyled"
             icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label={"Open Menu"} display={{ md: "none" }}
@@ -117,8 +117,7 @@ function handleModalClose() {
           </Flex>
         </Flex>
 
-        {
-          isMenuOpen ? (
+        {isMenuOpen ? (
             <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={3}>
                 {NavRoutes.map((route) =>
@@ -139,19 +138,18 @@ function handleModalClose() {
                 {colorMode === "light" ? <MoonIcon mr={'2'}/> : <SunIcon mr={'2'}/>}
                 {colorMode === "light" ? 'Dark Mode' : 'Light Mode'}
               </Box>
-              {testEnvironment(chainId) &&
-              <Box
-                  onClick={onFaucetModalOpen}
-                  size={"md"}
-                  cursor="pointer"
-                  rounded="lg"
-                  py={'3'}
-                  px={'2'}
-                 >
-                <Button variant="solid" colorScheme={ "gray"}>Get Test Tokens</Button>
-              </Box>
-
-              }
+              {/*{testEnvironment(chainId) &&*/}
+              {/*<Box*/}
+              {/*    onClick={onFaucetModalOpen}*/}
+              {/*    size={"md"}*/}
+              {/*    cursor="pointer"*/}
+              {/*    rounded="lg"*/}
+              {/*    py={'3'}*/}
+              {/*    px={'2'}*/}
+              {/*   >*/}
+              {/*  <Button variant="solid" colorScheme={ "gray"}>Buy Test Shrub Tokens</Button>*/}
+              {/*</Box>*/}
+              {/*}*/}
             </Stack>
             </Box>
         ) : null
@@ -168,7 +166,7 @@ function handleModalClose() {
           <ModalCloseButton />
           <ModalBody>
             {!active || isHidden? <ConnectWalletModal/> : !isHidden &&<ConnectionStatus displayStatus={displayStatus}/>}
-            <TxStatusList/>
+            { !(web3Error && getErrorMessage(web3Error).title === "Wrong Network") && <TxStatusList/>}
           </ModalBody>
         </ModalContent>
       </Modal>

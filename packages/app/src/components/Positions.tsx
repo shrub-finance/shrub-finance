@@ -105,6 +105,8 @@ function Positions() {
 
   const SHRUB_CURRENCIES = ['SMATIC', 'SUSD'];
 
+  const btnBg = useColorModeValue("green", "teal");
+
   const { loading:shrubfolioLoading, error:shrubfolioError, data:shrubfolioData } = useQuery(SHRUBFOLIO_QUERY, {
     variables: {
       id: account && account.toLowerCase()
@@ -195,7 +197,7 @@ function Positions() {
             </Box>
             {amount >= 0 && <Box pt={4}>
               <Button
-                colorScheme="teal"
+                colorScheme={btnBg}
                 variant={"link"}
                 size="sm"
                 onClick={() => handleClickExercise(pair, common, amount)}
@@ -205,7 +207,7 @@ function Positions() {
               {/*</Button>Number(amount) === 0 ? <Button*/}
               {/*  variant={"ghost"}*/}
               {/*  isDisabled={true}*/}
-              {/*  colorScheme="teal"*/}
+              {/*  colorScheme={btnBg}*/}
               {/*  size="xs"*/}
               {/*>*/}
               {/*  Exercised*/}
@@ -297,7 +299,7 @@ function Positions() {
             </Box>
           </Flex>
           <Divider
-            _last={{display: "none"}}
+            // _last={{display: "none"}}
           />
         </div>
       );
@@ -332,26 +334,7 @@ function Positions() {
       })
 
   }
-  // async function handleClickExercise(pair: string, strike: string, expiry: string, optionType: string, amount: number) {
-  //   try {
-  //     const key = `${pair}${strike}${expiry}${optionType}`
-  //     const {common, buyOrder, seller} = orderMap.get(key);
-  //     const unsignedOrder = {...common, ...buyOrder};
-  //     const signedOrder = await signOrder(unsignedOrder, library)
-  //     const tx = await exercise(signedOrder, seller, library)
-  //     const description = `Exercise ${pair} ${optionType} option for $${amount * Number(strike)} at strike $${strike}`
-  //     pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
-  //     const receipt = await tx.wait()
-  //     const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
-  //     toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
-  //     pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
-  //     return tx;
-  //   } catch (e) {
-  //     console.error(e);
-  //     handleErrorMessages({err:e});
-  //   }
-  //
-  // }
+
 
   async function handleClickExercise(pair: string, common: OrderCommon, amount: string) {
     try {
@@ -471,11 +454,11 @@ function Positions() {
       {/*withdraw deposit buttons*/}
       <Container mt={50} flex="1" borderRadius="2xl" maxW="container.md">
         <Center>
-        <Button colorScheme="teal" variant="outline" borderRadius="full"
+        <Button colorScheme={useColorModeValue("green", "teal")} variant="outline" borderRadius="full"
             rightIcon={<BsBoxArrowLeft/>} onClick={handleWithdrawDepositModalOpen( 'Deposit')} isDisabled={!active} mr={4}>
           Deposit
         </Button>
-        <Button colorScheme="teal" variant="outline" borderRadius="full" rightIcon={<BsBoxArrowRight/>} onClick={handleWithdrawDepositModalOpen( 'Withdraw')} isDisabled={!active}>
+        <Button colorScheme={useColorModeValue("green", "teal")} variant="outline" borderRadius="full" rightIcon={<BsBoxArrowRight/>} onClick={handleWithdrawDepositModalOpen( 'Withdraw')} isDisabled={!active}>
           Withdraw
         </Button>
         </Center>
@@ -509,7 +492,7 @@ function Positions() {
                 </Box>
               </Center>
               <Center pt={6}>
-                <Button rightIcon={<IoRocketSharp/>} colorScheme="teal"
+                <Button rightIcon={<IoRocketSharp/>} colorScheme={btnBg}
                         variant="outline"
                         borderRadius={"full"} as={ReachLink} to="/options">
                   Buy Some
@@ -571,7 +554,7 @@ function Positions() {
                     <AlertIcon />
                     You will only have to approve once
                   </Alert>
-                  <Button mb={1.5} colorScheme="teal" size={"lg"} isFullWidth={true}
+                  <Button mb={1.5} colorScheme={btnBg} size={"lg"} isFullWidth={true}
                       onClick={() => {
                         if (active) {
                           handleDepositWithdraw(undefined, 'approve')
@@ -579,7 +562,7 @@ function Positions() {
                       }}>Approve</ Button>
                 </>
                 }
-                {(modalCurrency === "MATIC" || isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme="teal" isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
+                {(modalCurrency === "MATIC" || isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme={btnBg} isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
                   {withdrawDepositAction}
                 </Button>}
               </>
