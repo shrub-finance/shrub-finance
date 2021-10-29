@@ -1,4 +1,5 @@
 import {
+    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel,
     Alert,
     AlertIcon,
     Box,
@@ -416,7 +417,7 @@ const {
                 </ModalContent>
             </Modal>
 
-            <Flex>
+            <Flex direction={{ base: "column", md: "row" }}>
                 <Box id={"order form"}>
                     <Stack spacing="24px">
                         <Box mt={2} mb={8}>
@@ -441,6 +442,71 @@ const {
                                 </Tooltip>
                             </HStack>
                         </Box>
+                        <Accordion allowToggle display={{ sm: "flex", md: "none" }}>
+                            <AccordionItem>
+                                <h2>
+                                    <AccordionButton>
+                                        <Box flex="1" textAlign="left">
+                                            View Orderbook
+                                        </Box>
+                                        <AccordionIcon />
+                                    </AccordionButton>
+                                </h2>
+                                <AccordionPanel pb={4}>
+                                    <Box id={"orderbook"} ml={4}>
+                                        <Box
+                                            color={useColorModeValue("gray.500", "black")}
+                                            bgColor={useColorModeValue("gray.100", "gray.400")}
+                                            fontWeight="semibold"
+                                            letterSpacing="wide"
+                                            fontSize="xs"
+                                            ml="2"
+                                            borderRadius="md"
+                                            px="2"
+                                            py="1"
+                                        >
+                                            Sell Offers
+                                        </Box>
+                                        <Table variant={'unstyled'} size={'sm'}>
+                                            <Thead>
+                                                <Tr>
+                                                    <Th color="gray.400">Price</Th>
+                                                    <Th color="gray.400">Amount</Th>
+                                                </Tr>
+                                            </Thead>
+                                            <Tbody>
+                                                {orderbookSellRows}
+                                            </Tbody>
+                                        </Table>
+                                        <Divider/>
+                                        <Box
+                                            color={useColorModeValue("gray.500", "black")}
+                                            bgColor={useColorModeValue("gray.100", "gray.400")}
+                                            fontWeight="semibold"
+                                            letterSpacing="wide"
+                                            fontSize="xs"
+                                            ml="2"
+                                            borderRadius="md"
+                                            px="2"
+                                            py="1"
+                                        >
+                                            Buy Offers
+                                        </Box>
+                                        <Table variant={'unstyled'} size={'sm'}>
+                                            <Thead>
+                                                <Tr>
+                                                    <Th color="gray.400">Price</Th>
+                                                    <Th color="gray.400">Amount</Th>
+                                                </Tr>
+                                            </Thead>
+                                            <Tbody>
+                                                {orderbookBuyRows}
+                                            </Tbody>
+                                        </Table>
+                                    </Box>
+                                </AccordionPanel>
+                            </AccordionItem>
+                        </Accordion>
                         <Box>
                             <HStack {...groupOptionType}>
                                 <FormLabel htmlFor="orderType">Order:</FormLabel>
@@ -532,8 +598,7 @@ const {
                     </Stack>
 
                 </Box>
-
-                <Box id={"orderbook"} ml={4}>
+                <Box id={"orderbook"} ml={4} display={{ sm: "none", md: "block" }}>
                     <Box
                         color={useColorModeValue("gray.500", "black")}
                         bgColor={useColorModeValue("gray.100", "gray.400")}

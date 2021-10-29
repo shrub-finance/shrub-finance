@@ -86,7 +86,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
           <ModalCloseButton />
           <ModalHeader borderBottomWidth="1px">{currencySymbol(chainId)} Order</ModalHeader>
           <ModalBody>
-            <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' } }>
+            <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
               <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
             { (approving || activeHash) && <Txmonitor txHash={activeHash}/> }
           </ModalBody>

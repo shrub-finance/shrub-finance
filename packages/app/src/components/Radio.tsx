@@ -29,8 +29,8 @@ function RadioCard(props) {
             borderColor: useColorModeValue("green.500", "gray.400"),
             borderWidth: "1px"
         }}
-        px={8}
-        py={1.5}
+        px={{ base: 2, md: 8 }}
+        py={{ base: 1, md: 1.5 }}
       >
         {props.children}
       </Box>

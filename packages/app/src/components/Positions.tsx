@@ -299,7 +299,7 @@ function Positions() {
             </Box>
           </Flex>
           <Divider
-            // _last={{display: "none"}}
+            _last={{display: "none"}}
           />
         </div>
       );
