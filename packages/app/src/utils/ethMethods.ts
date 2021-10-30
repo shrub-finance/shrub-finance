@@ -481,7 +481,6 @@ export async function getAnnouncedEvent(provider: JsonRpcProvider, positionHash:
   if (!matchingEvents || !matchingEvents[0] || !matchingEvents[0].args) {
     return null;
   }
-  // TODO: Deal with the case where there is more than 1 match (user could announce multiple in 1 block)
   const appOrdersSigned: IndexedAppOrderSigned[] = [];
   for (const matchingEvent of matchingEvents) {
     const { transactionHash, args: event } = matchingEvent;
