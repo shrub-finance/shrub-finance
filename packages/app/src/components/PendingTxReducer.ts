@@ -4,7 +4,7 @@ export function pendingTxReducer (
 
     state: PendingTxState,
     action: PendingTxAction) {
-    const { type, txHash, status, description } = action;
+    const { type, txHash, status, description, data } = action;
     const now = new Date()
     switch (action.type) {
         case "add":
@@ -14,7 +14,7 @@ export function pendingTxReducer (
             if (!description) {
                 throw new Error('description required for add');
             }
-            state[txHash] = { description, status: 'confirming', created: now, updated: now }
+            state[txHash] = { description, status: 'confirming', created: now, updated: now, data}
             return {...state};
         case "update":
             if (!txHash) {
@@ -22,6 +22,10 @@ export function pendingTxReducer (
             }
             if (!status) {
                 throw new Error('status required for update');
+            }
+            if (data && data.blockNumber && state[txHash].data) {
+                state[txHash].data.blockNumber = data.blockNumber;
+                state[txHash].data.status = data.status;
             }
             state[txHash].status = status;
             state[txHash].updated = now;

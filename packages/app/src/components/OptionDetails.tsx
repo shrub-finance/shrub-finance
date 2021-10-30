@@ -39,7 +39,14 @@ import {
     matchOrders,
     optionActionToIsBuy,
     transformOrderAppChain,
-    validateOrderAddress, formatDate, getSymbolFor, announceOrder, iOrderToCommon, getAnnouncedEvent,
+    validateOrderAddress,
+    formatDate,
+    getSymbolFor,
+    announceOrder,
+    iOrderToCommon,
+    getAnnouncedEvent,
+    fromEthDate,
+    hashOrderCommon,
 } from '../utils/ethMethods'
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
@@ -172,14 +179,31 @@ const {
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
             const description = `Submitted limit order to ${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${price}`;
-            pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+            const orderToName = {
+                optionAction: radioOption,
+                formattedSize: amount,
+                optionType,
+                formattedStrike,
+                formattedExpiry
+            };
+            const data = {
+                txType: 'limitOrder',
+                id: '',
+                blockNumber: '',
+                orderToName,
+                positionHash: hashOrderCommon(common),
+                userAccount: account,
+                status: 'confirming',
+                pricePerContract: price
+            }
+            pendingTxsDispatch({type: 'add', txHash: tx.hash, description, data})
             setActiveHash(tx.hash);
             console.log(pendingTxsState);
             try {
                 const receipt = await tx.wait()
                 const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
-                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber, status: 'active'}})
             } catch (e) {
                 const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
@@ -335,14 +359,31 @@ const {
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
             const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
-            pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+            const orderToName = {
+                optionAction: radioOption,
+                formattedSize: amount,
+                optionType,
+                formattedStrike,
+                formattedExpiry
+            };
+            const data = {
+                txType: 'marketOrder',
+                id: '',
+                blockNumber: '',
+                orderToName,
+                positionHash: hashOrderCommon(common),
+                userAccount: account,
+                status: 'confirming',
+                pricePerContract: (Number(ethers.utils.formatUnits(accumulatedPrice)) / amount).toFixed(2),
+            }
+            pendingTxsDispatch({type: 'add', txHash: tx.hash, description, data})
             setActiveHash(tx.hash);
             console.log(pendingTxsState);
             try {
                 const receipt = await tx.wait()
                 const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
-                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber, status: 'completed'}})
             } catch (e) {
                 const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
