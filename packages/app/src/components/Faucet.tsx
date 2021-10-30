@@ -43,7 +43,7 @@ function Faucet() {
   faucetCurrencies.set('SUSD', process.env.REACT_APP_SUSD_TOKEN_ADDRESS || '')
   faucetCurrencies.set('SMATIC', process.env.REACT_APP_SMATIC_TOKEN_ADDRESS || '')
   const radioOptions = ['BUY', 'SELL']
-  const currencyArray = ['SUSD', 'SMATIC'];
+  const currencyArray = ['sUSD', 'sMATIC'];
 
   const bg = useColorModeValue("green", "teal");
 
@@ -86,20 +86,22 @@ function Faucet() {
 
   async function handleFaucet(event: any) {
     setFaucetDrop(false);
+    setLocalError('');
     try {
       if (!active || !account) {
         handleErrorMessages({customMessage: 'Please connect your wallet'});
         return;
       }
       let tx;
-      const tokenAddress = faucetCurrencies.get(modalCurrency);
+      const tokenAddress = faucetCurrencies.get((modalCurrency));
       if (!tokenAddress) {
         return;
       }
       if (option === 'BUY') {
         setIsLoading(true);
         tx = await buyFromFaucet(tokenAddress, ethers.utils.parseUnits(amountValue), library)
-        const description =  `BUYING ${modalCurrency} for ${amountValue} MATIC`;
+        const currency = modalCurrency === 'SMATIC' ? 'sMATIC' : 'sUSD';
+        const description =  `Buying ${currency} for ${amountValue} MATIC`;
         pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
         setActiveHash(tx.hash);
         try {
@@ -111,6 +113,7 @@ function Faucet() {
           setFaucetDrop(true);
         // add token to metamask
           const tokenImage = modalCurrency === "SMATIC" ? "https://shrub.finance/smatic.svg" : "https://shrub.finance/susd.svg";
+          const tokenSymbol = modalCurrency === 'SMATIC' ? 'sMATIC' : 'sUSD'
           try {
             // @ts-ignore
             window.ethereum.request({
@@ -119,7 +122,7 @@ function Faucet() {
                 type: 'ERC20',
                 options: {
                   address: tokenAddress,
-                  symbol: modalCurrency,
+                  symbol: tokenSymbol,
                   decimals: 18,
                   image: tokenImage,
                 },
@@ -192,7 +195,7 @@ const addNetwork = useAddNetwork();
                       <PopoverArrow />
                       <PopoverCloseButton />
                       <PopoverBody letterSpacing="wide">
-                        <Text> To facilitate testing with reasonable amounts of tokens, we have created SMATIC and SUSD.</Text> <Text>These represent MATIC and USD stable coin in our test environment.</Text> <Text>Options in the test environment have these as their underlying assets.</Text><Text> You may buy SMATIC and SUSD at a rate of 10,000/test MATIC.</Text>
+                        <Text> To facilitate testing with reasonable amounts of tokens, we have created sMATIC and sUSD.</Text> <Text>These represent MATIC and USD stable coin in our test environment.</Text> <Text>Options in the test environment have these as their underlying assets.</Text><Text> You may buy sMATIC and sUSD at a rate of 10,000/test MATIC.</Text>
                       </PopoverBody>
                     </PopoverContent>
                   </Popover></FormLabel>
@@ -225,7 +228,7 @@ const addNetwork = useAddNetwork();
             </Box>
             </FormControl>
             <Button mb={1.5} size={"lg"} colorScheme={bg} isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
-            Buy {modalCurrency}
+            Buy {modalCurrency === 'SUSD' ? 'sUSD' : 'sMATIC'}
             </Button>
             </>
           }

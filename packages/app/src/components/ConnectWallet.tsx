@@ -139,25 +139,30 @@ export function Balance() {
     const networkColor = chainId && NETWORK_COLORS[chainId]
     const currency = currencySymbol(chainId)
 
-    const [balance, setBalance] = useState<BigNumber>()
-    useEffect(() => {
-        async function main() {
-            if (!account || !library) {
-                return
-            }
+    const [balance, setBalance] = useState()
+    useEffect((): any => {
+        if (!!account && !!library) {
             let stale = false
-            const b = await library.getBalance(account)
-            if (!stale) {
-                setBalance(b)
-            }
+            library
+                .getBalance(account)
+                .then((balance: any) => {
+
+                    if (!stale) {
+                        setBalance(balance)
+                    }
+                })
+                .catch(() => {
+                    if (!stale) {
+                        // @ts-ignore
+                        setBalance(null)
+                    }
+                })
 
             return () => {
                 stale = true
+                setBalance(undefined)
             }
         }
-
-        main()
-            .catch(e => console.error(e))
     }, [account, library, chainId]) // ensures refresh if referential identity of library doesn't change across chainIds
 
     return (
@@ -171,12 +176,11 @@ export function Balance() {
                 borderRadius="2xl"
             >
                 {
-
-                    !balance ?
-                        '-' :
+                    balance === null ?
+                        'Error' :
                         balance
-
-                            ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC' ? 6 : 2})} ${currency}` : ''
+                            // @ts-ignore
+                            ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} ${currency}`: ''
                 }
             </Button>
             }
