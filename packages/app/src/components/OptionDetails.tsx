@@ -542,14 +542,13 @@ const {
                         </Accordion>
                         <Box>
                             <FormLabel htmlFor="amount">Amount:
-                                <Popover>
+                                <Popover trigger={"hover"}>
                                     <PopoverTrigger>
                                         <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <PopoverArrow />
-                                        <PopoverCloseButton />
-                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'xs'}>
+                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
                                             <Text> Number of contracts you want to buy or sell.</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>
                                         </PopoverBody>
                                     </PopoverContent>
@@ -565,14 +564,13 @@ const {
                         </Box>
                         <Box>
                             <FormLabel htmlFor="bid">Price per contract:
-                                <Popover>
+                                <Popover trigger={"hover"}>
                                     <PopoverTrigger>
                                         <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <PopoverArrow />
-                                        <PopoverCloseButton />
-                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'xs'}>
+                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
                                             <Text> The sUSD required to purchase 1 contract</Text>
                                             <Text>1 contract = 1 sMATIC</Text>
                                         </PopoverBody>
