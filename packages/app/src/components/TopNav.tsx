@@ -38,7 +38,7 @@ function TopNav() {
   const { isOpen: isFaucetModalOpen, onOpen: onFaucetModalOpen, onClose: onFaucetModalClose } = useDisclosure();
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  const spinnerBg = useColorModeValue("white","cyan.500")
+  const spinnerBg = useColorModeValue("black","cyan.500")
   const {active, error: web3Error} = useConnectWallet();
   const {chainId} = useWeb3React();
   const [isHidden, setIsHidden] = useState(false);

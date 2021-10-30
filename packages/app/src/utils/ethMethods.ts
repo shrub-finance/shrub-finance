@@ -656,7 +656,7 @@ export function formatDate(date: number | Date) {
 
 export function shortOptionName(order: Pick<AppOrder, 'optionAction' | 'formattedSize' | 'optionType' | 'formattedStrike' | 'formattedExpiry'>) {
   const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
-  return `${optionAction} ${formattedSize}x${optionType}${formattedExpiry}$${formattedStrike}`
+  return `${optionAction} ${formattedSize} ${optionType} ${formattedExpiry} $${formattedStrike}`
 }
 
 export function orderStatus(order: AppOrderSigned, userPairNonce: number, matchedOrders: any, date?: Date): 'expired'|'cancelled'|'completed'|'active' {

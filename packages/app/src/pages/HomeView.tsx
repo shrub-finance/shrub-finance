@@ -124,7 +124,7 @@ function HomeView(props: RouteComponentProps) {
                                     </Stack>
                                     <Stack spacing={0} align={'center'} mb={5}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
-                                            Buy SUSD with MATIC
+                                            Buy sUSD with MATIC
                                         </Heading>
                                         <List spacing={3} textAlign={"left"}>
                                             <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5} >
@@ -135,7 +135,7 @@ function HomeView(props: RouteComponentProps) {
                                             </ListItem>
                                             <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"}>
                                                 <ListIcon as={MdCheckCircle} color="green.200" />
-                                                Then, buy SUSD with it
+                                                Then, buy sUSD with it
                                                 <Popover>
                                                     <PopoverTrigger>
                                                         <Text ml="1" color={useColorModeValue("blue", "blue.200")} as="sup" cursor="pointer">Why?</Text>
@@ -144,7 +144,7 @@ function HomeView(props: RouteComponentProps) {
                                                             <PopoverArrow />
                                                             <PopoverCloseButton />
                                                             <PopoverBody letterSpacing="wide" textAlign={"left"}>
-                                                                <Text> To facilitate testing with reasonable amounts of tokens, we have created SMATIC and SUSD.</Text> <Text>These represent MATIC and USD stable coin in our test environment.</Text> <Text>Options in the test environment have these as their underlying assets.</Text><Text> You may buy SMATIC and SUSD at a rate of 10,000/test MATIC.</Text>
+                                                                <Text> To facilitate testing with reasonable amounts of tokens, we have created sMATIC and sUSD.</Text> <Text>These represent MATIC and USD stable coin in our test environment.</Text> <Text>Options in the test environment have these as their underlying assets.</Text><Text> You may buy sMATIC and sUSD at a rate of 10,000/test MATIC.</Text>
                                                             </PopoverBody>
                                                         </PopoverContent>
                                                 </Popover>
@@ -152,10 +152,10 @@ function HomeView(props: RouteComponentProps) {
                                         </List>
                                     </Stack>
                                     <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"} letterSpacing={"1px"} pb={.5}>
-                                        1 test MATIC = 10,000 SMATIC
+                                        1 test MATIC = 10,000 sMATIC
                                     </Text>
                                     <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"}   letterSpacing={"1px"}>
-                                        1 test MATIC = 10,000 SUSD
+                                        1 test MATIC = 10,000 sUSD
                                     </Text>
                                     <Button
                                         onClick={onTestTokenModalOpen}
@@ -188,10 +188,10 @@ function HomeView(props: RouteComponentProps) {
                                     </Stack>
                                     <Stack spacing={0} align={'center'} mb={5}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
-                                            Deposit SUSD
+                                            Deposit sUSD
                                         </Heading>
                                         <Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>In order
-                                            to buy Options, you need to deposit SUSD to
+                                            to buy Options, you need to deposit sUSD to
                                             the Shrub platform.</Text>
                                     </Stack>
                                     <Button

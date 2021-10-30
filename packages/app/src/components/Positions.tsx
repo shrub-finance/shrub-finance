@@ -34,7 +34,15 @@ import {
   NumberInputField,
   InputRightElement,
   Stack,
-  useRadioGroup, Tooltip, Divider, StatArrow, StatHelpText,
+  useRadioGroup,
+  Tooltip,
+  Divider,
+  StatArrow,
+  StatHelpText,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverCloseButton, PopoverBody, Popover,
 } from '@chakra-ui/react'
 import {
   depositEth,
@@ -169,7 +177,7 @@ function Positions() {
 
       const expiry = formatDate(expiryRaw);
       const amount = balance;
-      const pair = `${quoteAssetSymbol} ${optionType}`;
+      const pair = `${quoteAssetSymbol === 'SMATIC' ? 'sMATIC' : 'sUSD'} ${optionType}`;
       const pair2 = `${Number(strike).toLocaleString(undefined, {style: 'currency', currency: 'USD'})} ${expiry}`;
 
       const common = graphqlOptionToOrderCommon(option);
@@ -224,7 +232,7 @@ function Positions() {
 
   
   useEffect(() => {
-    console.log('running handleApprove');
+    // console.log('running handleApprove');
     if (!library) {
       return;
     }
@@ -268,33 +276,43 @@ function Positions() {
 
             <Box mt="1" fontSize={fluidFontAsset} fontWeight="semibold" lineHeight="tight" pl={fluidPaddingAssetL}
                  minW={fluidWidthAsset}>
-              {totalUserBalance(currency)} {currency}
+              {totalUserBalance(currency)} {currency === 'SMATIC' ? 'sMATIC' : 'sUSD'}
             </Box>
 
             <Box fontSize={fluidFontSplit} minW={fluidWidthSplit}
                  py={fluidPaddingSplitY} pl={fluidPaddingSplitL}
                  flexBasis="60">
 
-              <Box pb={2} color="gray.500" fontWeight="semibold" textTransform="uppercase">
-                {shrubBalance.locked[currency]? shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) : "--"} locked
+              <Box pb={2} color="gray.500" fontWeight="semibold">
+                {shrubBalance.locked[currency]? shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) : "--"} LOCKED
                 {!isMobile &&
-                <Text as="sup">
-                  <Tooltip p={3} label="This amount is locked as collateral" fontSize={fluidFontSplit} borderRadius="lg"
-                           bg="shrub.300" color="white">
-                    <QuestionOutlineIcon boxSize={4} pl={1}/>
-                  </Tooltip></Text>
-                }
+                <Popover trigger={"hover"}>
+                  <PopoverTrigger >
+                    <Text ml="1" as="sup" cursor="pointer"><QuestionOutlineIcon boxSize={4} pl={1}/></Text>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverBody letterSpacing="wide">
+                      <Text> This amount is locked as collateral</Text>
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>}
               </Box>
 
-              <Box color="gray.500" fontWeight="semibold" textTransform="uppercase">
-                {shrubBalance.available[currency] ? shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}): "--"} unlocked
+              <Box color="gray.500" fontWeight="semibold">
+                {shrubBalance.available[currency] ? shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}): "--"} UNLOCKED
                 {!isMobile &&
-                <Text as="sup">
-                  <Tooltip p={3} label="This amount is available for you to spend or withdraw" fontSize={fluidFontSplit}
-                           borderRadius="lg" bg="shrub.300" color="white">
-                    <QuestionOutlineIcon boxSize={4} pl={1}/>
-                  </Tooltip>
-                </Text>}
+                <Popover trigger={"hover"}>
+                  <PopoverTrigger >
+                    <Text ml="1" as="sup" cursor="pointer"><QuestionOutlineIcon boxSize={4} pl={1}/></Text>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverBody letterSpacing="wide">
+                      <Text> This amount is available for you to spend or withdraw</Text>
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>}
               </Box>
             </Box>
           </Flex>
@@ -528,7 +546,7 @@ function Positions() {
                       const radio = getRadioProps({ value })
                       return (
                           <RadioCard key={value} {...radio}>
-                            {value}
+                            {value === 'SMATIC' ? 'sMATIC' : 'sUSD'}
                           </RadioCard>
                       )
                     })}
