@@ -507,7 +507,7 @@ export async function getAnnouncedEvent(provider: JsonRpcProvider, positionHash:
   return appOrderSigned;
 }
 
-export function subscribeToAnnouncements(provider: JsonRpcProvider, positionHash: BytesLike, user: string | null, callback: any) {
+export function subscribeToAnnouncements(provider: JsonRpcProvider, positionHash: BytesLike | null, user: string | null, callback: any) {
   const shrubContract = getShrubContract(provider);
   const filter = shrubContract.filters.OrderAnnounce(null, positionHash, user);
   shrubContract.on(filter, (common,positionHash,user, order,sig,eventInfo) => callback({common, positionHash, user, order, sig, eventInfo}));

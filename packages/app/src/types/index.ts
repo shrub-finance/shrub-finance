@@ -10,11 +10,11 @@ export type PendingStatuses = 'pending'|'confirming'|'confirmed'|'failed'
 
 export type BinaryNumber = 0 | 1;
 
-export type PendingTxState = {[txHash: string]: { description: string, status: PendingStatuses, created: Date, updated: Date}}
+export type PendingTxState = {[txHash: string]: { description: string, status: PendingStatuses, created: Date, updated: Date, data?: any}}
 
 export type LastOrders = {[positionHash: string]: number}
 
-export type PendingTxAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses}
+export type PendingTxAction = { type: 'add'|'update'|'clear', txHash?: string, description?: string, status?: PendingStatuses, data?: any}
 
 export type SupportedCurrencies = 'MATIC'|'SMATIC'|'SUSD'
 
