@@ -43,7 +43,7 @@ function Faucet() {
   faucetCurrencies.set('SUSD', process.env.REACT_APP_SUSD_TOKEN_ADDRESS || '')
   faucetCurrencies.set('SMATIC', process.env.REACT_APP_SMATIC_TOKEN_ADDRESS || '')
   const radioOptions = ['BUY', 'SELL']
-  const currencyArray = ['sUSD', 'sMATIC'];
+  const currencyArray = ['SUSD', 'SMATIC'];
 
   const bg = useColorModeValue("green", "teal");
 
@@ -204,7 +204,7 @@ const addNetwork = useAddNetwork();
                       const radio = getRadioProps({ value })
                       return (
                           <RadioCard key={value} {...radio}>
-                            {value}
+                            {value === 'SMATIC' ? 'sMATIC' : 'sUSD'}
                           </RadioCard>
                       )
                     })}
@@ -224,7 +224,7 @@ const addNetwork = useAddNetwork();
             <FormControl id="tokenAmount">
             <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Test Shrub token you get for {invalidEntry ? '' : amountValue} test MATIC</FormLabel>
             <Box fontWeight={"bold"} fontSize={"lg"} bg={bgColor} p={3} borderRadius={6} color="black">
-              { modalCurrency === "SMATIC" ? <PolygonIcon/> : <SUSDIcon/> } {invalidEntry ? '?' : format((10000 * Number(amountValue)).toString())} {modalCurrency}
+              { modalCurrency === "SMATIC" ? <PolygonIcon/> : <SUSDIcon/> } {invalidEntry ? '?' : format((10000 * Number(amountValue)).toString())} {modalCurrency === "SMATIC" ? 'sMATIC' : 'sUSD'}
             </Box>
             </FormControl>
             <Button mb={1.5} size={"lg"} colorScheme={bg} isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
