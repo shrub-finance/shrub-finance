@@ -257,8 +257,6 @@ function OptionsView(props: RouteComponentProps) {
         setOptionRows(tempOptionRows);
     }, [summaryData, strikePrices])
 
-    const explorerColor = useColorModeValue("green", "teal.300");
-
     // On Change of user order history data
     useEffect(() => {
         const tempUserOrderRows: JSX.Element[] = [];
@@ -316,7 +314,7 @@ function OptionsView(props: RouteComponentProps) {
                 tempUserOrderRows.push(
                     <Tr key={id}>
                         <Td>
-                            <Link color={explorerColor} fontSize={"xs"}
+                            <Link color="teal.400" fontSize={"xs"}
                                   href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)} isExternal>
                                 {blockNumber} <ExternalLinkIcon mx="2px" mb="3px"/>
                             </Link>

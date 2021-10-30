@@ -285,13 +285,13 @@ function Positions() {
 
               <Box pb={2} color="gray.500" fontWeight="semibold">
                 {shrubBalance.locked[currency]? shrubBalance.locked[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}) : "--"} LOCKED
-                {!isMobile && <Popover>
-                  <PopoverTrigger>
+                {!isMobile &&
+                <Popover trigger={"hover"}>
+                  <PopoverTrigger >
                     <Text ml="1" as="sup" cursor="pointer"><QuestionOutlineIcon boxSize={4} pl={1}/></Text>
                   </PopoverTrigger>
                   <PopoverContent>
                     <PopoverArrow />
-                    <PopoverCloseButton />
                     <PopoverBody letterSpacing="wide">
                       <Text> This amount is locked as collateral</Text>
                     </PopoverBody>
@@ -301,13 +301,13 @@ function Positions() {
 
               <Box color="gray.500" fontWeight="semibold">
                 {shrubBalance.available[currency] ? shrubBalance.available[currency].toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2}): "--"} UNLOCKED
-                {!isMobile && <Popover>
-                  <PopoverTrigger>
+                {!isMobile &&
+                <Popover trigger={"hover"}>
+                  <PopoverTrigger >
                     <Text ml="1" as="sup" cursor="pointer"><QuestionOutlineIcon boxSize={4} pl={1}/></Text>
                   </PopoverTrigger>
                   <PopoverContent>
                     <PopoverArrow />
-                    <PopoverCloseButton />
                     <PopoverBody letterSpacing="wide">
                       <Text> This amount is available for you to spend or withdraw</Text>
                     </PopoverBody>
