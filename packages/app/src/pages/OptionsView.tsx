@@ -1,8 +1,5 @@
 import React, {useContext, useEffect, useReducer, useState} from 'react';
 import {
-    // Alert,
-  // AlertDescription,
-  // AlertIcon,
   Box,
   Button,
   Center,
@@ -11,7 +8,6 @@ import {
   HStack,
   Text,
   Spacer,
-  // Spinner,
   Table, Tag, TagLabel,
   Tbody,
   Td,
@@ -21,7 +17,7 @@ import {
   useColorModeValue,
   useRadioGroup,
   useToast,
-  // Tooltip, Link
+  Link
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 // import useFetch from "../hooks/useFetch";
