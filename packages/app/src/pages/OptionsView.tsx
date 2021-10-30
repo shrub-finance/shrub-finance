@@ -538,10 +538,11 @@ function OptionsView(props: RouteComponentProps) {
 
     function cancelOrderFunc(positionHash: BytesLike, user: string, blockHeight: number) {
         async function main() {
-            const order = await getAnnouncedEvent(library, positionHash, user, blockHeight);
-            if (!order) {
+            const orders = await getAnnouncedEvent(library, positionHash, user, blockHeight);
+            if (!orders || !orders[0]) {
                 throw new Error('Order could not be found');
             }
+            const order = orders[0];
             const iOrder = transformOrderAppChain(order);
             const tx = await cancelOrder(iOrder, library);
             const description = `Cancel order for ${shortOptionName(order)}`;

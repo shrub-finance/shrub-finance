@@ -163,7 +163,7 @@ task( 'maker', 'creates limit orders')
         const strike = ethers.BigNumber.from(strikeUsdcMillion);
         const sizeEth = Math.floor(Math.random() * 5) + 1;
         const size = ethers.BigNumber.from(sizeEth).mul(WeiInEth);
-        const pricePerContractUsdc = Math.round(100 * bs.blackScholes(ethPrice, strikeUsdc, timeToExpiry, volatility, riskFreeRate, optionType.toLowerCase())) / 100
+        const pricePerContractUsdc = Math.round(10000 * bs.blackScholes(ethPrice, strikeUsdc, timeToExpiry, volatility, riskFreeRate, optionType.toLowerCase())) / 10000
         if(timeToExpiry < 0) {
           return null
         }
@@ -175,7 +175,7 @@ task( 'maker', 'creates limit orders')
           nonce: 0,
           price,
           fee,
-          offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60 * 8) / 1000),
+          offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60 * 24) / 1000),
         }
         const common: OrderCommon = {
           baseAsset: susdToken.address,

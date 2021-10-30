@@ -52,14 +52,14 @@ import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
 import React, {useContext, useEffect, useState} from "react";
 import {
-    AppCommon,
+    AppCommon, AppOrderSigned,
     IOrder, OptionData,
     OrderBook,
     OrderCommon,
     OrderType,
     SellBuy,
-    UnsignedOrder
-} from "../types";
+    UnsignedOrder,
+} from '../types'
 import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
@@ -251,13 +251,28 @@ const {
             let temporaryWorkaroundPrice = Zero;
             while (remainingSize.gt(Zero)) {
                 // const order = localOrderBook[index];
+                let order: AppOrderSigned | undefined;
                 const lightOrder = localOrderBook[index];
                 if (!lightOrder) {
                     throw new Error('Insufficient market depth for this order. Try making a smaller order.');
                 }
                 // @ts-ignore
-                const {positionHash, blockHeight, user} = lightOrder;
-                const order = await getAnnouncedEvent(library, positionHash, user, blockHeight);
+                const {positionHash, blockHeight, user, formattedSize, unitPrice} = lightOrder;
+                const orders = await getAnnouncedEvent(library, positionHash, user, blockHeight);
+                if (!orders) {
+                    continue;
+                }
+                if (orders.length === 1) {
+                    order = orders[0];
+                } else {
+                    order = orders.find((o) => {
+                        return (
+                            o.optionAction !== radioOption &&
+                            Number(o.formattedSize).toFixed(4) === Number(formattedSize).toFixed(4) &&
+                            Number(o.unitPrice).toFixed(4) === Number(unitPrice).toFixed(4)
+                        )
+                    })
+                }
                 if (!order) {
                     continue;
                 }
