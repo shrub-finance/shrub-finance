@@ -14,7 +14,7 @@ import {
     ModalCloseButton,
     ModalContent,
     ModalHeader,
-    ModalOverlay,
+    ModalOverlay, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverTrigger,
     SlideFade,
     Stack,
     Table,
@@ -58,6 +58,7 @@ import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
 import {currencySymbol} from "../utils/chainMethods";
+import {isMobile} from "react-device-detect";
 
 const { Zero } = ethers.constants;
 
@@ -98,8 +99,9 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
         defaultValue: sellBuy,
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
-    const amountToolTip = `Number of contracts to ${sellBuy}. 1 contract = 1 SMATIC. Min: 0.000001`
-    const priceToolTip = `The ${'SUSD'} required to purchase 1 contract (1 ${currencySymbol(chainId)}) `
+
+    const orderBookColorMobile = useColorModeValue("gray.500", "black");
+    const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
 
     useEffect(() => {
         const buyOrders = optionData.buyOrders.sort((a, b) => b.unitPrice - a.unitPrice);
@@ -355,7 +357,7 @@ const {
         }
     }
     // TODO: get the symbols dynamically
-    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${currencySymbol(chainId)} for ${formattedStrike} SUSD up until ${formattedExpiry}`;
+    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${currencySymbol(chainId)} for ${formattedStrike} sUSD up until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
@@ -425,24 +427,55 @@ const {
                                 <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="purple">
                                         <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
-                                        <TagLabel>{optionType}</TagLabel>
+                                        <TagLabel pl={'1'}>{optionType}</TagLabel>
                                     </Tag>
                                 </Tooltip>
                                 <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="blue">
                                         <Icon as={MdDateRange} />
-                                        <TagLabel> {formattedExpiry}</TagLabel>
+                                        <TagLabel pl={'1'}> {formattedExpiry}</TagLabel>
                                     </Tag>
                                 </Tooltip>
                                 <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="yellow">
-                                        <Icon as={GiMoneyStack} />
-                                        <TagLabel>{`${formattedStrike} SUSD`}</TagLabel>
+                                        <Icon as={GiMoneyStack}/>
+                                        <TagLabel pl={'1'}>{`${formattedStrike} sUSD`}</TagLabel>
                                     </Tag>
                                 </Tooltip>
                             </HStack>
                         </Box>
-                        <Accordion allowToggle display={{ sm: "flex", md: "none" }}>
+                        <Box>
+                            <HStack {...groupOptionType}>
+                                <FormLabel htmlFor="orderType">Order:</FormLabel>
+                                {radioOrderTypes.map((value) => {
+                                    const radio = getOrderTypeRadioProps({ value });
+                                    return (
+                                      <RadioCard key={value} {...radio}>
+                                          {value}
+                                      </RadioCard>
+                                    );
+                                })}
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <HStack>
+                                <Divider orientation="horizontal" mb={3} mt={3} />
+                            </HStack>
+                        </Box>
+                        <Box>
+                            <HStack {...groupOption}>
+                                <FormLabel htmlFor="option">Option:</FormLabel>
+                                {radioOptions.map((value) => {
+                                    const radio = getOptionRadioProps({ value });
+                                    return (
+                                      <RadioCard key={value} {...radio}>
+                                          {value}
+                                      </RadioCard>
+                                    );
+                                })}
+                            </HStack>
+                        </Box>
+                        <Accordion allowToggle display={{ sm: "block", md: "none" }}>
                             <AccordionItem>
                                 <h2>
                                     <AccordionButton>
@@ -452,8 +485,8 @@ const {
                                         <AccordionIcon />
                                     </AccordionButton>
                                 </h2>
-                                <AccordionPanel pb={4}>
-                                    <Box id={"orderbook"} ml={4}>
+                                <AccordionPanel pb={6}>
+                                    <Box id={"orderbook"}>
                                         <Box
                                             color={useColorModeValue("gray.500", "black")}
                                             bgColor={useColorModeValue("gray.100", "gray.400")}
@@ -508,41 +541,19 @@ const {
                             </AccordionItem>
                         </Accordion>
                         <Box>
-                            <HStack {...groupOptionType}>
-                                <FormLabel htmlFor="orderType">Order:</FormLabel>
-                                {radioOrderTypes.map((value) => {
-                                    const radio = getOrderTypeRadioProps({ value });
-                                    return (
-                                      <RadioCard key={value} {...radio}>
-                                          {value}
-                                      </RadioCard>
-                                    );
-                                })}
-                            </HStack>
-                        </Box>
-                        <Box>
-                            <HStack>
-                                <Divider orientation="horizontal" mb={3} mt={3} />
-                            </HStack>
-                        </Box>
-                        <Box>
-                            <HStack {...groupOption}>
-                                <FormLabel htmlFor="option">Option:</FormLabel>
-                                {radioOptions.map((value) => {
-                                    const radio = getOptionRadioProps({ value });
-                                    return (
-                                      <RadioCard key={value} {...radio}>
-                                          {value}
-                                      </RadioCard>
-                                    );
-                                })}
-                            </HStack>
-                        </Box>
-                        <Box>
                             <FormLabel htmlFor="amount">Amount:
-                                <Tooltip p={3} label={amountToolTip} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                                    <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                                </Tooltip>
+                                <Popover>
+                                    <PopoverTrigger>
+                                        <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                    </PopoverTrigger>
+                                    <PopoverContent>
+                                        <PopoverArrow />
+                                        <PopoverCloseButton />
+                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'xs'}>
+                                            <Text> Number of contracts you want to buy or sell.</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>
+                                        </PopoverBody>
+                                    </PopoverContent>
+                                </Popover>
                             </FormLabel>
                             <Input
                                 id="amount"
@@ -554,9 +565,19 @@ const {
                         </Box>
                         <Box>
                             <FormLabel htmlFor="bid">Price per contract:
-                                  <Tooltip p={3} label={priceToolTip} fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">
-                                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                                </Tooltip>
+                                <Popover>
+                                    <PopoverTrigger>
+                                        <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                    </PopoverTrigger>
+                                    <PopoverContent>
+                                        <PopoverArrow />
+                                        <PopoverCloseButton />
+                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'xs'}>
+                                            <Text> The sUSD required to purchase 1 contract</Text>
+                                            <Text>1 contract = 1 sMATIC</Text>
+                                        </PopoverBody>
+                                    </PopoverContent>
+                                </Popover>
                             </FormLabel>
                             <Input
                               id="bid"
@@ -598,10 +619,9 @@ const {
                     </Stack>
 
                 </Box>
-                <Box id={"orderbook"} ml={4} display={{ sm: "none", md: "block" }}>
+                {!isMobile && <Box id={"orderbook"} ml={4} display={{ sm: "none", md: "block" }}>
                     <Box
-                        color={useColorModeValue("gray.500", "black")}
-                        bgColor={useColorModeValue("gray.100", "gray.400")}
+
                         fontWeight="semibold"
                         letterSpacing="wide"
                         fontSize="xs"
@@ -609,6 +629,8 @@ const {
                         borderRadius="md"
                         px="2"
                         py="1"
+                        color = {orderBookColorMobile}
+                        bgColor={orderBookBgColorMobile}
                     >
                         Sell Offers
                     </Box>
@@ -625,8 +647,8 @@ const {
                     </Table>
                     <Divider/>
                     <Box
-                        color={useColorModeValue("gray.500", "black")}
-                        bgColor={useColorModeValue("gray.100", "gray.400")}
+                        color={orderBookColorMobile}
+                        bgColor={orderBookBgColorMobile}
                         fontWeight="semibold"
                         letterSpacing="wide"
                         fontSize="xs"
@@ -648,7 +670,7 @@ const {
                             {orderbookBuyRows}
                         </Tbody>
                     </Table>
-                </Box>
+                </Box>}
             </Flex>
         </>
     )
