@@ -189,7 +189,7 @@ const addNetwork = useAddNetwork();
                 <FormControl id="faucetCurrency">
                   <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Select a test Shrub token<Popover>
                     <PopoverTrigger>
-                      <Text ml="1" color={popOverColor} as="sup" cursor="pointer">What's this?</Text>
+                      <Text ml="1" color={popOverColor} as="sup" cursor="pointer">What's a test Shurb token?</Text>
                     </PopoverTrigger>
                     <PopoverContent>
                       <PopoverArrow />

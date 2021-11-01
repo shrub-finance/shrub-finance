@@ -25,7 +25,7 @@ import {
     PopoverFooter,
     PopoverBody,
     PopoverCloseButton,
-    PopoverHeader, PopoverArrow, PopoverContent, PopoverTrigger, Popover
+    PopoverHeader, PopoverArrow, PopoverContent, PopoverTrigger, Popover, OrderedList
 } from '@chakra-ui/react';
 import {ArrowForwardIcon, ExternalLinkIcon,} from '@chakra-ui/icons';
 import {Link as ReachLink, RouteComponentProps} from '@reach/router';
@@ -83,13 +83,25 @@ function HomeView(props: RouteComponentProps) {
                                             </Box>
                                         </Circle>
                                     </Stack>
-                                    <Stack spacing={0} align={'center'} mb={5}>
+                                    <Stack spacing={6} align={'center'} mb={5}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
                                             Connect to Mumbai
                                         </Heading>
-                                        <Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>To beta
-                                            test Shrub, your wallet needs to be connected to the Polygon
-                                            Test Network.</Text>
+                                        <Popover>
+                                            <PopoverTrigger>
+                                                <Text color={useColorModeValue("blue", "yellow.300")} fontWeight={"extrabold"} as="sup" cursor="pointer">What is Mumbai?</Text>
+                                            </PopoverTrigger>
+                                            <PopoverContent>
+                                                <PopoverArrow />
+                                                <PopoverCloseButton />
+                                                <PopoverBody letterSpacing="wide" textAlign={"left"}>
+                                                    <Text pb={4}> To beta test Shrub, you need to <strong>connect your wallet</strong> to the Polygon Test Network called Mumbai.</Text><Text> Click on the button below to automatically connect to the Mumbai network.</Text>
+                                                </PopoverBody>
+                                            </PopoverContent>
+                                        </Popover>
+                                        {/*<Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>To beta*/}
+                                        {/*    test Shrub, connect your wallet to Polygon*/}
+                                        {/*    Test Network.</Text>*/}
                                     </Stack>
                                     <Button
                                         onClick={addNetwork}
@@ -122,41 +134,41 @@ function HomeView(props: RouteComponentProps) {
                                             </Box>
                                         </Circle>
                                     </Stack>
-                                    <Stack spacing={0} align={'center'} mb={5}>
+                                    <Stack spacing={6} align={'center'} mb={5}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
-                                            Buy sUSD with MATIC
+                                            Buy sUSD
                                         </Heading>
-                                        <List spacing={3} textAlign={"left"}>
-                                            <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5} >
-                                                <ListIcon as={MdCheckCircle} color="green.200" />
-                                                <Link href="https://faucet.polygon.technology/" isExternal>
-                                                    First, get some MATIC here <ExternalLinkIcon mx="2px" />
-                                                </Link>
-                                            </ListItem>
-                                            <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"}>
-                                                <ListIcon as={MdCheckCircle} color="green.200" />
-                                                Then, buy sUSD with it
-                                                <Popover>
-                                                    <PopoverTrigger>
-                                                        <Text ml="1" color={useColorModeValue("blue", "blue.200")} as="sup" cursor="pointer">Why?</Text>
-                                                    </PopoverTrigger>
-                                                        <PopoverContent>
-                                                            <PopoverArrow />
-                                                            <PopoverCloseButton />
-                                                            <PopoverBody letterSpacing="wide" textAlign={"left"}>
-                                                                <Text> To facilitate testing with reasonable amounts of tokens, we have created sMATIC and sUSD.</Text> <Text>These represent MATIC and USD stable coin in our test environment.</Text> <Text>Options in the test environment have these as their underlying assets.</Text><Text> You may buy sMATIC and sUSD at a rate of 10,000/test MATIC.</Text>
-                                                            </PopoverBody>
-                                                        </PopoverContent>
-                                                </Popover>
-                                            </ListItem>
-                                        </List>
+                                        <Popover>
+                                            <PopoverTrigger>
+                                                <Text ml="1" color={useColorModeValue("blue", "yellow.300")} as="sup" cursor="pointer" fontWeight={"extrabold"}>What's sUSD?</Text>
+                                            </PopoverTrigger>
+                                            <PopoverContent>
+                                                <PopoverArrow />
+                                                <PopoverCloseButton />
+                                                <PopoverBody letterSpacing="wide" textAlign={"left"}>
+                                                    <Text pb={4}>In mainnet you will trade Options in MATIC and USDC. To facilitate testing with reasonable amounts of tokens, we have created <strong>sMATIC and sUSD.</strong></Text> <Text pb={4}>These represent <strong>MATIC and USD stable coin</strong> in our test environment.</Text> <Text pb={4}><strong>Options</strong> in the test environment have these as their <strong>underlying assets.</strong></Text><Text pb={4}> You may <strong>buy sMATIC and sUSD</strong> at a rate of <strong>10,000 per test MATIC.</strong></Text>
+                                                </PopoverBody>
+                                            </PopoverContent>
+                                        </Popover>
+
+                                        {/*<OrderedList spacing={6}>*/}
+                                        {/*    <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5} pl={-8}>*/}
+                                        {/*        /!*<ListIcon as={MdCheckCircle} color="green.200" />*!/*/}
+                                        {/*        <Link href="https://faucet.polygon.technology/" isExternal>Get MATIC<ExternalLinkIcon mx="2px" />*/}
+                                        {/*        </Link>*/}
+                                        {/*    </ListItem>*/}
+                                        {/*    <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"}>*/}
+                                        {/*        /!*<ListIcon as={MdCheckCircle} color="green.200" />*!/*/}
+                                        {/*        Buy sUSD*/}
+                                        {/*    </ListItem>*/}
+                                        {/*</OrderedList>*/}
                                     </Stack>
-                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"} letterSpacing={"1px"} pb={.5}>
-                                        1 test MATIC = 10,000 sMATIC
-                                    </Text>
-                                    <Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"}   letterSpacing={"1px"}>
-                                        1 test MATIC = 10,000 sUSD
-                                    </Text>
+                                    {/*<Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"} letterSpacing={"1px"} pb={.5}>*/}
+                                    {/*    1 test MATIC = 10,000 sMATIC*/}
+                                    {/*</Text>*/}
+                                    {/*<Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"}   letterSpacing={"1px"}>*/}
+                                    {/*    1 test MATIC = 10,000 sUSD*/}
+                                    {/*</Text>*/}
                                     <Button
                                         onClick={onTestTokenModalOpen}
                                         w={'full'}
@@ -167,7 +179,7 @@ function HomeView(props: RouteComponentProps) {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
                                         }}>
-                                        Buy Test Tokens
+                                        Buy sUSD
                                     </Button>
                                 </Box>
                             </Box>
@@ -186,13 +198,25 @@ function HomeView(props: RouteComponentProps) {
                                             </Box>
                                         </Circle>
                                     </Stack>
-                                    <Stack spacing={0} align={'center'} mb={5}>
+                                    <Stack spacing={6} align={'center'} mb={5}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
                                             Deposit sUSD
                                         </Heading>
-                                        <Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>In order
-                                            to buy Options, you need to deposit sUSD to
-                                            the Shrub platform.</Text>
+                                        <Popover>
+                                            <PopoverTrigger>
+                                                <Text color={useColorModeValue("blue", "yellow.300")} as="sup" cursor="pointer" fontWeight={"extrabold"}>What will that do?</Text>
+                                            </PopoverTrigger>
+                                            <PopoverContent>
+                                                <PopoverArrow />
+                                                <PopoverCloseButton />
+                                                <PopoverBody letterSpacing="wide" textAlign={"left"}>
+                                                    <Text pb={4}> To buy Options, deposit sUSD to
+                                                        the Shrub platform.</Text>
+                                                </PopoverBody>
+                                            </PopoverContent>
+                                        </Popover>
+                                        {/*<Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>To buy Options, deposit sUSD to*/}
+                                        {/*    the Shrub platform.</Text>*/}
                                     </Stack>
                                     <Button
 
@@ -216,7 +240,7 @@ function HomeView(props: RouteComponentProps) {
             </Container>
 
             <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
-                <Center mt={20}>
+                <Center>
                     <Box maxW="60rem" mb={12} textAlign={'center'}>
                         <Heading fontSize="60px" letterSpacing={"tight"} mb={4}>
                             Done with 1-2-3 above?
