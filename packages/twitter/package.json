@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "twitter": "^1.7.1"
+    "twitter": "^1.7.1",
+    "twitter-v2": "^1.1.0"
   }
 }

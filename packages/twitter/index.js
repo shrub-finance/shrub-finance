@@ -1,5 +1,6 @@
 const util = require('util');
 const Twitter = require('twitter');
+const TwitterV2 = require('twitter-v2');
 const fs = require('fs');
 const path = require('path');
 
@@ -11,6 +12,15 @@ const client = new Twitter({
   access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
   access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 });
+
+const clientV2 = new TwitterV2({
+  consumer_key: process.env.TWITTER_CONSUMER_KEY,
+  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+  access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+});
+
+
 
 
 async function scrape_dms() {
@@ -73,6 +83,25 @@ function saveAddresses(messages) {
   return mapping;
 }
 
+async function getUsersThatLikedTweet(tweet) {
+  let allUsers = [];
+  const users = await clientV2.get(`tweets/${tweet}/liking_users`, {});
+  allUsers = allUsers.concat(users.data);
+  const file = path.resolve(__dirname, `output/${tweet}_liked.json`);
+  fs.writeFileSync(file, JSON.stringify(allUsers));
+  return allUsers;
+}
+
+function saveUserAddressThatLikedTweet(tweet, users, mapping) {
+  let knownUsers = users.filter(u => mapping[u.id]).reduce((agg, u) => {
+    agg[u.id] = mapping[u.id];
+    return agg;
+  }, {});
+  const file = path.resolve(__dirname, `output/${tweet}_liked_addresses.json`);
+  fs.writeFileSync(file, JSON.stringify(knownUsers));
+  console.log(Object.keys(knownUsers).length, "addresses liked tweet");
+}
+
 async function main() {
   console.log("Ingesting messages in the last 30 days");
   const id = await getCurrentUserId();
@@ -85,7 +114,11 @@ async function main() {
 
   console.log("Received", addresses.length, "addresses");
   console.log(JSON.stringify(addresses, null, 2));
-  saveAddresses(addresses);
+  const mapping = saveAddresses(addresses);
+
+  const tweet = "1453052662837129221";
+  const users = await getUsersThatLikedTweet(tweet);
+  saveUserAddressThatLikedTweet(tweet, users, mapping);
 }
 
 main().catch(e => console.error(e)).then(() => process.exit());

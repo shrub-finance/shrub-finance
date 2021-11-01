@@ -29281,6 +29281,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"oauth-1.0a@npm:2.2.6":
+  version: 2.2.6
+  resolution: "oauth-1.0a@npm:2.2.6"
+  checksum: 9a8a3197bdf6c5ec2b44a5e89f3ef98398c5ffdb78108da5895901c27e25a6897fb810d671ea15fdc70484a9908b4d3620defed9e648c6dd5411354eb8d0eb15
+  languageName: node
+  linkType: hard
+
 "oauth-sign@npm:~0.9.0":
   version: 0.9.0
   resolution: "oauth-sign@npm:0.9.0"
@@ -35740,7 +35747,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"split@npm:^1.0.0":
+"split@npm:1.0.1, split@npm:^1.0.0":
   version: 1.0.1
   resolution: "split@npm:1.0.1"
   dependencies:
@@ -37661,6 +37668,18 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"twitter-v2@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "twitter-v2@npm:1.1.0"
+  dependencies:
+    abort-controller: 3.0.0
+    node-fetch: 2.6.1
+    oauth-1.0a: 2.2.6
+    split: 1.0.1
+  checksum: 47983e7098559754470a712ab1f65b7ca5b4281bc60285903ed9c2ef399c0101fc0c25b0ebee6e8dde28d3cef89349ccb0a6c3f2345acf5c5d29a2a6156f56f1
+  languageName: node
+  linkType: hard
+
 "twitter@npm:^1.7.1":
   version: 1.7.1
   resolution: "twitter@npm:1.7.1"
@@ -37676,6 +37695,7 @@ resolve@^2.0.0-next.3:
   resolution: "twitter@workspace:packages/twitter"
   dependencies:
     twitter: ^1.7.1
+    twitter-v2: ^1.1.0
   languageName: unknown
   linkType: soft
 
