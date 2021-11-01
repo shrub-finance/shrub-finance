@@ -95,6 +95,9 @@ export function handleCancelled(event: Cancelled): void {
   let block = event.block;
   let user = getUser(userStr);
   option = Option.load(positionHash.toHex()) as Option;
+  if (option == null) {
+    return;
+  }
   userOption = getUserOption(user, option, shrubAddress, block);
   updateUserOptionNonce(userOption, nonce, block);
 }
