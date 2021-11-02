@@ -515,7 +515,9 @@ function OptionsView(props: RouteComponentProps) {
     // Set the expiry dates on load
   useEffect(() => {
     if (contractData) {
-      const expiryDatesString = Object.keys(contractData["SMATIC-SUSD"]);
+        const now = new Date();
+        const expiryDatesString = Object.keys(contractData["SMATIC-SUSD"])
+            .filter(d => fromEthDate(Number(d)) > now);
       setExpiryDates(expiryDatesString);
       if(!expiryDate) {
         setExpiryDate(expiryDatesString[0]);
