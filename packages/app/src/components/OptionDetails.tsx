@@ -14,12 +14,12 @@ import {
     ModalCloseButton,
     ModalContent,
     ModalHeader,
-    ModalOverlay, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverTrigger,
+    ModalOverlay, Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverTrigger,
     SlideFade,
     Stack,
     Table,
     Tag,
-    TagLabel, Tbody, Td, Text, Tfoot, Th, Thead,
+    TagLabel, Tbody, Td, Text, Th, Thead,
     Tooltip,
     Tr,
     useColorModeValue, useDisclosure,
@@ -27,7 +27,14 @@ import {
     useToast
 } from '@chakra-ui/react';
 import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
-import {BiPhone, GiMoneyStack, MdDateRange, RiHandCoinLine} from "react-icons/all";
+import {
+    FiShoppingCart,
+    GiMoneyStack,
+    MdArrowDownward,
+    MdArrowUpward,
+    MdDateRange,
+    RiHandCoinLine
+} from "react-icons/all";
 import RadioCard from "./Radio";
 import {
     getAddressFromSignedOrder,
@@ -481,9 +488,9 @@ const {
                         <Box mt={2} mb={8}>
                             <HStack spacing={3}>
                                 <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
-                                    <Tag colorScheme="purple">
-                                        <Icon as={optionType === 'CALL' ? BiPhone : RiHandCoinLine} />
-                                        <TagLabel pl={'1'}>{optionType}</TagLabel>
+                                    <Tag colorScheme="green">
+                                        <Icon as={sellBuy === 'BUY' ? FiShoppingCart : RiHandCoinLine} />
+                                        <TagLabel pl={'1'}>{sellBuy}</TagLabel>
                                     </Tag>
                                 </Tooltip>
                                 <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
@@ -498,6 +505,12 @@ const {
                                         <TagLabel pl={'1'}>{`${formattedStrike} sUSD`}</TagLabel>
                                     </Tag>
                                 </Tooltip>
+                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
+                                    <Tag colorScheme="purple">
+                                        <Icon as={optionType === 'CALL' ? MdArrowUpward : MdArrowDownward} />
+                                        <TagLabel pl={'1'}>{optionType}</TagLabel>
+                                    </Tag>
+                                </Tooltip>
                             </HStack>
                         </Box>
                         <Box>
@@ -505,24 +518,6 @@ const {
                                 <FormLabel htmlFor="orderType">Order:</FormLabel>
                                 {radioOrderTypes.map((value) => {
                                     const radio = getOrderTypeRadioProps({ value });
-                                    return (
-                                      <RadioCard key={value} {...radio}>
-                                          {value}
-                                      </RadioCard>
-                                    );
-                                })}
-                            </HStack>
-                        </Box>
-                        <Box>
-                            <HStack>
-                                <Divider orientation="horizontal" mb={3} mt={3} />
-                            </HStack>
-                        </Box>
-                        <Box>
-                            <HStack {...groupOption}>
-                                <FormLabel htmlFor="option">Option:</FormLabel>
-                                {radioOptions.map((value) => {
-                                    const radio = getOptionRadioProps({ value });
                                     return (
                                       <RadioCard key={value} {...radio}>
                                           {value}
