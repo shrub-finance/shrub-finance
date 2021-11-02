@@ -697,9 +697,17 @@ export function getBlockNumber(provider: JsonRpcProvider) {
   return provider.getBlockNumber();
 }
 
+function cleanupDecimalString(decimalString: string, decimals: number) {
+  const splitArr = decimalString.split('.');
+  const integerPart = splitArr[0];
+  const decimalPart = splitArr[splitArr.length - 1];
+  const cutDecimalPart = decimalPart.slice(0, decimals);
+  return [integerPart, cutDecimalPart].join('.');
+}
+
 export function getOrderStack(userOptionResult: any) {
   const { balance, option, buyOrders, sellOrders } = userOptionResult;
-  const { lastPrice } = option
+  const lastPrice = cleanupDecimalString(option.lastPrice, 18);
   const bigLastPrice = ethers.utils.parseUnits(lastPrice, 18);
   let runningBalance = Zero;
   const orderStack = [];
@@ -716,7 +724,10 @@ export function getOrderStack(userOptionResult: any) {
   }
   const sortedMatches = matches.sort((a: any, b:any) => a.block - b.block);
   for (const match of sortedMatches) {
-    const { finalPrice, finalPricePerContract, size, totalFee, type, block, id: matchId } = match;
+    const { totalFee, type, block, id: matchId } = match;
+    const size = cleanupDecimalString(match.size, 18);
+    const finalPrice = cleanupDecimalString(match.finalPrice, 18);
+    const finalPricePerContract = cleanupDecimalString(match.finalPricePerContract, 18);
     let remainingSize = ethers.utils.parseUnits(size, 6);
     let remainingFinalPrice = ethers.utils.parseUnits(finalPrice, 18);
     if (type === 'sell') {
@@ -788,7 +799,7 @@ export function getOrderStack(userOptionResult: any) {
   let totalUnrealizedCostBasis = Zero;
   let totalRealizedGain = Zero;
   let totalUnrealizedGain = Zero;
-  let totalValue = balance * lastPrice;
+  let totalValue = balance * Number(lastPrice);
   for (const stackElem of orderStack) {
     if (!stackElem.unrealizedSize.eq(Zero)) {
       const unrealizedCostBasis = stackElem.totalPrice.abs().sub(stackElem.realizedCostBasis);
