@@ -8,16 +8,32 @@ import "solidity-coverage";
 import "hardhat-abi-exporter";
 import "hardhat-gas-reporter";
 import "@nomiclabs/hardhat-etherscan";
+import { ApolloClient, gql, InMemoryCache, HttpLink } from '@apollo/client'
+import fetch from 'cross-fetch'
 
+import {ACTIVE_ORDERS_QUERY} from "./queries";
 import optionContracts from "./option-contracts.json";
-import {ShrubExchange, ShrubExchange__factory} from "./types/ethers-v5";
+import {
+  ShrubExchange,
+  ShrubExchange__factory,
+  HashUtil__factory,
+  SUSDToken__factory,
+  SMATICToken__factory,
+} from './types/ethers-v5'
 import {OrderCommon, SmallOrder} from "@shrub/app/src/types";
-import { toEthDate } from '@shrub/app/src/utils/ethMethods'
+import chainlinkAggregatorV3Interface from './external-contracts/chainlinkAggregatorV3InterfaceABI.json';
+import env from 'hardhat'
 const bs = require('./utils/black-scholes');
 const { Shrub712 } = require("./utils/EIP712");
 
-const strikeDates = [
-  new Date('2021-11-02'),
+const CHAINLINK_MATIC = '0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada';  // Mumbai
+const CHAINLINK_ETH = '0x0715A7794a1dc8e42615F059dD6e406A6594651A';  // Mumbai
+const CHAINLINK_BTC = '0x007A22900a3B98143368Bd5906f8E17e9867581b';  // Mumbai
+const CHAINLINK_LINK_MATIC = '0x12162c3E810393dEC01362aBf156D7ecf6159528';  // Mumbai
+const CHAINLINK_USDC = '0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0';  // Mumbai
+
+const expiryDates = [
+  new Date('2021-11-09'),
   new Date('2021-11-15'),
   new Date('2021-12-02'),
   new Date('2022-01-02'),
@@ -35,6 +51,128 @@ task("accounts", "Prints the list of accounts", async (taskArgs, env) => {
     console.log(account.address);
   }
 });
+
+task(
+  'distribMatic',
+  'distribute MATIC'
+)
+  .addOptionalParam('amount', 'number of MATIC to distribute', 1.0, types.float)
+  .addOptionalParam('count', 'number of accounts to distribute MATIC to', 6, types.int)
+  .setAction(
+    async (taskArgs, env) => {
+      const { ethers, deployments } = env;
+      const { amount, count } = taskArgs;
+      const [account0, ...signers] = await ethers.getSigners();
+      const masterBalance = await account0.getBalance();
+      console.log(`master account ${account0.address} has ${ethers.utils.formatEther(masterBalance)} MATIC`)
+      const ethPerAccount = ethers.utils.parseUnits(amount.toString());
+      const ethRequired = ethPerAccount.mul(count);
+      console.log(`about to distribute ${amount} MATIC to ${count} accounts for a total of ${ethers.utils.formatEther(ethRequired)} MATIC`)
+      if (masterBalance.lt(ethRequired)) {
+        throw new Error('insufficient balance')
+      }
+      for (let i = 0; i < count; i++) {
+        const account = signers[i];
+        console.log(`sending ${ethers.utils.formatEther(ethPerAccount)} MATIC to ${account.address}`);
+        await account0.sendTransaction({to: account.address, value: ethPerAccount});
+      }
+      const account0Balance = await account0.getBalance();
+      console.log('final MATIC balances:')
+      console.log(`${account0.address}: ${ethers.utils.formatEther(account0Balance)}`);
+      for (let i = 0; i < count; i++) {
+        const account = signers[i]
+        const accountBalance = await account.getBalance();
+        console.log(`${account.address}: ${ethers.utils.formatEther(accountBalance)}`);
+      }
+    }
+)
+
+task(
+  'distribTestToken',
+  'distribute sUSDC and sMATIC'
+)
+  .addOptionalParam('amount', 'number of tokens to distribute', 1000, types.float)
+  .addOptionalParam('count', 'number of accounts to distribute MATIC to', 6, types.int)
+  .setAction(
+    async (taskArgs, env) => {
+      const { ethers, deployments } = env;
+      const { amount, count } = taskArgs;
+      const [account0, ...signers] = await ethers.getSigners();
+      const shrubExchangeDeployment = await deployments.get("ShrubExchange");
+      const susdTokenDeployment = await deployments.get("SUSDToken");
+      const smaticTokenDeployment = await deployments.get("SMATICToken");
+      const shrubExchange = await ethers.getContractAt(
+        "ShrubExchange",
+        shrubExchangeDeployment.address
+      );
+      const susdToken = await ethers.getContractAt(
+        "SUSDToken",
+        susdTokenDeployment.address
+      );
+      const smaticToken = await ethers.getContractAt(
+        "SMATICToken",
+        smaticTokenDeployment.address
+      );
+      let shrubExchangeConnect = ShrubExchange__factory.connect(shrubExchangeDeployment.address, account0);
+      let susdConnect = SUSDToken__factory.connect(susdTokenDeployment.address, account0);
+      let smaticConnect = SMATICToken__factory.connect(smaticTokenDeployment.address, account0);
+
+
+
+      const masterBalance = await account0.getBalance();
+      const masterSusdBalance = await susdConnect.balanceOf(account0.address);
+      const masterSmaticBalance = await smaticConnect.balanceOf(account0.address);
+      console.log(`master account ${account0.address} has ${ethers.utils.formatEther(masterBalance)} MATIC`);
+      console.log(`master account ${account0.address} has ${ethers.utils.formatEther(masterSusdBalance)} sUSD`);
+      console.log(`master account ${account0.address} has ${ethers.utils.formatEther(masterSmaticBalance)} sMATIC`);
+
+      const ethPerAccount = ethers.utils.parseUnits(amount.toString());
+      const ethRequired = ethPerAccount.mul(count);
+      console.log(`about to distribute ${amount} sMATIC and sUSD to ${count} accounts for a total of ${ethers.utils.formatEther(ethRequired)} sMATIC and sUSD`)
+      if (masterSmaticBalance.lt(ethRequired) || masterSmaticBalance.lt(ethRequired)) {
+        throw new Error('insufficient balance')
+      }
+      for (let i = 0; i < count; i++) {
+        const account = signers[i];
+        shrubExchangeConnect = shrubExchangeConnect.connect(account0)
+        susdConnect = susdConnect.connect(account0)
+        smaticConnect = smaticConnect.connect(account0)
+
+        // Transfer funds to other accounts
+        console.log(`sending ${ethers.utils.formatEther(ethPerAccount)} sUSD to ${account.address}`);
+        await susdConnect.transfer(account.address, ethPerAccount, {gasLimit: 100000});
+        console.log(`sending ${ethers.utils.formatEther(ethPerAccount)} sMATIC to ${account.address}`);
+        await smaticConnect.transfer(account.address, ethPerAccount, {gasLimit: 100000});
+
+        // Approve for deposit into Shrub
+        shrubExchangeConnect = shrubExchangeConnect.connect(account)
+        susdConnect = susdConnect.connect(account)
+        smaticConnect = smaticConnect.connect(account)
+        console.log('checking if sUSD is approved for deposit into shrub');
+        const susdAllowance = await susdConnect.allowance(account.address, shrubExchangeConnect.address)
+        if (susdAllowance.lt(1000)) {
+          console.log('approving sUSD for deposit into shrub');
+          await susdConnect.approve(shrubExchangeConnect.address, ethers.BigNumber.from(1e6).mul(ethers.constants.WeiPerEther), {gasLimit: 100000});
+        }
+        console.log('checking if sMATIC is approved for deposit into shrub');
+        const smaticAllowance = await smaticConnect.allowance(account.address, shrubExchangeConnect.address)
+        if (smaticAllowance.lt(1000)) {
+          console.log('approving sMATIC for deposit into shrub');
+          await smaticConnect.approve(shrubExchangeConnect.address, ethers.BigNumber.from(1e6).mul(ethers.constants.WeiPerEther), {gasLimit: 100000});
+        }
+
+        // Deposit into Shrub
+        console.log(`depoisting ${ethers.utils.formatEther(ethPerAccount)} sUSD into Shrub from ${account.address}`);
+        await shrubExchangeConnect.deposit(susdConnect.address, ethPerAccount, {gasLimit: 100000});
+        console.log(`depoisting ${ethers.utils.formatEther(ethPerAccount)} sMATIC into Shrub from ${account.address}`);
+        await shrubExchangeConnect.deposit(smaticConnect.address, ethPerAccount, {gasLimit: 100000});
+
+        const sUsdShrubBalance = await shrubExchangeConnect.getAvailableBalance(account.address, susdConnect.address);
+        const sMaticShrubBalance = await shrubExchangeConnect.getAvailableBalance(account.address, smaticConnect.address);
+        console.log(`Total Shrub Balances for ${account.address}: sUSD: ${ethers.utils.formatEther(sUsdShrubBalance)} sMATIC: ${ethers.utils.formatEther(sMaticShrubBalance)}`);
+      }
+    }
+  )
 
 task(
   "fundAccounts",
@@ -103,6 +241,274 @@ task(
   }
 );
 
+task('maker2', 'creates limit orders')
+  .addOptionalParam('count', 'number of orders to generate', 100, types.int)
+  .addOptionalParam('baseIv', 'the centered IV for the generator', 125, types.float)
+  .addOptionalParam('ivRange', 'maximum deviation from the baseIv', 50, types.float)
+  .addOptionalParam('ethPrice', 'price of MATIC in USD', 1.5, types.float)
+  .addOptionalParam('riskFreeRate', 'annual risk free rate of return (0.05 means 5%)', 0.05, types.float)
+  .setAction(
+    async (taskArgs, env) => {
+      const {ethers, deployments, web3} = env;
+      const [master, account0, account1, account2, account3, account4, account5] = await ethers.getSigners();
+      const accounts = [account0, account1, account2, account3, account4, account5];
+
+      const STRIKE_BASE_SHIFT = 1e6;
+      const {count, baseIv, ivRange, ethPrice, riskFreeRate} = taskArgs
+      const WeiInEth = ethers.constants.WeiPerEther
+      const susdTokenDeployment = await deployments.get("SUSDToken");
+      const smaticTokenDeployment = await deployments.get("SMATICToken");
+      const susdToken = await ethers.getContractAt(
+        "SUSDToken",
+        susdTokenDeployment.address
+      );
+      const smaticToken = await ethers.getContractAt(
+        "SMATICToken",
+        smaticTokenDeployment.address
+      )
+      const shrubExchangeDeployment = await deployments.get("ShrubExchange");
+      const shrubExchangeDeployed = await ethers.getContractAt(
+        "ShrubExchange",
+        shrubExchangeDeployment.address
+      );
+      let shrubContractAccount = ShrubExchange__factory.connect(shrubExchangeDeployed.address, account0);
+      const hashUtilDeployment = await deployments.get("HashUtil");
+      const hashUtilDeployed = await ethers.getContractAt(
+        "HashUtil",
+        hashUtilDeployment.address
+      );
+      const hashUtil = HashUtil__factory.connect(hashUtilDeployed.address, account0);
+      const shrubInterface = new Shrub712(17, shrubExchangeDeployment.address);
+      const priceFeedMatic = new ethers.Contract(CHAINLINK_MATIC, chainlinkAggregatorV3Interface, account0);
+      const client = new ApolloClient({
+        link: new HttpLink({
+          uri: 'https://api.thegraph.com/subgraphs/name/jguthrie7/shrub',
+          fetch
+        }),
+        cache: new InMemoryCache()
+      })
+      // Query to see current state of things
+      // console.log(account0.address);
+      // console.log(JSON.stringify(activeOptionsWithOrders))
+
+      function generateRandomOrder(expiry: number, strikeUsdcMillion: number, optionType: string, maticPrice: number, isBuy: boolean) {
+        const strikeUsdc = strikeUsdcMillion / STRIKE_BASE_SHIFT;
+        const timeToExpiry = (expiry * 1000 - Date.now()) / (365 * 24 * 60 * 60 * 1000)
+        const volatility = ((isBuy ? -1 : 1) * Math.random() * ivRange + baseIv) / 100;
+        // console.log(`
+        //   MATIC price: ${maticPrice}
+        //   strike: ${strikeUsdc}
+        //   time to expiry (years): ${timeToExpiry}
+        //   volatility: ${volatility}
+        //   risk free rate: ${riskFreeRate}
+        // `)
+        const strike = ethers.BigNumber.from(strikeUsdcMillion);
+        const sizeEth = Math.floor(Math.random() * 5) + 1;
+        const size = ethers.BigNumber.from(sizeEth).mul(WeiInEth);
+        const pricePerContractUsdc = Math.round(10000 * bs.blackScholes(maticPrice, strikeUsdc, timeToExpiry, volatility, riskFreeRate, optionType.toLowerCase())) / 10000
+        if(timeToExpiry < 0 || pricePerContractUsdc < 0.0002) {
+          return null
+        }
+        const price = ethers.BigNumber.from(Math.round(pricePerContractUsdc * 10000)).mul(WeiInEth.div(ethers.BigNumber.from(10000))).mul(size).div(WeiInEth);
+        const fee = ethers.BigNumber.from(Math.floor(Math.random() * 100))
+        const smallOrder: SmallOrder = {
+          size,
+          isBuy,
+          nonce: 0,
+          price,
+          fee,
+          offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60 * 4) / 1000),  // 4 hours from now
+        }
+        const common: OrderCommon = {
+          baseAsset: susdToken.address,
+          quoteAsset: smaticToken.address,
+          expiry,
+          strike,
+          optionType: optionType === 'CALL' ? 1 : 0,
+        }
+        return { smallOrder, common }
+      }
+
+      const maticPriceBig = await priceFeedMatic.latestRoundData();
+      const maticPrice = Number(ethers.utils.formatUnits(maticPriceBig.answer, 8));
+      const orderTypeHash = await shrubContractAccount.ORDER_TYPEHASH();
+
+      // setInterval(() => {
+        return main()
+          .then(count => console.log(`${new Date().toLocaleString()} - ${count} orders added`))
+          .catch(console.log);
+      // }, 1 * 60 * 1000)
+
+      async function main() {
+        let count = 0;
+        for (const account of accounts) {
+          shrubContractAccount = shrubContractAccount.connect(account);
+          const queryResults = await client.query({query: ACTIVE_ORDERS_QUERY, variables: {
+              id: account.address.toLowerCase(),
+              now: Math.floor(Date.now() / 1000)
+            }})
+          const activeOptions = queryResults && queryResults.data && queryResults.data.options;
+          const activeOptionsWithOrders = activeOptions.filter(o => o.buyOrders.length || o.sellOrders.length);
+          // console.log(JSON.stringify(activeOptionsWithOrders));
+          for (const expiryDate of expiryDates) {
+            for (const optionType of ['CALL', 'PUT']) {
+              const strikes = optionType === 'CALL' ? callsArr : putsArr
+              for (const strike of strikes) {
+                for (const isBuy of [true, false]) {
+                  // Look for matching existing order
+                  const alreadyAnOrder = Boolean(activeOptionsWithOrders.find((o) => {
+                    return (
+                      o.expiry === expiryDate.getTime() / 1000 &&
+                      o.optionType === optionType &&
+                      Number(o.strike) === Number(ethers.utils.formatUnits(strike, 6)) &&
+                      (isBuy ? Boolean(o.buyOrders[0]) : Boolean(o.sellOrders[0]))
+                    )
+                  }))
+                  // console.log(expiryDate, optionType, strike, isBuy, account.address, alreadyAnOrder, maticPrice)
+                  if (alreadyAnOrder) {
+                    continue;
+                  }
+                  console.log(new Date().toLocaleString(), account.address, expiryDate.toLocaleString(), optionType, ethers.utils.formatUnits(strike, 6), isBuy, alreadyAnOrder ? ' - Skipping' : '');
+                  const randomOrder = generateRandomOrder(expiryDate.getTime() / 1000, strike, optionType, maticPrice, isBuy);
+                  if (!randomOrder) {
+                    console.log('skipping because no order')
+                    continue;
+                  }
+                  const { smallOrder, common } = randomOrder;
+                  if (!smallOrder || !common) {
+                    console.log('skipping because no smallOrder or common')
+                    continue;
+                  }
+                  const nonce = await shrubContractAccount["getCurrentNonce(address,(address,address,uint256,uint256,uint8))"](account.address, common)
+                  //  Overwrite nonce
+                  smallOrder.nonce = nonce.toNumber() + 1;
+                  // console.log(orderTypeHash, smallOrder, account.address, common)
+                  const signedSellOrder = await shrubInterface.signOrderWithWeb3(
+                    web3,
+                    orderTypeHash,
+                    {
+                      size: smallOrder.size.toString(),
+                      price: smallOrder.price.toString(),
+                      fee: smallOrder.fee.toNumber(),
+                      strike: common.strike.toString(),
+                      ...smallOrder,
+                      ...common,
+                    },
+                    account.address
+                  );
+                  await shrubContractAccount.announce(smallOrder, common, signedSellOrder.sig, {gasLimit: 50000})
+                  count++;
+                }
+              }
+            }
+          }
+        }
+        return count;
+      }
+
+    }
+  )
+
+task('cancel', 'cancel all orders for an account')
+  .setAction(
+    async (taskArgs, env) => {
+      const {ethers, deployments} = env;
+      const [account0, account1] = await ethers.getSigners();
+      const shrubExchangeDeployment = await deployments.get("ShrubExchange");
+      const shrubExchangeDeployed = await ethers.getContractAt(
+        "ShrubExchange",
+        shrubExchangeDeployment.address
+      );
+      const shrubContractAccount = ShrubExchange__factory.connect(shrubExchangeDeployed.address, account0);
+      const hashUtilDeployment = await deployments.get("HashUtil");
+      const hashUtilDeployed = await ethers.getContractAt(
+        "HashUtil",
+        hashUtilDeployment.address
+      );
+      const hashUtil = HashUtil__factory.connect(hashUtilDeployed.address, account0);
+      const client = new ApolloClient({
+        link: new HttpLink({
+          uri: 'https://api.thegraph.com/subgraphs/name/jguthrie7/shrub',
+          fetch
+        }),
+        cache: new InMemoryCache()
+      })
+      // Query to see current state of things
+      console.log(account0.address);
+      const queryResults = await client.query({query: ACTIVE_ORDERS_QUERY, variables: {
+          id: account0.address.toLowerCase(),
+          now: Math.floor(Date.now() / 1000)
+        }})
+      const activeOptions = queryResults && queryResults.data && queryResults.data.options;
+      for (const activeOption of activeOptions) {
+        const {expiry, optionType, strike, baseAsset, quoteAsset, buyOrders, sellOrders} = activeOption;
+        if (buyOrders && buyOrders[0]) {
+          console.log(`cancelling order for buy ${(new Date(expiry * 1000)).toLocaleString()} ${optionType} ${strike}`)
+          const { nonce, size, price, offerExpire, fee} = buyOrders[0];
+          try {
+            // const filter = await shrubContractAccount.queryFilter()
+            const order = {
+              size: ethers.utils.parseUnits(size),
+              isBuy: true,
+              nonce: nonce,
+              price: ethers.utils.parseUnits(price),
+              offerExpire: offerExpire,
+              fee: ethers.utils.parseUnits(fee),
+              baseAsset: baseAsset.id,
+              quoteAsset: quoteAsset.id,
+              expiry: expiry,
+              strike: ethers.utils.parseUnits(strike, 6),
+              optionType: optionType === 'CALL' ? 1 : 0,
+            }
+            // console.log(order);
+            // const positionHash = await hashUtil.hashOrderCommon(order)
+            // console.log(positionHash);
+            const cancel = await shrubContractAccount.cancel(order);
+            console.log(cancel);
+          } catch (e) {
+            console.log('cancel failed')
+            console.log(e);
+          }
+        }
+        if (sellOrders && sellOrders[0]) {
+          console.log(`cancelling order for sell ${(new Date(expiry * 1000)).toLocaleString()} ${optionType} ${strike}`)
+          const { nonce, size, price, offerExpire, fee} = sellOrders[0];
+          try {
+            // const filter = await shrubContractAccount.queryFilter()
+            const order = {
+              size: ethers.utils.parseUnits(size),
+              isBuy: false,
+              nonce: nonce,
+              price: ethers.utils.parseUnits(price),
+              offerExpire: offerExpire,
+              fee: ethers.utils.parseUnits(fee),
+              baseAsset: baseAsset.id,
+              quoteAsset: quoteAsset.id,
+              expiry: expiry,
+              strike: ethers.utils.parseUnits(strike, 6),
+              optionType: optionType === 'CALL' ? 1 : 0,
+            }
+            // console.log(order);
+            // const positionHash = await hashUtil.hashOrderCommon(order)
+            // console.log(positionHash);
+            const cancel = await shrubContractAccount.cancel(order);
+            console.log(cancel);
+          } catch (e) {
+            console.log('cancel failed')
+            console.log(e);
+          }
+        }
+      }
+
+
+
+      // Loop through expiries
+      // Loop through Call/Put
+      // Loop through strikes
+      // Loop through Buy/Sell
+    }
+  )
+
 task( 'maker', 'creates limit orders')
   .addOptionalParam('count', 'number of orders to generate', 100, types.int)
   .addOptionalParam('baseIv', 'the centered IV for the generator', 125, types.float)
@@ -142,7 +548,7 @@ task( 'maker', 'creates limit orders')
         // const contractNumber = Math.floor(Math.random() * optionContracts.length);
         // return optionContracts[contractNumber];
         const optionType = Math.random() > 0.5 ? 'CALL' : 'PUT';
-        const expiry = Number(getRandomArrayElement(strikeDates)) / 1000;
+        const expiry = Number(getRandomArrayElement(expiryDates)) / 1000;
         const strike = optionType === 'CALL' ? getRandomArrayElement(callsArr) : getRandomArrayElement(putsArr);
         return { optionType, expiry, strike };
       }
@@ -167,7 +573,7 @@ task( 'maker', 'creates limit orders')
         if(timeToExpiry < 0) {
           return null
         }
-        const price = ethers.BigNumber.from(Math.round(pricePerContractUsdc * 100)).mul(WeiInEth.div(ethers.BigNumber.from(100))).mul(size).div(WeiInEth);
+        const price = ethers.BigNumber.from(Math.round(pricePerContractUsdc * 10000)).mul(WeiInEth.div(ethers.BigNumber.from(10000))).mul(size).div(WeiInEth);
         const fee = ethers.BigNumber.from(Math.floor(Math.random() * 100))
         const smallOrder: SmallOrder = {
           size,
@@ -277,7 +683,10 @@ const config: HardhatUserConfig & AbiExporter = {
     mumbai: {
         chainId: 80001,
         url: "https://rpc-mumbai.maticvigil.com",
-        accounts: [process.env.MUMBAI_SECRET_KEY]
+        accounts: {
+          mnemonic: process.env.MUMBAI_SECRET_MNEMONIC
+        }
+        // accounts: [process.env.MUMBAI_SECRET_KEY]
     }
   },
   namedAccounts: {
