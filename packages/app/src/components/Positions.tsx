@@ -561,7 +561,7 @@ function Positions() {
                       <NumberInputField/>
                       <InputRightElement width="auto">
                         <Button size="xs" onClick={fillSendMax} p={3.5} mr={2} >
-                          Send Max
+                          Max
                         </Button>
                       </InputRightElement>
                     </NumberInput>

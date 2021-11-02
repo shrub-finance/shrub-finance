@@ -55,7 +55,7 @@ function HomeView(props: RouteComponentProps) {
 
     return (
         <>
-            <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+            <Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center mt={10}>
                     <Box maxW="60rem" mb={12} textAlign={'center'}>
 
@@ -222,7 +222,6 @@ function HomeView(props: RouteComponentProps) {
 
                                         as={ReachLink} to={'/shrubfolio'}
                                         w={'full'}
-                                        // borderRadius="full"
                                         mt={8}
                                         colorScheme={useColorModeValue("green", "teal")}
                                         rounded={'full'}
@@ -239,7 +238,7 @@ function HomeView(props: RouteComponentProps) {
                 </Center>
             </Container>
 
-            <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+            <Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center>
                     <Box maxW="60rem" mb={12} textAlign={'center'}>
                         <Heading fontSize="60px" letterSpacing={"tight"} mb={4}>
@@ -268,7 +267,7 @@ function HomeView(props: RouteComponentProps) {
                 </Center>
             </Container>
 
-            {/*<Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">*/}
+            {/*<Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">*/}
             {/*    <Center mt={20}>*/}
             {/*        <Box maxW="60rem" mb={12} textAlign={'center'}>*/}
             {/*            <Heading fontSize="60px" letterSpacing={"tight"} mb={4}>*/}

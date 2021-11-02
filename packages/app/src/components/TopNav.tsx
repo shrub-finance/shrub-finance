@@ -27,10 +27,8 @@ import {TxContext} from "./Store";
 import {confirmingCount, TxStatusList} from "./TxMonitoring";
 import {isMobile} from "react-device-detect";
 import {GiCoins} from 'react-icons/gi';
-import {FaFileContract} from 'react-icons/all';
+import {FaFileContract, HiOutlineDocumentDuplicate} from 'react-icons/all';
 import Faucet from './Faucet'
-import {testEnvironment} from "../utils/chainMethods";
-import {useWeb3React} from "@web3-react/core";
 
 function TopNav() {
 
@@ -40,7 +38,6 @@ function TopNav() {
   const { colorMode, toggleColorMode } = useColorMode();
   const spinnerBg = useColorModeValue("black","cyan.500")
   const {active, error: web3Error} = useConnectWallet();
-  const {chainId} = useWeb3React();
   const [isHidden, setIsHidden] = useState(false);
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
@@ -83,6 +80,16 @@ function handleModalClose() {
                   <NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
                    {route.item}
                   </NavRoute>))}
+              <Link
+                  href="https://docs.shrub.finance"
+                  isExternal
+                  variant="ghost"
+                  cursor="pointer"
+                  px={2} py={{ base: "3", md: "1", lg: "1" }} rounded={"lg"}
+                  _hover={{textDecoration: "none", bgGradient: gradient}}
+                  >
+                Docs
+              </Link>
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
@@ -102,10 +109,6 @@ function handleModalClose() {
                         <Account/>}
               </Button>
             </Box>
-            {/*  {!isMobile && <Box display={{ base: "none", sm: "none", md: "flex" }} onClick={onFaucetModalOpen}>*/}
-            {/*  <Button variant={"solid"} colorScheme={ "gray"}*/}
-            {/*          size={"md"} mr={4} borderRadius="full">Test Faucet</Button>*/}
-            {/*</Box>}*/}
             <IconButton variant="unstyled"
             icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
             aria-label={"Open Menu"} display={{ md: "none" }}
@@ -124,6 +127,20 @@ function handleModalClose() {
                 (<NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
                   <Icon as={route.itemIcon} mr={2} /> {route.item}
                 </NavRoute>))}
+              <Link
+                  href="https://docs.shrub.finance"
+                  isExternal
+                  variant="ghost"
+                  cursor="pointer"
+                  rounded="lg"
+                  py={'3'}
+                  px={'2'}
+                  _hover={{
+                    textDecoration: "none",
+                    bgGradient: gradient
+                  }}>
+                <Icon as={HiOutlineDocumentDuplicate} mr={'2'}/>Docs
+              </Link>
               <Box
                    onClick={toggleColorMode}
                    variant="ghost"
@@ -138,18 +155,6 @@ function handleModalClose() {
                 {colorMode === "light" ? <MoonIcon mr={'2'}/> : <SunIcon mr={'2'}/>}
                 {colorMode === "light" ? 'Dark Mode' : 'Light Mode'}
               </Box>
-              {/*{testEnvironment(chainId) &&*/}
-              {/*<Box*/}
-              {/*    onClick={onFaucetModalOpen}*/}
-              {/*    size={"md"}*/}
-              {/*    cursor="pointer"*/}
-              {/*    rounded="lg"*/}
-              {/*    py={'3'}*/}
-              {/*    px={'2'}*/}
-              {/*   >*/}
-              {/*  <Button variant="solid" colorScheme={ "gray"}>Buy Test Shrub Tokens</Button>*/}
-              {/*</Box>*/}
-              {/*}*/}
             </Stack>
             </Box>
         ) : null
