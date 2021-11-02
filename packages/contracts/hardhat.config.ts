@@ -31,10 +31,12 @@ const CHAINLINK_ETH = '0x0715A7794a1dc8e42615F059dD6e406A6594651A';  // Mumbai
 const CHAINLINK_BTC = '0x007A22900a3B98143368Bd5906f8E17e9867581b';  // Mumbai
 const CHAINLINK_LINK_MATIC = '0x12162c3E810393dEC01362aBf156D7ecf6159528';  // Mumbai
 const CHAINLINK_USDC = '0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0';  // Mumbai
+const MINUTES_BETWEEN_ORDERS = 5;  // For maker2
 
 const expiryDates = [
-  new Date('2021-11-09'),
+  new Date('2021-11-08'),
   new Date('2021-11-15'),
+  new Date('2021-11-22'),
   new Date('2021-12-02'),
   new Date('2022-01-02'),
 ];
@@ -249,163 +251,167 @@ task('maker2', 'creates limit orders')
   .addOptionalParam('riskFreeRate', 'annual risk free rate of return (0.05 means 5%)', 0.05, types.float)
   .setAction(
     async (taskArgs, env) => {
-      const {ethers, deployments, web3} = env;
-      const [master, account0, account1, account2, account3, account4, account5] = await ethers.getSigners();
-      const accounts = [account0, account1, account2, account3, account4, account5];
+        const {ethers, deployments, web3} = env;
+        const [master, account0, account1, account2, account3, account4, account5] = await ethers.getSigners();
+        const accounts = [account0, account1, account2, account3, account4, account5];
 
-      const STRIKE_BASE_SHIFT = 1e6;
-      const {count, baseIv, ivRange, ethPrice, riskFreeRate} = taskArgs
-      const WeiInEth = ethers.constants.WeiPerEther
-      const susdTokenDeployment = await deployments.get("SUSDToken");
-      const smaticTokenDeployment = await deployments.get("SMATICToken");
-      const susdToken = await ethers.getContractAt(
-        "SUSDToken",
-        susdTokenDeployment.address
-      );
-      const smaticToken = await ethers.getContractAt(
-        "SMATICToken",
-        smaticTokenDeployment.address
-      )
-      const shrubExchangeDeployment = await deployments.get("ShrubExchange");
-      const shrubExchangeDeployed = await ethers.getContractAt(
-        "ShrubExchange",
-        shrubExchangeDeployment.address
-      );
-      let shrubContractAccount = ShrubExchange__factory.connect(shrubExchangeDeployed.address, account0);
-      const hashUtilDeployment = await deployments.get("HashUtil");
-      const hashUtilDeployed = await ethers.getContractAt(
-        "HashUtil",
-        hashUtilDeployment.address
-      );
-      const hashUtil = HashUtil__factory.connect(hashUtilDeployed.address, account0);
-      const shrubInterface = new Shrub712(17, shrubExchangeDeployment.address);
-      const priceFeedMatic = new ethers.Contract(CHAINLINK_MATIC, chainlinkAggregatorV3Interface, account0);
-      const client = new ApolloClient({
-        link: new HttpLink({
-          uri: 'https://api.thegraph.com/subgraphs/name/jguthrie7/shrub',
-          fetch
-        }),
-        cache: new InMemoryCache()
-      })
-      // Query to see current state of things
-      // console.log(account0.address);
-      // console.log(JSON.stringify(activeOptionsWithOrders))
+        const STRIKE_BASE_SHIFT = 1e6;
+        const {count, baseIv, ivRange, ethPrice, riskFreeRate} = taskArgs
+        const WeiInEth = ethers.constants.WeiPerEther
+        const susdTokenDeployment = await deployments.get("SUSDToken");
+        const smaticTokenDeployment = await deployments.get("SMATICToken");
+        const susdToken = await ethers.getContractAt(
+          "SUSDToken",
+          susdTokenDeployment.address
+        );
+        const smaticToken = await ethers.getContractAt(
+          "SMATICToken",
+          smaticTokenDeployment.address
+        )
+        const shrubExchangeDeployment = await deployments.get("ShrubExchange");
+        const shrubExchangeDeployed = await ethers.getContractAt(
+          "ShrubExchange",
+          shrubExchangeDeployment.address
+        );
+        let shrubContractAccount = ShrubExchange__factory.connect(shrubExchangeDeployed.address, account0);
+        const shrubInterface = new Shrub712(17, shrubExchangeDeployment.address);
+        const priceFeedMatic = new ethers.Contract(CHAINLINK_MATIC, chainlinkAggregatorV3Interface, account0);
+        const client = new ApolloClient({
+          link: new HttpLink({
+            uri: 'https://api.thegraph.com/subgraphs/name/jguthrie7/shrub',
+            fetch
+          }),
+          cache: new InMemoryCache()
+        })
 
-      function generateRandomOrder(expiry: number, strikeUsdcMillion: number, optionType: string, maticPrice: number, isBuy: boolean) {
-        const strikeUsdc = strikeUsdcMillion / STRIKE_BASE_SHIFT;
-        const timeToExpiry = (expiry * 1000 - Date.now()) / (365 * 24 * 60 * 60 * 1000)
-        const volatility = ((isBuy ? -1 : 1) * Math.random() * ivRange + baseIv) / 100;
-        // console.log(`
-        //   MATIC price: ${maticPrice}
-        //   strike: ${strikeUsdc}
-        //   time to expiry (years): ${timeToExpiry}
-        //   volatility: ${volatility}
-        //   risk free rate: ${riskFreeRate}
-        // `)
-        const strike = ethers.BigNumber.from(strikeUsdcMillion);
-        const sizeEth = Math.floor(Math.random() * 5) + 1;
-        const size = ethers.BigNumber.from(sizeEth).mul(WeiInEth);
-        const pricePerContractUsdc = Math.round(10000 * bs.blackScholes(maticPrice, strikeUsdc, timeToExpiry, volatility, riskFreeRate, optionType.toLowerCase())) / 10000
-        if(timeToExpiry < 0 || pricePerContractUsdc < 0.0002) {
-          return null
+        function generateRandomOrder(expiry: number, strikeUsdcMillion: number, optionType: string, maticPrice: number, isBuy: boolean) {
+          const strikeUsdc = strikeUsdcMillion / STRIKE_BASE_SHIFT;
+          const timeToExpiry = (expiry * 1000 - Date.now()) / (365 * 24 * 60 * 60 * 1000)
+          const volatility = ((isBuy ? -1 : 1) * Math.random() * ivRange + baseIv) / 100;
+          // console.log(`
+          //   MATIC price: ${maticPrice}
+          //   strike: ${strikeUsdc}
+          //   time to expiry (years): ${timeToExpiry}
+          //   volatility: ${volatility}
+          //   risk free rate: ${riskFreeRate}
+          // `)
+          const strike = ethers.BigNumber.from(strikeUsdcMillion);
+          const sizeEth = Math.floor(Math.random() * 5) + 1;
+          const size = ethers.BigNumber.from(sizeEth).mul(WeiInEth);
+          const pricePerContractUsdc = Math.round(10000 * bs.blackScholes(maticPrice, strikeUsdc, timeToExpiry, volatility, riskFreeRate, optionType.toLowerCase())) / 10000
+          if(timeToExpiry < 0 || pricePerContractUsdc < 0.0002) {
+            return null
+          }
+          const price = ethers.BigNumber.from(Math.round(pricePerContractUsdc * 10000)).mul(WeiInEth.div(ethers.BigNumber.from(10000))).mul(size).div(WeiInEth);
+          const fee = ethers.BigNumber.from(Math.floor(Math.random() * 100))
+          const smallOrder: SmallOrder = {
+            size,
+            isBuy,
+            nonce: 0,
+            price,
+            fee,
+            offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60 * 3.5) / 1000) + Math.floor(Math.random() * 60 * 60),  // 3.5 - 4.5 hours from now
+          }
+          const common: OrderCommon = {
+            baseAsset: susdToken.address,
+            quoteAsset: smaticToken.address,
+            expiry,
+            strike,
+            optionType: optionType === 'CALL' ? 1 : 0,
+          }
+          return { smallOrder, common }
         }
-        const price = ethers.BigNumber.from(Math.round(pricePerContractUsdc * 10000)).mul(WeiInEth.div(ethers.BigNumber.from(10000))).mul(size).div(WeiInEth);
-        const fee = ethers.BigNumber.from(Math.floor(Math.random() * 100))
-        const smallOrder: SmallOrder = {
-          size,
-          isBuy,
-          nonce: 0,
-          price,
-          fee,
-          offerExpire: Math.floor((new Date().getTime() + 60 * 1000 * 60 * 4) / 1000),  // 4 hours from now
-        }
-        const common: OrderCommon = {
-          baseAsset: susdToken.address,
-          quoteAsset: smaticToken.address,
-          expiry,
-          strike,
-          optionType: optionType === 'CALL' ? 1 : 0,
-        }
-        return { smallOrder, common }
-      }
 
-      const maticPriceBig = await priceFeedMatic.latestRoundData();
-      const maticPrice = Number(ethers.utils.formatUnits(maticPriceBig.answer, 8));
-      const orderTypeHash = await shrubContractAccount.ORDER_TYPEHASH();
+        const maticPriceBig = await priceFeedMatic.latestRoundData();
+        const maticPrice = Number(ethers.utils.formatUnits(maticPriceBig.answer, 8));
+        const orderTypeHash = await shrubContractAccount.ORDER_TYPEHASH();
 
-      // setInterval(() => {
+      return new Promise((resolve, reject) => {
+        setInterval(() => {
         return main()
           .then(count => console.log(`${new Date().toLocaleString()} - ${count} orders added`))
-          .catch(console.log);
-      // }, 1 * 60 * 1000)
+          .catch(reject);
+        }, MINUTES_BETWEEN_ORDERS * 60 * 1000)
 
-      async function main() {
-        let count = 0;
-        for (const account of accounts) {
-          shrubContractAccount = shrubContractAccount.connect(account);
-          const queryResults = await client.query({query: ACTIVE_ORDERS_QUERY, variables: {
-              id: account.address.toLowerCase(),
-              now: Math.floor(Date.now() / 1000)
-            }})
-          const activeOptions = queryResults && queryResults.data && queryResults.data.options;
-          const activeOptionsWithOrders = activeOptions.filter(o => o.buyOrders.length || o.sellOrders.length);
-          // console.log(JSON.stringify(activeOptionsWithOrders));
-          for (const expiryDate of expiryDates) {
-            for (const optionType of ['CALL', 'PUT']) {
-              const strikes = optionType === 'CALL' ? callsArr : putsArr
-              for (const strike of strikes) {
-                for (const isBuy of [true, false]) {
-                  // Look for matching existing order
-                  const alreadyAnOrder = Boolean(activeOptionsWithOrders.find((o) => {
-                    return (
-                      o.expiry === expiryDate.getTime() / 1000 &&
-                      o.optionType === optionType &&
-                      Number(o.strike) === Number(ethers.utils.formatUnits(strike, 6)) &&
-                      (isBuy ? Boolean(o.buyOrders[0]) : Boolean(o.sellOrders[0]))
-                    )
-                  }))
-                  // console.log(expiryDate, optionType, strike, isBuy, account.address, alreadyAnOrder, maticPrice)
-                  if (alreadyAnOrder) {
-                    continue;
+        async function main() {
+          let count = 0;
+          for (const account of accounts) {
+            shrubContractAccount = shrubContractAccount.connect(account);
+            let queryResults;
+            try {
+              queryResults = await client.query({query: ACTIVE_ORDERS_QUERY, variables: {
+                  id: account.address.toLowerCase(),
+                  now: Math.floor(Date.now() / 1000)
+                }})
+            } catch (e) {
+              console.log(e);
+              if (e && e.statusCode) {
+                console.log(`Subgraph issue: response ${e.statusCode}`);
+              }
+              console.log('stopping this iteration');
+              break;
+            }
+            const activeOptions = queryResults && queryResults.data && queryResults.data.options;
+            const activeOptionsWithOrders = activeOptions.filter(o => o.buyOrders.length || o.sellOrders.length);
+            for (const expiryDate of expiryDates) {
+              for (const optionType of ['CALL', 'PUT']) {
+                const strikes = optionType === 'CALL' ? callsArr : putsArr
+                for (const strike of strikes) {
+                  for (const isBuy of [true, false]) {
+                    // Look for matching existing order
+                    const alreadyAnOrder = Boolean(activeOptionsWithOrders.find((o) => {
+                      return (
+                        o.expiry === expiryDate.getTime() / 1000 &&
+                        o.optionType === optionType &&
+                        Number(o.strike) === Number(ethers.utils.formatUnits(strike, 6)) &&
+                        (isBuy ? Boolean(o.buyOrders[0]) : Boolean(o.sellOrders[0]))
+                      )
+                    }))
+                    if (alreadyAnOrder) {
+                      continue;
+                    }
+                    console.log(new Date().toLocaleString(), account.address, expiryDate.toLocaleString(), optionType, ethers.utils.formatUnits(strike, 6), isBuy, alreadyAnOrder ? ' - Skipping' : '');
+                    const randomOrder = generateRandomOrder(expiryDate.getTime() / 1000, strike, optionType, maticPrice, isBuy);
+                    if (!randomOrder) {
+                      console.log('skipping because no order')
+                      continue;
+                    }
+                    const { smallOrder, common } = randomOrder;
+                    if (!smallOrder || !common) {
+                      console.log('skipping because no smallOrder or common')
+                      continue;
+                    }
+                    try {
+                      const nonce = await shrubContractAccount["getCurrentNonce(address,(address,address,uint256,uint256,uint8))"](account.address, common)
+                      //  Overwrite nonce
+                      smallOrder.nonce = nonce.toNumber() + 1;
+                      const signedSellOrder = await shrubInterface.signOrderWithWeb3(
+                        web3,
+                        orderTypeHash,
+                        {
+                          size: smallOrder.size.toString(),
+                          price: smallOrder.price.toString(),
+                          fee: smallOrder.fee.toNumber(),
+                          strike: common.strike.toString(),
+                          ...smallOrder,
+                          ...common,
+                        },
+                        account.address
+                      );
+                      await shrubContractAccount.announce(smallOrder, common, signedSellOrder.sig, {gasLimit: 50000})
+                    } catch (e) {
+                      console.log(e);
+                      continue;
+                    }
+                    count++;
                   }
-                  console.log(new Date().toLocaleString(), account.address, expiryDate.toLocaleString(), optionType, ethers.utils.formatUnits(strike, 6), isBuy, alreadyAnOrder ? ' - Skipping' : '');
-                  const randomOrder = generateRandomOrder(expiryDate.getTime() / 1000, strike, optionType, maticPrice, isBuy);
-                  if (!randomOrder) {
-                    console.log('skipping because no order')
-                    continue;
-                  }
-                  const { smallOrder, common } = randomOrder;
-                  if (!smallOrder || !common) {
-                    console.log('skipping because no smallOrder or common')
-                    continue;
-                  }
-                  const nonce = await shrubContractAccount["getCurrentNonce(address,(address,address,uint256,uint256,uint8))"](account.address, common)
-                  //  Overwrite nonce
-                  smallOrder.nonce = nonce.toNumber() + 1;
-                  // console.log(orderTypeHash, smallOrder, account.address, common)
-                  const signedSellOrder = await shrubInterface.signOrderWithWeb3(
-                    web3,
-                    orderTypeHash,
-                    {
-                      size: smallOrder.size.toString(),
-                      price: smallOrder.price.toString(),
-                      fee: smallOrder.fee.toNumber(),
-                      strike: common.strike.toString(),
-                      ...smallOrder,
-                      ...common,
-                    },
-                    account.address
-                  );
-                  await shrubContractAccount.announce(smallOrder, common, signedSellOrder.sig, {gasLimit: 50000})
-                  count++;
                 }
               }
             }
           }
+          return count;
         }
-        return count;
-      }
-
+      })
     }
   )
 
