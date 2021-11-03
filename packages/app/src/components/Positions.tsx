@@ -42,7 +42,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
-  PopoverCloseButton, PopoverBody, Popover,
+  PopoverCloseButton, PopoverBody, Popover, Spinner,
 } from '@chakra-ui/react'
 import {
   depositEth,
@@ -77,6 +77,7 @@ import {isMobile} from "react-device-detect";
 
 const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
 const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
+const POLL_INTERVAL = 1000 // 1 second polling interval
 
 function Positions() {
   const { pendingTxs } = useContext(TxContext);
@@ -87,20 +88,19 @@ function Positions() {
   const [shrubfolioRows, setShrubfolioRows] = useState<JSX.Element[]>([]);
   const [isApproved, setIsApproved] = useState(false);
   const [approving, setApproving] = useState(false);
+  const [polling, setPolling] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([<></>])
   const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SMATIC: 0, SUSD: 0}, available: {MATIC: 0, SMATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast();
-  const orderMap = new Map();
   const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
   const {isOpen: isOpenConnectWalletModal, onClose: onCloseConnectWalletModal} = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
   const [modalCurrency, setModalCurrency] = useState<SupportedCurrencies>('SUSD');
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   // radio buttons
-  const currencies = Object.keys(Currencies)
   const format = (val: string) => val;
   const parse = (val: string) => val.replace(/^\$/, "");
   const { getRootProps, getRadioProps } = useRadioGroup({
@@ -110,25 +110,61 @@ function Positions() {
   })
   const currenciesRadiogroup = getRootProps();
   const [showDepositButton, setShowDepositButton] = useState(false);
-
   const SHRUB_CURRENCIES = ['SMATIC', 'SUSD'];
-
   const btnBg = useColorModeValue("green", "teal");
 
-  const { loading:shrubfolioLoading, error:shrubfolioError, data:shrubfolioData } = useQuery(SHRUBFOLIO_QUERY, {
+  const connectWalletTimeout = useRef<NodeJS.Timeout>();
+
+  const spinnerRow = <Tr>
+      <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
+      <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
+      <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
+      <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
+      <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
+    </Tr>;
+
+  const {
+    loading:shrubfolioLoading,
+    error:shrubfolioError,
+    data:shrubfolioData,
+    startPolling:shrubfolioStartPolling,
+    stopPolling:shrubfolioStopPolling
+  } = useQuery(SHRUBFOLIO_QUERY, {
     variables: {
       id: account && account.toLowerCase()
     }
   })
+
+  // start shrubfolio query polling if behind
+  useEffect(() => {
+    const queryBlock = shrubfolioData && shrubfolioData._meta && shrubfolioData._meta.block && shrubfolioData._meta.block.number;
+    let txBlock = 0;
+    for (const txinfo of Object.values(pendingTxsState)) {
+      if (txinfo.data && txinfo.data.blockNumber && txinfo.data.blockNumber > queryBlock) {
+        shrubfolioStartPolling(POLL_INTERVAL);
+        setPolling(true);
+        txBlock = txinfo.data.blockNumber;
+      }
+    }
+    if (queryBlock > txBlock) {
+      shrubfolioStopPolling();
+      setPolling(false);
+    }
+  }, [shrubfolioData, pendingTxsState])
 
   // shrub balance display
   useEffect(() => {
     setLocalError('');
     async function shrubBalanceHandler() {
       if (!active || !account) {
-        handleErrorMessages({ customMessage: 'Please connect your wallet'})
-        console.error('Please connect wallet');
+        connectWalletTimeout.current = setTimeout(() => {
+          handleErrorMessages({ customMessage: 'Please connect your wallet'})
+          console.error('Please connect wallet');
+        },500);
         return;
+      }
+      if (connectWalletTimeout.current) {
+        clearTimeout(connectWalletTimeout.current);
       }
 
       const shrubBalanceObj: ShrubBalance = {locked: {}, available: {}};
@@ -228,11 +264,10 @@ function Positions() {
       )
     }
     setOptionsRows(tableRowsOptions);
-  }, [shrubfolioLoading, pendingTxsState])
+  }, [shrubfolioData])
 
-  
+  // determine if approved
   useEffect(() => {
-    // console.log('running handleApprove');
     if (!library) {
       return;
     }
@@ -352,7 +387,6 @@ function Positions() {
       })
 
   }
-
 
   async function handleClickExercise(pair: string, common: OrderCommon, amount: string) {
     try {
@@ -486,8 +520,11 @@ function Positions() {
           {shrubfolioRows}
       </Container>
       {/*options view*/}
-      <Container mt={50} p={hasOptions.current ? 0 : 8} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
-        {hasOptions.current ?
+      <Container mt={50} p={hasOptions.current ? 0 : 0} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
+        {
+          !shrubfolioLoading && !shrubfolioError && account ?
+
+          shrubfolioData && shrubfolioData.user && shrubfolioData.user.activeUserOptions && shrubfolioData.user.activeUserOptions[0] ?
           (<Table variant="simple" size="lg">
             <Thead>
               <Tr>
@@ -498,7 +535,10 @@ function Positions() {
                 <Th color={"gray.400"}>Gain/Loss</Th>
               </Tr>
             </Thead>
-            <Tbody>{optionsRows}</Tbody>
+            <Tbody>
+              {polling ? spinnerRow : ''}
+              {optionsRows}
+            </Tbody>
           </Table>) : (
             <Flex direction="column">
               <Center>
@@ -518,6 +558,21 @@ function Positions() {
               </Center>
             </Flex>
           )
+
+           : (<Table variant="simple" size="lg">
+              <Thead>
+                <Tr>
+                  <Th color={"gray.400"}>Position</Th>
+                  <Th color={"gray.400"}>Balance</Th>
+                  <Th color={"gray.400"}>Qty</Th>
+                  <Th color={"gray.400"}>Price</Th>
+                  <Th color={"gray.400"}>Gain/Loss</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {spinnerRow}
+              </Tbody>
+            </Table>)
         }
       </Container>
       {/*withdraw deposit modal*/}
