@@ -23,7 +23,10 @@ export function pendingTxReducer (
             if (!status) {
                 throw new Error('status required for update');
             }
-            if (data && data.blockNumber && state[txHash].data) {
+            if (data && data.blockNumber) {
+                if (!state[txHash].data) {
+                    state[txHash].data = {};
+                }
                 state[txHash].data.blockNumber = data.blockNumber;
                 state[txHash].data.status = data.status;
             }
