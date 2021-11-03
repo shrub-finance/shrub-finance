@@ -725,7 +725,7 @@ export function getOrderStack(userOptionResult: any) {
   const sortedMatches = matches.sort((a: any, b:any) => a.block - b.block);
   for (const match of sortedMatches) {
     const { totalFee, type, block, id: matchId } = match;
-    const size = cleanupDecimalString(match.size, 18);
+    const size = cleanupDecimalString(match.size, 6);
     const finalPrice = cleanupDecimalString(match.finalPrice, 18);
     const finalPricePerContract = cleanupDecimalString(match.finalPricePerContract, 18);
     let remainingSize = ethers.utils.parseUnits(size, 6);
