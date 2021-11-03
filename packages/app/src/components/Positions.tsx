@@ -399,7 +399,7 @@ function Positions() {
       const receipt = await tx.wait()
       const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
       toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
-      pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+      pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber}})
       return tx;
     } catch (e) {
       console.error(e);
