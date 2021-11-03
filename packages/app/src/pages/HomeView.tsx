@@ -55,15 +55,16 @@ function HomeView(props: RouteComponentProps) {
 
     return (
         <>
-            <Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+            <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center mt={10}>
                     <Box maxW="60rem" mb={12} textAlign={'center'}>
 
-                        <Heading fontSize="60px" letterSpacing={"tight"}>
-                            Welcome To Shrub Beta!
+                        <Heading fontSize="50px" letterSpacing={"tight"}>
+                            Get Started on Shrub Beta
+
                         </Heading>
-                        <Text fontSize="25px" pt={2} mb={12} color={useColorModeValue("gray.600", "gray.500")}>
-                           Get started in 3 simple steps
+                        <Text fontSize="18px" pt={3} mb={8} color={useColorModeValue("gray.500", "gray.500")}>
+                           Practice crypto options trading on the Polygon Mumbai blockchain
                         </Text>
                         <Flex
                             direction={{base: "column", md: "row", lg: "row"}}
@@ -240,12 +241,12 @@ function HomeView(props: RouteComponentProps) {
 
             <Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center>
-                    <Box maxW="60rem" mb={12} textAlign={'center'}>
-                        <Heading fontSize="60px" letterSpacing={"tight"} mb={4}>
+                    <Box maxW="60rem" mb={8} textAlign={'center'}>
+                        <Heading fontSize="50px" letterSpacing={"tight"}>
                             Done with 1-2-3 above?
                         </Heading>
-                        <Text fontSize="25px" color={useColorModeValue("gray.600", "gray.500")}>
-                            Sweet. Let buy some options!
+                        <Text pt="3" mb="8" fontSize="18px" color={useColorModeValue("gray.500", "gray.500")}>
+                            Sweet. Let's buy some options!
                         </Text>
                         <Button
                             rightIcon={<ArrowForwardIcon/>}
@@ -255,7 +256,6 @@ function HomeView(props: RouteComponentProps) {
                             py={10}
                             colorScheme={useColorModeValue("green", "teal")}
                             variant="solid"
-                            mt="50px"
                             borderRadius="full"
                             // bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
                             // _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}
