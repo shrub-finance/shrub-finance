@@ -33,7 +33,7 @@ import {
   PutCall,
   SellBuy
 } from '../types';
-import {RouteComponentProps} from "@reach/router";
+import {Link as ReachLink, RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {
     cancelOrder,
@@ -62,7 +62,13 @@ import {
     // unsubscribeFromAnnouncements,
 } from '../utils/ethMethods'
 import {BytesLike, ethers} from "ethers";
-import {ExternalLinkIcon, Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
+import {
+    ArrowBackIcon,
+    ArrowForwardIcon,
+    ExternalLinkIcon,
+    Icon,
+    QuestionOutlineIcon
+} from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
 // import {orderBookReducer} from "../components/orderBookReducer";
 import {currencyIcon, currencySymbol, ExplorerDataType, explorerLink} from "../utils/chainMethods";
@@ -77,6 +83,7 @@ import {useQuery} from "@apollo/client";
 import {ORDER_HISTORY_QUERY, SUMMARY_VIEW_QUERY} from '../constants/queries'
 import contractData from "../constants/common"
 import {MdHistoryToggleOff} from 'react-icons/md';
+import {isMobile} from "react-device-detect";
 
 // const initialOrderBookState = {};
 // const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
@@ -695,21 +702,35 @@ function OptionsView(props: RouteComponentProps) {
             <Icon as={currencyIcon(chainId)} pr="2"/> sMATIC Options
                 </Center>
             </Heading>
-            <Center pt={6}>
-                <Box as="span" fontWeight="semibold" fontSize="sm" color="gray.500">
-                    Buy some options!
-                </Box>
-            </Center>
+          <Container
+              mt={30}
+              flex="1"
+              borderRadius="2xl"
+          >
+              {!isMobile && <Flex>
+                  <Box>
+                      <Button leftIcon={<ArrowBackIcon />} colorScheme="blue" variant="link" fontSize={"xs"}
+                              as={ReachLink} to={'/shrubfolio'}>
+                          Shrubfolio
+                      </Button>
+                  </Box>
+                  <Spacer/>
+                  {/*<Box>*/}
+                  {/*    <Button rightIcon={<ArrowForwardIcon />} colorScheme="blue" variant="link" fontSize={"xs"}>*/}
+                  {/*        Orders*/}
+                  {/*    </Button>*/}
+                  {/*</Box>*/}
+              </Flex> }
+          </Container>
 
             <Container
-                mt={30}
+                mt={1}
                 p={5}
                 shadow={useColorModeValue("2xl", "2xl")}
                 flex="1"
                 borderRadius="2xl"
                 bg={useColorModeValue("white", "shrub.100")}
             >
-
 
                 {expiryDates && expiryDates[0] ?
                     <>

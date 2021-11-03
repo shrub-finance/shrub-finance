@@ -70,12 +70,21 @@ function handleModalClose() {
   return (
     <Box>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}  >
-        <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+        <Flex h={16} alignItems={"center"} justifyContent={"space-between"} >
           <HStack spacing={8} alignItems={"center"}>
             <Link as={ReachLink} to={'/'} >
               <ShrubLogo boxSize={10}/>
             </Link>
             <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
+              <Link as={ReachLink} to={'/'} display={{ base: "none", md: "flex" }}
+                    variant="ghost"
+                    cursor="pointer"
+                    px={2}
+                    py={{ base: "3", md: "1", lg: "1" }} rounded={"lg"}
+                    _hover={{textDecoration: "none", bgGradient: gradient}}
+              >
+                Home
+              </Link>
               {NavRoutes.map((route) => (
                   <NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
                    {route.item}
