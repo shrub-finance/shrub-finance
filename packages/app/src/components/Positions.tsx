@@ -42,7 +42,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
-  PopoverCloseButton, PopoverBody, Popover, Spinner,
+  PopoverCloseButton, PopoverBody, Popover, Spinner, Badge,
 } from '@chakra-ui/react'
 import {
   depositEth,
@@ -69,7 +69,7 @@ import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
-import {QuestionOutlineIcon} from '@chakra-ui/icons';
+import {ArrowBackIcon, ArrowForwardIcon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import {currencySymbol} from "../utils/chainMethods";
 import { useQuery } from '@apollo/client'
 import { SHRUBFOLIO_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries';
@@ -515,8 +515,25 @@ function Positions() {
         </Button>
         </Center>
       </Container>
+      <Container mt={2} flex="1" borderRadius="2xl" maxW="container.sm">
+        {!isMobile && <Flex>
+          <Box>
+            <Button leftIcon={<ArrowBackIcon />} colorScheme="blue" variant="link" fontSize={"xs"}
+                    as={ReachLink} to={'/options'}>
+              Options
+            </Button>
+          </Box>
+          <Spacer/>
+          {/*<Box>*/}
+          {/*  <Button rightIcon={<ArrowForwardIcon />} colorScheme="blue" variant="link" fontSize={"xs"}>*/}
+          {/*    My Orders*/}
+          {/*  </Button>*/}
+          {/*</Box>*/}
+        </Flex>}
+      </Container>
       {/*asset view*/}
-      <Container  mt={25} borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")}>
+      <Container mt={1}
+          borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")}>
           {shrubfolioRows}
       </Container>
       {/*options view*/}
@@ -608,7 +625,12 @@ function Positions() {
                   </HStack>
                   </FormControl>
                   {(modalCurrency === "MATIC"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
-                    <FormLabel>Amount</FormLabel>
+                    <HStack spacing="200px">
+                    <FormLabel>Amount </FormLabel>
+                      {/*<Badge rounded={"md"} px={2} py={1}  variant="subtle" colorScheme="yellow">*/}
+                      {/*  Available: {totalUserBalance(modalCurrency)}*/}
+                      {/*</Badge>*/}
+                    </HStack>
                     <NumberInput
                         onChange={(valueString) => setAmountValue(parse(valueString))}
                         value={format(amountValue)} size="lg"
