@@ -123,6 +123,11 @@ export const ORDER_HISTORY_QUERY = gql`
 
 export const SHRUBFOLIO_QUERY = gql`
     query Shrubfolio($id: ID){
+        _meta {
+            block {
+                number
+            }
+        }
         user(id:$id){
             activeUserOptions(where:{balance_not:0}, orderBy: balance, orderDirection: desc){
                 balance
