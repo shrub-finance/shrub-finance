@@ -388,6 +388,8 @@ const {
                 formattedStrike,
                 formattedExpiry
             };
+            const pricePerContract = Number(ethers.utils.formatUnits(accumulatedPrice)) / amount
+            const formattedPricePerContract = (Math.round(Number(pricePerContract) * 10000) / 10000).toString();
             const data = {
                 txType: 'marketOrder',
                 id: '',
@@ -396,7 +398,7 @@ const {
                 positionHash: hashOrderCommon(common),
                 userAccount: account,
                 status: 'confirming',
-                pricePerContract: (Number(ethers.utils.formatUnits(accumulatedPrice)) / amount).toFixed(2),
+                pricePerContract: formattedPricePerContract,
             }
             pendingTxsDispatch({type: 'add', txHash: tx.hash, description, data})
             setActiveHash(tx.hash);
@@ -631,7 +633,7 @@ const {
                             <Input
                               id="bid"
                               placeholder="0"
-                              value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(2) : orderBook.buyOrders[0]?.unitPrice.toFixed(2)) : price}
+                              value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4)) : price}
                               isDisabled={radioOrderType === 'Market'}
                               onChange={(event: any) => changePrice(event.target.value)}
                               isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}

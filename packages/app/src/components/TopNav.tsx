@@ -29,6 +29,15 @@ import {isMobile} from "react-device-detect";
 import {GiCoins} from 'react-icons/gi';
 import {FaFileContract, HiOutlineDocumentDuplicate} from 'react-icons/all';
 import Faucet from './Faucet'
+import usePriceFeed from '../hooks/usePriceFeed'
+import { QuoteAssetSwitcher } from './quoteAssetSwitcher'
+
+// constants
+const CHAINLINK_MATIC = '0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada';  // Mumbai
+const CHAINLINK_ETH = '0x0715A7794a1dc8e42615F059dD6e406A6594651A';  // Mumbai
+const CHAINLINK_BTC = '0x007A22900a3B98143368Bd5906f8E17e9867581b';  // Mumbai
+const CHAINLINK_LINK_MATIC = '0x12162c3E810393dEC01362aBf156D7ecf6159528';  // Mumbai
+const CHAINLINK_USDC = '0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0';  // Mumbai
 
 function TopNav() {
 
@@ -49,6 +58,10 @@ function TopNav() {
   );
   const topNavShadow = useColorModeValue("md", "md");
   const topNavBgColor = useColorModeValue("white", "shrub.100");
+  const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
+  // const { price: ethPrice } = usePriceFeed(CHAINLINK_ETH);
+  // const { price: btcPrice } = usePriceFeed(CHAINLINK_BTC);
+  console.log(maticPrice);
 
   const bg = useColorModeValue("green", "teal")
 function handleModalClose() {
@@ -103,6 +116,7 @@ function handleModalClose() {
           </HStack>
           <Flex alignItems={"center"}>
             {!isMobile && <Box pr={5} display={{ base: "none", sm: "flex" }}><Balance/></Box>}
+            {!isMobile && <Box display={{ base: "none", sm: "flex" }}><QuoteAssetSwitcher/></Box>}
             {!isMobile && <Box display={{ base: "none", sm: "flex" }}><Chain/></Box>}
             <Box onClick={onOpen}
                  mr={isMobile ? '19.5': '0'}

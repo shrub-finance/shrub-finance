@@ -325,8 +325,9 @@ function OptionsView(props: RouteComponentProps) {
                                 tradable ? 'active' :
                                     'non-tradable';
 
-                tempUserOrderRows.push(returnOrderHistoryRow(id, blockNumber, orderToName, positionHash, userAccount, status, pricePerContract))
-      }
+                const formattedPricePerContract = (Math.round(Number(pricePerContract) * 10000) / 10000).toString();
+
+                tempUserOrderRows.push(returnOrderHistoryRow(id, blockNumber, orderToName, positionHash, userAccount, status, formattedPricePerContract))}
     }
     setUserOrderRows(tempUserOrderRows)
   }, [orderHistoryLoading])
