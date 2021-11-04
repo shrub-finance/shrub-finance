@@ -635,12 +635,13 @@ function Positions() {
                   </HStack>
                   </FormControl>
                   {(modalCurrency === "MATIC"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
-                    <HStack spacing="200px">
+                    <Flex>
                     <FormLabel>Amount </FormLabel>
-                      <Badge rounded={"md"} px={2} py={1}  variant="subtle" colorScheme="yellow">
+                      <Spacer/>
+                      <Badge rounded={"md"} p={2}  mb={2} variant="subtle" colorScheme="yellow">
                         Available: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : String(shrubBalance.available[modalCurrency])}
                       </Badge>
-                    </HStack>
+                    </Flex>
                     <NumberInput
                         onChange={(valueString) => setAmountValue(parse(valueString))}
                         value={format(amountValue)} size="lg"
