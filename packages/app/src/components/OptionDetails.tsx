@@ -130,7 +130,7 @@ const {
         name: "orderType",
         defaultValue: 'Market',
         onChange: (nextValue: OrderType) => {
-            radioOption === 'BUY' ? setPrice(orderBook.sellOrders[0]?.unitPrice.toFixed(2) ): setPrice(orderBook.buyOrders[0]?.unitPrice.toFixed(2))
+            radioOption === 'BUY' ? setPrice(orderBook.sellOrders[0]?.unitPrice.toFixed(4) ): setPrice(orderBook.buyOrders[0]?.unitPrice.toFixed(4))
             setRadioOrderType(nextValue)
 
         },
@@ -325,7 +325,6 @@ const {
                             provider: library
                         });
                         console.log(balance.toString());
-                        const pricePerContract = orderBook.sellOrders[0]?.unitPrice.toFixed(2)
                         // TODO: Add this validation back where it properly checks if the user has sufficient funds to buy the put
                         // if (balance.lt(ethers.BigNumber.from(pricePerContract).mul(size))) {
                         //     throw new Error("Not enough collateral of baseAsset");
