@@ -17,6 +17,7 @@ function RadioCard(props) {
         borderWidth="1px"
         borderColor={useColorModeValue("green.500", "gray.700")}
         boxShadow="md"
+        sx={{userSelect:'none'}}
         _checked={{
           bg: useColorModeValue("green.500", "gray.400"),
           fontWeight: "semibold",

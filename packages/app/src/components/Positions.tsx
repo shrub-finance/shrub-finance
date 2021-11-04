@@ -87,6 +87,7 @@ function Positions() {
   const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
   const [shrubfolioRows, setShrubfolioRows] = useState<JSX.Element[]>([]);
   const [isApproved, setIsApproved] = useState(false);
+  const [walletTokenBalance, setWalletTokenBalance] = useState('');
   const [approving, setApproving] = useState(false);
   const [polling, setPolling] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
@@ -272,6 +273,7 @@ function Positions() {
       return;
     }
     async function handleApprove(){
+      setWalletTokenBalance('-');
       if (modalCurrency !== 'MATIC') {
         try {
           const allowance = await getAllowance(Currencies[modalCurrency].address, library);
@@ -282,12 +284,20 @@ function Positions() {
             setIsApproved(false);
           }
         } catch (e) {
-          console.error()
+          handleErrorMessages(e);
+          console.error(e);
+        }
+        try {
+          const balance = await getWalletBalance(Currencies[modalCurrency].address, library)
+          setWalletTokenBalance(balance);
+        } catch (e) {
+          handleErrorMessages(e);
+          console.error(e)
         }
       }
     }
     handleApprove();
-  }, [modalCurrency, account, pendingTxsState, library])
+  }, [modalCurrency, account, pendingTxsState, active])
 
   // set shrubfolio rows
   useEffect(() => {
@@ -468,7 +478,7 @@ function Positions() {
     } else if (withdrawDepositAction === "Withdraw") {
       setAmountValue(String(shrubBalance.available[modalCurrency]));
       if(String(shrubBalance.available[modalCurrency]) === '0') {
-        handleErrorMessages({customMessage: 'Nothing to withdraw :/'});
+        handleErrorMessages({customMessage: 'Nothing to withdraw'});
       }
     }
   }
@@ -627,9 +637,9 @@ function Positions() {
                   {(modalCurrency === "MATIC"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
                     <HStack spacing="200px">
                     <FormLabel>Amount </FormLabel>
-                      {/*<Badge rounded={"md"} px={2} py={1}  variant="subtle" colorScheme="yellow">*/}
-                      {/*  Available: {totalUserBalance(modalCurrency)}*/}
-                      {/*</Badge>*/}
+                      <Badge rounded={"md"} px={2} py={1}  variant="subtle" colorScheme="yellow">
+                        Available: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : String(shrubBalance.available[modalCurrency])}
+                      </Badge>
                     </HStack>
                     <NumberInput
                         onChange={(valueString) => setAmountValue(parse(valueString))}
