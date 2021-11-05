@@ -15,7 +15,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure, useColorModeValue
+  useDisclosure, useColorModeValue, Badge
 } from "@chakra-ui/react";
 
 import {AppCommon, OptionData, SellBuy} from '../types';
@@ -23,6 +23,8 @@ import OptionDetails from "./OptionDetails";
 import {Txmonitor} from "./TxMonitoring";
 import {currencySymbol} from "../utils/chainMethods";
 import {useWeb3React} from "@web3-react/core";
+import usePriceFeed from "../hooks/usePriceFeed";
+import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 
 const height = 100;
 
@@ -39,8 +41,10 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
   const [approving, setApproving] = React.useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const {chainId} = useWeb3React();
+  const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
 
   const bg = useColorModeValue("green", "teal");
+  const livePriceColor = useColorModeValue("green.500", "green.200")
 
   function handleModalClose() {
     setApproving(false);
@@ -67,7 +71,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
           </Tag>
         </Box>
         <Spacer/>
-        <Box h={height} fontWeight="semibold" lineHeight={2} flexBasis="100">
+        <Box h={height} fontWeight="semibold" lineHeight={1.8} flexBasis="100">
           <Text>Last: {last? formatDisplay(last) : "--"}</Text>
           <Text>Ask: {ask? formatDisplay(ask) : "--"}</Text>
           <Text>Bid: {bid? formatDisplay(bid) : "--"}</Text>
@@ -85,7 +89,9 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
         <ModalOverlay />
         <ModalContent borderRadius="2xl">
           <ModalCloseButton />
-          <ModalHeader borderBottomWidth="1px">{currencySymbol(chainId)} Order</ModalHeader>
+          <ModalHeader borderBottomWidth="1px">{currencySymbol(chainId)} Order  <Box as="span" color={livePriceColor} fontSize="xs" ml="1" fontWeight={"semibold"}>
+            sMATIC: $ {maticPrice}
+          </Box></ModalHeader>
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
               <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>

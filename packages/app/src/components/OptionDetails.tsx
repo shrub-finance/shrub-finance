@@ -130,7 +130,7 @@ const {
         name: "orderType",
         defaultValue: 'Market',
         onChange: (nextValue: OrderType) => {
-            radioOption === 'BUY' ? setPrice(orderBook.sellOrders[0]?.unitPrice.toFixed(2) ): setPrice(orderBook.buyOrders[0]?.unitPrice.toFixed(2))
+            radioOption === 'BUY' ? setPrice(orderBook.sellOrders[0]?.unitPrice.toFixed(4) ): setPrice(orderBook.buyOrders[0]?.unitPrice.toFixed(4))
             setRadioOrderType(nextValue)
 
         },
@@ -325,7 +325,6 @@ const {
                             provider: library
                         });
                         console.log(balance.toString());
-                        const pricePerContract = orderBook.sellOrders[0]?.unitPrice.toFixed(2)
                         // TODO: Add this validation back where it properly checks if the user has sufficient funds to buy the put
                         // if (balance.lt(ethers.BigNumber.from(pricePerContract).mul(size))) {
                         //     throw new Error("Not enough collateral of baseAsset");
@@ -388,6 +387,8 @@ const {
                 formattedStrike,
                 formattedExpiry
             };
+            const pricePerContract = Number(ethers.utils.formatUnits(accumulatedPrice)) / amount
+            const formattedPricePerContract = (Math.round(Number(pricePerContract) * 10000) / 10000).toString();
             const data = {
                 txType: 'marketOrder',
                 id: '',
@@ -396,7 +397,7 @@ const {
                 positionHash: hashOrderCommon(common),
                 userAccount: account,
                 status: 'confirming',
-                pricePerContract: (Number(ethers.utils.formatUnits(accumulatedPrice)) / amount).toFixed(2),
+                pricePerContract: formattedPricePerContract,
             }
             pendingTxsDispatch({type: 'add', txHash: tx.hash, description, data})
             setActiveHash(tx.hash);
@@ -631,7 +632,7 @@ const {
                             <Input
                               id="bid"
                               placeholder="0"
-                              value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(2) : orderBook.buyOrders[0]?.unitPrice.toFixed(2)) : price}
+                              value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4)) : price}
                               isDisabled={radioOrderType === 'Market'}
                               onChange={(event: any) => changePrice(event.target.value)}
                               isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}

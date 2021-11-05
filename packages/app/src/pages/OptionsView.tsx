@@ -1,23 +1,23 @@
 import React, {useContext, useEffect, useReducer, useState} from 'react';
 import {
-  Box,
-  Button,
-  Center,
-  Container,
-  Flex, Heading,
-  HStack,
-  Text,
-  Spacer,
-  Table, Tag, TagLabel,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  useColorModeValue,
-  useRadioGroup,
-  useToast,
-  Link
+    Box,
+    Button,
+    Center,
+    Container,
+    Flex, Heading,
+    HStack,
+    Text,
+    Spacer,
+    Table, Tag, TagLabel,
+    Tbody,
+    Td,
+    Th,
+    Thead,
+    Tr,
+    useColorModeValue,
+    useRadioGroup,
+    useToast,
+    Link, MenuButton, Menu, MenuList, MenuItem
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 // import useFetch from "../hooks/useFetch";
@@ -64,7 +64,7 @@ import {
 import {BytesLike, ethers} from "ethers";
 import {
     ArrowBackIcon,
-    ArrowForwardIcon,
+    ArrowForwardIcon, ChevronDownIcon,
     ExternalLinkIcon,
     Icon,
     QuestionOutlineIcon
@@ -78,12 +78,15 @@ import {TxContext} from "../components/Store";
 import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 // import {nonceReducer} from "../components/nonceReducer";
 import SummaryView from '../components/SummaryView'
-import {HelloBud} from "../assets/Icons";
+import {HelloBud, PolygonIcon} from "../assets/Icons";
 import {useQuery} from "@apollo/client";
 import {ORDER_HISTORY_QUERY, SUMMARY_VIEW_QUERY} from '../constants/queries'
 import contractData from "../constants/common"
 import {MdHistoryToggleOff} from 'react-icons/md';
 import {isMobile} from "react-device-detect";
+import {FaEthereum} from "react-icons/fa";
+import usePriceFeed from "../hooks/usePriceFeed";
+import {CHAINLINK_MATIC, CHAINLINK_ETH} from "../constants/chainLinkPrices";
 
 // const initialOrderBookState = {};
 // const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
@@ -91,6 +94,8 @@ import {isMobile} from "react-device-detect";
 
 function OptionsView(props: RouteComponentProps) {
     const {library, chainId, account} = useWeb3React();
+    const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
+    const { price: ethPrice } = usePriceFeed(CHAINLINK_ETH);
     const sellBuys = ['BUY', 'SELL']
     const optionTypes = ['PUT', 'CALL']
     const [sellBuy, setSellBuy] = useState<SellBuy>('BUY');
@@ -112,6 +117,8 @@ function OptionsView(props: RouteComponentProps) {
   const [localOrderHistoryRows, setLocalOrderHistoryRows] = useState<JSX.Element[]>([]);
   const [optionRows, setOptionRows] = useState<JSX.Element[]>([]);
     const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
+
+    const livePriceColor = useColorModeValue("green.500", "green.200")
 
     // TODO un-hardcode this
     const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
@@ -325,8 +332,9 @@ function OptionsView(props: RouteComponentProps) {
                                 tradable ? 'active' :
                                     'non-tradable';
 
-                tempUserOrderRows.push(returnOrderHistoryRow(id, blockNumber, orderToName, positionHash, userAccount, status, pricePerContract))
-      }
+                const formattedPricePerContract = (Math.round(Number(pricePerContract) * 10000) / 10000).toString();
+
+                tempUserOrderRows.push(returnOrderHistoryRow(id, blockNumber, orderToName, positionHash, userAccount, status, formattedPricePerContract))}
     }
     setUserOrderRows(tempUserOrderRows)
   }, [orderHistoryLoading])
@@ -697,11 +705,15 @@ function OptionsView(props: RouteComponentProps) {
   return (
       <>
         <SummaryView />
-        <Heading mt={10}>
           <Center>
-            <Icon as={currencyIcon(chainId)} pr="2"/> sMATIC Options
+              <Menu isLazy>
+                  <MenuButton><Heading mt={10}><Icon as={currencyIcon(chainId)} pr="2"/> sMATIC Options <ChevronDownIcon /></Heading></MenuButton>
+              <MenuList>
+                      {/* MenuItems are not rendered unless Menu is open */}
+                  <MenuItem minW="400px" fontSize={"lg"}><FaEthereum/> <Text ml={"1"}>sETH Options (coming soon)</Text></MenuItem>
+                  </MenuList>
+              </Menu>
                 </Center>
-            </Heading>
           <Container
               mt={30}
               flex="1"
@@ -715,11 +727,11 @@ function OptionsView(props: RouteComponentProps) {
                       </Button>
                   </Box>
                   <Spacer/>
-                  {/*<Box>*/}
-                  {/*    <Button rightIcon={<ArrowForwardIcon />} colorScheme="blue" variant="link" fontSize={"xs"}>*/}
-                  {/*        Orders*/}
-                  {/*    </Button>*/}
-                  {/*</Box>*/}
+                  <Box>
+                      <Text color={livePriceColor} fontSize={"xs"} fontWeight={"semibold"}>
+                        sMATIC: ${maticPrice}
+                      </Text>
+                  </Box>
               </Flex> }
           </Container>
 

@@ -29,6 +29,8 @@ import {isMobile} from "react-device-detect";
 import {GiCoins} from 'react-icons/gi';
 import {FaFileContract, HiOutlineDocumentDuplicate} from 'react-icons/all';
 import Faucet from './Faucet'
+import usePriceFeed from '../hooks/usePriceFeed'
+
 
 function TopNav() {
 
