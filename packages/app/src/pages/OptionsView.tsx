@@ -729,7 +729,7 @@ function OptionsView(props: RouteComponentProps) {
                   <Spacer/>
                   <Box>
                       <Text color={livePriceColor} fontSize={"xs"} fontWeight={"semibold"}>
-                        sMATIC: ${maticPrice}
+                        sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
                       </Text>
                   </Box>
               </Flex> }
