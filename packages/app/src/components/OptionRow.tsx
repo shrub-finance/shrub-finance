@@ -15,7 +15,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure, useColorModeValue
+  useDisclosure, useColorModeValue, Badge
 } from "@chakra-ui/react";
 
 import {AppCommon, OptionData, SellBuy} from '../types';
@@ -23,6 +23,8 @@ import OptionDetails from "./OptionDetails";
 import {Txmonitor} from "./TxMonitoring";
 import {currencySymbol} from "../utils/chainMethods";
 import {useWeb3React} from "@web3-react/core";
+import usePriceFeed from "../hooks/usePriceFeed";
+import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 
 const height = 100;
 
@@ -39,8 +41,10 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
   const [approving, setApproving] = React.useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const {chainId} = useWeb3React();
+  const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
 
   const bg = useColorModeValue("green", "teal");
+  const livePriceColor = useColorModeValue("green.500", "green.200")
 
   function handleModalClose() {
     setApproving(false);
@@ -50,8 +54,8 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
 
   function formatDisplay(item: string) {
 
-    return Number(item).toLocaleString('en-US', {currency: 'USD', style: 'currency', maximumFractionDigits:4, maximumSignificantDigits: 7})
-    // return Number(item).toLocaleString('en-US', {currency: 'USD', style: 'currency', maximumFractionDigits:2})
+    // return Number(item).toLocaleString('en-US', {currency: 'USD', style: 'currency', maximumFractionDigits:4, maximumSignificantDigits: 7})
+    return Number(item).toLocaleString('en-US', {currency: 'USD', style: 'currency', maximumFractionDigits:2})
   }
 
   return (
@@ -85,7 +89,9 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
         <ModalOverlay />
         <ModalContent borderRadius="2xl">
           <ModalCloseButton />
-          <ModalHeader borderBottomWidth="1px">{currencySymbol(chainId)} Order</ModalHeader>
+          <ModalHeader borderBottomWidth="1px">{currencySymbol(chainId)} Order  <Box as="span" color={livePriceColor} fontSize="xs" ml="1" fontWeight={"semibold"}>
+            sMATIC: $ {maticPrice}
+          </Box></ModalHeader>
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
               <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
