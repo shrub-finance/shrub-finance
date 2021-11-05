@@ -90,7 +90,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
         <ModalContent borderRadius="2xl">
           <ModalCloseButton />
           <ModalHeader borderBottomWidth="1px">{currencySymbol(chainId)} Order  <Box as="span" color={livePriceColor} fontSize="xs" ml="1" fontWeight={"semibold"}>
-            sMATIC: $ {maticPrice}
+            sMATIC: $ {maticPrice ? maticPrice.toFixed(2) : "-"}
           </Box></ModalHeader>
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
