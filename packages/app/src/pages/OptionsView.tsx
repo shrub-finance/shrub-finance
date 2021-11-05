@@ -710,7 +710,7 @@ function OptionsView(props: RouteComponentProps) {
                   <MenuButton><Heading mt={10}><Icon as={currencyIcon(chainId)} pr="2"/> sMATIC Options <ChevronDownIcon /></Heading></MenuButton>
               <MenuList>
                       {/* MenuItems are not rendered unless Menu is open */}
-                      <MenuItem minW="400px" fontSize={"lg"}><FaEthereum/> sETH Options (coming soon...)</MenuItem>
+                  <MenuItem minW="400px" fontSize={"lg"}><FaEthereum/> <Text ml={"1"}>sETH Options (coming soon)</Text></MenuItem>
                   </MenuList>
               </Menu>
                 </Center>
