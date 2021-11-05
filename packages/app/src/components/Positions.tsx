@@ -563,7 +563,7 @@ function Positions() {
               </Tr>
             </Thead>
             <Tbody>
-              {polling ? spinnerRow : ''}
+              {polling ? spinnerRow : <></>}
               {optionsRows}
             </Tbody>
           </Table>) : (

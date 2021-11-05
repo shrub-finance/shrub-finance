@@ -8,9 +8,8 @@ import { chainlinkAggregatorV3Interface } from '../constants/externalAbis'
 
 function usePriceFeed(chainlinkAddress: string) {
   // hooks
-  const {active, library, account, error: web3Error, chainId} = useWeb3React();
+  const {active, library} = useWeb3React();
   const [price, setPrice] = useState<number>();
-  const [counter, setCounter] = useState(0)
   useInterval(async() => {
     if (!active) {
       return;
