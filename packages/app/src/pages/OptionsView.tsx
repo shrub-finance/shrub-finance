@@ -202,6 +202,9 @@ function OptionsView(props: RouteComponentProps) {
 
   // Updates OptionRows On summary graphy query complete or strikePrices being set
     useEffect(() => {
+        if(summaryLoading) {
+            return;
+        }
         const tempOptionRows: JSX.Element[] = [];
         const tempOptionMap: Map<string, JSX.Element> = new Map();
         const emptyOptionData = {
