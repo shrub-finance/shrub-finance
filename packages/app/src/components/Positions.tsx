@@ -91,7 +91,7 @@ function Positions() {
   const [approving, setApproving] = useState(false);
   const [polling, setPolling] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
-  const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([<></>])
+  const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([<Tr key={"defaultOptionRow"}/>])
   const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SMATIC: 0, SUSD: 0}, available: {MATIC: 0, SMATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
