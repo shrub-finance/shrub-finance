@@ -433,8 +433,8 @@ const {
             return;
         }
         orderbookSellRows.push(<Tr key={index}>
-            <Td colorScheme="gray.800">{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
-            <Td isNumeric={true} colorScheme="gray.800">{sellOrder.formattedSize}</Td>
+            <Td colorscheme="gray.800">{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
+            <Td isNumeric={true} colorscheme="gray.800">{sellOrder.formattedSize}</Td>
         </Tr>)
     });
     orderBook.buyOrders
@@ -446,8 +446,8 @@ const {
           }
           orderbookBuyRows.push(
               <Tr key={index}>
-              <Td colorScheme="gray.800" >{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
-              <Td colorScheme="gray.800" >{buyOrder.formattedSize}</Td>
+              <Td colorscheme="gray.800" >{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
+              <Td colorscheme="gray.800" >{buyOrder.formattedSize}</Td>
           </Tr>)
       });
 
