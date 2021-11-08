@@ -33,7 +33,7 @@ function RadioCard(props) {
             borderColor: useColorModeValue("green.500", "gray.400"),
             borderWidth: "1px"
         }}
-        px={{ base: 4, md: 4 }}
+        px={{ base: 4, md: 6 }}
         py={{ base: 2, md: 1 }}
         fontSize={{ base: "sm", md: "md" }}
         minWidth="50px"

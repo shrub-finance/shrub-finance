@@ -348,24 +348,24 @@ function OptionsView(props: RouteComponentProps) {
 
   function returnOrderHistoryRow(id: string, blockNumber: number, orderToName: any, positionHash: string, userAccount: string, status: string, pricePerContract: string) {
     return <Tr key={id}>
-        <Td mW={"1000"}>
-          <Link color="teal.400" fontSize={"xs"}
+        <Td minW="121px">
+          <Link color="teal.400" fontSize="11px" fontWeight="bold" letterSpacing="wider"
                                   href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)} isExternal>
             {blockNumber}<ExternalLinkIcon mx="2px" mb="3px"/>
           </Link>
         </Td>
-        <Td fontWeight="semibold" fontSize={"xs"} lineHeight={1.8}>
-                            <Text letterSpacing="wider" color="gray.600">{shortOptionName(orderToName)}</Text>
+        <Td fontWeight="semibold" fontSize="xs" lineHeight={1.8} minW="150px">
+                            <Text letterSpacing="wide" color="gray.500">{shortOptionName(orderToName)}</Text>
                         </Td>
         <Td maxWidth={"10px"} isNumeric={true}>
-          <Text fontWeight="semibold" fontSize="xs" letterSpacing={"wide"} color="gray.600">{pricePerContract}</Text>
+          <Text fontWeight="semibold" fontSize="xs" letterSpacing="wide" color="gray.500">{pricePerContract}</Text>
         </Td>
         <Td>
-          <Tag size={'sm'} colorScheme={status === 'cancelled' ?
+          <Tag size='sm' colorScheme={status === 'cancelled' ?
             'red' : status === 'expired' ?
               'gray' : status === 'completed' ?
                 'cyan' : status === 'active' ?
-                  'yellow': 'blue'} borderRadius={'full'}>
+                  'yellow': 'blue'} borderRadius='full'>
             <TagLabel>{status}</TagLabel>
           </Tag>
         </Td>
@@ -762,7 +762,7 @@ function OptionsView(props: RouteComponentProps) {
                                         (Number(expiry) * 1000) > Date.now() &&
                                         <RadioCard key={expiry} {...radio}>
                                             <Text> {formatDate(Number(expiry))}</Text>
-                                            {!isMobile && <Text fontSize="xs" display={{ sm: "none", md: "block" }}>{formatTime(Number(expiry))}</Text>}
+                                            {!isMobile && <Text fontSize="10px" display={{ sm: "none", md: "block" }}>{formatTime(Number(expiry))}</Text>}
                                         </RadioCard>
                                     );
                                 })}
