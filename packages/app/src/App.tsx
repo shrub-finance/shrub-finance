@@ -14,7 +14,8 @@ function App() {
 
   const client = new ApolloClient({
     uri: process.env.REACT_APP_SUBGRAPH_QUERY,
-    cache: new InMemoryCache()
+    cache: new InMemoryCache(),
+    connectToDevTools: process.env.REACT_APP_ENVIRONMENT==="development"
   })
 
 
