@@ -790,7 +790,7 @@ function OptionsView(props: RouteComponentProps) {
                 }
 
               <Flex
-                  mt={"6"}
+                  mt={"8"}
               >
                   <Box>
                       {!isMobile &&   <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option</Text>}
