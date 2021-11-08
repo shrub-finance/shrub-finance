@@ -190,7 +190,7 @@ function Positions() {
 
   // options display
   useEffect(() => {
-    const tableRowsOptions:JSX.Element[] = [];
+    const optionRow:JSX.Element[] = [];
     if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
       return
     }
@@ -222,13 +222,13 @@ function Positions() {
 
 
       hasOptions.current = true;
-      tableRowsOptions.push(
+      optionRow.push(
         <Tr key={optionId}>
           <Td fontWeight={'bold'} fontSize={"xs"}>
             <Box>{pair}</Box>
             <Box>{pair2}</Box>
           </Td>
-          <Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
+          {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
           <Td>{amount}</Td>
           <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
           <Td>
@@ -264,7 +264,7 @@ function Positions() {
         </Tr>
       )
     }
-    setOptionsRows(tableRowsOptions);
+    setOptionsRows(optionRow);
   }, [shrubfolioData])
 
   // determine if approved
@@ -477,9 +477,6 @@ function Positions() {
       setAmountValue(walletBalanceValue);
     } else if (withdrawDepositAction === "Withdraw") {
       setAmountValue(String(shrubBalance.available[modalCurrency]));
-      if(String(shrubBalance.available[modalCurrency]) === '0') {
-        handleErrorMessages({customMessage: 'Nothing to withdraw'});
-      }
     }
   }
   return (
@@ -556,7 +553,7 @@ function Positions() {
             <Thead>
               <Tr>
                 <Th color={"gray.400"}>Position</Th>
-                <Th color={"gray.400"}>Balance</Th>
+                {/*<Th color={"gray.400"}>Balance</Th>*/}
                 <Th color={"gray.400"}>Qty</Th>
                 <Th color={"gray.400"}>Price</Th>
                 <Th color={"gray.400"}>Gain/Loss</Th>
@@ -590,7 +587,7 @@ function Positions() {
               <Thead>
                 <Tr>
                   <Th color={"gray.400"}>Position</Th>
-                  <Th color={"gray.400"}>Balance</Th>
+                  {/*<Th color={"gray.400"}>Balance</Th>*/}
                   <Th color={"gray.400"}>Qty</Th>
                   <Th color={"gray.400"}>Price</Th>
                   <Th color={"gray.400"}>Gain/Loss</Th>

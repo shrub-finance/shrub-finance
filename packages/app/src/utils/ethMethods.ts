@@ -657,6 +657,13 @@ export function formatDate(date: number | Date) {
   return fromEthDate(date).toLocaleDateString('en-us', {month: "short", day: "numeric"})
 }
 
+export function formatTime(date: number | Date) {
+  if (date instanceof Date) {
+    return date.toLocaleTimeString('en-us', {hour: "numeric", minute: "2-digit"})
+  }
+  return fromEthDate(date).toLocaleTimeString('en-us', {hour: "numeric", minute: "2-digit"})
+}
+
 export function shortOptionName(order: Pick<AppOrder, 'optionAction' | 'formattedSize' | 'optionType' | 'formattedStrike' | 'formattedExpiry'>) {
   const {optionAction, formattedSize, optionType, formattedStrike, formattedExpiry} = order;
   return `${optionAction} ${formattedSize} ${optionType} ${formattedExpiry} $${formattedStrike}`

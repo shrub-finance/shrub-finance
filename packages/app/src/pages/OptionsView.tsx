@@ -17,7 +17,7 @@ import {
     useColorModeValue,
     useRadioGroup,
     useToast,
-    Link, MenuButton, Menu, MenuList, MenuItem
+    Link, MenuButton, Menu, MenuList, MenuItem, Divider
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 // import useFetch from "../hooks/useFetch";
@@ -37,28 +37,28 @@ import {Link as ReachLink, RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {
     cancelOrder,
-    formatDate,
+    formatDate, formatTime,
     // formatStrike,
-  fromEthDate,
-  // getAddress,
-  // getAddressFromSignedOrder,
-  getAnnouncedEvent,
-  // getAnnouncedEvents,
-  // getBlockNumber,
-  // getLastOrders,
-  // getMatchEvents,
-  // getPair,
-  // getUserNonce,
-  hashOrderCommon,
-  isBuyToOptionAction,
-  // matchEventToAppOrder,
-  optionTypeToNumber,
-  optionTypeToString,
-  // orderStatus,
-  shortOptionName, subscribeToAnnouncements,
+    fromEthDate,
+    // getAddress,
+    // getAddressFromSignedOrder,
+    getAnnouncedEvent,
+    // getAnnouncedEvents,
+    // getBlockNumber,
+    // getLastOrders,
+    // getMatchEvents,
+    // getPair,
+    // getUserNonce,
+    hashOrderCommon,
+    isBuyToOptionAction,
+    // matchEventToAppOrder,
+    optionTypeToNumber,
+    optionTypeToString,
+    // orderStatus,
+    shortOptionName, subscribeToAnnouncements,
     // subscribeToAnnouncements,
-  toEthDate,
-  transformOrderAppChain, unsubscribeFromAnnouncements,
+    toEthDate,
+    transformOrderAppChain, unsubscribeFromAnnouncements,
     // unsubscribeFromAnnouncements,
 } from '../utils/ethMethods'
 import {BytesLike, ethers} from "ethers";
@@ -116,13 +116,15 @@ function OptionsView(props: RouteComponentProps) {
   const backgroundColor = useColorModeValue("white", "shrub.100");
   const [localOrderHistoryRows, setLocalOrderHistoryRows] = useState<JSX.Element[]>([]);
   const [optionRows, setOptionRows] = useState<JSX.Element[]>([]);
-    const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
+  const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
 
-    const livePriceColor = useColorModeValue("green.500", "green.200")
+  const livePriceColor = useColorModeValue("green.500", "green.200");
+  const selectorColor = useColorModeValue("gray.400", "gray.800");
+  const selectorBg = useColorModeValue("white", "shrub.100");
 
-    // TODO un-hardcode this
-    const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
-    const baseAsset = process.env.REACT_APP_SUSD_TOKEN_ADDRESS;
+  // TODO un-hardcode this
+  const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
+  const baseAsset = process.env.REACT_APP_SUSD_TOKEN_ADDRESS;
 
     const {loading: summaryLoading, error: summaryError, data: summaryData} = useQuery(SUMMARY_VIEW_QUERY, {
         variables: {
@@ -130,8 +132,9 @@ function OptionsView(props: RouteComponentProps) {
             optionType,
             baseAsset: baseAsset && baseAsset.toLowerCase(),
             quoteAsset: quoteAsset && quoteAsset.toLowerCase(),
-            offerExpire: toEthDate(new Date())
-        }
+            offerExpire: Math.floor(toEthDate(new Date()) / 10) * 10
+        },
+        pollInterval: 10000
     });
     const {
         loading: orderHistoryLoading,
@@ -345,17 +348,17 @@ function OptionsView(props: RouteComponentProps) {
 
   function returnOrderHistoryRow(id: string, blockNumber: number, orderToName: any, positionHash: string, userAccount: string, status: string, pricePerContract: string) {
     return <Tr key={id}>
-        <Td >
+        <Td mW={"1000"}>
           <Link color="teal.400" fontSize={"xs"}
                                   href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)} isExternal>
             {blockNumber}<ExternalLinkIcon mx="2px" mb="3px"/>
           </Link>
         </Td>
-        <Td fontWeight="bold" fontSize={"xs"}>
-                            <Text letterSpacing="wide">{shortOptionName(orderToName)}</Text>
+        <Td fontWeight="semibold" fontSize={"xs"} lineHeight={1.8}>
+                            <Text letterSpacing="wider" color="gray.600">{shortOptionName(orderToName)}</Text>
                         </Td>
         <Td maxWidth={"10px"} isNumeric={true}>
-          <Text  fontSize="xs">{pricePerContract}</Text>
+          <Text fontWeight="semibold" fontSize="xs" letterSpacing={"wide"} color="gray.600">{pricePerContract}</Text>
         </Td>
         <Td>
           <Tag size={'sm'} colorScheme={status === 'cancelled' ?
@@ -732,7 +735,7 @@ function OptionsView(props: RouteComponentProps) {
                   </Box>
                   <Spacer/>
                   <Box>
-                      <Text color={livePriceColor} fontSize={"xs"} fontWeight={"semibold"}>
+                      <Text color={livePriceColor} fontSize={"xs"} fontWeight={"bold"}>
                         sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
                       </Text>
                   </Box>
@@ -742,22 +745,24 @@ function OptionsView(props: RouteComponentProps) {
             <Container
                 mt={1}
                 p={5}
-                shadow={useColorModeValue("2xl", "2xl")}
                 flex="1"
                 borderRadius="2xl"
-                bg={useColorModeValue("white", "shrub.100")}
+                bg={selectorBg}
+                mb={8}
             >
 
                 {expiryDates && expiryDates[0] ?
                     <>
-                        <Box mb={10}>
-                            <HStack {...groupExpiry}>
+                        <Box>
+                            {!isMobile && <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Expiry Date</Text>}
+                            <HStack {...groupExpiry} spacing={{ base: 2, md: 5 }}>
                                 {expiryDates.map((expiry) => {
                                     const radio = getExpiryRadioProps({value: expiry});
                                     return (
                                         (Number(expiry) * 1000) > Date.now() &&
                                         <RadioCard key={expiry} {...radio}>
-                                            {formatDate(Number(expiry))}
+                                            <Text> {formatDate(Number(expiry))}</Text>
+                                            {!isMobile && <Text fontSize="xs" display={{ sm: "none", md: "block" }}>{formatTime(Number(expiry))}</Text>}
                                         </RadioCard>
                                     );
                                 })}
@@ -770,29 +775,6 @@ function OptionsView(props: RouteComponentProps) {
                                 {/*</RadioCard>*/}
                             </HStack>
                         </Box>
-                        <Flex mb={10}>
-                            <HStack {...groupOption}>
-                                {sellBuys.map((value) => {
-                                    const radio = getOptionRadioProps({value});
-                                    return (
-                                        <RadioCard key={value} {...radio}>
-                                            {value}
-                                        </RadioCard>
-                                    );
-                                })}
-                            </HStack>
-                            <Spacer/>
-                            <HStack {...groupOptionType}>
-                                {optionTypes.map((value) => {
-                                    const radio = getOptionTypeRadioProps({value});
-                                    return (
-                                        <RadioCard key={value} {...radio}>
-                                            {value}
-                                        </RadioCard>
-                                    );
-                                })}
-                            </HStack>
-                        </Flex>
                     </>
                     :
                     <Flex direction="column" mt={10}>
@@ -806,8 +788,43 @@ function OptionsView(props: RouteComponentProps) {
                         </Center>
                     </Flex>
                 }
-                {optionRows}
-            </Container>
+
+              <Flex
+                  mt={"6"}
+              >
+                  <Box>
+                      {!isMobile &&   <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option</Text>}
+                  <HStack {...groupOption} spacing={{ base: 2, md: 3 }}>
+
+                      {sellBuys.map((value) => {
+                          const radio = getOptionRadioProps({value});
+                          return (
+                              <RadioCard key={value} {...radio}>
+                                  {value}
+                              </RadioCard>
+                          );
+                      })}
+                  </HStack>
+                  </Box>
+
+                  <Spacer/>
+                  <Spacer/>
+                  <Box>
+                      {!isMobile &&  <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option Type</Text>}
+                  <HStack {...groupOptionType} spacing={{ base: 2, md: 3 }}>
+                      {optionTypes.map((value) => {
+                          const radio = getOptionTypeRadioProps({value});
+                          return (
+                              <RadioCard key={value} {...radio}>
+                                  {value}
+                              </RadioCard>
+                          );
+                      })}
+                  </HStack>
+                  </Box>
+              </Flex>
+          </Container>
+          {optionRows}
             {
                 <>
                     <Heading mt={14}>
@@ -827,7 +844,7 @@ function OptionsView(props: RouteComponentProps) {
                                 <Thead>
                                     <Tr>
                                         <Th>Block Number</Th>
-                                        <Th>Option</Th>
+                                        <Th>Order</Th>
                                         <Th isNumeric>Price per Contract</Th>
                                         <Th>Status</Th>
                                         <Th/>

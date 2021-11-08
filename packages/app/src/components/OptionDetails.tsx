@@ -1,6 +1,17 @@
 import {
-    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel,
+    Accordion,
+    AccordionButton,
+    AccordionIcon,
+    AccordionItem,
+    AccordionPanel,
     Alert,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogCloseButton,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
     AlertIcon,
     Box,
     Button,
@@ -14,15 +25,26 @@ import {
     ModalCloseButton,
     ModalContent,
     ModalHeader,
-    ModalOverlay, Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverTrigger,
+    ModalOverlay,
+    Popover,
+    PopoverArrow,
+    PopoverBody,
+    PopoverContent,
+    PopoverTrigger,
     SlideFade,
     Stack,
     Table,
     Tag,
-    TagLabel, Tbody, Td, Text, Th, Thead,
+    TagLabel,
+    Tbody,
+    Td,
+    Text,
+    Th,
+    Thead,
     Tooltip,
     Tr,
-    useColorModeValue, useDisclosure,
+    useColorModeValue,
+    useDisclosure,
     useRadioGroup,
     useToast
 } from '@chakra-ui/react';
@@ -83,6 +105,9 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     optionData: OptionData
 }) {
 
+    const { isOpen: isOpenConfirmDialog, onOpen: onOpenConfirmDialog, onClose: onCloseConfirmDialog } = useDisclosure();
+    const cancelRef = React.useRef();
+
     const [localError, setLocalError] = useState('');
     const {
         isOpen: isOpenConnectModal,
@@ -116,6 +141,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
 
     const orderBookColorMobile = useColorModeValue("gray.500", "black");
     const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
+    const orderBookColor = useColorModeValue("gray.600", "gray.200");
 
     useEffect(() => {
         const buyOrders = optionData.buyOrders.sort((a, b) => b.unitPrice - a.unitPrice);
@@ -420,8 +446,18 @@ const {
             console.error(e);
         }
     }
+
+    function placeOrderConfirmation() {
+        if(radioOrderType === 'Limit') {
+            limitOrder();
+        } else {
+            marketOrderMany();
+        }
+        onCloseConfirmDialog();
+
+    }
     // TODO: get the symbols dynamically
-    const tooltipLabel = `This option gives the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${currencySymbol(chainId)} for ${formattedStrike} sUSD up until ${formattedExpiry}`;
+    const tooltipLabel = `You are about to ${radioOption === 'BUY' ? 'buy' : 'sell'} options that give ${radioOption === 'BUY' ? 'you' : 'someone'} the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${amount} sMATIC for ${formattedStrike} sUSD/sMATIC ${radioOption === 'SELL' ? `${optionType === 'CALL' ? 'from' : 'to'} you` : ''} until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
@@ -432,9 +468,9 @@ const {
         if (index > 5) {
             return;
         }
-        orderbookSellRows.push(<Tr key={index}>
-            <Td colorscheme="gray.800">{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
-            <Td isNumeric={true} colorscheme="gray.800">{sellOrder.formattedSize}</Td>
+        orderbookSellRows.push(<Tr key={index} letterSpacing={"wide"} fontWeight={"semibold"} color={orderBookColor}>
+            <Td>{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
+            <Td>{sellOrder.formattedSize}</Td>
         </Tr>)
     });
     orderBook.buyOrders
@@ -445,15 +481,16 @@ const {
               return;
           }
           orderbookBuyRows.push(
-              <Tr key={index}>
-              <Td colorscheme="gray.800" >{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
-              <Td colorscheme="gray.800" >{buyOrder.formattedSize}</Td>
+              <Tr key={index} letterSpacing={"wide"} fontWeight={"semibold"} color={orderBookColor}>
+              <Td>{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
+              <Td>{buyOrder.formattedSize}</Td>
           </Tr>)
       });
 
     function changePrice(value: string) {
         setPrice(value)
     }
+
 
     return (
       <>
@@ -488,30 +525,24 @@ const {
                     <Stack spacing="24px">
                         <Box mt={2} mb={8}>
                             <HStack spacing={3}>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
+                                {/*<Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">*/}
                                     <Tag colorScheme="green">
-                                        <Icon as={sellBuy === 'BUY' ? FiShoppingCart : RiHandCoinLine} />
+                                        {!isMobile &&  <Icon as={sellBuy === 'BUY' ? FiShoppingCart : RiHandCoinLine} />}
                                         <TagLabel pl={'1'}>{sellBuy}</TagLabel>
                                     </Tag>
-                                </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
+                                {/*</Tooltip>*/}
                                     <Tag colorScheme="blue">
-                                        <Icon as={MdDateRange} />
+                                        {!isMobile && <Icon as={MdDateRange} />}
                                         <TagLabel pl={'1'}> {formattedExpiry}</TagLabel>
                                     </Tag>
-                                </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
-                                    <Tag colorScheme="yellow">
-                                        <Icon as={GiMoneyStack}/>
-                                        <TagLabel pl={'1'}>{`${formattedStrike} sUSD`}</TagLabel>
-                                    </Tag>
-                                </Tooltip>
-                                <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
                                     <Tag colorScheme="purple">
-                                        <Icon as={optionType === 'CALL' ? MdArrowUpward : MdArrowDownward} />
+                                        {!isMobile && <Icon as={optionType === 'CALL' ? MdArrowUpward : MdArrowDownward} />}
                                         <TagLabel pl={'1'}>{optionType}</TagLabel>
                                     </Tag>
-                                </Tooltip>
+                                <Tag colorScheme="yellow">
+                                    {!isMobile &&  <Icon as={GiMoneyStack}/>}
+                                    <TagLabel pl={'1'}>{`${formattedStrike} sUSD`}</TagLabel>
+                                </Tag>
                             </HStack>
                         </Box>
                         <Box>
@@ -556,7 +587,7 @@ const {
                                             <Thead>
                                                 <Tr>
                                                     <Th color="gray.400">Price</Th>
-                                                    <Th color="gray.400">Amount</Th>
+                                                    <Th color="gray.400">Contract</Th>
                                                 </Tr>
                                             </Thead>
                                             <Tbody>
@@ -581,7 +612,7 @@ const {
                                             <Thead>
                                                 <Tr>
                                                     <Th color="gray.400">Price</Th>
-                                                    <Th color="gray.400">Amount</Th>
+                                                    <Th color="gray.400">Contract</Th>
                                                 </Tr>
                                             </Thead>
                                             <Tbody>
@@ -593,7 +624,7 @@ const {
                             </AccordionItem>
                         </Accordion>
                         <Box>
-                            <FormLabel htmlFor="amount">Amount:
+                            <FormLabel htmlFor="amount">Quantity:
                                 <Popover trigger={"hover"}>
                                     <PopoverTrigger>
                                         <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
@@ -601,7 +632,7 @@ const {
                                     <PopoverContent>
                                         <PopoverArrow />
                                         <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
-                                            <Text> Number of contracts you want to buy or sell.</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>
+                                            <Text> Number of contracts you want to {radioOption.toLowerCase()}</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>
                                         </PopoverBody>
                                     </PopoverContent>
                                 </Popover>
@@ -638,16 +669,17 @@ const {
                               isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}
                             />
                         </Box>
-                        <Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>
-                            <AlertIcon />
-                            {tooltipLabel}
-                        </Alert>
+                        {/*<Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>*/}
+                        {/*    <AlertIcon />*/}
+                        {/*    {tooltipLabel}*/}
+                        {/*</Alert>*/}
                         <Box>
                             <Flex justifyContent="flex-end">
                                 <Button
                                     colorScheme={useColorModeValue("green", "teal")}
                                   type="submit"
-                                  onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
+                                  // onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
+                                    onClick={onOpenConfirmDialog}
                                   disabled={
                                       amount<=0 ||
                                       isNaN(Number(amount)) ||
@@ -662,7 +694,7 @@ const {
 
 
                                 >
-                                    Place Order
+                                    Place {radioOption === 'BUY' ? 'Buy' : 'Sell'} Order
                                 </Button>
                             </Flex>
                         </Box>
@@ -688,7 +720,7 @@ const {
                         <Thead>
                             <Tr>
                                 <Th color="gray.400">Price</Th>
-                                <Th color="gray.400">Amount</Th>
+                                <Th color="gray.400">Size</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -713,7 +745,7 @@ const {
                         <Thead>
                             <Tr>
                                 <Th color="gray.400">Price</Th>
-                                <Th color="gray.400">Amount</Th>
+                                <Th color="gray.400">Size</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -722,6 +754,36 @@ const {
                     </Table>
                 </Box>}
             </Flex>
+
+          <AlertDialog
+              motionPreset="slideInBottom"
+              // @ts-ignore
+              leastDestructiveRef={cancelRef}
+              onClose={onCloseConfirmDialog}
+              isOpen={isOpenConfirmDialog}
+              isCentered
+          >
+              <AlertDialogOverlay />
+
+              <AlertDialogContent>
+                  <AlertDialogHeader>Order Confirmation</AlertDialogHeader>
+                  <AlertDialogCloseButton />
+                  <Divider/>
+                  <AlertDialogBody>
+                      <Text>You are about to <strong>{radioOption === 'BUY' ? 'buy' : 'sell'}</strong> options that give {radioOption === 'BUY' ? 'you' : 'someone'} the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {amount} sMATIC for {formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}</strong>. Place order?</Text>
+                  </AlertDialogBody>
+                  <AlertDialogFooter>
+                      <Button
+                          // @ts-ignore
+                          ref={cancelRef} onClick={onCloseConfirmDialog}>
+                          No
+                      </Button>
+                      <Button colorScheme="teal" ml={3} onClick={placeOrderConfirmation}>
+                          Yes
+                      </Button>
+                  </AlertDialogFooter>
+              </AlertDialogContent>
+          </AlertDialog>
         </>
     )
 }

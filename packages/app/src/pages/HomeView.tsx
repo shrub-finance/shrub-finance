@@ -61,6 +61,7 @@ function HomeView(props: RouteComponentProps) {
 
                         <Heading fontSize="50px" letterSpacing={"tight"}>
                             Get Started on Shrub Beta
+                            {/*<Text sx={{"display":"inline"}} bgClip="text" bgGradient={useColorModeValue("linear(to-r, blue.100, teal.200)", "linear(to-r, blue.100, teal.200)")}>Shrub Beta</Text>*/}
 
                         </Heading>
                         <Text fontSize="18px" pt={3} mb={8} color={useColorModeValue("gray.500", "gray.500")}>
@@ -257,6 +258,7 @@ function HomeView(props: RouteComponentProps) {
                             colorScheme={useColorModeValue("green", "teal")}
                             variant="solid"
                             borderRadius="full"
+                            // bgGradient={useColorModeValue("linear(to-r, blue.100, teal.200)", "linear(to-l, blue.700, teal.700)")}
                             // bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
                             // _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}
                             as={ReachLink} to={'/options'}
