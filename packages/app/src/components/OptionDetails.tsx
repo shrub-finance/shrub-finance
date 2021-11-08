@@ -75,7 +75,7 @@ import {
     iOrderToCommon,
     getAnnouncedEvent,
     fromEthDate,
-    hashOrderCommon,
+    hashOrderCommon, formatTime,
 } from '../utils/ethMethods'
 import {ethers} from "ethers";
 import {useWeb3React} from "@web3-react/core";
@@ -491,7 +491,8 @@ const {
         setPrice(value)
     }
 
-
+console.log(expiry);
+    console.log(formattedExpiry);
     return (
       <>
           {localError &&
@@ -727,7 +728,6 @@ const {
                             {orderbookSellRows}
                         </Tbody>
                     </Table>
-                    <Divider/>
                     <Box
                         color={orderBookColorMobile}
                         bgColor={orderBookBgColorMobile}
@@ -738,6 +738,7 @@ const {
                         borderRadius="md"
                         px="2"
                         py="1"
+                        mt="4"
                     >
                         Buy Offers
                     </Box>
@@ -770,7 +771,7 @@ const {
                   <AlertDialogCloseButton />
                   <Divider/>
                   <AlertDialogBody>
-                      <Text>You are about to <strong>{radioOption === 'BUY' ? 'buy' : 'sell'}</strong> options that give {radioOption === 'BUY' ? 'you' : 'someone'} the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {amount} sMATIC for {formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}</strong>. Place order?</Text>
+                      <Text>You are about to <strong>{radioOption === 'BUY' ? 'buy' : 'sell'}</strong> options that give {radioOption === 'BUY' ? 'you' : 'someone'} the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {amount} sMATIC for {formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
                   </AlertDialogBody>
                   <AlertDialogFooter>
                       <Button
