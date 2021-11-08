@@ -298,10 +298,10 @@ function OptionsView(props: RouteComponentProps) {
             const {symbol: baseAssetSymbol} = baseAsset;
             const {symbol: quoteAssetSymbol} = quoteAsset;
             orders = orders.concat(buyOrders.map((o: any) => {
-                return {...o, optionAction: 'BUY', strike, expiry, positionHash}
+                return {...o, optionAction: 'BUY', strike, expiry, positionHash, optionType}
             }))
             orders = orders.concat(sellOrders.map((o: any) => {
-                return {...o, optionAction: 'SELL', strike, expiry, positionHash}
+                return {...o, optionAction: 'SELL', strike, expiry, positionHash, optionType}
             }))
         }
         const sortedOrders = orders.sort((a: any, b: any) => b.block - a.block);
@@ -320,6 +320,7 @@ function OptionsView(props: RouteComponentProps) {
                     tradable,
                     block: blockNumber,
                     strike,
+                    optionType,
                     expiry,
                     id,
                     positionHash
@@ -327,7 +328,7 @@ function OptionsView(props: RouteComponentProps) {
                 const orderToName = {
                     optionAction,
                     formattedSize: size,
-                    optionType,
+                    optionType: optionType,
                     formattedStrike: strike,
                     formattedExpiry: fromEthDate(expiry).toLocaleDateString('en-us', {month: "short", day: "numeric"})
                 }
