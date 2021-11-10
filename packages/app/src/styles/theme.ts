@@ -15,6 +15,16 @@ const components =  {
                 boxShadow: "rgb(33 35 74 / 80%) 0px 22px 48px -9px",
             }
         })
+    },
+    Alert: {
+        variants: {
+            shrubSolid: {
+                container: {
+                    bg: "yellow.100",
+                    color: "black"
+                }
+            }
+        }
     }
 }
 
