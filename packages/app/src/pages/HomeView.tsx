@@ -27,7 +27,7 @@ import {
     PopoverCloseButton,
     PopoverHeader, PopoverArrow, PopoverContent, PopoverTrigger, Popover, OrderedList, UnorderedList, useToast
 } from '@chakra-ui/react';
-import {ArrowForwardIcon, ExternalLinkIcon,} from '@chakra-ui/icons';
+import {ArrowForwardIcon, CheckCircleIcon, ExternalLinkIcon,} from '@chakra-ui/icons';
 import {Link as ReachLink, RouteComponentProps} from '@reach/router';
 import {HappyBud, PolygonIcon, ShrubLogo, TradeBud, UniIcon} from '../assets/Icons';
 import {FaEthereum} from 'react-icons/fa';
@@ -49,6 +49,13 @@ function HomeView(props: RouteComponentProps) {
     const addNetwork = useAddNetwork();
     const {account, error} = useWeb3React();
     const toast = useToast();
+    const connectedColor = useColorModeValue("green.100", "teal.600");
+    const bgConnect = useColorModeValue("white", "shrub.100");
+    const questionColor = useColorModeValue("blue", "yellow.300");
+    const stepsColor = useColorModeValue("white","black");
+    const connectedStepColor = useColorModeValue("green.400","white");
+    const stepsBg = useColorModeValue("yellow.300","gray.500");
+    const connectedStepBg = useColorModeValue("white","shrub.100");
 
     async function handleConnect() {
         if (!account) {
@@ -104,10 +111,12 @@ function HomeView(props: RouteComponentProps) {
                                 minW="280px"
                                 mr={5}
                                 shadow={useColorModeValue("2xl", "2xl")}
-                                borderRadius="2xl" overflow="hidden" bg={useColorModeValue("white", "shrub.100")}>
+                                bg={account? connectedColor : bgConnect}
+                                borderRadius="2xl" overflow="hidden">
+
                                 <Box p={6}>
                                     <Stack py={6} align={'center'}>
-                                        <Circle w="100px" h="100px" bg={useColorModeValue("yellow.300","gray.500")} color={useColorModeValue("white","black")}>
+                                        <Circle w="100px" h="100px" bg={account ?  connectedStepBg :stepsBg} color={account ? connectedStepColor :stepsColor}>
                                             <Box as="span" fontWeight="bold" fontSize="6xl">
                                                 1
                                             </Box>
@@ -115,11 +124,11 @@ function HomeView(props: RouteComponentProps) {
                                     </Stack>
                                     <Stack align={'center'}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
-                                            Connect to Mumbai
+                                            {account ? 'Connected' :  'Connect to Mumbai' }
                                         </Heading>
-                                        <Popover placement="top" trigger='hover'>
+                                        { !account ? <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                                <Text color={useColorModeValue("blue", "yellow.300")} fontWeight={"extrabold"} fontSize={"sm"} cursor="pointer">What is Mumbai?</Text>
+                                              <Text color={questionColor} fontWeight={"extrabold"} fontSize={"sm"} cursor="pointer">What is Mumbai?</Text>
                                             </PopoverTrigger>
                                             <PopoverContent>
                                                 <PopoverArrow />
@@ -133,7 +142,8 @@ function HomeView(props: RouteComponentProps) {
                                                     </UnorderedList>
                                                 </PopoverBody>
                                             </PopoverContent>
-                                        </Popover>
+                                        </Popover> : <Box><PolygonIcon/> Mumbai</Box>}
+
                                     </Stack>
                                     <Button
                                         onClick={handleConnect}
@@ -145,7 +155,7 @@ function HomeView(props: RouteComponentProps) {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
                                         }}>
-                                        Connect to Mumbai
+                                        {account ? <CheckCircleIcon/> : 'Connect to Mumbai' }
                                     </Button>
                                 </Box>
                             </Box>
@@ -160,7 +170,7 @@ function HomeView(props: RouteComponentProps) {
 
                                 <Box p={6}>
                                     <Stack py={6} align={'center'}>
-                                        <Circle w="100px" h="100px" bg={useColorModeValue("yellow.300","gray.500")} color={useColorModeValue("white","black")}>
+                                        <Circle w="100px" h="100px" bg={useColorModeValue("yellow.300","gray.500")} color={stepsColor}>
                                             <Box as="span" fontWeight="bold" fontSize="6xl">
                                                 2
                                             </Box>
@@ -172,7 +182,7 @@ function HomeView(props: RouteComponentProps) {
                                         </Heading>
                                         <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                                <Text color={useColorModeValue("blue", "yellow.300")} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>What is sUSD?</Text>
+                                                <Text color={questionColor} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>What is sUSD?</Text>
                                             </PopoverTrigger>
                                             <PopoverContent>
                                                 <PopoverArrow />
@@ -218,7 +228,7 @@ function HomeView(props: RouteComponentProps) {
 
                                 <Box p={6}>
                                     <Stack py={6} align={'center'}>
-                                        <Circle w="100px" h="100px" bg={useColorModeValue("yellow.300","gray.500")} color={useColorModeValue("white","black")}>
+                                        <Circle w="100px" h="100px" bg={useColorModeValue("yellow.300","gray.500")} color={stepsColor}>
                                             <Box as="span" fontWeight="bold" fontSize="6xl">
                                                 3
                                             </Box>
@@ -230,7 +240,7 @@ function HomeView(props: RouteComponentProps) {
                                         </Heading>
                                         <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                                <Text color={useColorModeValue("blue", "yellow.300")} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>Why deposit sUSD?</Text>
+                                                <Text color={questionColor} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>Why deposit sUSD?</Text>
                                             </PopoverTrigger>
                                             <PopoverContent fontSize="sm">
                                                 <PopoverArrow />
