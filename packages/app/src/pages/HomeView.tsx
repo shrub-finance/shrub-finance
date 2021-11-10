@@ -25,7 +25,7 @@ import {
     PopoverFooter,
     PopoverBody,
     PopoverCloseButton,
-    PopoverHeader, PopoverArrow, PopoverContent, PopoverTrigger, Popover, OrderedList
+    PopoverHeader, PopoverArrow, PopoverContent, PopoverTrigger, Popover, OrderedList, UnorderedList, useToast
 } from '@chakra-ui/react';
 import {ArrowForwardIcon, ExternalLinkIcon,} from '@chakra-ui/icons';
 import {Link as ReachLink, RouteComponentProps} from '@reach/router';
@@ -37,6 +37,8 @@ import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import useAddNetwork from "../hooks/useAddNetwork";
 import {isMobile} from "react-device-detect";
 import Faucet from "../components/Faucet";
+import {useWeb3React} from "@web3-react/core";
+import {getErrorMessage} from "../components/ConnectWallet";
 
 
 function HomeView(props: RouteComponentProps) {
@@ -45,27 +47,44 @@ function HomeView(props: RouteComponentProps) {
     const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
     const { isOpen: isTestTokenModalOpen, onOpen: onTestTokenModalOpen, onClose: onTestTokenModalClose } = useDisclosure();
     const addNetwork = useAddNetwork();
+    const {account, error} = useWeb3React();
+    const toast = useToast();
 
-    const property = {
-        // imageUrl: '../assets/uni.svg',
-        // imageAlt: "Uniswap insurance",
-        // title: "Buy ETH  for a 2% discount",
-        // formattedPrice: "$1,900.00",
+    async function handleConnect() {
+        if (!account) {
+            if(!!error && getErrorMessage(error).title === "Wrong Network") {
+                return addNetwork();
+            }
+            return toast({
+                title: "No wallet detected",
+                description: "Make sure your wallet is connected. Click 'Connect Wallet'.",
+                status: "warning",
+                position: "top",
+                duration: 3000,
+                variant: "shrubSolid",
+                isClosable: true,
+            })
+        }
+        console.log(addNetwork);
+        return addNetwork();
     }
 
     return (
         <>
             <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
-                <Center mt={10}>
-                    <Box maxW="60rem" mb={12} textAlign={'center'}>
-
-                        <Heading fontSize="50px" letterSpacing={"tight"}>
-                            Get Started on Shrub Beta
-                            {/*<Text sx={{"display":"inline"}} bgClip="text" bgGradient={useColorModeValue("linear(to-r, blue.100, teal.200)", "linear(to-r, blue.100, teal.200)")}>Shrub Beta</Text>*/}
-
+                <Center>
+                    <Box mb={10}>
+                        <Heading maxW="60rem" as="h1" fontSize="6xl" fontWeight="bold" textAlign="center">
+                            Get Started on <Text as="span" bgGradient="linear(to-l, #7928CA, #FF0080)"
+                                                 bgClip="text" >Shrub Beta </Text>
                         </Heading>
-                        <Text fontSize="18px" pt={3} mb={8} color={useColorModeValue("gray.500", "gray.500")}>
-                           Practice crypto options trading on the Polygon Mumbai blockchain
+                        <Text  mt="3" mb={16} color={useColorModeValue("gray.500", "gray.400")}
+                              fontWeight="bold"
+                              fontSize="xl"
+                               textAlign="center"
+                               px="17rem"
+                            >
+                            Practice crypto options trading on the Polygon Mumbai blockchain
                         </Text>
                         <Flex
                             direction={{base: "column", md: "row", lg: "row"}}
@@ -85,28 +104,30 @@ function HomeView(props: RouteComponentProps) {
                                             </Box>
                                         </Circle>
                                     </Stack>
-                                    <Stack spacing={6} align={'center'} mb={5}>
+                                    <Stack align={'center'}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
                                             Connect to Mumbai
                                         </Heading>
-                                        <Popover>
+                                        <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                                <Text color={useColorModeValue("blue", "yellow.300")} fontWeight={"extrabold"} as="sup" cursor="pointer">What is Mumbai?</Text>
+                                                <Text color={useColorModeValue("blue", "yellow.300")} fontWeight={"extrabold"} fontSize={"sm"} cursor="pointer">What is Mumbai?</Text>
                                             </PopoverTrigger>
                                             <PopoverContent>
                                                 <PopoverArrow />
                                                 <PopoverCloseButton />
                                                 <PopoverBody letterSpacing="wide" textAlign={"left"}>
-                                                    <Text pb={4}> To beta test Shrub, you need to <strong>connect your wallet</strong> to the Polygon Test Network called Mumbai.</Text><Text> Click on the button below to automatically connect to the Mumbai network.</Text>
+                                                    <UnorderedList lineHeight={1.8} fontSize={"sm"}>
+                                                        <ListItem pb={2}> <Text> To beta test Shrub, you need to <strong>connect your wallet</strong> to the Polygon Test Network (Mumbai).</Text>
+                                                        </ListItem>
+                                                        <ListItem> Click the button below to automatically connect to Mumbai.
+                                                        </ListItem>
+                                                    </UnorderedList>
                                                 </PopoverBody>
                                             </PopoverContent>
                                         </Popover>
-                                        {/*<Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>To beta*/}
-                                        {/*    test Shrub, connect your wallet to Polygon*/}
-                                        {/*    Test Network.</Text>*/}
                                     </Stack>
                                     <Button
-                                        onClick={addNetwork}
+                                        onClick={handleConnect}
                                         w={'full'}
                                         mt={8}
                                         colorScheme={useColorModeValue("green", "teal")}
@@ -115,7 +136,7 @@ function HomeView(props: RouteComponentProps) {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
                                         }}>
-                                        Connect
+                                        Connect to Mumbai
                                     </Button>
                                 </Box>
                             </Box>
@@ -136,41 +157,35 @@ function HomeView(props: RouteComponentProps) {
                                             </Box>
                                         </Circle>
                                     </Stack>
-                                    <Stack spacing={6} align={'center'} mb={5}>
+                                    <Stack align={'center'}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
                                             Buy sUSD
                                         </Heading>
-                                        <Popover>
+                                        <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                                <Text ml="1" color={useColorModeValue("blue", "yellow.300")} as="sup" cursor="pointer" fontWeight={"extrabold"}>What's sUSD?</Text>
+                                                <Text color={useColorModeValue("blue", "yellow.300")} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>What is sUSD?</Text>
                                             </PopoverTrigger>
                                             <PopoverContent>
                                                 <PopoverArrow />
                                                 <PopoverCloseButton />
                                                 <PopoverBody letterSpacing="wide" textAlign={"left"}>
-                                                    <Text pb={4}>In mainnet you will trade Options in MATIC and USDC. To facilitate testing with reasonable amounts of tokens, we have created <strong>sMATIC and sUSD.</strong></Text> <Text pb={4}>These represent <strong>MATIC and USD stable coin</strong> in our test environment.</Text> <Text pb={4}><strong>Options</strong> in the test environment have these as their <strong>underlying assets.</strong></Text><Text pb={4}> You may <strong>buy sMATIC and sUSD</strong> at a rate of <strong>10,000 per test MATIC.</strong></Text>
+                                                    <UnorderedList fontSize={"sm"} lineHeight={1.8}>
+                                                        <ListItem pb={2}>In <strong>mainnet,</strong> you will <strong>trade</strong> options in <strong>MATIC & USDC</strong>. </ListItem>
+                                                        <ListItem>In <strong>test environment</strong>:</ListItem>
+                                                        <UnorderedList>
+                                                            <ListItem><strong>sMATIC </strong>
+                                                                represents <strong>MATIC</strong></ListItem>
+                                                            <ListItem><strong>sUSD </strong> represents <strong>USD stable coin</strong> </ListItem>
+                                                            <ListItem>These are <strong>Option underlying asset</strong></ListItem>
+                                                            <ListItem><Text>Rate:</Text>
+                                                                <Text fontSize={"xs"} fontWeight={"bold"}>1 MATIC = 10,000 sMATIC</Text>
+                                                                <Text fontSize={"xs"} fontWeight={"bold"}>1 MATIC = 10,000 sUSD</Text></ListItem>
+                                                        </UnorderedList>
+                                                    </UnorderedList>
                                                 </PopoverBody>
                                             </PopoverContent>
                                         </Popover>
-
-                                        {/*<OrderedList spacing={6}>*/}
-                                        {/*    <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5} pl={-8}>*/}
-                                        {/*        /!*<ListIcon as={MdCheckCircle} color="green.200" />*!/*/}
-                                        {/*        <Link href="https://faucet.polygon.technology/" isExternal>Get MATIC<ExternalLinkIcon mx="2px" />*/}
-                                        {/*        </Link>*/}
-                                        {/*    </ListItem>*/}
-                                        {/*    <ListItem fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"}>*/}
-                                        {/*        /!*<ListIcon as={MdCheckCircle} color="green.200" />*!/*/}
-                                        {/*        Buy sUSD*/}
-                                        {/*    </ListItem>*/}
-                                        {/*</OrderedList>*/}
                                     </Stack>
-                                    {/*<Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"} letterSpacing={"1px"} pb={.5}>*/}
-                                    {/*    1 test MATIC = 10,000 sMATIC*/}
-                                    {/*</Text>*/}
-                                    {/*<Text fontSize={'xs'} color={useColorModeValue("gray.400", "gray.600")} fontWeight={"bold"}   letterSpacing={"1px"}>*/}
-                                    {/*    1 test MATIC = 10,000 sUSD*/}
-                                    {/*</Text>*/}
                                     <Button
                                         onClick={onTestTokenModalOpen}
                                         w={'full'}
@@ -200,25 +215,23 @@ function HomeView(props: RouteComponentProps) {
                                             </Box>
                                         </Circle>
                                     </Stack>
-                                    <Stack spacing={6} align={'center'} mb={5}>
+                                    <Stack align={'center'}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
                                             Deposit sUSD
                                         </Heading>
-                                        <Popover>
+                                        <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                                <Text color={useColorModeValue("blue", "yellow.300")} as="sup" cursor="pointer" fontWeight={"extrabold"}>What will that do?</Text>
+                                                <Text color={useColorModeValue("blue", "yellow.300")} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>Why deposit sUSD?</Text>
                                             </PopoverTrigger>
-                                            <PopoverContent>
+                                            <PopoverContent fontSize="sm">
                                                 <PopoverArrow />
                                                 <PopoverCloseButton />
                                                 <PopoverBody letterSpacing="wide" textAlign={"left"}>
-                                                    <Text pb={4}> To buy Options, deposit sUSD to
+                                                    <Text pb={4}> To buy Options, you need to deposit sUSD to
                                                         the Shrub platform.</Text>
                                                 </PopoverBody>
                                             </PopoverContent>
                                         </Popover>
-                                        {/*<Text fontSize={'sm'} color={useColorModeValue("gray.500", "gray.400")} fontWeight={"semibold"} pt={5}>To buy Options, deposit sUSD to*/}
-                                        {/*    the Shrub platform.</Text>*/}
                                     </Stack>
                                     <Button
 
@@ -231,7 +244,7 @@ function HomeView(props: RouteComponentProps) {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
                                         }}>
-                                        Deposit
+                                        Deposit sUSD
                                     </Button>
                                 </Box>
                             </Box>
