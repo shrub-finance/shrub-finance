@@ -27,7 +27,7 @@ import {
     PopoverCloseButton,
     PopoverHeader, PopoverArrow, PopoverContent, PopoverTrigger, Popover, OrderedList, UnorderedList, useToast
 } from '@chakra-ui/react';
-import {ArrowForwardIcon, CheckCircleIcon, ExternalLinkIcon,} from '@chakra-ui/icons';
+import {ArrowForwardIcon, CheckCircleIcon, CheckIcon, ExternalLinkIcon,} from '@chakra-ui/icons';
 import {Link as ReachLink, RouteComponentProps} from '@reach/router';
 import {HappyBud, PolygonIcon, ShrubLogo, TradeBud, UniIcon} from '../assets/Icons';
 import {FaEthereum} from 'react-icons/fa';
@@ -118,13 +118,13 @@ function HomeView(props: RouteComponentProps) {
                                     <Stack py={6} align={'center'}>
                                         <Circle w="100px" h="100px" bg={account ?  connectedStepBg :stepsBg} color={account ? connectedStepColor :stepsColor}>
                                             <Box as="span" fontWeight="bold" fontSize="6xl">
-                                                1
+                                                {!account? 1 : <CheckIcon/>}
                                             </Box>
                                         </Circle>
                                     </Stack>
                                     <Stack align={'center'}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
-                                            {account ? 'Connected' :  'Connect to Mumbai' }
+                                            {account && <PolygonIcon/> } {account ? 'Mumbai' :  'Connect to Mumbai' }
                                         </Heading>
                                         { !account ? <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
@@ -142,7 +142,7 @@ function HomeView(props: RouteComponentProps) {
                                                     </UnorderedList>
                                                 </PopoverBody>
                                             </PopoverContent>
-                                        </Popover> : <Box><PolygonIcon/> Mumbai</Box>}
+                                        </Popover> : <Box>Testnet</Box>}
 
                                     </Stack>
                                     <Button
@@ -155,7 +155,7 @@ function HomeView(props: RouteComponentProps) {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
                                         }}>
-                                        {account ? <CheckCircleIcon/> : 'Connect to Mumbai' }
+                                        {account ? 'Connected' : 'Connect to Mumbai' }
                                     </Button>
                                 </Box>
                             </Box>
