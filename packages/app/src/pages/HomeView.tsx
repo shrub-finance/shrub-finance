@@ -74,15 +74,24 @@ function HomeView(props: RouteComponentProps) {
             <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center>
                     <Box mb={10}>
-                        <Heading maxW="60rem" as="h1" fontSize="6xl" fontWeight="bold" textAlign="center">
-                            Get Started on <Text as="span" bgGradient="linear(to-l, #7928CA, #FF0080)"
-                                                 bgClip="text" >Shrub Beta </Text>
+                        <Heading maxW="60rem" as="h1"
+                                 // fontSize={{base: "4xl", md: "6xl", lg: "6xl"}}
+                                 fontSize={["4xl", "5xl", "6xl", "6xl"]}
+                                 fontWeight="bold" textAlign="center">
+                            {/*Welcome to*/}
+                            <Text
+                                // as="span"
+                                  // bgGradient="linear(to-l, #7928CA, #FF0080)"
+                                  // bgClip="text"
+                            >
+                             Shrub Beta
+                            </Text>
                         </Heading>
                         <Text  mt="3" mb={16} color={useColorModeValue("gray.500", "gray.400")}
                               fontWeight="bold"
                               fontSize="xl"
                                textAlign="center"
-                               px="17rem"
+                               px={["4rem", "5rem", "17rem", "17rem"]}
                             >
                             Practice crypto options trading on the Polygon Mumbai blockchain
                         </Text>
