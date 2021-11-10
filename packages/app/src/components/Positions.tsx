@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import {ethers} from "ethers";
 import {
-  VisuallyHidden,
   Button,
   Table,
   Thead,
@@ -35,28 +34,31 @@ import {
   InputRightElement,
   Stack,
   useRadioGroup,
-  Tooltip,
   Divider,
   StatArrow,
   StatHelpText,
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
-  PopoverCloseButton, PopoverBody, Popover, Spinner, Badge,
+  PopoverBody,
+  Popover,
+  Spinner,
+  Badge,
 } from '@chakra-ui/react'
 import {
   depositEth,
   depositToken,
   withdraw,
   approveToken,
-  getFilledOrders,
   getAvailableBalance,
-  exercise,
-  signOrder,
   getLockedBalance,
   getAllowance,
-  getBlockNumber,
-  getWalletBalance, formatDate, optionTypeToNumber, exerciseLight, getOrderStack,
+  getWalletBalance,
+  formatDate,
+  optionTypeToNumber,
+  exerciseLight,
+  getOrderStack,
+  toEthDate,
 } from '../utils/ethMethods'
 import {OrderCommon, ShrubBalance, SmallOrder, SupportedCurrencies} from '../types';
 import {Currencies} from "../constants/currencies";
@@ -69,14 +71,11 @@ import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
-import {ArrowBackIcon, ArrowForwardIcon, QuestionOutlineIcon} from '@chakra-ui/icons';
-import {currencySymbol} from "../utils/chainMethods";
+import {ArrowBackIcon, QuestionOutlineIcon} from '@chakra-ui/icons';
 import { useQuery } from '@apollo/client'
-import { SHRUBFOLIO_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries';
+import { SHRUBFOLIO_QUERY } from '../constants/queries';
 import {isMobile} from "react-device-detect";
 
-const DEPLOY_BLOCKHEIGHT = process.env.REACT_APP_DEPLOY_BLOCKHEIGHT;
-const MAX_SCAN_BLOCKS = Number(process.env.REACT_APP_MAX_SCAN_BLOCKS);
 const POLL_INTERVAL = 1000 // 1 second polling interval
 
 function Positions() {
@@ -190,6 +189,7 @@ function Positions() {
 
   // options display
   useEffect(() => {
+    const now = new Date();
     const optionRow:JSX.Element[] = [];
     if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
       return
@@ -209,6 +209,9 @@ function Positions() {
       const orderStack = getOrderStack(userOption);
       const { balance, option, buyOrders, sellOrders} = userOption
       const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice, id: optionId } = option;
+      if (expiryRaw < toEthDate(now)) {
+        continue;
+      }
       const { symbol: baseAssetSymbol } = baseAsset;
       const { symbol: quoteAssetSymbol } = quoteAsset;
 
@@ -404,7 +407,7 @@ function Positions() {
       const tx = await exerciseLight(common, bigAmount, library);
       const { optionType, strike } = common;
       const formattedStrike = ethers.utils.formatUnits(strike,6);
-      const description = `Exercise ${pair} ${optionType} option for $${Number(amount) * Number(formattedStrike)} at strike $${formattedStrike}`
+      const description = `Exercise ${pair} option for $${Number(amount) * Number(formattedStrike)} at strike $${formattedStrike}`
       pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
       const receipt = await tx.wait()
       const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);

@@ -28,11 +28,12 @@ import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 
 const height = 100;
 
-function OptionRow({appCommon, last, ask, bid, option, optionData}: {
+function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}: {
   appCommon: AppCommon,
   last: string,
   ask: string,
   bid: string,
+  positionHash: string,
   option: SellBuy,
   optionData: OptionData
 }) {
@@ -114,7 +115,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
           </Box></ModalHeader>
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
-              <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
+              <OptionDetails appCommon={appCommon} sellBuy={option} positionHash={positionHash} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
             { (approving || activeHash) && <Txmonitor txHash={activeHash}/> }
           </ModalBody>
         </ModalContent>

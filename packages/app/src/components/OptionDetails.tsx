@@ -93,16 +93,18 @@ import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
-import {currencySymbol} from "../utils/chainMethods";
 import {isMobile} from "react-device-detect";
+import { useQuery } from '@apollo/client'
+import { ORDER_DETAILS_QUERY } from '../constants/queries'
 
 const { Zero } = ethers.constants;
 
-function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
+function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: {
     appCommon: AppCommon,
     sellBuy: SellBuy,
     hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any},
-    optionData: OptionData
+    optionData: OptionData,
+    positionHash: string
 }) {
 
     const { isOpen: isOpenConfirmDialog, onOpen: onOpenConfirmDialog, onClose: onCloseConfirmDialog } = useDisclosure();
@@ -123,6 +125,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     // Hooks
     const [amount, setAmount] = React.useState(1);
     const [price, setPrice] = React.useState('');
+    const [marketPrice, setMarketPrice] = React.useState('');
     const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: []})
     // Radio logic
     const radioOptions = ['BUY', 'SELL']
@@ -143,22 +146,72 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData }: {
     const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
     const orderBookColor = useColorModeValue("gray.600", "gray.200");
 
-    useEffect(() => {
-        const buyOrders = optionData.buyOrders.sort((a, b) => b.unitPrice - a.unitPrice);
-        const sellOrders = optionData.sellOrders.sort((a, b) => a.unitPrice - b.unitPrice);
-        setOrderBook({ sellOrders, buyOrders })
-    }, [optionData.buyOrders, optionData.sellOrders])
+    const {
+        loading: orderDetailsLoading,
+        error: orderDetailsError,
+        data: orderDetailsData
+    } = useQuery(ORDER_DETAILS_QUERY, {
+        variables: {
+            positionHash,
+            offerExpire: toEthDate(new Date())
+        },
+        pollInterval: 5000  // Poll every five seconds
+    });
 
-const {
+    useEffect(() => {
+        // console.log('useEffect - 1 - construct order book')
+        if (!orderDetailsData) {
+            return
+        }
+        const {
+            strike: decimalStrike,
+            lastPrice,
+            sellOrders,
+            buyOrders,
+            id,
+        } = orderDetailsData && orderDetailsData.option
+
+        const buyOrdersBook = buyOrders.map((order: any) => {
+            return {
+                unitPrice: Number(order.pricePerContract),
+                formattedSize: order.size,
+                positionHash,
+                user: order.userOption.user.id,
+                blockHeight: order.block,
+            }
+        }).sort((a: any, b: any) => b.unitPrice - a.unitPrice)
+        const sellOrdersBook = sellOrders.map((order: any) => {
+            return {
+                unitPrice: Number(order.pricePerContract),
+                formattedSize: order.size,
+                positionHash,
+                user: order.userOption.user.id,
+                blockHeight: order.block,
+            }
+        }).sort((a: any, b: any) => a.unitPrice - b.unitPrice)
+
+        setOrderBook({ sellOrders: sellOrdersBook, buyOrders: buyOrdersBook })
+    }, [orderDetailsData])
+
+    useEffect(() => {
+        // console.log('useEffect - 2 - set market price')
+        if (!price) {
+            setPrice(radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4));
+        }
+        if (radioOrderType !== 'Market') {
+            return;
+        }
+        setMarketPrice(radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4));
+    }, [radioOrderType, orderBook])
+
+    const {
         getRootProps: getOrderTypeRootProps,
         getRadioProps: getOrderTypeRadioProps,
     } = useRadioGroup({
         name: "orderType",
         defaultValue: 'Market',
         onChange: (nextValue: OrderType) => {
-            radioOption === 'BUY' ? setPrice(orderBook.sellOrders[0]?.unitPrice.toFixed(4) ): setPrice(orderBook.buyOrders[0]?.unitPrice.toFixed(4))
             setRadioOrderType(nextValue)
-
         },
     });
 
@@ -224,7 +277,7 @@ const {
                 id: '',
                 blockNumber: '',
                 orderToName,
-                positionHash: hashOrderCommon(common),
+                positionHash,
                 userAccount: account,
                 status: 'confirming',
                 pricePerContract: price
@@ -290,7 +343,7 @@ const {
                     throw new Error('Insufficient market depth for this order. Try making a smaller order.');
                 }
                 // @ts-ignore
-                const {positionHash, blockHeight, user, formattedSize, unitPrice} = lightOrder;
+                const {blockHeight, user, formattedSize, unitPrice} = lightOrder;
                 const orders = await getAnnouncedEvent(library, positionHash, user, blockHeight);
                 if (!orders) {
                     continue;
@@ -420,7 +473,7 @@ const {
                 id: '',
                 blockNumber: '',
                 orderToName,
-                positionHash: hashOrderCommon(common),
+                positionHash,
                 userAccount: account,
                 status: 'confirming',
                 pricePerContract: formattedPricePerContract,
@@ -486,10 +539,6 @@ const {
               <Td>{buyOrder.formattedSize}</Td>
           </Tr>)
       });
-
-    function changePrice(value: string) {
-        setPrice(value)
-    }
 
 console.log(expiry);
     console.log(formattedExpiry);
@@ -641,7 +690,7 @@ console.log(expiry);
                             <Input
                                 id="amount"
                                 placeholder="0.1"
-                                value={amount}
+                                value={amount || ''}
                                 isInvalid={amount<=0 ||isNaN(Number(amount)) }
                                 onChange={(event: any) => setAmount(event.target.value)}
                             />
@@ -662,11 +711,22 @@ console.log(expiry);
                                 </Popover>
                             </FormLabel>
                             <Input
+                              // Market
+                              display={radioOrderType === 'Market' ? 'block' : 'none'}
                               id="bid"
                               placeholder="0"
-                              value={radioOrderType === 'Market' ? (radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4)) : price}
-                              isDisabled={radioOrderType === 'Market'}
-                              onChange={(event: any) => changePrice(event.target.value)}
+                              value={marketPrice || ''}
+                              isDisabled={true}
+                              isInvalid={radioOrderType === 'Limit' && (Number(marketPrice)<=0 || price === '' || isNaN(Number(marketPrice)))}
+                            />
+                            <Input
+                              // Limit
+                              display={radioOrderType === 'Market' ? 'none' : 'block'}
+                              id="bid"
+                              placeholder="0"
+                              value={price || ''}
+                              isDisabled={false}
+                              onChange={(event: any) => setPrice(event.target.value)}
                               isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}
                             />
                         </Box>
