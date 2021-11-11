@@ -28,7 +28,7 @@ export const SUMMARY_VIEW_ALL_QUERY = gql`
 `
 
 export const ORDER_DETAILS_QUERY = gql`
-    query SummaryView($positionHash: String, $offerExpire: Int){
+    query SummaryView($positionHash: String, $offerExpire: Int, $account: String){
         option(id:$positionHash){
             id
             name
@@ -48,6 +48,14 @@ export const ORDER_DETAILS_QUERY = gql`
                 userOption{user{id}}
                 block
             }
+        }
+    }
+`
+
+export const OPTION_POSITION_QUERY = gql`
+    query OptionPositionQuery($id: String){
+        userOption(id:$id){
+            balance
         }
     }
 `
