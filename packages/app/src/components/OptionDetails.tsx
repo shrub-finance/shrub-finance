@@ -75,11 +75,11 @@ import {
     iOrderToCommon,
     getAnnouncedEvent,
     fromEthDate,
-    hashOrderCommon, formatTime,
+    hashOrderCommon, formatTime, getBigWalletBalance,
 } from '../utils/ethMethods'
-import {ethers} from "ethers";
+import { BigNumber, ethers } from 'ethers'
 import {useWeb3React} from "@web3-react/core";
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import {
     AppCommon, AppOrderSigned,
     IOrder, OptionData,
@@ -94,8 +94,8 @@ import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
 import {isMobile} from "react-device-detect";
-import { useQuery } from '@apollo/client'
-import { ORDER_DETAILS_QUERY } from '../constants/queries'
+import { useLazyQuery, useQuery } from '@apollo/client'
+import { OPTION_POSITION_QUERY, ORDER_DETAILS_QUERY } from '../constants/queries'
 
 const { Zero } = ethers.constants;
 
@@ -108,7 +108,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
 }) {
 
     const { isOpen: isOpenConfirmDialog, onOpen: onOpenConfirmDialog, onClose: onCloseConfirmDialog } = useDisclosure();
-    const cancelRef = React.useRef();
+    const cancelRef = useRef();
 
     const [localError, setLocalError] = useState('');
     const {
@@ -123,9 +123,11 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
-    const [amount, setAmount] = React.useState(1);
-    const [price, setPrice] = React.useState('');
-    const [marketPrice, setMarketPrice] = React.useState('');
+    const [amount, setAmount] = useState(1);
+    const [price, setPrice] = useState('');
+    const [optionPosition, setOptionPosition] = useState(0);
+    const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}}>()
+    const [marketPrice, setMarketPrice] = useState('');
     const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: []})
     // Radio logic
     const radioOptions = ['BUY', 'SELL']
@@ -153,10 +155,18 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     } = useQuery(ORDER_DETAILS_QUERY, {
         variables: {
             positionHash,
-            offerExpire: toEthDate(new Date())
+            offerExpire: toEthDate(new Date()),
         },
         pollInterval: 5000  // Poll every five seconds
     });
+
+    const [ getOptionPositionQuery, {
+        loading: optionPositionLoading,
+        error: optionPositionError,
+        data: optionPositionData
+    }] = useLazyQuery(OPTION_POSITION_QUERY, {
+        variables: {id: `${account && account.toLowerCase()}-${positionHash}`}
+    })
 
     useEffect(() => {
         // console.log('useEffect - 1 - construct order book')
@@ -203,6 +213,42 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
         }
         setMarketPrice(radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4));
     }, [radioOrderType, orderBook])
+
+    // Get balances
+    useEffect(() => {
+        // console.log('useEffect - 3 - get balances');
+        async function main() {
+            if (!account) {
+                return;
+            }
+            // Run the option position query
+            getOptionPositionQuery();
+            const bigQuoteAssetBalanceShrub = await getAvailableBalance({
+                address: account,
+                tokenContractAddress: quoteAsset,
+                provider: library
+            })
+            const bigBaseAssetBalanceShrub = await getAvailableBalance({
+                address: account,
+                tokenContractAddress: baseAsset,
+                provider: library
+            })
+            const { bigBalance: bigQuoteAssetBalanceWallet } = await getBigWalletBalance(quoteAsset, library);
+            const { bigBalance: bigBaseAssetBalanceWallet } = await getBigWalletBalance(baseAsset, library);
+            setBalances({
+                shrub: {quoteAsset: bigQuoteAssetBalanceShrub, baseAsset: bigBaseAssetBalanceShrub},
+                wallet: {baseAsset: bigBaseAssetBalanceWallet, quoteAsset: bigQuoteAssetBalanceWallet}
+            })
+        }
+        main()
+          .catch(console.error);
+    },[active, account])
+
+    useEffect(() => {
+        // console.log('useEffect - 4 - updateOptionPosition')
+        const oPosition = optionPositionData && optionPositionData.userOption && optionPositionData.userOption.balance;
+        setOptionPosition(Number(oPosition))
+    }, [optionPositionData])
 
     const {
         getRootProps: getOrderTypeRootProps,
@@ -540,8 +586,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
           </Tr>)
       });
 
-console.log(expiry);
-    console.log(formattedExpiry);
     return (
       <>
           {localError &&
