@@ -290,6 +290,7 @@ function HomeView(props: RouteComponentProps) {
                             colorScheme={useColorModeValue("green", "teal")}
                             variant="solid"
                             borderRadius="full"
+                            _hover={{transform: 'translateY(-2px)'}}
                             // bgGradient={useColorModeValue("linear(to-r, blue.100, teal.200)", "linear(to-l, blue.700, teal.700)")}
                             // bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
                             // _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}

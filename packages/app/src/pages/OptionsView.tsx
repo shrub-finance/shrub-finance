@@ -666,7 +666,7 @@ function OptionsView(props: RouteComponentProps) {
                                 </Center>
                                 <Center pt={6}>
                                     <Box as="span" fontWeight="semibold" fontSize="md" color="gray.500">
-                                        No orders from you yet, but your order history will show up here!
+                                        Your order history will show up here!
                                     </Box>
                                 </Center>
                             </Flex>}
