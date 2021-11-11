@@ -1,4 +1,4 @@
-import {BytesLike, ethers} from "ethers";
+import { BigNumber, BytesLike, ethers } from 'ethers'
 import {
   SUSDToken__factory,
   ShrubExchange,
@@ -540,50 +540,6 @@ export async function getLastOrders(provider: JsonRpcProvider) {
   return lastOrders;
 }
 
-export async function getMatchedOrders(
-  address: string,
-  provider: JsonRpcProvider,
-  fromBlock: ethers.providers.BlockTag = 0,
-  toBlock: ethers.providers.BlockTag = "latest",
-) {
-  const sellOrdersMatched = await getMatchEvents({provider, sellerAddress: address, fromBlock, toBlock})
-  const buyOrdersMatched = await getMatchEvents({provider, buyerAddress: address, fromBlock, toBlock})
-  return [...sellOrdersMatched, ...buyOrdersMatched];
-}
-
-export async function getFilledOrders(
-    address: string,
-    provider: JsonRpcProvider,
-    fromBlock: ethers.providers.BlockTag = 0,
-    toBlock: ethers.providers.BlockTag = "latest",
-) {
-  const openOrders = {} as any;
-  const matchedOrders = await getMatchedOrders(address, provider, fromBlock, toBlock);
-  for (const event of matchedOrders) {
-    if (!event) {
-      continue;
-    }
-    const { positionHash, common, buyOrder, seller } = event.args;
-    const { baseAsset, quoteAsset, strike, expiry, optionType } = common;
-    if (!openOrders[positionHash]) {
-      const amount = await userOptionPosition(address, positionHash, provider);
-      openOrders[positionHash] = {
-        common,
-        buyOrder,
-        seller,
-        baseAsset,
-        quoteAsset,
-        pair: getPair(baseAsset, quoteAsset),
-        strike: ethers.utils.formatUnits(strike, 6),  // Divide out the base shift of 1M
-        expiry: formatDate(expiry.toNumber()),
-        optionType: optionType === 1 ? 'CALL' : 'PUT',
-        amount
-      };
-    }
-  }
-  return openOrders;
-}
-
 export function getPair(baseAsset: string, quoteAsset: string) {
   return `${addressToLabel(quoteAsset)}/${addressToLabel(baseAsset)}`;
 }
@@ -598,10 +554,10 @@ export function addressToLabel(address: string) {
   return 'XXX'
 }
 
-export async function userOptionPosition(address: string, positionHash: string, provider: JsonRpcProvider) {
+export async function userOptionPosition(address: string, positionHash: string, provider: JsonRpcProvider): Promise<BigNumber> {
   const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const bigBalance = await shrubContract.userOptionPosition(address, positionHash);
-  return ethers.utils.formatUnits(bigBalance);
+  return bigBalance;
 }
 
 export async function exercise(order: IOrder, seller: string, provider: JsonRpcProvider) {
