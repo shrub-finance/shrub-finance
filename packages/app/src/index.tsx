@@ -4,7 +4,19 @@ import App from "./App";
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import theme from "./styles/theme";
 import "@fontsource/montserrat/400.css";
+import "focus-visible/dist/focus-visible";
+import { css } from '@emotion/react';
 
+const GlobalStyles = css`
+  /*
+    Hide the focus indicator if the element receives focus via the mouse,
+    keep it for keyboard focus.
+  */
+  .js-focus-visible :focus:not([data-focus-visible-added]) {
+     outline: none;
+     box-shadow: none;
+   }
+`;
 
 ReactDOM.render(
   <React.StrictMode>

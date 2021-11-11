@@ -32,6 +32,7 @@
     "ethereumjs-abi": "0.6.8",
     "ethereumjs-util": "7.0.9",
     "ethers": "5.1.4",
+    "focus-visible": "5.2.0",
     "framer-motion": "3.10.2",
     "graphql": "15.6.0",
     "react": "17.0.1",
