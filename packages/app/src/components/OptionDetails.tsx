@@ -74,8 +74,9 @@ import {
     announceOrder,
     iOrderToCommon,
     getAnnouncedEvent,
-    fromEthDate,
-    hashOrderCommon, formatTime, getBigWalletBalance,
+    formatTime,
+    getBigWalletBalance,
+    userOptionPosition,
 } from '../utils/ethMethods'
 import { BigNumber, ethers } from 'ethers'
 import {useWeb3React} from "@web3-react/core";
@@ -125,8 +126,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     // Hooks
     const [amount, setAmount] = useState(1);
     const [price, setPrice] = useState('');
-    const [optionPosition, setOptionPosition] = useState(0);
-    const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}}>()
+    const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}, optionPosition: BigNumber}>()
     const [marketPrice, setMarketPrice] = useState('');
     const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: []})
     // Radio logic
@@ -159,14 +159,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
         },
         pollInterval: 5000  // Poll every five seconds
     });
-
-    const [ getOptionPositionQuery, {
-        loading: optionPositionLoading,
-        error: optionPositionError,
-        data: optionPositionData
-    }] = useLazyQuery(OPTION_POSITION_QUERY, {
-        variables: {id: `${account && account.toLowerCase()}-${positionHash}`}
-    })
 
     useEffect(() => {
         // console.log('useEffect - 1 - construct order book')
@@ -221,8 +213,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
             if (!account) {
                 return;
             }
-            // Run the option position query
-            getOptionPositionQuery();
             const bigQuoteAssetBalanceShrub = await getAvailableBalance({
                 address: account,
                 tokenContractAddress: quoteAsset,
@@ -235,20 +225,16 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
             })
             const { bigBalance: bigQuoteAssetBalanceWallet } = await getBigWalletBalance(quoteAsset, library);
             const { bigBalance: bigBaseAssetBalanceWallet } = await getBigWalletBalance(baseAsset, library);
+            const optionPosition = await userOptionPosition(account, positionHash, library);
             setBalances({
                 shrub: {quoteAsset: bigQuoteAssetBalanceShrub, baseAsset: bigBaseAssetBalanceShrub},
-                wallet: {baseAsset: bigBaseAssetBalanceWallet, quoteAsset: bigQuoteAssetBalanceWallet}
+                wallet: {baseAsset: bigBaseAssetBalanceWallet, quoteAsset: bigQuoteAssetBalanceWallet},
+                optionPosition
             })
         }
         main()
           .catch(console.error);
     },[active, account])
-
-    useEffect(() => {
-        // console.log('useEffect - 4 - updateOptionPosition')
-        const oPosition = optionPositionData && optionPositionData.userOption && optionPositionData.userOption.balance;
-        setOptionPosition(Number(oPosition))
-    }, [optionPositionData])
 
     const {
         getRootProps: getOrderTypeRootProps,
