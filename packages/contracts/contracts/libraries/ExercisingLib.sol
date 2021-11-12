@@ -75,12 +75,16 @@ library ExercisingLib {
 
     if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.CALL) {
       // reset quoteAsset locked balance
+      require(self.userTokenLockedBalance[msg.sender][common.quoteAsset] >= poolOwnership, "Claimer must have enough tokens locked to unlock them");
+      require(self.userTokenBalances[msg.sender][common.quoteAsset] >= poolOwnership, "Claimer must have enough tokens locked to unlock them");
       self.userTokenLockedBalance[msg.sender][common.quoteAsset] -= poolOwnership;
       self.userTokenBalances[msg.sender][common.quoteAsset] -= poolOwnership;
     }
 
     if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.PUT) {
       // reset baseAsset locked balance
+      require(self.userTokenLockedBalance[msg.sender][common.baseAsset] >= poolOwnership, "Claimer must have enough tokens locked to unlock them");
+      require(self.userTokenBalances[msg.sender][common.baseAsset] >= poolOwnership, "Claimer must have enough tokens locked to unlock them");
       self.userTokenLockedBalance[msg.sender][common.baseAsset] -= poolOwnership;
       self.userTokenBalances[msg.sender][common.baseAsset] -= poolOwnership;
     }
@@ -97,6 +101,7 @@ library ExercisingLib {
     self.userTokenBalances[msg.sender][common.quoteAsset] += quoteBalanceOwed;
 
     // reduce pool size by amount claimed
+    require(self.positionPoolTokenTotalSupply[positionHash] > poolOwnership, "The pool total size should exceed claimed amount");
     self.positionPoolTokenTotalSupply[positionHash] -= poolOwnership;
     self.userOptionPosition[msg.sender][positionHash] = 0;
   }
