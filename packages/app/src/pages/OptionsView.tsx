@@ -82,14 +82,14 @@ function OptionsView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState('');
   const toast = useToast();
   const boxShadow = useColorModeValue("2xl", "2xl");
-  const backgroundColor = useColorModeValue("white", "shrub.100");
+  const backgroundColor = useColorModeValue("white", "dark.100");
   const [localOrderHistoryRows, setLocalOrderHistoryRows] = useState<JSX.Element[]>([]);
   const [optionRows, setOptionRows] = useState<JSX.Element[]>([]);
   const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
 
   const livePriceColor = useColorModeValue("green.500", "green.200");
   const selectorColor = useColorModeValue("gray.400", "gray.800");
-  const selectorBg = useColorModeValue("white", "shrub.100");
+  const selectorBg = useColorModeValue("white", "dark.100");
 
   // TODO un-hardcode this
   const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
@@ -574,7 +574,7 @@ function OptionsView(props: RouteComponentProps) {
                                 {/* do not delete, leave it commented out for now*/}
                                 {/*<RadioCard>*/}
                                 {/*  Special Dates*/}
-                                {/*  <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in MATIC land as your expiry. " fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">*/}
+                                {/*  <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in MATIC land as your expiry. " fontSize="xs" borderRadius="lg" bg="dark.300" color="white">*/}
                                 {/*  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>*/}
                                 {/*</Tooltip>*/}
                                 {/*</RadioCard>*/}

@@ -38,7 +38,7 @@ export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, s
                     thickness="4px"
                     speed="0.65s"
                     emptyColor="gray.200"
-                    color="bud.100"
+                    color="bud.500"
                     size="xl"
                   />
                   <AlertTitle mt={4} mb={1} fontSize="lg">
@@ -92,7 +92,7 @@ export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, s
               height="400px"
               bg="none"
             >
-              <AlertIcon boxSize={showDeposit ? "140px" : "40px"} mr={0} color={"bud.100"}/>
+              <AlertIcon boxSize={showDeposit ? "140px" : "40px"} mr={0} color={"bud.500"}/>
               <AlertTitle mt={showDeposit ? 12 : 4} mb={1} fontSize="lg">
                 Transaction Confirmed
               </AlertTitle>
@@ -178,7 +178,7 @@ export function TxStatusList() {
     console.log(list);
 
     const shadow = useColorModeValue("base", "dark-lg");
-    const bgColor =useColorModeValue("gray.100", "shrub.300");
+    const bgColor =useColorModeValue("gray.100", "dark.300");
 
     return (
       <>

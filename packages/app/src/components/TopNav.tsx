@@ -50,7 +50,7 @@ function TopNav() {
       "linear(to-l, gray.700, gray.700)"
   );
   const topNavShadow = useColorModeValue("md", "md");
-  const topNavBgColor = useColorModeValue("white", "shrub.100");
+  const topNavBgColor = useColorModeValue("white", "dark.100");
 
   const bg = useColorModeValue("green", "teal")
 function handleModalClose() {

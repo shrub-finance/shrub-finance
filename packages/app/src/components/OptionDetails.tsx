@@ -17,23 +17,23 @@ import {
     Button,
     Divider,
     Flex,
-    FormLabel,
+    FormLabel, Heading,
     HStack,
-    Input,
+    Input, InputLeftElement, InputRightElement,
     Modal,
     ModalBody,
     ModalCloseButton,
     ModalContent,
     ModalHeader,
-    ModalOverlay,
+    ModalOverlay, NumberInput, NumberInputField,
     Popover,
     PopoverArrow,
-    PopoverBody,
-    PopoverContent,
+    PopoverBody, PopoverCloseButton,
+    PopoverContent, PopoverHeader,
     PopoverTrigger,
-    SlideFade,
-    Stack,
-    Table,
+    SlideFade, Spacer,
+    Stack, Tab,
+    Table, TabList, TabPanel, TabPanels, Tabs,
     Tag,
     TagLabel,
     Tbody,
@@ -46,16 +46,17 @@ import {
     useColorModeValue,
     useDisclosure,
     useRadioGroup,
-    useToast
+    useToast, VStack
 } from '@chakra-ui/react';
-import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
+import {Icon, QuestionIcon, QuestionOutlineIcon, WarningTwoIcon} from '@chakra-ui/icons';
 import {
+    BiQuestionMark,
     FiShoppingCart,
     GiMoneyStack,
     MdArrowDownward,
     MdArrowUpward,
     MdDateRange,
-    RiHandCoinLine
+    RiHandCoinLine, RiQuestionMark
 } from "react-icons/all";
 import RadioCard from "./Radio";
 import {
@@ -92,10 +93,12 @@ import {
 import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
-import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
+import {getErrorMessage} from './ConnectWallet';
 import {isMobile} from "react-device-detect";
 import { useQuery } from '@apollo/client'
 import { ORDER_DETAILS_QUERY } from '../constants/queries'
+import usePriceFeed from "../hooks/usePriceFeed";
+import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 
 const { Zero } = ethers.constants;
 
@@ -109,6 +112,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
 
     const { isOpen: isOpenConfirmDialog, onOpen: onOpenConfirmDialog, onClose: onCloseConfirmDialog } = useDisclosure();
     const cancelRef = React.useRef();
+    const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
+
 
     const [localError, setLocalError] = useState('');
     const {
@@ -118,7 +123,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
 
     const { approving, setApproving, setActiveHash } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
-    const alertColor = useColorModeValue("gray.100", "shrub.300")
+    const alertColor = useColorModeValue("gray.100", "dark.300");
+    const livePriceColor = useColorModeValue("green.500", "green.200")
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
@@ -540,8 +546,9 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
           </Tr>)
       });
 
-console.log(expiry);
+    console.log(expiry);
     console.log(formattedExpiry);
+    const totPriceMarket = amount *  Number(marketPrice);
     return (
       <>
           {localError &&
@@ -556,276 +563,347 @@ console.log(expiry);
                 </SlideFade>
             </>
             }
-            <Modal motionPreset="slideInBottom" isOpen={isOpenConnectModal}
-                   onClose={onCloseConnectModal}>
-                <ModalOverlay/>
-                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
-                    <ModalHeader>
-                        <Text fontSize={20}>Connect to a wallet</Text>
-                    </ModalHeader>
-                    <ModalCloseButton/>
-                    <ModalBody>
-                        <ConnectWalletModal/>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
+          <Tabs
+              variant="unstyled"
+          >
 
-            <Flex direction={{ base: "column", md: "row" }}>
-                <Box id={"order form"}>
-                    <Stack spacing="24px">
-                        <Box mt={2} mb={8}>
-                            <HStack spacing={3}>
-                                {/*<Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">*/}
-                                    <Tag colorScheme="green">
-                                        {!isMobile &&  <Icon as={sellBuy === 'BUY' ? FiShoppingCart : RiHandCoinLine} />}
-                                        <TagLabel pl={'1'}>{sellBuy}</TagLabel>
-                                    </Tag>
-                                {/*</Tooltip>*/}
-                                    <Tag colorScheme="blue">
-                                        {!isMobile && <Icon as={MdDateRange} />}
-                                        <TagLabel pl={'1'}> {formattedExpiry}</TagLabel>
-                                    </Tag>
-                                    <Tag colorScheme="purple">
-                                        {!isMobile && <Icon as={optionType === 'CALL' ? MdArrowUpward : MdArrowDownward} />}
-                                        <TagLabel pl={'1'}>{optionType}</TagLabel>
-                                    </Tag>
-                                <Tag colorScheme="yellow">
-                                    {!isMobile &&  <Icon as={GiMoneyStack}/>}
-                                    <TagLabel pl={'1'}>{`${formattedStrike} sUSD`}</TagLabel>
-                                </Tag>
-                            </HStack>
-                        </Box>
-                        <Box>
-                            <HStack {...groupOptionType}>
-                                <FormLabel htmlFor="orderType">Order:</FormLabel>
-                                {radioOrderTypes.map((value) => {
-                                    const radio = getOrderTypeRadioProps({ value });
-                                    return (
-                                      <RadioCard key={value} {...radio}>
-                                          {value}
-                                      </RadioCard>
-                                    );
-                                })}
-                            </HStack>
-                        </Box>
-                        <Accordion allowToggle display={{ sm: "block", md: "none" }}>
-                            <AccordionItem>
-                                <h2>
-                                    <AccordionButton>
-                                        <Box flex="1" textAlign="left">
-                                            View Orderbook
-                                        </Box>
-                                        <AccordionIcon />
-                                    </AccordionButton>
-                                </h2>
-                                <AccordionPanel pb={6}>
-                                    <Box id={"orderbook"}>
-                                        <Box
-                                            color={useColorModeValue("gray.500", "black")}
-                                            bgColor={useColorModeValue("gray.100", "gray.400")}
-                                            fontWeight="semibold"
-                                            letterSpacing="wide"
-                                            fontSize="xs"
-                                            ml="2"
-                                            borderRadius="md"
-                                            px="2"
-                                            py="1"
-                                        >
-                                            Sell Offers
-                                        </Box>
-                                        <Table variant={'unstyled'} size={'sm'}>
-                                            <Thead>
-                                                <Tr>
-                                                    <Th color="gray.400">Price</Th>
-                                                    <Th color="gray.400">Contract</Th>
-                                                </Tr>
-                                            </Thead>
-                                            <Tbody>
-                                                {orderbookSellRows}
-                                            </Tbody>
-                                        </Table>
-                                        <Divider/>
-                                        <Box
-                                            color={useColorModeValue("gray.500", "black")}
-                                            bgColor={useColorModeValue("gray.100", "gray.400")}
-                                            fontWeight="semibold"
-                                            letterSpacing="wide"
-                                            fontSize="xs"
-                                            ml="2"
-                                            borderRadius="md"
-                                            px="2"
-                                            py="1"
-                                        >
-                                            Buy Offers
-                                        </Box>
-                                        <Table variant={'unstyled'} size={'sm'}>
-                                            <Thead>
-                                                <Tr>
-                                                    <Th color="gray.400">Price</Th>
-                                                    <Th color="gray.400">Contract</Th>
-                                                </Tr>
-                                            </Thead>
-                                            <Tbody>
-                                                {orderbookBuyRows}
-                                            </Tbody>
-                                        </Table>
-                                    </Box>
-                                </AccordionPanel>
-                            </AccordionItem>
-                        </Accordion>
-                        <Box>
-                            <FormLabel htmlFor="amount">Quantity:
-                                <Popover trigger={"hover"}>
-                                    <PopoverTrigger>
-                                        <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <PopoverArrow />
-                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
-                                            <Text> Number of contracts you want to {radioOption.toLowerCase()}</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>
-                                        </PopoverBody>
-                                    </PopoverContent>
-                                </Popover>
-                            </FormLabel>
-                            <Input
-                                id="amount"
-                                placeholder="0.1"
-                                value={amount || ''}
-                                isInvalid={amount<=0 ||isNaN(Number(amount)) }
-                                onChange={(event: any) => setAmount(event.target.value)}
-                            />
-                        </Box>
-                        <Box>
-                            <FormLabel htmlFor="bid">Price per contract:
-                                <Popover trigger={"hover"}>
-                                    <PopoverTrigger>
-                                        <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <PopoverArrow />
-                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
-                                            <Text> The sUSD required to purchase 1 contract</Text>
-                                            <Text>1 contract = 1 sMATIC</Text>
-                                        </PopoverBody>
-                                    </PopoverContent>
-                                </Popover>
-                            </FormLabel>
-                            <Input
-                              // Market
-                              display={radioOrderType === 'Market' ? 'block' : 'none'}
-                              id="bid"
-                              placeholder="0"
-                              value={marketPrice || ''}
-                              isDisabled={true}
-                              isInvalid={radioOrderType === 'Limit' && (Number(marketPrice)<=0 || price === '' || isNaN(Number(marketPrice)))}
-                            />
-                            <Input
-                              // Limit
-                              display={radioOrderType === 'Market' ? 'none' : 'block'}
-                              id="bid"
-                              placeholder="0"
-                              value={price || ''}
-                              isDisabled={false}
-                              onChange={(event: any) => setPrice(event.target.value)}
-                              isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}
-                            />
-                        </Box>
-                        {/*<Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>*/}
-                        {/*    <AlertIcon />*/}
-                        {/*    {tooltipLabel}*/}
-                        {/*</Alert>*/}
-                        <Box>
-                            <Flex justifyContent="flex-end">
-                                <Button
-                                    colorScheme={useColorModeValue("green", "teal")}
-                                  type="submit"
-                                  // onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
-                                    onClick={onOpenConfirmDialog}
-                                  disabled={
-                                      amount<=0 ||
-                                      isNaN(Number(amount)) ||
-                                      (radioOrderType === 'Market' && (
-                                        Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
-                                      )) ||
-                                      (radioOrderType === 'Limit' && (
-                                          Number(price)<=0 ||
-                                          isNaN(Number(price))
-                                      ))
-                                  }
+              <TabList color={"gray.500"} p={2}>
+                  <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
+                       _selected={{ color: "sprout.500" }}>
+                      Instant Buy</Tab>
+                  <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
+                       _selected={{  color: "sprout.500" }}>
+                      Pick your Price</Tab>
+              </TabList>
+              <TabPanels>
+                  <TabPanel>
+                      <Flex direction={{ base: "column", md: "row" }}>
+                              <Stack spacing="24px" w={"full"}>
+                                  <Box >
+                                      <Flex pb={8}>
+                                          <Box fontSize={"md"} fontWeight="bold">
+                                              {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
+                                          </Box>
+                                          <Spacer/>
+                                          <Text  fontSize={"xs"} fontWeight={"bold"}
+                                                 color={livePriceColor}>
+                                              sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
+                                          </Text>
+                                      </Flex>
+
+                                      <Box fontSize={"xs"} fontWeight={"bold"}
+                                      pb={10}>
+                                          <Flex>
+                                           <Box>
+                                      <HStack pb={1}>
+                                          <Text color="gray.500">Strike</Text>
+                                          <Text>$2.50</Text>
+                                      </HStack>
+                                      <HStack>
+                                          <Text color="gray.500">Expiry</Text>
+                                          <Text>Nov 11</Text>
+                                      </HStack>
+                                           </Box>
+                                              <Spacer/>
+                                              {radioOption === 'BUY' && <Box>
+                                                  <Box borderWidth="1px" borderColor={"sprout.400"}
+                                                       p={1} borderRadius={"md"}>
+                                                      You own <strong>2 contracts</strong>
+                                                  </Box>
+                                              </Box>}
+                                          </Flex>
+                                      </Box>
+
+                                      <NumberInput>
+                                          <NumberInputField
+                                            id="amount"
+                                            placeholder="0.0"
+                                            value={amount || ''}
+                                            // isInvalid={amount<=0 ||isNaN(Number(amount)) }
+                                            onChange={(event: any) => setAmount(event.target.value)}
+                                            h="6rem"
+                                            borderRadius="3xl"
+                                            // isRequired
+                                            isFullWidth
+                                            shadow="sm"
+                                            fontWeight="bold"
+                                            fontSize="2xl"
+                                          />
+                                          <InputRightElement
+                                            pointerEvents="none"
+                                            p={14}
+                                            children={
+                                                <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity
+                                                {/*<Popover trigger={"hover"}>*/}
+                                                {/*    <PopoverTrigger><Text><QuestionOutlineIcon/></Text>*/}
+                                                {/*    </PopoverTrigger>*/}
+                                                {/*    <PopoverContent>*/}
+                                                {/*        <PopoverArrow />*/}
+                                                {/*        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>*/}
+                                                {/*            <Text> Number of contracts you want to {radioOption.toLowerCase()}</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>*/}
+                                                {/*        </PopoverBody>*/}
+                                                {/*    </PopoverContent>*/}
+                                                {/*</Popover>*/}
+                                            </FormLabel>}
+                                          />
+                                      </NumberInput>
+                                      <Text fontWeight="bold" fontSize="xs" color={useColorModeValue("red.500", "red.300")} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>
+                                  </Box>
+
+                                  <Box fontSize="sm" pt={6}>
+                                      <HStack spacing={8} fontSize={"sm"}>
+                                      <VStack spacing={1.5} alignItems={"flex-start"}>
+                                          <Text>
+                                              Price per contract
+                                          {/*    <Popover trigger={"hover"}>*/}
+                                          {/*    <PopoverTrigger>*/}
+                                          {/*        <Text as="span" pl={3}><RiQuestionMark/></Text>*/}
+                                          {/*    </PopoverTrigger>*/}
+                                          {/*    <PopoverContent>*/}
+                                          {/*        <PopoverArrow />*/}
+                                          {/*        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>*/}
+                                          {/*            <Text> The sUSD required to purchase 1 contract</Text>*/}
+                                          {/*            <Text>1 contract = 1 sMATIC</Text>*/}
+                                          {/*        </PopoverBody>*/}
+                                          {/*    </PopoverContent>*/}
+                                          {/*</Popover>*/}
+                                          </Text>
+                                          <Text>
+                                              {radioOption === 'BUY' ? 'Collateral to unlock' : 'Collateral requirement' }
+                                          </Text>
+                                          <Text>
+                                              {radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }
+
+                                          </Text>
+                                          <Text>
+                                              Available
+                                          </Text>
+                                      </VStack>
+                                      <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
+                                          <Text>
+                                              ${marketPrice}
+                                          </Text>
+                                          <Text color="gray.500">
+                                              3 sMATIC
+                                          </Text>
+                                          <Text>
+                                              ${isNaN(totPriceMarket) ? "--" : totPriceMarket.toFixed(4)}
+                                          </Text>
+                                          <Text color="gray.500">
+                                              $4.00
+                                          </Text>
+                                      </VStack>
+                                      </HStack>
+                                  </Box>
+                                  <Box>
+                                      <Flex justifyContent="flex-end">
+                                          <Button
+                                              colorScheme={useColorModeValue("sprout", "teal")}
+                                              type="submit"
+                                              onClick={onOpenConfirmDialog}
+                                              disabled={
+                                                  amount<=0 ||
+                                                  isNaN(Number(amount)) ||
+                                                  (radioOrderType === 'Market' && (
+                                                      Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
+                                                  ))}>
+                                              {/*Review {radioOption === 'BUY' ? 'Buy' : 'Sell'} Order*/}
+                                              Review Order
+                                              {/*Review*/}
+                                          </Button>
+                                      </Flex>
+                                  </Box>
+                              </Stack>
+                      </Flex>
+                  </TabPanel>
+                  <TabPanel>
+                      <Flex direction={{ base: "column", md: "row" }}>
+                          <Box>
+                              <Stack spacing="24px">
+                                  <Box mt={2} mb={8}>
+                                      <HStack spacing={3}>
+                                          <Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">
+                                          <Tag colorScheme="blue">
+                                              {!isMobile && <Icon as={MdDateRange} />}
+                                              <TagLabel pl={'1'}> {formattedExpiry}</TagLabel>
+                                          </Tag>
+                                          </Tooltip>
+                                          <Tag colorScheme="purple">
+                                              {!isMobile && <Icon as={optionType === 'CALL' ? MdArrowUpward : MdArrowDownward} />}
+                                              <TagLabel pl={'1'}>{optionType}</TagLabel>
+                                          </Tag>
+                                          <Tag colorScheme="yellow">
+                                              {!isMobile &&  <Icon as={GiMoneyStack}/>}
+                                              <TagLabel pl={'1'}>{`${formattedStrike} sUSD`}</TagLabel>
+                                          </Tag>
+                                      </HStack>
+                                  </Box>
+                                  <Accordion allowToggle>
+                                      <AccordionItem>
+                                              <AccordionButton>
+                                                  <Box fontSize="xs" flex="1" textAlign="left">
+                                                      View Orderbook
+                                                  </Box>
+                                                  <AccordionIcon />
+                                              </AccordionButton>
+                                          <AccordionPanel pb={6}>
+                                              <Box id={"orderbook"}>
+                                                  <Box
+                                                      color={useColorModeValue("gray.500", "black")}
+                                                      bgColor={useColorModeValue("gray.100", "gray.400")}
+                                                      fontWeight="semibold"
+                                                      letterSpacing="wide"
+                                                      fontSize="xs"
+                                                      ml="2"
+                                                      borderRadius="md"
+                                                      px="2"
+                                                      py="1"
+                                                  >
+                                                      Sell Offers
+                                                  </Box>
+                                                  <Table variant={'unstyled'} size={'sm'}>
+                                                      <Thead>
+                                                          <Tr>
+                                                              <Th color="gray.400">Price</Th>
+                                                              <Th color="gray.400">Contract</Th>
+                                                          </Tr>
+                                                      </Thead>
+                                                      <Tbody>
+                                                          {orderbookSellRows}
+                                                      </Tbody>
+                                                  </Table>
+                                                  <Divider/>
+                                                  <Box
+                                                      color={useColorModeValue("gray.500", "black")}
+                                                      bgColor={useColorModeValue("gray.100", "gray.400")}
+                                                      fontWeight="semibold"
+                                                      letterSpacing="wide"
+                                                      fontSize="xs"
+                                                      ml="2"
+                                                      borderRadius="md"
+                                                      px="2"
+                                                      py="1"
+                                                  >
+                                                      Buy Offers
+                                                  </Box>
+                                                  <Table variant={'unstyled'} size={'sm'}>
+                                                      <Thead>
+                                                          <Tr>
+                                                              <Th color="gray.400">Price</Th>
+                                                              <Th color="gray.400">Contract</Th>
+                                                          </Tr>
+                                                      </Thead>
+                                                      <Tbody>
+                                                          {orderbookBuyRows}
+                                                      </Tbody>
+                                                  </Table>
+                                              </Box>
+                                          </AccordionPanel>
+                                      </AccordionItem>
+                                  </Accordion>
+                                  <Box>
+                                      <FormLabel htmlFor="amount">Quantity:
+                                          <Popover trigger={"hover"}>
+                                              <PopoverTrigger>
+                                                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                              </PopoverTrigger>
+                                              <PopoverContent>
+                                                  <PopoverArrow />
+                                                  <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
+                                                      <Text> Number of contracts you want to {radioOption.toLowerCase()}</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>
+                                                  </PopoverBody>
+                                              </PopoverContent>
+                                          </Popover>
+                                      </FormLabel>
+                                      <Input
+                                          id="amount"
+                                          placeholder="0.1"
+                                          value={amount || ''}
+                                          isInvalid={amount<=0 ||isNaN(Number(amount)) }
+                                          onChange={(event: any) => setAmount(event.target.value)}
+                                      />
+
+                                  </Box>
+
+                                  <Box>
+                                      <FormLabel htmlFor="bid">Price per contract:
+                                          <Popover trigger={"hover"}>
+                                              <PopoverTrigger>
+                                                  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
+                                              </PopoverTrigger>
+                                              <PopoverContent>
+                                                  <PopoverArrow />
+                                                  <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
+                                                      <Text> The sUSD required to purchase 1 contract</Text>
+                                                      <Text>1 contract = 1 sMATIC</Text>
+                                                  </PopoverBody>
+                                              </PopoverContent>
+                                          </Popover>
+                                      </FormLabel>
+                                      <Input
+                                          // Market
+                                          display={radioOrderType === 'Market' ? 'block' : 'none'}
+                                          id="bid"
+                                          placeholder="0"
+                                          value={marketPrice || ''}
+                                          isDisabled={true}
+                                          isInvalid={radioOrderType === 'Limit' && (Number(marketPrice)<=0 || price === '' || isNaN(Number(marketPrice)))}
+                                      />
+                                      <Input
+                                          // Limit
+                                          display={radioOrderType === 'Market' ? 'none' : 'block'}
+                                          id="bid"
+                                          placeholder="0"
+                                          value={price || ''}
+                                          isDisabled={false}
+                                          onChange={(event: any) => setPrice(event.target.value)}
+                                          isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}
+                                      />
+                                  </Box>
+                                  {/*<Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>*/}
+                                  {/*    <AlertIcon />*/}
+                                  {/*    {tooltipLabel}*/}
+                                  {/*</Alert>*/}
+                                  <Box>
+                                      <Flex justifyContent="flex-end">
+                                          <Button
+                                              colorScheme={useColorModeValue("green", "teal")}
+                                              type="submit"
+                                              // onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
+                                              onClick={onOpenConfirmDialog}
+                                              disabled={
+                                                  amount<=0 ||
+                                                  isNaN(Number(amount)) ||
+                                                  (radioOrderType === 'Market' && (
+                                                      Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
+                                                  )) ||
+                                                  (radioOrderType === 'Limit' && (
+                                                      Number(price)<=0 ||
+                                                      isNaN(Number(price))
+                                                  ))
+                                              }
 
 
-                                >
-                                    Place {radioOption === 'BUY' ? 'Buy' : 'Sell'} Order
-                                </Button>
-                            </Flex>
-                        </Box>
-                    </Stack>
-
-                </Box>
-                {!isMobile && <Box id={"orderbook"} ml={4} display={{ sm: "none", md: "block" }}>
-                    <Box
-
-                        fontWeight="semibold"
-                        letterSpacing="wide"
-                        fontSize="xs"
-                        ml="2"
-                        borderRadius="md"
-                        px="2"
-                        py="1"
-                        color = {orderBookColorMobile}
-                        bgColor={orderBookBgColorMobile}
-                    >
-                        Sell Offers
-                    </Box>
-                    <Table variant={'unstyled'} size={'sm'}>
-                        <Thead>
-                            <Tr>
-                                <Th color="gray.400">Price</Th>
-                                <Th color="gray.400">Size</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {orderbookSellRows}
-                        </Tbody>
-                    </Table>
-                    <Box
-                        color={orderBookColorMobile}
-                        bgColor={orderBookBgColorMobile}
-                        fontWeight="semibold"
-                        letterSpacing="wide"
-                        fontSize="xs"
-                        ml="2"
-                        borderRadius="md"
-                        px="2"
-                        py="1"
-                        mt="4"
-                    >
-                        Buy Offers
-                    </Box>
-                    <Table variant={'unstyled'} size={'sm'}>
-                        <Thead>
-                            <Tr>
-                                <Th color="gray.400">Price</Th>
-                                <Th color="gray.400">Size</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {orderbookBuyRows}
-                        </Tbody>
-                    </Table>
-                </Box>}
-            </Flex>
-
+                                          >
+                                              Place {radioOption === 'BUY' ? 'Buy' : 'Sell'} Order
+                                          </Button>
+                                      </Flex>
+                                  </Box>
+                              </Stack>
+                          </Box>
+                      </Flex>
+                  </TabPanel>
+              </TabPanels>
+          </Tabs>
+          {/*order confirmation modal*/}
           <AlertDialog
               motionPreset="slideInBottom"
               // @ts-ignore
               leastDestructiveRef={cancelRef}
               onClose={onCloseConfirmDialog}
               isOpen={isOpenConfirmDialog}
-              isCentered
-          >
+              isCentered>
               <AlertDialogOverlay />
-
               <AlertDialogContent>
                   <AlertDialogHeader>Order Confirmation</AlertDialogHeader>
                   <AlertDialogCloseButton />

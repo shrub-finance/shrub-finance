@@ -82,7 +82,7 @@ function Positions() {
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {active, library, account, error: web3Error, chainId} = useWeb3React();
-  const alertColor = useColorModeValue("gray.100", "shrub.300");
+  const alertColor = useColorModeValue("gray.100", "dark.300");
   const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
   const [shrubfolioRows, setShrubfolioRows] = useState<JSX.Element[]>([]);
   const [isApproved, setIsApproved] = useState(false);
@@ -543,11 +543,11 @@ function Positions() {
       </Container>
       {/*asset view*/}
       <Container mt={1}
-          borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")}>
+          borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")}>
           {shrubfolioRows}
       </Container>
       {/*options view*/}
-      <Container mt={50} p={hasOptions.current ? 0 : 0} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "shrub.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
+      <Container mt={50} p={hasOptions.current ? 0 : 0} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
         {
           !shrubfolioLoading && !shrubfolioError && account ?
 

@@ -67,7 +67,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
             transform: 'translateY(-2px)',
             boxShadow: 'lg',
             bgGradient: useColorModeValue(
-            "linear(to-r, blue.100, teal.200)",
+            "linear(to-r, #b8ddad, teal.200)",
             "linear(to-l, blue.700, teal.700)"
             )
           }}
@@ -77,7 +77,8 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
           py={3}
           flex="1"
           borderRadius="2xl"
-          bg={useColorModeValue("white", "shrub.100")}
+          bg={useColorModeValue("white", "dark.100")}
+          sx={{userSelect : 'none'}}
       >
     <Box>
       <Flex>
@@ -106,13 +107,10 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
           <Stack spacing={1} direction="column" >  <Text fontSize="sm" color="gray.400" fontWeight="bold">Last</Text><Text fontSize={{ base: "xs", md: "md" }} color={optionRowTextColor}>{last? formatDisplay(last) : "--"}</Text></Stack>
         </Box>
       </Flex>
-      <Modal  motionPreset="slideInBottom" size={"xl"} isOpen={isOpen}  onClose={handleModalClose}>
+      <Modal  motionPreset="slideInBottom" size={"lg"} isOpen={isOpen}  onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent borderRadius="2xl">
           <ModalCloseButton />
-          <ModalHeader borderBottomWidth="1px">{currencySymbol(chainId)} Order  <Box as="span" color={livePriceColor} fontSize="xs" ml="1" fontWeight={"semibold"}>
-            sMATIC: $ {maticPrice ? maticPrice.toFixed(2) : "-"}
-          </Box></ModalHeader>
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
               <OptionDetails appCommon={appCommon} sellBuy={option} positionHash={positionHash} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
