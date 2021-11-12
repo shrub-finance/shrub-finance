@@ -31,7 +31,7 @@ library ExercisingLib {
 
     if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.CALL) {
       require(self.positionPoolTokenBalance[positionHash][common.quoteAsset] >= buyOrderSize, "Pool must have enough funds");
-      require(self.userTokenBalances[buyer][common.baseAsset] >= totalPaid, "Buyer must have enough funds to exercise CALL");
+      require(FundsLib.getAvailableBalance(self, buyer, common.baseAsset) >= totalPaid, "Buyer must have enough funds to exercise CALL");
 
       // deduct the quoteAsset from the pool
       self.positionPoolTokenBalance[positionHash][common.quoteAsset] -= buyOrderSize;
@@ -48,7 +48,7 @@ library ExercisingLib {
 
     if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.PUT) {
       require(self.positionPoolTokenBalance[positionHash][common.baseAsset] >= totalPaid, "Pool must have enough funds");
-      require(self.userTokenBalances[buyer][common.quoteAsset] >= buyOrderSize, "Buyer must have enough funds to exercise PUT");
+      require(FundsLib.getAvailableBalance(self, buyer, common.quoteAsset) >= buyOrderSize, "Buyer must have enough funds to exercise PUT");
 
       // deduct baseAsset from pool
       self.positionPoolTokenBalance[positionHash][common.baseAsset] -= totalPaid;
