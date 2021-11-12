@@ -110,7 +110,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     optionData: OptionData,
     positionHash: string
 }) {
-
+console.log('rendering');
     const { isOpen: isOpenConfirmDialog, onOpen: onOpenConfirmDialog, onClose: onCloseConfirmDialog } = useDisclosure();
     const cancelRef = useRef();
     const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
@@ -130,13 +130,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [amount, setAmount] = useState(1);
+    console.log(amount);
     const [price, setPrice] = useState('');
     const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}, optionPosition: BigNumber}>()
     const [marketPrice, setMarketPrice] = useState('');
     const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: []})
     // Radio logic
-    const radioOptions = ['BUY', 'SELL']
-    const radioOrderTypes = ['Market', 'Limit']
     const [radioOption, setRadioOption] = useState<SellBuy>(sellBuy);
     const [radioOrderType, setRadioOrderType] = useState<OrderType>('Market');
     const toast = useToast();
@@ -578,6 +577,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
       });
 
     const totPriceMarket = amount *  Number(marketPrice);
+    console.log(balances && Number(ethers.utils.formatUnits(balances.optionPosition)));
     return (
       <>
           {localError &&
@@ -634,45 +634,35 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                       </HStack>
                                            </Box>
                                               <Spacer/>
-                                              {radioOption === 'BUY' && <Box>
-                                                  <Box borderWidth="1px" borderColor={"sprout.400"}
-                                                       p={1} borderRadius={"md"}>
-                                                      You own <strong>2 contracts</strong>
+                                               {/*can only fill if short and buying or long (own it) and selling*/}
+                                              {balances && !balances.optionPosition.eq(0) && <Box>
+                                                  <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
+                                                       p={1} borderRadius={"md"} onClick={() => setAmount((Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18))))}>
+                                                      You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
                                                   </Box>
                                               </Box>}
                                           </Flex>
                                       </Box>
-
-                                      <NumberInput>
+                                      <NumberInput id="amount"
+                                                   placeholder="0.0"
+                                                   value={amount || ''}
+                                      >
                                           <NumberInputField
-                                            id="amount"
-                                            placeholder="0.0"
-                                            value={amount || ''}
-                                            // isInvalid={amount<=0 ||isNaN(Number(amount)) }
-                                            onChange={(event: any) => setAmount(event.target.value)}
                                             h="6rem"
                                             borderRadius="3xl"
-                                            // isRequired
-                                            isFullWidth
                                             shadow="sm"
                                             fontWeight="bold"
                                             fontSize="2xl"
-                                          />
+                                            onChange={(event: any) => {
+                                                // setAmount(Math.max(event.target.value, 0))
+                                                setAmount(event.target.value)
+                                            }}/>
+
                                           <InputRightElement
                                             pointerEvents="none"
                                             p={14}
                                             children={
                                                 <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity
-                                                {/*<Popover trigger={"hover"}>*/}
-                                                {/*    <PopoverTrigger><Text><QuestionOutlineIcon/></Text>*/}
-                                                {/*    </PopoverTrigger>*/}
-                                                {/*    <PopoverContent>*/}
-                                                {/*        <PopoverArrow />*/}
-                                                {/*        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>*/}
-                                                {/*            <Text> Number of contracts you want to {radioOption.toLowerCase()}</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>*/}
-                                                {/*        </PopoverBody>*/}
-                                                {/*    </PopoverContent>*/}
-                                                {/*</Popover>*/}
                                             </FormLabel>}
                                           />
                                       </NumberInput>
@@ -684,22 +674,13 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                       <VStack spacing={1.5} alignItems={"flex-start"}>
                                           <Text>
                                               Price per contract
-                                          {/*    <Popover trigger={"hover"}>*/}
-                                          {/*    <PopoverTrigger>*/}
-                                          {/*        <Text as="span" pl={3}><RiQuestionMark/></Text>*/}
-                                          {/*    </PopoverTrigger>*/}
-                                          {/*    <PopoverContent>*/}
-                                          {/*        <PopoverArrow />*/}
-                                          {/*        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>*/}
-                                          {/*            <Text> The sUSD required to purchase 1 contract</Text>*/}
-                                          {/*            <Text>1 contract = 1 sMATIC</Text>*/}
-                                          {/*        </PopoverBody>*/}
-                                          {/*    </PopoverContent>*/}
-                                          {/*</Popover>*/}
                                           </Text>
-                                          <Text>
-                                              {radioOption === 'BUY' ? 'Collateral to unlock' : 'Collateral requirement' }
-                                          </Text>
+                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>
+                                              Collateral to unlock
+                                          </Text>}
+                                          {radioOption === 'SELL' && <Text>
+                                              Collateral requirement
+                                          </Text>}
                                           <Text>
                                               {radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }
 
@@ -712,15 +693,26 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           <Text>
                                               ${marketPrice}
                                           </Text>
-                                          <Text color="gray.500">
-                                              3 sMATIC
-                                          </Text>
+                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text color="gray.500">
+                                              {Math.min(amount, Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18))) }
+                                          </Text> }
+
+                                          {radioOption === 'SELL' && optionType === 'CALL' ? <Text>
+                                              {balances && balances.optionPosition.gt(0) ? Math.max(0, (amount || 0) - Number(ethers.utils.formatUnits(balances.optionPosition))) : amount} sMATIC
+                                          </Text> : <Text>
+                                              ${balances && balances.optionPosition.gt(0) ? Math.max(0, Number(strike.mul(ethers.utils.parseUnits (amount.toString())).sub(balances.optionPosition))) : ethers.utils.formatUnits(strike.mul(ethers.utils.parseUnits (amount.toString())))}
+                                          </Text> }
+
                                           <Text>
                                               ${isNaN(totPriceMarket) ? "--" : totPriceMarket.toFixed(4)}
                                           </Text>
+
+                                          {radioOption === 'SELL' && optionType === 'CALL'?<Text color="gray.500">
+                                                {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
+                                          </Text> :
                                           <Text color="gray.500">
-                                              $4.00
-                                          </Text>
+                                              ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
+                                          </Text>}
                                       </VStack>
                                       </HStack>
                                   </Box>

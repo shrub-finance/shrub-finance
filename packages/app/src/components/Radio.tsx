@@ -39,7 +39,7 @@ function RadioCard(props) {
         fontSize={{ base: "sm", md: "md" }}
         minWidth="50px"
         textAlign={"center"}
-        bg={useColorModeValue("white", "hsl(240deg 89% 7%)")}
+        // bg={useColorModeValue("white", "hsl(240deg 89% 7%)")}
       >
         {props.children}
       </Box>
