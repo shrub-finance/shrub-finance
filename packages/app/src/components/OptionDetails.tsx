@@ -577,7 +577,17 @@ console.log('rendering');
       });
 
     const totPriceMarket = amount *  Number(marketPrice);
-    console.log(balances && Number(ethers.utils.formatUnits(balances.optionPosition)));
+    const collateralToUnlock = balances && Math.min(amount, Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18)));
+    const collateralPerContract = optionType === 'CALL' ?
+      1 :
+      Number(formattedStrike);
+    const collateralRequirement = balances && balances.optionPosition.gt(0) ?
+      Math.max(0, collateralPerContract * (amount - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
+      amount * collateralPerContract
+    const quantityErrorColor = useColorModeValue("red.500", "red.300");
+    const insufficientFunds = radioOption === 'BUY' && balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset)) < totPriceMarket;
+    const insufficientCollateral = radioOption === 'SELL' && balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) < collateralRequirement;
+
     return (
       <>
           {localError &&
@@ -626,11 +636,11 @@ console.log('rendering');
                                            <Box>
                                       <HStack pb={1}>
                                           <Text color="gray.500">Strike</Text>
-                                          <Text>$2.50</Text>
+                                          <Text>${formattedStrike}</Text>
                                       </HStack>
                                       <HStack>
                                           <Text color="gray.500">Expiry</Text>
-                                          <Text>Nov 11</Text>
+                                          <Text>{formattedExpiry}</Text>
                                       </HStack>
                                            </Box>
                                               <Spacer/>
@@ -666,48 +676,41 @@ console.log('rendering');
                                             </FormLabel>}
                                           />
                                       </NumberInput>
-                                      <Text fontWeight="bold" fontSize="xs" color={useColorModeValue("red.500", "red.300")} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>
+                                      {insufficientFunds &&
+                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>}
+                                      {insufficientCollateral &&
+                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
                                   </Box>
 
                                   <Box fontSize="sm" pt={6}>
                                       <HStack spacing={8} fontSize={"sm"}>
                                       <VStack spacing={1.5} alignItems={"flex-start"}>
-                                          <Text>
-                                              Price per contract
-                                          </Text>
-                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>
-                                              Collateral to unlock
-                                          </Text>}
-                                          {radioOption === 'SELL' && <Text>
-                                              Collateral requirement
-                                          </Text>}
-                                          <Text>
-                                              {radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }
-
-                                          </Text>
-                                          <Text>
-                                              Available
-                                          </Text>
+                                          <Text>Price per contract</Text>
+                                          <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
+                                          {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
+                                          <Text>Available</Text>
                                       </VStack>
                                       <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
                                           <Text>
                                               ${marketPrice}
                                           </Text>
-                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text color="gray.500">
-                                              {Math.min(amount, Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18))) }
-                                          </Text> }
-
-                                          {radioOption === 'SELL' && optionType === 'CALL' ? <Text>
-                                              {balances && balances.optionPosition.gt(0) ? Math.max(0, (amount || 0) - Number(ethers.utils.formatUnits(balances.optionPosition))) : amount} sMATIC
-                                          </Text> : <Text>
-                                              ${balances && balances.optionPosition.gt(0) ? Math.max(0, Number(strike.mul(ethers.utils.parseUnits (amount.toString())).sub(balances.optionPosition))) : ethers.utils.formatUnits(strike.mul(ethers.utils.parseUnits (amount.toString())))}
-                                          </Text> }
-
-                                          <Text>
+                                          <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
                                               ${isNaN(totPriceMarket) ? "--" : totPriceMarket.toFixed(4)}
                                           </Text>
-
-                                          {radioOption === 'SELL' && optionType === 'CALL'?<Text color="gray.500">
+                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
+                                          <Text color="gray.500">
+                                              {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
+                                          </Text> }
+                                          {radioOption === 'SELL' && (optionType === 'CALL' ?
+                                            <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                              {collateralRequirement} sMATIC
+                                          </Text> :
+                                            <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                              ${collateralRequirement.toFixed(4)}
+                                          </Text>) }
+                                          {radioOption === 'SELL' && optionType === 'CALL'?
+                                            <Text color="gray.500">
                                                 {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
                                           </Text> :
                                           <Text color="gray.500">
