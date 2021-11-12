@@ -69,7 +69,7 @@ export function getErrorMessage(error: Error) {
     if (error instanceof NoEthereumProviderError) {
         return ({
             title: "Install MetaMask",
-            message: "No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile."
+            message: "Web3 not detected. Install MetaMask or use a dApp browser on mobile."
         });
     } else if (error instanceof UnsupportedChainIdError) {
         return ({
@@ -280,16 +280,19 @@ export function ConnectWalletModal() {
         "linear(to-l, blue.700, teal.700)"
     );
     const wrongNetwork = !!error && getErrorMessage(error).title === "Wrong Network";
+    const noMetaMask = !!error && getErrorMessage(error).title === "Install MetaMask";
+
     const bg = useColorModeValue("green", "teal");
+    
     return (
         <Box>
             {!!error && (
-                <Stack spacing={3}>
+                <Box spacing={3}>
                     <Alert status="error" borderRadius={9} mb={4}>
                         <AlertIcon/>
                         {getErrorMessage(error).message}
                     </Alert>
-                </Stack>
+                </Box>
             )}
 
             {!wrongNetwork ? <>
@@ -388,7 +391,16 @@ export function ConnectWalletModal() {
                                                 {connected && error && (
                                                     <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>
                                                 )}
-                                                {connectorName}
+                                                <Link href="https://metamask.io/download" isExternal>
+                                                {connected && error && noMetaMask && (
+                                                    <Box as={"span"}> Install </Box>
+                                                )}
+                                                    {connectorName}
+
+                                                {connected && error && noMetaMask && (
+                                                    <Box as={"span"}> <ExternalLinkIcon mx="2px" /> </Box>
+                                                )}
+                                                </Link>
                                             </Box>
                                             <Spacer/>
                                             <Box p={4}>

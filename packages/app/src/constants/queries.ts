@@ -1,5 +1,65 @@
 import { gql } from '@apollo/client'
 
+export const SUMMARY_VIEW_ALL_QUERY = gql`
+    query SummaryView($expiries: [Int], $optionTypes: [OptionType], $baseAsset: String, $quoteAsset: String, $offerExpire: Int){
+        options(where:{
+            expiry_in:$expiries,
+            optionType_in:$optionTypes,
+            baseAsset:$baseAsset,
+            quoteAsset:$quoteAsset
+        }, orderBy: strike, orderDirection: asc){
+            expiry
+            optionType
+            strike
+            id
+            lastPrice
+            sellOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:asc, first:1){
+                pricePerContract
+                option{id}
+                userOption{user{id}}
+            }
+            buyOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:desc, first:1){
+                pricePerContract
+                option{id}
+                userOption{user{id}}
+            }
+        }
+    }
+`
+
+export const ORDER_DETAILS_QUERY = gql`
+    query SummaryView($positionHash: String, $offerExpire: Int, $account: String){
+        option(id:$positionHash){
+            id
+            name
+            strike
+            lastPrice
+            sellOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:asc){
+                pricePerContract
+                size
+                id
+                userOption{user{id}}
+                block
+            }
+            buyOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:desc){
+                pricePerContract
+                size
+                id
+                userOption{user{id}}
+                block
+            }
+        }
+    }
+`
+
+export const OPTION_POSITION_QUERY = gql`
+    query OptionPositionQuery($id: String){
+        userOption(id:$id){
+            balance
+        }
+    }
+`
+
 export const SUMMARY_VIEW_QUERY = gql`
     query SummaryView($expiry: Int, $optionType: OptionType, $baseAsset: String, $quoteAsset: String, $offerExpire: Int){
         options(where:{
@@ -12,7 +72,7 @@ export const SUMMARY_VIEW_QUERY = gql`
             strike
             id
             lastPrice
-            sellOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:asc, first:6){
+            sellOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:asc){
                 pricePerContract
                 size
                 id
@@ -20,7 +80,7 @@ export const SUMMARY_VIEW_QUERY = gql`
                 userOption{user{id}}
                 block
             }
-            buyOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:desc, first:6){
+            buyOrders(where:{tradable:true,offerExpire_gt:$offerExpire}, orderBy:pricePerContract, orderDirection:desc){
                 pricePerContract
                 size
                 id

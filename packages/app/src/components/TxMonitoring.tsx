@@ -145,7 +145,7 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
 export function TxStatusList() {
     console.log('rendering TxStatusList');
     const { pendingTxs } = useContext(TxContext);
-    const {chainId} = useWeb3React();
+    const {chainId, account, active} = useWeb3React();
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const entries = Object.entries(pendingTxsState)
       .sort((a,b) => b[1].created.getTime() - a[1].created.getTime())
@@ -180,10 +180,9 @@ export function TxStatusList() {
     const shadow = useColorModeValue("base", "dark-lg");
     const bgColor =useColorModeValue("gray.100", "shrub.300");
 
-
     return (
       <>
-          <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg={bgColor}>
+          {(account || active) && <Box p={3} mb={5} boxShadow={shadow} rounded="lg" bg={bgColor}>
               <Flex pt={1}>
                   {list.length ?
                     <>
@@ -207,7 +206,7 @@ export function TxStatusList() {
               </Flex>
               {list}
 
-          </Box>
+          </Box> }
       </>
 
     )

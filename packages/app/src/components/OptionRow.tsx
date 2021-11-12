@@ -15,7 +15,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure, useColorModeValue, Badge
+  useDisclosure, useColorModeValue, Badge, Container
 } from "@chakra-ui/react";
 
 import {AppCommon, OptionData, SellBuy} from '../types';
@@ -28,11 +28,12 @@ import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 
 const height = 100;
 
-function OptionRow({appCommon, last, ask, bid, option, optionData}: {
+function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}: {
   appCommon: AppCommon,
   last: string,
   ask: string,
   bid: string,
+  positionHash: string,
   option: SellBuy,
   optionData: OptionData
 }) {
@@ -45,6 +46,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
 
   const bg = useColorModeValue("green", "teal");
   const livePriceColor = useColorModeValue("green.500", "green.200")
+  const optionRowTextColor = useColorModeValue("gray.600", "gray.200")
 
   function handleModalClose() {
     setApproving(false);
@@ -59,33 +61,52 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
   }
 
   return (
+      <Container
+          cursor={"pointer"}
+          _hover={{
+            transform: 'translateY(-2px)',
+            boxShadow: 'lg',
+            bgGradient: useColorModeValue(
+            "linear(to-r, blue.100, teal.200)",
+            "linear(to-l, blue.700, teal.700)"
+            )
+          }}
+          onClick={onOpen}
+          mt={1}
+          px={5}
+          py={3}
+          flex="1"
+          borderRadius="2xl"
+          bg={useColorModeValue("white", "shrub.100")}
+      >
     <Box>
-      <Divider mb={5} />
       <Flex>
-        <Box h={height}>
-          <Text fontSize={"2xl"} pb={3}>
+        <Box alignSelf="center">
+          <Text fontSize={"2xl"}
+                // pb={3}
+                color={optionRowTextColor}
+          >
             ${Number(formattedStrike).toFixed(2)}
           </Text>
-          <Tag size={"sm"} colorScheme={bg}>
-            {optionType}
-          </Tag>
         </Box>
         <Spacer/>
-        <Box h={height} fontWeight="semibold" lineHeight={1.8} flexBasis="100">
-          <Text>Last: {last? formatDisplay(last) : "--"}</Text>
-          <Text>Ask: {ask? formatDisplay(ask) : "--"}</Text>
-          <Text>Bid: {bid? formatDisplay(bid) : "--"}</Text>
-        </Box>
-        <Spacer/>
-        <Box h={height}>
-          <Stack spacing={4} direction="row" align="center">
-            <Button colorScheme={bg} onClick={onOpen} size="sm" variant="outline" borderRadius="2xl">
-              {option === 'BUY' ? "Buy Options" : "Sell Options"}
-            </Button>
+        <Box fontWeight="semibold" lineHeight={{ base: 1.8, md: 1.8 }}>
+          <Stack spacing={{ base: 3, md: 8 }} direction="row">
+            <Stack spacing={1} direction="column" >
+              <Text fontSize="xs" color="gray.400" fontWeight="bold">Ask</Text>
+              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">{ask? formatDisplay(ask) : "--"}</Text>
+            </Stack>
+            <Stack spacing={1} direction="column">
+              <Text fontSize="xs" color="gray.400" fontWeight="bold">Bid</Text>
+              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">{bid? formatDisplay(bid) : "--"}</Text> </Stack>
           </Stack>
         </Box>
+        <Spacer/>
+        <Box fontWeight="semibold" lineHeight={{ base: 1.8, md: 1.8 }}>
+          <Stack spacing={1} direction="column" >  <Text fontSize="sm" color="gray.400" fontWeight="bold">Last</Text><Text fontSize={{ base: "xs", md: "md" }} color={optionRowTextColor}>{last? formatDisplay(last) : "--"}</Text></Stack>
+        </Box>
       </Flex>
-      <Modal  motionPreset="slideInBottom" size={"2xl"} isOpen={isOpen}  onClose={handleModalClose}>
+      <Modal  motionPreset="slideInBottom" size={"xl"} isOpen={isOpen}  onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent borderRadius="2xl">
           <ModalCloseButton />
@@ -94,12 +115,13 @@ function OptionRow({appCommon, last, ask, bid, option, optionData}: {
           </Box></ModalHeader>
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
-              <OptionDetails appCommon={appCommon} sellBuy={option} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
+              <OptionDetails appCommon={appCommon} sellBuy={option} positionHash={positionHash} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
             { (approving || activeHash) && <Txmonitor txHash={activeHash}/> }
           </ModalBody>
         </ModalContent>
       </Modal>
     </Box>
+      </Container>
   );
 }
 
