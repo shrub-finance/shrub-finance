@@ -25,7 +25,8 @@ import {
     ModalCloseButton,
     ModalContent,
     ModalHeader,
-    ModalOverlay, NumberInput, NumberInputField,
+    NumberInput,
+    NumberInputField,
     Popover,
     PopoverArrow,
     PopoverBody, PopoverCloseButton,
@@ -46,8 +47,8 @@ import {
     useColorModeValue,
     useDisclosure,
     useRadioGroup,
-    useToast, VStack
-} from '@chakra-ui/react';
+    useToast, VStack,
+} from '@chakra-ui/react'
 import {Icon, QuestionIcon, QuestionOutlineIcon, WarningTwoIcon} from '@chakra-ui/icons';
 import {
     BiQuestionMark,
@@ -130,6 +131,7 @@ console.log('rendering');
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [amount, setAmount] = useState(1);
+    const [newAmount, setNewAmount] = useState('1.0');
     const [price, setPrice] = useState('');
     const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}, optionPosition: BigNumber}>()
     const [marketPrice, setMarketPrice] = useState('');
@@ -257,9 +259,9 @@ console.log('rendering');
 
    const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
-   function costForAmount(amount: number, optionType: SellBuy) {
-       const bigAmount = ethers.utils.parseUnits(amount.toString(), 6);
-       let remainingSize = ethers.utils.parseUnits(amount.toString(), 6);
+   function costForAmount(costAmount: number, optionType: SellBuy) {
+       const bigAmount = ethers.utils.parseUnits(costAmount.toString(), 6);
+       let remainingSize = ethers.utils.parseUnits(costAmount.toString(), 6);
        let accumulatedPrice = Zero;
        const orders = optionType === 'BUY' ? orderBook.sellOrders : orderBook.buyOrders;
        if (bigAmount.gt(optionType === 'BUY' ? orderBook.sellOrdersDepth : orderBook.buyOrdersDepth)) {
@@ -306,14 +308,14 @@ console.log('rendering');
         }
         const nonce = (await getUserNonce(account, common, library)) + 1;
         const unsignedOrder: UnsignedOrder = {
-            size: ethers.utils.parseUnits(amount.toString(), 18),
+            size: ethers.utils.parseUnits(newAmount, 18),
             isBuy: optionActionToIsBuy(radioOption),
             optionType: optionTypeToNumber(optionType),
             baseAsset,
             quoteAsset,
             expiry: toEthDate(expiry),
             strike,
-            price: ethers.utils.parseUnits((Number(price) * amount).toString(), 18),
+            price: ethers.utils.parseUnits((Number(price) * Number(newAmount)).toString(), 18),
             fee: ethers.utils.parseUnits('0', 18),
             offerExpire: toEthDate(oneDayFromNow),
             nonce,
@@ -324,10 +326,10 @@ console.log('rendering');
             const tx = await announceOrder(signedOrder, library);
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
-            const description = `Submitted limit order to ${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${price}`;
+            const description = `Submitted limit order to ${radioOption.toLowerCase()} ${newAmount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${price}`;
             const orderToName = {
                 optionAction: radioOption,
-                formattedSize: amount,
+                formattedSize: newAmount,
                 optionType,
                 formattedStrike,
                 formattedExpiry
@@ -380,7 +382,7 @@ console.log('rendering');
             const localOrderBook = radioOption === 'BUY' ? orderBook.sellOrders : orderBook.buyOrders;
             // const depth = localOrderBook.reduce((tot, order) => tot.add(order.size), Zero)
             const depth = localOrderBook.reduce((tot, order) => tot.add(ethers.utils.parseUnits(order.formattedSize, 18)), Zero)
-            const bigSize = ethers.utils.parseUnits(amount.toString(), 18);
+            const bigSize = ethers.utils.parseUnits(newAmount.toString(), 18);
             if (bigSize.gt(depth)) {
                 throw new Error('Order size exceeds available depth in orderbook');
             }
@@ -518,15 +520,15 @@ console.log('rendering');
             const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
-            const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
+            const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${newAmount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
             const orderToName = {
                 optionAction: radioOption,
-                formattedSize: amount,
+                formattedSize: newAmount,
                 optionType,
                 formattedStrike,
                 formattedExpiry
             };
-            const pricePerContract = Number(ethers.utils.formatUnits(accumulatedPrice)) / amount
+            const pricePerContract = Number(ethers.utils.formatUnits(accumulatedPrice)) / Number(newAmount)
             const formattedPricePerContract = (Math.round(Number(pricePerContract) * 10000) / 10000).toString();
             const data = {
                 txType: 'marketOrder',
@@ -570,7 +572,7 @@ console.log('rendering');
 
     }
     // TODO: get the symbols dynamically
-    const tooltipLabel = `You are about to ${radioOption === 'BUY' ? 'buy' : 'sell'} options that give ${radioOption === 'BUY' ? 'you' : 'someone'} the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${amount} sMATIC for ${formattedStrike} sUSD/sMATIC ${radioOption === 'SELL' ? `${optionType === 'CALL' ? 'from' : 'to'} you` : ''} until ${formattedExpiry}`;
+    const tooltipLabel = `You are about to ${radioOption === 'BUY' ? 'buy' : 'sell'} options that give ${radioOption === 'BUY' ? 'you' : 'someone'} the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${newAmount} sMATIC for ${formattedStrike} sUSD/sMATIC ${radioOption === 'SELL' ? `${optionType === 'CALL' ? 'from' : 'to'} you` : ''} until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
@@ -600,18 +602,18 @@ console.log('rendering');
           </Tr>)
       });
 
-    const totPriceMarket = costForAmount(amount || 0, radioOption);
-    const bigAmount = ethers.utils.parseUnits(amount.toString() || '0', 6);
-    const pricePerContract = amount > 0 && totPriceMarket ? totPriceMarket.mul(1e6).div(bigAmount) : 0;
+    const totPriceMarket = costForAmount(Number(newAmount) || 0, radioOption);
+    const bigAmount = ethers.utils.parseUnits(newAmount || '0', 6);
+    const pricePerContract = Number(newAmount) > 0 && totPriceMarket ? totPriceMarket.mul(1e6).div(bigAmount) : 0;
     const formattedPricePerContract = Number(ethers.utils.formatUnits(pricePerContract)).toFixed(4);
     const formattedTotPriceMarket = totPriceMarket && Number(ethers.utils.formatUnits(totPriceMarket)).toFixed(4);
-    const collateralToUnlock = balances && Math.min(amount, Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18)));
+    const collateralToUnlock = balances && Math.min(Number(newAmount), Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18)));
     const collateralPerContract = optionType === 'CALL' ?
       1 :
       Number(formattedStrike);
     const collateralRequirement = balances && balances.optionPosition.gt(0) ?
-      Math.max(0, collateralPerContract * (amount - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
-      amount * collateralPerContract
+      Math.max(0, collateralPerContract * (Number(newAmount) - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
+     Number(newAmount)  * collateralPerContract
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
     const insufficientFunds = radioOption === 'BUY' && balances && totPriceMarket && balances.shrub.baseAsset.lt(totPriceMarket);
     const insufficientCollateral = radioOption === 'SELL' && balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) < collateralRequirement;
@@ -676,7 +678,7 @@ console.log('rendering');
                                                {/*can only fill if short and buying or long (own it) and selling*/}
                                               {balances && !balances.optionPosition.eq(0) && <Box>
                                                   <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
-                                                       p={1} borderRadius={"md"} onClick={() => setAmount((Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18))))}>
+                                                       p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
                                                       You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
                                                   </Box>
                                               </Box>}
@@ -684,7 +686,21 @@ console.log('rendering');
                                       </Box>
                                       <NumberInput id="amount"
                                                    placeholder="0.0"
-                                                   value={amount || ''}
+                                                   value={newAmount}
+                                                   min={0.0}
+                                                 max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
+                                                 precision={6}
+                                                 onChange={(valueString) => {
+                                                     if (isNaN(Number(valueString))) {
+                                                         return;
+                                                     }
+                                                     if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
+                                                         setNewAmount(Number(valueString).toFixed(6))
+                                                         return;
+                                                     }
+                                                     setNewAmount(valueString);
+                                                 }}
+
                                       >
                                           <NumberInputField
                                             h="6rem"
@@ -692,10 +708,7 @@ console.log('rendering');
                                             shadow="sm"
                                             fontWeight="bold"
                                             fontSize="2xl"
-                                            onChange={(event: any) => {
-                                                // setAmount(Math.max(event.target.value, 0))
-                                                setAmount(event.target.value)
-                                            }}/>
+                                        />
 
                                           <InputRightElement
                                             pointerEvents="none"
@@ -757,8 +770,8 @@ console.log('rendering');
                                               type="submit"
                                               onClick={onOpenConfirmDialog}
                                               disabled={
-                                                  amount<=0 ||
-                                                  isNaN(Number(amount)) ||
+                                                  Number(newAmount)<=0 ||
+                                                  isNaN(Number(newAmount)) ||
                                                   (radioOrderType === 'Market' && (
                                                       Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
                                                   ))}>
@@ -873,8 +886,8 @@ console.log('rendering');
                                       <Input
                                           id="amount"
                                           placeholder="0.1"
-                                          value={amount || ''}
-                                          isInvalid={amount<=0 ||isNaN(Number(amount)) }
+                                          value={newAmount || ''}
+                                          isInvalid={Number(newAmount)<=0 ||isNaN(Number(newAmount)) }
                                           onChange={(event: any) => setAmount(event.target.value)}
                                       />
 
@@ -927,8 +940,8 @@ console.log('rendering');
                                               // onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
                                               onClick={onOpenConfirmDialog}
                                               disabled={
-                                                  amount<=0 ||
-                                                  isNaN(Number(amount)) ||
+                                                  Number(newAmount)<=0 ||
+                                                  isNaN(Number(newAmount)) ||
                                                   (radioOrderType === 'Market' && (
                                                       Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
                                                   )) ||
@@ -964,7 +977,7 @@ console.log('rendering');
                   <AlertDialogCloseButton />
                   <Divider/>
                   <AlertDialogBody>
-                      <Text>You are about to <strong>{radioOption === 'BUY' ? 'buy' : 'sell'}</strong> options that give {radioOption === 'BUY' ? 'you' : 'someone'} the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {amount} sMATIC for {formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
+                      <Text>You are about to <strong>{radioOption === 'BUY' ? 'buy' : 'sell'}</strong> options that give {radioOption === 'BUY' ? 'you' : 'someone'} the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC for {formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
                   </AlertDialogBody>
                   <AlertDialogFooter>
                       <Button
