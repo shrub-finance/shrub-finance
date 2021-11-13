@@ -130,7 +130,6 @@ console.log('rendering');
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
     const [amount, setAmount] = useState(1);
-    console.log(amount);
     const [price, setPrice] = useState('');
     const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}, optionPosition: BigNumber}>()
     const [marketPrice, setMarketPrice] = useState('');
