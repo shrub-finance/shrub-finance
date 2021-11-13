@@ -123,6 +123,9 @@ export type ContractInnerData = {
 export type OrderBook = {
     buyOrders: AppOrderSigned[];
     sellOrders: AppOrderSigned[];
+    buyOrdersDepth: BigNumber;
+    sellOrdersDepth: BigNumber;
+    initialized: boolean;
 }
 
 export type IndexedAppOrderSignedNumbered = IndexedAppOrderSigned & {

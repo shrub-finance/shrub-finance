@@ -133,7 +133,7 @@ console.log('rendering');
     const [price, setPrice] = useState('');
     const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}, optionPosition: BigNumber}>()
     const [marketPrice, setMarketPrice] = useState('');
-    const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: []})
+    const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: [], buyOrdersDepth: Zero, sellOrdersDepth: Zero, initialized: false})
     // Radio logic
     const [radioOption, setRadioOption] = useState<SellBuy>(sellBuy);
     const [radioOrderType, setRadioOrderType] = useState<OrderType>('Market');
@@ -195,7 +195,9 @@ console.log('rendering');
             }
         }).sort((a: any, b: any) => a.unitPrice - b.unitPrice)
 
-        setOrderBook({ sellOrders: sellOrdersBook, buyOrders: buyOrdersBook })
+        const sellOrdersDepth = sellOrdersBook.reduce((tot: BigNumber, order: any) => tot.add(ethers.utils.parseUnits(order.formattedSize, 6)), Zero)
+        const buyOrdersDepth = buyOrdersBook.reduce((tot: BigNumber, order: any) => tot.add(ethers.utils.parseUnits(order.formattedSize, 6)), Zero)
+        setOrderBook({ sellOrders: sellOrdersBook, buyOrders: buyOrdersBook, sellOrdersDepth, buyOrdersDepth, initialized: true })
     }, [orderDetailsData])
 
     useEffect(() => {
@@ -254,7 +256,30 @@ console.log('rendering');
     const groupOptionType = getOrderTypeRootProps();
 
    const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
-   
+
+   function costForAmount(amount: number, optionType: SellBuy) {
+       const bigAmount = ethers.utils.parseUnits(amount.toString(), 6);
+       let remainingSize = ethers.utils.parseUnits(amount.toString(), 6);
+       let accumulatedPrice = Zero;
+       const orders = optionType === 'BUY' ? orderBook.sellOrders : orderBook.buyOrders;
+       if (bigAmount.gt(optionType === 'BUY' ? orderBook.sellOrdersDepth : orderBook.buyOrdersDepth)) {
+           return;
+       }
+       for (const order of orders) {
+           const {unitPrice, formattedSize} = order;
+           const bigSize = ethers.utils.parseUnits(formattedSize, 6);
+           const bigUnitPrice = ethers.utils.parseUnits(unitPrice.toString(), 18);
+           if (bigSize.gt(remainingSize)) {
+               // This order satisfies
+               accumulatedPrice = accumulatedPrice.add(bigUnitPrice.mul(remainingSize).div(1e6));
+               remainingSize = remainingSize.sub(remainingSize);
+               break;
+           }
+           accumulatedPrice = accumulatedPrice.add(bigUnitPrice.mul(bigSize).div(1e6))
+           remainingSize = remainingSize.sub(bigSize);
+       }
+       return accumulatedPrice;
+   }
 
     async function limitOrder() {
         try {
@@ -575,7 +600,11 @@ console.log('rendering');
           </Tr>)
       });
 
-    const totPriceMarket = amount *  Number(marketPrice);
+    const totPriceMarket = costForAmount(amount || 0, radioOption);
+    const bigAmount = ethers.utils.parseUnits(amount.toString() || '0', 6);
+    const pricePerContract = amount > 0 && totPriceMarket ? totPriceMarket.mul(1e6).div(bigAmount) : 0;
+    const formattedPricePerContract = Number(ethers.utils.formatUnits(pricePerContract)).toFixed(4);
+    const formattedTotPriceMarket = totPriceMarket && Number(ethers.utils.formatUnits(totPriceMarket)).toFixed(4);
     const collateralToUnlock = balances && Math.min(amount, Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18)));
     const collateralPerContract = optionType === 'CALL' ?
       1 :
@@ -584,8 +613,9 @@ console.log('rendering');
       Math.max(0, collateralPerContract * (amount - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
       amount * collateralPerContract
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
-    const insufficientFunds = radioOption === 'BUY' && balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset)) < totPriceMarket;
+    const insufficientFunds = radioOption === 'BUY' && balances && totPriceMarket && balances.shrub.baseAsset.lt(totPriceMarket);
     const insufficientCollateral = radioOption === 'SELL' && balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) < collateralRequirement;
+    const insufficientDepth = orderBook.initialized === true && (radioOption === 'BUY' ? bigAmount.gt(orderBook.sellOrdersDepth) : bigAmount.gt(orderBook.buyOrdersDepth));
 
     return (
       <>
@@ -679,6 +709,8 @@ console.log('rendering');
                                       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>}
                                       {insufficientCollateral &&
                                       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
+                                      {insufficientDepth &&
+                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Not enough order book depth (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})</Text>}
                                   </Box>
 
                                   <Box fontSize="sm" pt={6}>
@@ -692,10 +724,10 @@ console.log('rendering');
                                       </VStack>
                                       <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
                                           <Text>
-                                              ${marketPrice}
+                                              ${formattedPricePerContract}
                                           </Text>
                                           <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
-                                              ${isNaN(totPriceMarket) ? "--" : totPriceMarket.toFixed(4)}
+                                              ${formattedTotPriceMarket}
                                           </Text>
                                           {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
                                           <Text color="gray.500">
