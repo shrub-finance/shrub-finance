@@ -613,7 +613,7 @@ console.log('rendering');
       Number(formattedStrike);
     const collateralRequirement = balances && balances.optionPosition.gt(0) ?
       Math.max(0, collateralPerContract * (Number(newAmount) - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
-     Number(newAmount)  * collateralPerContract
+      Number(newAmount)  * collateralPerContract;
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
     const insufficientFunds = radioOption === 'BUY' && balances && totPriceMarket && balances.shrub.baseAsset.lt(totPriceMarket);
     const insufficientCollateral = radioOption === 'SELL' && balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) < collateralRequirement;
@@ -691,6 +691,10 @@ console.log('rendering');
                                                  max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
                                                  precision={6}
                                                  onChange={(valueString) => {
+                                                     if(valueString === '.') {
+                                                         setNewAmount('0.')
+                                                         return;
+                                                     }
                                                      if (isNaN(Number(valueString))) {
                                                          return;
                                                      }
@@ -748,7 +752,7 @@ console.log('rendering');
                                           </Text> }
                                           {radioOption === 'SELL' && (optionType === 'CALL' ?
                                             <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
-                                              {collateralRequirement} sMATIC
+                                              {collateralRequirement.toFixed(4)} sMATIC
                                           </Text> :
                                             <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
                                               ${collateralRequirement.toFixed(4)}
