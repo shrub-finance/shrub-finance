@@ -874,23 +874,19 @@ console.log('rendering');
                                                }}
                                   >
                                       <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
-                                      <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Your Price</FormLabel>}/>
+                                      <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Price</FormLabel>}/>
                                   </NumberInput>
                               </Box>
 
                               <Box fontSize="sm" pt={6}>
                                   <HStack spacing={8} fontSize={"sm"}>
                                       <VStack spacing={1.5} alignItems={"flex-start"}>
-                                          <Text>Price per contract</Text>
                                           <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
                                           {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
                                           {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
                                           <Text>Available</Text>
                                       </VStack>
                                       <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
-                                          <Text>
-                                              ${price}
-                                          </Text>
                                           <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
                                               ${formattedTotPriceMarket}
                                           </Text>
