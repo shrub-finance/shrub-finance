@@ -202,7 +202,7 @@ function OptionsView(props: RouteComponentProps) {
                 const ask = (sellOrders[0] && sellOrders[0].pricePerContract) || '';
                 const bid = (buyOrders[0] && buyOrders[0].pricePerContract) || '';
                 const appCommon: AppCommon = {
-                    formattedStrike: decimalStrike,
+                    formattedStrike: Number(decimalStrike).toFixed(2),
                     formattedExpiry: formatDate(Number(expiryDate)),
                     optionType,
                     quoteAsset,

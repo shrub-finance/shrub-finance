@@ -130,11 +130,10 @@ console.log('rendering');
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
-    const [amount, setAmount] = useState(1);
     const [newAmount, setNewAmount] = useState('1.0');
     const [price, setPrice] = useState('');
+    const [touched, setTouched] = useState(false);
     const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}, optionPosition: BigNumber}>()
-    const [marketPrice, setMarketPrice] = useState('');
     const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: [], buyOrdersDepth: Zero, sellOrdersDepth: Zero, initialized: false})
     // Radio logic
     const [radioOption, setRadioOption] = useState<SellBuy>(sellBuy);
@@ -164,6 +163,13 @@ console.log('rendering');
         },
         pollInterval: 5000  // Poll every five seconds
     });
+
+    function format(val: string) {
+        return `$` + val
+    }
+    function parse(val: string) {
+        return val.replace(/^\$/, "")
+    }
 
     useEffect(() => {
         // console.log('useEffect - 1 - construct order book')
@@ -204,13 +210,9 @@ console.log('rendering');
 
     useEffect(() => {
         // console.log('useEffect - 2 - set market price')
-        if (!price) {
+        if (!price && !touched) {
             setPrice(radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4));
         }
-        if (radioOrderType !== 'Market') {
-            return;
-        }
-        setMarketPrice(radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4));
     }, [radioOrderType, orderBook])
 
     // Get balances
@@ -242,20 +244,6 @@ console.log('rendering');
         main()
           .catch(console.error);
     },[active, account])
-
-    const {
-        getRootProps: getOrderTypeRootProps,
-        getRadioProps: getOrderTypeRadioProps,
-    } = useRadioGroup({
-        name: "orderType",
-        defaultValue: 'Market',
-        onChange: (nextValue: OrderType) => {
-            setRadioOrderType(nextValue)
-        },
-    });
-
-    const groupOption = getOptionRootProps();
-    const groupOptionType = getOrderTypeRootProps();
 
    const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
@@ -602,11 +590,22 @@ console.log('rendering');
           </Tr>)
       });
 
-    const totPriceMarket = costForAmount(Number(newAmount) || 0, radioOption);
     const bigAmount = ethers.utils.parseUnits(newAmount || '0', 6);
-    const pricePerContract = Number(newAmount) > 0 && totPriceMarket ? totPriceMarket.mul(1e6).div(bigAmount) : 0;
+    const bigLimitPrice = ethers.utils.parseUnits(price || '0', 6);
+    const totPriceMarket = costForAmount(Number(newAmount) || 0, radioOption);
+    const totPriceLimit = bigLimitPrice.mul(bigAmount).mul(1e6)  // This is 1e18 times the total price
+    const pricePerContract = radioOrderType === 'Market' ?
+      (
+        // Market
+        Number(newAmount) > 0 && totPriceMarket ?
+          totPriceMarket.mul(1e6).div(bigAmount) :
+          0
+      ):
+      // Limit
+      bigLimitPrice;
+    const totPrice = radioOrderType === 'Market' ? totPriceMarket : totPriceLimit;
     const formattedPricePerContract = Number(ethers.utils.formatUnits(pricePerContract)).toFixed(4);
-    const formattedTotPriceMarket = totPriceMarket && Number(ethers.utils.formatUnits(totPriceMarket)).toFixed(4);
+    const formattedTotPrice = totPrice && Number(ethers.utils.formatUnits(totPrice)).toFixed(4);
     const collateralToUnlock = balances && Math.min(Number(newAmount), Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18)));
     const collateralPerContract = optionType === 'CALL' ?
       1 :
@@ -615,7 +614,7 @@ console.log('rendering');
       Math.max(0, collateralPerContract * (Number(newAmount) - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
       Number(newAmount)  * collateralPerContract;
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
-    const insufficientFunds = radioOption === 'BUY' && balances && totPriceMarket && balances.shrub.baseAsset.lt(totPriceMarket);
+    const insufficientFunds = radioOption === 'BUY' && balances && totPrice && balances.shrub.baseAsset.lt(totPrice);
     const insufficientCollateral = radioOption === 'SELL' && balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) < collateralRequirement;
     const insufficientDepth = orderBook.initialized === true && (radioOption === 'BUY' ? bigAmount.gt(orderBook.sellOrdersDepth) : bigAmount.gt(orderBook.buyOrdersDepth));
 
@@ -635,6 +634,7 @@ console.log('rendering');
             }
           <Tabs
               variant="unstyled"
+              onChange={(index) => setRadioOrderType(index === 0 ? 'Market' : 'Limit')}
           >
 
               <TabList color={"gray.500"} p={2}>
@@ -691,8 +691,18 @@ console.log('rendering');
                                                  max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
                                                  precision={6}
                                                  onChange={(valueString) => {
+                                                     const [integerPart, decimalPart] = valueString.split('.');
                                                      if(valueString === '.') {
-                                                         setNewAmount('0.')
+                                                         setPrice('0.')
+                                                         return;
+                                                     }
+                                                     if (decimalPart && decimalPart.length > 6) {
+                                                         return;
+                                                     }
+                                                     if (integerPart && integerPart.length > 6) {
+                                                         return;
+                                                     }
+                                                     if (valueString === '00') {
                                                          return;
                                                      }
                                                      if (isNaN(Number(valueString))) {
@@ -748,7 +758,7 @@ console.log('rendering');
                                               ${formattedPricePerContract}
                                           </Text>
                                           <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
-                                              ${formattedTotPriceMarket}
+                                              ${formattedTotPrice}
                                           </Text>
                                           {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
                                           <Text color="gray.500">
@@ -831,11 +841,24 @@ console.log('rendering');
                                       </Flex>
                                   </Box>
                                   {/*Quantity*/}
-                                  <NumberInput id="amount" placeholder="0.0" value={newAmount} min={0.0} precision={6}
+                                  <NumberInput id="amount"
+                                               value={newAmount}
+                                               min={0.0}
+                                               precision={6}
                                                max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
                                                onChange={(valueString) => {
+                                                   const [integerPart, decimalPart] = valueString.split('.');
                                                    if(valueString === '.') {
-                                                       setNewAmount('0.')
+                                                       setPrice('0.')
+                                                       return;
+                                                   }
+                                                   if (decimalPart && decimalPart.length > 6) {
+                                                       return;
+                                                   }
+                                                   if (integerPart && integerPart.length > 6) {
+                                                       return;
+                                                   }
+                                                   if (valueString === '00') {
                                                        return;
                                                    }
                                                    if (isNaN(Number(valueString))) {
@@ -859,18 +882,40 @@ console.log('rendering');
                                   <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Not enough order book depth (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})</Text>}
 
                                   {/*Price per contract*/}
-                                  <NumberInput id="limitPrice" placeholder="0.0" value={price || 0} min={0.0} precision={6} mt={4}
+
+                                  <NumberInput id="limitPrice"
+                                               value={format(price)}
+                                               min={0.0}
+                                               max={1e6}
+                                               precision={2}
+                                               step={0.01}
+                                               mt={4}
                                                isInvalid={(Number(price)<=0 || price === '' || isNaN(Number(price)))}
-                                               max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
                                                onChange={(valueString) => {
+                                                   setTouched(true);
+                                                   const [integerPart, decimalPart] = valueString.split('.');
                                                    if(valueString === '.') {
                                                        setPrice('0.')
                                                        return;
                                                    }
-                                                   if (isNaN(Number(valueString))) {
+                                                   if (decimalPart && decimalPart.length > 6) {
                                                        return;
                                                    }
-                                                   setPrice(valueString);
+                                                   if (integerPart && integerPart.length > 6) {
+                                                       return;
+                                                   }
+                                                   if (valueString === '00') {
+                                                       return;
+                                                   }
+                                                   const numberedValueString = Number(parse(valueString));
+                                                   if (isNaN(numberedValueString)) {
+                                                       return;
+                                                   }
+                                                   if (numberedValueString !== Math.round(numberedValueString * 1e6) / 1e6) {
+                                                       setPrice(numberedValueString.toFixed(6))
+                                                       return;
+                                                   }
+                                                   setPrice(parse(valueString));
                                                }}
                                   >
                                       <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
@@ -888,7 +933,7 @@ console.log('rendering');
                                       </VStack>
                                       <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
                                           <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
-                                              ${formattedTotPriceMarket}
+                                              ${formattedTotPrice}
                                           </Text>
                                           {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
                                           <Text color="gray.500">
