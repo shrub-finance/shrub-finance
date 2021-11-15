@@ -221,7 +221,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
 
     // Get balances
     useEffect(() => {
-        console.log('useEffect - 3 - get balances');
+        // console.log('useEffect - 3 - get balances');
         async function main() {
             if (!account) {
                 return;
@@ -449,10 +449,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 const counterPartyOrder = transformOrderAppChain(order);
                 const doesAddressMatch: boolean = await validateOrderAddress(counterPartyOrder, library);
                 const counterPartyCommon = iOrderToCommon(counterPartyOrder);
-                // console.log(doesAddressMatch);
                 const counterpartyNonce = await getUserNonce(counterpartyAddress, counterPartyCommon, library) + 1;
-                // console.log(counterpartyNonce);
-                // console.log(orderNonce);
                 if (orderNonce !== counterpartyNonce) {
                     console.error("order nonce does not match the signer of the order's nonce");
                     index++;
@@ -467,8 +464,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                             tokenContractAddress: quoteAsset,
                             provider: library
                         });
-                        // console.log(balance);
-                        // console.log(size)
                         if (balance.lt(size)) {
                             throw new Error("Insufficient Collateral");
                         }
@@ -480,7 +475,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                             tokenContractAddress: baseAsset,
                             provider: library
                         });
-                        // console.log(balance.toString());
                         // TODO: Add this validation back where it properly checks if the user has sufficient funds to buy the put
                         // if (balance.lt(ethers.BigNumber.from(pricePerContract).mul(size))) {
                         //     throw new Error("Not enough collateral of baseAsset");
@@ -498,8 +492,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 counterPartyOrders.push(counterPartyOrder);
                 // TODO: the matchOrders method of the contract needs to accomadate accumulatedPrice - see chat logs from Oct 21
                 temporaryWorkaroundPrice = bigSize.mul(counterPartyOrder.price).div(counterPartyOrder.size);
-                // console.log('remaining size');
-                // console.log(ethers.utils.formatUnits(remainingSize));
                 index++;
             }
             const common:OrderCommon = {
@@ -531,7 +523,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 signedBuyOrders = counterPartyOrders;
                 signedSellOrders = [signedOrder];
             }
-            // console.log(signedBuyOrders, signedSellOrders);
             const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);

@@ -374,7 +374,7 @@ function OptionsView(props: RouteComponentProps) {
 
   // Get order history after account is available
   useEffect(() => {
-    console.log('useEffect - 6 - get order history');
+    // console.log('useEffect - 6 - get order history');
     if (!account) {
       return;
     }
