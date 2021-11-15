@@ -114,7 +114,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     optionData: OptionData,
     positionHash: string
 }) {
-console.log('rendering');
+// console.log('rendering');
     const { isOpen: isOpenConfirmDialog, onOpen: onOpenConfirmDialog, onClose: onCloseConfirmDialog } = useDisclosure();
     const cancelRef = useRef();
     const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
@@ -281,6 +281,23 @@ console.log('rendering');
        return accumulatedPrice;
    }
 
+   function OrderErrors() {
+       return (
+         <>
+       {noOrders && radioOrderType === 'Market' &&
+       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>There are no orders in the order book.</Text>}
+       {insufficientFunds &&
+       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds.</Text>}
+       {insufficientCollateral &&
+       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
+       {insufficientDepth  && radioOrderType === 'Market' &&
+       <>
+       <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Order too large for available order book depth</Text><Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}> (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})</Text>
+           </>
+       }
+         </>)
+   }
+
     async function limitOrder() {
         try {
         setApproving(true);
@@ -366,7 +383,7 @@ console.log('rendering');
 
     async function marketOrderMany() {
         try {
-            console.log('running marketOrderMany');
+            // console.log('running marketOrderMany');
             setApproving(true);
             if (!active || !account) {
                 setLocalError('');
@@ -382,7 +399,7 @@ console.log('rendering');
             const depth = localOrderBook.reduce((tot, order) => tot.add(ethers.utils.parseUnits(order.formattedSize, 18)), Zero)
             const bigSize = ethers.utils.parseUnits(newAmount.toString(), 18);
             if (bigSize.gt(depth)) {
-                throw new Error('Not enough open orders for the amount you are trying to buy');
+                throw new Error('Order too large for available order book depth');
             }
             let remainingSize = ethers.BigNumber.from(bigSize);
             const now = new Date();
@@ -400,7 +417,7 @@ console.log('rendering');
                 let order: AppOrderSigned | undefined;
                 const lightOrder = localOrderBook[index];
                 if (!lightOrder) {
-                    throw new Error('Not enough open orders for the amount you are trying to buy');
+                    throw new Error('There are no orders in the order book');
                 }
                 // @ts-ignore
                 const {blockHeight, user, formattedSize, unitPrice} = lightOrder;
@@ -432,10 +449,10 @@ console.log('rendering');
                 const counterPartyOrder = transformOrderAppChain(order);
                 const doesAddressMatch: boolean = await validateOrderAddress(counterPartyOrder, library);
                 const counterPartyCommon = iOrderToCommon(counterPartyOrder);
-                console.log(doesAddressMatch);
+                // console.log(doesAddressMatch);
                 const counterpartyNonce = await getUserNonce(counterpartyAddress, counterPartyCommon, library) + 1;
-                console.log(counterpartyNonce);
-                console.log(orderNonce);
+                // console.log(counterpartyNonce);
+                // console.log(orderNonce);
                 if (orderNonce !== counterpartyNonce) {
                     console.error("order nonce does not match the signer of the order's nonce");
                     index++;
@@ -450,8 +467,8 @@ console.log('rendering');
                             tokenContractAddress: quoteAsset,
                             provider: library
                         });
-                        console.log(balance);
-                        console.log(size)
+                        // console.log(balance);
+                        // console.log(size)
                         if (balance.lt(size)) {
                             throw new Error("Insufficient Collateral");
                         }
@@ -463,7 +480,7 @@ console.log('rendering');
                             tokenContractAddress: baseAsset,
                             provider: library
                         });
-                        console.log(balance.toString());
+                        // console.log(balance.toString());
                         // TODO: Add this validation back where it properly checks if the user has sufficient funds to buy the put
                         // if (balance.lt(ethers.BigNumber.from(pricePerContract).mul(size))) {
                         //     throw new Error("Not enough collateral of baseAsset");
@@ -481,8 +498,8 @@ console.log('rendering');
                 counterPartyOrders.push(counterPartyOrder);
                 // TODO: the matchOrders method of the contract needs to accomadate accumulatedPrice - see chat logs from Oct 21
                 temporaryWorkaroundPrice = bigSize.mul(counterPartyOrder.price).div(counterPartyOrder.size);
-                console.log('remaining size');
-                console.log(ethers.utils.formatUnits(remainingSize));
+                // console.log('remaining size');
+                // console.log(ethers.utils.formatUnits(remainingSize));
                 index++;
             }
             const common:OrderCommon = {
@@ -514,7 +531,7 @@ console.log('rendering');
                 signedBuyOrders = counterPartyOrders;
                 signedSellOrders = [signedOrder];
             }
-            console.log(signedBuyOrders, signedSellOrders);
+            // console.log(signedBuyOrders, signedSellOrders);
             const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
@@ -627,6 +644,7 @@ console.log('rendering');
     const insufficientFunds = radioOption === 'BUY' && balances && totPrice && balances.shrub.baseAsset.lt(totPrice);
     const insufficientCollateral = radioOption === 'SELL' && balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) < collateralRequirement;
     const insufficientDepth = orderBook.initialized === true && (radioOption === 'BUY' ? bigAmount.gt(orderBook.sellOrdersDepth) : bigAmount.gt(orderBook.buyOrdersDepth));
+    const noOrders = orderBook.initialized === true && (radioOption === 'BUY' ? bigAmount.eq(orderBook.sellOrdersDepth) : bigAmount.eq(orderBook.buyOrdersDepth));
 
     return (
       <>
@@ -701,6 +719,7 @@ console.log('rendering');
                                               </Box>}
                                           </Flex>
                                       </Box>
+                                      <OrderErrors/>
                                       <NumberInput id="amount"
                                                    placeholder="0.0"
                                                    value={newAmount}
@@ -749,16 +768,6 @@ console.log('rendering');
                                                 </FormLabel>}
                                           />
                                       </NumberInput>
-                                      {insufficientFunds &&
-                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>}
-                                      {insufficientCollateral &&
-                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
-                                      {insufficientDepth &&
-                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>
-                                          {/*Not enough order book depth (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})*/}
-                                          Not enough open orders for the amount you are trying to buy
-                                          (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})
-                                      </Text>}
                                   </Box>
 
                                   <Box fontSize="sm" pt={6}>
@@ -808,6 +817,7 @@ console.log('rendering');
                                                 insufficientFunds ||
                                                   insufficientCollateral ||
                                                   insufficientDepth ||
+                                                  noOrders ||
                                                   Number(newAmount)<=0 ||
                                                   isNaN(Number(newAmount)) ||
                                                   (radioOrderType === 'Market' && (
@@ -858,7 +868,7 @@ console.log('rendering');
                                               </Box>}
                                           </Flex>
                                       </Box>
-                                      {/*Quantity*/}
+                                      <OrderErrors/>{/*Quantity*/}
                                       <NumberInput id="amount"
                                                    value={newAmount}
                                                    min={0.0}
@@ -892,12 +902,6 @@ console.log('rendering');
                                           <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
                                           <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>}/>
                                       </NumberInput>
-                                      {insufficientFunds &&
-                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>}
-                                      {insufficientCollateral &&
-                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
-                                      {insufficientDepth &&
-                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Not enough order book depth (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})</Text>}
 
                                   {/*Price per contract*/}
                                   <NumberInput id="limitPrice"
@@ -982,7 +986,6 @@ console.log('rendering');
                                             disabled={
                                                 insufficientFunds ||
                                             insufficientCollateral ||
-                                            insufficientDepth ||
                                             Number(newAmount)<=0 ||
                                             isNaN(Number(newAmount)) ||
                                             (radioOrderType === 'Market' && (
