@@ -789,6 +789,9 @@ console.log('rendering');
                                               type="submit"
                                               onClick={onOpenConfirmDialog}
                                               disabled={
+                                                  insufficientFunds ||
+                                                  insufficientCollateral ||
+                                                  insufficientDepth ||
                                                   Number(newAmount)<=0 ||
                                                   isNaN(Number(newAmount)) ||
                                                   (radioOrderType === 'Market' && (
@@ -881,7 +884,6 @@ console.log('rendering');
                                   <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Not enough order book depth (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})</Text>}
 
                                   {/*Price per contract*/}
-
                                   <NumberInput id="limitPrice"
                                                value={format(price)}
                                                min={0.0}
@@ -962,6 +964,9 @@ console.log('rendering');
                                         type="submit"
                                         onClick={onOpenConfirmDialog}
                                         disabled={
+                                            insufficientFunds ||
+                                            insufficientCollateral ||
+                                            insufficientDepth ||
                                             Number(newAmount)<=0 ||
                                             isNaN(Number(newAmount)) ||
                                             (radioOrderType === 'Market' && (
