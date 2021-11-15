@@ -18,7 +18,7 @@ import {
   ModalBody,
   ModalCloseButton, Spinner
 } from "@chakra-ui/react";
-import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon, Icon} from '@chakra-ui/icons';
+import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon, Icon, ExternalLinkIcon} from '@chakra-ui/icons';
 import { Link as ReachLink } from "@reach/router";
 import {Account, Balance, Chain, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
@@ -50,7 +50,7 @@ function TopNav() {
       "linear(to-l, gray.700, gray.700)"
   );
   const topNavShadow = useColorModeValue("md", "md");
-  const topNavBgColor = useColorModeValue("white", "shrub.100");
+  const topNavBgColor = useColorModeValue("white", "dark.100");
 
   const bg = useColorModeValue("green", "teal")
 function handleModalClose() {
@@ -99,7 +99,7 @@ function handleModalClose() {
                   px={2} py={{ base: "3", md: "1", lg: "1" }} rounded={"lg"}
                   _hover={{textDecoration: "none", bgGradient: gradient}}
                   >
-                Docs
+                Docs <ExternalLinkIcon mx="2px" />
               </Link>
             </HStack>
           </HStack>
@@ -110,7 +110,7 @@ function handleModalClose() {
                  mr={isMobile ? '19.5': '0'}
             >
               {/*connect wallet button*/}
-              <Button variant={"solid"} colorScheme={!!web3Error ? "red": "yellow"}
+              <Button variant={"ghost"} colorScheme={!!web3Error ? "red": "yellow"}
                   size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?
                     <InfoOutlineIcon colorScheme="red"/> : undefined}> {!!web3Error && !active ?
                     getErrorMessage(web3Error).title :
@@ -150,7 +150,7 @@ function handleModalClose() {
                     textDecoration: "none",
                     bgGradient: gradient
                   }}>
-                <Icon as={HiOutlineDocumentDuplicate} mr={'2'}/>Docs
+                <Icon as={HiOutlineDocumentDuplicate} mr={'2'}/>Docs <ExternalLinkIcon mx="2px" />
               </Link>
               <Box
                    onClick={toggleColorMode}

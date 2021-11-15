@@ -50,12 +50,12 @@ function HomeView(props: RouteComponentProps) {
     const {account, error} = useWeb3React();
     const toast = useToast();
     const connectedColor = useColorModeValue("green.100", "teal.600");
-    const bgConnect = useColorModeValue("white", "shrub.100");
+    const bgConnect = useColorModeValue("white", "dark.100");
     const questionColor = useColorModeValue("blue", "yellow.300");
     const stepsColor = useColorModeValue("white","black");
     const connectedStepColor = useColorModeValue("green.400","white");
     const stepsBg = useColorModeValue("yellow.300","gray.500");
-    const connectedStepBg = useColorModeValue("white","shrub.100");
+    const connectedStepBg = useColorModeValue("white","dark.100");
 
     async function handleConnect() {
         if (!account) {
@@ -68,7 +68,7 @@ function HomeView(props: RouteComponentProps) {
                 status: "warning",
                 position: "top",
                 duration: 3000,
-                variant: "shrubSolid",
+                variant: "shrubYellow",
                 isClosable: true,
             })
         }
@@ -166,7 +166,7 @@ function HomeView(props: RouteComponentProps) {
                                 maxW="285px"
                                 minW="285px"
                                 shadow={useColorModeValue("2xl", "2xl")} borderRadius="2xl" overflow="hidden"
-                                bg={useColorModeValue("white", "shrub.100")}>
+                                bg={useColorModeValue("white", "dark.100")}>
 
                                 <Box p={6}>
                                     <Stack py={6} align={'center'}>
@@ -224,7 +224,7 @@ function HomeView(props: RouteComponentProps) {
                                  maxW="280px"
                                  minW="280px"
                                  shadow={useColorModeValue("2xl", "2xl")} borderRadius="2xl" overflow="hidden"
-                                 bg={useColorModeValue("white", "shrub.100")}>
+                                 bg={useColorModeValue("white", "dark.100")}>
 
                                 <Box p={6}>
                                     <Stack py={6} align={'center'}>
@@ -290,9 +290,13 @@ function HomeView(props: RouteComponentProps) {
                             colorScheme={useColorModeValue("green", "teal")}
                             variant="solid"
                             borderRadius="full"
+                            _hover={{transform: 'translateY(-2px)'}}
                             // bgGradient={useColorModeValue("linear(to-r, blue.100, teal.200)", "linear(to-l, blue.700, teal.700)")}
                             // bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
                             // _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}
+                          
+                            // bgGradient="linear(to-r,#74cecc,green.300,blue.400)"
+                            // _hover={{bgGradient:"linear(to-r,#74cecc,blue.400,#6666d2)"}}
                             as={ReachLink} to={'/options'}
                         >
                             Start Trading
@@ -323,7 +327,7 @@ function HomeView(props: RouteComponentProps) {
             {/*            maxW="xs"*/}
             {/*            mr={5}*/}
             {/*            shadow={useColorModeValue("2xl", "2xl")}*/}
-            {/*            borderRadius="2xl" overflow="hidden" bg={useColorModeValue("white", "shrub.100")}>*/}
+            {/*            borderRadius="2xl" overflow="hidden" bg={useColorModeValue("white", "dark.100")}>*/}
             {/*            <Center mt={4}>*/}
             {/*                <UniIcon fontSize={180} fill="currentColor"/>*/}
             {/*            </Center>*/}
@@ -349,7 +353,7 @@ function HomeView(props: RouteComponentProps) {
             {/*            mb={{ base: "10", md: "0", lg:"0" }}*/}
             {/*            mr={5}*/}
             {/*            maxW="xs" shadow={useColorModeValue("2xl", "2xl")} borderRadius="2xl" overflow="hidden"*/}
-            {/*            bg={useColorModeValue("white", "shrub.100")}>*/}
+            {/*            bg={useColorModeValue("white", "dark.100")}>*/}
             {/*            <Center mt={6}><PolygonIcon fontSize={160}/></Center>*/}
 
             {/*            <Box p="6">*/}
@@ -375,7 +379,7 @@ function HomeView(props: RouteComponentProps) {
             {/*        </Box>*/}
             {/*        <Spacer/>*/}
             {/*        <Box maxW="xs" shadow={useColorModeValue("2xl", "2xl")} borderRadius="2xl" overflow="hidden"*/}
-            {/*             bg={useColorModeValue("white", "shrub.100")}>*/}
+            {/*             bg={useColorModeValue("white", "dark.100")}>*/}
             {/*            <Center mt={4}> <FaEthereum fontSize={180}/></Center>*/}
 
             {/*            <Box p="6">*/}

@@ -74,6 +74,10 @@ export function useGetProvider() {
   return provider;
 }
 
+export function floorGroupNumber(n: number, amount: number) {
+  return Math.floor(n / amount) * amount
+}
+
 export function extractRSV(signature: string) {
   const sig = signature.slice(2);
   const r = "0x" + sig.substr(0, 64);

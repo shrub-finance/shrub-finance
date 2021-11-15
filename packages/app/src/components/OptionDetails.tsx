@@ -15,25 +15,28 @@ import {
     AlertIcon,
     Box,
     Button,
+    Center,
     Divider,
     Flex,
-    FormLabel,
+    FormLabel, Heading,
     HStack,
-    Input,
+    Input, InputLeftElement, InputRightElement,
     Modal,
     ModalBody,
     ModalCloseButton,
     ModalContent,
     ModalHeader,
-    ModalOverlay,
+    NumberInput,
+    NumberInputField,
     Popover,
     PopoverArrow,
-    PopoverBody,
-    PopoverContent,
+    PopoverBody, PopoverCloseButton,
+    PopoverContent, PopoverHeader,
     PopoverTrigger,
-    SlideFade,
-    Stack,
-    Table,
+    SlideFade, Spacer,
+    Spinner,
+    Stack, Tab,
+    Table, TabList, TabPanel, TabPanels, Tabs,
     Tag,
     TagLabel,
     Tbody,
@@ -46,16 +49,17 @@ import {
     useColorModeValue,
     useDisclosure,
     useRadioGroup,
-    useToast
-} from '@chakra-ui/react';
-import {Icon, QuestionOutlineIcon} from '@chakra-ui/icons';
+    useToast, VStack,
+} from '@chakra-ui/react'
+import {Icon, QuestionIcon, QuestionOutlineIcon, WarningTwoIcon} from '@chakra-ui/icons';
 import {
+    BiQuestionMark,
     FiShoppingCart,
     GiMoneyStack,
     MdArrowDownward,
     MdArrowUpward,
     MdDateRange,
-    RiHandCoinLine
+    RiHandCoinLine, RiQuestionMark
 } from "react-icons/all";
 import RadioCard from "./Radio";
 import {
@@ -77,6 +81,7 @@ import {
     formatTime,
     getBigWalletBalance,
     userOptionPosition,
+    floorGroupNumber,
 } from '../utils/ethMethods'
 import { BigNumber, ethers } from 'ethers'
 import {useWeb3React} from "@web3-react/core";
@@ -93,10 +98,12 @@ import {
 import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
-import {ConnectWalletModal, getErrorMessage} from './ConnectWallet';
+import {getErrorMessage} from './ConnectWallet';
 import {isMobile} from "react-device-detect";
 import { useLazyQuery, useQuery } from '@apollo/client'
 import { OPTION_POSITION_QUERY, ORDER_DETAILS_QUERY } from '../constants/queries'
+import usePriceFeed from "../hooks/usePriceFeed";
+import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 
 const { Zero } = ethers.constants;
 
@@ -107,9 +114,10 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     optionData: OptionData,
     positionHash: string
 }) {
-
+// console.log('rendering');
     const { isOpen: isOpenConfirmDialog, onOpen: onOpenConfirmDialog, onClose: onCloseConfirmDialog } = useDisclosure();
     const cancelRef = useRef();
+    const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
 
     const [localError, setLocalError] = useState('');
     const {
@@ -119,19 +127,19 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
 
     const { approving, setApproving, setActiveHash } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
-    const alertColor = useColorModeValue("gray.100", "shrub.300")
+    const alertColor = useColorModeValue("gray.100", "dark.300");
+    const livePriceColor = useColorModeValue("green.500", "green.200")
+    const ctaColor = useColorModeValue("sprout", "teal");
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
     // Hooks
-    const [amount, setAmount] = useState(1);
+    const [newAmount, setNewAmount] = useState('1.0');
     const [price, setPrice] = useState('');
+    const [touched, setTouched] = useState(false);
     const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}, optionPosition: BigNumber}>()
-    const [marketPrice, setMarketPrice] = useState('');
-    const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: []})
+    const [orderBook, setOrderBook] = useState<OrderBook>({buyOrders: [], sellOrders: [], buyOrdersDepth: Zero, sellOrdersDepth: Zero, initialized: false})
     // Radio logic
-    const radioOptions = ['BUY', 'SELL']
-    const radioOrderTypes = ['Market', 'Limit']
     const [radioOption, setRadioOption] = useState<SellBuy>(sellBuy);
     const [radioOrderType, setRadioOrderType] = useState<OrderType>('Market');
     const toast = useToast();
@@ -148,17 +156,24 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
     const orderBookColor = useColorModeValue("gray.600", "gray.200");
 
-    const {
+    const [callOrderDetails, {
         loading: orderDetailsLoading,
         error: orderDetailsError,
         data: orderDetailsData
-    } = useQuery(ORDER_DETAILS_QUERY, {
+    }] = useLazyQuery(ORDER_DETAILS_QUERY, {
         variables: {
             positionHash,
-            offerExpire: toEthDate(new Date()),
+            offerExpire: floorGroupNumber(toEthDate(new Date()),10),
         },
-        pollInterval: 5000  // Poll every five seconds
+        pollInterval: 10000  // Poll every ten seconds
     });
+
+    function format(val: string) {
+        return `$` + val
+    }
+    function parse(val: string) {
+        return val.replace(/^\$/, "")
+    }
 
     useEffect(() => {
         // console.log('useEffect - 1 - construct order book')
@@ -192,18 +207,16 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
             }
         }).sort((a: any, b: any) => a.unitPrice - b.unitPrice)
 
-        setOrderBook({ sellOrders: sellOrdersBook, buyOrders: buyOrdersBook })
+        const sellOrdersDepth = sellOrdersBook.reduce((tot: BigNumber, order: any) => tot.add(ethers.utils.parseUnits(order.formattedSize, 6)), Zero)
+        const buyOrdersDepth = buyOrdersBook.reduce((tot: BigNumber, order: any) => tot.add(ethers.utils.parseUnits(order.formattedSize, 6)), Zero)
+        setOrderBook({ sellOrders: sellOrdersBook, buyOrders: buyOrdersBook, sellOrdersDepth, buyOrdersDepth, initialized: true })
     }, [orderDetailsData])
 
     useEffect(() => {
         // console.log('useEffect - 2 - set market price')
-        if (!price) {
+        if (!price && !touched) {
             setPrice(radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4));
         }
-        if (radioOrderType !== 'Market') {
-            return;
-        }
-        setMarketPrice(radioOption === 'BUY' ? orderBook.sellOrders[0]?.unitPrice.toFixed(4) : orderBook.buyOrders[0]?.unitPrice.toFixed(4));
     }, [radioOrderType, orderBook])
 
     // Get balances
@@ -236,22 +249,54 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
           .catch(console.error);
     },[active, account])
 
-    const {
-        getRootProps: getOrderTypeRootProps,
-        getRadioProps: getOrderTypeRadioProps,
-    } = useRadioGroup({
-        name: "orderType",
-        defaultValue: 'Market',
-        onChange: (nextValue: OrderType) => {
-            setRadioOrderType(nextValue)
-        },
-    });
-
-    const groupOption = getOptionRootProps();
-    const groupOptionType = getOrderTypeRootProps();
+    // initial query subgraph
+    useEffect(() => {
+        // console.log('useEffect - 4 - initial query subgraph');
+        callOrderDetails();
+    }, []);
 
    const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
-   
+
+   function costForAmount(costAmount: number, optionType: SellBuy) {
+       const bigAmount = ethers.utils.parseUnits(costAmount.toString(), 6);
+       let remainingSize = ethers.utils.parseUnits(costAmount.toString(), 6);
+       let accumulatedPrice = Zero;
+       const orders = optionType === 'BUY' ? orderBook.sellOrders : orderBook.buyOrders;
+       if (bigAmount.gt(optionType === 'BUY' ? orderBook.sellOrdersDepth : orderBook.buyOrdersDepth)) {
+           return;
+       }
+       for (const order of orders) {
+           const {unitPrice, formattedSize} = order;
+           const bigSize = ethers.utils.parseUnits(formattedSize, 6);
+           const bigUnitPrice = ethers.utils.parseUnits(unitPrice.toString(), 18);
+           if (bigSize.gt(remainingSize)) {
+               // This order satisfies
+               accumulatedPrice = accumulatedPrice.add(bigUnitPrice.mul(remainingSize).div(1e6));
+               remainingSize = remainingSize.sub(remainingSize);
+               break;
+           }
+           accumulatedPrice = accumulatedPrice.add(bigUnitPrice.mul(bigSize).div(1e6))
+           remainingSize = remainingSize.sub(bigSize);
+       }
+       return accumulatedPrice;
+   }
+
+   function OrderErrors() {
+       return (
+         <>
+       {noOrders && radioOrderType === 'Market' &&
+       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>There are no orders in the order book.</Text>}
+       {insufficientFunds &&
+       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>}
+       {insufficientCollateral &&
+       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
+       {insufficientDepth  && radioOrderType === 'Market' &&
+       <>
+       <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Order too large for available order book depth</Text><Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}> (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})</Text>
+           </>
+       }
+         </>)
+   }
 
     async function limitOrder() {
         try {
@@ -278,14 +323,14 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
         }
         const nonce = (await getUserNonce(account, common, library)) + 1;
         const unsignedOrder: UnsignedOrder = {
-            size: ethers.utils.parseUnits(amount.toString(), 18),
+            size: ethers.utils.parseUnits(newAmount, 18),
             isBuy: optionActionToIsBuy(radioOption),
             optionType: optionTypeToNumber(optionType),
             baseAsset,
             quoteAsset,
             expiry: toEthDate(expiry),
             strike,
-            price: ethers.utils.parseUnits((Number(price) * amount).toString(), 18),
+            price: ethers.utils.parseUnits((Number(price) * Number(newAmount)).toString(), 18),
             fee: ethers.utils.parseUnits('0', 18),
             offerExpire: toEthDate(oneDayFromNow),
             nonce,
@@ -296,10 +341,10 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
             const tx = await announceOrder(signedOrder, library);
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
-            const description = `Submitted limit order to ${radioOption.toLowerCase()} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${price}`;
+            const description = `Submitted limit order to ${radioOption.toLowerCase()} ${newAmount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${price}`;
             const orderToName = {
                 optionAction: radioOption,
-                formattedSize: amount,
+                formattedSize: newAmount,
                 optionType,
                 formattedStrike,
                 formattedExpiry
@@ -338,7 +383,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
 
     async function marketOrderMany() {
         try {
-            console.log('running marketOrderMany');
+            // console.log('running marketOrderMany');
             setApproving(true);
             if (!active || !account) {
                 setLocalError('');
@@ -352,9 +397,9 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
             const localOrderBook = radioOption === 'BUY' ? orderBook.sellOrders : orderBook.buyOrders;
             // const depth = localOrderBook.reduce((tot, order) => tot.add(order.size), Zero)
             const depth = localOrderBook.reduce((tot, order) => tot.add(ethers.utils.parseUnits(order.formattedSize, 18)), Zero)
-            const bigSize = ethers.utils.parseUnits(amount.toString(), 18);
+            const bigSize = ethers.utils.parseUnits(newAmount.toString(), 18);
             if (bigSize.gt(depth)) {
-                throw new Error('Order size exceeds available depth in orderbook');
+                throw new Error('Order too large for available order book depth');
             }
             let remainingSize = ethers.BigNumber.from(bigSize);
             const now = new Date();
@@ -372,7 +417,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 let order: AppOrderSigned | undefined;
                 const lightOrder = localOrderBook[index];
                 if (!lightOrder) {
-                    throw new Error('Insufficient market depth for this order. Try making a smaller order.');
+                    throw new Error('There are no orders in the order book');
                 }
                 // @ts-ignore
                 const {blockHeight, user, formattedSize, unitPrice} = lightOrder;
@@ -404,10 +449,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 const counterPartyOrder = transformOrderAppChain(order);
                 const doesAddressMatch: boolean = await validateOrderAddress(counterPartyOrder, library);
                 const counterPartyCommon = iOrderToCommon(counterPartyOrder);
-                console.log(doesAddressMatch);
                 const counterpartyNonce = await getUserNonce(counterpartyAddress, counterPartyCommon, library) + 1;
-                console.log(counterpartyNonce);
-                console.log(orderNonce);
                 if (orderNonce !== counterpartyNonce) {
                     console.error("order nonce does not match the signer of the order's nonce");
                     index++;
@@ -422,10 +464,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                             tokenContractAddress: quoteAsset,
                             provider: library
                         });
-                        console.log(balance);
-                        console.log(size)
                         if (balance.lt(size)) {
-                            throw new Error("Not enough collateral of quoteAsset");
+                            throw new Error("Insufficient Collateral");
                         }
                     } else {
                         // Case: PUT
@@ -435,7 +475,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                             tokenContractAddress: baseAsset,
                             provider: library
                         });
-                        console.log(balance.toString());
                         // TODO: Add this validation back where it properly checks if the user has sufficient funds to buy the put
                         // if (balance.lt(ethers.BigNumber.from(pricePerContract).mul(size))) {
                         //     throw new Error("Not enough collateral of baseAsset");
@@ -453,8 +492,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 counterPartyOrders.push(counterPartyOrder);
                 // TODO: the matchOrders method of the contract needs to accomadate accumulatedPrice - see chat logs from Oct 21
                 temporaryWorkaroundPrice = bigSize.mul(counterPartyOrder.price).div(counterPartyOrder.size);
-                console.log('remaining size');
-                console.log(ethers.utils.formatUnits(remainingSize));
                 index++;
             }
             const common:OrderCommon = {
@@ -486,19 +523,18 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 signedBuyOrders = counterPartyOrders;
                 signedSellOrders = [signedOrder];
             }
-            console.log(signedBuyOrders, signedSellOrders);
             const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
-            const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${amount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
+            const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${newAmount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
             const orderToName = {
                 optionAction: radioOption,
-                formattedSize: amount,
+                formattedSize: newAmount,
                 optionType,
                 formattedStrike,
                 formattedExpiry
             };
-            const pricePerContract = Number(ethers.utils.formatUnits(accumulatedPrice)) / amount
+            const pricePerContract = Number(ethers.utils.formatUnits(accumulatedPrice)) / Number(newAmount)
             const formattedPricePerContract = (Math.round(Number(pricePerContract) * 10000) / 10000).toString();
             const data = {
                 txType: 'marketOrder',
@@ -542,7 +578,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
 
     }
     // TODO: get the symbols dynamically
-    const tooltipLabel = `You are about to ${radioOption === 'BUY' ? 'buy' : 'sell'} options that give ${radioOption === 'BUY' ? 'you' : 'someone'} the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${amount} sMATIC for ${formattedStrike} sUSD/sMATIC ${radioOption === 'SELL' ? `${optionType === 'CALL' ? 'from' : 'to'} you` : ''} until ${formattedExpiry}`;
+    const tooltipLabel = `You are about to ${radioOption === 'BUY' ? 'buy' : 'sell'} options that give ${radioOption === 'BUY' ? 'you' : 'someone'} the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${newAmount} sMATIC for ${formattedStrike} sUSD/sMATIC ${radioOption === 'SELL' ? `${optionType === 'CALL' ? 'from' : 'to'} you` : ''} until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
@@ -572,6 +608,39 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
           </Tr>)
       });
 
+    const bigAmount = ethers.utils.parseUnits(newAmount || '0', 6);
+    const bigLimitPrice = ethers.utils.parseUnits(price || '0', 6);
+    const totPriceMarket = costForAmount(Number(newAmount) || 0, radioOption);
+    const totPriceLimit = bigLimitPrice.mul(bigAmount).mul(1e6)  // This is 1e18 times the total price
+    const pricePerContract = radioOrderType === 'Market' ?
+      (
+        // Market
+        Number(newAmount) > 0 && totPriceMarket ?
+          totPriceMarket.mul(1e6).div(bigAmount) :
+          0
+      ):
+      // Limit
+      bigLimitPrice.mul(BigNumber.from(10).pow(12));
+    const totPrice = radioOrderType === 'Market' ? totPriceMarket : totPriceLimit;
+    const formattedPricePerContract = Number(ethers.utils.formatUnits(pricePerContract)).toFixed(4);
+    const formattedTotPrice = totPrice && Number(ethers.utils.formatUnits(totPrice)).toFixed(4);
+    const collateralToUnlock = balances && Math.min(Number(newAmount), Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18))) *
+      (optionType === 'CALL' ? 1 : Number(formattedStrike));
+    const collateralPerContract = optionType === 'CALL' ?
+      1 :
+      Number(formattedStrike);
+    const collateralRequirement = balances && balances.optionPosition.gt(0) ?
+      Math.max(0, collateralPerContract * (Number(newAmount) - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
+      Number(newAmount)  * collateralPerContract;
+    const quantityErrorColor = useColorModeValue("red.500", "red.300");
+    const insufficientFunds = radioOption === 'BUY' && balances && totPrice && balances.shrub.baseAsset.lt(totPrice);
+    const insufficientCollateral = radioOption === 'SELL' && balances && (optionType === 'CALL' ?
+      Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) :
+      Number(ethers.utils.formatUnits(balances.shrub.baseAsset))
+    ) < collateralRequirement;
+    const insufficientDepth = orderBook.initialized === true && (radioOption === 'BUY' ? bigAmount.gt(orderBook.sellOrdersDepth) : bigAmount.gt(orderBook.buyOrdersDepth));
+    const noOrders = orderBook.initialized === true && (radioOption === 'BUY' ? orderBook.sellOrdersDepth.eq(Zero) : orderBook.buyOrdersDepth.eq(Zero));
+
     return (
       <>
           {localError &&
@@ -586,282 +655,378 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 </SlideFade>
             </>
             }
-            <Modal motionPreset="slideInBottom" isOpen={isOpenConnectModal}
-                   onClose={onCloseConnectModal}>
-                <ModalOverlay/>
-                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
-                    <ModalHeader>
-                        <Text fontSize={20}>Connect to a wallet</Text>
-                    </ModalHeader>
-                    <ModalCloseButton/>
-                    <ModalBody>
-                        <ConnectWalletModal/>
-                    </ModalBody>
-                </ModalContent>
-            </Modal>
+          {
+              orderBook.initialized === false ?
+                //  Show spinner while query is still loading
+               <Center>
+                   <Spinner />
+               </Center> :
+                // Show normal tab display once loding is complete
+              <Tabs
+                variant="unstyled"
+                onChange={(index) => setRadioOrderType(index === 0 ? 'Market' : 'Limit')}
+              >
 
-            <Flex direction={{ base: "column", md: "row" }}>
-                <Box id={"order form"}>
-                    <Stack spacing="24px">
-                        <Box mt={2} mb={8}>
-                            <HStack spacing={3}>
-                                {/*<Tooltip label={tooltipLabel} bg="gray.300" color="gray.800" borderRadius="lg">*/}
-                                    <Tag colorScheme="green">
-                                        {!isMobile &&  <Icon as={sellBuy === 'BUY' ? FiShoppingCart : RiHandCoinLine} />}
-                                        <TagLabel pl={'1'}>{sellBuy}</TagLabel>
-                                    </Tag>
-                                {/*</Tooltip>*/}
-                                    <Tag colorScheme="blue">
-                                        {!isMobile && <Icon as={MdDateRange} />}
-                                        <TagLabel pl={'1'}> {formattedExpiry}</TagLabel>
-                                    </Tag>
-                                    <Tag colorScheme="purple">
-                                        {!isMobile && <Icon as={optionType === 'CALL' ? MdArrowUpward : MdArrowDownward} />}
-                                        <TagLabel pl={'1'}>{optionType}</TagLabel>
-                                    </Tag>
-                                <Tag colorScheme="yellow">
-                                    {!isMobile &&  <Icon as={GiMoneyStack}/>}
-                                    <TagLabel pl={'1'}>{`${formattedStrike} sUSD`}</TagLabel>
-                                </Tag>
-                            </HStack>
-                        </Box>
-                        <Box>
-                            <HStack {...groupOptionType}>
-                                <FormLabel htmlFor="orderType">Order:</FormLabel>
-                                {radioOrderTypes.map((value) => {
-                                    const radio = getOrderTypeRadioProps({ value });
-                                    return (
-                                      <RadioCard key={value} {...radio}>
-                                          {value}
-                                      </RadioCard>
-                                    );
-                                })}
-                            </HStack>
-                        </Box>
-                        <Accordion allowToggle display={{ sm: "block", md: "none" }}>
-                            <AccordionItem>
-                                <h2>
-                                    <AccordionButton>
-                                        <Box flex="1" textAlign="left">
-                                            View Orderbook
-                                        </Box>
-                                        <AccordionIcon />
-                                    </AccordionButton>
-                                </h2>
-                                <AccordionPanel pb={6}>
-                                    <Box id={"orderbook"}>
-                                        <Box
-                                            color={useColorModeValue("gray.500", "black")}
-                                            bgColor={useColorModeValue("gray.100", "gray.400")}
-                                            fontWeight="semibold"
-                                            letterSpacing="wide"
-                                            fontSize="xs"
-                                            ml="2"
-                                            borderRadius="md"
-                                            px="2"
-                                            py="1"
-                                        >
-                                            Sell Offers
-                                        </Box>
-                                        <Table variant={'unstyled'} size={'sm'}>
-                                            <Thead>
-                                                <Tr>
-                                                    <Th color="gray.400">Price</Th>
-                                                    <Th color="gray.400">Contract</Th>
-                                                </Tr>
-                                            </Thead>
-                                            <Tbody>
-                                                {orderbookSellRows}
-                                            </Tbody>
-                                        </Table>
-                                        <Divider/>
-                                        <Box
-                                            color={useColorModeValue("gray.500", "black")}
-                                            bgColor={useColorModeValue("gray.100", "gray.400")}
-                                            fontWeight="semibold"
-                                            letterSpacing="wide"
-                                            fontSize="xs"
-                                            ml="2"
-                                            borderRadius="md"
-                                            px="2"
-                                            py="1"
-                                        >
-                                            Buy Offers
-                                        </Box>
-                                        <Table variant={'unstyled'} size={'sm'}>
-                                            <Thead>
-                                                <Tr>
-                                                    <Th color="gray.400">Price</Th>
-                                                    <Th color="gray.400">Contract</Th>
-                                                </Tr>
-                                            </Thead>
-                                            <Tbody>
-                                                {orderbookBuyRows}
-                                            </Tbody>
-                                        </Table>
-                                    </Box>
-                                </AccordionPanel>
-                            </AccordionItem>
-                        </Accordion>
-                        <Box>
-                            <FormLabel htmlFor="amount">Quantity:
-                                <Popover trigger={"hover"}>
-                                    <PopoverTrigger>
-                                        <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <PopoverArrow />
-                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
-                                            <Text> Number of contracts you want to {radioOption.toLowerCase()}</Text><Text> 1 contract = 1 sMATIC. </Text><Text>Min: 0.000001</Text>
-                                        </PopoverBody>
-                                    </PopoverContent>
-                                </Popover>
-                            </FormLabel>
-                            <Input
-                                id="amount"
-                                placeholder="0.1"
-                                value={amount || ''}
-                                isInvalid={amount<=0 ||isNaN(Number(amount)) }
-                                onChange={(event: any) => setAmount(event.target.value)}
-                            />
-                        </Box>
-                        <Box>
-                            <FormLabel htmlFor="bid">Price per contract:
-                                <Popover trigger={"hover"}>
-                                    <PopoverTrigger>
-                                        <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <PopoverArrow />
-                                        <PopoverBody letterSpacing="wide" textAlign={"left"} fontSize={'sm'}>
-                                            <Text> The sUSD required to purchase 1 contract</Text>
-                                            <Text>1 contract = 1 sMATIC</Text>
-                                        </PopoverBody>
-                                    </PopoverContent>
-                                </Popover>
-                            </FormLabel>
-                            <Input
-                              // Market
-                              display={radioOrderType === 'Market' ? 'block' : 'none'}
-                              id="bid"
-                              placeholder="0"
-                              value={marketPrice || ''}
-                              isDisabled={true}
-                              isInvalid={radioOrderType === 'Limit' && (Number(marketPrice)<=0 || price === '' || isNaN(Number(marketPrice)))}
-                            />
-                            <Input
-                              // Limit
-                              display={radioOrderType === 'Market' ? 'none' : 'block'}
-                              id="bid"
-                              placeholder="0"
-                              value={price || ''}
-                              isDisabled={false}
-                              onChange={(event: any) => setPrice(event.target.value)}
-                              isInvalid={radioOrderType === 'Limit' && (Number(price)<=0 || price === '' || isNaN(Number(price)))}
-                            />
-                        </Box>
-                        {/*<Alert status="info" borderRadius={"2xl"} bgColor={alertColor}>*/}
-                        {/*    <AlertIcon />*/}
-                        {/*    {tooltipLabel}*/}
-                        {/*</Alert>*/}
-                        <Box>
-                            <Flex justifyContent="flex-end">
-                                <Button
-                                    colorScheme={useColorModeValue("green", "teal")}
-                                  type="submit"
-                                  // onClick={radioOrderType === 'Limit' ? limitOrder : marketOrderMany}
-                                    onClick={onOpenConfirmDialog}
-                                  disabled={
-                                      amount<=0 ||
-                                      isNaN(Number(amount)) ||
-                                      (radioOrderType === 'Market' && (
-                                        Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
-                                      )) ||
-                                      (radioOrderType === 'Limit' && (
-                                          Number(price)<=0 ||
-                                          isNaN(Number(price))
-                                      ))
-                                  }
+                  <TabList color={"gray.500"} p={2}>
+                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
+                           _selected={{ color: "sprout.500" }}>
+                          Instant Buy</Tab>
+                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
+                           _selected={{  color: "sprout.500" }}>
+                          Name your Price</Tab>
+                  </TabList>
+                  <TabPanels>
+                      <TabPanel>
+                          <Flex direction={{ base: "column", md: "row" }}>
+                              <Stack spacing="24px" w={"full"}>
+                                  <Box >
+                                      <Flex pb={8}>
+                                          <Box fontSize={"md"} fontWeight="bold">
+                                              {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
+                                          </Box>
+                                          <Spacer/>
+                                          <Text  fontSize={"xs"} fontWeight={"bold"}
+                                                 color={livePriceColor}>
+                                              sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
+                                          </Text>
+                                      </Flex>
 
+                                      <Box fontSize={"xs"} fontWeight={"bold"}
+                                           pb={10}>
+                                          <Flex>
+                                              <Box>
+                                                  <HStack pb={1}>
+                                                      <Text color="gray.500">Strike</Text>
+                                                      <Text>${formattedStrike}</Text>
+                                                  </HStack>
+                                                  <HStack>
+                                                      <Text color="gray.500">Expiry</Text>
+                                                      <Text>{formattedExpiry}, {formatTime(expiry)}</Text>
+                                                  </HStack>
+                                              </Box>
+                                              <Spacer/>
+                                              {/*can only fill if short and buying or long (own it) and selling*/}
+                                              {balances && !balances.optionPosition.eq(0) && <Box>
+                                                  <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
+                                                       p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
+                                                      You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
+                                                  </Box>
+                                              </Box>}
+                                          </Flex>
+                                      </Box>
+                                      <OrderErrors/>
 
-                                >
-                                    Place {radioOption === 'BUY' ? 'Buy' : 'Sell'} Order
-                                </Button>
-                            </Flex>
-                        </Box>
-                    </Stack>
+                                      {/*Market Order Quantity*/}
+                                      <NumberInput id="amount"
+                                                   placeholder="0.0"
+                                                   value={newAmount}
+                                                   min={0.0}
+                                                   max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
+                                                   // precision={6}
+                                                   onChange={(valueString) => {
+                                                       const [integerPart, decimalPart] = valueString.split('.');
+                                                       if(valueString === '.') {
+                                                           setNewAmount('0.')
+                                                           return;
+                                                       }
+                                                       if (decimalPart && decimalPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (integerPart && integerPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (valueString === '00') {
+                                                           return;
+                                                       }
+                                                       if (isNaN(Number(valueString))) {
+                                                           return;
+                                                       }
+                                                       if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
+                                                           setNewAmount(Number(valueString).toFixed(6))
+                                                           return;
+                                                       }
+                                                       setNewAmount(valueString);
+                                                   }}
 
-                </Box>
-                {!isMobile && <Box id={"orderbook"} ml={4} display={{ sm: "none", md: "block" }}>
-                    <Box
+                                      >
+                                          <NumberInputField
+                                            h="6rem"
+                                            borderRadius="3xl"
+                                            shadow="sm"
+                                            fontWeight="bold"
+                                            fontSize="2xl"
+                                          />
 
-                        fontWeight="semibold"
-                        letterSpacing="wide"
-                        fontSize="xs"
-                        ml="2"
-                        borderRadius="md"
-                        px="2"
-                        py="1"
-                        color = {orderBookColorMobile}
-                        bgColor={orderBookBgColorMobile}
-                    >
-                        Sell Offers
-                    </Box>
-                    <Table variant={'unstyled'} size={'sm'}>
-                        <Thead>
-                            <Tr>
-                                <Th color="gray.400">Price</Th>
-                                <Th color="gray.400">Size</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {orderbookSellRows}
-                        </Tbody>
-                    </Table>
-                    <Box
-                        color={orderBookColorMobile}
-                        bgColor={orderBookBgColorMobile}
-                        fontWeight="semibold"
-                        letterSpacing="wide"
-                        fontSize="xs"
-                        ml="2"
-                        borderRadius="md"
-                        px="2"
-                        py="1"
-                        mt="4"
-                    >
-                        Buy Offers
-                    </Box>
-                    <Table variant={'unstyled'} size={'sm'}>
-                        <Thead>
-                            <Tr>
-                                <Th color="gray.400">Price</Th>
-                                <Th color="gray.400">Size</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {orderbookBuyRows}
-                        </Tbody>
-                    </Table>
-                </Box>}
-            </Flex>
+                                          <InputRightElement
+                                            pointerEvents="none"
+                                            p={14}
+                                            children={
+                                                <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity
+                                                </FormLabel>}
+                                          />
+                                      </NumberInput>
+                                  </Box>
 
+                                  <Box fontSize="sm" pt={6}>
+                                      <HStack spacing={8} fontSize={"sm"}>
+                                          <VStack spacing={1.5} alignItems={"flex-start"}>
+                                              <Text>Price per contract</Text>
+                                              <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
+                                              {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
+                                              <Text>Available</Text>
+                                          </VStack>
+                                          <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
+                                              <Text>
+                                                  ${formattedPricePerContract}
+                                              </Text>
+                                              <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
+                                                  ${formattedTotPrice}
+                                              </Text>
+                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
+                                              <Text color="gray.500">
+                                                  {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
+                                              </Text> }
+                                              {radioOption === 'SELL' && (optionType === 'CALL' ?
+                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                    {collateralRequirement.toFixed(4)} sMATIC
+                                                </Text> :
+                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                    ${collateralRequirement.toFixed(4)}
+                                                </Text>) }
+                                              {radioOption === 'SELL' && optionType === 'CALL'?
+                                                <Text color="gray.500">
+                                                    {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
+                                                </Text> :
+                                                <Text color="gray.500">
+                                                    ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
+                                                </Text>}
+                                          </VStack>
+                                      </HStack>
+                                  </Box>
+                                  <Box>
+                                      <Flex justifyContent="flex-end">
+                                          <Button
+                                            colorScheme={ctaColor}
+                                            type="submit"
+                                            onClick={onOpenConfirmDialog}
+                                            disabled={
+                                                insufficientFunds ||
+                                                  insufficientCollateral ||
+                                                  insufficientDepth ||
+                                                  noOrders ||
+                                                  Number(newAmount)<=0 ||
+                                                  isNaN(Number(newAmount)) ||
+                                                  (radioOrderType === 'Market' && (
+                                                      Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
+                                                  ))}>
+                                              Review Order
+                                          </Button>
+                                      </Flex>
+                                  </Box>
+                              </Stack>
+                          </Flex>
+                      </TabPanel>
+                      <TabPanel>
+                          <Flex direction={{ base: "column", md: "row" }}>
+                              <Stack spacing="24px" w={"full"}>
+                                  <Box >
+                                      <Flex pb={8}>
+                                          <Box fontSize={"md"} fontWeight="bold">
+                                              {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
+                                          </Box>
+                                          <Spacer/>
+                                          <Text  fontSize={"xs"} fontWeight={"bold"}
+                                                 color={livePriceColor}>
+                                              sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
+                                          </Text>
+                                      </Flex>
+
+                                      <Box fontSize={"xs"} fontWeight={"bold"}
+                                           pb={10}>
+                                          <Flex>
+                                              <Box>
+                                                  <HStack pb={1}>
+                                                      <Text color="gray.500">Strike</Text>
+                                                      <Text>${formattedStrike}</Text>
+                                                  </HStack>
+                                                  <HStack>
+                                                      <Text color="gray.500">Expiry</Text>
+                                                      <Text>{formattedExpiry}, {formatTime(expiry)}</Text>
+                                                  </HStack>
+                                              </Box>
+                                              <Spacer/>
+                                              {/*can only fill if short and buying or long (own it) and selling*/}
+                                              {balances && !balances.optionPosition.eq(0) && <Box>
+                                                  <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
+                                                       p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
+                                                      You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
+                                                  </Box>
+                                              </Box>}
+                                          </Flex>
+                                      </Box>
+                                      <OrderErrors/>
+
+                                      {/*Limit Order Quantity*/}
+                                      <NumberInput id="amount"
+                                                   value={newAmount}
+                                                   min={0.0}
+                                                   onChange={(valueString) => {
+                                                       const [integerPart, decimalPart] = valueString.split('.');
+                                                       if(valueString === '.') {
+                                                           setNewAmount('0.')
+                                                           return;
+                                                       }
+                                                       if (decimalPart && decimalPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (integerPart && integerPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (valueString === '00') {
+                                                           return;
+                                                       }
+                                                       if (isNaN(Number(valueString))) {
+                                                           return;
+                                                       }
+                                                       if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
+                                                           setNewAmount(Number(valueString).toFixed(6))
+                                                           return;
+                                                       }
+                                                       setNewAmount(valueString);
+                                                   }}
+                                      >
+                                          <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
+                                          <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>}/>
+                                      </NumberInput>
+
+                                      {/*Limit order Price*/}
+                                  <NumberInput id="limitPrice"
+                                               value={format(price)}
+                                               min={0.0}
+                                               max={1e6}
+                                                   step={0.01}
+                                                   mt={4}
+                                                   isInvalid={(Number(price)<=0 || price === '' || isNaN(Number(price)))}
+                                                   onChange={(valueString) => {
+                                                       setTouched(true);
+                                                       const [integerPart, decimalPart] = valueString.split('.');
+                                                       if(valueString === '.') {
+                                                           setPrice('0.')
+                                                           return;
+                                                       }
+                                                       if (decimalPart && decimalPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (integerPart && integerPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (valueString === '00') {
+                                                           return;
+                                                       }
+                                                       const numberedValueString = Number(parse(valueString));
+                                                       if (isNaN(numberedValueString)) {
+                                                           return;
+                                                       }
+                                                       if (numberedValueString !== Math.round(numberedValueString * 1e6) / 1e6) {
+                                                           setPrice(numberedValueString.toFixed(6))
+                                                           return;
+                                                       }
+                                                       setPrice(parse(valueString));
+                                                   }}
+                                      >
+                                          <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
+                                          <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Price</FormLabel>}/>
+                                      </NumberInput>
+                                  </Box>
+
+                                  <Box fontSize="sm" pt={6}>
+                                      <HStack spacing={8} fontSize={"sm"}>
+                                          <VStack spacing={1.5} alignItems={"flex-start"}>
+                                              <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
+                                              {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
+                                              <Text>Available</Text>
+                                          </VStack>
+                                          <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
+                                              <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
+                                                  ${formattedTotPrice}
+                                              </Text>
+                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
+                                              <Text color="gray.500">
+                                                  {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
+                                              </Text> }
+                                              {radioOption === 'SELL' && (optionType === 'CALL' ?
+                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                    {collateralRequirement.toFixed(4)} sMATIC
+                                                </Text> :
+                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                    ${collateralRequirement.toFixed(4)}
+                                                </Text>) }
+                                              {radioOption === 'SELL' && optionType === 'CALL'?
+                                                <Text color="gray.500">
+                                                    {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
+                                                </Text> :
+                                                <Text color="gray.500">
+                                                    ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
+                                                </Text>}
+                                          </VStack>
+                                      </HStack>
+                                  </Box>
+                                  <Box>
+                                      <Flex justifyContent="flex-end">
+                                          <Button
+                                            colorScheme={ctaColor}
+                                            type="submit"
+                                            onClick={onOpenConfirmDialog}
+                                            disabled={
+                                                insufficientFunds ||
+                                            insufficientCollateral ||
+                                            Number(newAmount)<=0 ||
+                                            isNaN(Number(newAmount)) ||
+                                            (radioOrderType === 'Market' && (
+                                              Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
+                                            ))}>
+                                          Review Order
+                                      </Button>
+                                  </Flex>
+                              </Box>
+                          </Stack>
+                      </Flex>
+                  </TabPanel>
+              </TabPanels>
+          </Tabs>}
+          {/*order confirmation modal*/}
           <AlertDialog
               motionPreset="slideInBottom"
               // @ts-ignore
               leastDestructiveRef={cancelRef}
               onClose={onCloseConfirmDialog}
               isOpen={isOpenConfirmDialog}
-              isCentered
-          >
+              isCentered>
               <AlertDialogOverlay />
-
               <AlertDialogContent>
-                  <AlertDialogHeader>Order Confirmation</AlertDialogHeader>
+                  <AlertDialogHeader>{radioOption === 'BUY' ? 'Buy' : 'Sell'} Order Confirmation</AlertDialogHeader>
                   <AlertDialogCloseButton />
                   <Divider/>
                   <AlertDialogBody>
-                      <Text>You are about to <strong>{radioOption === 'BUY' ? 'buy' : 'sell'}</strong> options that give {radioOption === 'BUY' ? 'you' : 'someone'} the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {amount} sMATIC for {formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
+                      <Box fontSize="sm" pt={6}>
+                          <HStack spacing={8} fontSize={"sm"}>
+                              <VStack spacing={1.5} alignItems={"flex-start"}>
+                                  <Text>Price per contract</Text>
+                                  <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                              </VStack>
+                              <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
+                                  <Text>
+                                      ${formattedPricePerContract}
+                                  </Text>
+                                  <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
+                                      ${formattedTotPrice}
+                                  </Text>
+                              </VStack>
+                          </HStack>
+                      </Box>
+                      <Text fontSize={"xs"} color={"gray.500"} pt={'6'}>Placing this order <strong>gives {radioOption === 'BUY' ? 'you' : 'someone'}</strong> the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC</strong> for <strong>{formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
                   </AlertDialogBody>
                   <AlertDialogFooter>
                       <Button
@@ -869,7 +1034,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                           ref={cancelRef} onClick={onCloseConfirmDialog}>
                           No
                       </Button>
-                      <Button colorScheme="teal" ml={3} onClick={placeOrderConfirmation}>
+                      <Button colorScheme={ctaColor} ml={3} onClick={placeOrderConfirmation}>
                           Yes
                       </Button>
                   </AlertDialogFooter>

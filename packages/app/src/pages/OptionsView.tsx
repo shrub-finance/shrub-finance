@@ -30,17 +30,19 @@ import {
 import {Link as ReachLink, RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {
-    cancelOrder,
-    formatDate, formatTime,
-    fromEthDate,
-    getAnnouncedEvent,
-    hashOrderCommon,
-    isBuyToOptionAction,
-    optionTypeToNumber,
-    optionTypeToString,
-    shortOptionName,
-    toEthDate,
-    transformOrderAppChain,
+  cancelOrder,
+  floorGroupNumber,
+  formatDate,
+  formatTime,
+  fromEthDate,
+  getAnnouncedEvent,
+  hashOrderCommon,
+  isBuyToOptionAction,
+  optionTypeToNumber,
+  optionTypeToString,
+  shortOptionName,
+  toEthDate,
+  transformOrderAppChain,
 } from '../utils/ethMethods'
 import {BytesLike, ethers} from "ethers";
 import {
@@ -57,7 +59,7 @@ import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import SummaryView from '../components/SummaryView'
 import {HelloBud, PolygonIcon} from "../assets/Icons";
 import { useLazyQuery, useQuery } from '@apollo/client'
-import { ORDER_HISTORY_QUERY, SUMMARY_VIEW_ALL_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries'
+import { ORDER_HISTORY_QUERY, SUMMARY_VIEW_ALL_QUERY } from '../constants/queries'
 import contractData from "../constants/common"
 import {MdHistoryToggleOff} from 'react-icons/md';
 import {isMobile} from "react-device-detect";
@@ -82,14 +84,14 @@ function OptionsView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState('');
   const toast = useToast();
   const boxShadow = useColorModeValue("2xl", "2xl");
-  const backgroundColor = useColorModeValue("white", "shrub.100");
+  const backgroundColor = useColorModeValue("white", "dark.100");
   const [localOrderHistoryRows, setLocalOrderHistoryRows] = useState<JSX.Element[]>([]);
   const [optionRows, setOptionRows] = useState<JSX.Element[]>([]);
   const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
 
   const livePriceColor = useColorModeValue("green.500", "green.200");
   const selectorColor = useColorModeValue("gray.400", "gray.800");
-  const selectorBg = useColorModeValue("white", "shrub.100");
+  const selectorBg = useColorModeValue("white", "dark.100");
 
   // TODO un-hardcode this
   const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
@@ -106,7 +108,7 @@ function OptionsView(props: RouteComponentProps) {
       optionTypes: ['CALL', 'PUT'],
       baseAsset: baseAsset && baseAsset.toLowerCase(),
       quoteAsset: quoteAsset && quoteAsset.toLowerCase(),
-      offerExpire: toEthDate(new Date())
+      offerExpire: floorGroupNumber(toEthDate(new Date()), 15)
     },
     pollInterval: 15000  // Poll every minute
   });
@@ -202,7 +204,7 @@ function OptionsView(props: RouteComponentProps) {
                 const ask = (sellOrders[0] && sellOrders[0].pricePerContract) || '';
                 const bid = (buyOrders[0] && buyOrders[0].pricePerContract) || '';
                 const appCommon: AppCommon = {
-                    formattedStrike: decimalStrike,
+                    formattedStrike: Number(decimalStrike).toFixed(2),
                     formattedExpiry: formatDate(Number(expiryDate)),
                     optionType,
                     quoteAsset,
@@ -372,7 +374,7 @@ function OptionsView(props: RouteComponentProps) {
 
   // Get order history after account is available
   useEffect(() => {
-    console.log('useEffect - 6 - get order history');
+    // console.log('useEffect - 6 - get order history');
     if (!account) {
       return;
     }
@@ -574,7 +576,7 @@ function OptionsView(props: RouteComponentProps) {
                                 {/* do not delete, leave it commented out for now*/}
                                 {/*<RadioCard>*/}
                                 {/*  Special Dates*/}
-                                {/*  <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in MATIC land as your expiry. " fontSize="xs" borderRadius="lg" bg="shrub.300" color="white">*/}
+                                {/*  <Tooltip p={3} label="Own the future. This date picker let's you pick important upcoming events in MATIC land as your expiry. " fontSize="xs" borderRadius="lg" bg="dark.300" color="white">*/}
                                 {/*  <Text as="sup" pl={1}><QuestionOutlineIcon/></Text>*/}
                                 {/*</Tooltip>*/}
                                 {/*</RadioCard>*/}
@@ -666,7 +668,7 @@ function OptionsView(props: RouteComponentProps) {
                                 </Center>
                                 <Center pt={6}>
                                     <Box as="span" fontWeight="semibold" fontSize="md" color="gray.500">
-                                        No orders from you yet, but your order history will show up here!
+                                        Your order history will show up here!
                                     </Box>
                                 </Center>
                             </Flex>}

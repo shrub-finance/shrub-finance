@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 export const SUMMARY_VIEW_ALL_QUERY = gql`
-    query SummaryView($expiries: [Int], $optionTypes: [OptionType], $baseAsset: String, $quoteAsset: String, $offerExpire: Int){
+    query SummaryViewAll($expiries: [Int], $optionTypes: [OptionType], $baseAsset: String, $quoteAsset: String, $offerExpire: Int){
         options(where:{
             expiry_in:$expiries,
             optionType_in:$optionTypes,
@@ -28,7 +28,7 @@ export const SUMMARY_VIEW_ALL_QUERY = gql`
 `
 
 export const ORDER_DETAILS_QUERY = gql`
-    query SummaryView($positionHash: String, $offerExpire: Int, $account: String){
+    query OrderDetails($positionHash: String, $offerExpire: Int, $account: String){
         option(id:$positionHash){
             id
             name
@@ -104,7 +104,7 @@ export const TOKEN_DATA_QUERY = gql`
 `
 
 export const ORDER_HISTORY_QUERY = gql`
-    query UserHistory($id: ID){
+    query OrderHistory($id: ID){
         user(id:$id){
             id
             userOptions(orderBy:nonce,orderDirection:desc){
