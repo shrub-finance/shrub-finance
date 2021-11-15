@@ -7972,7 +7972,7 @@ __metadata:
     ethereumjs-abi: 0.6.8
     ethereumjs-util: 7.0.9
     ethers: 5.1.4
-    focus-visible: ^5.2.0
+    focus-visible: 5.2.0
     framer-motion: 3.10.2
     graphql: 15.6.0
     husky: 6.0.0
@@ -20384,7 +20384,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focus-visible@npm:^5.2.0":
+"focus-visible@npm:5.2.0":
   version: 5.2.0
   resolution: "focus-visible@npm:5.2.0"
   checksum: 4e60302bd84accb92d11c22f8a5f6e38d2f5a0cc1bd45e708b9f00173cc700d1f0782c78f932023479074739fd588e0dd94c0e2575b2212843955e2d4398e752
