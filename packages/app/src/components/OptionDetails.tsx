@@ -638,8 +638,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
       Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) :
       Number(ethers.utils.formatUnits(balances.shrub.baseAsset))
     ) < collateralRequirement;
-    const insufficientDepth = orderBook.initialized === true && (radioOption === 'BUY' ? bigAmount.gt(orderBook.sellOrdersDepth) : bigAmount.gt(orderBook.buyOrdersDepth));
-    const noOrders = orderBook.initialized === true && (radioOption === 'BUY' ? orderBook.sellOrdersDepth.eq(Zero) : orderBook.buyOrdersDepth.eq(Zero));
+    const insufficientDepth = orderBook.initialized && (radioOption === 'BUY' ? bigAmount.gt(orderBook.sellOrdersDepth) : bigAmount.gt(orderBook.buyOrdersDepth));
+    const noOrders = orderBook.initialized && (radioOption === 'BUY' ? orderBook.sellOrdersDepth.eq(Zero) : orderBook.buyOrdersDepth.eq(Zero));
 
     return (
       <>
@@ -655,18 +655,11 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 </SlideFade>
             </>
             }
-          {
-              orderBook.initialized === false ?
-                //  Show spinner while query is still loading
-               <Center>
-                   <Spinner />
-               </Center> :
-                // Show normal tab display once loding is complete
+
               <Tabs
                 variant="unstyled"
                 onChange={(index) => setRadioOrderType(index === 0 ? 'Market' : 'Limit')}
               >
-
                   <TabList color={"gray.500"} p={2}>
                       <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
                            _selected={{ color: "sprout.500" }}>
@@ -677,6 +670,17 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                   </TabList>
                   <TabPanels>
                       <TabPanel>
+                          {
+                              !orderBook.initialized ?
+                                //  Show spinner while query is still loading
+                                <Center p={40}>
+                                    <Spinner thickness="2px"
+                                             speed="0.65s"
+                                             emptyColor="gray.200"
+                                             color="sprout.500"
+                                             size="xl"/>
+                                </Center> :
+                                // Show normal tab display once loding is complete
                           <Flex direction={{ base: "column", md: "row" }}>
                               <Stack spacing="24px" w={"full"}>
                                   <Box >
@@ -825,9 +829,20 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                       </Flex>
                                   </Box>
                               </Stack>
-                          </Flex>
+                          </Flex>}
                       </TabPanel>
                       <TabPanel>
+                          {
+                              !orderBook.initialized ?
+                                //  Show spinner while query is still loading
+                                <Center p={40}>
+                                    <Spinner thickness="1px"
+                                             speed="0.65s"
+                                             emptyColor="gray.200"
+                                             color="sprout.500"
+                                             size="xl"/>
+                                </Center> :
+                                // Show normal tab display once loding is complete
                           <Flex direction={{ base: "column", md: "row" }}>
                               <Stack spacing="24px" w={"full"}>
                                   <Box >
@@ -992,10 +1007,10 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                   </Flex>
                               </Box>
                           </Stack>
-                      </Flex>
+                      </Flex>}
                   </TabPanel>
               </TabPanels>
-          </Tabs>}
+          </Tabs>
           {/*order confirmation modal*/}
           <AlertDialog
               motionPreset="slideInBottom"
