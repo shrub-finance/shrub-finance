@@ -1006,7 +1006,7 @@ console.log('rendering');
                               </VStack>
                           </HStack>
                       </Box>
-                      <Text fontSize={"xs"} color={"gray.500"} pt={'4'}>Placing this <strong>{radioOption === 'BUY' ? 'buy' : 'sell'} order</strong> gives {radioOption === 'BUY' ? 'you' : 'someone'} the right to <strong>{optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC</strong> for <strong>{formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
+                      <Text fontSize={"xs"} color={"gray.500"} pt={'4'}>Placing this order <strong>gives {radioOption === 'BUY' ? 'you' : 'someone'}</strong> the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC</strong> for <strong>{formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
                   </AlertDialogBody>
                   <AlertDialogFooter>
                       <Button
