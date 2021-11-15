@@ -287,7 +287,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
        {noOrders && radioOrderType === 'Market' &&
        <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>There are no orders in the order book.</Text>}
        {insufficientFunds &&
-       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds.</Text>}
+       <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>}
        {insufficientCollateral &&
        <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
        {insufficientDepth  && radioOrderType === 'Market' &&
@@ -629,11 +629,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
           0
       ):
       // Limit
-      bigLimitPrice;
+      bigLimitPrice.mul(BigNumber.from(10).pow(12));
     const totPrice = radioOrderType === 'Market' ? totPriceMarket : totPriceLimit;
     const formattedPricePerContract = Number(ethers.utils.formatUnits(pricePerContract)).toFixed(4);
     const formattedTotPrice = totPrice && Number(ethers.utils.formatUnits(totPrice)).toFixed(4);
-    const collateralToUnlock = balances && Math.min(Number(newAmount), Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18)));
+    const collateralToUnlock = balances && Math.min(Number(newAmount), Number(ethers.utils.formatUnits(balances.optionPosition.abs(), 18))) *
+      (optionType === 'CALL' ? 1 : Number(formattedStrike));
     const collateralPerContract = optionType === 'CALL' ?
       1 :
       Number(formattedStrike);
@@ -642,9 +643,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
       Number(newAmount)  * collateralPerContract;
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
     const insufficientFunds = radioOption === 'BUY' && balances && totPrice && balances.shrub.baseAsset.lt(totPrice);
-    const insufficientCollateral = radioOption === 'SELL' && balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) < collateralRequirement;
+    const insufficientCollateral = radioOption === 'SELL' && balances && (optionType === 'CALL' ?
+      Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) :
+      Number(ethers.utils.formatUnits(balances.shrub.baseAsset))
+    ) < collateralRequirement;
     const insufficientDepth = orderBook.initialized === true && (radioOption === 'BUY' ? bigAmount.gt(orderBook.sellOrdersDepth) : bigAmount.gt(orderBook.buyOrdersDepth));
-    const noOrders = orderBook.initialized === true && (radioOption === 'BUY' ? bigAmount.eq(orderBook.sellOrdersDepth) : bigAmount.eq(orderBook.buyOrdersDepth));
+    const noOrders = orderBook.initialized === true && (radioOption === 'BUY' ? orderBook.sellOrdersDepth.eq(Zero) : orderBook.buyOrdersDepth.eq(Zero));
 
     return (
       <>
@@ -720,6 +724,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           </Flex>
                                       </Box>
                                       <OrderErrors/>
+
+                                      {/*Market Order Quantity*/}
                                       <NumberInput id="amount"
                                                    placeholder="0.0"
                                                    value={newAmount}
@@ -729,7 +735,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                                    onChange={(valueString) => {
                                                        const [integerPart, decimalPart] = valueString.split('.');
                                                        if(valueString === '.') {
-                                                           setPrice('0.')
+                                                           setNewAmount('0.')
                                                            return;
                                                        }
                                                        if (decimalPart && decimalPart.length > 6) {
@@ -868,16 +874,16 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                               </Box>}
                                           </Flex>
                                       </Box>
-                                      <OrderErrors/>{/*Quantity*/}
+                                      <OrderErrors/>
+
+                                      {/*Limit Order Quantity*/}
                                       <NumberInput id="amount"
                                                    value={newAmount}
                                                    min={0.0}
-                                                   // precision={6}
-                                                   max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
                                                    onChange={(valueString) => {
                                                        const [integerPart, decimalPart] = valueString.split('.');
                                                        if(valueString === '.') {
-                                                           setPrice('0.')
+                                                           setNewAmount('0.')
                                                            return;
                                                        }
                                                        if (decimalPart && decimalPart.length > 6) {
@@ -903,12 +909,11 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>}/>
                                       </NumberInput>
 
-                                  {/*Price per contract*/}
+                                      {/*Limit order Price*/}
                                   <NumberInput id="limitPrice"
                                                value={format(price)}
                                                min={0.0}
                                                max={1e6}
-                                               // precision={2}
                                                    step={0.01}
                                                    mt={4}
                                                    isInvalid={(Number(price)<=0 || price === '' || isNaN(Number(price)))}
