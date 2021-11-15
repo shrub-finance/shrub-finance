@@ -126,6 +126,7 @@ console.log('rendering');
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const alertColor = useColorModeValue("gray.100", "dark.300");
     const livePriceColor = useColorModeValue("green.500", "green.200")
+    const ctaColor = useColorModeValue("sprout", "teal");
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
@@ -784,7 +785,7 @@ console.log('rendering');
                                   <Box>
                                       <Flex justifyContent="flex-end">
                                           <Button
-                                              colorScheme={useColorModeValue("sprout", "teal")}
+                                              colorScheme={ctaColor}
                                               type="submit"
                                               onClick={onOpenConfirmDialog}
                                               disabled={
@@ -793,9 +794,7 @@ console.log('rendering');
                                                   (radioOrderType === 'Market' && (
                                                       Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
                                                   ))}>
-                                              {/*Review {radioOption === 'BUY' ? 'Buy' : 'Sell'} Order*/}
                                               Review Order
-                                              {/*Review*/}
                                           </Button>
                                       </Flex>
                                   </Box>
@@ -959,7 +958,7 @@ console.log('rendering');
                               <Box>
                                   <Flex justifyContent="flex-end">
                                       <Button
-                                        colorScheme={useColorModeValue("sprout", "teal")}
+                                        colorScheme={ctaColor}
                                         type="submit"
                                         onClick={onOpenConfirmDialog}
                                         disabled={
@@ -968,9 +967,7 @@ console.log('rendering');
                                             (radioOrderType === 'Market' && (
                                               Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
                                             ))}>
-                                          {/*Review {radioOption === 'BUY' ? 'Buy' : 'Sell'} Order*/}
                                           Review Order
-                                          {/*Review*/}
                                       </Button>
                                   </Flex>
                               </Box>
@@ -989,11 +986,27 @@ console.log('rendering');
               isCentered>
               <AlertDialogOverlay />
               <AlertDialogContent>
-                  <AlertDialogHeader>Order Confirmation</AlertDialogHeader>
+                  <AlertDialogHeader>{radioOption === 'BUY' ? 'Buy' : 'Sell'} Order Confirmation</AlertDialogHeader>
                   <AlertDialogCloseButton />
                   <Divider/>
                   <AlertDialogBody>
-                      <Text>You are about to <strong>{radioOption === 'BUY' ? 'buy' : 'sell'}</strong> options that give {radioOption === 'BUY' ? 'you' : 'someone'} the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC for {formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
+                      <Box fontSize="sm" pt={6}>
+                          <HStack spacing={8} fontSize={"sm"}>
+                              <VStack spacing={1.5} alignItems={"flex-start"}>
+                                  <Text>Price per contract</Text>
+                                  <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                              </VStack>
+                              <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
+                                  <Text>
+                                      ${formattedPricePerContract}
+                                  </Text>
+                                  <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
+                                      ${formattedTotPrice}
+                                  </Text>
+                              </VStack>
+                          </HStack>
+                      </Box>
+                      <Text fontSize={"xs"} color={"gray.500"} pt={'4'}>Placing this <strong>{radioOption === 'BUY' ? 'buy' : 'sell'} order</strong> gives {radioOption === 'BUY' ? 'you' : 'someone'} the right to <strong>{optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC</strong> for <strong>{formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
                   </AlertDialogBody>
                   <AlertDialogFooter>
                       <Button
@@ -1001,7 +1014,7 @@ console.log('rendering');
                           ref={cancelRef} onClick={onCloseConfirmDialog}>
                           No
                       </Button>
-                      <Button colorScheme="teal" ml={3} onClick={placeOrderConfirmation}>
+                      <Button colorScheme={ctaColor} ml={3} onClick={placeOrderConfirmation}>
                           Yes
                       </Button>
                   </AlertDialogFooter>
