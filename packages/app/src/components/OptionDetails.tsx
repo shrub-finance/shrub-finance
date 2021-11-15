@@ -1,9 +1,4 @@
 import {
-    Accordion,
-    AccordionButton,
-    AccordionIcon,
-    AccordionItem,
-    AccordionPanel,
     Alert,
     AlertDialog,
     AlertDialogBody,
@@ -18,7 +13,7 @@ import {
     Center,
     Divider,
     Flex,
-    FormLabel, Heading,
+    FormLabel,
     HStack,
     Input, InputLeftElement, InputRightElement,
     Modal,
@@ -29,9 +24,8 @@ import {
     NumberInput,
     NumberInputField,
     Popover,
-    PopoverArrow,
     PopoverBody, PopoverCloseButton,
-    PopoverContent, PopoverHeader,
+    PopoverContent,
     PopoverTrigger,
     SlideFade, Spacer,
     Spinner,
@@ -128,8 +122,11 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     const { approving, setApproving, setActiveHash } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const alertColor = useColorModeValue("gray.100", "dark.300");
-    const livePriceColor = useColorModeValue("green.500", "green.200")
+    const livePriceColor = useColorModeValue("green.500", "green.200");
     const ctaColor = useColorModeValue("sprout", "teal");
+    const orderBookTriggerColor = useColorModeValue("gray.500", "black");
+    const orderBookTriggerBg = useColorModeValue("gray.100", "gray.400");
+    const orderBookTextColor = useColorModeValue("blue", "yellow.300");
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
@@ -719,14 +716,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           </Flex>
                                       </Box>
                                       <OrderErrors/>
-
                                       {/*Market Order Quantity*/}
                                       <NumberInput id="amount"
                                                    placeholder="0.0"
                                                    value={newAmount}
                                                    min={0.0}
                                                    max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
-                                                   // precision={6}
                                                    onChange={(valueString) => {
                                                        const [integerPart, decimalPart] = valueString.split('.');
                                                        if(valueString === '.') {
@@ -750,27 +745,90 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                                            return;
                                                        }
                                                        setNewAmount(valueString);
-                                                   }}
-
-                                      >
+                                                   }}>
                                           <NumberInputField
                                             h="6rem"
                                             borderRadius="3xl"
                                             shadow="sm"
                                             fontWeight="bold"
-                                            fontSize="2xl"
-                                          />
-
+                                            fontSize="2xl"/>
                                           <InputRightElement
                                             pointerEvents="none"
                                             p={14}
                                             children={
-                                                <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity
-                                                </FormLabel>}
-                                          />
+                                                <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>
+                                            }/>
                                       </NumberInput>
                                   </Box>
+                                  <HStack spacing={310} cursor={"pointer"}>
+                                      <Box></Box>
+                                      <Box>
+                                          <Popover placement="right" isLazy closeOnBlur={false} gutter={64}>
+                                              <PopoverTrigger>
+                                                  <Text color={orderBookTextColor} fontWeight={"extrabold"} fontSize={"xs"}
+                                                        cursor="pointer">View order book</Text>
+                                              </PopoverTrigger>
+                                              <PopoverContent>
+                                                  <PopoverCloseButton/>
+                                                  <PopoverBody p={8}>
+                                                          <Box
+                                                            // color={useColorModeValue("gray.500", "black")}
+                                                            color={"gray.500"}
+                                                            // bgColor={useColorModeValue("gray.100", "gray.400")}
+                                                            bgColor={"gray.100"}
+                                                            fontWeight="semibold"
+                                                            letterSpacing="wide"
+                                                            fontSize="xs"
+                                                            ml="2"
+                                                            borderRadius="md"
+                                                            px="2"
+                                                            py="1"
+                                                          >
+                                                              Sell Offers
+                                                          </Box>
+                                                          <Table variant={'unstyled'} size={'sm'}>
+                                                              <Thead>
+                                                                  <Tr>
+                                                                      <Th color="gray.400">Price</Th>
+                                                                      <Th color="gray.400">Contract</Th>
+                                                                  </Tr>
+                                                              </Thead>
+                                                              <Tbody>
+                                                                  {orderbookSellRows}
+                                                              </Tbody>
+                                                          </Table>
 
+                                                          <Box
+                                                            // color={useColorModeValue("gray.500", "black")}
+                                                            color={"gray.500"}
+                                                            // bgColor={useColorModeValue("gray.100", "gray.400")}
+                                                            bgColor={"gray.100"}
+                                                            fontWeight="semibold"
+                                                            letterSpacing="wide"
+                                                            fontSize="xs"
+                                                            ml="2"
+                                                            borderRadius="md"
+                                                            px="2"
+                                                            py="1"
+                                                          >
+                                                              Buy Offers
+                                                          </Box>
+                                                          <Table variant={'unstyled'} size={'sm'}>
+                                                              <Thead>
+                                                                  <Tr>
+                                                                      <Th color="gray.400">Price</Th>
+                                                                      <Th color="gray.400">Contract</Th>
+                                                                  </Tr>
+                                                              </Thead>
+                                                              <Tbody>
+                                                                  {orderbookBuyRows}
+                                                              </Tbody>
+                                                          </Table>
+                                                  </PopoverBody>
+                                              </PopoverContent>
+                                          </Popover>
+                                      </Box>
+                                  </HStack>
                                   <Box fontSize="sm" pt={6}>
                                       <HStack spacing={8} fontSize={"sm"}>
                                           <VStack spacing={1.5} alignItems={"flex-start"}>
@@ -857,8 +915,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           </Text>
                                       </Flex>
 
-                                      <Box fontSize={"xs"} fontWeight={"bold"}
-                                           pb={10}>
+                                      <Box fontSize={"xs"} fontWeight={"bold"} pb={10}>
                                           <Flex>
                                               <Box>
                                                   <HStack pb={1}>
@@ -914,7 +971,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
                                           <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>}/>
                                       </NumberInput>
-
                                       {/*Limit order Price*/}
                                   <NumberInput id="limitPrice"
                                                value={format(price)}
@@ -954,7 +1010,73 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Price</FormLabel>}/>
                                       </NumberInput>
                                   </Box>
-
+                                  <HStack spacing={310}>
+                                      <Box></Box>
+                                      <Box>
+                                          <Popover placement="right" isLazy closeOnBlur={false} gutter={64}>
+                                              <PopoverTrigger>
+                                                  <Text color={orderBookTextColor} fontWeight={"extrabold"} fontSize={"xs"}
+                                                        cursor={"pointer"}>View order book</Text>
+                                              </PopoverTrigger>
+                                              <PopoverContent>
+                                                  <PopoverCloseButton/>
+                                                  <PopoverBody>
+                                                      <Box id={"orderbook"}>
+                                                          <Box
+                                                            color={orderBookTriggerColor}
+                                                            bgColor={orderBookTriggerBg}
+                                                            fontWeight="semibold"
+                                                            letterSpacing="wide"
+                                                            fontSize="xs"
+                                                            ml="2"
+                                                            borderRadius="md"
+                                                            px="2"
+                                                            py="1"
+                                                          >
+                                                              Sell Offers
+                                                          </Box>
+                                                          <Table variant={'unstyled'} size={'sm'}>
+                                                              <Thead>
+                                                                  <Tr>
+                                                                      <Th color="gray.400">Price</Th>
+                                                                      <Th color="gray.400">Contract</Th>
+                                                                  </Tr>
+                                                              </Thead>
+                                                              <Tbody>
+                                                                  {orderbookSellRows}
+                                                              </Tbody>
+                                                          </Table>
+                                                          <Divider/>
+                                                          <Box
+                                                            color={orderBookTriggerColor}
+                                                            bgColor={orderBookTriggerBg}
+                                                            fontWeight="semibold"
+                                                            letterSpacing="wide"
+                                                            fontSize="xs"
+                                                            ml="2"
+                                                            borderRadius="md"
+                                                            px="2"
+                                                            py="1"
+                                                          >
+                                                              Buy Offers
+                                                          </Box>
+                                                          <Table variant={'unstyled'} size={'sm'}>
+                                                              <Thead>
+                                                                  <Tr>
+                                                                      <Th color="gray.400">Price</Th>
+                                                                      <Th color="gray.400">Contract</Th>
+                                                                  </Tr>
+                                                              </Thead>
+                                                              <Tbody>
+                                                                  {orderbookBuyRows}
+                                                              </Tbody>
+                                                          </Table>
+                                                      </Box>
+                                                  </PopoverBody>
+                                              </PopoverContent>
+                                          </Popover>
+                                      </Box>
+                                  </HStack>
                                   <Box fontSize="sm" pt={6}>
                                       <HStack spacing={8} fontSize={"sm"}>
                                           <VStack spacing={1.5} alignItems={"flex-start"}>
