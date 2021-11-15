@@ -1020,7 +1020,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                               </PopoverTrigger>
                                               <PopoverContent>
                                                   <PopoverCloseButton/>
-                                                  <PopoverBody>
+                                                  <PopoverBody p={8}>
                                                       <Box id={"orderbook"}>
                                                           <Box
                                                             color={orderBookTriggerColor}
