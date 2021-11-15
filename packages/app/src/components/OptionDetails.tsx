@@ -15,6 +15,7 @@ import {
     AlertIcon,
     Box,
     Button,
+    Center,
     Divider,
     Flex,
     FormLabel, Heading,
@@ -33,6 +34,7 @@ import {
     PopoverContent, PopoverHeader,
     PopoverTrigger,
     SlideFade, Spacer,
+    Spinner,
     Stack, Tab,
     Table, TabList, TabPanel, TabPanels, Tabs,
     Tag,
@@ -79,6 +81,7 @@ import {
     formatTime,
     getBigWalletBalance,
     userOptionPosition,
+    floorGroupNumber,
 } from '../utils/ethMethods'
 import { BigNumber, ethers } from 'ethers'
 import {useWeb3React} from "@web3-react/core";
@@ -153,16 +156,16 @@ console.log('rendering');
     const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
     const orderBookColor = useColorModeValue("gray.600", "gray.200");
 
-    const {
+    const [callOrderDetails, {
         loading: orderDetailsLoading,
         error: orderDetailsError,
         data: orderDetailsData
-    } = useQuery(ORDER_DETAILS_QUERY, {
+    }] = useLazyQuery(ORDER_DETAILS_QUERY, {
         variables: {
             positionHash,
-            offerExpire: toEthDate(new Date()),
+            offerExpire: floorGroupNumber(toEthDate(new Date()),10),
         },
-        pollInterval: 5000  // Poll every five seconds
+        pollInterval: 10000  // Poll every ten seconds
     });
 
     function format(val: string) {
@@ -218,7 +221,7 @@ console.log('rendering');
 
     // Get balances
     useEffect(() => {
-        // console.log('useEffect - 3 - get balances');
+        console.log('useEffect - 3 - get balances');
         async function main() {
             if (!account) {
                 return;
@@ -245,6 +248,12 @@ console.log('rendering');
         main()
           .catch(console.error);
     },[active, account])
+
+    // initial query subgraph
+    useEffect(() => {
+        // console.log('useEffect - 4 - initial query subgraph');
+        callOrderDetails();
+    }, []);
 
    const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
@@ -633,22 +642,29 @@ console.log('rendering');
                 </SlideFade>
             </>
             }
-          <Tabs
-              variant="unstyled"
-              onChange={(index) => setRadioOrderType(index === 0 ? 'Market' : 'Limit')}
-          >
+          {
+              orderBook.initialized === false ?
+                //  Show spinner while query is still loading
+               <Center>
+                   <Spinner />
+               </Center> :
+                // Show normal tab display once loding is complete
+              <Tabs
+                variant="unstyled"
+                onChange={(index) => setRadioOrderType(index === 0 ? 'Market' : 'Limit')}
+              >
 
-              <TabList color={"gray.500"} p={2}>
-                  <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
-                       _selected={{ color: "sprout.500" }}>
-                      Instant Buy</Tab>
-                  <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
-                       _selected={{  color: "sprout.500" }}>
-                      Name your Price</Tab>
-              </TabList>
-              <TabPanels>
-                  <TabPanel>
-                      <Flex direction={{ base: "column", md: "row" }}>
+                  <TabList color={"gray.500"} p={2}>
+                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
+                           _selected={{ color: "sprout.500" }}>
+                          Instant Buy</Tab>
+                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
+                           _selected={{  color: "sprout.500" }}>
+                          Name your Price</Tab>
+                  </TabList>
+                  <TabPanels>
+                      <TabPanel>
+                          <Flex direction={{ base: "column", md: "row" }}>
                               <Stack spacing="24px" w={"full"}>
                                   <Box >
                                       <Flex pb={8}>
@@ -663,20 +679,20 @@ console.log('rendering');
                                       </Flex>
 
                                       <Box fontSize={"xs"} fontWeight={"bold"}
-                                      pb={10}>
+                                           pb={10}>
                                           <Flex>
-                                           <Box>
-                                      <HStack pb={1}>
-                                          <Text color="gray.500">Strike</Text>
-                                          <Text>${formattedStrike}</Text>
-                                      </HStack>
-                                      <HStack>
-                                          <Text color="gray.500">Expiry</Text>
-                                          <Text>{formattedExpiry}, {formatTime(expiry)}</Text>
-                                      </HStack>
-                                           </Box>
+                                              <Box>
+                                                  <HStack pb={1}>
+                                                      <Text color="gray.500">Strike</Text>
+                                                      <Text>${formattedStrike}</Text>
+                                                  </HStack>
+                                                  <HStack>
+                                                      <Text color="gray.500">Expiry</Text>
+                                                      <Text>{formattedExpiry}, {formatTime(expiry)}</Text>
+                                                  </HStack>
+                                              </Box>
                                               <Spacer/>
-                                               {/*can only fill if short and buying or long (own it) and selling*/}
+                                              {/*can only fill if short and buying or long (own it) and selling*/}
                                               {balances && !balances.optionPosition.eq(0) && <Box>
                                                   <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
                                                        p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
@@ -689,32 +705,32 @@ console.log('rendering');
                                                    placeholder="0.0"
                                                    value={newAmount}
                                                    min={0.0}
-                                                 max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
-                                                 precision={6}
-                                                 onChange={(valueString) => {
-                                                     const [integerPart, decimalPart] = valueString.split('.');
-                                                     if(valueString === '.') {
-                                                         setPrice('0.')
-                                                         return;
-                                                     }
-                                                     if (decimalPart && decimalPart.length > 6) {
-                                                         return;
-                                                     }
-                                                     if (integerPart && integerPart.length > 6) {
-                                                         return;
-                                                     }
-                                                     if (valueString === '00') {
-                                                         return;
-                                                     }
-                                                     if (isNaN(Number(valueString))) {
-                                                         return;
-                                                     }
-                                                     if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
-                                                         setNewAmount(Number(valueString).toFixed(6))
-                                                         return;
-                                                     }
-                                                     setNewAmount(valueString);
-                                                 }}
+                                                   max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
+                                                   // precision={6}
+                                                   onChange={(valueString) => {
+                                                       const [integerPart, decimalPart] = valueString.split('.');
+                                                       if(valueString === '.') {
+                                                           setPrice('0.')
+                                                           return;
+                                                       }
+                                                       if (decimalPart && decimalPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (integerPart && integerPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (valueString === '00') {
+                                                           return;
+                                                       }
+                                                       if (isNaN(Number(valueString))) {
+                                                           return;
+                                                       }
+                                                       if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
+                                                           setNewAmount(Number(valueString).toFixed(6))
+                                                           return;
+                                                       }
+                                                       setNewAmount(valueString);
+                                                   }}
 
                                       >
                                           <NumberInputField
@@ -723,14 +739,14 @@ console.log('rendering');
                                             shadow="sm"
                                             fontWeight="bold"
                                             fontSize="2xl"
-                                        />
+                                          />
 
                                           <InputRightElement
                                             pointerEvents="none"
                                             p={14}
                                             children={
                                                 <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity
-                                            </FormLabel>}
+                                                </FormLabel>}
                                           />
                                       </NumberInput>
                                       {insufficientFunds &&
@@ -747,49 +763,49 @@ console.log('rendering');
 
                                   <Box fontSize="sm" pt={6}>
                                       <HStack spacing={8} fontSize={"sm"}>
-                                      <VStack spacing={1.5} alignItems={"flex-start"}>
-                                          <Text>Price per contract</Text>
-                                          <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
-                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
-                                          {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
-                                          <Text>Available</Text>
-                                      </VStack>
-                                      <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
-                                          <Text>
-                                              ${formattedPricePerContract}
-                                          </Text>
-                                          <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
-                                              ${formattedTotPrice}
-                                          </Text>
-                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
-                                          <Text color="gray.500">
-                                              {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
-                                          </Text> }
-                                          {radioOption === 'SELL' && (optionType === 'CALL' ?
-                                            <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
-                                              {collateralRequirement.toFixed(4)} sMATIC
-                                          </Text> :
-                                            <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
-                                              ${collateralRequirement.toFixed(4)}
-                                          </Text>) }
-                                          {radioOption === 'SELL' && optionType === 'CALL'?
-                                            <Text color="gray.500">
-                                                {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
-                                          </Text> :
-                                          <Text color="gray.500">
-                                              ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
-                                          </Text>}
-                                      </VStack>
+                                          <VStack spacing={1.5} alignItems={"flex-start"}>
+                                              <Text>Price per contract</Text>
+                                              <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
+                                              {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
+                                              <Text>Available</Text>
+                                          </VStack>
+                                          <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
+                                              <Text>
+                                                  ${formattedPricePerContract}
+                                              </Text>
+                                              <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
+                                                  ${formattedTotPrice}
+                                              </Text>
+                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
+                                              <Text color="gray.500">
+                                                  {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
+                                              </Text> }
+                                              {radioOption === 'SELL' && (optionType === 'CALL' ?
+                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                    {collateralRequirement.toFixed(4)} sMATIC
+                                                </Text> :
+                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                    ${collateralRequirement.toFixed(4)}
+                                                </Text>) }
+                                              {radioOption === 'SELL' && optionType === 'CALL'?
+                                                <Text color="gray.500">
+                                                    {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
+                                                </Text> :
+                                                <Text color="gray.500">
+                                                    ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
+                                                </Text>}
+                                          </VStack>
                                       </HStack>
                                   </Box>
                                   <Box>
                                       <Flex justifyContent="flex-end">
                                           <Button
-                                              colorScheme={ctaColor}
-                                              type="submit"
-                                              onClick={onOpenConfirmDialog}
-                                              disabled={
-                                                  insufficientFunds ||
+                                            // colorScheme={ctaColor}
+                                            type="submit"
+                                            onClick={onOpenConfirmDialog}
+                                            disabled={
+                                                insufficientFunds ||
                                                   insufficientCollateral ||
                                                   insufficientDepth ||
                                                   Number(newAmount)<=0 ||
@@ -802,169 +818,169 @@ console.log('rendering');
                                       </Flex>
                                   </Box>
                               </Stack>
-                      </Flex>
-                  </TabPanel>
-                  <TabPanel>
-                      <Flex direction={{ base: "column", md: "row" }}>
-                          <Stack spacing="24px" w={"full"}>
-                              <Box >
-                                  <Flex pb={8}>
-                                      <Box fontSize={"md"} fontWeight="bold">
-                                          {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
-                                      </Box>
-                                      <Spacer/>
-                                      <Text  fontSize={"xs"} fontWeight={"bold"}
-                                             color={livePriceColor}>
-                                          sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
-                                      </Text>
-                                  </Flex>
-
-                                  <Box fontSize={"xs"} fontWeight={"bold"}
-                                       pb={10}>
-                                      <Flex>
-                                          <Box>
-                                              <HStack pb={1}>
-                                                  <Text color="gray.500">Strike</Text>
-                                                  <Text>${formattedStrike}</Text>
-                                              </HStack>
-                                              <HStack>
-                                                  <Text color="gray.500">Expiry</Text>
-                                                  <Text>{formattedExpiry}, {formatTime(expiry)}</Text>
-                                              </HStack>
+                          </Flex>
+                      </TabPanel>
+                      <TabPanel>
+                          <Flex direction={{ base: "column", md: "row" }}>
+                              <Stack spacing="24px" w={"full"}>
+                                  <Box >
+                                      <Flex pb={8}>
+                                          <Box fontSize={"md"} fontWeight="bold">
+                                              {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
                                           </Box>
                                           <Spacer/>
-                                          {/*can only fill if short and buying or long (own it) and selling*/}
-                                          {balances && !balances.optionPosition.eq(0) && <Box>
-                                              <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
-                                                   p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
-                                                  You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
-                                              </Box>
-                                          </Box>}
+                                          <Text  fontSize={"xs"} fontWeight={"bold"}
+                                                 color={livePriceColor}>
+                                              sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
+                                          </Text>
                                       </Flex>
-                                  </Box>
-                                  {/*Quantity*/}
-                                  <NumberInput id="amount"
-                                               value={newAmount}
-                                               min={0.0}
-                                               precision={6}
-                                               max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
-                                               onChange={(valueString) => {
-                                                   const [integerPart, decimalPart] = valueString.split('.');
-                                                   if(valueString === '.') {
-                                                       setPrice('0.')
-                                                       return;
-                                                   }
-                                                   if (decimalPart && decimalPart.length > 6) {
-                                                       return;
-                                                   }
-                                                   if (integerPart && integerPart.length > 6) {
-                                                       return;
-                                                   }
-                                                   if (valueString === '00') {
-                                                       return;
-                                                   }
-                                                   if (isNaN(Number(valueString))) {
-                                                       return;
-                                                   }
-                                                   if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
-                                                       setNewAmount(Number(valueString).toFixed(6))
-                                                       return;
-                                                   }
-                                                   setNewAmount(valueString);
-                                               }}
-                                  >
-                                      <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
-                                      <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>}/>
-                                  </NumberInput>
-                                  {insufficientFunds &&
-                                  <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>}
-                                  {insufficientCollateral &&
-                                  <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
-                                  {insufficientDepth &&
-                                  <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Not enough order book depth (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})</Text>}
+
+                                      <Box fontSize={"xs"} fontWeight={"bold"}
+                                           pb={10}>
+                                          <Flex>
+                                              <Box>
+                                                  <HStack pb={1}>
+                                                      <Text color="gray.500">Strike</Text>
+                                                      <Text>${formattedStrike}</Text>
+                                                  </HStack>
+                                                  <HStack>
+                                                      <Text color="gray.500">Expiry</Text>
+                                                      <Text>{formattedExpiry}, {formatTime(expiry)}</Text>
+                                                  </HStack>
+                                              </Box>
+                                              <Spacer/>
+                                              {/*can only fill if short and buying or long (own it) and selling*/}
+                                              {balances && !balances.optionPosition.eq(0) && <Box>
+                                                  <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
+                                                       p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
+                                                      You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
+                                                  </Box>
+                                              </Box>}
+                                          </Flex>
+                                      </Box>
+                                      {/*Quantity*/}
+                                      <NumberInput id="amount"
+                                                   value={newAmount}
+                                                   min={0.0}
+                                                   // precision={6}
+                                                   max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
+                                                   onChange={(valueString) => {
+                                                       const [integerPart, decimalPart] = valueString.split('.');
+                                                       if(valueString === '.') {
+                                                           setPrice('0.')
+                                                           return;
+                                                       }
+                                                       if (decimalPart && decimalPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (integerPart && integerPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (valueString === '00') {
+                                                           return;
+                                                       }
+                                                       if (isNaN(Number(valueString))) {
+                                                           return;
+                                                       }
+                                                       if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
+                                                           setNewAmount(Number(valueString).toFixed(6))
+                                                           return;
+                                                       }
+                                                       setNewAmount(valueString);
+                                                   }}
+                                      >
+                                          <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
+                                          <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>}/>
+                                      </NumberInput>
+                                      {insufficientFunds &&
+                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds</Text>}
+                                      {insufficientCollateral &&
+                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>}
+                                      {insufficientDepth &&
+                                      <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pt="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Not enough order book depth (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})</Text>}
 
                                   {/*Price per contract*/}
                                   <NumberInput id="limitPrice"
                                                value={format(price)}
                                                min={0.0}
                                                max={1e6}
-                                               precision={2}
-                                               step={0.01}
-                                               mt={4}
-                                               isInvalid={(Number(price)<=0 || price === '' || isNaN(Number(price)))}
-                                               onChange={(valueString) => {
-                                                   setTouched(true);
-                                                   const [integerPart, decimalPart] = valueString.split('.');
-                                                   if(valueString === '.') {
-                                                       setPrice('0.')
-                                                       return;
-                                                   }
-                                                   if (decimalPart && decimalPart.length > 6) {
-                                                       return;
-                                                   }
-                                                   if (integerPart && integerPart.length > 6) {
-                                                       return;
-                                                   }
-                                                   if (valueString === '00') {
-                                                       return;
-                                                   }
-                                                   const numberedValueString = Number(parse(valueString));
-                                                   if (isNaN(numberedValueString)) {
-                                                       return;
-                                                   }
-                                                   if (numberedValueString !== Math.round(numberedValueString * 1e6) / 1e6) {
-                                                       setPrice(numberedValueString.toFixed(6))
-                                                       return;
-                                                   }
-                                                   setPrice(parse(valueString));
-                                               }}
-                                  >
-                                      <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
-                                      <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Price</FormLabel>}/>
-                                  </NumberInput>
-                              </Box>
+                                               // precision={2}
+                                                   step={0.01}
+                                                   mt={4}
+                                                   isInvalid={(Number(price)<=0 || price === '' || isNaN(Number(price)))}
+                                                   onChange={(valueString) => {
+                                                       setTouched(true);
+                                                       const [integerPart, decimalPart] = valueString.split('.');
+                                                       if(valueString === '.') {
+                                                           setPrice('0.')
+                                                           return;
+                                                       }
+                                                       if (decimalPart && decimalPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (integerPart && integerPart.length > 6) {
+                                                           return;
+                                                       }
+                                                       if (valueString === '00') {
+                                                           return;
+                                                       }
+                                                       const numberedValueString = Number(parse(valueString));
+                                                       if (isNaN(numberedValueString)) {
+                                                           return;
+                                                       }
+                                                       if (numberedValueString !== Math.round(numberedValueString * 1e6) / 1e6) {
+                                                           setPrice(numberedValueString.toFixed(6))
+                                                           return;
+                                                       }
+                                                       setPrice(parse(valueString));
+                                                   }}
+                                      >
+                                          <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
+                                          <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Price</FormLabel>}/>
+                                      </NumberInput>
+                                  </Box>
 
-                              <Box fontSize="sm" pt={6}>
-                                  <HStack spacing={8} fontSize={"sm"}>
-                                      <VStack spacing={1.5} alignItems={"flex-start"}>
-                                          <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
-                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
-                                          {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
-                                          <Text>Available</Text>
-                                      </VStack>
-                                      <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
-                                          <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
-                                              ${formattedTotPrice}
-                                          </Text>
-                                          {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
-                                          <Text color="gray.500">
-                                              {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
-                                          </Text> }
-                                          {radioOption === 'SELL' && (optionType === 'CALL' ?
-                                            <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
-                                                {collateralRequirement.toFixed(4)} sMATIC
-                                            </Text> :
-                                            <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
-                                                ${collateralRequirement.toFixed(4)}
-                                            </Text>) }
-                                          {radioOption === 'SELL' && optionType === 'CALL'?
-                                            <Text color="gray.500">
-                                                {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
-                                            </Text> :
-                                            <Text color="gray.500">
-                                                ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
-                                            </Text>}
-                                      </VStack>
-                                  </HStack>
-                              </Box>
-                              <Box>
-                                  <Flex justifyContent="flex-end">
-                                      <Button
-                                        colorScheme={ctaColor}
-                                        type="submit"
-                                        onClick={onOpenConfirmDialog}
-                                        disabled={
-                                            insufficientFunds ||
+                                  <Box fontSize="sm" pt={6}>
+                                      <HStack spacing={8} fontSize={"sm"}>
+                                          <VStack spacing={1.5} alignItems={"flex-start"}>
+                                              <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
+                                              {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
+                                              <Text>Available</Text>
+                                          </VStack>
+                                          <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
+                                              <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
+                                                  ${formattedTotPrice}
+                                              </Text>
+                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
+                                              <Text color="gray.500">
+                                                  {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
+                                              </Text> }
+                                              {radioOption === 'SELL' && (optionType === 'CALL' ?
+                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                    {collateralRequirement.toFixed(4)} sMATIC
+                                                </Text> :
+                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                    ${collateralRequirement.toFixed(4)}
+                                                </Text>) }
+                                              {radioOption === 'SELL' && optionType === 'CALL'?
+                                                <Text color="gray.500">
+                                                    {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
+                                                </Text> :
+                                                <Text color="gray.500">
+                                                    ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
+                                                </Text>}
+                                          </VStack>
+                                      </HStack>
+                                  </Box>
+                                  <Box>
+                                      <Flex justifyContent="flex-end">
+                                          <Button
+                                            // colorScheme={ctaColor}
+                                            type="submit"
+                                            onClick={onOpenConfirmDialog}
+                                            disabled={
+                                                insufficientFunds ||
                                             insufficientCollateral ||
                                             insufficientDepth ||
                                             Number(newAmount)<=0 ||
@@ -980,7 +996,7 @@ console.log('rendering');
                       </Flex>
                   </TabPanel>
               </TabPanels>
-          </Tabs>
+          </Tabs>}
           {/*order confirmation modal*/}
           <AlertDialog
               motionPreset="slideInBottom"

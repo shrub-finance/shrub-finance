@@ -30,17 +30,19 @@ import {
 import {Link as ReachLink, RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {
-    cancelOrder,
-    formatDate, formatTime,
-    fromEthDate,
-    getAnnouncedEvent,
-    hashOrderCommon,
-    isBuyToOptionAction,
-    optionTypeToNumber,
-    optionTypeToString,
-    shortOptionName,
-    toEthDate,
-    transformOrderAppChain,
+  cancelOrder,
+  floorGroupNumber,
+  formatDate,
+  formatTime,
+  fromEthDate,
+  getAnnouncedEvent,
+  hashOrderCommon,
+  isBuyToOptionAction,
+  optionTypeToNumber,
+  optionTypeToString,
+  shortOptionName,
+  toEthDate,
+  transformOrderAppChain,
 } from '../utils/ethMethods'
 import {BytesLike, ethers} from "ethers";
 import {
@@ -57,7 +59,7 @@ import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import SummaryView from '../components/SummaryView'
 import {HelloBud, PolygonIcon} from "../assets/Icons";
 import { useLazyQuery, useQuery } from '@apollo/client'
-import { ORDER_HISTORY_QUERY, SUMMARY_VIEW_ALL_QUERY, SUMMARY_VIEW_QUERY } from '../constants/queries'
+import { ORDER_HISTORY_QUERY, SUMMARY_VIEW_ALL_QUERY } from '../constants/queries'
 import contractData from "../constants/common"
 import {MdHistoryToggleOff} from 'react-icons/md';
 import {isMobile} from "react-device-detect";
@@ -106,7 +108,7 @@ function OptionsView(props: RouteComponentProps) {
       optionTypes: ['CALL', 'PUT'],
       baseAsset: baseAsset && baseAsset.toLowerCase(),
       quoteAsset: quoteAsset && quoteAsset.toLowerCase(),
-      offerExpire: toEthDate(new Date())
+      offerExpire: floorGroupNumber(toEthDate(new Date()), 15)
     },
     pollInterval: 15000  // Poll every minute
   });
