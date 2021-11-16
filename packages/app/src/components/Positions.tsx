@@ -262,7 +262,8 @@ function Positions() {
             </Box>
             {amount >= 0 && <Box pt={4}>
               <Button
-                colorScheme={btnBg}
+                fontWeight={inTheMoney ? "semibold" : "normal"}
+                colorScheme={inTheMoney ? btnBg: 'gray'}
                 variant={"link"}
                 size="sm"
                 onClick={() => handleClickExercise(pair, common, amount)}
@@ -542,6 +543,7 @@ function Positions() {
         </Button>
         </Center>
       </Container>
+      {/*links*/}
       <Container mt={2} flex="1" borderRadius="2xl" maxW="container.sm">
         {!isMobile && <Flex>
           <Box>
@@ -563,8 +565,29 @@ function Positions() {
       </Container>
       {/*asset view*/}
       <Container mt={1}
-          borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")}>
-          {shrubfolioRows}
+                 borderRadius='2xl' maxW='container.sm' bg={useColorModeValue('white', 'dark.100')}
+                 shadow={useColorModeValue('2xl', '2xl')}>
+        <div key={'total'}>
+          <Flex
+            // bgColor={'gray.100'}
+            align='center'
+            justify='space-evenly'
+          >
+
+            <Box mt='1' fontSize={'md'} fontWeight='semibold' lineHeight='tight'
+              // pl={fluidPaddingAssetL}
+              // minW={fluidWidthAsset}
+              py={2}
+            >
+              {'Total Portfolio Value: $4132.22'}
+            </Box>
+
+          </Flex>
+          <Divider
+            // _last={{display: "none"}}
+          />
+        </div>
+        {shrubfolioRows}
       </Container>
       {/*options view*/}
       <Heading mt={10}><Center><Icon as={BiPaperPlane} mr={2}/>Option Positions</Center></Heading>
