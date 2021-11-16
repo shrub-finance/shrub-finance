@@ -43,7 +43,7 @@ import {
   PopoverBody,
   Popover,
   Spinner,
-  Badge,
+  Badge, Heading, Tag, TagLabel, Tooltip,
 } from '@chakra-ui/react'
 import {
   depositEth,
@@ -65,16 +65,18 @@ import {Currencies} from "../constants/currencies";
 import {useWeb3React} from "@web3-react/core";
 import {ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {HelloBud} from '../assets/Icons';
-import {BsBoxArrowLeft, BsBoxArrowRight, IoRocketSharp} from 'react-icons/all';
+import { BiPaperPlane, BsBoxArrowLeft, BsBoxArrowRight, FaFileContract, IoRocketSharp } from 'react-icons/all'
 import {Link as ReachLink} from "@reach/router";
 import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
-import {ArrowBackIcon, QuestionOutlineIcon} from '@chakra-ui/icons';
+import { ArrowBackIcon, ArrowForwardIcon, Icon, QuestionOutlineIcon } from '@chakra-ui/icons'
 import { useQuery } from '@apollo/client'
 import { SHRUBFOLIO_QUERY } from '../constants/queries';
 import {isMobile} from "react-device-detect";
+import usePriceFeed from '../hooks/usePriceFeed'
+import { CHAINLINK_MATIC } from '../constants/chainLinkPrices'
 
 const POLL_INTERVAL = 1000 // 1 second polling interval
 
@@ -88,6 +90,7 @@ function Positions() {
   const [isApproved, setIsApproved] = useState(false);
   const [walletTokenBalance, setWalletTokenBalance] = useState('');
   const [approving, setApproving] = useState(false);
+  const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
   const [polling, setPolling] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([<Tr key={"defaultOptionRow"}/>])
@@ -114,6 +117,8 @@ function Positions() {
   const btnBg = useColorModeValue("green", "teal");
 
   const connectWalletTimeout = useRef<NodeJS.Timeout>();
+
+  const livePriceColor = useColorModeValue("green.500", "green.200");
 
   const spinnerRow = <Tr>
       <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
@@ -222,6 +227,8 @@ function Positions() {
 
       const common = graphqlOptionToOrderCommon(option);
 
+      const inTheMoney = (optionType === 'CALL' && Number(maticPrice) > Number(strike)) ||
+        (optionType === 'PUT' && Number(maticPrice) < Number(strike))
 
 
       hasOptions.current = true;
@@ -230,6 +237,16 @@ function Positions() {
           <Td fontWeight={'bold'} fontSize={"xs"}>
             <Box>{pair}</Box>
             <Box>{pair2}</Box>
+            <Box>
+              <Tooltip label={inTheMoney ?
+                'in the money - owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
+                'out of the money - owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
+              }>
+                <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full'>
+                  <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
+                </Tag>
+              </Tooltip>
+            </Box>
           </Td>
           {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
           <Td>{amount}</Td>
@@ -534,11 +551,14 @@ function Positions() {
             </Button>
           </Box>
           <Spacer/>
-          {/*<Box>*/}
-          {/*  <Button rightIcon={<ArrowForwardIcon />} colorScheme="blue" variant="link" fontSize={"xs"}>*/}
-          {/*    My Orders*/}
-          {/*  </Button>*/}
-          {/*</Box>*/}
+          <Box>
+            <Text color={livePriceColor} fontSize={"xs"} fontWeight={"bold"}>
+              sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
+            </Text>
+            {/*<Button rightIcon={<ArrowForwardIcon />} colorScheme="blue" variant="link" fontSize={"xs"}>*/}
+            {/*  My Orders*/}
+            {/*</Button>*/}
+          </Box>
         </Flex>}
       </Container>
       {/*asset view*/}
@@ -547,12 +567,15 @@ function Positions() {
           {shrubfolioRows}
       </Container>
       {/*options view*/}
+      <Heading mt={10}><Center><Icon as={BiPaperPlane} mr={2}/>Option Positions</Center></Heading>
       <Container mt={50} p={hasOptions.current ? 0 : 0} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
         {
           !shrubfolioLoading && !shrubfolioError && account ?
 
           shrubfolioData && shrubfolioData.user && shrubfolioData.user.activeUserOptions && shrubfolioData.user.activeUserOptions[0] ?
-          (<Table variant="simple" size="lg">
+
+          (
+            <Table variant="simple" size="lg">
             <Thead>
               <Tr>
                 <Th color={"gray.400"}>Position</Th>
