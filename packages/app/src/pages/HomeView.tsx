@@ -1,5 +1,4 @@
 import {
-    Badge,
     Box,
     Heading,
     Text,
@@ -9,7 +8,6 @@ import {
     Container,
     Flex,
     Spacer,
-    Link,
     Circle,
     Stack,
     useDisclosure,
@@ -20,19 +18,14 @@ import {
     ModalBody,
     Modal,
     ListItem,
-    List,
-    ListIcon,
-    PopoverFooter,
     PopoverBody,
     PopoverCloseButton,
-    PopoverHeader, PopoverArrow, PopoverContent, PopoverTrigger, Popover, OrderedList, UnorderedList, useToast
+    PopoverArrow, PopoverContent, PopoverTrigger, Popover, UnorderedList, useToast
 } from '@chakra-ui/react';
-import {ArrowForwardIcon, CheckCircleIcon, CheckIcon, ExternalLinkIcon,} from '@chakra-ui/icons';
+import {ArrowForwardIcon, CheckIcon,} from '@chakra-ui/icons';
 import {Link as ReachLink, RouteComponentProps} from '@reach/router';
-import {HappyBud, PolygonIcon, ShrubLogo, TradeBud, UniIcon} from '../assets/Icons';
-import {FaEthereum} from 'react-icons/fa';
+import {PolygonIcon} from '../assets/Icons';
 import React, {useState} from "react";
-import {FiLink, GiMoneyStack, GrConnect, MdCheckCircle, VscDebugDisconnect} from "react-icons/all";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import useAddNetwork from "../hooks/useAddNetwork";
 import {isMobile} from "react-device-detect";
@@ -64,7 +57,7 @@ function HomeView(props: RouteComponentProps) {
             }
             return toast({
                 title: "No wallet detected",
-                description: "Make sure your wallet is connected. Click 'Connect Wallet'.",
+                description: "Make sure your wallet is connected. Use 'Connect Wallet'.",
                 status: "warning",
                 position: "top",
                 duration: 3000,
