@@ -516,19 +516,6 @@ function Positions() {
           </SlideFade>
         </>
         }
-        <Modal motionPreset="slideInBottom" isOpen={isOpenConnectWalletModal}
-               onClose={onCloseConnectWalletModal}>
-          <ModalOverlay/>
-          <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="15">
-            <ModalHeader>
-              <Text fontSize={20}>Connect to a wallet</Text>
-            </ModalHeader>
-            <ModalCloseButton/>
-            <ModalBody>
-              <ConnectWalletModal/>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
       </Container>
       {/*withdraw deposit buttons*/}
       <Container mt={50} flex="1" borderRadius="2xl" maxW="container.md">

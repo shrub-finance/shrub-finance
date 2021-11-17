@@ -15,12 +15,7 @@ import {
     Flex,
     FormLabel,
     HStack,
-    Input, InputLeftElement, InputRightElement,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalHeader,
+    InputRightElement,
     NumberInput,
     NumberInputField,
     Popover,
@@ -31,31 +26,18 @@ import {
     Spinner,
     Stack, Tab,
     Table, TabList, TabPanel, TabPanels, Tabs,
-    Tag,
-    TagLabel,
     Tbody,
     Td,
     Text,
     Th,
     Thead,
-    Tooltip,
     Tr,
     useColorModeValue,
     useDisclosure,
     useRadioGroup,
     useToast, VStack,
-} from '@chakra-ui/react'
-import {Icon, QuestionIcon, QuestionOutlineIcon, WarningTwoIcon} from '@chakra-ui/icons';
-import {
-    BiQuestionMark,
-    FiShoppingCart,
-    GiMoneyStack,
-    MdArrowDownward,
-    MdArrowUpward,
-    MdDateRange,
-    RiHandCoinLine, RiQuestionMark
-} from "react-icons/all";
-import RadioCard from "./Radio";
+} from '@chakra-ui/react';
+import {WarningTwoIcon} from '@chakra-ui/icons';
 import {
     getAddressFromSignedOrder,
     getUserNonce,
@@ -76,10 +58,10 @@ import {
     getBigWalletBalance,
     userOptionPosition,
     floorGroupNumber,
-} from '../utils/ethMethods'
-import { BigNumber, ethers } from 'ethers'
+} from '../utils/ethMethods';
+import { BigNumber, ethers } from 'ethers';
 import {useWeb3React} from "@web3-react/core";
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
     AppCommon, AppOrderSigned,
     IOrder, OptionData,
@@ -88,12 +70,11 @@ import {
     OrderType,
     SellBuy,
     UnsignedOrder,
-} from '../types'
+} from '../types';
 import {TxContext} from "./Store";
 import {ToastDescription} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import {getErrorMessage} from './ConnectWallet';
-import {isMobile} from "react-device-detect";
 import { useLazyQuery, useQuery } from '@apollo/client'
 import { OPTION_POSITION_QUERY, ORDER_DETAILS_QUERY } from '../constants/queries'
 import usePriceFeed from "../hooks/usePriceFeed";
@@ -121,7 +102,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
 
     const { approving, setApproving, setActiveHash } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
-    const alertColor = useColorModeValue("gray.100", "dark.300");
     const livePriceColor = useColorModeValue("green.500", "green.200");
     const ctaColor = useColorModeValue("sprout", "teal");
     const orderBookTriggerColor = useColorModeValue("gray.500", "black");
@@ -574,8 +554,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
         onCloseConfirmDialog();
 
     }
-    // TODO: get the symbols dynamically
-    const tooltipLabel = `You are about to ${radioOption === 'BUY' ? 'buy' : 'sell'} options that give ${radioOption === 'BUY' ? 'you' : 'someone'} the right to ${optionType === 'CALL' ? 'buy' : 'sell'} ${newAmount} sMATIC for ${formattedStrike} sUSD/sMATIC ${radioOption === 'SELL' ? `${optionType === 'CALL' ? 'from' : 'to'} you` : ''} until ${formattedExpiry}`;
 
     const orderbookSellRows: JSX.Element[] = [];
     const orderbookBuyRows: JSX.Element[] = [];
@@ -874,14 +852,14 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                             onClick={onOpenConfirmDialog}
                                             disabled={
                                                 insufficientFunds ||
-                                                  insufficientCollateral ||
-                                                  insufficientDepth ||
-                                                  noOrders ||
-                                                  Number(newAmount)<=0 ||
-                                                  isNaN(Number(newAmount)) ||
-                                                  (radioOrderType === 'Market' && (
-                                                      Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
-                                                  ))}>
+                                                insufficientCollateral ||
+                                                insufficientDepth ||
+                                                noOrders ||
+                                                Number(newAmount)<=0 ||
+                                                isNaN(Number(newAmount)) ||
+                                                (radioOrderType === 'Market' && (
+                                                    Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
+                                                ))}>
                                               Review Order
                                           </Button>
                                       </Flex>

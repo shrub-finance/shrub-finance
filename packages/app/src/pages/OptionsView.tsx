@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useReducer, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
     Box,
     Button,
@@ -17,7 +17,7 @@ import {
     useColorModeValue,
     useRadioGroup,
     useToast,
-    Link, MenuButton, Menu, MenuList, MenuItem, Divider
+    Link, MenuButton, Menu, MenuList, MenuItem
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 import {
@@ -52,13 +52,13 @@ import {
     Icon,
 } from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
-import {currencyIcon, currencySymbol, ExplorerDataType, explorerLink} from "../utils/chainMethods";
+import {currencyIcon, ExplorerDataType, explorerLink} from "../utils/chainMethods";
 import {ToastDescription} from "../components/TxMonitoring";
 import {TxContext} from "../components/Store";
 import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
 import SummaryView from '../components/SummaryView'
-import {HelloBud, PolygonIcon} from "../assets/Icons";
-import { useLazyQuery, useQuery } from '@apollo/client'
+import {HelloBud} from "../assets/Icons";
+import { useLazyQuery } from '@apollo/client'
 import { ORDER_HISTORY_QUERY, SUMMARY_VIEW_ALL_QUERY } from '../constants/queries'
 import contractData from "../constants/common"
 import {MdHistoryToggleOff} from 'react-icons/md';
@@ -90,7 +90,6 @@ function OptionsView(props: RouteComponentProps) {
   const [userOrderRows, setUserOrderRows] = useState<JSX.Element[]>([]);
 
   const livePriceColor = useColorModeValue("green.500", "green.200");
-  const selectorColor = useColorModeValue("gray.400", "gray.800");
   const selectorBg = useColorModeValue("white", "dark.100");
 
   // TODO un-hardcode this
