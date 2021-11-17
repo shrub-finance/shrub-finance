@@ -122,7 +122,7 @@ function OptionsView(props: RouteComponentProps) {
         }
     });
 
-    const bg = useColorModeValue("green", "teal");
+    const bg = useColorModeValue("sprout", "teal");
 
     const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
