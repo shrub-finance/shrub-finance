@@ -209,7 +209,7 @@ export function Account() {
 export function ConnectionStatus({displayStatus}) {
 
     const shadow = useColorModeValue("base", "dark-lg");
-    const bg = useColorModeValue("green", "teal");
+    const bg = useColorModeValue("sprout", "teal");
     const {active, error, account, chainId} = useWeb3React();
     const {connector} = useConnectWallet();
     const connectedName = Object.keys(connectorsByName).find((connectorName) => {
@@ -273,16 +273,19 @@ export function ConnectionStatus({displayStatus}) {
 export function ConnectWalletModal() {
 
     const {activate, error, activatingConnector, connector, triedEager, setActivatingConnector} = useConnectWallet();
-    const addNetwork = useAddNetwork();
+
+    const checkIconColor = useColorModeValue("sprout.500", "teal.400");
     const shadow = useColorModeValue("base", "dark-lg");
     const gradient = useColorModeValue(
-        "linear(to-r, blue.100, teal.200)",
+        "linear(to-r, sprout.200, teal.200)",
         "linear(to-l, blue.700, teal.700)"
     );
+
+    const addNetwork = useAddNetwork();
     const wrongNetwork = !!error && getErrorMessage(error).title === "Wrong Network";
     const noMetaMask = !!error && getErrorMessage(error).title === "Install MetaMask";
 
-    const bg = useColorModeValue("green", "teal");
+    const bg = useColorModeValue("sprout", "teal");
     
     return (
         <Box>
@@ -351,7 +354,7 @@ export function ConnectWalletModal() {
                                                     <Spinner mr={2} thickness="1px" speed="0.65s" emptyColor="blue.200"
                                                              color="teal.500" size="xs" label="loading"/>)}
                                                 {connected && !error && (
-                                                    <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>)}
+                                                    <CheckCircleIcon color={checkIconColor} mr={2} boxSize={3}/>)}
                                                 {connected && error && (
                                                     <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>)}
                                                 {connectorName}
@@ -385,22 +388,20 @@ export function ConnectWalletModal() {
                                                     />
                                                 )}
                                                 {connected && !error && (
-                                                    <CheckCircleIcon color="teal.400" mr={2} boxSize={3}/>
+                                                    <CheckCircleIcon color={checkIconColor} mr={2} boxSize={3}/>
                                                 )}
 
                                                 {connected && error && (
                                                     <InfoOutlineIcon color="red.400" mr={2} boxSize={3}/>
                                                 )}
-                                                <Link href="https://metamask.io/download" isExternal>
-                                                {connected && error && noMetaMask && (
-                                                    <Box as={"span"}> Install </Box>
-                                                )}
-                                                    {connectorName}
 
-                                                {connected && error && noMetaMask && (
-                                                    <Box as={"span"}> <ExternalLinkIcon mx="2px" /> </Box>
-                                                )}
-                                                </Link>
+                                                {(connected && error && noMetaMask) ? (
+                                                  <Link href="https://metamask.io/download" isExternal>
+                                                  Install MetaMask<ExternalLinkIcon mx="2px" /></Link>
+                                                ) : null}
+
+                                                {(connected && error && noMetaMask && connectorName==="MetaMask") ? null : connectorName}
+
                                             </Box>
                                             <Spacer/>
                                             <Box p={4}>
