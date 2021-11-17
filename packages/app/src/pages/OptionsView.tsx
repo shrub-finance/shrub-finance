@@ -1,23 +1,23 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {
-    Box,
-    Button,
-    Center,
-    Container,
-    Flex, Heading,
-    HStack,
-    Text,
-    Spacer,
-    Table, Tag, TagLabel,
-    Tbody,
-    Td,
-    Th,
-    Thead,
-    Tr,
-    useColorModeValue,
-    useRadioGroup,
-    useToast,
-    Link, MenuButton, Menu, MenuList, MenuItem
+  Box,
+  Button,
+  Center,
+  Container,
+  Flex, Heading,
+  HStack,
+  Text,
+  Spacer,
+  Table, Tag, TagLabel,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  useColorModeValue,
+  useRadioGroup,
+  useToast,
+  Link, MenuButton, Menu, MenuList, MenuItem, Spinner
 } from '@chakra-ui/react';
 import OptionRow from "../components/OptionRow";
 import {
@@ -515,6 +515,9 @@ function OptionsView(props: RouteComponentProps) {
         return appOrderSigned;
     }
 
+    const loadingBgColor = useColorModeValue("white", "dark.100");
+    const spinnerColor = useColorModeValue("sprout.500", "teal.300")
+
   return (
       <>
         <SummaryView />
@@ -589,7 +592,7 @@ function OptionsView(props: RouteComponentProps) {
                         </Center>
                         <Center pt={6}>
                             <Box as="span" fontWeight="semibold" fontSize="md" color="gray.500">
-                                No options available yet, but you should check back again!
+                                No options available yet, check back again.
                             </Box>
                         </Center>
                     </Flex>
@@ -612,8 +615,6 @@ function OptionsView(props: RouteComponentProps) {
                       })}
                   </HStack>
                   </Box>
-
-                  <Spacer/>
                   <Spacer/>
                   <Box>
                       {!isMobile &&  <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option Type</Text>}
@@ -630,7 +631,31 @@ function OptionsView(props: RouteComponentProps) {
                   </Box>
               </Flex>
           </Container>
-          {optionRows}
+        { summaryAllLoading ?
+          <Container
+            mt={1}
+            px={5}
+            py={3}
+            flex="1"
+            borderRadius="2xl"
+            bg={loadingBgColor}
+          >
+            <Center pt={10} pb={4}>
+              <Spinner thickness="2px"
+                       speed="0.65s"
+                       emptyColor="gray.200"
+                       color={spinnerColor}
+                       size="xl"/>
+            </Center>
+            <Center>
+              <Box as="span" fontWeight="semibold" fontSize="md" color="gray.500" pb={10}>
+                Loading options...
+              </Box>
+            </Center>
+          </Container>
+         :
+          optionRows
+        }
             {
                 <>
                     <Heading mt={14}>
