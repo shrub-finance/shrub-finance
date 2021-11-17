@@ -216,6 +216,9 @@ function Positions() {
       const { balance, option, buyOrders, sellOrders} = userOption
       const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice, id: optionId } = option;
       const isExpired = expiryRaw < toEthDate(now);
+      if (isExpired) {
+        continue;
+      }
 
       const { symbol: baseAssetSymbol } = baseAsset;
       const { symbol: quoteAssetSymbol } = quoteAsset;
