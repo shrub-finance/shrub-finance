@@ -177,7 +177,7 @@ function OptionsView(props: RouteComponentProps) {
       }
       if (['limitOrder', 'marketOrder'].includes(txState.data.txType)) {
         const { id, blockNumber, orderToName, positionHash, userAccount, status, pricePerContract } = data
-        if (blockNumber <= queryBlock) {
+        if (blockNumber && blockNumber <= queryBlock) {
           // Don't add this to localOrderHistoryRows if it is already in the order history query from subgraph
           continue;
         }
