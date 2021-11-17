@@ -105,6 +105,11 @@ export const TOKEN_DATA_QUERY = gql`
 
 export const ORDER_HISTORY_QUERY = gql`
     query OrderHistory($id: ID){
+        _meta {
+            block {
+                number
+            }
+        }
         user(id:$id){
             id
             userOptions(orderBy:nonce,orderDirection:desc){

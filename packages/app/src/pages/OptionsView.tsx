@@ -166,18 +166,26 @@ function OptionsView(props: RouteComponentProps) {
     // console.log(JSON.stringify(pendingTxsState));
     // console.log(pendingTxsState)
     const tempOrderHistoryRows = []
-    for (const [txid, txState] of Object.entries(pendingTxsState).reverse()) {
-      const { data } = txState;
-      if (!data) {
-        continue;
-      }
-      if (['limitOrder','marketOrder'].includes(txState.data.txType)) {
-        const {id, blockNumber, orderToName, positionHash, userAccount, status, pricePerContract} = data;
-                tempOrderHistoryRows.push(returnOrderHistoryRow(id, blockNumber, orderToName, positionHash, userAccount, status, pricePerContract))
-            }
+    if (!orderHistoryData) {
+      return
     }
-    setLocalOrderHistoryRows(tempOrderHistoryRows);
-  }, [pendingTxsState])
+    const queryBlock = orderHistoryData && orderHistoryData._meta && orderHistoryData._meta.block && orderHistoryData._meta.block.number
+    for (const [txid, txState] of Object.entries(pendingTxsState).reverse()) {
+      const { data } = txState
+      if (!data) {
+        continue
+      }
+      if (['limitOrder', 'marketOrder'].includes(txState.data.txType)) {
+        const { id, blockNumber, orderToName, positionHash, userAccount, status, pricePerContract } = data
+        if (blockNumber <= queryBlock) {
+          // Don't add this to localOrderHistoryRows if it is already in the order history query from subgraph
+          continue;
+        }
+        tempOrderHistoryRows.push(returnOrderHistoryRow(id, blockNumber, orderToName, positionHash, userAccount, status, pricePerContract))
+      }
+    }
+    setLocalOrderHistoryRows(tempOrderHistoryRows)
+  }, [pendingTxsState, orderHistoryData])
 
   // Updates OptionRows On summary graph query complete or strikePrices being set
     useEffect(() => {
