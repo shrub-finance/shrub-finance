@@ -93,7 +93,8 @@ function Positions() {
   const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
   const [polling, setPolling] = useState(false);
   const [activeHash, setActiveHash] = useState<string>();
-  const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([<Tr key={"defaultOptionRow"}/>])
+  const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([<Tr key={"defaultOptionRow"}/>]);
+  const [expiredOptionsRows, setExpiredOptionsRows] = useState<JSX.Element[]>([<Tr key={"defaultExpiredOptionRow"}/>]);
   const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SMATIC: 0, SUSD: 0}, available: {MATIC: 0, SMATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
@@ -114,14 +115,13 @@ function Positions() {
   const currenciesRadiogroup = getRootProps();
   const [showDepositButton, setShowDepositButton] = useState(false);
   const SHRUB_CURRENCIES = ['SMATIC', 'SUSD'];
-  const btnBg = useColorModeValue("green", "teal");
+  const btnBg = useColorModeValue("sprout", "teal");
 
   const connectWalletTimeout = useRef<NodeJS.Timeout>();
 
   const livePriceColor = useColorModeValue("green.500", "green.200");
 
   const spinnerRow = <Tr>
-      <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
       <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
       <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
       <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
@@ -196,6 +196,7 @@ function Positions() {
   useEffect(() => {
     const now = new Date();
     const optionRow:JSX.Element[] = [];
+    const expiredOptionRow:JSX.Element[] = [];
     if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
       return
     }
@@ -214,9 +215,8 @@ function Positions() {
       const orderStack = getOrderStack(userOption);
       const { balance, option, buyOrders, sellOrders} = userOption
       const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice, id: optionId } = option;
-      if (expiryRaw < toEthDate(now)) {
-        continue;
-      }
+      const isExpired = expiryRaw < toEthDate(now);
+
       const { symbol: baseAssetSymbol } = baseAsset;
       const { symbol: quoteAssetSymbol } = quoteAsset;
 
@@ -232,59 +232,95 @@ function Positions() {
 
 
       hasOptions.current = true;
-      optionRow.push(
-        <Tr key={optionId}>
-          <Td fontWeight={'bold'} fontSize={"xs"}>
-            <Box>{pair}</Box>
-            <Box>{pair2}</Box>
-            <Box>
-              <Tooltip label={inTheMoney ?
-                'in the money - owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
-                'out of the money - owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
-              }>
-                <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full'>
-                  <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
-                </Tag>
-              </Tooltip>
-            </Box>
-          </Td>
-          {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
-          <Td>{amount}</Td>
-          <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
-          <Td>
-            <Box>
-              <StatHelpText>
-                {
-                  !!orderStack.totalUnrealizedGain && <StatArrow type={orderStack.totalUnrealizedGain > 0 ? "increase" : "decrease"} />
-                }
-                {orderStack.totalUnrealizedGain.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}
-              </StatHelpText>
-            </Box>
-            {amount >= 0 && <Box pt={4}>
-              <Button
-                colorScheme={btnBg}
-                variant={"link"}
-                size="sm"
-                onClick={() => handleClickExercise(pair, common, amount)}
-              >
-                Exercise
-              {/*  Old Exercised logic */}
-              {/*</Button>Number(amount) === 0 ? <Button*/}
-              {/*  variant={"ghost"}*/}
-              {/*  isDisabled={true}*/}
-              {/*  colorScheme={btnBg}*/}
-              {/*  size="xs"*/}
-              {/*>*/}
-              {/*  Exercised*/}
-              {/*</Button>*/}
-              </Button>
-            </Box>
-            }
-          </Td>
-        </Tr>
-      )
+      if(!isExpired) {
+        optionRow.push(
+          <Tr key={optionId}>
+            <Td fontWeight={'bold'} fontSize={"xs"}>
+              <Box>{pair}</Box>
+              <Box>{pair2}</Box>
+              <Box>
+                <Tooltip label={inTheMoney ?
+                  'in the money - owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
+                  'out of the money - owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
+                }>
+                  <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full'>
+                    <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
+                  </Tag>
+                </Tooltip>
+              </Box>
+            </Td>
+            {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
+            <Td>{amount}</Td>
+            <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
+            <Td>
+              <Box>
+                <StatHelpText>
+                  {
+                    !!orderStack.totalUnrealizedGain && <StatArrow type={orderStack.totalUnrealizedGain > 0 ? "increase" : "decrease"} />
+                  }
+                  {orderStack.totalUnrealizedGain.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}
+                </StatHelpText>
+              </Box>
+              {amount >= 0 && <Box pt={4}>
+                  <Button
+                      colorScheme={btnBg}
+                      variant={"link"}
+                      size="sm"
+                      onClick={() => handleClickExercise(pair, common, amount)}
+                  >
+                      Exercise
+                    {/*  Old Exercised logic */}
+                    {/*</Button>Number(amount) === 0 ? <Button*/}
+                    {/*  variant={"ghost"}*/}
+                    {/*  isDisabled={true}*/}
+                    {/*  colorScheme={btnBg}*/}
+                    {/*  size="xs"*/}
+                    {/*>*/}
+                    {/*  Exercised*/}
+                    {/*</Button>*/}
+                  </Button>
+              </Box>
+              }
+            </Td>
+          </Tr>
+        )
+      } else {
+        expiredOptionRow.push(
+          <Tr key={optionId}>
+            <Td fontWeight={'bold'} fontSize={"xs"}>
+              <Box>{pair}</Box>
+              <Box>{pair2}</Box>
+              <Box>
+                <Tooltip label={inTheMoney ?
+                  'in the money - owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
+                  'out of the money - owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
+                }>
+                  <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full'>
+                    <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
+                  </Tag>
+                </Tooltip>
+              </Box>
+            </Td>
+            {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
+            <Td>{amount}</Td>
+            <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
+            <Td>
+              <Box>
+                <StatHelpText>
+                  {
+                    !!orderStack.totalUnrealizedGain && <StatArrow type={orderStack.totalUnrealizedGain > 0 ? "increase" : "decrease"} />
+                  }
+                  {orderStack.totalUnrealizedGain.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}
+                </StatHelpText>
+              </Box>
+            </Td>
+          </Tr>
+        )
+      }
+
     }
     setOptionsRows(optionRow);
+    setExpiredOptionsRows(expiredOptionRow);
   }, [shrubfolioData])
 
   // determine if approved
@@ -499,6 +535,8 @@ function Positions() {
       setAmountValue(String(shrubBalance.available[modalCurrency]));
     }
   }
+  const expiredRowTableBg = useColorModeValue("red.50", "#020000");
+  const optionRowTableBg =  useColorModeValue(expiredOptionsRows.length ? "green.50" : undefined, expiredOptionsRows.length ? "#000809" : undefined);
   return (
     <>
       {/*web3 errors*/}
@@ -520,11 +558,11 @@ function Positions() {
       {/*withdraw deposit buttons*/}
       <Container mt={50} flex="1" borderRadius="2xl" maxW="container.md">
         <Center>
-        <Button colorScheme={useColorModeValue("green", "teal")} variant="outline" borderRadius="full"
+        <Button colorScheme={useColorModeValue("sprout", "teal")} variant="outline" borderRadius="full"
             rightIcon={<BsBoxArrowLeft/>} onClick={handleWithdrawDepositModalOpen( 'Deposit')} isDisabled={!active} mr={4}>
           Deposit
         </Button>
-        <Button colorScheme={useColorModeValue("green", "teal")} variant="outline" borderRadius="full" rightIcon={<BsBoxArrowRight/>} onClick={handleWithdrawDepositModalOpen( 'Withdraw')} isDisabled={!active}>
+        <Button colorScheme={useColorModeValue("sprout", "teal")} variant="outline" borderRadius="full" rightIcon={<BsBoxArrowRight/>} onClick={handleWithdrawDepositModalOpen( 'Withdraw')} isDisabled={!active}>
           Withdraw
         </Button>
         </Center>
@@ -557,12 +595,13 @@ function Positions() {
       <Heading mt={10}><Center><Icon as={BiPaperPlane} mr={2}/>Option Positions</Center></Heading>
       <Container mt={50} p={hasOptions.current ? 0 : 0} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
         {
-          !shrubfolioLoading && !shrubfolioError && account ?
+          (!shrubfolioLoading && !shrubfolioError && account) ?
 
-          shrubfolioData && shrubfolioData.user && shrubfolioData.user.activeUserOptions && shrubfolioData.user.activeUserOptions[0] ?
+            (shrubfolioData && shrubfolioData.user && shrubfolioData.user.activeUserOptions && shrubfolioData.user.activeUserOptions[0]) ?
 
           (
-            <Table variant="simple" size="lg">
+            <>
+              { optionsRows.length ? <Table variant="simple" size="lg"  borderTopRadius={expiredOptionsRows.length && "2xl"} >
             <Thead>
               <Tr>
                 <Th color={"gray.400"}>Position</Th>
@@ -572,12 +611,33 @@ function Positions() {
                 <Th color={"gray.400"}>Gain/Loss</Th>
               </Tr>
             </Thead>
-            <Tbody>
+            <Tbody bg={optionRowTableBg}>
               {polling ? spinnerRow : <></>}
               {optionsRows}
             </Tbody>
-          </Table>) : (
-            <Flex direction="column">
+          </Table>
+                : null
+              }
+
+              {expiredOptionsRows.length ? <Table variant="simple" size="lg" borderBottomRadius="2xl"
+                                                  borderTopRadius={!optionsRows.length ? "2xl" : "none"}>
+                { !optionsRows.length && <Thead>
+                  <Tr>
+                    <Th color={"gray.400"}>Position</Th>
+                    {/*<Th color={"gray.400"}>Balance</Th>*/}
+                    <Th color={"gray.400"}>Qty</Th>
+                    <Th color={"gray.400"}>Price</Th>
+                    <Th color={"gray.400"}>Gain/Loss</Th>
+                  </Tr>
+                </Thead>}
+                <Tbody bg={expiredRowTableBg} >
+                  {expiredOptionsRows}
+                </Tbody>
+              </Table> : null
+              }
+            </>
+          ) : (
+            <Flex direction="column" p={10}>
               <Center>
                 <HelloBud boxSize={200}/>
               </Center>
