@@ -45,7 +45,7 @@ function Faucet() {
   const radioOptions = ['BUY', 'SELL']
   const currencyArray = ['SUSD', 'SMATIC'];
 
-  const bg = useColorModeValue("green", "teal");
+  const bg = useColorModeValue("sprout", "teal");
 
   const format = (val: string) => val;
   const parse = (val: string) => val.replace(/^\$/, "");

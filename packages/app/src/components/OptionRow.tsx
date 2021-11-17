@@ -44,7 +44,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
   const {chainId} = useWeb3React();
   const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
 
-  const bg = useColorModeValue("green", "teal");
+  const bg = useColorModeValue("sprout", "teal");
   const livePriceColor = useColorModeValue("green.500", "green.200")
   const optionRowTextColor = useColorModeValue("gray.600", "gray.200")
 
@@ -67,7 +67,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
             transform: 'translateY(-2px)',
             boxShadow: 'lg',
             bgGradient: useColorModeValue(
-            "linear(to-r, #b8ddad, teal.200)",
+            "linear(to-r, sprout.200, teal.200)",
             "linear(to-l, blue.700, teal.700)"
             )
           }}

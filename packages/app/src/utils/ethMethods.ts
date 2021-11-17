@@ -258,7 +258,7 @@ export async function approveToken(
   const allowance = await getAllowance(tokenContractAddress, provider);
   const {bigBalance: ethBalance} = await getBigWalletBalance(ethers.constants.AddressZero, provider);
   if(ethBalance.eq(ethers.constants.Zero)) {
-    throw new Error("Looks like you don't have any MATIC in this account. You need that to pay for gas.");
+    throw new Error("No test MATIC found. Get some from Polygon faucet.");
   }
 
   if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {

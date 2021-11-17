@@ -50,7 +50,7 @@ function HomeView(props: RouteComponentProps) {
     const stepsBg = useColorModeValue("yellow.300","gray.500");
     const connectedStepBg = useColorModeValue("white","dark.100");
 
-    async function handleConnect() {
+    function handleConnect() {
         if (!account) {
             if(!!error && getErrorMessage(error).title === "Wrong Network") {
                 return addNetwork();
@@ -142,7 +142,7 @@ function HomeView(props: RouteComponentProps) {
                                         onClick={handleConnect}
                                         w={'full'}
                                         mt={8}
-                                        colorScheme={useColorModeValue("green", "teal")}
+                                        colorScheme={useColorModeValue("sprout", "teal")}
                                         rounded={'full'}
                                         _hover={{
                                             transform: 'translateY(-2px)',
@@ -202,7 +202,7 @@ function HomeView(props: RouteComponentProps) {
                                         onClick={onTestTokenModalOpen}
                                         w={'full'}
                                         mt={8}
-                                        colorScheme={useColorModeValue("green", "teal")}
+                                        colorScheme={useColorModeValue("sprout", "teal")}
                                         rounded={'full'}
                                         _hover={{
                                             transform: 'translateY(-2px)',
@@ -250,7 +250,7 @@ function HomeView(props: RouteComponentProps) {
                                         as={ReachLink} to={'/shrubfolio'}
                                         w={'full'}
                                         mt={8}
-                                        colorScheme={useColorModeValue("green", "teal")}
+                                        colorScheme={useColorModeValue("sprout", "teal")}
                                         rounded={'full'}
                                         _hover={{
                                             transform: 'translateY(-2px)',
@@ -280,7 +280,7 @@ function HomeView(props: RouteComponentProps) {
                             px="50"
                             fontSize="25px"
                             py={10}
-                            colorScheme={useColorModeValue("green", "teal")}
+                            colorScheme={useColorModeValue("sprout", "teal")}
                             variant="solid"
                             borderRadius="full"
                             _hover={{transform: 'translateY(-2px)'}}

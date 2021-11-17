@@ -52,7 +52,7 @@ function TopNav() {
   const topNavShadow = useColorModeValue("md", "md");
   const topNavBgColor = useColorModeValue("white", "dark.100");
 
-  const bg = useColorModeValue("green", "teal")
+  const bg = useColorModeValue("sprout", "teal")
 function handleModalClose() {
     onClose();
     displayStatus(false);
@@ -78,15 +78,6 @@ function handleModalClose() {
               <ShrubLogo boxSize={10}/>
             </Link>
             <HStack as={"nav"} spacing={4} display={{ base: "none", md: "flex" }}>
-              <Link as={ReachLink} to={'/'} display={{ base: "none", md: "flex" }}
-                    variant="ghost"
-                    cursor="pointer"
-                    px={2}
-                    py={{ base: "3", md: "1", lg: "1" }} rounded={"lg"}
-                    _hover={{textDecoration: "none", bgGradient: gradient}}
-              >
-                Home
-              </Link>
               {NavRoutes.map((route) => (
                   <NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
                    {route.item}
@@ -110,7 +101,7 @@ function handleModalClose() {
                  mr={isMobile ? '19.5': '0'}
             >
               {/*connect wallet button*/}
-              <Button variant={"ghost"} colorScheme={!!web3Error ? "red": "yellow"}
+              <Button variant={"solid"} colorScheme={!!web3Error ? "red": "yellow"}
                   size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?
                     <InfoOutlineIcon colorScheme="red"/> : undefined}> {!!web3Error && !active ?
                     getErrorMessage(web3Error).title :

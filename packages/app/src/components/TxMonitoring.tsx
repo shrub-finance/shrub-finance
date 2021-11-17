@@ -2,7 +2,7 @@ import {
     Alert,
     AlertDescription,
     AlertIcon,
-    AlertTitle, Box, Button, Center, Container, Flex, Link, Spacer, Spinner, useColorModeValue
+    AlertTitle, Box, Button, Center, Flex, Link, Spacer, Spinner, useColorModeValue
 } from '@chakra-ui/react';
 import React, {useContext} from "react";
 import {TxContext} from "./Store";
@@ -38,7 +38,7 @@ export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, s
                     thickness="4px"
                     speed="0.65s"
                     emptyColor="gray.200"
-                    color="bud.500"
+                    color="sprout.300"
                     size="xl"
                   />
                   <AlertTitle mt={4} mb={1} fontSize="lg">
@@ -92,7 +92,7 @@ export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, s
               height="400px"
               bg="none"
             >
-              <AlertIcon boxSize={showDeposit ? "140px" : "40px"} mr={0} color={"bud.500"}/>
+              <AlertIcon boxSize={showDeposit ? "140px" : "40px"} mr={0} mt={14} color={"sprout.300"}/>
               <AlertTitle mt={showDeposit ? 12 : 4} mb={1} fontSize="lg">
                 Transaction Confirmed
               </AlertTitle>
@@ -162,7 +162,7 @@ export function TxStatusList() {
                   </Link>
               </Box>
               <Spacer/>
-              <Box color="green.500" fontWeight="semibold"  fontSize="xs" ml="2">
+              <Box color="sprout.500" fontWeight="semibold"  fontSize="xs" ml="2">
                   { status === 'confirming'?
                     <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /> :
                     status === 'confirmed' ?
