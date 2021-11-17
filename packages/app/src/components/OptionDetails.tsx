@@ -328,7 +328,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
             };
             const data = {
                 txType: 'limitOrder',
-                id: '',
+                id: tx.hash,  // TODO: this should be a hashSmallOrder
                 blockNumber: '',
                 orderToName,
                 positionHash,
@@ -515,7 +515,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
             const formattedPricePerContract = (Math.round(Number(pricePerContract) * 10000) / 10000).toString();
             const data = {
                 txType: 'marketOrder',
-                id: '',
+                id: tx.hash,  // TODO: this should be a hashSmallOrder
                 blockNumber: '',
                 orderToName,
                 positionHash,
