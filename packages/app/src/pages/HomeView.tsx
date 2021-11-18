@@ -49,6 +49,7 @@ function HomeView(props: RouteComponentProps) {
     const connectedStepColor = useColorModeValue("green.400","white");
     const stepsBg = useColorModeValue("yellow.300","gray.500");
     const connectedStepBg = useColorModeValue("white","dark.100");
+    const tradingBtnColor = useColorModeValue("sprout", "teal");
 
     function handleConnect() {
         if (!account) {
@@ -71,7 +72,7 @@ function HomeView(props: RouteComponentProps) {
 
     return (
         <>
-            <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+            <Container mt={isMobile ? 30 : 50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center>
                     <Box mb={10}>
                         <Heading maxW="60rem" as="h1"
@@ -93,7 +94,7 @@ function HomeView(props: RouteComponentProps) {
                                textAlign="center"
                                px={["4rem", "5rem", "17rem", "17rem"]}
                             >
-                            Practice crypto options trading on the Polygon Mumbai blockchain
+                            {isMobile ? 'Start trading with 3 easy steps' : 'Practice crypto options trading on the Polygon Mumbai blockchain'}
                         </Text>
                         <Flex
                             direction={{base: "column", md: "row", lg: "row"}}
@@ -265,13 +266,13 @@ function HomeView(props: RouteComponentProps) {
                 </Center>
             </Container>
 
-            <Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+            {!isMobile && <Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center>
                     <Box maxW="60rem" mb={8} textAlign={'center'}>
                         <Heading fontSize="50px" letterSpacing={"tight"}>
                             Done with 1-2-3 above?
                         </Heading>
-                        <Text pt="3" mb="8" fontSize="18px" color={useColorModeValue("gray.500", "gray.500")}>
+                        <Text pt="3" mb="8" fontSize="18px" color="gray.500">
                             Sweet. Let's buy some options!
                         </Text>
                         <Button
@@ -280,7 +281,7 @@ function HomeView(props: RouteComponentProps) {
                             px="50"
                             fontSize="25px"
                             py={10}
-                            colorScheme={useColorModeValue("sprout", "teal")}
+                            colorScheme={tradingBtnColor}
                             variant="solid"
                             borderRadius="full"
                             _hover={{transform: 'translateY(-2px)'}}
@@ -296,7 +297,7 @@ function HomeView(props: RouteComponentProps) {
                         </Button>
                     </Box>
                 </Center>
-            </Container>
+            </Container> }
 
             {/*<Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">*/}
             {/*    <Center mt={20}>*/}
@@ -406,10 +407,10 @@ function HomeView(props: RouteComponentProps) {
             {/*    </Flex>*/}
             {/*</Container>*/}
 
-            <Modal isOpen={isTestTokenModalOpen} onClose={onTestTokenModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"}>
+            <Modal isOpen={isTestTokenModalOpen} onClose={onTestTokenModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : 'md' }>
                 <ModalOverlay />
-                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
-                    <ModalHeader> Test Faucet</ModalHeader>
+                <ModalContent top={isMobile ? '0' : '6rem'} boxShadow="dark-lg" borderRadius={isMobile ? 'none' : '2xl'}>
+                    <ModalHeader> Buy sUSD</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
                         <Faucet/>

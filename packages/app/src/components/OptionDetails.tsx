@@ -1,4 +1,5 @@
 import {
+    Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel,
     Alert,
     AlertDialog,
     AlertDialogBody,
@@ -80,6 +81,7 @@ import { OPTION_POSITION_QUERY, ORDER_DETAILS_QUERY } from '../constants/queries
 import usePriceFeed from "../hooks/usePriceFeed";
 import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 import {Link as ReachLink} from "@reach/router";
+import {isMobile} from "react-device-detect";
 
 const { Zero } = ethers.constants;
 
@@ -104,6 +106,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     const { approving, setApproving, setActiveHash } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const livePriceColor = useColorModeValue("green.500", "green.200");
+    const quantityErrorColor = useColorModeValue("red.500", "red.300");
     const ctaColor = useColorModeValue("sprout", "teal");
     const orderBookTriggerColor = useColorModeValue("gray.500", "black");
     const orderBookTriggerBg = useColorModeValue("gray.100", "gray.400");
@@ -635,7 +638,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     const collateralRequirement = balances && balances.optionPosition.gt(0) ?
       Math.max(0, collateralPerContract * (Number(newAmount) - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
       Number(newAmount)  * collateralPerContract;
-    const quantityErrorColor = useColorModeValue("red.500", "red.300");
     const insufficientFunds = radioOption === 'BUY' && balances && totPrice && balances.shrub.baseAsset.lt(totPrice);
     const insufficientCollateral = radioOption === 'SELL' && balances && (optionType === 'CALL' ?
       Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) :
@@ -643,6 +645,66 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
     ) < collateralRequirement;
     const insufficientDepth = orderBook.initialized && (radioOption === 'BUY' ? bigAmount.gt(orderBook.sellOrdersDepth) : bigAmount.gt(orderBook.buyOrdersDepth));
     const noOrders = orderBook.initialized && (radioOption === 'BUY' ? orderBook.sellOrdersDepth.eq(Zero) : orderBook.buyOrdersDepth.eq(Zero));
+
+    function DisplayOrderBook() {
+        return (
+          <>
+              <Box
+                // color={useColorModeValue("gray.500", "black")}
+                color={"gray.500"}
+                // bgColor={useColorModeValue("gray.100", "gray.400")}
+                bgColor={"gray.100"}
+                fontWeight="semibold"
+                letterSpacing="wide"
+                fontSize="xs"
+                ml="2"
+                borderRadius="md"
+                px="2"
+                py="1"
+              >
+                  Sell Offers
+              </Box>
+              <Table variant={'unstyled'} size={'sm'}>
+                  <Thead>
+                      <Tr>
+                          <Th color="gray.400">Price</Th>
+                          <Th color="gray.400">Contract</Th>
+                      </Tr>
+                  </Thead>
+                  <Tbody>
+                      {orderbookSellRows}
+                  </Tbody>
+              </Table>
+
+              <Box
+                // color={useColorModeValue("gray.500", "black")}
+                color={"gray.500"}
+                // bgColor={useColorModeValue("gray.100", "gray.400")}
+                bgColor={"gray.100"}
+                fontWeight="semibold"
+                letterSpacing="wide"
+                fontSize="xs"
+                ml="2"
+                borderRadius="md"
+                px="2"
+                py="1"
+              >
+                  Buy Offers
+              </Box>
+              <Table variant={'unstyled'} size={'sm'}>
+                  <Thead>
+                      <Tr>
+                          <Th color="gray.400">Price</Th>
+                          <Th color="gray.400">Contract</Th>
+                      </Tr>
+                  </Thead>
+                  <Tbody>
+                      {orderbookBuyRows}
+                  </Tbody>
+              </Table>
+          </>
+        )
+    }
 
     return (
       <>
@@ -666,10 +728,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                   <TabList color={"gray.500"} p={2}>
                       <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
                            _selected={{ color: "sprout.500" }}>
-                          Instant Buy</Tab>
+                          Market</Tab>
+                      {/*(Instant Buy)*/}
                       <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
-                           _selected={{  color: "sprout.500" }}>
-                          Name your Price</Tab>
+                           _selected={{  color: "sprout.500"}}>
+                          Limit</Tab>
+                      {/*(Name your Price)*/}
                   </TabList>
                   <TabPanels>
                       <TabPanel>
@@ -766,75 +830,41 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                             }/>
                                       </NumberInput>
                                   </Box>
-                                  <HStack spacing={310} cursor={"pointer"}>
-                                      <Box></Box>
+                                  <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 0 : 310}>
+                                      {!isMobile && <Box></Box>}
                                       <Box>
-                                          <Popover placement="right" isLazy closeOnBlur={false} gutter={64}>
-                                              <PopoverTrigger>
-                                                  <Text color={orderBookTextColor} fontWeight={"extrabold"} fontSize={"xs"}
-                                                        cursor="pointer">View order book</Text>
-                                              </PopoverTrigger>
-                                              <PopoverContent>
-                                                  <PopoverCloseButton/>
-                                                  <PopoverBody p={8}>
-                                                          <Box
-                                                            // color={useColorModeValue("gray.500", "black")}
-                                                            color={"gray.500"}
-                                                            // bgColor={useColorModeValue("gray.100", "gray.400")}
-                                                            bgColor={"gray.100"}
-                                                            fontWeight="semibold"
-                                                            letterSpacing="wide"
-                                                            fontSize="xs"
-                                                            ml="2"
-                                                            borderRadius="md"
-                                                            px="2"
-                                                            py="1"
-                                                          >
-                                                              Sell Offers
-                                                          </Box>
-                                                          <Table variant={'unstyled'} size={'sm'}>
-                                                              <Thead>
-                                                                  <Tr>
-                                                                      <Th color="gray.400">Price</Th>
-                                                                      <Th color="gray.400">Contract</Th>
-                                                                  </Tr>
-                                                              </Thead>
-                                                              <Tbody>
-                                                                  {orderbookSellRows}
-                                                              </Tbody>
-                                                          </Table>
-
-                                                          <Box
-                                                            // color={useColorModeValue("gray.500", "black")}
-                                                            color={"gray.500"}
-                                                            // bgColor={useColorModeValue("gray.100", "gray.400")}
-                                                            bgColor={"gray.100"}
-                                                            fontWeight="semibold"
-                                                            letterSpacing="wide"
-                                                            fontSize="xs"
-                                                            ml="2"
-                                                            borderRadius="md"
-                                                            px="2"
-                                                            py="1"
-                                                          >
-                                                              Buy Offers
-                                                          </Box>
-                                                          <Table variant={'unstyled'} size={'sm'}>
-                                                              <Thead>
-                                                                  <Tr>
-                                                                      <Th color="gray.400">Price</Th>
-                                                                      <Th color="gray.400">Contract</Th>
-                                                                  </Tr>
-                                                              </Thead>
-                                                              <Tbody>
-                                                                  {orderbookBuyRows}
-                                                              </Tbody>
-                                                          </Table>
-                                                  </PopoverBody>
-                                              </PopoverContent>
-                                          </Popover>
+                                          {isMobile ?
+                                            <Accordion allowToggle>
+                                                <AccordionItem>
+                                                    <Box>
+                                                        <AccordionButton>
+                                                            <Box flex="1" textAlign="left" fontSize={"xs"} color="gray.500">
+                                                                View order book
+                                                            </Box>
+                                                            <AccordionIcon />
+                                                        </AccordionButton>
+                                                    </Box>
+                                                    <AccordionPanel pb={4}>
+                                                        <DisplayOrderBook/>
+                                                    </AccordionPanel>
+                                                </AccordionItem>
+                                            </Accordion>
+                                            :
+                                            <Popover placement="right" isLazy closeOnBlur={false} gutter={64}>
+                                                <PopoverTrigger>
+                                                    <Text color={orderBookTextColor} fontWeight={"extrabold"} fontSize={"xs"}
+                                                          cursor={"pointer"}>View order book</Text>
+                                                </PopoverTrigger>
+                                                <PopoverContent>
+                                                    <PopoverCloseButton/>
+                                                    <PopoverBody p={8}>
+                                                        <DisplayOrderBook/>
+                                                    </PopoverBody>
+                                                </PopoverContent>
+                                            </Popover>
+                                          }
                                       </Box>
-                                  </HStack>
+                                  </Stack>
                                   <Box fontSize="sm" pt={6}>
                                       <HStack spacing={8} fontSize={"sm"}>
                                           <VStack spacing={1.5} alignItems={"flex-start"}>
@@ -900,13 +930,14 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                               !orderBook.initialized ?
                                 //  Show spinner while query is still loading
                                 <Center p={40}>
-                                    <Spinner thickness="1px"
+                                    <Spinner thickness="2px"
                                              speed="0.65s"
                                              emptyColor="gray.200"
                                              color="sprout.500"
                                              size="xl"/>
-                                </Center> :
-                                // Show normal tab display once loding is complete
+                                </Center>
+                              :
+                                // Show normal tab display once loading is complete
                           <Flex direction={{ base: "column", md: "row" }}>
                               <Stack spacing="24px" w={"full"}>
                                   <Box >
@@ -1016,73 +1047,41 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Price</FormLabel>}/>
                                       </NumberInput>
                                   </Box>
-                                  <HStack spacing={310}>
-                                      <Box></Box>
+                                  <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 0 : 310}>
+                                      {!isMobile && <Box></Box>}
                                       <Box>
-                                          <Popover placement="right" isLazy closeOnBlur={false} gutter={64}>
+                                          {isMobile ?
+                                          <Accordion allowToggle>
+                                              <AccordionItem>
+                                                  <h2>
+                                                      <AccordionButton>
+                                                          <Box flex="1" textAlign="left" fontSize={"xs"} color="gray.500">
+                                                              View order book
+                                                          </Box>
+                                                          <AccordionIcon />
+                                                      </AccordionButton>
+                                                  </h2>
+                                                  <AccordionPanel pb={4}>
+                                                      <DisplayOrderBook/>
+                                                  </AccordionPanel>
+                                              </AccordionItem>
+                                          </Accordion>
+                                          :
+                                              <Popover placement="right" isLazy closeOnBlur={false} gutter={64}>
                                               <PopoverTrigger>
-                                                  <Text color={orderBookTextColor} fontWeight={"extrabold"} fontSize={"xs"}
-                                                        cursor={"pointer"}>View order book</Text>
+                                              <Text color={orderBookTextColor} fontWeight={"extrabold"} fontSize={"xs"}
+                                              cursor={"pointer"}>View order book</Text>
                                               </PopoverTrigger>
                                               <PopoverContent>
-                                                  <PopoverCloseButton/>
-                                                  <PopoverBody p={8}>
-                                                      <Box id={"orderbook"}>
-                                                          <Box
-                                                            color={orderBookTriggerColor}
-                                                            bgColor={orderBookTriggerBg}
-                                                            fontWeight="semibold"
-                                                            letterSpacing="wide"
-                                                            fontSize="xs"
-                                                            ml="2"
-                                                            borderRadius="md"
-                                                            px="2"
-                                                            py="1"
-                                                          >
-                                                              Sell Offers
-                                                          </Box>
-                                                          <Table variant={'unstyled'} size={'sm'}>
-                                                              <Thead>
-                                                                  <Tr>
-                                                                      <Th color="gray.400">Price</Th>
-                                                                      <Th color="gray.400">Contract</Th>
-                                                                  </Tr>
-                                                              </Thead>
-                                                              <Tbody>
-                                                                  {orderbookSellRows}
-                                                              </Tbody>
-                                                          </Table>
-                                                          <Divider/>
-                                                          <Box
-                                                            color={orderBookTriggerColor}
-                                                            bgColor={orderBookTriggerBg}
-                                                            fontWeight="semibold"
-                                                            letterSpacing="wide"
-                                                            fontSize="xs"
-                                                            ml="2"
-                                                            borderRadius="md"
-                                                            px="2"
-                                                            py="1"
-                                                          >
-                                                              Buy Offers
-                                                          </Box>
-                                                          <Table variant={'unstyled'} size={'sm'}>
-                                                              <Thead>
-                                                                  <Tr>
-                                                                      <Th color="gray.400">Price</Th>
-                                                                      <Th color="gray.400">Contract</Th>
-                                                                  </Tr>
-                                                              </Thead>
-                                                              <Tbody>
-                                                                  {orderbookBuyRows}
-                                                              </Tbody>
-                                                          </Table>
-                                                      </Box>
-                                                  </PopoverBody>
+                                              <PopoverCloseButton/>
+                                              <PopoverBody p={8}>
+                                              <DisplayOrderBook/>
+                                              </PopoverBody>
                                               </PopoverContent>
-                                          </Popover>
+                                              </Popover>
+                                          }
                                       </Box>
-                                  </HStack>
+                                  </Stack>
                                   <Box fontSize="sm" pt={6}>
                                       <HStack spacing={8} fontSize={"sm"}>
                                           <VStack spacing={1.5} alignItems={"flex-start"}>
@@ -1169,16 +1168,16 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                               </VStack>
                           </HStack>
                       </Box>
-                      <Text fontSize={"xs"} color={"gray.500"} pt={'6'}>Placing this order <strong>gives {radioOption === 'BUY' ? 'you' : 'someone'}</strong> the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC</strong> for <strong>{formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>. Place order?</Text>
+                      <Text fontSize={"xs"} color={"gray.500"} pt={'6'}>Placing this order <strong>gives {radioOption === 'BUY' ? 'you' : 'someone'}</strong> the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC</strong> for <strong>{formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>.</Text>
                   </AlertDialogBody>
                   <AlertDialogFooter>
                       <Button
                           // @ts-ignore
                           ref={cancelRef} onClick={onCloseConfirmDialog}>
-                          No
+                          Cancel
                       </Button>
                       <Button colorScheme={ctaColor} ml={3} onClick={placeOrderConfirmation}>
-                          Yes
+                          Place {radioOption === "BUY" ? 'Buy' : 'Sell'} Order
                       </Button>
                   </AlertDialogFooter>
               </AlertDialogContent>

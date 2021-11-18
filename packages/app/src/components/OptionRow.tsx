@@ -25,8 +25,8 @@ import {currencySymbol} from "../utils/chainMethods";
 import {useWeb3React} from "@web3-react/core";
 import usePriceFeed from "../hooks/usePriceFeed";
 import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
+import {isMobile} from "react-device-detect";
 
-const height = 100;
 
 function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}: {
   appCommon: AppCommon,
@@ -107,9 +107,10 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
           <Stack spacing={1} direction="column" >  <Text fontSize="sm" color="gray.400" fontWeight="bold">Last</Text><Text fontSize={{ base: "xs", md: "md" }} color={optionRowTextColor}>{last? formatDisplay(last) : "--"}</Text></Stack>
         </Box>
       </Flex>
-      <Modal  motionPreset="slideInBottom" size={"lg"} isOpen={isOpen}  onClose={handleModalClose}>
+      <Modal  motionPreset="slideInBottom" isOpen={isOpen}  onClose={handleModalClose}
+              scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : 'lg' }>
         <ModalOverlay />
-        <ModalContent borderRadius="2xl">
+        <ModalContent borderRadius={isMobile ? 'none' : '2xl'}>
           <ModalCloseButton />
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
