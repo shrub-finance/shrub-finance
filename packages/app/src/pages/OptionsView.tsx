@@ -390,12 +390,12 @@ function OptionsView(props: RouteComponentProps) {
 
   function returnOrderHistoryRow(id: string, blockNumber: number, orderToName: any, positionHash: string, userAccount: string, status: string, pricePerContract: string) {
     return <Tr key={id}>
-      <Td minW="121px">
+      {isMobile && <Td minW={{ base: "107px", md: "121px" }} display={{ base: "none", md: "flex" }}>
         <Link color="teal.400" fontSize="11px" fontWeight="bold" letterSpacing="wider"
               href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)} isExternal>
           {blockNumber}<ExternalLinkIcon mx="2px" mb="3px"/>
         </Link>
-      </Td>
+      </Td> }
       <Td fontWeight="semibold" fontSize="xs" lineHeight={1.8} minW="150px">
         <Text letterSpacing="wide" color="gray.500">{shortOptionName(orderToName)}</Text>
       </Td>
@@ -531,7 +531,13 @@ function OptionsView(props: RouteComponentProps) {
         <SummaryView />
           <Center>
               <Menu isLazy>
-                  <MenuButton><Heading mt={10}><Icon as={currencyIcon(chainId)} pr="2"/> sMATIC Options <ChevronDownIcon /></Heading></MenuButton>
+                  <MenuButton>
+                    <Heading mt={10}>
+                      {/*<Icon as={currencyIcon(chainId)} pr="2" boxSize={40}/>*/}
+                      sMATIC Options
+                      <ChevronDownIcon color={"gray.300"} boxSize={6}/>
+                    </Heading>
+                  </MenuButton>
               <MenuList>
                       {/* MenuItems are not rendered unless Menu is open */}
                   <MenuItem minW="400px" fontSize={"lg"}><FaEthereum/> <Text ml={"1"}>sETH Options (coming soon)</Text></MenuItem>
@@ -682,7 +688,7 @@ function OptionsView(props: RouteComponentProps) {
                         {userOrderRows.length + localOrderHistoryRows.length ? <Table variant="simple">
                                 <Thead>
                                     <Tr>
-                                        <Th>Block Number</Th>
+                                      { !isMobile && <Th>Block Number</Th> }
                                         <Th>Order</Th>
                                         <Th isNumeric>Price per Contract</Th>
                                         <Th>Status</Th>

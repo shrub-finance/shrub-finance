@@ -254,7 +254,7 @@ function Positions() {
             </Td>
             {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
             <Td>{amount}</Td>
-            <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
+            {!isMobile && <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>}
             <Td>
               <Box>
                 <StatHelpText>
@@ -610,7 +610,7 @@ function Positions() {
                 <Th color={"gray.400"}>Position</Th>
                 {/*<Th color={"gray.400"}>Balance</Th>*/}
                 <Th color={"gray.400"}>Qty</Th>
-                <Th color={"gray.400"}>Price</Th>
+                {!isMobile && <Th color={"gray.400"}>Price</Th>}
                 <Th color={"gray.400"}>Gain/Loss</Th>
               </Tr>
             </Thead>
@@ -676,9 +676,11 @@ function Positions() {
         }
       </Container>
       {/*withdraw deposit modal*/}
-      <Modal motionPreset="slideInBottom" onClose={handleWithdrawDepositModalClose} isOpen={isOpenModal}>
+      <Modal motionPreset="slideInBottom" onClose={handleWithdrawDepositModalClose} isOpen={isOpenModal}
+      size={isMobile ? 'full' : 'md' } scrollBehavior={isMobile ?"inside" : "outside"}
+      >
         <ModalOverlay/>
-        <ModalContent borderRadius="2xl">
+        <ModalContent borderRadius={isMobile ? 'none' : '2xl'}>
           <ModalHeader borderBottomWidth="1px">{withdrawDepositAction}</ModalHeader>
           <ModalCloseButton/>
           <ModalBody>
