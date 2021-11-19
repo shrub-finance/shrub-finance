@@ -144,11 +144,16 @@ function HomeView(props: RouteComponentProps) {
                                         w={'full'}
                                         mt={8}
                                         colorScheme={useColorModeValue("sprout", "teal")}
+                                        variant={account ? "unstyled" : "solid"}
                                         rounded={'full'}
-                                        _hover={{
+                                        _hover={ account ? {
+                                            cursor: "text"
+                                          }:
+                                          {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
-                                        }}>
+                                        }}
+                                    >
                                         {account ? 'Connected' : 'Connect to Mumbai' }
                                     </Button>
                                 </Box>
