@@ -267,17 +267,17 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
          <>
        {noOrders && radioOrderType === 'Market' &&
        <Text fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2">
-           <WarningTwoIcon pr="1" boxSize="3.5"/>There are no orders in the order book.</Text>
+           <WarningTwoIcon pr="1" boxSize="3.5"/>There are no orders in the order book </Text>
        }
 
        {insufficientFunds &&
        <Box>
-           <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds. </Text>
+           <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds </Text>
            {radioOption === 'SELL' && optionType === 'CALL'?
-             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'} cursor={"pointer"}>
+             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
                 (Available: {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC)
              </Text> :
-             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'} cursor={"pointer"}>
+             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
                  (Available: ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)})
              </Text>}
            {/*<Text fontWeight="bold" fontSize="xs" color={'blue.300'} cursor={"pointer"} as={ReachLink} to={'/shrubfolio'}>*/}
@@ -285,23 +285,25 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
            {/*</Text>*/}
        </Box>
        }
+
        {insufficientCollateral &&
        <Box>
-       <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral. </Text>
+       <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral for Quantity </Text>
+
            {radioOption === 'SELL' && optionType === 'CALL'?
-             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'} cursor={"pointer"}>
-                 (Available: {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC)
+             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
+                 (Needed: {collateralRequirement.toFixed(4)} sMATIC)
              </Text> :
-             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'} cursor={"pointer"}>
-                 (Available: ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)})
+             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
+                 (Needed:   ${collateralRequirement.toFixed(4)})
              </Text>}
            </Box>
        }
        {insufficientDepth  && radioOrderType === 'Market' &&
        <Box>
            <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2">
-               <WarningTwoIcon pr="1" boxSize="3.5"/>Order too large for available order book depth</Text>
-           <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
+               <WarningTwoIcon pr="1" boxSize="3.5"/>Order too large for available order book depth </Text>
+           <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'} cursor={"pointer"}>
                (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})
            </Text>
        </Box>
@@ -884,6 +886,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                               <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
                                                   ${formattedTotPrice}
                                               </Text>
+
                                               {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
                                               <Text color="gray.500">
                                                   {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
@@ -1090,7 +1093,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           <VStack spacing={1.5} alignItems={"flex-start"}>
                                               <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
                                               {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
-                                              {radioOption === 'SELL' && <Text>Collateral Requirement</Text>}
+                                              {radioOption === 'SELL' && <Text>Collateral Needed</Text>}
                                               <Text>Available</Text>
                                           </VStack>
                                           <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
