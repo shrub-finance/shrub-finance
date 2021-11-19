@@ -264,7 +264,7 @@ export async function approveToken(
   if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
     throw new Error("Allowance is sufficient. You don't need to approve.");
   }
-  return erc20Contract.approve(SHRUB_CONTRACT_ADDRESS, ethers.constants.WeiPerEther.mul(1000000000));
+  return erc20Contract.approve(SHRUB_CONTRACT_ADDRESS, ethers.constants.WeiPerEther.mul(1));
 }
 
 export async function withdraw(

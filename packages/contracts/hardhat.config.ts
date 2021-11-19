@@ -23,6 +23,7 @@ import {
 import {OrderCommon, SmallOrder} from "@shrub/app/src/types";
 import chainlinkAggregatorV3Interface from './external-contracts/chainlinkAggregatorV3InterfaceABI.json';
 import env from 'hardhat'
+import { toEthDate } from '@shrub/app/src/utils/ethMethods'
 const bs = require('./utils/black-scholes');
 const { Shrub712 } = require("./utils/EIP712");
 
@@ -34,11 +35,17 @@ const CHAINLINK_USDC = '0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0';  // Mumbai
 const MINUTES_BETWEEN_ORDERS = 5;  // For maker2
 
 const expiryDates = [
-  new Date('2021-11-08'),
-  new Date('2021-11-15'),
+  // new Date('2021-11-08'),
+  // new Date('2021-11-15'),
   new Date('2021-11-22'),
   new Date('2021-12-02'),
+  new Date('2021-12-11'),
+  new Date('2021-12-18'),
+  new Date('2021-12-25'),
   new Date('2022-01-02'),
+  // [toEthDate(new Date('2021-12-11')).toString()] : standardStrikes,
+  // [toEthDate(new Date('2021-12-18')).toString()] : standardStrikes,
+  // [toEthDate(new Date('2021-12-25')).toString()] : standardStrikes,
 ];
 const callsArr = [2e6, 2.3e6, 2.5e6, 2.7e6];
 const putsArr = [2e6, 1.8e6, 1.6e6, 1.4e6];
@@ -251,6 +258,7 @@ task('maker2', 'creates limit orders')
   .addOptionalParam('riskFreeRate', 'annual risk free rate of return (0.05 means 5%)', 0.05, types.float)
   .setAction(
     async (taskArgs, env) => {
+      console.log('running');
         const {ethers, deployments, web3} = env;
         const [master, account0, account1, account2, account3, account4, account5] = await ethers.getSigners();
         const accounts = [account0, account1, account2, account3, account4, account5];

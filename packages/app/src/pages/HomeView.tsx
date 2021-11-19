@@ -126,6 +126,7 @@ function HomeView(props: RouteComponentProps) {
             if (!account) {
                 return;
             }
+            await setTimeout(() => Promise.resolve(), 50);
             const bigQuoteAssetBalanceShrub = await getAvailableBalance({
                 address: account,
                 tokenContractAddress: quoteAsset,
@@ -183,7 +184,7 @@ function HomeView(props: RouteComponentProps) {
     useEffect(() => {
         setLocalError('');
         async function shrubBalanceHandler() {
-            await setTimeout(() => Promise.resolve(), 10);
+            await setTimeout(() => Promise.resolve(), 50);
             if (!active || !account) {
                 connectWalletTimeout.current = setTimeout(() => {
                     handleErrorMessages({ customMessage: 'Please connect your wallet'})
@@ -217,12 +218,12 @@ function HomeView(props: RouteComponentProps) {
 
     // determine if approved
     useEffect(() => {
-        // console.log('running setIsApproved');
+        console.log('running setIsApproved');
         if (!library) {
             return;
         }
         async function handleApprove(){
-            await setTimeout(() => Promise.resolve(), 10);
+            await setTimeout(() => Promise.resolve(), 50);
             setWalletTokenBalance('-');
             if (modalCurrency !== 'MATIC') {
                 try {
