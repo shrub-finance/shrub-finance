@@ -109,23 +109,25 @@ export function Chain() {
     const {chainId} = useWeb3React()
     const network = chainId && NETWORK_LABELS[chainId]
     const networkColor = chainId && NETWORK_COLORS[chainId]
+    const mumbaiColor = useColorModeValue('blue.600', 'blue.200')
 
     return (
 
         <Box>
             {network && (
 
-                <Button
-                    variant={"ghost"}
+                <Box
+
                     // @ts-ignore
-                    colorScheme={networkColor}
-                    size={"sm"}
+                    color={networkColor === 'blue' ? mumbaiColor : networkColor}
+                    fontSize={"sm"}
                     mr={4}
                     borderRadius="2xl"
+                    fontWeight="bold"
                 >
-                    <Icon as={RiSignalTowerLine} boxSize={4} mr={1}/>
+                    <Icon as={RiSignalTowerLine} boxSize={3} mr={1}/>
                     {network}
-                </Button>
+                </Box>
             )
             }
         </Box>
@@ -137,6 +139,7 @@ export function Chain() {
 export function Balance() {
     const {account, library, chainId} = useWeb3React()
     const networkColor = chainId && NETWORK_COLORS[chainId]
+    const mumbaiColor = useColorModeValue('blue.600', 'blue.200')
     const currency = currencySymbol(chainId)
 
     const [balance, setBalance] = useState()
@@ -167,13 +170,12 @@ export function Balance() {
 
     return (
         <>
-            {balance && <Button
+            {balance && <Box
                 // leftIcon={balance ? <FaEthereum/> : undefined}
-                variant={"ghost"}
                 //@ts-ignore
-                colorScheme={networkColor}
-                size={"sm"}
-                borderRadius="2xl"
+                color={networkColor === 'blue' ? mumbaiColor : networkColor}
+                fontSize={"sm"}
+                fontWeight="bold"
             >
                 {
                     balance === null ?
@@ -182,7 +184,7 @@ export function Balance() {
                             // @ts-ignore
                             ? `${Number(formatEther(balance)).toLocaleString(undefined, {minimumFractionDigits: currency === 'MATIC'? 6 : 2})} ${currency}`: ''
                 }
-            </Button>
+            </Box>
             }
         </>
     )

@@ -413,11 +413,13 @@ function HomeView(props: RouteComponentProps) {
                                     mt={8}
                                     disabled={!!step1complete}
                                     colorScheme={useColorModeValue('sprout', 'teal')}
-                                    rounded={'full'}
-                                    _hover={{
+                                    variant={account ? "unstyled" : "solid"}rounded={'full'}
+                                    _hover={account ? {
+                                            cursor: "text"
+                                          }:{
                                         transform: 'translateY(-2px)',
-                                        boxShadow: 'lg',
-                                    }}>
+                                        boxShadow: 'lg',}}
+                                    >
                                       {step1complete ? 'Connected' : 'Connect to Mumbai'}
                                   </Button>
                               </Box>
@@ -570,13 +572,13 @@ function HomeView(props: RouteComponentProps) {
                         colorScheme={tradingBtnColor}
                         variant='solid'
                         borderRadius='full'
-                        _hover={{ transform: 'translateY(-2px)' }}
+                        //_hover={{ transform: 'translateY(-2px)' }}
                         // bgGradient={useColorModeValue("linear(to-r, blue.100, teal.200)", "linear(to-l, blue.700, teal.700)")}
                         // bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
                         // _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}
 
-                        // bgGradient="linear(to-r,#74cecc,green.300,blue.400)"
-                        // _hover={{bgGradient:"linear(to-r,#74cecc,blue.400,#6666d2)"}}
+                         bgGradient="linear(to-r,#74cecc,green.300,blue.400)"
+                         _hover={{bgGradient:"linear(to-r,#74cecc,blue.400,#6666d2)"}}
                         as={ReachLink} to={'/options'}
                       >
                           Start Trading
