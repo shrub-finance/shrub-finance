@@ -161,6 +161,7 @@ function Positions() {
   useEffect(() => {
     setLocalError('');
     async function shrubBalanceHandler() {
+      await setTimeout(() => Promise.resolve(), 10);
       if (!active || !account) {
         connectWalletTimeout.current = setTimeout(() => {
           handleErrorMessages({ customMessage: 'Please connect your wallet'})
@@ -332,6 +333,7 @@ function Positions() {
       return;
     }
     async function handleApprove(){
+      await setTimeout(() => Promise.resolve(), 10);
       setWalletTokenBalance('-');
       if (modalCurrency !== 'MATIC') {
         try {

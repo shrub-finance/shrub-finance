@@ -20,12 +20,29 @@ import {
     ListItem,
     PopoverBody,
     PopoverCloseButton,
-    PopoverArrow, PopoverContent, PopoverTrigger, Popover, UnorderedList, useToast
-} from '@chakra-ui/react';
-import {ArrowForwardIcon, CheckIcon,} from '@chakra-ui/icons';
+    PopoverArrow,
+    PopoverContent,
+    PopoverTrigger,
+    Popover,
+    UnorderedList,
+    useToast,
+    SlideFade,
+    Alert,
+    AlertIcon,
+    FormControl,
+    FormLabel,
+    NumberInput,
+    NumberInputField,
+    InputRightElement,
+    Tr,
+    useRadioGroup,
+    Td,
+    Spinner
+} from '@chakra-ui/react'
+import { ArrowForwardIcon, CheckIcon } from '@chakra-ui/icons'
 import {Link as ReachLink, RouteComponentProps} from '@reach/router';
 import {PolygonIcon} from '../assets/Icons';
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import useAddNetwork from "../hooks/useAddNetwork";
 import {isMobile} from "react-device-detect";
@@ -33,8 +50,25 @@ import Faucet from "../components/Faucet";
 import {useWeb3React} from "@web3-react/core";
 import {getErrorMessage} from "../components/ConnectWallet";
 import { BigNumber, ethers } from 'ethers'
-import { getAvailableBalance, getBigWalletBalance, userOptionPosition } from '../utils/ethMethods'
+import {
+    approveToken,
+    depositEth,
+    depositToken,
+    getAllowance,
+    getAvailableBalance,
+    getBigWalletBalance,
+    getLockedBalance,
+    getWalletBalance,
+    withdraw,
+} from '../utils/ethMethods'
 import { TxContext } from '../components/Store'
+import { ToastDescription, Txmonitor } from '../components/TxMonitoring'
+import usePriceFeed from '../hooks/usePriceFeed'
+import { CHAINLINK_MATIC } from '../constants/chainLinkPrices'
+import { ShrubBalance, SupportedCurrencies } from '../types'
+import { useQuery } from '@apollo/client'
+import { SHRUBFOLIO_QUERY } from '../constants/queries'
+import { Currencies } from '../constants/currencies'
 
 const { Zero } = ethers.constants;
 
@@ -118,6 +152,184 @@ function HomeView(props: RouteComponentProps) {
     const step1complete = !!account;
     const step2complete = balances && balances.shrub && balances.wallet && (!balances.shrub.baseAsset.eq(Zero) || !balances.wallet.baseAsset.eq(Zero));
     const step3complete = balances && balances.shrub && (!balances.shrub.baseAsset.eq(Zero));
+
+    //  MODAL CRAP
+
+
+    const alertColor = useColorModeValue("gray.100", "dark.300");
+    const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
+    const [isApproved, setIsApproved] = useState(false);
+    const [walletTokenBalance, setWalletTokenBalance] = useState('');
+    const [approving, setApproving] = useState(false);
+    const [activeHash, setActiveHash] = useState<string>();
+    const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SMATIC: 0, SUSD: 0}, available: {MATIC: 0, SMATIC: 0, SUSD: 0}} as ShrubBalance);
+    const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
+    const [amountValue, setAmountValue] = useState("0");
+    const [modalCurrency, setModalCurrency] = useState<SupportedCurrencies>('SUSD');
+    // radio buttons
+    const format = (val: string) => val;
+    const parse = (val: string) => val.replace(/^\$/, "");
+    const { getRootProps, getRadioProps } = useRadioGroup({
+        name: 'currency',
+        defaultValue: modalCurrency,
+        onChange: (value: SupportedCurrencies) => setModalCurrency(value)
+    })
+    const [showDepositButton, setShowDepositButton] = useState(false);
+    const btnBg = useColorModeValue("sprout", "teal");
+
+    const connectWalletTimeout = useRef<NodeJS.Timeout>();
+
+    // shrub balance display
+    useEffect(() => {
+        setLocalError('');
+        async function shrubBalanceHandler() {
+            await setTimeout(() => Promise.resolve(), 10);
+            if (!active || !account) {
+                connectWalletTimeout.current = setTimeout(() => {
+                    handleErrorMessages({ customMessage: 'Please connect your wallet'})
+                    console.error('Please connect wallet');
+                },500);
+                return;
+            }
+            if (connectWalletTimeout.current) {
+                clearTimeout(connectWalletTimeout.current);
+            }
+
+            const shrubBalanceObj: ShrubBalance = {locked: {}, available: {}};
+            for (const currencyObj of Object.values(Currencies)) {
+                const {symbol, address: tokenContractAddress} = currencyObj;
+                const bigBalance = await getAvailableBalance({
+                    address: account,
+                    tokenContractAddress,
+                    provider: library
+                })
+                const bigLockedBalance = await getLockedBalance(account, tokenContractAddress, library);
+                const balance = ethers.utils.formatUnits(bigBalance, 18);
+                const lockedBalance = ethers.utils.formatUnits(bigLockedBalance, 18);
+                shrubBalanceObj.available[symbol] = Number(balance);
+                shrubBalanceObj.locked[symbol] = Number(lockedBalance);
+            }
+            setShrubBalance(shrubBalanceObj)
+        }
+        shrubBalanceHandler()
+          .catch(console.error);
+    }, [active, account, library, pendingTxsState]);
+
+    // determine if approved
+    useEffect(() => {
+        // console.log('running setIsApproved');
+        if (!library) {
+            return;
+        }
+        async function handleApprove(){
+            await setTimeout(() => Promise.resolve(), 10);
+            setWalletTokenBalance('-');
+            if (modalCurrency !== 'MATIC') {
+                try {
+                    const allowance = await getAllowance(Currencies[modalCurrency].address, library);
+                    console.log(allowance);
+                    if(allowance.gt(ethers.BigNumber.from(0))) {
+                        setIsApproved(true);
+                    } else {
+                        setIsApproved(false);
+                    }
+                } catch (e) {
+                    handleErrorMessages(e);
+                    console.error(e);
+                }
+                try {
+                    const balance = await getWalletBalance(Currencies[modalCurrency].address, library)
+                    setWalletTokenBalance(balance);
+                } catch (e) {
+                    handleErrorMessages(e);
+                    console.error(e)
+                }
+            }
+        }
+        handleApprove();
+    }, [modalCurrency, account, pendingTxsState, active])
+
+    function handleWithdrawDepositModalClose() {
+        setApproving(false);
+        setActiveHash(undefined);
+        onCloseModal();
+    }
+
+    function goToDeposit() {
+        onCloseModal();
+        setApproving(false);
+        setActiveHash(undefined);
+        onOpenModal();
+        setLocalError('');
+        // setAmountValue('');
+        setModalCurrency(modalCurrency);
+    }
+
+    function handleWithdrawDepositModalOpen(buttonText?: any) {
+        return (
+          async function handleClick() {
+              onOpenModal();
+              setWithdrawDepositAction(buttonText);
+              setLocalError('');
+              // setAmountValue('');
+              setModalCurrency(modalCurrency);
+          })
+
+    }
+
+    // inside withdraw deposit modal
+    async function handleDepositWithdraw(event: any, approve?: string) {
+        try {
+            if (!active || !account) {
+                handleErrorMessages({customMessage: 'Please connect your wallet'});
+                return;
+            }
+            setApproving(true);
+            let tx;
+            if (approve === 'approve') {
+                setShowDepositButton(true)
+                tx = await approveToken( Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue || '0'), library);
+            } else if (withdrawDepositAction === "Deposit") {
+                setShowDepositButton(false)
+                if (modalCurrency === "MATIC") {
+                    tx = await depositEth(ethers.utils.parseUnits(amountValue), library)
+                } else {
+                    // Deposit SUSD
+                    tx = await depositToken(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library);
+                }
+            } else {
+                setShowDepositButton(false)
+                // Withdraw
+                tx = await withdraw(Currencies[modalCurrency].address, ethers.utils.parseUnits(amountValue), library)
+            }
+            setApproving(false)
+            const description = approve === 'approve' ? 'Approving SUSD' : `${withdrawDepositAction} ${amountValue} ${modalCurrency}`;
+            pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+            setActiveHash(tx.hash);
+            try {
+                const receipt = await tx.wait()
+                const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
+                toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+                pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
+            } catch (e) {
+                const toastDescription = ToastDescription(description, e.transactionHash, chainId);
+                pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
+                toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
+            }
+        } catch (e) {
+            setApproving(false)
+            setShowDepositButton(false)
+            handleErrorMessages({err: e})
+        }
+    }
+    async function fillSendMax() {
+        if (withdrawDepositAction === "Deposit") {
+            const walletBalanceValue = await getWalletBalance(Currencies[modalCurrency].address, library);
+            setAmountValue(walletBalanceValue);
+        } else if (withdrawDepositAction === "Withdraw") {
+            setAmountValue(String(shrubBalance.available[modalCurrency]));
+        }
+    }
 
     return (
       <>
@@ -320,8 +532,8 @@ function HomeView(props: RouteComponentProps) {
                                   </Stack>
                                   <Button
                                     disabled={!step1complete || !step2complete}
-                                    as={(!step1complete || !step2complete) ? Box : ReachLink} to={'/shrubfolio'}
                                     w={'full'}
+                                    onClick={handleWithdrawDepositModalOpen( 'Deposit')}
                                     mt={8}
                                     colorScheme={useColorModeValue('sprout', 'teal')}
                                     rounded={'full'}
@@ -329,7 +541,7 @@ function HomeView(props: RouteComponentProps) {
                                         transform: 'translateY(-2px)',
                                         boxShadow: 'lg',
                                     }}>
-                                    {step3complete ? 'Deposit More sUSD' : 'Deposit sUSD'}
+                                    {step3complete ? 'Deposit more sUSD' : 'Deposit sUSD'}
                                   </Button>
                               </Box>
                           </Box>
@@ -490,6 +702,88 @@ function HomeView(props: RouteComponentProps) {
                     </ModalBody>
                 </ModalContent>
             </Modal>
+
+          {/*withdraw deposit modal*/}
+          <Modal motionPreset="slideInBottom" onClose={handleWithdrawDepositModalClose} isOpen={isOpenModal}
+                 size={isMobile ? 'full' : 'md' } scrollBehavior={isMobile ?"inside" : "outside"}
+          >
+              <ModalOverlay/>
+              <ModalContent borderRadius={isMobile ? 'none' : '2xl'}>
+                  <ModalHeader borderBottomWidth="1px">{withdrawDepositAction} sUSD</ModalHeader>
+                  <ModalCloseButton/>
+                  <ModalBody>
+                      {(!approving && !activeHash) &&
+                      <>
+                          <Stack direction={["column"]} spacing="40px" mb="40px">
+                              {localError && (
+                                <SlideFade in={true} unmountOnExit={true}>
+                                    <Alert status="error" borderRadius={9} >
+                                        <AlertIcon />
+                                        {localError}
+                                    </Alert>
+                                </SlideFade>
+                              )
+                              }
+
+                              {(modalCurrency === "MATIC"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
+                                  <Flex pt={4}>
+                                      <Spacer/>
+                                      <Button
+                                          variant={'ghost'}
+                                          colorScheme={'blue'}
+                                          size={'xs'}
+                                          mb={1}
+                                          borderRadius={'2xl'}
+                                          onClick={fillSendMax}
+                                      >
+                                          Available: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : String(shrubBalance.available[modalCurrency])}
+                                      </Button>
+                                  </Flex>
+
+
+                                  <NumberInput
+                                    onChange={(valueString) => setAmountValue(parse(valueString))}
+                                    value={format(amountValue)} size="lg"
+                                  >
+                                  <NumberInputField
+                                  h="6rem"
+                                  borderRadius="3xl"
+                                  shadow="sm"
+                                  fontWeight="bold"
+                                  fontSize="2xl"/>
+                                          <InputRightElement
+                                            pointerEvents="none"
+                                            p={14}
+                                            children={
+                                                <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">sUSD</FormLabel>
+                                            }/>
+                                  </NumberInput>
+                              </FormControl>}
+                          </Stack>
+                          {modalCurrency !== "MATIC" && withdrawDepositAction === "Deposit" && !isApproved && <>
+                              <Alert bgColor={alertColor} status="info" borderRadius={"md"} mb={3}>
+                                  <AlertIcon />
+                                  You will only have to approve once
+                              </Alert>
+                              <Button mb={1.5} colorScheme={btnBg} size={"lg"} isFullWidth={true}
+                                      onClick={() => {
+                                          if (active) {
+                                              handleDepositWithdraw(undefined, 'approve')
+                                          }
+                                      }}>Approve</ Button>
+                          </>
+                          }
+                          {(modalCurrency === "MATIC" || isApproved  || withdrawDepositAction === "Withdraw")  && <Button
+                            mb={1.5} size={"lg"} colorScheme={btnBg} isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
+                              {withdrawDepositAction}
+                          </Button>}
+                      </>
+                      }
+                      {(approving || activeHash) && <Txmonitor txHash={activeHash} showDeposit={showDepositButton} goToDeposit={goToDeposit}/>}
+                  </ModalBody>
+              </ModalContent>
+          </Modal>
+
         </>
     )
 }

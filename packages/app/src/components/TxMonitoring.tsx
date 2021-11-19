@@ -16,11 +16,9 @@ import {useWeb3React} from "@web3-react/core";
 
 
 export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, showDeposit?: boolean, goToDeposit?: any} ) {
-    console.log(txHash);
     const {chainId} = useWeb3React();
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState] = pendingTxs;
-    console.log(txHash);
     if (!txHash) {
         return (
             <>
@@ -53,8 +51,6 @@ export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, s
     }
     const {status} = pendingTxsState[txHash]
     console.log(pendingTxsState[txHash]);
-
-    console.log(status)
 
     return (
         <>
