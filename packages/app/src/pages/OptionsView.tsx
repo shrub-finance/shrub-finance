@@ -91,6 +91,7 @@ function OptionsView(props: RouteComponentProps) {
 
   const livePriceColor = useColorModeValue("green.500", "green.200");
   const selectorBg = useColorModeValue("white", "dark.100");
+  const orderHistoryColor = useColorModeValue("gray.700", "gray.300")
 
   // TODO un-hardcode this
   const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
@@ -322,7 +323,7 @@ function OptionsView(props: RouteComponentProps) {
                     formattedExpiry: fromEthDate(expiry).toLocaleDateString('en-us', {month: "short", day: "numeric"})
                 }
                 const status =
-                    fullyMatched ? 'completed' :
+                    fullyMatched ? 'complete' :
                         expiredNonce ? 'cancelled' :
                             fromEthDate(offerExpire) < new Date() ? 'expired' :
                                 tradable ? 'active' :
@@ -390,34 +391,28 @@ function OptionsView(props: RouteComponentProps) {
 
   function returnOrderHistoryRow(id: string, blockNumber: number, orderToName: any, positionHash: string, userAccount: string, status: string, pricePerContract: string) {
     return <Tr key={id}>
-      {isMobile && <Td minW={{ base: "107px", md: "121px" }} display={{ base: "none", md: "flex" }}>
-        <Link color="teal.400" fontSize="11px" fontWeight="bold" letterSpacing="wider"
+      <Td minW={{ base: "107px", md: "121px" }}>
+        <Link color="blue.400" fontSize="11px" fontWeight="bold" letterSpacing="wider"
               href={explorerLink(chainId, blockNumber, ExplorerDataType.BLOCK)} isExternal>
           {blockNumber}<ExternalLinkIcon mx="2px" mb="3px"/>
         </Link>
-      </Td> }
+      </Td>
       <Td fontWeight="semibold" fontSize="xs" lineHeight={1.8} minW="150px">
-        <Text letterSpacing="wide" color="gray.500">{shortOptionName(orderToName)}</Text>
-      </Td>
-      <Td maxWidth={"10px"} isNumeric={true}>
-        <Text fontWeight="semibold" fontSize="xs" letterSpacing="wide" color="gray.500">{pricePerContract}</Text>
-      </Td>
-      <Td>
-        <Tag size='sm' colorScheme={status === 'cancelled' ?
-          'red' : status === 'expired' ?
-            'gray' : status === 'completed' ?
-              'cyan' : status === 'active' ?
-                'yellow': 'blue'} borderRadius='full'>
-          <TagLabel>{status}</TagLabel>
-        </Tag>
-      </Td>
-      <Td>
+        <Text letterSpacing="wide" color={orderHistoryColor}>{shortOptionName(orderToName)}</Text>
         {
           status === 'active' &&
-          <Button colorScheme={bg} size="xs" onClick={() => cancelOrderFunc(positionHash, userAccount, blockNumber)}>
-            Cancel
+          <Button pt={2} variant={"link"} colorScheme={"sprout"} size="xs" onClick={() => cancelOrderFunc(positionHash, userAccount, blockNumber)}>
+              Cancel
           </Button>
         }
+      </Td>
+      <Td maxWidth={"10px"} isNumeric={true}>
+        <Text fontWeight="semibold" fontSize="xs" letterSpacing="wide" color={"gray.500"}>{pricePerContract}</Text>
+      </Td>
+      <Td>
+        <Tag size='sm' colorScheme={status === 'cancelled' ? 'red' : status === 'expired' ? 'gray' : status === 'complete' ? 'cyan' : status === 'active' ? 'yellow': 'blue'} borderRadius='full' fontWeight={"bold"}>
+          <TagLabel>{status}</TagLabel>
+        </Tag>
       </Td>
     </Tr>
   }
@@ -688,11 +683,10 @@ function OptionsView(props: RouteComponentProps) {
                         {userOrderRows.length + localOrderHistoryRows.length ? <Table variant="simple">
                                 <Thead>
                                     <Tr>
-                                      { !isMobile && <Th>Block Number</Th> }
+                                     <Th>Block Number</Th>
                                         <Th>Order</Th>
                                         <Th isNumeric>Price per Contract</Th>
                                         <Th>Status</Th>
-                                        <Th/>
                                     </Tr>
                                 </Thead>
                                 <Tbody>
