@@ -95,8 +95,8 @@ function handleModalClose() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
+            {!isMobile && <Box display={{ base: "none", sm: "none", md: "flex" }}><Chain/></Box>}
             {!isMobile && <Box pr={5} display={{ base: "none", sm: "flex" }}><Balance/></Box>}
-            {!isMobile && <Box display={{ base: "none", sm: "flex" }}><Chain/></Box>}
             <Box onClick={onOpen}
                  mr={isMobile ? '19.5': '0'}
             >
