@@ -15,7 +15,7 @@ import {
   Stack,
   Tag,
   Text,
-  useDisclosure, useColorModeValue, Badge, Container
+  useDisclosure, useColorModeValue, Badge, Container, useBoolean
 } from "@chakra-ui/react";
 
 import {AppCommon, OptionData, SellBuy} from '../types';
@@ -43,6 +43,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
   const [activeHash, setActiveHash] = useState<string>();
   const {chainId} = useWeb3React();
   const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
+  const [ordersVisible, setOrdersVisible] = useBoolean();
 
   const bg = useColorModeValue("sprout", "teal");
   const livePriceColor = useColorModeValue("green.500", "green.200")
@@ -108,13 +109,13 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
         </Box>
       </Flex>
       <Modal  motionPreset="slideInBottom" isOpen={isOpen}  onClose={handleModalClose}
-              scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : 'lg' }>
+              scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : ordersVisible ? '2xl' : 'lg' }>
         <ModalOverlay />
         <ModalContent borderRadius={isMobile ? 'none' : '2xl'}>
           <ModalCloseButton />
           <ModalBody>
             <Box sx={(!approving && !activeHash) ? { display:'block' }:{ display:'none' }}>
-              <OptionDetails appCommon={appCommon} sellBuy={option} positionHash={positionHash} hooks={{approving, setApproving, activeHash, setActiveHash}} optionData={optionData} /></Box>
+              <OptionDetails appCommon={appCommon} sellBuy={option} positionHash={positionHash} hooks={{approving, setApproving, activeHash, setActiveHash, ordersVisible, setOrdersVisible}} optionData={optionData} /></Box>
             { (approving || activeHash) && <Txmonitor txHash={activeHash}/> }
           </ModalBody>
         </ModalContent>
