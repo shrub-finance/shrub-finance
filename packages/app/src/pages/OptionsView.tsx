@@ -27,7 +27,7 @@ import {
   PutCall,
   SellBuy
 } from '../types';
-import {Link as ReachLink, RouteComponentProps} from "@reach/router";
+import {Link as ReachLink, navigate, RouteComponentProps} from "@reach/router";
 import RadioCard from '../components/Radio';
 import {
   cancelOrder,
@@ -96,6 +96,10 @@ function OptionsView(props: RouteComponentProps) {
   // TODO un-hardcode this
   const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
   const baseAsset = process.env.REACT_APP_SUSD_TOKEN_ADDRESS;
+
+  const goBack = () => {
+    navigate(-1);
+  }
 
 
   const [getSummaryAllQuery, {
@@ -547,8 +551,8 @@ function OptionsView(props: RouteComponentProps) {
               {!isMobile && <Flex>
                   <Box>
                       <Button leftIcon={<ArrowBackIcon />} colorScheme="blue" variant="link" fontSize={"xs"}
-                              as={ReachLink} to={'/shrubfolio'}>
-                          Shrubfolio
+                              onClick={goBack}>
+                          Back
                       </Button>
                   </Box>
                   <Spacer/>

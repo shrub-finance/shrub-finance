@@ -66,7 +66,7 @@ import {useWeb3React} from "@web3-react/core";
 import {ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {HelloBud} from '../assets/Icons';
 import { BiPaperPlane, BsBoxArrowLeft, BsBoxArrowRight, FaFileContract, IoRocketSharp } from 'react-icons/all'
-import {Link as ReachLink} from "@reach/router";
+import {Link as ReachLink, navigate} from "@reach/router";
 import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
@@ -120,6 +120,10 @@ function Positions() {
   const connectWalletTimeout = useRef<NodeJS.Timeout>();
 
   const livePriceColor = useColorModeValue("green.500", "green.200");
+
+  const goBack = () => {
+    navigate(-1);
+  }
 
   const spinnerRow = <Tr>
       <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
@@ -574,8 +578,8 @@ function Positions() {
         {!isMobile && <Flex>
           <Box>
             <Button leftIcon={<ArrowBackIcon />} colorScheme="blue" variant="link" fontSize={"xs"}
-                    as={ReachLink} to={'/options'}>
-              Options
+                    onClick={goBack}>
+              Back
             </Button>
           </Box>
           <Spacer/>
