@@ -121,7 +121,7 @@ function HomeView(props: RouteComponentProps) {
                                     </Stack>
                                     <Stack align={'center'}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
-                                            {account && <PolygonIcon/> } {account ? 'Mumbai' :  !!web3Error && getErrorMessage(web3Error).title === "Wrong Network" ? "Switch Mumbai" : "Connect Wallet" }
+                                            {account && <PolygonIcon/> } {account ? 'Mumbai' :  !!web3Error && getErrorMessage(web3Error).title === "Wrong Network" ? "Connect to Mumbai" : "Connect Wallet" }
                                         </Heading>
                                         { !account ? <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
@@ -152,7 +152,7 @@ function HomeView(props: RouteComponentProps) {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
                                         }}>
-                                        {account ? 'Connected' : !!web3Error && getErrorMessage(web3Error).title === "Wrong Network" ? "Switch to Mumbai" : "Connect Wallet" }
+                                        {account ? 'Connected' : !!web3Error && getErrorMessage(web3Error).title === "Wrong Network" ? "Connect to Mumbai" : "Connect Wallet" }
                                     </Button>
                                 </Box>
                             </Box>
