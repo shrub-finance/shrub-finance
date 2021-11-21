@@ -78,6 +78,7 @@ import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 import {Link as ReachLink} from "@reach/router";
 import {isMobile} from "react-device-detect";
 
+
 const { Zero } = ethers.constants;
 
 function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
@@ -735,7 +736,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                   <TabPanels>
                       <TabPanel>
                           <Flex direction={"row"} justifyContent={"space-evenly"}>
-                              <Box flexBasis="100%" mr={8}>
+                              <Box flexBasis="100%" mr={ordersVisible ? 8 : undefined}>
                               {
                                   !orderBook.initialized ?
                                     //  Show spinner while query is still loading
