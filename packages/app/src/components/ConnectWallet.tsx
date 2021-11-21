@@ -41,7 +41,7 @@ import {useConnectWallet} from "../hooks/useConnectWallet";
 import {formatEther} from "ethers/lib/utils";
 import {NETWORK_COLORS, NETWORK_LABELS} from "../constants/networks";
 import {RiSignalTowerLine} from "react-icons/all";
-import {isMobile} from "react-device-detect";
+import {isChrome, isFirefox, isIE, isMobile} from "react-device-detect";
 import {currencySymbol, ExplorerDataType, explorerLink} from "../utils/chainMethods";
 import useAddNetwork from "../hooks/useAddNetwork";
 
@@ -305,13 +305,12 @@ export function ConnectWalletModal() {
                             const currentConnector = connectorsByName[connectorName];
                             const activating = currentConnector === activatingConnector;
                             const connected = currentConnector === connector;
-                            const disabled = !triedEager || !!activatingConnector ||
-                                connected || !!error;
-
+                            const disabled = !triedEager || !!activatingConnector || connected || !!error;
 
                             const mobileConnectors = ['Wallet Connect', 'Coinbase Wallet'];
 
                             const isMobileConnector = mobileConnectors.includes(connectorName);
+
 
                             function WalletIconName(props: any) {
                                 switch (props.type) {
@@ -396,8 +395,8 @@ export function ConnectWalletModal() {
                                                 )}
 
                                                 {(connected && error && noMetaMask) ? (
-                                                  <Link href="https://metamask.io/download" isExternal>
-                                                  Install MetaMask<ExternalLinkIcon mx="2px" /></Link>
+                                                  <Link href={isIE ? "https://microsoftedge.microsoft.com/addons/detail/metamask/ejbalbakoplchlghecdalmeeeajnimhm?hl=en-US": isFirefox ? "https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" : isChrome ? "https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en" : 'https://metamask.io/download'} isExternal>
+                                                      Install MetaMask<ExternalLinkIcon mx="2px" /></Link>
                                                 ) : null}
 
                                                 {(connected && error && noMetaMask && connectorName==="MetaMask") ? null : connectorName}
