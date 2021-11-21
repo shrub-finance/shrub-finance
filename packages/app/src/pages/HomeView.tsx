@@ -31,7 +31,8 @@ import useAddNetwork from "../hooks/useAddNetwork";
 import {isMobile} from "react-device-detect";
 import Faucet from "../components/Faucet";
 import {useWeb3React} from "@web3-react/core";
-import {getErrorMessage} from "../components/ConnectWallet";
+import {ConnectionStatus, ConnectWalletModal, getErrorMessage} from "../components/ConnectWallet";
+import {TxStatusList} from "../components/TxMonitoring";
 
 
 function HomeView(props: RouteComponentProps) {
@@ -39,9 +40,9 @@ function HomeView(props: RouteComponentProps) {
     const [localError, setLocalError] = useState('');
     const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
     const { isOpen: isTestTokenModalOpen, onOpen: onTestTokenModalOpen, onClose: onTestTokenModalClose } = useDisclosure();
+    const { isOpen: isOpenConnectWallet, onOpen: onOpenConnectWallet, onClose: onCloseConnectWallet } = useDisclosure();
     const addNetwork = useAddNetwork();
-    const {account, error} = useWeb3React();
-    const toast = useToast();
+    const {account, error:web3Error, active} = useWeb3React();
     const connectedColor = useColorModeValue("green.100", "teal.600");
     const bgConnect = useColorModeValue("white", "dark.100");
     const questionColor = useColorModeValue("blue", "yellow.300");
@@ -50,22 +51,21 @@ function HomeView(props: RouteComponentProps) {
     const stepsBg = useColorModeValue("yellow.300","gray.500");
     const connectedStepBg = useColorModeValue("white","dark.100");
     const tradingBtnColor = useColorModeValue("sprout", "teal");
+    const displayStatus = (val: boolean ) => {
+        setIsHidden(val);
+    };
+    const [isHidden, setIsHidden] = useState(false);
 
     function handleConnect() {
         if (!account) {
-            if(!!error && getErrorMessage(error).title === "Wrong Network") {
+            if(!!web3Error && getErrorMessage(web3Error).title === "Wrong Network") {
                 return addNetwork();
             }
-            return toast({
-                title: "No wallet detected",
-                description: "Make sure your wallet is connected. Use 'Connect Wallet'.",
-                status: "warning",
-                position: "top",
-                duration: 3000,
-                variant: "shrubYellow",
-                isClosable: true,
-            })
+            else {
+                return onOpenConnectWallet();
+            }
         }
+
         console.log(addNetwork);
         return addNetwork();
     }
@@ -76,26 +76,29 @@ function HomeView(props: RouteComponentProps) {
                 <Center>
                     <Box mb={10}>
                         <Heading maxW="60rem" as="h1"
-                                 // fontSize={{base: "4xl", md: "6xl", lg: "6xl"}}
-                                 fontSize={["4xl", "5xl", "6xl", "6xl"]}
+                                 fontSize={["4xl", "5xl", "90px", "90px"]}
                                  fontWeight="bold" textAlign="center">
-                            {/*Welcome to*/}
                             <Text
-                                // as="span"
-                                  // bgGradient="linear(to-l, #7928CA, #FF0080)"
-                                  // bgClip="text"
+                                as="span"
+                                  bgGradient="linear(to-l, #7928CA, #FF0080)"
+                                  bgClip="text"
                             >
                              Shrub Beta
                             </Text>
                         </Heading>
-                        <Text  mt="3" mb={16} color={useColorModeValue("gray.500", "gray.400")}
-                              fontWeight="bold"
-                              fontSize="xl"
+                        <Text  mt="3" mb={20} color={useColorModeValue("gray.500", "gray.400")}
+                              fontSize="18px"
                                textAlign="center"
                                px={["4rem", "5rem", "17rem", "17rem"]}
                             >
                             {isMobile ? 'Start trading with 3 easy steps' : 'Practice crypto options trading on the Polygon Mumbai blockchain'}
                         </Text>
+
+                        <Box maxW="60rem" mb={8} textAlign={'center'}>
+                            <Heading fontSize="50px" >
+                                Get started in 3 easy steps!
+                            </Heading>
+                        </Box>
                         <Flex
                             direction={{base: "column", md: "row", lg: "row"}}
                             alignItems={{base: "center", md: "center", lg: "center"}}>
@@ -118,11 +121,11 @@ function HomeView(props: RouteComponentProps) {
                                     </Stack>
                                     <Stack align={'center'}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
-                                            {account && <PolygonIcon/> } {account ? 'Mumbai' :  'Connect to Mumbai' }
+                                            {account && <PolygonIcon/> } {account ? 'Mumbai' :  !!web3Error && getErrorMessage(web3Error).title === "Wrong Network" ? "Switch Mumbai" : "Connect Wallet" }
                                         </Heading>
                                         { !account ? <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                              <Text color={questionColor} fontWeight={"extrabold"} fontSize={"sm"} cursor="pointer">What is Mumbai?</Text>
+                                                <Text color={questionColor} fontWeight={"extrabold"} fontSize={"sm"} cursor="pointer">Learn More</Text>
                                             </PopoverTrigger>
                                             <PopoverContent>
                                                 <PopoverArrow />
@@ -149,7 +152,7 @@ function HomeView(props: RouteComponentProps) {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
                                         }}>
-                                        {account ? 'Connected' : 'Connect to Mumbai' }
+                                        {account ? 'Connected' : !!web3Error && getErrorMessage(web3Error).title === "Wrong Network" ? "Switch to Mumbai" : "Connect Wallet" }
                                     </Button>
                                 </Box>
                             </Box>
@@ -172,11 +175,11 @@ function HomeView(props: RouteComponentProps) {
                                     </Stack>
                                     <Stack align={'center'}>
                                         <Heading fontSize={'xl'} fontWeight={"500"}>
-                                            Buy sUSD
+                                            Get sUSD
                                         </Heading>
                                         <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                                <Text color={questionColor} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>What is sUSD?</Text>
+                                                <Text color={questionColor} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>Learn More</Text>
                                             </PopoverTrigger>
                                             <PopoverContent>
                                                 <PopoverArrow />
@@ -209,7 +212,7 @@ function HomeView(props: RouteComponentProps) {
                                             transform: 'translateY(-2px)',
                                             boxShadow: 'lg',
                                         }}>
-                                        Buy sUSD
+                                        Get sUSD
                                     </Button>
                                 </Box>
                             </Box>
@@ -234,7 +237,7 @@ function HomeView(props: RouteComponentProps) {
                                         </Heading>
                                         <Popover placement="top" trigger='hover'>
                                             <PopoverTrigger>
-                                                <Text color={questionColor} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>Why deposit sUSD?</Text>
+                                                <Text color={questionColor} fontSize={"sm"} cursor="pointer" fontWeight={"extrabold"}>Learn More</Text>
                                             </PopoverTrigger>
                                             <PopoverContent fontSize="sm">
                                                 <PopoverArrow />
@@ -268,10 +271,10 @@ function HomeView(props: RouteComponentProps) {
 
             {!isMobile && <Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center>
-                    <Box maxW="60rem" mb={8} textAlign={'center'}>
-                        <Heading fontSize="50px" letterSpacing={"tight"}>
-                            Done with 1-2-3 above?
-                        </Heading>
+                        <Box maxW="60rem" mb={8} textAlign={'center'}>
+                            <Heading fontSize="50px">
+                                Done with 1-2-3 above?
+                            </Heading>
                         <Text pt="3" mb="8" fontSize="18px" color="gray.500">
                             Sweet. Let's buy some options!
                         </Text>
@@ -285,12 +288,6 @@ function HomeView(props: RouteComponentProps) {
                             variant="solid"
                             borderRadius="full"
                             _hover={{transform: 'translateY(-2px)'}}
-                            // bgGradient={useColorModeValue("linear(to-r, blue.100, teal.200)", "linear(to-l, blue.700, teal.700)")}
-                            // bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
-                            // _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}
-                          
-                            // bgGradient="linear(to-r,#74cecc,green.300,blue.400)"
-                            // _hover={{bgGradient:"linear(to-r,#74cecc,blue.400,#6666d2)"}}
                             as={ReachLink} to={'/options'}
                         >
                             Start Trading
@@ -299,124 +296,33 @@ function HomeView(props: RouteComponentProps) {
                 </Center>
             </Container> }
 
-            {/*<Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">*/}
-            {/*    <Center mt={20}>*/}
-            {/*        <Box maxW="60rem" mb={12} textAlign={'center'}>*/}
-            {/*            <Heading fontSize="60px" letterSpacing={"tight"} mb={4}>*/}
-            {/*                /!*First time? *!/*/}
-            {/*                Not sure what to buy?*/}
-            {/*            </Heading>*/}
-            {/*            <Text fontSize="25px">*/}
-            {/*                Try these quick options*/}
-            {/*            </Text>*/}
-            {/*        </Box>*/}
-            {/*    </Center>*/}
-
-            {/*    <Flex*/}
-            {/*        direction={{base: "column", md: "row", lg:"row"}}*/}
-            {/*        alignItems={{base: "center", md: "center", lg:"center"}}*/}
-            {/*    >*/}
-            {/*        <Box*/}
-            {/*            mb={{ base: "10", md: "0", lg:"0" }}*/}
-            {/*            maxW="xs"*/}
-            {/*            mr={5}*/}
-            {/*            shadow={useColorModeValue("2xl", "2xl")}*/}
-            {/*            borderRadius="2xl" overflow="hidden" bg={useColorModeValue("white", "dark.100")}>*/}
-            {/*            <Center mt={4}>*/}
-            {/*                <UniIcon fontSize={180} fill="currentColor"/>*/}
-            {/*            </Center>*/}
-            {/*            <Box p="6">*/}
-            {/*                <Box d="flex" alignItems="baseline">*/}
-            {/*                    <Badge borderRadius="full" px="2" colorScheme="teal">*/}
-            {/*                        Put*/}
-            {/*                    </Badge>*/}
-            {/*                </Box>*/}
-
-            {/*                <Box*/}
-            {/*                    mt="1"*/}
-            {/*                    fontWeight="semibold"*/}
-            {/*                    as="h4"*/}
-            {/*                    lineHeight="tight"*/}
-            {/*                >*/}
-            {/*                    Uniswap V3 LP Insurance*/}
-            {/*                </Box>*/}
-            {/*            </Box>*/}
-            {/*        </Box>*/}
-            {/*        <Spacer/>*/}
-            {/*        <Box*/}
-            {/*            mb={{ base: "10", md: "0", lg:"0" }}*/}
-            {/*            mr={5}*/}
-            {/*            maxW="xs" shadow={useColorModeValue("2xl", "2xl")} borderRadius="2xl" overflow="hidden"*/}
-            {/*            bg={useColorModeValue("white", "dark.100")}>*/}
-            {/*            <Center mt={6}><PolygonIcon fontSize={160}/></Center>*/}
-
-            {/*            <Box p="6">*/}
-            {/*                <Box d="flex" alignItems="baseline">*/}
-            {/*                    <Badge borderRadius="full" px="2" colorScheme="purple">*/}
-            {/*                        Call*/}
-            {/*                    </Badge>*/}
-            {/*                    <Badge borderRadius="full" px="2" colorScheme="red">*/}
-            {/*                        Sell*/}
-            {/*                    </Badge>*/}
-            {/*                </Box>*/}
-
-            {/*                <Box*/}
-            {/*                    mt="1"*/}
-            {/*                    fontWeight="semibold"*/}
-            {/*                    as="h4"*/}
-            {/*                    lineHeight="tight"*/}
-
-            {/*                >*/}
-            {/*                    Sell MATIC for a 4% discount*/}
-            {/*                </Box>*/}
-            {/*            </Box>*/}
-            {/*        </Box>*/}
-            {/*        <Spacer/>*/}
-            {/*        <Box maxW="xs" shadow={useColorModeValue("2xl", "2xl")} borderRadius="2xl" overflow="hidden"*/}
-            {/*             bg={useColorModeValue("white", "dark.100")}>*/}
-            {/*            <Center mt={4}> <FaEthereum fontSize={180}/></Center>*/}
-
-            {/*            <Box p="6">*/}
-            {/*                <Box d="flex" alignItems="baseline">*/}
-            {/*                    <Badge borderRadius="full" px="2" colorScheme="blue">*/}
-            {/*                        Put*/}
-            {/*                    </Badge>*/}
-            {/*                    <Badge borderRadius="full" px="2" colorScheme={useColorModeValue("green", "teal")}>*/}
-            {/*                        Buy*/}
-            {/*                    </Badge>*/}
-            {/*                </Box>*/}
-
-            {/*                <Box*/}
-            {/*                    mt="1"*/}
-            {/*                    fontWeight="semibold"*/}
-            {/*                    as="h4"*/}
-            {/*                    lineHeight="tight"*/}
-
-            {/*                >*/}
-            {/*                    {property.title}*/}
-            {/*                </Box>*/}
-
-            {/*                /!*<Box>*!/*/}
-            {/*                /!*    {property.formattedPrice}*!/*/}
-            {/*                /!*    <Box as="span" color="gray.600" fontSize="sm">*!/*/}
-            {/*                /!*        / call*!/*/}
-            {/*                /!*    </Box>*!/*/}
-            {/*                /!*</Box>*!/*/}
-            {/*            </Box>*/}
-            {/*        </Box>*/}
-            {/*    </Flex>*/}
-            {/*</Container>*/}
 
             <Modal isOpen={isTestTokenModalOpen} onClose={onTestTokenModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : 'md' }>
                 <ModalOverlay />
                 <ModalContent top={isMobile ? '0' : '6rem'} boxShadow="dark-lg" borderRadius={isMobile ? 'none' : '2xl'}>
-                    <ModalHeader> Buy sUSD</ModalHeader>
+                    <ModalHeader> Get sUSD</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
                         <Faucet/>
                     </ModalBody>
                 </ModalContent>
             </Modal>
+
+            <Modal isOpen={isOpenConnectWallet} onClose={onCloseConnectWallet} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"}>
+                <ModalOverlay />
+                <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
+                    <ModalHeader>{ !active ? 'Connect Wallet' :
+                      !isHidden ? <Text fontSize={16}>Account Details</Text>:
+                        <Button variant="ghost" onClick={() => displayStatus(false)}>Back</Button>
+                    } </ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        {!active || isHidden? <ConnectWalletModal/> : !isHidden &&<ConnectionStatus displayStatus={displayStatus}/>}
+                        { !(web3Error && getErrorMessage(web3Error).title === "Wrong Network") && <TxStatusList/>}
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
+
         </>
     )
 }
