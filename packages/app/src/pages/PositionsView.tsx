@@ -9,7 +9,7 @@ import {GiCoins} from "react-icons/gi";
 function PositionsView(props: RouteComponentProps) {
     return (
       <>
-        <Heading mt={10}><Center><Icon as={GiCoins} mr={2}/> Shrubfolio</Center></Heading>
+        <Heading mt={20}><Center><Icon as={GiCoins} mr={2}/> Shrubfolio</Center></Heading>
           <Positions />
       </>
   );

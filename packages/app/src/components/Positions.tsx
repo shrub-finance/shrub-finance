@@ -128,7 +128,7 @@ function Positions() {
   const spinnerRow = <Tr>
       <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
       <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
-      <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
+      <Td display={{"base": "none", "md": "flex"}}> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
       <Td> <Spinner thickness="1px" speed="0.65s" emptyColor="blue.200" color="teal.500" size="xs" label="loading" /></Td>
     </Tr>;
 
@@ -669,7 +669,7 @@ function Positions() {
                   <Th color={"gray.400"}>Position</Th>
                   {/*<Th color={"gray.400"}>Balance</Th>*/}
                   <Th color={"gray.400"}>Qty</Th>
-                  <Th color={"gray.400"}>Price</Th>
+                  <Th color={"gray.400"} display={{"base": "none", "md": "flex"}}>Price</Th>
                   <Th color={"gray.400"}>Gain/Loss</Th>
                 </Tr>
               </Thead>
