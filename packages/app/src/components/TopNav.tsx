@@ -16,13 +16,13 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalCloseButton, Spinner
+  ModalCloseButton, Spinner, useBoolean
 } from "@chakra-ui/react";
 import {HamburgerIcon, CloseIcon, SunIcon, MoonIcon, InfoOutlineIcon, Icon, ExternalLinkIcon} from '@chakra-ui/icons';
 import { Link as ReachLink } from "@reach/router";
-import {Account, Balance, Chain, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
+import {Account, Balance, ConnectionStatus, ConnectWalletModal, getErrorMessage} from "./ConnectWallet";
 import {useConnectWallet} from "../hooks/useConnectWallet";
-import {ShrubLogo} from "../assets/Icons";
+import {ShrubLogo, SUSDIcon} from "../assets/Icons";
 import {TxContext} from "./Store";
 import {confirmingCount, TxStatusList} from "./TxMonitoring";
 import {isMobile} from "react-device-detect";
@@ -38,6 +38,7 @@ function TopNav() {
   const { isOpen: isFaucetModalOpen, onOpen: onFaucetModalOpen, onClose: onFaucetModalClose } = useDisclosure();
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
+  const [isBuyingSUSD, setIsBuyingSUSD] = useBoolean();
   const spinnerBg = useColorModeValue("black","cyan.500")
   const {active, error: web3Error} = useConnectWallet();
   const { pendingTxs } = useContext(TxContext);
@@ -54,10 +55,17 @@ function TopNav() {
   const topNavShadow = useColorModeValue("md", "md");
   const topNavBgColor = useColorModeValue("white", "dark.100");
   useColorModeValue("sprout", "teal");
+
   function handleModalClose() {
     onClose();
     displayStatus(false);
-}
+  }
+
+  function handleTestFaucetModalOpen() {
+
+    onFaucetModalOpen();
+    setIsBuyingSUSD.off();
+  }
 
   const NavRoutes = [{item:'Shrubfolio', itemIcon:GiCoins}, {item:'Options', itemIcon: FaFileContract}];
 
@@ -96,11 +104,12 @@ function TopNav() {
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
-            {!isMobile && <Box pr={5} display={{ base: "none", sm: "flex" }}><Balance/></Box>}
-            {!isMobile && <Box display={{ base: "none", sm: "flex" }}><Chain/></Box>}
-            <Box onClick={onOpen}
-                 mr={isMobile ? '19.5': '0'}
-            >
+            {/*{!isMobile && <Box d={{ base: "none", sm: "none", md: "flex" }}><Chain/></Box>}*/}
+            <Button pr={5} d={{ base: "none", sm: "flex" }} onClick={onFaucetModalOpen} fontSize={"sm"}
+                 variant={"link"} colorScheme={"purple"} rounded={"full"}>Get Shrub Tokens</Button>
+            {!isMobile && <Box pr={5} d={{ base: "none", sm: "flex" }}><Balance/></Box>}
+
+            <Box onClick={onOpen} mr={isMobile ? '19.5': '0'}>
               {/*connect wallet button*/}
               <Button variant={"solid"} colorScheme={!!web3Error ? "red": "yellow"}
                   size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?
@@ -130,20 +139,6 @@ function TopNav() {
                 (<NavRoute itemIcon={route.itemIcon} key={route.item} path={route.item}>
                   <Icon as={route.itemIcon} mr={2} /> {route.item}
                 </NavRoute>))}
-              <Link
-                  href="https://docs.shrub.finance"
-                  isExternal
-                  variant="ghost"
-                  cursor="pointer"
-                  rounded="lg"
-                  py={'3'}
-                  px={'2'}
-                  _hover={{
-                    textDecoration: "none",
-                    bgGradient: gradient
-                  }}>
-                <Icon as={HiOutlineDocumentDuplicate} mr={'2'}/>Docs <ExternalLinkIcon mx="2px" />
-              </Link>
               <Box
                    onClick={toggleColorMode}
                    variant="ghost"
@@ -158,6 +153,27 @@ function TopNav() {
                 {colorMode === "light" ? <MoonIcon mr={'2'}/> : <SunIcon mr={'2'}/>}
                 {colorMode === "light" ? 'Dark Mode' : 'Light Mode'}
               </Box>
+              <Link
+                href="https://docs.shrub.finance"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                rounded="lg"
+                py={'3'}
+                px={'2'}
+                _hover={{
+                  textDecoration: "none",
+                  bgGradient: gradient
+                }}>
+                <Icon as={HiOutlineDocumentDuplicate} mr={'2'}/>Docs <ExternalLinkIcon mx="2px" />
+              </Link>
+              <Box pr={5} onClick={handleTestFaucetModalOpen}
+                   variant="ghost" colorScheme={"purple"} rounded={"lg"} py={'3'}
+                   px={'2'}
+                   _hover={{
+                     textDecoration: "none",
+                     bgGradient: gradient
+                   }}><SUSDIcon/> Get Shrub Tokens</Box>
             </Stack>
             </Box>
         ) : null
@@ -181,11 +197,11 @@ function TopNav() {
 
       <Modal isOpen={isFaucetModalOpen} onClose={onFaucetModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"}>
         <ModalOverlay />
-        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
-          <ModalHeader> Test Faucet</ModalHeader>
+        <ModalContent boxShadow="dark-lg" borderRadius="2xl">
+          <ModalHeader> Get Shrub Tokens </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Faucet/>
+            <Faucet hooks={{isBuyingSUSD, setIsBuyingSUSD}}/>
           </ModalBody>
         </ModalContent>
       </Modal>
