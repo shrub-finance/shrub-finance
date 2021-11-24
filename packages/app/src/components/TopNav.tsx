@@ -62,9 +62,7 @@ function TopNav() {
   }
 
   function handleTestFaucetModalOpen() {
-
     onFaucetModalOpen();
-    setIsBuyingSUSD.off();
   }
 
   const NavRoutes = [{item:'Shrubfolio', itemIcon:GiCoins}, {item:'Options', itemIcon: FaFileContract}];
@@ -195,9 +193,9 @@ function TopNav() {
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={isFaucetModalOpen} onClose={onFaucetModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"}>
+      <Modal isOpen={isFaucetModalOpen} onClose={onFaucetModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : 'md' }>
         <ModalOverlay />
-        <ModalContent boxShadow="dark-lg" borderRadius="2xl">
+        <ModalContent boxShadow="dark-lg" borderRadius={isMobile ? 'none' : '2xl'}>
           <ModalHeader> Get Shrub Tokens </ModalHeader>
           <ModalCloseButton />
           <ModalBody>

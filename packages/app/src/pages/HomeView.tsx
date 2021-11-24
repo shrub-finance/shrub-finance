@@ -98,8 +98,8 @@ function HomeView(props: RouteComponentProps) {
 
 
     function openTestFaucetModal() {
-        onTestTokenModalOpen();
         setIsBuyingSUSD.on();
+        onTestTokenModalOpen();
     }
 
     function handleConnect() {
@@ -484,7 +484,7 @@ function HomeView(props: RouteComponentProps) {
                                         </Popover>
                                     </Stack>
                                     <Button
-                                        onClick={onTestTokenModalOpen}
+                                        onClick={openTestFaucetModal}
                                         disabled={!step1complete || step2complete}
                                         w={'full'}
                                         mt={8}
