@@ -20,7 +20,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverArrow,
-  PopoverCloseButton, PopoverBody, Popover, InputRightElement, VStack,
+  PopoverCloseButton, PopoverBody, Popover, InputRightElement, VStack, Spacer,
 } from '@chakra-ui/react'
 import RadioCard from './Radio'
 import { ToastDescription } from './TxMonitoring'
@@ -35,10 +35,11 @@ import {CheckCircleIcon, ExternalLinkIcon, Icon, UpDownIcon} from "@chakra-ui/ic
 import useAddNetwork from "../hooks/useAddNetwork";
 import {AiOutlineArrowDown, AiOutlineSwap } from 'react-icons/ai'
 import {BsArrowDownShort, BsFunnel, FaFaucet, FiArrowDown, IoSwapVertical} from "react-icons/all";
+import {Balance} from "./ConnectWallet";
 
 
 
-function Faucet() {
+function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
 
   // Constants
   const faucetCurrencies = new Map<'SUSD'|'SMATIC', string>();
@@ -48,10 +49,12 @@ function Faucet() {
   const currencyArray = ['SUSD', 'SMATIC'];
 
   const bg = useColorModeValue("sprout", "teal");
+  const polygonFaucetLinkColor = useColorModeValue("blackAlpha.500", "whiteAlpha.500")
 
   const format = (val: string) => val;
   const parse = (val: string) => val.replace(/^\$/, "");
 
+  const { isBuyingSUSD, setIsBuyingSUSD } = hooks;
 
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
@@ -162,7 +165,7 @@ const addNetwork = useAddNetwork();
 
   return (
       <>
-        <Stack direction={["column"]} spacing="40px" mb="40px">
+        <Stack direction="column" spacing="40px" mb="40px" >
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
               <Alert status="error" borderRadius={9} >
@@ -182,33 +185,25 @@ const addNetwork = useAddNetwork();
 
                   </Flex> :
               <>
-                 <Center> <Link fontSize='xs' fontWeight="extrabold" letterSpacing='wide' color={"whiteAlpha.500"} href="https://faucet.polygon.technology/" isExternal>
+                 <Center>
+                   <Link fontSize='xs' fontWeight="extrabold" color={polygonFaucetLinkColor} href="https://faucet.polygon.technology/" isExternal>
                   Get test MATIC from the Polygon faucet<ExternalLinkIcon mx="2px" />
-                </Link></Center>
-                {/*<FormControl id="faucetCurrency">*/}
-                {/*  <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Select a test Shrub token<Popover>*/}
-                {/*    <PopoverTrigger>*/}
-                {/*      <Text ml="1" color={popOverColor} as="sup" cursor="pointer">What's that?</Text>*/}
-                {/*    </PopoverTrigger>*/}
-                {/*    <PopoverContent>*/}
-                {/*      <PopoverArrow />*/}
-                {/*      <PopoverCloseButton />*/}
-                {/*      <PopoverBody letterSpacing="wide">*/}
-                {/*        <Text> To facilitate testing with reasonable amounts of tokens, we have created sMATIC and sUSD.</Text> <Text>These represent MATIC and USD stable coin in our test environment.</Text> <Text>Options in the test environment have these as their underlying assets.</Text><Text> You may buy sMATIC and sUSD at a rate of 10,000/test MATIC.</Text>*/}
-                {/*      </PopoverBody>*/}
-                {/*    </PopoverContent>*/}
-                {/*  </Popover></FormLabel>*/}
-                {/*  <HStack {...currenciesRadiogroup}>*/}
-                {/*    {currencyArray.map((value) => {*/}
-                {/*      const radio = getRadioProps({ value })*/}
-                {/*      return (*/}
-                {/*          <RadioCard key={value} {...radio}>*/}
-                {/*            {value === 'SMATIC' ? 'sMATIC' : 'sUSD'}*/}
-                {/*          </RadioCard>*/}
-                {/*      )*/}
-                {/*    })}*/}
-                {/*  </HStack>*/}
-                {/*</FormControl>*/}
+                </Link>
+                 </Center>
+                 {!isBuyingSUSD && <FormControl id="faucetCurrency">
+                  <Center>
+                  <HStack {...currenciesRadiogroup}>
+                    {currencyArray.map((value) => {
+                      const radio = getRadioProps({ value })
+                      return (
+                          <RadioCard key={value} {...radio}>
+                            {value === 'SMATIC' ? 'sMATIC' : 'sUSD'}
+                          </RadioCard>
+                      )
+                    })}
+                  </HStack>
+                  </Center>
+                </FormControl>}
                 <VStack>
                   <Box>
                     <Center><FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>You send</FormLabel></Center>
@@ -241,7 +236,9 @@ const addNetwork = useAddNetwork();
                       value={format(amountValue)} size="lg"
                     >
                       <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
-                      <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold" minW={"100"}>test MATIC</FormLabel>}/>
+                      <InputRightElement pointerEvents="none" p={14} children={
+                        <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold" minW={"100"}>test MATIC</FormLabel>
+                      }/>
                     </NumberInput>
                   </Box>
                   <Box>
@@ -256,16 +253,7 @@ const addNetwork = useAddNetwork();
 
                 </VStack>
 
-
-
-            {/*<FormControl id="tokenAmount">*/}
-            {/*<FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>Test Shrub token you get for {invalidEntry ? '' : amountValue} test MATIC</FormLabel>*/}
-            {/*<Box fontWeight={"bold"} fontSize={"lg"} bg={bgColor} p={3} borderRadius={6} color="black">*/}
-            {/*  { modalCurrency === "SMATIC" ? <PolygonIcon/> : <SUSDIcon/> } {invalidEntry ? '?' : format((10000 * Number(amountValue)).toString())} {modalCurrency === "SMATIC" ? 'sMATIC' : 'sUSD'}*/}
-            {/*</Box>*/}
-            {/*</FormControl>*/}
-
-            <Button mb={1.5} size={"lg"} colorScheme={bg} isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
+            <Button mb={1.5} size={"lg"} rounded="2xl" colorScheme={bg} isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
             Get {modalCurrency === 'SUSD' ? 'sUSD' : 'sMATIC'}
             </Button>
             </>

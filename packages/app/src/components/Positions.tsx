@@ -43,7 +43,7 @@ import {
   PopoverBody,
   Popover,
   Spinner,
-  Badge, Heading, Tag, TagLabel, Tooltip,
+  Heading, Tag, TagLabel, Tooltip
 } from '@chakra-ui/react'
 import {
   depositEth,
@@ -687,7 +687,7 @@ function Positions() {
       >
         <ModalOverlay/>
         <ModalContent borderRadius={isMobile ? 'none' : '2xl'}>
-          <ModalHeader borderBottomWidth="1px">{withdrawDepositAction}</ModalHeader>
+          <ModalHeader>{withdrawDepositAction}</ModalHeader>
           <ModalCloseButton/>
           <ModalBody>
               {(!approving && !activeHash) &&
@@ -702,8 +702,7 @@ function Positions() {
                       </SlideFade>
                   )
                   }
-                  <FormControl id="currency">
-                  <FormLabel>Currency</FormLabel>
+                  <FormControl id="currency" mt={4}>
                   <HStack {...currenciesRadiogroup}>
                     {SHRUB_CURRENCIES.map((value) => {
                       const radio = getRadioProps({ value })
@@ -717,23 +716,35 @@ function Positions() {
                   </FormControl>
                   {(modalCurrency === "MATIC"|| (isApproved && withdrawDepositAction === "Deposit")  || withdrawDepositAction === "Withdraw" ) && <FormControl id="amount">
                     <Flex>
-                    <FormLabel>Amount </FormLabel>
                       <Spacer/>
-                      <Badge rounded={"md"} p={2}  mb={2} variant="subtle" colorScheme="yellow">
-                        Available: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : String(shrubBalance.available[modalCurrency])}
-                      </Badge>
-                    </Flex>
-                    <NumberInput
-                        onChange={(valueString) => setAmountValue(parse(valueString))}
-                        value={format(amountValue)} size="lg"
-                    >
-                      <NumberInputField/>
-                      <InputRightElement width="auto">
-                        <Button size="xs" onClick={fillSendMax} p={3.5} mr={2} >
-                          Max
+                        <Button
+                            variant={'link'}
+                            size={'xs'}
+                            colorScheme={"black"}
+                            mb={3}
+                            rounded={'lg'}
+                            onClick={fillSendMax}
+                        >
+                            MAX: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : String(shrubBalance.available[modalCurrency])}
                         </Button>
-                      </InputRightElement>
-                    </NumberInput>
+                    </Flex>
+                      <NumberInput
+                          onChange={(valueString) => setAmountValue(parse(valueString))}
+                          value={format(amountValue)} size="lg"
+                      >
+                          <NumberInputField
+                              h="6rem"
+                              rounded="3xl"
+                              shadow="sm"
+                              fontWeight="bold"
+                              fontSize="2xl"/>
+                          <InputRightElement
+                              pointerEvents="none"
+                              p={14}
+                              children={
+                                <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">{modalCurrency === 'SMATIC' ? 'sMATIC' : 'sUSD'}</FormLabel>
+                              }/>
+                      </NumberInput>
                   </FormControl>}
                 </Stack>
                 {modalCurrency !== "MATIC" && withdrawDepositAction === "Deposit" && !isApproved && <>
@@ -741,7 +752,7 @@ function Positions() {
                     <AlertIcon />
                     You will only have to approve once
                   </Alert>
-                  <Button mb={1.5} colorScheme={btnBg} size={"lg"} isFullWidth={true}
+                  <Button mb={1.5} colorScheme={btnBg} size={"lg"} isFullWidth={true} rounded="2xl"
                       onClick={() => {
                         if (active) {
                           handleDepositWithdraw(undefined, 'approve')
@@ -749,7 +760,7 @@ function Positions() {
                       }}>Approve</ Button>
                 </>
                 }
-                {(modalCurrency === "MATIC" || isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme={btnBg} isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
+                {(modalCurrency === "MATIC" || isApproved  || withdrawDepositAction === "Withdraw")  && <Button mb={1.5} size={"lg"} colorScheme={btnBg} isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw} rounded="2xl">
                   {withdrawDepositAction}
                 </Button>}
               </>

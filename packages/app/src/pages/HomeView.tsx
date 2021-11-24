@@ -34,10 +34,7 @@ import {
     NumberInput,
     NumberInputField,
     InputRightElement,
-    Tr,
-    useRadioGroup,
-    Td,
-    Spinner
+    useRadioGroup, useBoolean,
 } from '@chakra-ui/react'
 import { ArrowForwardIcon, CheckIcon } from '@chakra-ui/icons'
 import {Link as ReachLink, RouteComponentProps} from '@reach/router';
@@ -64,11 +61,7 @@ import {
 } from '../utils/ethMethods'
 import { TxContext } from '../components/Store'
 import { ToastDescription, Txmonitor } from '../components/TxMonitoring'
-import usePriceFeed from '../hooks/usePriceFeed'
-import { CHAINLINK_MATIC } from '../constants/chainLinkPrices'
 import { ShrubBalance, SupportedCurrencies } from '../types'
-import { useQuery } from '@apollo/client'
-import { SHRUBFOLIO_QUERY } from '../constants/queries'
 import { Currencies } from '../constants/currencies'
 
 const { Zero } = ethers.constants;
@@ -97,10 +90,17 @@ function HomeView(props: RouteComponentProps) {
         setIsHidden(val);
     };
     const [isHidden, setIsHidden] = useState(false);
+    const [isBuyingSUSD, setIsBuyingSUSD] = useBoolean();
 
     // Copied from OptionDetails
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const [balances, setBalances] = useState<{shrub: {baseAsset: BigNumber, quoteAsset: BigNumber}, wallet: {baseAsset: BigNumber, quoteAsset: BigNumber}, optionPosition: BigNumber}>()
+
+
+    function openTestFaucetModal() {
+        onTestTokenModalOpen();
+        setIsBuyingSUSD.on();
+    }
 
     function handleConnect() {
         if (!account) {
@@ -155,9 +155,6 @@ function HomeView(props: RouteComponentProps) {
     const step1complete = !!account;
     const step2complete = balances && balances.shrub && balances.wallet && (!balances.shrub.baseAsset.eq(Zero) || !balances.wallet.baseAsset.eq(Zero));
     const step3complete = balances && balances.shrub && (!balances.shrub.baseAsset.eq(Zero));
-
-    //  MODAL CRAP
-
 
     const alertColor = useColorModeValue("gray.100", "dark.300");
     const [withdrawDepositAction, setWithdrawDepositAction] = useState('');
@@ -414,7 +411,7 @@ function HomeView(props: RouteComponentProps) {
                                         disabled={step1complete}
                                         colorScheme={tradingBtnColor}
                                         variant={step1complete ? "unstyled" : "solid"}
-                                        rounded={'full'}
+                                        rounded="2xl"
                                         _hover={step1complete ? {
                                             cursor: "text"
                                         }:{
@@ -493,7 +490,7 @@ function HomeView(props: RouteComponentProps) {
                                         mt={8}
                                         colorScheme={tradingBtnColor}
                                         variant={step2complete ? "unstyled" : "solid"}
-                                        rounded={'full'}
+                                        rounded="2xl"
                                         _hover={step2complete ? {
                                             cursor: "text"
                                         }:{
@@ -505,7 +502,7 @@ function HomeView(props: RouteComponentProps) {
                             </Box>
                             :
                                 <Button
-                                onClick={onTestTokenModalOpen}
+                                onClick={openTestFaucetModal}
                                 disabled={!step1complete || step2complete}
                                 w={'full'}
                                 mt={8}
@@ -559,7 +556,8 @@ function HomeView(props: RouteComponentProps) {
                                       w={'full'}
                                       onClick={handleWithdrawDepositModalOpen( 'Deposit')}
                                       mt={8}
-                                      rounded={'full'}
+                                      colorScheme={tradingBtnColor}
+                                      rounded="2xl"
                                       variant={step3complete ? "unstyled" : "solid"}
                                       _hover={step3complete ? {
                                           cursor: "text"
@@ -624,11 +622,11 @@ function HomeView(props: RouteComponentProps) {
             
             <Modal isOpen={isTestTokenModalOpen} onClose={onTestTokenModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : 'md' }>
                 <ModalOverlay />
-                <ModalContent top={isMobile ? '0' : '6rem'} boxShadow="dark-lg" borderRadius={isMobile ? 'none' : '2xl'}>
+                <ModalContent boxShadow="dark-lg" borderRadius={isMobile ? 'none' : '2xl'}>
                     <ModalHeader> Get sUSD</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Faucet/>
+                        <Faucet hooks={{isBuyingSUSD, setIsBuyingSUSD}}/>
                     </ModalBody>
                 </ModalContent>
             </Modal>
@@ -639,7 +637,7 @@ function HomeView(props: RouteComponentProps) {
           >
               <ModalOverlay/>
               <ModalContent borderRadius={isMobile ? 'none' : '2xl'}>
-                  <ModalHeader borderBottomWidth="1px">{withdrawDepositAction} sUSD</ModalHeader>
+                  <ModalHeader>{withdrawDepositAction} sUSD</ModalHeader>
                   <ModalCloseButton/>
                   <ModalBody>
                       {(!approving && !activeHash) &&
@@ -659,14 +657,14 @@ function HomeView(props: RouteComponentProps) {
                                   <Flex pt={4}>
                                       <Spacer/>
                                       <Button
-                                          variant={'ghost'}
-                                          colorScheme={'blue'}
+                                          variant={'link'}
+                                          colorScheme={'black'}
                                           size={'xs'}
-                                          mb={1}
-                                          borderRadius={'2xl'}
+                                          mb={3}
+                                          rounded={'lg'}
                                           onClick={fillSendMax}
                                       >
-                                          Available: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : String(shrubBalance.available[modalCurrency])}
+                                          MAX: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : String(shrubBalance.available[modalCurrency])}
                                       </Button>
                                   </Flex>
 
@@ -677,7 +675,7 @@ function HomeView(props: RouteComponentProps) {
                                   >
                                   <NumberInputField
                                   h="6rem"
-                                  borderRadius="3xl"
+                                  rounded="3xl"
                                   shadow="sm"
                                   fontWeight="bold"
                                   fontSize="2xl"/>
@@ -695,7 +693,7 @@ function HomeView(props: RouteComponentProps) {
                                   <AlertIcon />
                                   You will only have to approve once
                               </Alert>
-                              <Button mb={1.5} colorScheme={btnBg} size={"lg"} isFullWidth={true}
+                              <Button mb={1.5} colorScheme={btnBg} size={"lg"} isFullWidth={true} rounded="2xl"
                                       onClick={() => {
                                           if (active) {
                                               handleDepositWithdraw(undefined, 'approve')
@@ -703,7 +701,8 @@ function HomeView(props: RouteComponentProps) {
                                       }}>Approve</ Button>
                           </>
                           }
-                          {(modalCurrency === "MATIC" || isApproved  || withdrawDepositAction === "Withdraw")  && <Button
+                          {(modalCurrency === "MATIC" || isApproved  || withdrawDepositAction === "Withdraw")  &&
+                          <Button rounded="2xl"
                             mb={1.5} size={"lg"} colorScheme={btnBg} isFullWidth={true} isDisabled={amountValue === '0' || amountValue === ''} onClick={handleDepositWithdraw}>
                               {withdrawDepositAction}
                           </Button>}

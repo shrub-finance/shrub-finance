@@ -13,7 +13,7 @@ function RadioCard(props) {
       <Box
         {...checkbox}
         cursor="pointer"
-        borderRadius="2xl"
+        rounded="2xl"
         borderWidth="1px"
         borderColor={useColorModeValue("sprout.500", "gray.700")}
         boxShadow="lg"
