@@ -51,6 +51,7 @@ function HomeView(props: RouteComponentProps) {
     const stepsBg = useColorModeValue("yellow.300","gray.500");
     const connectedStepBg = useColorModeValue("white","dark.100");
     const tradingBtnColor = useColorModeValue("sprout", "teal");
+    const mobileStepsBtnBg = useColorModeValue("linear(to-r, sprout.200, teal.200)", "linear(to-l, blue.700, teal.700)");
     const displayStatus = (val: boolean ) => {
         setIsHidden(val);
     };
@@ -75,42 +76,43 @@ function HomeView(props: RouteComponentProps) {
             <Container mt={isMobile ? 30 : 50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
                 <Center>
                     <Box mb={10}>
-                        <Heading maxW="60rem" as="h1"
-                                 fontSize={["4xl", "5xl", "90px", "90px"]}
+                        <Heading maxW="60rem"
+                                 fontSize={["5xl", "6xl", "90px", "90px"]}
                                  fontWeight="bold" textAlign="center">
-                            <Text
-                                as="span"
-                                  bgGradient="linear(to-l, #7928CA, #FF0080)"
-                                  bgClip="text"
-                            >
-                             Shrub Beta
+                            <Text as="span">
+                             Shrub
+                            </Text>
+                                <Text
+                              as="span"
+                              bgGradient="linear(to-l, #7928CA, #FF0080)"
+                              bgClip="text"
+                            > Beta
                             </Text>
                         </Heading>
-                        <Text  mt="3" mb={20} color={useColorModeValue("gray.500", "gray.400")}
+                        <Text  mt="3" mb={{base: "16px", md: "20", lg: "20"}} color={useColorModeValue("gray.500", "gray.400")}
                               fontSize="18px"
                                textAlign="center"
                                px={["4rem", "5rem", "17rem", "17rem"]}
                             >
-                            {isMobile ? 'Start trading with 3 easy steps' : 'Practice crypto options trading on the Polygon Mumbai blockchain'}
+                            {isMobile ? 'Get started in 3 easy steps' : 'Practice crypto options trading on the Polygon Mumbai blockchain'}
                         </Text>
 
-                        <Box maxW="60rem" mb={8} textAlign={'center'}>
+                        {!isMobile && <Box maxW="60rem" mb={8} textAlign={'center'}>
                             <Heading fontSize="50px" >
                                 Get started in 3 easy steps!
                             </Heading>
-                        </Box>
+                        </Box>}
                         <Flex
                             direction={{base: "column", md: "row", lg: "row"}}
                             alignItems={{base: "center", md: "center", lg: "center"}}>
-                            <Box
+                            {!isMobile ?  <Box
                                 mb={{base: "10", md: "0", lg: "0"}}
                                 maxW="280px"
                                 minW="280px"
                                 mr={5}
-                                shadow={useColorModeValue("2xl", "2xl")}
+                                shadow="2xl"
                                 bg={account? connectedColor : bgConnect}
                                 borderRadius="2xl" overflow="hidden">
-
                                 <Box p={6}>
                                     <Stack py={6} align={'center'}>
                                         <Circle w="100px" h="100px" bg={account ?  connectedStepBg :stepsBg} color={account ? connectedStepColor :stepsColor}>
@@ -146,7 +148,7 @@ function HomeView(props: RouteComponentProps) {
                                         onClick={handleConnect}
                                         w={'full'}
                                         mt={8}
-                                        colorScheme={useColorModeValue("sprout", "teal")}
+                                        colorScheme={tradingBtnColor}
                                         rounded={'full'}
                                         _hover={{
                                             transform: 'translateY(-2px)',
@@ -155,19 +157,34 @@ function HomeView(props: RouteComponentProps) {
                                         {account ? 'Connected' : !!web3Error && getErrorMessage(web3Error).title === "Wrong Network" ? "Connect to Mumbai" : "Connect Wallet" }
                                     </Button>
                                 </Box>
-                            </Box>
+                            </Box> :
+                            <Button
+                              onClick={handleConnect}
+                              w={'full'}
+                              mt={8}
+                              p={8}
+                              fontSize={"xl"}
+                              bgGradient={mobileStepsBtnBg}
+                              rounded={'2xl'}
+                              _hover={{
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: 'lg',
+                              }}>
+                                {account ? 'Connected' : !!web3Error && getErrorMessage(web3Error).title === "Wrong Network" ? "Step 1: Connect to Mumbai" : "Step 1: Connect Wallet" }
+                            </Button>
+                            }
                             <Spacer/>
-                            <Box
+                            {!isMobile ? <Box
                                 mb={{base: "10", md: "0", lg: "0"}}
                                 mr={5}
                                 maxW="285px"
                                 minW="285px"
-                                shadow={useColorModeValue("2xl", "2xl")} borderRadius="2xl" overflow="hidden"
-                                bg={useColorModeValue("white", "dark.100")}>
+                                shadow="2xl" borderRadius="2xl" overflow="hidden"
+                                bg={bgConnect}>
 
                                 <Box p={6}>
                                     <Stack py={6} align={'center'}>
-                                        <Circle w="100px" h="100px" bg={useColorModeValue("yellow.300","gray.500")} color={stepsColor}>
+                                        <Circle w="100px" h="100px" bg={stepsBg} color={stepsColor}>
                                             <Box as="span" fontWeight="bold" fontSize="6xl">
                                                 2
                                             </Box>
@@ -206,7 +223,7 @@ function HomeView(props: RouteComponentProps) {
                                         onClick={onTestTokenModalOpen}
                                         w={'full'}
                                         mt={8}
-                                        colorScheme={useColorModeValue("sprout", "teal")}
+                                        colorScheme={tradingBtnColor}
                                         rounded={'full'}
                                         _hover={{
                                             transform: 'translateY(-2px)',
@@ -216,16 +233,32 @@ function HomeView(props: RouteComponentProps) {
                                     </Button>
                                 </Box>
                             </Box>
+                            :
+                                <Button
+                                onClick={onTestTokenModalOpen}
+                                w={'full'}
+                                mt={8}
+                                p={8}
+                                fontSize={"xl"}
+                                bgGradient={mobileStepsBtnBg}
+                                rounded={'2xl'}
+                                _hover={{
+                                transform: 'translateY(-2px)',
+                                boxShadow: 'lg',
+                            }}>
+                                Step 2 : Get sUSD
+                                </Button>
+                            }
                             <Spacer/>
-                            <Box
-                                 maxW="280px"
-                                 minW="280px"
-                                 shadow={useColorModeValue("2xl", "2xl")} borderRadius="2xl" overflow="hidden"
-                                 bg={useColorModeValue("white", "dark.100")}>
 
-                                <Box p={6}>
+                            {!isMobile ? <Box
+                            maxW="280px"
+                            minW="280px"
+                            shadow="2xl" borderRadius="2xl" overflow="hidden"
+                            bg={bgConnect}>
+                            <Box p={6}>
                                     <Stack py={6} align={'center'}>
-                                        <Circle w="100px" h="100px" bg={useColorModeValue("yellow.300","gray.500")} color={stepsColor}>
+                                        <Circle w="100px" h="100px" bg={stepsBg} color={stepsColor}>
                                             <Box as="span" fontWeight="bold" fontSize="6xl">
                                                 3
                                             </Box>
@@ -250,11 +283,10 @@ function HomeView(props: RouteComponentProps) {
                                         </Popover>
                                     </Stack>
                                     <Button
-
                                         as={ReachLink} to={'/shrubfolio'}
                                         w={'full'}
                                         mt={8}
-                                        colorScheme={useColorModeValue("sprout", "teal")}
+                                        colorScheme={tradingBtnColor}
                                         rounded={'full'}
                                         _hover={{
                                             transform: 'translateY(-2px)',
@@ -264,6 +296,23 @@ function HomeView(props: RouteComponentProps) {
                                     </Button>
                                 </Box>
                             </Box>
+                            :
+                            <Button
+
+                              as={ReachLink} to={'/shrubfolio'}
+                              w={'full'}
+                              mt={8}
+                              p={8}
+                              fontSize={"xl"}
+                              bgGradient={mobileStepsBtnBg}
+                              rounded={'2xl'}
+                              _hover={{
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: 'lg',
+                              }}>
+                                Step 3: Deposit sUSD
+                            </Button> }
+
                         </Flex>
                     </Box>
                 </Center>
