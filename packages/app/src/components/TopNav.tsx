@@ -71,7 +71,7 @@ function TopNav() {
 
 
   return (
-    <Box>
+    <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}  >
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"} >
           <HStack spacing={8} alignItems={"center"}>

@@ -74,7 +74,7 @@ function HomeView(props: RouteComponentProps) {
     return (
         <>
             <Container mt={isMobile ? 30 : 50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
-                <Center>
+                <Center mt={10}>
                     <Box mb={10}>
                         <Heading maxW="60rem"
                                  fontSize={["5xl", "6xl", "90px", "90px"]}

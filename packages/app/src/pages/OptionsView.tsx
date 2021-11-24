@@ -531,7 +531,7 @@ function OptionsView(props: RouteComponentProps) {
           <Center>
               <Menu isLazy>
                   <MenuButton>
-                    <Heading mt={10}>
+                    <Heading mt={20}>
                       {/*<Icon as={currencyIcon(chainId)} pr="2" boxSize={40}/>*/}
                       sMATIC Options
                       <ChevronDownIcon color={"gray.300"} boxSize={6}/>
