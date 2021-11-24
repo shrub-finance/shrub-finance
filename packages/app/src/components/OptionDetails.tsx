@@ -53,9 +53,9 @@ import {
     formatTime,
     getBigWalletBalance,
     userOptionPosition,
-    floorGroupNumber,
-} from '../utils/ethMethods';
-import { BigNumber, ethers } from 'ethers';
+    floorGroupNumber, depositAndMatchOrders,
+} from '../utils/ethMethods'
+import { BigNumber, BigNumberish, ethers } from 'ethers'
 import {useWeb3React} from "@web3-react/core";
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -390,8 +390,11 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
         }
     }
 
-    async function marketOrderMany() {
+    async function marketOrderMany(tokenToDeposit?: string, amountToDeposit?: BigNumberish) {
         try {
+            if ((tokenToDeposit && !amountToDeposit) || (!tokenToDeposit && amountToDeposit)) {
+                throw new Error('Both tokenToDeposit and amountToDeposit must either be specified or undefined');
+            }
             // console.log('running marketOrderMany');
             setApproving(true);
             if (!active || !account) {
@@ -532,7 +535,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                 signedBuyOrders = counterPartyOrders;
                 signedSellOrders = [signedOrder];
             }
-            const tx = await matchOrders(signedBuyOrders, signedSellOrders, library)
+            let tx;
+            if (tokenToDeposit && amountToDeposit) {
+                tx = await depositAndMatchOrders(tokenToDeposit, amountToDeposit, signedBuyOrders, signedSellOrders, library);
+            } else {
+                tx = await matchOrders(signedBuyOrders, signedSellOrders, library);
+            }
             console.log(tx);
             const quoteSymbol = await getSymbolFor(quoteAsset, library);
             const description = `${radioOption === 'BUY' ? 'Buy' : 'Sell'} ${newAmount} ${formatDate(expiry)} $${formattedStrike} ${quoteSymbol} ${optionType.toLowerCase()} options for $${ethers.utils.formatUnits(accumulatedPrice, 18)}`;
@@ -579,9 +587,24 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
 
     function placeOrderConfirmation() {
         if(radioOrderType === 'Limit') {
+            // Limit Order
             limitOrder();
         } else {
-            marketOrderMany();
+            // Market Order
+            if (!balances || !totPrice) {
+                throw new Error('balances or totPrice not defined');
+            }
+            let tokenToDeposit;
+            let amountToDeposit;
+            if (radioOption === 'BUY') {
+                const deficit = totPrice.sub(balances.shrub.baseAsset);
+                // const deficit = balances.shrub.baseAsset.sub(totPrice);
+                if (deficit.gt(0)) {
+                    amountToDeposit = deficit;
+                    tokenToDeposit = baseAsset;
+                }
+            }
+            marketOrderMany(tokenToDeposit, amountToDeposit);
         }
         onCloseConfirmDialog();
 
@@ -639,7 +662,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
     const collateralRequirement = balances && balances.optionPosition.gt(0) ?
       Math.max(0, collateralPerContract * (Number(newAmount) - Number(ethers.utils.formatUnits(balances.optionPosition)))) :
       Number(newAmount)  * collateralPerContract;
-    const insufficientFunds = radioOption === 'BUY' && balances && totPrice && balances.shrub.baseAsset.lt(totPrice);
+    const insufficientFunds = radioOption === 'BUY' && balances && totPrice && (balances.shrub.baseAsset.add(balances.wallet.baseAsset)).lt(totPrice);
     const insufficientCollateral = radioOption === 'SELL' && balances && (optionType === 'CALL' ?
       Number(ethers.utils.formatUnits(balances.shrub.quoteAsset)) :
       Number(ethers.utils.formatUnits(balances.shrub.baseAsset))

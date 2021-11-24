@@ -1,4 +1,4 @@
-import { BigNumber, BytesLike, ethers } from 'ethers'
+import { BigNumber, BigNumberish, BytesLike, ethers } from 'ethers'
 import {
   SUSDToken__factory,
   ShrubExchange,
@@ -392,10 +392,7 @@ export function getLockedBalance(address: string, tokenContractAddress: string, 
 //   return shrubContract.matchOrder(sellOrder, buyOrder, common, sellSig, buySig);
 // }
 
-export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: IOrder[], provider: JsonRpcProvider) {
-  const signer = provider.getSigner();
-  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
-
+function matchOrderHelper(signedBuyOrders: IOrder[], signedSellOrders: IOrder[]) {
   const buyOrders: SmallOrder[] = [];
   const sellOrders: SmallOrder[] = [];
   const commons: OrderCommon[] = [];
@@ -411,10 +408,29 @@ export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: I
     sellSigs.push(iOrderToSig(signedSellOrder));
     commons.push(iOrderToCommon(signedSellOrder));
   }
+  return {buyOrders, sellOrders, commons, sellSigs, buySigs}
+}
+
+export async function matchOrders(signedBuyOrders: IOrder[], signedSellOrders: IOrder[], provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const {buyOrders, sellOrders, commons, sellSigs, buySigs} = matchOrderHelper(signedBuyOrders, signedSellOrders);
 
   // TODO: Add some validation on here like there was for matchOrder
 
   return shrubContract.matchOrders(sellOrders, buyOrders, commons, sellSigs, buySigs);
+}
+
+
+export async function depositAndMatchOrders(depositToken: string, depositAmount: BigNumberish, signedBuyOrders: IOrder[], signedSellOrders: IOrder[], provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+
+  const {buyOrders, sellOrders, commons, sellSigs, buySigs} = matchOrderHelper(signedBuyOrders, signedSellOrders);
+
+  // TODO: Add some validation on here like there was for matchOrder
+
+  return shrubContract.depositAndMatchMany(depositToken, depositAmount, sellOrders, buyOrders, commons, sellSigs, buySigs);
 }
 
 function validateBlockRange(fromBlock: ethers.providers.BlockTag, toBlock: ethers.providers.BlockTag) {
