@@ -19,10 +19,6 @@ import {
     InputRightElement,
     NumberInput,
     NumberInputField,
-    Popover,
-    PopoverBody, PopoverCloseButton,
-    PopoverContent,
-    PopoverTrigger,
     SlideFade, Spacer,
     Spinner,
     Stack, Tab,
@@ -32,8 +28,7 @@ import {
     Text,
     Th,
     Thead,
-    Tr,
-    useColorModeValue,
+    Tr, useColorModeValue,
     useDisclosure,
     useRadioGroup,
     useToast, VStack,
@@ -83,12 +78,13 @@ import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
 import {Link as ReachLink} from "@reach/router";
 import {isMobile} from "react-device-detect";
 
+
 const { Zero } = ethers.constants;
 
-function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: {
+function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
     appCommon: AppCommon,
     sellBuy: SellBuy,
-    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any},
+    hooks: {approving: any, setApproving: any, activeHash: any, setActiveHash: any, ordersVisible: any, setOrdersVisible: any},
     optionData: OptionData,
     positionHash: string
 }) {
@@ -103,7 +99,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
         onClose: onCloseConnectModal
     } = useDisclosure();
 
-    const { approving, setApproving, setActiveHash } = hooks;
+    const { approving, setApproving, setActiveHash, ordersVisible, setOrdersVisible } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const livePriceColor = useColorModeValue("green.500", "green.200");
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
@@ -655,10 +651,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
         return (
           <>
               <Box
-                // color={useColorModeValue("gray.500", "black")}
-                color={"gray.500"}
-                // bgColor={useColorModeValue("gray.100", "gray.400")}
-                bgColor={"gray.100"}
+                color="gray.500"
+                bgColor="gray.100"
                 fontWeight="semibold"
                 letterSpacing="wide"
                 fontSize="xs"
@@ -682,9 +676,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
               </Table>
 
               <Box
-                // color={useColorModeValue("gray.500", "black")}
                 color={"gray.500"}
-                // bgColor={useColorModeValue("gray.100", "gray.400")}
                 bgColor={"gray.100"}
                 fontWeight="semibold"
                 letterSpacing="wide"
@@ -711,6 +703,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
         )
     }
 
+
     return (
       <>
           {localError &&
@@ -731,207 +724,212 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                 onChange={(index) => setRadioOrderType(index === 0 ? 'Market' : 'Limit')}
               >
                   <TabList color={"gray.500"} p={2}>
-                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
+                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"} onClick={setOrdersVisible.off}
                            _selected={{ color: "sprout.500" }}>
                           Market</Tab>
                       {/*(Instant Buy)*/}
-                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"}
+                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"} onClick={setOrdersVisible.on}
                            _selected={{  color: "sprout.500"}}>
                           Limit</Tab>
                       {/*(Name your Price)*/}
                   </TabList>
                   <TabPanels>
                       <TabPanel>
-                          {
-                              !orderBook.initialized ?
-                                //  Show spinner while query is still loading
-                                <Center p={40}>
-                                    <Spinner thickness="2px"
-                                             speed="0.65s"
-                                             emptyColor="gray.200"
-                                             color="sprout.500"
-                                             size="xl"/>
-                                </Center> :
-                                // Show normal tab display once loding is complete
-                          <Flex direction={{ base: "column", md: "row" }}>
-                              <Stack spacing="24px" w={"full"}>
-                                  <Box >
-                                      <Flex pb={8}>
-                                          <Box fontSize={"md"} fontWeight="bold">
-                                              {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
-                                          </Box>
-                                          <Spacer/>
-                                          <Text  fontSize={"xs"} fontWeight={"bold"}
-                                                 color={livePriceColor}>
-                                              sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
-                                          </Text>
-                                      </Flex>
-
-                                      <Box fontSize={"xs"} fontWeight={"bold"}
-                                           pb={10}>
-                                          <Flex>
-                                              <Box>
-                                                  <HStack pb={1}>
-                                                      <Text color="gray.500">Strike</Text>
-                                                      <Text>${formattedStrike}</Text>
-                                                  </HStack>
-                                                  <HStack>
-                                                      <Text color="gray.500">Expiry</Text>
-                                                      <Text>{formattedExpiry}, {formatTime(expiry)}</Text>
-                                                  </HStack>
-                                              </Box>
-                                              <Spacer/>
-                                              {/*can only fill if short and buying or long (own it) and selling*/}
-                                              {balances && !balances.optionPosition.eq(0) && <Box>
-                                                  <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
-                                                       p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
-                                                      You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
-                                                  </Box>
-                                              </Box>}
-                                          </Flex>
-                                      </Box>
-                                      <OrderErrors/>
-                                      {/*Market Order Quantity*/}
-                                      <NumberInput id="amount"
-                                                   placeholder="0.0"
-                                                   value={newAmount}
-                                                   min={0.0}
-                                                   max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
-                                                   onChange={(valueString) => {
-                                                       const [integerPart, decimalPart] = valueString.split('.');
-                                                       if(valueString === '.') {
-                                                           setNewAmount('0.')
-                                                           return;
-                                                       }
-                                                       if (decimalPart && decimalPart.length > 6) {
-                                                           return;
-                                                       }
-                                                       if (integerPart && integerPart.length > 6) {
-                                                           return;
-                                                       }
-                                                       if (valueString === '00') {
-                                                           return;
-                                                       }
-                                                       if (isNaN(Number(valueString))) {
-                                                           return;
-                                                       }
-                                                       if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
-                                                           setNewAmount(Number(valueString).toFixed(6))
-                                                           return;
-                                                       }
-                                                       setNewAmount(valueString);
-                                                   }}>
-                                          <NumberInputField
-                                            h="6rem"
-                                            borderRadius="3xl"
-                                            shadow="sm"
-                                            fontWeight="bold"
-                                            fontSize="2xl"/>
-                                          <InputRightElement
-                                            pointerEvents="none"
-                                            p={14}
-                                            children={
-                                                <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>
-                                            }/>
-                                      </NumberInput>
-                                  </Box>
-                                  <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 0 : 310}>
-                                      {!isMobile && <Box></Box>}
-                                      <Box>
-                                          {isMobile ?
-                                            <Accordion allowToggle>
-                                                <AccordionItem>
-                                                    <Box>
-                                                        <AccordionButton>
-                                                            <Box flex="1" textAlign="left" fontSize={"xs"} color="gray.500">
-                                                                View order book
-                                                            </Box>
-                                                            <AccordionIcon />
-                                                        </AccordionButton>
+                          <Flex direction={"row"} justifyContent={"space-evenly"}>
+                              <Box flexBasis="100%" mr={ordersVisible ? 8 : undefined}>
+                              {
+                                  !orderBook.initialized ?
+                                    //  Show spinner while query is still loading
+                                    <Center p={50}>
+                                        <Spinner thickness="2px"
+                                                 speed="0.65s"
+                                                 emptyColor="gray.200"
+                                                 color="sprout.500"
+                                                 size="xl"/>
+                                    </Center> :
+                                    // Show normal tab display once loding is complete
+                                    <Flex direction={{ base: "column", md: "row" }}>
+                                        <Stack spacing="24px" w={"full"}>
+                                            {/*Row 1*/}
+                                            <Box >
+                                                <Flex pb={8}>
+                                                    <Box fontSize={"md"} fontWeight="bold">
+                                                        {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
                                                     </Box>
-                                                    <AccordionPanel pb={4}>
-                                                        <DisplayOrderBook/>
-                                                    </AccordionPanel>
-                                                </AccordionItem>
-                                            </Accordion>
-                                            :
-                                            <Popover placement="right" isLazy closeOnBlur={false} gutter={64}>
-                                                <PopoverTrigger>
-                                                    <Text color={orderBookTextColor} fontWeight={"extrabold"} fontSize={"xs"}
-                                                          cursor={"pointer"}>View order book</Text>
-                                                </PopoverTrigger>
-                                                <PopoverContent>
-                                                    <PopoverCloseButton/>
-                                                    <PopoverBody p={8}>
-                                                        <DisplayOrderBook/>
-                                                    </PopoverBody>
-                                                </PopoverContent>
-                                            </Popover>
-                                          }
-                                      </Box>
-                                  </Stack>
-                                  <Box fontSize="sm" pt={6}>
-                                      <HStack spacing={8} fontSize={"sm"}>
-                                          <VStack spacing={1.5} alignItems={"flex-start"}>
-                                              <Text>Price per contract</Text>
-                                              <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
-                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
-                                              {radioOption === 'SELL' && <Text>Collateral Needed</Text>}
-                                              <Text>Available</Text>
-                                          </VStack>
-                                          <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
-                                              <Text>
-                                                  ${formattedPricePerContract}
-                                              </Text>
-                                              <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
-                                                  ${formattedTotPrice}
-                                              </Text>
+                                                    <Spacer/>
+                                                    <Text  fontSize={"xs"} fontWeight={"bold"}
+                                                           color={livePriceColor}>
+                                                        sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
+                                                    </Text>
+                                                </Flex>
 
-                                              {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
-                                              <Text color="gray.500">
-                                                  {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
-                                              </Text> }
-                                              {radioOption === 'SELL' && (optionType === 'CALL' ?
-                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
-                                                    {collateralRequirement.toFixed(4)} sMATIC
-                                                </Text> :
-                                                <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
-                                                    ${collateralRequirement.toFixed(4)}
-                                                </Text>) }
-                                              {radioOption === 'SELL' && optionType === 'CALL'?
-                                                <Text color="gray.500">
-                                                    {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
-                                                </Text> :
-                                                <Text color="gray.500">
-                                                    ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
-                                                </Text>}
-                                          </VStack>
-                                      </HStack>
-                                  </Box>
-                                  <Box>
-                                      <Flex justifyContent="flex-end">
-                                          <Button
-                                            colorScheme={ctaColor}
-                                            type="submit"
-                                            onClick={onOpenConfirmDialog}
-                                            disabled={
-                                                insufficientFunds ||
-                                                insufficientCollateral ||
-                                                insufficientDepth ||
-                                                noOrders ||
-                                                Number(newAmount)<=0 ||
-                                                isNaN(Number(newAmount)) ||
-                                                (radioOrderType === 'Market' && (
-                                                    Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
-                                                ))}>
-                                              Review Order
-                                          </Button>
-                                      </Flex>
-                                  </Box>
-                              </Stack>
-                          </Flex>}
+                                                <Box fontSize={"xs"} fontWeight={"bold"}
+                                                     pb={10}>
+                                                    <Flex>
+                                                        <Box>
+                                                            <HStack pb={1}>
+                                                                <Text color="gray.500">Strike</Text>
+                                                                <Text>${formattedStrike}</Text>
+                                                            </HStack>
+                                                            <HStack>
+                                                                <Text color="gray.500">Expiry</Text>
+                                                                <Text>{formattedExpiry}, {formatTime(expiry)}</Text>
+                                                            </HStack>
+                                                        </Box>
+                                                        <Spacer/>
+                                                        {/*can only fill if short and buying or long (own it) and selling*/}
+                                                        {balances && !balances.optionPosition.eq(0) && <Box>
+                                                            <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
+                                                                 p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
+                                                                You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
+                                                            </Box>
+                                                        </Box>}
+                                                    </Flex>
+                                                </Box>
+                                                <OrderErrors/>
+                                                {/*Market Order Quantity*/}
+                                                <NumberInput id="amount"
+                                                             placeholder="0.0"
+                                                             value={newAmount}
+                                                             min={0.0}
+                                                             max={radioOption === 'BUY' ? Number(ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6)) : Number(ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6))}
+                                                             onChange={(valueString) => {
+                                                                 const [integerPart, decimalPart] = valueString.split('.');
+                                                                 if(valueString === '.') {
+                                                                     setNewAmount('0.')
+                                                                     return;
+                                                                 }
+                                                                 if (decimalPart && decimalPart.length > 6) {
+                                                                     return;
+                                                                 }
+                                                                 if (integerPart && integerPart.length > 6) {
+                                                                     return;
+                                                                 }
+                                                                 if (valueString === '00') {
+                                                                     return;
+                                                                 }
+                                                                 if (isNaN(Number(valueString))) {
+                                                                     return;
+                                                                 }
+                                                                 if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
+                                                                     setNewAmount(Number(valueString).toFixed(6))
+                                                                     return;
+                                                                 }
+                                                                 setNewAmount(valueString);
+                                                             }}>
+                                                    <NumberInputField
+                                                      h="6rem"
+                                                      borderRadius="3xl"
+                                                      shadow="sm"
+                                                      fontWeight="bold"
+                                                      fontSize="2xl"/>
+                                                    <InputRightElement
+                                                      pointerEvents="none"
+                                                      p={14}
+                                                      children={
+                                                          <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Quantity</FormLabel>
+                                                      }/>
+                                                </NumberInput>
+                                            </Box>
+                                            <Flex justifyContent={"flex-end"}>
+                                                {!isMobile && <Button variant="link" size="xs" colorScheme={"yellow"} onClick={setOrdersVisible.toggle}>View Order Book</Button>}
+                                            </Flex>
+
+                                            <Box>
+                                                {isMobile &&
+                                                <Accordion allowToggle>
+                                                    <AccordionItem>
+                                                        <h2>
+                                                            <AccordionButton>
+                                                                <Box flex="1" textAlign="left" fontSize={"xs"} color="gray.500">
+                                                                    View order book
+                                                                </Box>
+                                                                <AccordionIcon />
+                                                            </AccordionButton>
+                                                        </h2>
+                                                        <AccordionPanel pb={4}>
+                                                            <DisplayOrderBook/>
+                                                        </AccordionPanel>
+                                                    </AccordionItem>
+                                                </Accordion>
+                                                }
+                                            </Box>
+                                            {/*Pricing Details*/}
+                                            <Box fontSize="sm" pt={6}>
+                                                <HStack spacing={8} fontSize={"sm"}>
+                                                    <VStack spacing={1.5} alignItems={"flex-start"}>
+                                                        <Text>Price per contract</Text>
+                                                        <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                                                        {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
+                                                        {radioOption === 'SELL' && <Text>Collateral Needed</Text>}
+                                                        <Text>Available</Text>
+                                                    </VStack>
+                                                    <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
+                                                        <Text>
+                                                            ${formattedPricePerContract}
+                                                        </Text>
+                                                        <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
+                                                            ${formattedTotPrice}
+                                                        </Text>
+
+                                                        {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  &&
+                                                        <Text color="gray.500">
+                                                            {optionType === 'CALL' ? `${collateralToUnlock} sMATIC` : `$${collateralToUnlock}`}
+                                                        </Text> }
+                                                        {radioOption === 'SELL' && (optionType === 'CALL' ?
+                                                          <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                              {collateralRequirement.toFixed(4)} sMATIC
+                                                          </Text> :
+                                                          <Text color={insufficientCollateral ? quantityErrorColor : 'null'}>
+                                                              ${collateralRequirement.toFixed(4)}
+                                                          </Text>) }
+                                                        {radioOption === 'SELL' && optionType === 'CALL'?
+                                                          <Text color="gray.500">
+                                                              {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
+                                                          </Text> :
+                                                          <Text color="gray.500">
+                                                              ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
+                                                          </Text>}
+                                                    </VStack>
+                                                </HStack>
+                                            </Box>
+                                            {/*Review */}
+                                            <Box>
+                                                <Flex justifyContent="flex-end">
+                                                    <Button
+                                                      colorScheme={ctaColor}
+                                                      type="submit"
+                                                      onClick={onOpenConfirmDialog}
+                                                      disabled={
+                                                          insufficientFunds ||
+                                                          insufficientCollateral ||
+                                                          insufficientDepth ||
+                                                          noOrders ||
+                                                          Number(newAmount)<=0 ||
+                                                          isNaN(Number(newAmount)) ||
+                                                          (radioOrderType === 'Market' && (
+                                                            Boolean(radioOption === 'BUY' ? !orderBook.sellOrders[0] : !orderBook.buyOrders[0])
+                                                          ))}>
+                                                        Review Order
+                                                    </Button>
+                                                </Flex>
+                                            </Box>
+                                        </Stack>
+                                    </Flex>
+                              }
+                              </Box>
+                              {ordersVisible ?
+                                <Box>
+                                  <DisplayOrderBook/>
+                              </Box>
+                              : null
+                              }
+
+                          </Flex>
                       </TabPanel>
                       <TabPanel>
+                          <Flex  direction={"row"}>
+                          <Box flexBasis="100%" mr={ordersVisible ? 8 : 0}>
                           {
                               !orderBook.initialized ?
                                 //  Show spinner while query is still loading
@@ -1053,10 +1051,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                           <InputRightElement pointerEvents="none" p={14} children={<FormLabel htmlFor="amount" color="gray.500" fontWeight="bold">Price</FormLabel>}/>
                                       </NumberInput>
                                   </Box>
-                                  <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 0 : 310}>
-                                      {!isMobile && <Box></Box>}
                                       <Box>
-                                          {isMobile ?
+                                          {isMobile &&
                                           <Accordion allowToggle>
                                               <AccordionItem>
                                                   <h2>
@@ -1072,22 +1068,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                                   </AccordionPanel>
                                               </AccordionItem>
                                           </Accordion>
-                                          :
-                                              <Popover placement="right" isLazy closeOnBlur={false} gutter={64}>
-                                              <PopoverTrigger>
-                                              <Text color={orderBookTextColor} fontWeight={"extrabold"} fontSize={"xs"}
-                                              cursor={"pointer"}>View order book</Text>
-                                              </PopoverTrigger>
-                                              <PopoverContent>
-                                              <PopoverCloseButton/>
-                                              <PopoverBody p={8}>
-                                              <DisplayOrderBook/>
-                                              </PopoverBody>
-                                              </PopoverContent>
-                                              </Popover>
                                           }
                                       </Box>
-                                  </Stack>
                                   <Box fontSize="sm" pt={6}>
                                       <HStack spacing={8} fontSize={"sm"}>
                                           <VStack spacing={1.5} alignItems={"flex-start"}>
@@ -1140,7 +1122,16 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash }: 
                                   </Flex>
                               </Box>
                           </Stack>
-                      </Flex>}
+                      </Flex>
+                          }
+                      </Box>
+                      {ordersVisible && !isMobile ?
+                        <Box>
+                            <DisplayOrderBook/>
+                        </Box>
+                        : null
+                      }
+                          </Flex>
                   </TabPanel>
               </TabPanels>
           </Tabs>

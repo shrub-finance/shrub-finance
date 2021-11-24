@@ -266,7 +266,7 @@ const addNetwork = useAddNetwork();
             {/*</FormControl>*/}
 
             <Button mb={1.5} size={"lg"} colorScheme={bg} isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
-            Buy {modalCurrency === 'SUSD' ? 'sUSD' : 'sMATIC'}
+            Get {modalCurrency === 'SUSD' ? 'sUSD' : 'sMATIC'}
             </Button>
             </>
           }

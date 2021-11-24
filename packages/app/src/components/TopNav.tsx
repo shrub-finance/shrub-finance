@@ -40,20 +40,21 @@ function TopNav() {
   const { colorMode, toggleColorMode } = useColorMode();
   const spinnerBg = useColorModeValue("black","cyan.500")
   const {active, error: web3Error} = useConnectWallet();
-  const [isHidden, setIsHidden] = useState(false);
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
   const confirmingCountNumber = confirmingCount(pendingTxsState);
-  const displayStatus = (val: boolean ) => {setIsHidden(val);}
+  const displayStatus = (val: boolean ) => {
+    setIsHidden(val);
+  };
+  const [isHidden, setIsHidden] = useState(false);
   const gradient = useColorModeValue(
       "linear(to-r, gray.100, gray.200)",
       "linear(to-l, gray.700, gray.700)"
   );
   const topNavShadow = useColorModeValue("md", "md");
   const topNavBgColor = useColorModeValue("white", "dark.100");
-
-  const bg = useColorModeValue("sprout", "teal")
-function handleModalClose() {
+  useColorModeValue("sprout", "teal");
+  function handleModalClose() {
     onClose();
     displayStatus(false);
 }
@@ -70,7 +71,7 @@ function handleModalClose() {
 
 
   return (
-    <Box>
+    <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}  >
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"} >
           <HStack spacing={8} alignItems={"center"}>
