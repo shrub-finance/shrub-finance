@@ -31,12 +31,12 @@ const CHAINLINK_ETH = '0x0715A7794a1dc8e42615F059dD6e406A6594651A';  // Mumbai
 const CHAINLINK_BTC = '0x007A22900a3B98143368Bd5906f8E17e9867581b';  // Mumbai
 const CHAINLINK_LINK_MATIC = '0x12162c3E810393dEC01362aBf156D7ecf6159528';  // Mumbai
 const CHAINLINK_USDC = '0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0';  // Mumbai
-const MINUTES_BETWEEN_ORDERS = 5;  // For maker2
+const MINUTES_BETWEEN_ORDERS = 1;  // For maker2
 
 const expiryDates = [
-  new Date('2021-11-08'),
-  new Date('2021-11-15'),
-  new Date('2021-11-22'),
+  // new Date('2021-11-08'),
+  // new Date('2021-11-15'),
+  // new Date('2021-11-22'),
   new Date('2021-12-02'),
   new Date('2022-01-02'),
 ];
@@ -322,8 +322,9 @@ task('maker2', 'creates limit orders')
           return { smallOrder, common }
         }
 
-        const maticPriceBig = await priceFeedMatic.latestRoundData();
-        const maticPrice = Number(ethers.utils.formatUnits(maticPriceBig.answer, 8));
+        // const maticPriceBig = await priceFeedMatic.latestRoundData();
+        // const maticPrice = Number(ethers.utils.formatUnits(maticPriceBig.answer, 8));
+        const maticPrice = 2;
         const orderTypeHash = await shrubContractAccount.ORDER_TYPEHASH();
 
       return new Promise((resolve, reject) => {
@@ -398,6 +399,7 @@ task('maker2', 'creates limit orders')
                         },
                         account.address
                       );
+                      await new Promise(res => setTimeout(res, 3000))
                       await shrubContractAccount.announce(smallOrder, common, signedSellOrder.sig, {gasLimit: 50000})
                     } catch (e) {
                       console.log(e);
@@ -686,14 +688,14 @@ const config: HardhatUserConfig & AbiExporter = {
         },*/
       chainId: 1337,
     },
-    mumbai: {
-        chainId: 80001,
-        url: "https://rpc-mumbai.maticvigil.com",
-        accounts: {
-          mnemonic: process.env.MUMBAI_SECRET_MNEMONIC
-        }
-        // accounts: [process.env.MUMBAI_SECRET_KEY]
-    }
+    // mumbai: {
+    //     chainId: 80001,
+    //     url: "https://rpc-mumbai.maticvigil.com",
+    //     accounts: {
+    //       mnemonic: process.env.MUMBAI_SECRET_MNEMONIC
+    //     }
+    //     // accounts: [process.env.MUMBAI_SECRET_KEY]
+    // }
   },
   namedAccounts: {
     deployer: 0,

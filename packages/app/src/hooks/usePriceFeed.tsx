@@ -1,7 +1,7 @@
 // imports
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import useInterval from './useInterval'
 import { chainlinkAggregatorV3Interface } from '../constants/externalAbis'
 
@@ -15,7 +15,12 @@ function usePriceFeed(chainlinkAddress: string) {
       return;
     }
     const priceFeed = new ethers.Contract(chainlinkAddress, chainlinkAggregatorV3Interface, library);
-    const priceBig = await priceFeed.latestRoundData();
+    let priceBig: {answer: BigNumber};
+    if (process.env.REACT_APP_ENVIRONMENT === 'development') {
+      priceBig = {answer: BigNumber.from(10).pow(8).mul(2)};
+    } else {
+      priceBig = await priceFeed.latestRoundData();
+    }
     const tokenPrice = Number(ethers.utils.formatUnits(priceBig.answer, 8));
     setPrice(tokenPrice);
   }, 60000)
@@ -26,7 +31,12 @@ function usePriceFeed(chainlinkAddress: string) {
     }
     async function main() {
       const priceFeed = new ethers.Contract(chainlinkAddress, chainlinkAggregatorV3Interface, library);
-      const priceBig = await priceFeed.latestRoundData();
+      let priceBig: {answer: BigNumber};
+      if (process.env.REACT_APP_ENVIRONMENT === 'development') {
+        priceBig = {answer: BigNumber.from(10).pow(8).mul(2)};
+      } else {
+        priceBig = await priceFeed.latestRoundData();
+      }
       const tokenPrice = Number(ethers.utils.formatUnits(priceBig.answer, 8));
       setPrice(tokenPrice);
     }

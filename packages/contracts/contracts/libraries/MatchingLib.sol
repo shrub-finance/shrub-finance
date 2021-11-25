@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 import "./OrderLib.sol";
 import "./FillingLib.sol";
 import "./AppStateLib.sol";
+import "hardhat/console.sol";
 
 library MatchingLib {
   using AppStateLib for AppStateLib.AppState;
@@ -28,16 +29,19 @@ library MatchingLib {
   event Cancelled(address indexed user, bytes32 indexed positionHash, uint nonce);
 
   function getCurrentNonce(AppStateLib.AppState storage self, address user, OrderLib.OrderCommon memory common) internal view returns(uint) {
+    console.log("getCurrentNonce1");
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     return self.userPairNonce[user][positionHash];
   }
 
   function getCurrentNonce(AppStateLib.AppState storage self, address user, bytes32 commonHash) internal view returns(uint) {
+    console.log("getCurrentNonce2");
     return self.userPairNonce[user][commonHash];
   }
 
 
   function checkValidNonce(AppStateLib.AppState storage self, address user, bytes32 positionHash, OrderLib.SmallOrder memory order, bytes32 orderHash) internal view returns(bool) {
+    console.log("checkValidNonce");
     if(getCurrentNonce(self, user, positionHash) == order.nonce - 1) {
       return true;
     } else {
@@ -47,6 +51,7 @@ library MatchingLib {
 
 
   function matchOrder(AppStateLib.AppState storage self, OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig) internal {
+    console.log("matchOrder");
 
     (address buyer, address seller, bytes32 positionHash) = doPartialMatch(self, sellOrder, buyOrder, common, sellSig, buySig);
     bytes32 buyOrderId = OrderLib.hashSmallOrder(buyOrder, common);
@@ -66,7 +71,8 @@ library MatchingLib {
   }
 
 
-  function getPartialMatchRound(OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig) internal pure returns (PartialMatchRound memory round) {
+  function getPartialMatchRound(OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig) internal view returns (PartialMatchRound memory round) {
+    console.log("getPartialMatchRound");
     bytes32 sellOrderHash = OrderLib.hashSmallOrder(sellOrder, common);
     bytes32 buyOrderHash = OrderLib.hashSmallOrder(buyOrder, common);
 
@@ -86,6 +92,7 @@ library MatchingLib {
 
   function doPartialMatch(AppStateLib.AppState storage self, OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig)
   internal returns(address, address, bytes32) {
+    console.log("doPartialMatch");
     require(common.expiry > block.timestamp, "Cannot match orders for expired options");
     require(OrderLib.checkOrderMatches(sellOrder, buyOrder), "Buy and sell order do not match");
     PartialMatchRound memory round = getPartialMatchRound(sellOrder, buyOrder, common, sellSig, buySig);
@@ -121,7 +128,8 @@ library MatchingLib {
     OrderLib.Signature[] memory buySigs,
     uint sellIndex,
     uint buyIndex
-  ) internal pure returns (MatchingRound memory round) {
+  ) internal view returns (MatchingRound memory round) {
+    console.log("getMatchingRound");
     return MatchingRound({
       sellOrder: sellOrders[sellIndex],
       common: commons[sellIndex],
@@ -132,19 +140,32 @@ library MatchingLib {
   }
 
   function matchOrders(AppStateLib.AppState storage self, OrderLib.SmallOrder[] memory sellOrders, OrderLib.SmallOrder[] memory buyOrders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sellSigs, OrderLib.Signature[] memory buySigs) internal {
+    console.log("matchOrders");
     uint sellIndex = 0;
     uint buyIndex = 0;
     uint sellFilled = 0;
     uint buyFilled = 0;
+//    uint buyConsumed = 0;
+//    uint sellConsumed = 0;
     while(sellIndex < sellOrders.length && buyIndex < buyOrders.length) {
       MatchingRound memory round = getMatchingRound(sellOrders, buyOrders, commons, sellSigs, buySigs, sellIndex, buyIndex);
 
       (address buyer, address seller, bytes32 positionHash) = doPartialMatch(self, round.sellOrder, round.buyOrder, round.common, round.sellSig, round.buySig);
 
+      console.log("sell size, filled, index");
+      console.log(round.sellOrder.size);
+      console.log(sellFilled);
+      console.log(sellIndex);
+      console.log("buy size, filled, index");
+      console.log(round.buyOrder.size);
+      console.log(buyFilled);
+      console.log(buyIndex);
       if(round.sellOrder.size - sellFilled >= round.buyOrder.size - buyFilled) {
+        console.log("path 1");
         sellFilled += round.buyOrder.size;
         buyIndex++;
         if(sellFilled == round.sellOrder.size || buyIndex == buyOrders.length) {
+          console.log("path 1a");
           sellIndex++;
           self.userPairNonce[seller][positionHash] = round.sellOrder.nonce;
           FillingLib.partialFill(self, round.sellOrder, round.common, sellFilled);
@@ -153,9 +174,11 @@ library MatchingLib {
         emit OrderMatched(seller, buyer, positionHash, round.sellOrder, round.buyOrder, round.common, OrderLib.hashSmallOrder(round.buyOrder, round.common), OrderLib.hashSmallOrder(round.sellOrder, round.common));
         self.userPairNonce[buyer][positionHash] = round.buyOrder.nonce;
       } else if (round.sellOrder.size - sellFilled < round.buyOrder.size - buyFilled) {
+        console.log("path 2");
         buyFilled += round.sellOrder.size;
         sellIndex++;
         if(buyFilled == round.buyOrder.size || sellIndex == sellOrders.length) {
+          console.log("path 2a");
           buyIndex++;
           self.userPairNonce[buyer][positionHash] = round.buyOrder.nonce;
           FillingLib.partialFill(self, round.buyOrder, round.common, buyFilled);
@@ -169,6 +192,7 @@ library MatchingLib {
 
 
   function cancel(AppStateLib.AppState storage self, OrderLib.Order memory order) internal {
+    console.log("cancel");
     OrderLib.OrderCommon memory common = OrderLib.getCommonFromOrder(order);
     bytes32 commonHash = OrderLib.hashOrderCommon(common);
     bytes32 orderHash = OrderLib.hashOrder(order);

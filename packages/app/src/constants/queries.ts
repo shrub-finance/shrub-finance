@@ -4,7 +4,7 @@ export const SUMMARY_VIEW_ALL_QUERY = gql`
     query SummaryViewAll($expiries: [Int], $optionTypes: [OptionType], $baseAsset: String, $quoteAsset: String, $offerExpire: Int){
         options(where:{
             expiry_in:$expiries,
-            optionType_in:$optionTypes,
+#            optionType_in:$optionTypes,
             baseAsset:$baseAsset,
             quoteAsset:$quoteAsset
         }, orderBy: strike, orderDirection: asc){

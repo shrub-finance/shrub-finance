@@ -154,7 +154,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
 
     useEffect(() => {
         // console.log('useEffect - 1 - construct order book')
-        if (!orderDetailsData) {
+        if (!orderDetailsData || !orderDetailsData.option) {
             return
         }
         const {

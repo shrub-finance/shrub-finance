@@ -5,6 +5,7 @@ import "./OrderLib.sol";
 import "./MatchingLib.sol";
 import "./MathLib.sol";
 import "./AppStateLib.sol";
+import "hardhat/console.sol";
 
 library AnnounceLib {
 
@@ -14,6 +15,7 @@ library AnnounceLib {
 
 
   function announce(AppStateLib.AppState storage self, OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, OrderLib.Signature memory sig) internal {
+    console.log("announce");
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     bytes32 orderId = OrderLib.hashSmallOrder(order, common);
     address user = OrderLib.getAddressFromSignedOrder(order, common, sig);
@@ -21,16 +23,24 @@ library AnnounceLib {
 
     if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.CALL) {
       if(order.isBuy) {
+        console.log(FundsLib.getAvailableBalance(self, user, common.baseAsset));
+        console.log(order.price);
         require(FundsLib.getAvailableBalance(self, user, common.baseAsset) >= order.price, "Call Buyer must have enough free collateral");
       } else {
+        console.log(FundsLib.getAvailableBalance(self, user, common.quoteAsset));
+        console.log(order.size);
         require(FundsLib.getAvailableBalance(self, user, common.quoteAsset) >= order.size, "Call Seller must have enough free collateral");
       }
     }
 
     if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.PUT) {
       if(order.isBuy) {
+        console.log(FundsLib.getAvailableBalance(self, user, common.baseAsset));
+        console.log(order.price);
         require(FundsLib.getAvailableBalance(self, user, common.baseAsset) >= order.price, "Put Buyer must have enough free collateral");
       } else {
+        console.log(FundsLib.getAvailableBalance(self, user, common.baseAsset));
+        console.log(MathLib.adjustWithRatio(order.size, common.strike));
         require(FundsLib.getAvailableBalance(self, user, common.baseAsset) >= MathLib.adjustWithRatio(order.size, common.strike), "Put Seller must have enough free collateral");
       }
     }
@@ -40,6 +50,7 @@ library AnnounceLib {
 
 
   function announceMany(AppStateLib.AppState storage self, OrderLib.SmallOrder[] memory orders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sigs) internal {
+    console.log("announceMany");
     require(orders.length == commons.length, "Array length mismatch");
     require(orders.length == sigs.length, "Array length mismatch");
     for(uint i = 0; i < orders.length; i++) {
