@@ -514,7 +514,7 @@ function HomeView(props: RouteComponentProps) {
                                 transform: 'translateY(-2px)',
                                 boxShadow: 'lg',
                             }}>
-                                    {step2complete ? 'Complete' : 'Get sUSD'}
+                                    {step2complete ? 'Complete' : 'Step 2: Get sUSD'}
                                 </Button>
                             }
                             <Spacer/>
