@@ -48,7 +48,7 @@ import useAddNetwork from "../hooks/useAddNetwork";
 enum ConnectorNames {
     MetaMask = "MetaMask",
     WalletConnect = "Wallet Connect",
-    CoinbaseWallet = "Coinbase Wallet",
+    // CoinbaseWallet = "Coinbase Wallet",
     // Ledger = "Ledger",
     // Portis= "Portis",
     // Fortmatic= "Fortmatic"
@@ -58,7 +58,7 @@ enum ConnectorNames {
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.MetaMask]: injected,
     [ConnectorNames.WalletConnect]: walletconnect,
-    [ConnectorNames.CoinbaseWallet]: walletlink,
+    // [ConnectorNames.CoinbaseWallet]: walletlink,
     // [ConnectorNames.Ledger]: ledger,
     // [ConnectorNames.Portis]: portis,
     // [ConnectorNames.Fortmatic]: fortmatic
@@ -249,7 +249,7 @@ export function ConnectionStatus({displayStatus}) {
                             </Button>
                         </Flex>
                         <Flex pb={1}>
-                            <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2"
+                            <Box cursor="pointer" color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" ml="2"
                                  onClick={onCopy}>
                                 {hasCopied ? <CheckCircleIcon mr={1}/> : <CopyIcon mr={1}/>}
                                 {hasCopied ? 'Copied' : 'Copy Address'}
