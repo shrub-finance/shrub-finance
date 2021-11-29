@@ -6,7 +6,7 @@ import "./FundsLib.sol";
 import "./FillingLib.sol";
 import "./MathLib.sol";
 import "./AppStateLib.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 library ExercisingLib {
   using OrderLib for OrderLib.OrderCommon;
@@ -17,6 +17,7 @@ library ExercisingLib {
   event Exercised(address indexed user, bytes32 indexed positionHash, uint amount);
 
   function exercise(AppStateLib.AppState storage self, uint256 buyOrderSize, OrderLib.OrderCommon memory common) internal {
+//    console.log('exercise');
     address buyer = msg.sender;
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
 
@@ -68,6 +69,7 @@ library ExercisingLib {
 
 
   function claim(AppStateLib.AppState storage self, OrderLib.OrderCommon memory common) internal {
+//    console.log('claim');
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     require(self.userOptionPosition[msg.sender][positionHash] < 0, "Must have sold an option to claim");
     require(common.expiry < block.timestamp, "Cannot claim until options are expired");
@@ -102,9 +104,6 @@ library ExercisingLib {
     self.userTokenBalances[msg.sender][common.quoteAsset] += quoteBalanceOwed;
 
     // reduce pool size by amount claimed
-    console.logBytes32(positionHash);
-    console.log(self.positionPoolTokenTotalSupply[positionHash]);
-    console.log(poolOwnership);
     require(self.positionPoolTokenTotalSupply[positionHash] >= poolOwnership, "The pool total size should exceed claimed amount");
     self.positionPoolTokenTotalSupply[positionHash] -= poolOwnership;
     self.userOptionPosition[msg.sender][positionHash] = 0;
