@@ -694,14 +694,6 @@ const config: HardhatUserConfig & AbiExporter = {
         },*/
       chainId: 1337,
     },
-    mumbai: {
-        chainId: 80001,
-        url: "https://rpc-mumbai.maticvigil.com",
-        accounts: {
-          mnemonic: process.env.MUMBAI_SECRET_MNEMONIC
-        }
-        // accounts: [process.env.MUMBAI_SECRET_KEY]
-    }
   },
   namedAccounts: {
     deployer: 0,
@@ -733,5 +725,15 @@ const config: HardhatUserConfig & AbiExporter = {
     timeout: 35000
   }
 };
+
+if (process.env.MUMBAI_SECRET_MNEMONIC) {
+  config.networks.mumbai = {
+    chainId: 80001,
+    url: 'https://rpc-mumbai.maticvigil.com',
+    accounts: {
+      mnemonic: process.env.MUMBAI_SECRET_MNEMONIC,
+    },
+  }
+}
 
 export default config;
