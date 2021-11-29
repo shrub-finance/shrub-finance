@@ -1,6 +1,8 @@
 pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 
+import "hardhat/console.sol";
+
 library OrderLib {
 
   address public constant ZERO_ADDRESS = 0x0000000000000000000000000000000000000000;
@@ -95,7 +97,6 @@ library OrderLib {
     ));
   }
 
-
   function hashSmallOrder(SmallOrder memory order, OrderCommon memory common) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(
       ORDER_TYPEHASH,
@@ -135,6 +136,7 @@ library OrderLib {
   }
 
   function checkOrderMatches(SmallOrder memory sellOrder, SmallOrder memory buyOrder) internal view returns (bool) {
+    console.log('checkOrderMatches');
     bool matches = true;
     matches = matches && sellOrder.isBuy == false;
     matches = matches && buyOrder.isBuy == true;
