@@ -6,6 +6,7 @@ import "./FundsLib.sol";
 import "./FillingLib.sol";
 import "./MathLib.sol";
 import "./AppStateLib.sol";
+import "hardhat/console.sol";
 
 library ExercisingLib {
   using OrderLib for OrderLib.OrderCommon;
@@ -101,7 +102,10 @@ library ExercisingLib {
     self.userTokenBalances[msg.sender][common.quoteAsset] += quoteBalanceOwed;
 
     // reduce pool size by amount claimed
-    require(self.positionPoolTokenTotalSupply[positionHash] > poolOwnership, "The pool total size should exceed claimed amount");
+    console.logBytes32(positionHash);
+    console.log(self.positionPoolTokenTotalSupply[positionHash]);
+    console.log(poolOwnership);
+    require(self.positionPoolTokenTotalSupply[positionHash] >= poolOwnership, "The pool total size should exceed claimed amount");
     self.positionPoolTokenTotalSupply[positionHash] -= poolOwnership;
     self.userOptionPosition[msg.sender][positionHash] = 0;
   }
