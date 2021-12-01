@@ -1,32 +1,32 @@
-# Goal
+# Shrub.finance
 
 An options exchange where users can deposit liquidity and write options against their liquidity, or purchase options from others
 
-- Be gas cheap for traders
-- Use layer2 when available
-- Use onchain governance to
-  - Set fees
-  - Whitelist pairs
-- Allow flashloans of collateral that has been locked
+[//]: # ()
+[//]: # (- Be gas cheap for traders)
 
-# Current State
+[//]: # (- Use layer2 when available)
 
-- [Contract Code](contracts/ShrubExchange.sol)
-- [Signing Code](backend/test-order.js)
+[//]: # (- Use onchain governance to)
 
-# Examples
+[//]: # (  - Set fees)
 
-- [Example signed data contract](https://github.com/ethereum/EIPs/blob/master/assets/eip-712/Example.sol)
-- [Example signed data client](https://github.com/ethereum/EIPs/blob/master/assets/eip-712/Example.js)
+[//]: # (  - Whitelist pairs)
 
-# Prerequisites
+[//]: # (- Allow flashloans of collateral that has been locked)
 
-mongo version 4.4+
+- Website: [shrub.finance](https://shrub.finance/)
+- Docs: [docs.shrub.finance](https://docs.shrub.finance)
+- Twitter: [@shrubfinance](https://twitter.com/shrubfinance)
+- Email: [info@shrub.finance](mailto:info@shrub.finance)
+- Discord: [Shrub](https://discord.gg/yAc9JQT9dk)
 
 # Installation
 
-    # Switch to node version 16
-    n 16 # if you have n
+[//]: # ()
+[//]: # (    # Switch to node version 16)
+
+[//]: # (    n 16 # if you have n)
 
     npm install -g yarn
 
@@ -82,8 +82,4 @@ Useful scripts:
     yarn script:taker                   # Matches an order from the API and executes
     yarn script:deposit                 # deposits 1 MATIC from account[0]
 
-# Planned Contract Methods
 
-- matchOrders(sellOrder, buyOrder)
-  - Should lockup the collateral behind the contract from the user on the sell side
-  - Should make the buyer have a balance of the specific contract
