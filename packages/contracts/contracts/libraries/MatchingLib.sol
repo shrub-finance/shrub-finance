@@ -17,6 +17,12 @@ library MatchingLib {
     OrderLib.Signature buySig;
   }
 
+  struct MatchCounter {
+    uint index;
+    uint filled;
+    uint filledPrice;
+  }
+
   struct PartialMatchRound {
     bytes32 sellOrderHash;
     bytes32 buyOrderHash;
@@ -52,8 +58,18 @@ library MatchingLib {
 
   function matchOrder(AppStateLib.AppState storage self, OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig) internal {
     console.log('matchOrder');
+    MatchCounter memory sellCounter = MatchCounter({
+      index: 0,
+      filled: 0,
+      filledPrice: 0
+    });
+    MatchCounter memory buyCounter = MatchCounter({
+      index: 0,
+      filled: 0,
+      filledPrice: 0
+    });
 
-    (address buyer, address seller, bytes32 positionHash) = doPartialMatch(self, sellOrder, buyOrder, common, sellSig, buySig);
+    (address buyer, address seller, bytes32 positionHash) = doPartialMatch(self, sellOrder, buyOrder, common, sellSig, buySig, sellCounter, buyCounter);
     bytes32 buyOrderId = OrderLib.hashSmallOrder(buyOrder, common);
     bytes32 sellOrderId = OrderLib.hashSmallOrder(sellOrder, common);
     emit OrderMatched(seller, buyer, positionHash, sellOrder, buyOrder, common, buyOrderId, sellOrderId);
@@ -89,7 +105,7 @@ library MatchingLib {
     });
   }
 
-  function doPartialMatch(AppStateLib.AppState storage self, OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig)
+  function doPartialMatch(AppStateLib.AppState storage self, OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, OrderLib.OrderCommon memory common, OrderLib.Signature memory sellSig, OrderLib.Signature memory buySig, MatchCounter memory sellCounter, MatchCounter memory buyCounter)
   internal returns(address, address, bytes32) {
     console.log('doPartialMatch');
     require(common.expiry > block.timestamp, "Cannot match orders for expired options");
@@ -102,7 +118,11 @@ library MatchingLib {
     sellOrder.size = FillingLib.getOrderSize(self, sellOrder, round.sellOrderHash);
     buyOrder.size = FillingLib.getOrderSize(self, buyOrder, round.buyOrderHash);
 
-    (uint fillSize, uint adjustedPrice) = FillingLib.getAdjustedPriceAndFillSize(sellOrder, buyOrder);
+//    console.log('sizes');
+//    console.log(sellOrder.size);
+//    console.log(buyOrder.size);
+
+    (uint fillSize, uint adjustedPrice) = FillingLib.getAdjustedPriceAndFillSize(sellOrder, buyOrder, sellCounter, buyCounter);
 
     if(OrderLib.OptionType(common.optionType) == OrderLib.OptionType.CALL) {
       FillingLib.fillCallOption(self, round.buyer, round.seller, common, fillSize, adjustedPrice, round.positionHash);
@@ -139,38 +159,71 @@ library MatchingLib {
 
   function matchOrders(AppStateLib.AppState storage self, OrderLib.SmallOrder[] memory sellOrders, OrderLib.SmallOrder[] memory buyOrders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sellSigs, OrderLib.Signature[] memory buySigs) internal {
     console.log('matchOrders');
-    uint sellIndex = 0;
-    uint buyIndex = 0;
-    uint sellFilled = 0;
-    uint buyFilled = 0;
-    while(sellIndex < sellOrders.length && buyIndex < buyOrders.length) {
-      MatchingRound memory round = getMatchingRound(sellOrders, buyOrders, commons, sellSigs, buySigs, sellIndex, buyIndex);
 
-      (address buyer, address seller, bytes32 positionHash) = doPartialMatch(self, round.sellOrder, round.buyOrder, round.common, round.sellSig, round.buySig);
+    MatchCounter memory sellCounter = MatchCounter({
+      index: 0,
+      filled: 0,
+      filledPrice: 0
+    });
+    MatchCounter memory buyCounter = MatchCounter({
+      index: 0,
+      filled: 0,
+      filledPrice: 0
+    });
 
-      if(round.sellOrder.size - sellFilled >= round.buyOrder.size - buyFilled) {
-        sellFilled += round.buyOrder.size;
-        buyIndex++;
-        if(sellFilled == round.sellOrder.size || buyIndex == buyOrders.length) {
-          sellIndex++;
-          self.userPairNonce[seller][positionHash] = round.sellOrder.nonce;
-          FillingLib.partialFill(self, round.sellOrder, round.common, sellFilled);
-          sellFilled = 0;
-        }
-        emit OrderMatched(seller, buyer, positionHash, round.sellOrder, round.buyOrder, round.common, OrderLib.hashSmallOrder(round.buyOrder, round.common), OrderLib.hashSmallOrder(round.sellOrder, round.common));
+    while(sellCounter.index < sellOrders.length && buyCounter.index < buyOrders.length) {
+//      console.log(sellCounter.index);
+//      console.log(buyCounter.index);
+      MatchingRound memory round = getMatchingRound(sellOrders, buyOrders, commons, sellSigs, buySigs, sellCounter.index, buyCounter.index);
+
+      (address buyer, address seller, bytes32 positionHash) = doPartialMatch(self, round.sellOrder, round.buyOrder, round.common, round.sellSig, round.buySig, sellCounter, buyCounter);
+
+      if (round.sellOrder.size - sellCounter.filled > round.buyOrder.size - buyCounter.filled) {
+        // CASE: buyOrder was consumed
+//        console.log('buyOrder was consumed');
+        //  increment buyCounter.index
+        buyCounter.index++;
+        sellCounter.filled += round.buyOrder.size - buyCounter.filled;
+        sellCounter.filledPrice += round.buyOrder.price - buyCounter.filledPrice;
+        buyCounter.filled = 0;
+        buyCounter.filledPrice = 0;
+        //  set the nonce of the buyer
         self.userPairNonce[buyer][positionHash] = round.buyOrder.nonce;
-      } else if (round.sellOrder.size - sellFilled < round.buyOrder.size - buyFilled) {
-        buyFilled += round.sellOrder.size;
-        sellIndex++;
-        if(buyFilled == round.buyOrder.size || sellIndex == sellOrders.length) {
-          buyIndex++;
-          self.userPairNonce[buyer][positionHash] = round.buyOrder.nonce;
-          FillingLib.partialFill(self, round.buyOrder, round.common, buyFilled);
-          buyFilled = 0;
+        if (buyCounter.index == buyOrders.length) {
+          //  If this is the end - Commit the partial fill of the sellOrder
+          FillingLib.partialFill(self, round.sellOrder, round.common, sellCounter.filled);
         }
-        emit OrderMatched(seller, buyer, positionHash, round.sellOrder, round.buyOrder, round.common, OrderLib.hashSmallOrder(round.buyOrder, round.common), OrderLib.hashSmallOrder(round.sellOrder, round.common));
+      } else if (round.sellOrder.size - sellCounter.filled < round.buyOrder.size - buyCounter.filled) {
+        // CASE: sellOrder was consumed
+//        console.log('sellOrder was consumed');
+        //  increment sellCounter.index
+        sellCounter.index++;
+        //  partialFill with sellOrder.size - sellCounter.filled
+        buyCounter.filled += round.sellOrder.size - sellCounter.filled;
+        buyCounter.filledPrice += round.sellOrder.price - sellCounter.filledPrice;
+        sellCounter.filled = 0;
+        sellCounter.filledPrice = 0;
+        //  set the nonce of the seller
+        self.userPairNonce[seller][positionHash] = round.sellOrder.nonce;
+        if (sellCounter.index == sellOrders.length) {
+          //  if this is the end - Commit the partial fill of the buyOrder
+          FillingLib.partialFill(self, round.buyOrder, round.common, buyCounter.filled);
+        }
+      } else if (round.sellOrder.size == round.buyOrder.size) {
+        // CASE: buyOrder and sellOrder was consumed
+//        console.log('both buyOrder and sellOrder were consumed');
+        //  increment buyCounter.index and sellCounter.index
+        buyCounter.index++;
+        sellCounter.index++;
+        buyCounter.filled = 0;
+        buyCounter.filledPrice = 0;
+        sellCounter.filled = 0;
+        sellCounter.filledPrice = 0;
+        //  set the nonce of the buyer and seller
+        self.userPairNonce[buyer][positionHash] = round.buyOrder.nonce;
         self.userPairNonce[seller][positionHash] = round.sellOrder.nonce;
       }
+      emit OrderMatched(seller, buyer, positionHash, round.sellOrder, round.buyOrder, round.common, OrderLib.hashSmallOrder(round.buyOrder, round.common), OrderLib.hashSmallOrder(round.sellOrder, round.common));
     }
   }
 

@@ -684,6 +684,7 @@ const config: HardhatUserConfig & AbiExporter = {
       chainId: 1337,
     },
     hardhat: {
+      allowUnlimitedContractSize: true,
       accounts: {
         mnemonic:
         "palm weapon verb cream balcony acid book ring surround end race gaze",

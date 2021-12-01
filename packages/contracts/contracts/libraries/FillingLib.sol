@@ -6,6 +6,7 @@ import "./FundsLib.sol";
 import "./MathLib.sol";
 import "./AppStateLib.sol";
 import "hardhat/console.sol";
+import "./MatchingLib.sol";
 
 library FillingLib {
 
@@ -20,11 +21,22 @@ library FillingLib {
     }
   }
 
-  function getAdjustedPriceAndFillSize(OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder) internal pure returns (uint, uint) {
-    uint fillSize = MathLib.min(sellOrder.size, buyOrder.size);
+  function getAdjustedPriceAndFillSize(OrderLib.SmallOrder memory sellOrder, OrderLib.SmallOrder memory buyOrder, MatchingLib.MatchCounter memory sellCounter, MatchingLib.MatchCounter memory buyCounter) internal view returns (uint, uint) {
+    console.log('getAdjustedPriceAndFillSize');
+    uint fillSize = MathLib.min(sellOrder.size - sellCounter.filled, buyOrder.size - buyCounter.filled);
     uint adjustedPrice = fillSize * sellOrder.price / sellOrder.size;
 
-    uint buyerAdjustedPrice = fillSize * buyOrder.price / buyOrder.size;
+//    console.log('buyerFilledPrice');
+//    console.log(buyOrder.price);
+//    console.log(buyCounter.filledPrice);
+
+    uint buyerAdjustedPrice = fillSize * (buyOrder.price - buyCounter.filledPrice) / (buyOrder.size - buyCounter.filled);
+//    console.log('fillSize');
+//    console.log(fillSize);
+//    console.log('adjustedPrice');
+//    console.log(adjustedPrice);
+//    console.log('buyerAdjustedPrice');
+//    console.log(buyerAdjustedPrice);
     require(adjustedPrice <= buyerAdjustedPrice, "Seller order price does not satisfy Buyer order price");
 
     return (fillSize, adjustedPrice);
@@ -41,6 +53,11 @@ library FillingLib {
   function fillCallOption(AppStateLib.AppState storage self, address buyer, address seller, OrderLib.OrderCommon memory common, uint fillSize, uint adjustedPrice, bytes32 positionHash) internal {
     console.log('fillCallOption');
     require(FundsLib.getAvailableBalance(self, seller, common.quoteAsset) >= fillSize, "Call Seller must have enough free collateral");
+//    console.log(buyer);
+//    console.log(seller);
+//    console.log(common.baseAsset);
+//    console.log(FundsLib.getAvailableBalance(self, buyer, common.baseAsset));
+//    console.log(adjustedPrice);
     require(FundsLib.getAvailableBalance(self, buyer, common.baseAsset) >= adjustedPrice, "Call Buyer must have enough free collateral");
 
     self.userTokenLockedBalance[seller][common.quoteAsset] += fillSize;
