@@ -43,7 +43,7 @@ import {
   PopoverBody,
   Popover,
   Spinner,
-  Heading, Tag, TagLabel, Tooltip
+  Heading, Tag, TagLabel, Tooltip, Tabs, TabList, Tab, TabPanels, TabPanel, PopoverCloseButton, PopoverHeader
 } from '@chakra-ui/react'
 import {
   depositEth,
@@ -221,9 +221,9 @@ function Positions() {
       const { balance, option, buyOrders, sellOrders} = userOption
       const { baseAsset, quoteAsset, strike, expiry:expiryRaw, optionType, lastPrice, id: optionId } = option;
       const isExpired = expiryRaw < toEthDate(now);
-      if (isExpired) {
-        continue;
-      }
+      // if (isExpired) {
+      //   continue;
+      // }
 
       const { symbol: baseAssetSymbol } = baseAsset;
       const { symbol: quoteAssetSymbol } = quoteAsset;
@@ -247,14 +247,22 @@ function Positions() {
               <Box>{pair}</Box>
               <Box>{pair2}</Box>
               <Box>
-                <Tooltip label={inTheMoney ?
-                  'in the money - owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
-                  'out of the money - owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
-                }>
-                  <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full'>
-                    <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
-                  </Tag>
-                </Tooltip>
+                <Popover trigger={"hover"}>
+                  <PopoverTrigger>
+                    <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full' cursor={"pointer"}>
+                      <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
+                    </Tag>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <PopoverHeader>{inTheMoney ? 'In the Money (ITM)' : 'Out of the Money (OTM)'}</PopoverHeader>
+                    <PopoverBody>{inTheMoney ?
+                      'Owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
+                      'Owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
+                    }</PopoverBody>
+                  </PopoverContent>
+                </Popover>
               </Box>
             </Td>
             {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
@@ -299,14 +307,22 @@ function Positions() {
               <Box>{pair}</Box>
               <Box>{pair2}</Box>
               <Box>
-                <Tooltip label={inTheMoney ?
-                  'in the money - owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
-                  'out of the money - owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
-                }>
-                  <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full'>
-                    <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
-                  </Tag>
-                </Tooltip>
+                <Popover trigger={"hover"}>
+                  <PopoverTrigger>
+                    <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full' cursor={"pointer"}>
+                      <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
+                    </Tag>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <PopoverHeader>{inTheMoney ? 'In the Money (ITM)' : 'Out of the Money (OTM)'}</PopoverHeader>
+                    <PopoverBody>{inTheMoney ?
+                      'Owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
+                      'Owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
+                    }</PopoverBody>
+                  </PopoverContent>
+                </Popover>
               </Box>
             </Td>
             {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
@@ -544,8 +560,8 @@ function Positions() {
       setAmountValue(String(shrubBalance.available[modalCurrency]));
     }
   }
-  const expiredRowTableBg = useColorModeValue("red.50", "#020000");
-  const optionRowTableBg =  useColorModeValue(expiredOptionsRows.length ? "green.50" : undefined, expiredOptionsRows.length ? "#000809" : undefined);
+  const expiredRowTableBg = useColorModeValue("white", "dark.100");
+  const optionRowTableBg =  useColorModeValue(expiredOptionsRows.length ? "white" : undefined, expiredOptionsRows.length ? "dark.100" : undefined);
   return (
     <>
       {/*web3 errors*/}
@@ -600,87 +616,7 @@ function Positions() {
           borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")}>
           {shrubfolioRows}
       </Container>
-      {/*options view*/}
-      <Heading mt={10}><Center><Icon as={BiPaperPlane} mr={2}/>Option Positions</Center></Heading>
-      <Container mt={50} p={hasOptions.current ? 0 : 0} flex="1" borderRadius="2xl" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")} maxW="container.sm">
-        {
-          (!shrubfolioLoading && !shrubfolioError && account) ?
 
-            (shrubfolioData && shrubfolioData.user && shrubfolioData.user.activeUserOptions && shrubfolioData.user.activeUserOptions[0]) ?
-
-          (
-            <>
-              { optionsRows.length ? <Table variant="simple" size="lg"  borderTopRadius={expiredOptionsRows.length && "2xl"} >
-            <Thead>
-              <Tr>
-                <Th color={"gray.400"}>Position</Th>
-                {/*<Th color={"gray.400"}>Balance</Th>*/}
-                <Th color={"gray.400"}>Qty</Th>
-                {!isMobile && <Th color={"gray.400"}>Price</Th>}
-                <Th color={"gray.400"}>Gain/Loss</Th>
-              </Tr>
-            </Thead>
-            <Tbody bg={optionRowTableBg}>
-              {polling ? spinnerRow : <></>}
-              {optionsRows}
-            </Tbody>
-          </Table>
-                : null
-              }
-
-              {expiredOptionsRows.length ? <Table variant="simple" size="lg" borderBottomRadius="2xl"
-                                                  borderTopRadius={!optionsRows.length ? "2xl" : "none"}>
-                { !optionsRows.length && <Thead>
-                  <Tr>
-                    <Th color={"gray.400"}>Position</Th>
-                    {/*<Th color={"gray.400"}>Balance</Th>*/}
-                    <Th color={"gray.400"}>Qty</Th>
-                    <Th color={"gray.400"}>Price</Th>
-                    <Th color={"gray.400"}>Gain/Loss</Th>
-                  </Tr>
-                </Thead>}
-                <Tbody bg={expiredRowTableBg} >
-                  {expiredOptionsRows}
-                </Tbody>
-              </Table> : null
-              }
-            </>
-          ) : (
-            <Flex direction="column" p={10}>
-              <Center>
-                <HelloBud boxSize={200}/>
-              </Center>
-              <Center pt={6}>
-                <Box as="span" fontWeight="semibold" fontSize="sm" color="gray.500">
-                  You don't have any options yet!
-                </Box>
-              </Center>
-              <Center pt={6}>
-                <Button rightIcon={<IoRocketSharp/>} colorScheme={btnBg}
-                        variant="outline"
-                        borderRadius={"full"} as={ReachLink} to="/options">
-                  Buy Some
-                </Button>
-              </Center>
-            </Flex>
-          )
-
-           : (<Table variant="simple" size="lg">
-              <Thead>
-                <Tr>
-                  <Th color={"gray.400"}>Position</Th>
-                  {/*<Th color={"gray.400"}>Balance</Th>*/}
-                  <Th color={"gray.400"}>Qty</Th>
-                  <Th color={"gray.400"} display={{"base": "none", "md": "flex"}}>Price</Th>
-                  <Th color={"gray.400"}>Gain/Loss</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {spinnerRow}
-              </Tbody>
-            </Table>)
-        }
-      </Container>
       {/*withdraw deposit modal*/}
       <Modal motionPreset="slideInBottom" onClose={handleWithdrawDepositModalClose} isOpen={isOpenModal}
       size={isMobile ? 'full' : 'md' } scrollBehavior={isMobile ?"inside" : "outside"}
@@ -769,6 +705,116 @@ function Positions() {
           </ModalBody>
         </ModalContent>
       </Modal>
+      <Heading mt={10}><Center><Icon as={BiPaperPlane} mr={2}/>Option Positions</Center></Heading>
+      <Container mt={10}
+                 borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")}>
+        <Tabs p={4}>
+          <TabList >
+            <Tab>Active</Tab>
+            <Tab >Claim</Tab>
+            <Tab >Realized Gain/Loss</Tab>
+          </TabList>
+          <TabPanels >
+            <TabPanel>
+              {
+                (!shrubfolioLoading && !shrubfolioError && account) ?
+
+                  (shrubfolioData && shrubfolioData.user && shrubfolioData.user.activeUserOptions && shrubfolioData.user.activeUserOptions[0]) ?
+
+                    (
+                      <>
+                        { optionsRows.length ? <Table variant="simple" size="lg"  borderTopRadius={expiredOptionsRows.length && "2xl"} >
+                            <Thead>
+                              <Tr>
+                                <Th color={"gray.400"}>Position</Th>
+                                {/*<Th color={"gray.400"}>Balance</Th>*/}
+                                <Th color={"gray.400"}>Qty</Th>
+                                {!isMobile && <Th color={"gray.400"}>Price</Th>}
+                                <Th color={"gray.400"}>Gain/Loss</Th>
+                              </Tr>
+                            </Thead>
+                            <Tbody bg={optionRowTableBg}>
+                              {polling ? spinnerRow : <></>}
+                              {optionsRows}
+                            </Tbody>
+                          </Table>
+                          : null
+                        }
+                      </>
+                    ) : (
+                      <Flex direction="column" p={10}>
+                        <Center>
+                          <HelloBud boxSize={200}/>
+                        </Center>
+                        <Center pt={6}>
+                          <Box as="span" fontWeight="semibold" fontSize="sm" color="gray.500">
+                            You don't have any options yet!
+                          </Box>
+                        </Center>
+                        <Center pt={6}>
+                          <Button rightIcon={<IoRocketSharp/>} colorScheme={btnBg}
+                                  variant="outline"
+                                  borderRadius={"full"} as={ReachLink} to="/options">
+                            Buy Some
+                          </Button>
+                        </Center>
+                      </Flex>
+                    )
+
+                  : (<Table variant="simple" size="lg">
+                    <Thead>
+                      <Tr>
+                        <Th color={"gray.400"}>Position</Th>
+                        {/*<Th color={"gray.400"}>Balance</Th>*/}
+                        <Th color={"gray.400"}>Qty</Th>
+                        <Th color={"gray.400"} display={{"base": "none", "md": "flex"}}>Price</Th>
+                        <Th color={"gray.400"}>Gain/Loss</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {spinnerRow}
+                    </Tbody>
+                  </Table>)
+              }
+            </TabPanel>
+            <TabPanel>
+              {
+                (!shrubfolioLoading && !shrubfolioError && account) ?
+
+                  (shrubfolioData && shrubfolioData.user && shrubfolioData.user.activeUserOptions && shrubfolioData.user.activeUserOptions[0]) &&
+                      <>
+
+                        {expiredOptionsRows.length ? <Table variant="simple" size="lg" borderBottomRadius="2xl"
+                                                            borderTopRadius={!optionsRows.length ? "2xl" : "none"}>
+                          <Tbody bg={expiredRowTableBg} >
+                            {expiredOptionsRows}
+                          </Tbody>
+                        </Table> : null
+                        }
+                      </>
+                  : <Table variant="simple" size="lg">
+                    <Thead>
+                      <Tr>
+                        <Th color={"gray.400"}>Position</Th>
+                        {/*<Th color={"gray.400"}>Balance</Th>*/}
+                        <Th color={"gray.400"}>Qty</Th>
+                        <Th color={"gray.400"} display={{"base": "none", "md": "flex"}}>Price</Th>
+                        <Th color={"gray.400"}>Gain/Loss</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {spinnerRow}
+                    </Tbody>
+                  </Table>
+              }
+            </TabPanel>
+            <TabPanel>
+              <p></p>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Container>
+
 
     </>
   );
