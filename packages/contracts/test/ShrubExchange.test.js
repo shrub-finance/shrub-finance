@@ -304,25 +304,28 @@ contract("ShrubExchange", (accounts) => {
     console.log({ signedBuyOrder, signedSellOrder, sellerLockedBalance, paid });
   });
 
-
   it("should be able to match array of orders", async () => {
     const seller = accounts[0];
     const buyer = accounts[1];
+    // console.log('seller starting balances');
+    // console.log(`sUSD: ${(await exchange.userTokenBalances(seller, Assets.USDC)).toString()}`);
+    // console.log(`sMATIC: ${(await exchange.userTokenBalances(seller, Assets.MATIC)).toString()}`);
+    // console.log('buyer starting balances');
+    // console.log(`sUSD: ${(await exchange.userTokenBalances(buyer, Assets.USDC)).toString()}`);
+    // console.log(`sMATIC: ${(await exchange.userTokenBalances(buyer, Assets.MATIC)).toString()}`);
 
-    // Deposit MATIC
-    await exchange.deposit(Assets.MATIC, BigTwo.mul(BigHundred).mul(WeiInEth), { value: BigTwo.mul(BigHundred).mul(WeiInEth), from: seller });
+    // Deposit MATIC - not necessary already 100
+    // await exchange.deposit(Assets.MATIC, BigTwo.mul(BigHundred).mul(WeiInEth), { value: BigTwo.mul(BigHundred).mul(WeiInEth), from: seller });
 
-    // Deposit ERC20 to pay PRICE
-    await susdToken.approve(exchange.address, web3.utils.toBN(300).mul(WeiInEth), { from: buyer });
-    await exchange.deposit(susdToken.address, web3.utils.toBN(300).mul(WeiInEth), { from: buyer });
+    // Deposit ERC20 to pay PRICE only 8 required
+    await susdToken.approve(exchange.address, web3.utils.toBN(11).mul(WeiInEth), { from: buyer });
+    await exchange.deposit(susdToken.address, web3.utils.toBN(11).mul(WeiInEth), { from: buyer });
 
 
 
     const base = {
-      price: WeiInEth.mul(BigHundred).toString(),
       offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
       fee: 1,
-
       baseAsset: Assets.USDC,
       quoteAsset: Assets.MATIC,
       expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
@@ -351,35 +354,51 @@ contract("ShrubExchange", (accounts) => {
 
     console.log({buyerNonce, sellerNonce});
 
+    // 3 orders
+    // Sell 1 @ 1.00
+    // Sell 3 @ 2 (each)
+    // Sell 3 @ 3 (each)
     let sellOrders = [{
       size: WeiInEth.toString(),
+      price: WeiInEth.toString(),
       isBuy: false,
       nonce: sellerNonce + 1,
       ...base
     }, {
-      size: WeiInEth.toString(),
+      size: WeiInEth.mul(web3.utils.toBN(2)).toString(),
+      price: WeiInEth.mul(web3.utils.toBN(4)).toString(),
       isBuy: false,
       nonce: sellerNonce + 2,
       ...base
     }, {
-      size: WeiInEth.toString(),
+      size: WeiInEth.mul(web3.utils.toBN(3)).toString(),
+      price: WeiInEth.mul(web3.utils.toBN(9)).toString(),
       isBuy: false,
       nonce: sellerNonce + 3,
       ...base
     }];
 
-    let buyOrders = [{
+    // 2 Orders
+    // Buy 1 @ 1.00
+    // Buy 4 @ 9.00 (total)
+    let buyOrders = [
+      {
       ...base,
-      size: WeiInEth.mul(web3.utils.toBN(2)).toString(),
-      price: WeiInEth.mul(web3.utils.toBN(2)).mul(BigHundred).toString(),
+      size: WeiInEth.mul(web3.utils.toBN(4)).toString(),
+      price: WeiInEth.mul(web3.utils.toBN(8)).toString(),
       isBuy: true,
       nonce: buyerNonce + 1
-    }, {
+    },
+      {
       ...base,
       size: WeiInEth.toString(),
+      price: WeiInEth.mul(web3.utils.toBN(3)).toString(),
       isBuy: true,
       nonce: buyerNonce + 2
-    }];
+    }
+    ];
+    // console.log(sellOrders);
+    // console.log(buyOrders);
 
     // Sign orders
     const signedSellOrders = await Promise.all(sellOrders.map(s => shrubInterface.signOrderWithWeb3(
@@ -411,7 +430,8 @@ contract("ShrubExchange", (accounts) => {
     }
 
     // Match the order, make sure seller has correct amount of asset locked up
-    await exchange.matchOrders(
+    console.log('=== MATCH ORDERS ===')
+    const matchOrdersResult = await exchange.matchOrders(
       smallSellOrders,
       smallBuyOrders,
       commons,
@@ -419,16 +439,22 @@ contract("ShrubExchange", (accounts) => {
       signedBuyOrders.map(o => o.sig),
       { from: accounts[0] }
     );
+    // console.log(matchOrdersResult);
 
     const sellerLockedBalance = (
       await exchange.userTokenLockedBalance(seller, Assets.MATIC)
     );
 
+    // console.log('=== Seller locked balances ===');
+    // console.log(sellerLockedBalanceBefore.toString());
+    // console.log(sellerLockedBalance.toString());
+    // console.log('=== ===')
+
     if (sellOrder.optionType == 1) {
       assert.equal(
-        sellerLockedBalanceBefore.add(web3.utils.toBN(3).mul(WeiInEth)),
+        sellerLockedBalanceBefore.add(web3.utils.toBN(5).mul(WeiInEth)).toString(),
         sellerLockedBalance.toString(),
-        "Seller should have 3 locked up for CALLS"
+        "Seller should have 4 locked up for CALLS"
       );
     } else {
       assert.equal(
@@ -442,10 +468,16 @@ contract("ShrubExchange", (accounts) => {
     const paidToken =
       sellOrder.optionType == 1 ? susdToken.address : Assets.MATIC;
     const paidBalance = (await exchange.userTokenBalances(seller, paidToken));
-    assert.isTrue(paidBalance.sub(sellerTokenBalanceBefore).eq(web3.utils.toBN(300).mul(WeiInEth)));
+    // console.log('=== paid balances ===');
+    // console.log('paidBalance');
+    // console.log(paidBalance.toString());
+    // console.log('sellerTokenBalanceBefore');
+    // console.log(sellerTokenBalanceBefore.toString());
+    // console.log('=== ===')
+    assert.isTrue(paidBalance.sub(sellerTokenBalanceBefore).eq(web3.utils.toBN(11).mul(WeiInEth)));
     const paid = { paidToken, paidBalance };
 
-    console.log({ sellerLockedBalance, paid });
+    // console.log({ sellerLockedBalance, paid });
   });
 
   it("should have an option position", async () => {

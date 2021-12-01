@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../MintBurnToken.sol";
 import "./AppStateLib.sol";
 import "./OrderLib.sol";
+import "hardhat/console.sol";
 
 library TokenizeLib {
   using OrderLib for OrderLib.OrderCommon;
@@ -13,6 +14,7 @@ library TokenizeLib {
   using AppStateLib for AppStateLib.PositionToken;
 
   function tokenizePosition(AppStateLib.AppState storage self, uint256 size, OrderLib.OrderCommon memory common) internal {
+    console.log('tokenizePosition');
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     int exposure = self.userOptionPosition[msg.sender][positionHash];
 
@@ -63,6 +65,7 @@ library TokenizeLib {
   }
 
   function unwrapPositionToken(AppStateLib.AppState storage self, address tokenAddress, uint256 size) internal {
+    console.log('unwrapPositionToken');
     AppStateLib.PositionToken storage tokenInfo = self.positionTokenInfo[tokenAddress];
     require(tokenInfo.token == tokenAddress, "ShrubExchange: Cannot unwrap a token not deployed by Shrub");
 
