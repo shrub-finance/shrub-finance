@@ -605,9 +605,6 @@ function Positions() {
             <Text color={livePriceColor} fontSize={"xs"} fontWeight={"bold"}>
               sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
             </Text>
-            {/*<Button rightIcon={<ArrowForwardIcon />} colorScheme="blue" variant="link" fontSize={"xs"}>*/}
-            {/*  My Orders*/}
-            {/*</Button>*/}
           </Box>
         </Flex>}
       </Container>
@@ -708,11 +705,17 @@ function Positions() {
       <Heading mt={10}><Center><Icon as={BiPaperPlane} mr={2}/>Option Positions</Center></Heading>
       <Container mt={10}
                  borderRadius="2xl" maxW="container.sm" bg={useColorModeValue("white", "dark.100")} shadow={useColorModeValue("2xl", "2xl")}>
-        <Tabs p={4}>
+        <Tabs p={4} variant='unstyled' isLazy>
           <TabList >
-            <Tab>Active</Tab>
-            <Tab >Claim</Tab>
-            <Tab >Realized Gain/Loss</Tab>
+            <Tab _focus={{boxShadow: "none"}} fontWeight={"bold"}
+                 _selected={{ color: "sprout.500", borderBottomWidth:"2px",
+                   borderColor:"sprout.300"}}>Active</Tab>
+            <Tab _focus={{boxShadow: "none"}} fontWeight={"bold"}
+                 _selected={{ color: "sprout.500", borderBottomWidth:"2px",
+                   borderColor:"sprout.300"}}>Claim</Tab>
+            <Tab _focus={{boxShadow: "none"}} fontWeight={"bold"}
+                 _selected={{ color: "sprout.500", borderBottomWidth:"2px",
+                   borderColor:"sprout.300"}}>Realized Gain/Loss</Tab>
           </TabList>
           <TabPanels >
             <TabPanel>
