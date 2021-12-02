@@ -132,6 +132,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
     const orderBookColorMobile = useColorModeValue("gray.500", "black");
     const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
     const orderBookColor = useColorModeValue("gray.600", "gray.200");
+    const suggestionColor = useColorModeValue("blue" , "blue.300");
+    const errorSuggestionColor = useColorModeValue("blackAlpha.700", "whiteAlpha.700");
 
     const [callOrderDetails, {
         loading: orderDetailsLoading,
@@ -268,39 +270,39 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
 
        {insufficientFunds &&
        <Box>
-           <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds </Text>
+           <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2" pr={1}><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds </Text>
            {radioOption === 'SELL' && optionType === 'CALL'?
-             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
-                (Available: {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC)
+             <Text as={"span"} fontWeight="bold" fontSize="xs" color={errorSuggestionColor}>
+                Available: {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
              </Text> :
-             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
-                 (Available: ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)})
+             <Text as={"span"} fontWeight="bold" fontSize="xs" color={errorSuggestionColor}>
+                 Available: ${balances && Number(ethers.utils.formatUnits(balances.shrub.baseAsset, 18)).toFixed(4)}
              </Text>}
            {/*<Text fontWeight="bold" fontSize="xs" color={'blue.300'} cursor={"pointer"} as={ReachLink} to={'/shrubfolio'}>*/}
-           {/*    Deposit more*/}
+           {/*    Deposit*/}
            {/*</Text>*/}
        </Box>
        }
 
        {insufficientCollateral &&
        <Box>
-       <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2"><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral for Quantity </Text>
+       <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2" pr={2}><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient Collateral</Text>
 
            {radioOption === 'SELL' && optionType === 'CALL'?
-             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
-                 (Needed: {collateralRequirement.toFixed(4)} sMATIC)
+             <Text as={"span"} fontWeight="bold" fontSize="xs" color={errorSuggestionColor}>
+                 You need: {collateralRequirement.toFixed(4)} sMATIC
              </Text> :
-             <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'}>
-                 (Needed:   ${collateralRequirement.toFixed(4)})
+             <Text as={"span"} fontWeight="bold" fontSize="xs" >
+                 You need:   ${collateralRequirement.toFixed(4)}
              </Text>}
            </Box>
        }
        {insufficientDepth  && radioOrderType === 'Market' &&
        <Box>
-           <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2">
-               <WarningTwoIcon pr="1" boxSize="3.5"/>Order too large for available order book depth </Text>
-           <Text as={"span"} fontWeight="bold" fontSize="xs" color={'gray.500'} cursor={"pointer"}>
-               (Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)})
+           <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4">
+               <WarningTwoIcon pr="1" boxSize="3.5"/>Order too large for order book depth </Text>
+           <Text as={"span"} fontWeight="bold" fontSize="xs" cursor={"pointer"} textDecoration={"underline"}>
+               Max: {radioOption === 'BUY' ? ethers.utils.formatUnits(orderBook.sellOrdersDepth, 6) : ethers.utils.formatUnits(orderBook.buyOrdersDepth, 6)}
            </Text>
        </Box>
        }
@@ -720,16 +722,21 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
             }
 
               <Tabs
-                variant="unstyled"
+                p={4} variant='unstyled' isLazy
                 onChange={(index) => setRadioOrderType(index === 0 ? 'Market' : 'Limit')}
               >
                   <TabList color={"gray.500"} p={2}>
-                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"} onClick={setOrdersVisible.off}
-                           _selected={{ color: "sprout.500" }}>
+                      <Tab _focus={{boxShadow: "none"}} fontSize={"sm"}
+                           _selected={{ color: "sprout.500", borderBottomWidth:"2px",
+                               borderColor:"sprout.300"}}
+                           onClick={setOrdersVisible.off}>
                           Market</Tab>
                       {/*(Instant Buy)*/}
-                      <Tab _focus={{boxShadow: "none"}} fontSize={"xs"} fontWeight={"bold"} onClick={setOrdersVisible.on}
-                           _selected={{  color: "sprout.500"}}>
+                      <Tab _focus={{boxShadow: "none"}} fontSize={"sm"}
+                           _selected={{ color: "sprout.500", borderBottomWidth:"2px",
+                               borderColor:"sprout.300"}}
+                           onClick={setOrdersVisible.on}
+                      >
                           Limit</Tab>
                       {/*(Name your Price)*/}
                   </TabList>
@@ -753,9 +760,9 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                                             {/*Row 1*/}
                                             <Box >
                                                 <Flex pb={8}>
-                                                    <Box fontSize={"md"} fontWeight="bold">
+                                                    <Text fontSize={"xl"} fontWeight="semibold" >
                                                         {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
-                                                    </Box>
+                                                    </Text>
                                                     <Spacer/>
                                                     <Text  fontSize={"xs"} fontWeight={"bold"}
                                                            color={livePriceColor}>
@@ -779,11 +786,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                                                         <Spacer/>
                                                         {/*can only fill if short and buying or long (own it) and selling*/}
                                                         {balances && !balances.optionPosition.eq(0) && <Box>
-                                                            <Box cursor="pointer" borderWidth="1px" borderColor={balances.optionPosition.gt(0) ? 'sprout.400' : 'orange.200'} sx={{userSelect : 'none'}}
-                                                                 p={1} borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
-                                                                You {balances.optionPosition.gt(0) ? 'own' : 'are short'} <strong>{ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts</strong>
+                                                            <Box sx={{userSelect : 'none'}}
+                                                                 borderRadius={"md"} onClick={() => setNewAmount((ethers.utils.formatUnits(balances.optionPosition.abs(), 18)))}>
+                                                                You {balances.optionPosition.gt(0) ? 'own' : 'are short'} {ethers.utils.formatUnits(balances.optionPosition.abs(), 18)} contracts. <Button variant={"link"} fontSize={"xs"} color={suggestionColor} >{balances.optionPosition.gt(0) ? (radioOption === 'SELL' ? 'Sell?' : null) : (radioOption === 'BUY' ? 'Cover?' : null)}</Button>
                                                             </Box>
                                                         </Box>}
+
                                                     </Flex>
                                                 </Box>
                                                 <OrderErrors/>
@@ -860,9 +868,9 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                                                     <VStack spacing={1.5} alignItems={"flex-start"}>
                                                         <Text>Price per contract</Text>
                                                         <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
-                                                        {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
+                                                        {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text color="gray.500" fontWeight={"600"}>Collateral to unlock</Text>}
                                                         {radioOption === 'SELL' && <Text>Collateral Needed</Text>}
-                                                        <Text>Available</Text>
+                                                        <Text color="gray.500" fontWeight={"600"}>Available</Text>
                                                     </VStack>
                                                     <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
                                                         <Text>
@@ -946,7 +954,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                               <Stack spacing="24px" w={"full"}>
                                   <Box >
                                       <Flex pb={8}>
-                                          <Box fontSize={"md"} fontWeight="bold">
+                                          <Box fontSize={"xl"} fontWeight="semibold">
                                               {radioOption === 'BUY' ? 'Buy' : 'Sell'} sMATIC {optionType === 'CALL' ? 'Call' : 'Put'}
                                           </Box>
                                           <Spacer/>
@@ -1076,7 +1084,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                                               <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
                                               {radioOption === 'BUY' && balances && balances.optionPosition.lt(0)  && <Text>Collateral to unlock</Text>}
                                               {radioOption === 'SELL' && <Text>Collateral Needed</Text>}
-                                              <Text>Available</Text>
+                                              <Text color="gray.500" fontWeight={"600"}>Available</Text>
                                           </VStack>
                                           <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
                                               <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
@@ -1153,11 +1161,15 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                           <HStack spacing={8} fontSize={"sm"}>
                               <VStack spacing={1.5} alignItems={"flex-start"}>
                                   <Text>Price per contract</Text>
-                                  <Text>{radioOption === 'BUY' ? 'Total Price' : 'Total Proceeds' }</Text>
+                                  <Text>Quantity</Text>
+                                  <Text>{radioOption === 'BUY' ? 'Total price' : 'Total proceeds' }</Text>
                               </VStack>
                               <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>
                                   <Text>
                                       ${formattedPricePerContract}
+                                  </Text>
+                                  <Text>
+                                      {newAmount}
                                   </Text>
                                   <Text color={insufficientFunds ? quantityErrorColor : 'null'}>
                                       ${formattedTotPrice}
@@ -1165,7 +1177,8 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                               </VStack>
                           </HStack>
                       </Box>
-                      <Text fontSize={"xs"} color={"gray.500"} pt={'6'}>Placing this order <strong>gives {radioOption === 'BUY' ? 'you' : 'someone'}</strong> the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC</strong> for <strong>{formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>.</Text>
+                      <Text fontSize={"sm"} bgColor={useColorModeValue("gray.100", "dark.300")} mt={6} p={'3'} rounded={"lg"} color={useColorModeValue("gray.600", "gray.400")} lineHeight={2.1} letterSpacing={".02rem"}>
+                          Placing this order <strong>gives {radioOption === 'BUY' ? 'you' : 'someone'}</strong> the <strong>right to {optionType === 'CALL' ? 'buy' : 'sell'} {newAmount} sMATIC</strong> for <strong>{formattedStrike} sUSD/sMATIC</strong> {radioOption === 'SELL' ? optionType === 'CALL' ? 'from you' : 'to you': ''} until <strong>{formattedExpiry}, {formatTime(expiry)}</strong>.</Text>
                   </AlertDialogBody>
                   <AlertDialogFooter>
                       <Button
