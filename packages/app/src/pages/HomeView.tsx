@@ -77,7 +77,7 @@ function HomeView(props: RouteComponentProps) {
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const toast = useToast();
-    const connectedColor = useColorModeValue("green.100", "teal.600");
+    const connectedColor = useColorModeValue("green.100", "teal.500");
     const bgConnect = useColorModeValue("white", "dark.100");
     const questionColor = useColorModeValue("blue", "yellow.300");
     const stepsColor = useColorModeValue("white","black");
