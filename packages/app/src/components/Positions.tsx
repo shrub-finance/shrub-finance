@@ -255,7 +255,6 @@ function Positions() {
                   </PopoverTrigger>
                   <PopoverContent>
                     <PopoverArrow />
-                    <PopoverCloseButton />
                     <PopoverHeader>{inTheMoney ? 'In the Money (ITM)' : 'Out of the Money (OTM)'}</PopoverHeader>
                     <PopoverBody>{inTheMoney ?
                       'Owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
@@ -315,7 +314,6 @@ function Positions() {
                   </PopoverTrigger>
                   <PopoverContent>
                     <PopoverArrow />
-                    <PopoverCloseButton />
                     <PopoverHeader>{inTheMoney ? 'In the Money (ITM)' : 'Out of the Money (OTM)'}</PopoverHeader>
                     <PopoverBody>{inTheMoney ?
                       'Owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
@@ -715,7 +713,7 @@ function Positions() {
                    borderColor:"sprout.300"}}>Claim</Tab>
             <Tab _focus={{boxShadow: "none"}} fontWeight={"bold"}
                  _selected={{ color: "sprout.500", borderBottomWidth:"2px",
-                   borderColor:"sprout.300"}}>Realized Gain/Loss</Tab>
+                   borderColor:"sprout.300"}}>Realized Gain</Tab>
           </TabList>
           <TabPanels >
             <TabPanel>
