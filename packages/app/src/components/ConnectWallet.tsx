@@ -69,7 +69,7 @@ export function getErrorMessage(error: Error) {
     if (error instanceof NoEthereumProviderError) {
         return ({
             title: "Install MetaMask",
-            message: "Web3 not detected. Install MetaMask or use a dApp browser on mobile."
+            message: "You can use MetaMask by installing the browser extension or WalletConnect."
         });
     } else if (error instanceof UnsupportedChainIdError) {
         return ({
@@ -397,7 +397,7 @@ export function ConnectWalletModal() {
                                                 )}
 
                                                 {(connected && error && noMetaMask) ? (
-                                                  <Link href={isIE ? "https://microsoftedge.microsoft.com/addons/detail/metamask/ejbalbakoplchlghecdalmeeeajnimhm?hl=en-US": isFirefox ? "https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" : isChrome ? "https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en" : 'https://metamask.io/download'} isExternal>
+                                                  <Link href={isIE ? "https://microsoftedge.microsoft.com/addons/detail/metamask/ejbalbakoplchlghecdalmeeeajnimhm?hl=en-US": 'https://metamask.io/download'} isExternal>
                                                       Install MetaMask<ExternalLinkIcon mx="2px" /></Link>
                                                 ) : null}
 
