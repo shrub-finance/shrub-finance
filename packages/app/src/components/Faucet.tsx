@@ -17,10 +17,7 @@ import {
   useToast,
   Flex,
   Link,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  PopoverCloseButton, PopoverBody, Popover, InputRightElement, VStack, Spacer,
+  InputRightElement, VStack,
 } from '@chakra-ui/react'
 import RadioCard from './Radio'
 import { ToastDescription } from './TxMonitoring'
@@ -31,12 +28,9 @@ import { buyFromFaucet } from '../utils/ethMethods'
 import { ethers } from 'ethers'
 import {TxContext} from './Store'
 import {SUSDIcon, PolygonIcon, HappyBud} from "../assets/Icons";
-import {CheckCircleIcon, ExternalLinkIcon, Icon, UpDownIcon} from "@chakra-ui/icons";
+import {ExternalLinkIcon, Icon} from "@chakra-ui/icons";
 import useAddNetwork from "../hooks/useAddNetwork";
-import {AiOutlineArrowDown, AiOutlineSwap } from 'react-icons/ai'
-import {BsArrowDownShort, BsFunnel, FaFaucet, FiArrowDown, IoSwapVertical} from "react-icons/all";
-import {Balance} from "./ConnectWallet";
-
+import {BsArrowDownShort} from "react-icons/all";
 
 
 function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
@@ -85,9 +79,7 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
   const groupOption = getOptionRootProps();
   const [isLoading, setIsLoading] = useState(false);
   const invalidEntry = Number(amountValue)<0 ||isNaN(Number(amountValue));
-
-  const linkColor = useColorModeValue("blue","blue.100");
-  const popOverColor = useColorModeValue("blue.500", "blue.200");
+  useColorModeValue("blue","blue.100");
 
   async function handleFaucet(event: any) {
     setFaucetDrop(false);

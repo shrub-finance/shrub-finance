@@ -75,7 +75,6 @@ import { useLazyQuery, useQuery } from '@apollo/client'
 import { OPTION_POSITION_QUERY, ORDER_DETAILS_QUERY } from '../constants/queries'
 import usePriceFeed from "../hooks/usePriceFeed";
 import {CHAINLINK_MATIC} from "../constants/chainLinkPrices";
-import {Link as ReachLink} from "@reach/router";
 import {isMobile} from "react-device-detect";
 
 
@@ -104,9 +103,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
     const livePriceColor = useColorModeValue("green.500", "green.200");
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
     const ctaColor = useColorModeValue("sprout", "teal");
-    const orderBookTriggerColor = useColorModeValue("gray.500", "black");
-    const orderBookTriggerBg = useColorModeValue("gray.100", "gray.400");
-    const orderBookTextColor = useColorModeValue("blue", "yellow.300");
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
@@ -128,9 +124,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
         defaultValue: sellBuy,
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
-
-    const orderBookColorMobile = useColorModeValue("gray.500", "black");
-    const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
+    
     const orderBookColor = useColorModeValue("gray.600", "gray.200");
     const suggestionColor = useColorModeValue("blue" , "blue.300");
     const errorSuggestionColor = useColorModeValue("blackAlpha.700", "whiteAlpha.700");

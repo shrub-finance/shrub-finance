@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {
     CoinbaseIcon, FortmaticIcon,
     LedgerIcon,
-    MetaMaskIcon, PolygonIcon, PortisIcon,
+    MetaMaskIcon, PortisIcon,
     WalletConnectIcon,
 } from '../assets/Icons';
 import {
@@ -17,9 +17,7 @@ import {UserRejectedRequestError as UserRejectedRequestErrorWalletConnect} from 
 import {UserRejectedRequestError as UserRejectedRequestErrorFrame} from "@web3-react/frame-connector";
 import {
     injected,
-    walletconnect,
-    walletlink,
-    ledger, portis, fortmatic, gnosisSafe
+    walletconnect
 } from '../utils/connectors';
 import Jazzicon from "@metamask/jazzicon";
 import {
@@ -36,12 +34,12 @@ import {
 } from "@chakra-ui/react";
 import {Flex, Spacer} from "@chakra-ui/react";
 import {CheckCircleIcon, CopyIcon, ExternalLinkIcon, Icon, InfoOutlineIcon} from "@chakra-ui/icons";
-import {BigNumber, ethers} from "ethers";
+import {ethers} from "ethers";
 import {useConnectWallet} from "../hooks/useConnectWallet";
 import {formatEther} from "ethers/lib/utils";
 import {NETWORK_COLORS, NETWORK_LABELS} from "../constants/networks";
 import {RiSignalTowerLine} from "react-icons/all";
-import {isChrome, isFirefox, isIE, isMobile} from "react-device-detect";
+import {isIE, isMobile} from "react-device-detect";
 import {currencySymbol, ExplorerDataType, explorerLink} from "../utils/chainMethods";
 import useAddNetwork from "../hooks/useAddNetwork";
 
