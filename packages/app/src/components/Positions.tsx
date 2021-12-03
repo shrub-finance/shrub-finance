@@ -43,7 +43,24 @@ import {
   PopoverBody,
   Popover,
   Spinner,
-  Heading, Tag, TagLabel, Tooltip, Tabs, TabList, Tab, TabPanels, TabPanel, PopoverCloseButton, PopoverHeader
+  Heading,
+  Tag,
+  TagLabel,
+  Tooltip,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  PopoverCloseButton,
+  PopoverHeader,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogCloseButton,
+  AlertDialogBody,
+  VStack, AlertDialogFooter
 } from '@chakra-ui/react'
 import {
   depositEth,
@@ -58,7 +75,7 @@ import {
   optionTypeToNumber,
   exerciseLight,
   getOrderStack,
-  toEthDate,
+  toEthDate, claim, formatTime,
 } from '../utils/ethMethods'
 import {OrderCommon, ShrubBalance, SmallOrder, SupportedCurrencies} from '../types';
 import {Currencies} from "../constants/currencies";
@@ -95,12 +112,14 @@ function Positions() {
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([<Tr key={"defaultOptionRow"}/>]);
   const [expiredOptionsRows, setExpiredOptionsRows] = useState<JSX.Element[]>([<Tr key={"defaultExpiredOptionRow"}/>]);
+  const [expiredOptionsRowsClaim, setExpiredOptionsRowsClaim] = useState<JSX.Element[]>([<Tr key={"defaultExpiredOptionRowClaim"}/>]);
   const [localError, setLocalError] = useState('')
   const [shrubBalance, setShrubBalance] = useState({locked: {MATIC: 0, SMATIC: 0, SUSD: 0}, available: {MATIC: 0, SMATIC: 0, SUSD: 0}} as ShrubBalance);
   const hasOptions = useRef(false);
   const toast = useToast();
   const {isOpen: isOpenModal, onOpen: onOpenModal, onClose: onCloseModal} = useDisclosure();
   const {isOpen: isOpenConnectWalletModal, onClose: onCloseConnectWalletModal} = useDisclosure();
+  const { isOpen: isOpenConfirmDialog, onOpen: onOpenConfirmDialog, onClose: onCloseConfirmDialog } = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
   const [modalCurrency, setModalCurrency] = useState<SupportedCurrencies>('SUSD');
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
@@ -202,6 +221,7 @@ function Positions() {
     const now = new Date();
     const optionRow:JSX.Element[] = [];
     const expiredOptionRow:JSX.Element[] = [];
+    const expiredOptionRowClaim:JSX.Element[] = [];
     if (!shrubfolioData || !shrubfolioData.user || !shrubfolioData.user.activeUserOptions) {
       return
     }
@@ -300,49 +320,102 @@ function Positions() {
           </Tr>
         )
       } else {
-        expiredOptionRow.push(
-          <Tr key={optionId}>
-            <Td fontWeight={'bold'} fontSize={"xs"}>
-              <Box>{pair}</Box>
-              <Box>{pair2}</Box>
-              <Box>
-                <Popover trigger={"hover"}>
-                  <PopoverTrigger>
-                    <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full' cursor={"pointer"}>
-                      <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
-                    </Tag>
-                  </PopoverTrigger>
-                  <PopoverContent>
-                    <PopoverArrow />
-                    <PopoverHeader>{inTheMoney ? 'In the Money (ITM)' : 'Out of the Money (OTM)'}</PopoverHeader>
-                    <PopoverBody>{inTheMoney ?
-                      'Owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
-                      'Owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
-                    }</PopoverBody>
-                  </PopoverContent>
-                </Popover>
-              </Box>
-            </Td>
-            {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
-            <Td>{amount}</Td>
-            <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
-            <Td>
-              <Box>
-                <StatHelpText>
-                  {
-                    !!orderStack.totalUnrealizedGain && <StatArrow type={orderStack.totalUnrealizedGain > 0 ? "increase" : "decrease"} />
-                  }
-                  {orderStack.totalUnrealizedGain.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}
-                </StatHelpText>
-              </Box>
-            </Td>
-          </Tr>
-        )
+        if(amount < 0) {
+          expiredOptionRowClaim.push(
+            <Tr key={optionId}>
+              <Td fontWeight={'bold'} fontSize={"xs"}>
+                <Box>{pair}</Box>
+                <Box>{pair2}</Box>
+                <Box>
+                  <Popover trigger={"hover"}>
+                    <PopoverTrigger>
+                      <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full' cursor={"pointer"}>
+                        <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
+                      </Tag>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      <PopoverHeader>{inTheMoney ? 'In the Money (ITM)' : 'Out of the Money (OTM)'}</PopoverHeader>
+                      <PopoverBody>{inTheMoney ?
+                        'Owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
+                        'Owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
+                      }</PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                </Box>
+              </Td>
+              {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
+              <Td>{amount}</Td>
+              <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
+              <Td>
+                <Box>
+                  <StatHelpText>
+                    {
+                      !!orderStack.totalUnrealizedGain && <StatArrow type={orderStack.totalUnrealizedGain > 0 ? "increase" : "decrease"} />
+                    }
+                    {orderStack.totalUnrealizedGain.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}
+                  </StatHelpText>
+                </Box>
+                <Box pt={4}>
+                  <Button
+                    colorScheme={btnBg}
+                    variant={"link"}
+                    size="sm"
+                    // onClick={onOpenConfirmDialog}
+                    onClick={() => handleClaim(pair, common, amount)}
+                  >
+                    Claim
+                  </Button>
+                </Box>
+              </Td>
+            </Tr>
+          )
+        } else {
+          expiredOptionRow.push(
+            <Tr key={optionId}>
+              <Td fontWeight={'bold'} fontSize={"xs"}>
+                <Box>{pair}</Box>
+                <Box>{pair2}</Box>
+                <Box>
+                  <Popover trigger={"hover"}>
+                    <PopoverTrigger>
+                      <Tag size='sm' colorScheme={inTheMoney ? 'cyan' : 'yellow'} borderRadius='full' cursor={"pointer"}>
+                        <TagLabel>{inTheMoney ? 'ITM' : 'OTM'}</TagLabel>
+                      </Tag>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      <PopoverHeader>{inTheMoney ? 'In the Money (ITM)' : 'Out of the Money (OTM)'}</PopoverHeader>
+                      <PopoverBody>{inTheMoney ?
+                        'Owners can exercise this option at a preferential price to the market price. The intrisic value of this option is greater than 0' :
+                        'Owners would be better off buying or selling the asset on the market rather than exercising. The intrinsic value of this option is 0'
+                      }</PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                </Box>
+              </Td>
+              {/*<Td>{orderStack.totalValue.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>*/}
+              <Td>{amount}</Td>
+              <Td>{orderStack.lastPrice.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}</Td>
+              <Td>
+                <Box>
+                  <StatHelpText>
+                    {
+                      !!orderStack.totalUnrealizedGain && <StatArrow type={orderStack.totalUnrealizedGain > 0 ? "increase" : "decrease"} />
+                    }
+                    {orderStack.totalUnrealizedGain.toLocaleString(undefined, {style: 'currency', currency: 'USD'})}
+                  </StatHelpText>
+                </Box>
+              </Td>
+            </Tr>
+          )
+        }
       }
 
     }
     setOptionsRows(optionRow);
     setExpiredOptionsRows(expiredOptionRow);
+    setExpiredOptionsRowsClaim(expiredOptionRowClaim);
   }, [shrubfolioData])
 
   // determine if approved
@@ -484,6 +557,26 @@ function Positions() {
       const { optionType, strike } = common;
       const formattedStrike = ethers.utils.formatUnits(strike,6);
       const description = `Exercise ${pair} option for $${Number(amount) * Number(formattedStrike)} at strike $${formattedStrike}`
+      pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
+      const receipt = await tx.wait()
+      const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
+      toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
+      pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber}})
+      return tx;
+    } catch (e) {
+      console.error(e);
+      handleErrorMessages({err:e});
+    }
+
+  }
+
+  async function handleClaim(pair: string, common: OrderCommon, amount: string) {
+    try {
+      const bigAmount = ethers.utils.parseUnits(amount, 18);
+      const tx = await claim(common, library);
+      const { optionType, strike } = common;
+      const formattedStrike = ethers.utils.formatUnits(strike,6);
+      const description = `Claimed ${pair} option for $${Number(amount) * Number(formattedStrike)} at strike $${formattedStrike}`
       pendingTxsDispatch({type: 'add', txHash: tx.hash, description})
       const receipt = await tx.wait()
       const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
@@ -787,8 +880,17 @@ function Positions() {
 
                         {expiredOptionsRows.length ? <Table variant="simple" size="lg" borderBottomRadius="2xl"
                                                             borderTopRadius={!optionsRows.length ? "2xl" : "none"}>
+                          <Thead>
+                            <Tr>
+                              <Th color={"gray.400"}>Position</Th>
+                              {/*<Th color={"gray.400"}>Balance</Th>*/}
+                              <Th color={"gray.400"}>Qty</Th>
+                              <Th color={"gray.400"} display={{"base": "none", "md": "flex"}}>Price</Th>
+                              <Th color={"gray.400"}>Gain/Loss</Th>
+                            </Tr>
+                          </Thead>
                           <Tbody bg={expiredRowTableBg} >
-                            {expiredOptionsRows}
+                            {expiredOptionsRowsClaim}
                           </Tbody>
                         </Table> : null
                         }
@@ -810,10 +912,95 @@ function Positions() {
               }
             </TabPanel>
             <TabPanel>
-              <p></p>
+              {
+                (!shrubfolioLoading && !shrubfolioError && account) ?
+
+                  (shrubfolioData && shrubfolioData.user && shrubfolioData.user.activeUserOptions && shrubfolioData.user.activeUserOptions[0]) &&
+                    <>
+
+                      {expiredOptionsRows.length ? <Table variant="simple" size="lg" borderBottomRadius="2xl"
+                                                          borderTopRadius={!optionsRows.length ? "2xl" : "none"}>
+
+                        <Thead>
+                          <Tr>
+                            <Th color={"gray.400"}>Position</Th>
+                            {/*<Th color={"gray.400"}>Balance</Th>*/}
+                            <Th color={"gray.400"}>Qty</Th>
+                            <Th color={"gray.400"} display={{"base": "none", "md": "flex"}}>Price</Th>
+                            <Th color={"gray.400"}>Gain/Loss</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody bg={expiredRowTableBg} >
+                          {expiredOptionsRows}
+                        </Tbody>
+                      </Table> : null
+                      }
+                    </>
+                  : <Table variant="simple" size="lg">
+                    <Thead>
+                      <Tr>
+                        <Th color={"gray.400"}>Position</Th>
+                        {/*<Th color={"gray.400"}>Balance</Th>*/}
+                        <Th color={"gray.400"}>Qty</Th>
+                        <Th color={"gray.400"} display={{"base": "none", "md": "flex"}}>Price</Th>
+                        <Th color={"gray.400"}>Gain/Loss</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {spinnerRow}
+                    </Tbody>
+                  </Table>
+              }
             </TabPanel>
           </TabPanels>
         </Tabs>
+        {/*confirmation modal*/}
+        {/*<AlertDialog*/}
+        {/*  motionPreset="slideInBottom"*/}
+        {/*  // @ts-ignore*/}
+        {/*  leastDestructiveRef={cancelRef}*/}
+        {/*  onClose={onCloseConfirmDialog}*/}
+        {/*  isOpen={isOpenConfirmDialog}*/}
+        {/*  isCentered>*/}
+        {/*  <AlertDialogOverlay />*/}
+        {/*  <AlertDialogContent>*/}
+        {/*    <AlertDialogHeader>Claim Confirmation</AlertDialogHeader>*/}
+        {/*    <AlertDialogCloseButton />*/}
+        {/*    <Divider/>*/}
+        {/*    <AlertDialogBody>*/}
+        {/*      <Box fontSize="sm" pt={6}>*/}
+        {/*        <HStack spacing={8} fontSize={"sm"}>*/}
+        {/*          <VStack spacing={1.5} alignItems={"flex-start"}>*/}
+        {/*            <Text></Text>*/}
+        {/*            <Text></Text>*/}
+        {/*            <Text></Text>*/}
+        {/*          </VStack>*/}
+        {/*          <VStack spacing={1.5} alignItems={"flex-start"} fontWeight={"600"}>*/}
+        {/*            <Text>*/}
+        {/*            </Text>*/}
+        {/*            <Text>*/}
+
+        {/*            </Text>*/}
+        {/*            <Text>*/}
+        {/*            </Text>*/}
+        {/*          </VStack>*/}
+        {/*        </HStack>*/}
+        {/*      </Box>*/}
+        {/*      <Text fontSize={"sm"} bgColor={useColorModeValue("gray.100", "dark.300")} mt={6} p={'3'} rounded={"lg"} color={useColorModeValue("gray.600", "gray.400")} lineHeight={2.1} letterSpacing={".02rem"}>*/}
+        {/*        You are about to claim. Claim?</Text>*/}
+        {/*    </AlertDialogBody>*/}
+        {/*    <AlertDialogFooter>*/}
+        {/*      <Button*/}
+        {/*        // @ts-ignore*/}
+        {/*        ref={cancelRef} onClick={onCloseConfirmDialog}>*/}
+        {/*        Cancel*/}
+        {/*      </Button>*/}
+        {/*      <Button colorScheme={btnBg} ml={3} onClick={handleClaim(pair, common, amount)}>*/}
+        {/*        Proceed with Claim*/}
+        {/*      </Button>*/}
+        {/*    </AlertDialogFooter>*/}
+        {/*  </AlertDialogContent>*/}
+        {/*</AlertDialog>*/}
       </Container>
 
 

@@ -581,6 +581,13 @@ export async function exerciseLight(common: OrderCommon, size: ethers.BigNumber,
   return executed;
 }
 
+export async function claim(common: OrderCommon, provider: JsonRpcProvider) {
+  const signer = provider.getSigner();
+  const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, signer);
+  const claimed = await shrubContract.claim(common);
+  return claimed;
+}
+
 export function hashOrderCommon(common: OrderCommon) {
   const { baseAsset, quoteAsset, expiry, strike, optionType } = common;
   return ethers.utils.solidityKeccak256(['bytes32', 'address', 'address', 'uint', 'uint', 'uint8'],[COMMON_TYPEHASH, baseAsset, quoteAsset, expiry, strike, optionType]);
