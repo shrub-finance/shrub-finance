@@ -5,6 +5,7 @@ import "./OrderLib.sol";
 import "./MatchingLib.sol";
 import "./MathLib.sol";
 import "./AppStateLib.sol";
+import "hardhat/console.sol";
 
 library AnnounceLib {
 
@@ -14,6 +15,7 @@ library AnnounceLib {
 
 
   function announce(AppStateLib.AppState storage self, OrderLib.SmallOrder memory order, OrderLib.OrderCommon memory common, OrderLib.Signature memory sig) internal {
+    console.log('announce');
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
     bytes32 orderId = OrderLib.hashSmallOrder(order, common);
     address user = OrderLib.getAddressFromSignedOrder(order, common, sig);
@@ -40,6 +42,7 @@ library AnnounceLib {
 
 
   function announceMany(AppStateLib.AppState storage self, OrderLib.SmallOrder[] memory orders, OrderLib.OrderCommon[] memory commons, OrderLib.Signature[] memory sigs) internal {
+    console.log('announceMany');
     require(orders.length == commons.length, "Array length mismatch");
     require(orders.length == sigs.length, "Array length mismatch");
     for(uint i = 0; i < orders.length; i++) {

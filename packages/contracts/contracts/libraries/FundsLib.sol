@@ -3,6 +3,7 @@ pragma solidity 0.7.3;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./OrderLib.sol";
 import "./AppStateLib.sol";
+import "hardhat/console.sol";
 
 library FundsLib {
 
@@ -12,6 +13,7 @@ library FundsLib {
   event Withdraw(address user, address token, uint amount);
 
   function deposit(AppStateLib.AppState storage self, address token, uint amount, uint msgValue) internal {
+    console.log('deposit');
     if(token != OrderLib.ZERO_ADDRESS) {
       require(ERC20(token).transferFrom(msg.sender, address(this), amount), "Must succeed in taking tokens");
       self.userTokenBalances[msg.sender][token] += amount;
@@ -23,6 +25,7 @@ library FundsLib {
   }
 
   function withdraw(AppStateLib.AppState storage self, address token, uint amount) internal {
+    console.log('withdraw');
     uint balance = getAvailableBalance(self, msg.sender, token);
     require(amount <= balance, "Cannot withdraw more than available balance");
     self.userTokenBalances[msg.sender][token] -= amount;
@@ -35,6 +38,7 @@ library FundsLib {
   }
 
   function getAvailableBalance(AppStateLib.AppState storage self, address user, address asset) internal view returns(uint) {
+    console.log('getAvailableBalance');
     return self.userTokenBalances[user][asset] - self.userTokenLockedBalance[user][asset];
   }
 }
