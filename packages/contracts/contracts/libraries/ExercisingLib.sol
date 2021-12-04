@@ -15,6 +15,7 @@ library ExercisingLib {
   using OrderLib for OrderLib.OptionType;
 
   event Exercised(address indexed user, bytes32 indexed positionHash, uint amount);
+  event Claimed(address indexed user, bytes32 positionHash, uint optionAmount, uint baseAssetAmount, uint quoteAssetAmount);
 
   function exercise(AppStateLib.AppState storage self, uint256 buyOrderSize, OrderLib.OrderCommon memory common) internal {
     console.log('exercise');
@@ -67,7 +68,6 @@ library ExercisingLib {
     emit Exercised(buyer, positionHash, buyOrderSize);
   }
 
-
   function claim(AppStateLib.AppState storage self, OrderLib.OrderCommon memory common) internal {
     console.log('claim');
     bytes32 positionHash = OrderLib.hashOrderCommon(common);
@@ -107,5 +107,6 @@ library ExercisingLib {
     require(self.positionPoolTokenTotalSupply[positionHash] >= poolOwnership, "The pool total size should exceed claimed amount");
     self.positionPoolTokenTotalSupply[positionHash] -= poolOwnership;
     self.userOptionPosition[msg.sender][positionHash] = 0;
+    emit Claimed(msg.sender, positionHash, poolOwnership, baseBalanceOwed, quoteBalanceOwed);
   }
 }
