@@ -9,7 +9,7 @@
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "bytes32",
         "name": "positionHash",
         "type": "bytes32"

@@ -15,7 +15,7 @@ library ExercisingLib {
   using OrderLib for OrderLib.OptionType;
 
   event Exercised(address indexed user, bytes32 indexed positionHash, uint amount);
-  event Claimed(address indexed user, bytes32 positionHash, uint optionAmount, uint baseAssetAmount, uint quoteAssetAmount);
+  event Claimed(address indexed user, bytes32 indexed positionHash, uint optionAmount, uint baseAssetAmount, uint quoteAssetAmount);
 
   function exercise(AppStateLib.AppState storage self, uint256 buyOrderSize, OrderLib.OrderCommon memory common) internal {
     console.log('exercise');
