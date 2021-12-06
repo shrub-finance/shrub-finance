@@ -89,6 +89,9 @@ type Option @entity {
   optionType: OptionType!
   lastPrice: BigDecimal
   openInterest: BigDecimal!
+  positionPoolBalance: BigDecimal!
+  positionPoolBaseAssetBalance: BigDecimal!
+  positionPoolQuoteAssetBalance: BigDecimal!
   userOptions: [UserOption!]! @derivedFrom(field: "option")
   buyOrders: [BuyOrder!]! @derivedFrom(field: "option")
   sellOrders: [SellOrder!]! @derivedFrom(field: "option")

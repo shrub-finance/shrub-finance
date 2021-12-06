@@ -23,6 +23,9 @@ export function getOption(positionHash: Bytes, common: OrderAnnounceCommonStruct
     // option.strike = weiToEth(common.strike);
     option.optionType = optionType;
     option.openInterest = decimal.ZERO;
+    option.positionPoolBalance = decimal.ZERO;
+    option.positionPoolQuoteAssetBalance = decimal.ZERO;
+    option.positionPoolBaseAssetBalance = decimal.ZERO;
     option.save();
   }
   return option as Option;

@@ -6,7 +6,7 @@ import {
   OrderAnnounce,
   OrderMatched,
   OrderAnnounceCommonStruct,
-  OrderAnnounceOrderStruct, ExerciseCall, Exercised, Cancelled,
+  OrderAnnounceOrderStruct, ExerciseCall, Exercised, Cancelled, Claimed,
 } from '../generated/ShrubExchange/ShrubExchange'
 import { BuyOrder, SellOrder, User, Match, Option, UserOption, TokenBalance, Token } from '../generated/schema'
 import { Address, BigDecimal, BigInt, Bytes, ethereum, log } from '@graphprotocol/graph-ts'
@@ -63,14 +63,24 @@ export function handleWithdraw(event: Withdraw): void {
 export function handleExercised(event: Exercised): void {
   let user = event.params.user;
   let positionHash = event.params.positionHash;
-  // let amount = event.params.amount;
+  let amount = event.params.amount;
   let shrubAddress = event.address;
   let block = event.block;
+  let decimalAmount = decimal.fromBigInt(amount);
   option = Option.load(positionHash.toHex()) as Option;
   let userObj = getUser(user);
   userOption = getUserOption(userObj, option, shrubAddress, block);
   let baseAsset = Address.fromString(option.baseAsset);
   let quoteAsset = Address.fromString(option.quoteAsset);
+
+  option.positionPoolBalance = option.positionPoolBalance.minus(decimalAmount);
+  if (option.optionType === 'CALL') {
+    // Decrease positionPool collateral of the quote asset with the size
+    option.positionPoolQuoteAssetBalance = option.positionPoolQuoteAssetBalance.minus(decimalAmount);
+  } else {
+    // Decrease positionPool collateral of the base asset with the locked capital (size * strike)
+    option.positionPoolBaseAssetBalance = option.positionPoolBaseAssetBalance.plus(option.strike.times(decimalAmount));
+  }
 
   // Update userOptions of the exerciser
   updateUserOptionBalance(userOption, shrubAddress);
@@ -80,6 +90,7 @@ export function handleExercised(event: Exercised): void {
   let quoteTokenBalance = getTokenBalance(user, quoteAsset, block);
   updateTokenBalance(baseTokenBalance, shrubAddress);
   updateTokenBalance(quoteTokenBalance, shrubAddress);
+  option.save()
 
   // Run check collateral for orders that user the currency that was used to exercise
   checkCollateralForOutstandingOrders(userObj, [baseAsset, quoteAsset], block);
@@ -245,19 +256,63 @@ export function handleOrderMatched(event: OrderMatched): void {
 
     // Find other orders for the same option with the same user and see if they got disqualified due to nonce
 
+    let size = decimal.fromBigInt(fillSize, quoteToken.decimals);
     match.buyOrder = buyOrderObj.id;
     match.sellOrder = sellOrderObj.id;
     match.totalFee = decimal.fromBigInt(buyOrder.fee.plus(sellOrder.fee));
-    match.size = decimal.fromBigInt(fillSize, quoteToken.decimals);
+    match.size = size;
     match.finalPrice = decimal.fromBigInt(fillSize.times(sellOrder.price).div(sellOrder.size), baseToken.decimals);
     match.finalPricePerContract = match.finalPrice.div(match.size);
     match.block = block.number.toI32();
     match.timestamp = block.timestamp.toI32();
 
+    // Update option position pool balances
+    option.positionPoolBalance = option.positionPoolBalance.plus(size);
+    if (option.optionType === 'CALL') {
+      // Increase positionPool collateral of the quote asset with the size
+      option.positionPoolQuoteAssetBalance = option.positionPoolQuoteAssetBalance.plus(size);
+    } else {
+      // Increase positionPool collateral of the base asset with the locked capital (size * strike)
+      option.positionPoolBaseAssetBalance = option.positionPoolBaseAssetBalance.plus(option.strike.times(size));
+    }
+
     setOptionOnMatch(positionHash, match.size, match.finalPricePerContract);
     // TODO: Check if there are any orders from the users that need to be invalidated due to nonce increment
+    option.save();
     buyOrderObj.save();
     sellOrderObj.save();
     match.save();
   }
+}
+
+export function handleClaimed(event: Claimed): void {
+  // event Claimed(address indexed user, bytes32 indexed positionHash, uint optionAmount, uint baseAssetAmount, uint quoteAssetAmount);
+  let user = event.params.user;
+  let positionHash = event.params.positionHash;
+  let optionAmount = event.params.optionAmount;
+  let baseAssetAmount = event.params.baseAssetAmount;
+  let quoteAssetAmount = event.params.quoteAssetAmount;
+  let shrubAddress = event.address;
+  let block = event.block;
+  let option = Option.load(positionHash.toHex());
+  option.positionPoolBalance = option.positionPoolBalance.minus(decimal.fromBigInt(optionAmount));
+  option.positionPoolQuoteAssetBalance = option.positionPoolBalance.minus(decimal.fromBigInt(quoteAssetAmount));
+  option.positionPoolBaseAssetBalance = option.positionPoolBalance.minus(decimal.fromBigInt(baseAssetAmount));
+
+  let userObj = getUser(user);
+  userOption = getUserOption(userObj, option as Option, shrubAddress, block);
+  let baseAsset = Address.fromString(option.baseAsset);
+  let quoteAsset = Address.fromString(option.quoteAsset);
+
+  // Update userOptions of the exerciser
+  updateUserOptionBalance(userOption, shrubAddress);
+
+  // Update tokenBalance of the exerciser
+  let baseTokenBalance = getTokenBalance(user, baseAsset, block)
+  let quoteTokenBalance = getTokenBalance(user, quoteAsset, block);
+  // TODO: update the balance without making a contract call
+  updateTokenBalance(baseTokenBalance, shrubAddress);
+  updateTokenBalance(quoteTokenBalance, shrubAddress);
+
+  option.save();
 }

@@ -50,4 +50,6 @@ dataSources:
           handler: handleExercised
         - event: Cancelled(indexed address,indexed bytes32,uint256)
           handler: handleCancelled
+        - event: Claimed(indexed address,indexed bytes32,uint256,uint256,uint256)
+          handler: handleClaimed
       file: ./src/mapping.ts
