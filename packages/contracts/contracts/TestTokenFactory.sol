@@ -1,4 +1,5 @@
-pragma solidity 0.7.3;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -30,6 +31,6 @@ contract TestTokenFactory is Ownable {
     uint balance = erc20.balanceOf(msg.sender);
     require(balance >= amountToBurn, "TestTokenFactory: cannot burn more than you have");
     erc20.burn(msg.sender, amountToBurn);
-    msg.sender.transfer(amountToBurn / tokenRates[token]);
+    payable(msg.sender).transfer(amountToBurn / tokenRates[token]);
   }
 }

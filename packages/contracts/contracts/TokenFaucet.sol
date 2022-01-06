@@ -1,4 +1,5 @@
-pragma solidity 0.7.3;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -27,6 +28,6 @@ contract TokenFaucet is Ownable {
 //    console.log('sellToFaucet');
     ERC20 erc20 = ERC20(token);
     require(erc20.transferFrom(msg.sender, address(this), amountToSell), "Failed to transfer tokens");
-    msg.sender.transfer(amountToSell / tokenRates[token]);
+    payable(msg.sender).transfer(amountToSell / tokenRates[token]);
   }
 }
