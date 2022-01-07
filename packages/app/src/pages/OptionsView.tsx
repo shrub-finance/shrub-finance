@@ -609,9 +609,8 @@ function OptionsView(props: RouteComponentProps) {
                   mt={"8"}
               >
                   <Box>
-                      {!isMobile &&   <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option</Text>}
-                  <HStack {...groupOption} spacing={{ base: 2, md: 3 }}>
-
+                      {!isMobile && expiryDates && expiryDates[0] && <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option</Text>}
+                    {expiryDates && expiryDates[0] && <HStack {...groupOption} spacing={{ base: 2, md: 3 }}>
                       {sellBuys.map((value) => {
                           const radio = getOptionRadioProps({value});
                           return (
@@ -620,12 +619,12 @@ function OptionsView(props: RouteComponentProps) {
                               </RadioCard>
                           );
                       })}
-                  </HStack>
+                  </HStack> }
                   </Box>
                   <Spacer/>
                   <Box>
-                      {!isMobile &&  <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option Type</Text>}
-                  <HStack {...groupOptionType} spacing={{ base: 2, md: 3 }}>
+                      {!isMobile && expiryDates && expiryDates[0] &&  <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option Type</Text>}
+                    {expiryDates && expiryDates[0] && <HStack {...groupOptionType} spacing={{ base: 2, md: 3 }}>
                       {optionTypes.map((value) => {
                           const radio = getOptionTypeRadioProps({value});
                           return (
@@ -634,7 +633,7 @@ function OptionsView(props: RouteComponentProps) {
                               </RadioCard>
                           );
                       })}
-                  </HStack>
+                  </HStack>}
                   </Box>
               </Flex>
           </Container>
