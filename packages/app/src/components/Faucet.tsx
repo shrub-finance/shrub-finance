@@ -17,10 +17,7 @@ import {
   useToast,
   Flex,
   Link,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  PopoverCloseButton, PopoverBody, Popover, InputRightElement, VStack, Spacer,
+  InputRightElement, VStack, 
 } from '@chakra-ui/react'
 import RadioCard from './Radio'
 import { ToastDescription } from './TxMonitoring'
@@ -31,10 +28,9 @@ import { buyFromFaucet } from '../utils/ethMethods'
 import { ethers } from 'ethers'
 import {TxContext} from './Store'
 import {SUSDIcon, PolygonIcon, HappyBud} from "../assets/Icons";
-import {CheckCircleIcon, ExternalLinkIcon, Icon, UpDownIcon} from "@chakra-ui/icons";
+import {ExternalLinkIcon, Icon} from "@chakra-ui/icons";
 import useAddNetwork from "../hooks/useAddNetwork";
-import {AiOutlineArrowDown, AiOutlineSwap } from 'react-icons/ai'
-import {BsArrowDownShort, BsFunnel, FaFaucet, FiArrowDown, IoSwapVertical} from "react-icons/all";
+import {BsArrowDownShort} from "react-icons/all";
 import {Balance} from "./ConnectWallet";
 
 
@@ -142,11 +138,11 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
               }
             })
             .catch(console.error)
-          } catch (e) {
+          } catch (e: any) {
             console.log(e);
             handleErrorMessages({err: e});
           }
-        } catch (e) {
+        } catch (e: any) {
           setIsLoading(false);
           handleErrorMessages({err: e});
           const toastDescription = ToastDescription(description, e.transactionHash, chainId);
@@ -155,7 +151,7 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
         }
       }
 
-    } catch (e) {
+    } catch (e: any) {
       setIsLoading(false);
       handleErrorMessages({err: e})
     }

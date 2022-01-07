@@ -46,13 +46,12 @@ import {
 } from '../utils/ethMethods'
 import {BytesLike, ethers} from "ethers";
 import {
-    ArrowBackIcon,
     ChevronDownIcon,
     ExternalLinkIcon,
     Icon,
 } from '@chakra-ui/icons';
 import {useWeb3React} from "@web3-react/core";
-import {currencyIcon, ExplorerDataType, explorerLink} from "../utils/chainMethods";
+import {ExplorerDataType, explorerLink} from "../utils/chainMethods";
 import {ToastDescription} from "../components/TxMonitoring";
 import {TxContext} from "../components/Store";
 import {handleErrorMessagesFactory} from "../utils/handleErrorMessages";
@@ -100,7 +99,6 @@ function OptionsView(props: RouteComponentProps) {
   const goBack = () => {
     navigate(-1);
   }
-
 
   const [getSummaryAllQuery, {
     loading: summaryAllLoading,
@@ -444,7 +442,7 @@ function OptionsView(props: RouteComponentProps) {
           position: 'top-right'
         })
         pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
-      } catch (e) {
+      } catch (e: any) {
         const toastDescription = ToastDescription(description, e.transactionHash, chainId);
         toast({
           title: 'Transaction Failed',
@@ -550,10 +548,6 @@ function OptionsView(props: RouteComponentProps) {
           >
               {!isMobile && <Flex>
                   <Box>
-                      <Button leftIcon={<ArrowBackIcon />} colorScheme="blue" variant="link" fontSize={"xs"}
-                              onClick={goBack}>
-                          Back
-                      </Button>
                   </Box>
                   <Spacer/>
                   <Box>
@@ -615,9 +609,8 @@ function OptionsView(props: RouteComponentProps) {
                   mt={"8"}
               >
                   <Box>
-                      {!isMobile &&   <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option</Text>}
-                  <HStack {...groupOption} spacing={{ base: 2, md: 3 }}>
-
+                      {!isMobile && expiryDates && expiryDates[0] && <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option</Text>}
+                    {expiryDates && expiryDates[0] && <HStack {...groupOption} spacing={{ base: 2, md: 3 }}>
                       {sellBuys.map((value) => {
                           const radio = getOptionRadioProps({value});
                           return (
@@ -626,12 +619,12 @@ function OptionsView(props: RouteComponentProps) {
                               </RadioCard>
                           );
                       })}
-                  </HStack>
+                  </HStack> }
                   </Box>
                   <Spacer/>
                   <Box>
-                      {!isMobile &&  <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option Type</Text>}
-                  <HStack {...groupOptionType} spacing={{ base: 2, md: 3 }}>
+                      {!isMobile && expiryDates && expiryDates[0] &&  <Text fontSize={"xs"} fontWeight={"extrabold"} mb={3} color={"gray.400"} display={{ sm: "none", md: "block" }}>Option Type</Text>}
+                    {expiryDates && expiryDates[0] && <HStack {...groupOptionType} spacing={{ base: 2, md: 3 }}>
                       {optionTypes.map((value) => {
                           const radio = getOptionTypeRadioProps({value});
                           return (
@@ -640,7 +633,7 @@ function OptionsView(props: RouteComponentProps) {
                               </RadioCard>
                           );
                       })}
-                  </HStack>
+                  </HStack>}
                   </Box>
               </Flex>
           </Container>

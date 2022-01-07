@@ -71,7 +71,7 @@ import {TxContext} from "./Store";
 import {ToastDescription, Txmonitor} from "./TxMonitoring";
 import {handleErrorMessagesFactory} from '../utils/handleErrorMessages';
 import RadioCard from './Radio';
-import { ArrowBackIcon, ArrowForwardIcon, Icon, QuestionOutlineIcon } from '@chakra-ui/icons'
+import { Icon, QuestionOutlineIcon } from '@chakra-ui/icons'
 import { useQuery } from '@apollo/client'
 import { SHRUBFOLIO_QUERY } from '../constants/queries';
 import {isMobile} from "react-device-detect";
@@ -348,14 +348,14 @@ function Positions() {
           } else {
             setIsApproved(false);
           }
-        } catch (e) {
+        } catch (e: any) {
           handleErrorMessages(e);
           console.error(e);
         }
         try {
           const balance = await getWalletBalance(Currencies[modalCurrency].address, library)
           setWalletTokenBalance(balance);
-        } catch (e) {
+        } catch (e: any) {
           handleErrorMessages(e);
           console.error(e)
         }
@@ -476,7 +476,7 @@ function Positions() {
       toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
       pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber}})
       return tx;
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       handleErrorMessages({err:e});
     }
@@ -525,12 +525,12 @@ function Positions() {
         const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
         toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
         pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
-      } catch (e) {
+      } catch (e: any) {
         const toastDescription = ToastDescription(description, e.transactionHash, chainId);
         pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
         toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
       }
-    } catch (e) {
+    } catch (e: any) {
       setApproving(false)
       setShowDepositButton(false)
       handleErrorMessages({err: e})
@@ -554,9 +554,9 @@ function Positions() {
         <>
           <SlideFade in={true} unmountOnExit={true}>
             <Flex>
-              <Alert status={!!web3Error ? "error" : "warning"} borderRadius={"2xl"}>
+              <Alert status={web3Error ? "error" : "warning"} borderRadius={"2xl"}>
                 <AlertIcon/>
-                {!!web3Error ? getErrorMessage(web3Error).message : localError}
+                {web3Error ? getErrorMessage(web3Error).message : localError}
                 <Spacer/>
               </Alert>
             </Flex>
@@ -579,10 +579,6 @@ function Positions() {
       <Container mt={2} flex="1" borderRadius="2xl" maxW="container.sm">
         {!isMobile && <Flex>
           <Box>
-            <Button leftIcon={<ArrowBackIcon />} colorScheme="blue" variant="link" fontSize={"xs"}
-                    onClick={goBack}>
-              Back
-            </Button>
           </Box>
           <Spacer/>
           <Box>

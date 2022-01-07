@@ -6,12 +6,17 @@
   "author": "",
   "license": "ISC",
   "main": "index.js",
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "version": "1.0.0",
+    "npmClient": "yarn",
+    "useWorkspaces": true
+  },
   "scripts": {
-    "start": "lerna run start --parallel",
-    "build": "CI=false && yarn workspace @shrub/app run build",
+    "start": "yarn start",
+    "build": "CI=false && yarn workspace @shrub/app build",
     "contracts": "yarn workspace @shrub/contracts start",
     "app": "yarn workspace @shrub/app start",
     "backend": "yarn workspace @shrub/backend start",
@@ -20,7 +25,7 @@
   },
   "lint-staged": {
     "packages/backend/**/*.{ts,tsx}": [
-      "tslint --fix",
+      "eslint --fix",
       "prettier --write"
     ],
     "**/*.{js}": [
@@ -36,13 +41,12 @@
     "url": "https://github.com/shrub-finance/shrub/issues"
   },
   "devDependencies": {
-    "eslint": "8.6.0",
+    "@typescript-eslint/eslint-plugin": "5.9.0",
+    "@typescript-eslint/parser": "5.9.0",
+    "eslint": "7.11.0",
     "husky": "7.0.4",
-    "lerna": "^4.0.0",
     "lint-staged": "12.1.5",
     "prettier": "2.5.1",
-    "tslint": "^6.1.3",
-    "tslint-config-prettier": "1.18.0",
     "typescript": "4.5.4"
   },
   "dependencies": {

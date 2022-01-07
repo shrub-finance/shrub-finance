@@ -104,13 +104,13 @@ function TopNav() {
           <Flex alignItems={"center"}>
             {/*{!isMobile && <Box d={{ base: "none", sm: "none", md: "flex" }}><Chain/></Box>}*/}
             <Button pr={5} d={{ base: "none", sm: "flex" }} onClick={onFaucetModalOpen} fontSize={"sm"}
-                 variant={"link"} colorScheme={"purple"} rounded={"full"}>Get Shrub Tokens</Button>
+                 variant={"link"} colorScheme={"purple"} rounded={"full"}>Shrub Faucet</Button>
             {!isMobile && <Box pr={5} d={{ base: "none", sm: "flex" }}><Balance/></Box>}
 
             <Box onClick={onOpen} mr={isMobile ? '19.5': '0'}>
               {/*connect wallet button*/}
-              <Button variant={"solid"} colorScheme={!!web3Error ? "red": "yellow"}
-                  size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?
+              <Button variant={"solid"} colorScheme={web3Error ? "red": "yellow"}
+                  size={"md"} mr={4} borderRadius="full" leftIcon={web3Error ?
                     <InfoOutlineIcon colorScheme="red"/> : undefined}> {!!web3Error && !active ?
                     getErrorMessage(web3Error).title :
                       confirmingCountNumber > 0 ?
@@ -171,7 +171,7 @@ function TopNav() {
                    _hover={{
                      textDecoration: "none",
                      bgGradient: gradient
-                   }}><SUSDIcon/> Get Shrub Tokens</Box>
+                   }}><SUSDIcon/> Shrub Faucet</Box>
             </Stack>
             </Box>
         ) : null
@@ -196,7 +196,7 @@ function TopNav() {
       <Modal isOpen={isFaucetModalOpen} onClose={onFaucetModalClose} motionPreset="slideInBottom" scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : 'md' }>
         <ModalOverlay />
         <ModalContent boxShadow="dark-lg" borderRadius={isMobile ? 'none' : '2xl'}>
-          <ModalHeader> Get Shrub Tokens </ModalHeader>
+          <ModalHeader> Shrub Faucet </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Faucet hooks={{isBuyingSUSD, setIsBuyingSUSD}}/>

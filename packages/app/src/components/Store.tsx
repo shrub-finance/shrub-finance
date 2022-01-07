@@ -5,7 +5,7 @@ import {PendingTxAction, PendingTxState} from "../types";
 let initialState: {
     pendingTxs: [PendingTxState, React.Dispatch<PendingTxAction>]
 } = {
-    pendingTxs: [{}, () => {}]
+    pendingTxs: [{}, () => {/**/}]
 };
 
 const Store=({children}: any)=>{

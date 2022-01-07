@@ -94,19 +94,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
     const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
 
     const [localError, setLocalError] = useState('');
-    const {
-        isOpen: isOpenConnectModal,
-        onClose: onCloseConnectModal
-    } = useDisclosure();
 
     const { approving, setApproving, setActiveHash, ordersVisible, setOrdersVisible } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const livePriceColor = useColorModeValue("green.500", "green.200");
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
     const ctaColor = useColorModeValue("sprout", "teal");
-    const orderBookTriggerColor = useColorModeValue("gray.500", "black");
-    const orderBookTriggerBg = useColorModeValue("gray.100", "gray.400");
-    const orderBookTextColor = useColorModeValue("blue", "yellow.300");
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
@@ -129,8 +122,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
 
-    const orderBookColorMobile = useColorModeValue("gray.500", "black");
-    const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
     const orderBookColor = useColorModeValue("gray.600", "gray.200");
     const suggestionColor = useColorModeValue("blue" , "blue.300");
     const errorSuggestionColor = useColorModeValue("blackAlpha.700", "whiteAlpha.700");
@@ -156,7 +147,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
 
     useEffect(() => {
         // console.log('useEffect - 1 - construct order book')
-        if (!orderDetailsData) {
+        if (!orderDetailsData || !orderDetailsData.option) {
             return
         }
         const {
@@ -271,7 +262,9 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
        {insufficientFunds &&
        <Box>
            <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2" pr={1}><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds </Text>
-           {radioOption === 'SELL' && optionType === 'CALL'?
+           {
+               // @ts-ignore
+               radioOption === 'SELL' && optionType === 'CALL'?
              <Text as={"span"} fontWeight="bold" fontSize="xs" color={errorSuggestionColor}>
                 Available: {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
              </Text> :
@@ -378,14 +371,14 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                 const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber, status: 'active'}})
-            } catch (e) {
+            } catch (e: any) {
                 const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
             console.log(pendingTxsState);
             setApproving(false);
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
             setApproving(false);
             handleErrorMessages({err:e});
@@ -565,14 +558,14 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                 const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber, status: 'completed'}})
-            } catch (e) {
+            } catch (e: any) {
                 const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
             console.log(pendingTxsState);
 
-        } catch (e) {
+        } catch (e: any) {
             setApproving(false);
             handleErrorMessages({ err: e})
             console.error(e);
@@ -714,7 +707,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                   <Flex>
                       <Alert status="error" borderRadius={"2xl"} my={4}>
                             <AlertIcon/>
-                            {!!web3Error ? getErrorMessage(web3Error).message : localError}
+                            {web3Error ? getErrorMessage(web3Error).message : localError}
                         </Alert>
                     </Flex>
                 </SlideFade>

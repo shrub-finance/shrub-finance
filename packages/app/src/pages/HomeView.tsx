@@ -233,14 +233,14 @@ function HomeView(props: RouteComponentProps) {
                     } else {
                         setIsApproved(false);
                     }
-                } catch (e) {
+                } catch (e: any) {
                     handleErrorMessages(e);
                     console.error(e);
                 }
                 try {
                     const balance = await getWalletBalance(Currencies[modalCurrency].address, library)
                     setWalletTokenBalance(balance);
-                } catch (e) {
+                } catch (e: any) {
                     handleErrorMessages(e);
                     console.error(e)
                 }
@@ -311,12 +311,12 @@ function HomeView(props: RouteComponentProps) {
                 const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed'})
-            } catch (e) {
+            } catch (e: any) {
                 const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
             }
-        } catch (e) {
+        } catch (e: any) {
             setApproving(false)
             setShowDepositButton(false)
             handleErrorMessages({err: e})
