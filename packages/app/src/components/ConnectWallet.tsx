@@ -44,6 +44,7 @@ import {RiSignalTowerLine} from "react-icons/all";
 import {isChrome, isFirefox, isIE, isMobile} from "react-device-detect";
 import {currencySymbol, ExplorerDataType, explorerLink} from "../utils/chainMethods";
 import useAddNetwork from "../hooks/useAddNetwork";
+import {useGetBalance} from "../hooks/useGetBalance";
 
 enum ConnectorNames {
     MetaMask = "MetaMask",
@@ -137,36 +138,11 @@ export function Chain() {
 }
 
 export function Balance() {
-    const {account, library, chainId} = useWeb3React()
+    const {chainId} = useWeb3React()
     const networkColor = chainId && NETWORK_COLORS[chainId]
     const mumbaiColor = useColorModeValue('blue.600', 'blue.200')
     const currency = currencySymbol(chainId)
-
-    const [balance, setBalance] = useState()
-    useEffect((): any => {
-        if (!!account && !!library) {
-            let stale = false
-            library
-                .getBalance(account)
-                .then((balance: any) => {
-
-                    if (!stale) {
-                        setBalance(balance)
-                    }
-                })
-                .catch(() => {
-                    if (!stale) {
-                        // @ts-ignore
-                        setBalance(null)
-                    }
-                })
-
-            return () => {
-                stale = true
-                setBalance(undefined)
-            }
-        }
-    }, [account, library, chainId]) // ensures refresh if referential identity of library doesn't change across chainIds
+    const {balance} = useGetBalance();
 
     return (
         <>
