@@ -94,19 +94,12 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
     const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
 
     const [localError, setLocalError] = useState('');
-    const {
-        isOpen: isOpenConnectModal,
-        onClose: onCloseConnectModal
-    } = useDisclosure();
 
     const { approving, setApproving, setActiveHash, ordersVisible, setOrdersVisible } = hooks;
     const {active, library, account, error: web3Error, chainId} = useWeb3React();
     const livePriceColor = useColorModeValue("green.500", "green.200");
     const quantityErrorColor = useColorModeValue("red.500", "red.300");
     const ctaColor = useColorModeValue("sprout", "teal");
-    const orderBookTriggerColor = useColorModeValue("gray.500", "black");
-    const orderBookTriggerBg = useColorModeValue("gray.100", "gray.400");
-    const orderBookTextColor = useColorModeValue("blue", "yellow.300");
     const { pendingTxs } = useContext(TxContext);
     const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
     const {formattedStrike, formattedExpiry, baseAsset, quoteAsset, expiry, optionType, strike} = appCommon
@@ -129,8 +122,6 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
         onChange: (nextValue: SellBuy) => setRadioOption(nextValue),
     });
 
-    const orderBookColorMobile = useColorModeValue("gray.500", "black");
-    const orderBookBgColorMobile = useColorModeValue("gray.100", "gray.400");
     const orderBookColor = useColorModeValue("gray.600", "gray.200");
     const suggestionColor = useColorModeValue("blue" , "blue.300");
     const errorSuggestionColor = useColorModeValue("blackAlpha.700", "whiteAlpha.700");
@@ -156,7 +147,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
 
     useEffect(() => {
         // console.log('useEffect - 1 - construct order book')
-        if (!orderDetailsData) {
+        if (!orderDetailsData || !orderDetailsData.option) {
             return
         }
         const {
