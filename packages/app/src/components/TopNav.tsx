@@ -109,8 +109,8 @@ function TopNav() {
 
             <Box onClick={onOpen} mr={isMobile ? '19.5': '0'}>
               {/*connect wallet button*/}
-              <Button variant={"solid"} colorScheme={!!web3Error ? "red": "yellow"}
-                  size={"md"} mr={4} borderRadius="full" leftIcon={!!web3Error ?
+              <Button variant={"solid"} colorScheme={web3Error ? "red": "yellow"}
+                  size={"md"} mr={4} borderRadius="full" leftIcon={web3Error ?
                     <InfoOutlineIcon colorScheme="red"/> : undefined}> {!!web3Error && !active ?
                     getErrorMessage(web3Error).title :
                       confirmingCountNumber > 0 ?

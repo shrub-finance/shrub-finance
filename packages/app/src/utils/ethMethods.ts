@@ -297,9 +297,9 @@ export async function buyFromFaucet(
     throw new Error(`Only ${ethers.utils.formatUnits(maticBalance, 18)} MATIC detected in your wallet. Try increasing the MATIC balance.` );
   }
   return faucetContract.buyFromFaucet(tokenContractAddress, { value: amount })
-};
+}
 
-export async function sellToFaucet() {}
+export async function sellToFaucet() {/**/}
 
 export async function getAddressFromSignedOrder(order: IOrder, provider: JsonRpcProvider) {
   const sig = iOrderToSig(order);
@@ -766,7 +766,7 @@ export function getOrderStack(userOptionResult: any) {
   let totalUnrealizedCostBasis = Zero;
   let totalRealizedGain = Zero;
   let totalUnrealizedGain = Zero;
-  let totalValue = balance * Number(lastPrice);
+  const totalValue = balance * Number(lastPrice);
   for (const stackElem of orderStack) {
     if (!stackElem.unrealizedSize.eq(Zero)) {
       const unrealizedCostBasis = stackElem.totalPrice.abs().sub(stackElem.realizedCostBasis);

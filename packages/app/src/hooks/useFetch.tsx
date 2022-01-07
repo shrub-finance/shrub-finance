@@ -66,7 +66,7 @@ function useFetch<T = unknown>(
           if (cancelRequest.current) return;
 
           dispatch({ type: "success", payload: response.data });
-        } catch (error) {
+        } catch (error: any) {
           if (cancelRequest.current) return;
 
           dispatch({ type: "failure", payload: error.message });

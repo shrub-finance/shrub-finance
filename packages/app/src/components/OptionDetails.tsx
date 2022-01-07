@@ -271,7 +271,9 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
        {insufficientFunds &&
        <Box>
            <Text as={"span"} fontWeight="bold" fontSize="xs" color={quantityErrorColor} pl="4" pb="2" pr={1}><WarningTwoIcon pr="1" boxSize="3.5"/>Insufficient funds </Text>
-           {radioOption === 'SELL' && optionType === 'CALL'?
+           {
+               // @ts-ignore
+               radioOption === 'SELL' && optionType === 'CALL'?
              <Text as={"span"} fontWeight="bold" fontSize="xs" color={errorSuggestionColor}>
                 Available: {balances && Number(ethers.utils.formatUnits(balances.shrub.quoteAsset, 18)).toFixed(4)} sMATIC
              </Text> :
@@ -378,14 +380,14 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                 const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber, status: 'active'}})
-            } catch (e) {
+            } catch (e: any) {
                 const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
             console.log(pendingTxsState);
             setApproving(false);
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
             setApproving(false);
             handleErrorMessages({err:e});
@@ -565,14 +567,14 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                 const toastDescription = ToastDescription(description, receipt.transactionHash, chainId);
                 toast({title: 'Transaction Confirmed', description: toastDescription, status: 'success', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: receipt.transactionHash, status: 'confirmed', data: {blockNumber: receipt.blockNumber, status: 'completed'}})
-            } catch (e) {
+            } catch (e: any) {
                 const toastDescription = ToastDescription(description, e.transactionHash, chainId);
                 toast({title: 'Transaction Failed', description: toastDescription, status: 'error', isClosable: true, variant: 'solid', position: 'top-right'})
                 pendingTxsDispatch({type: 'update', txHash: e.transactionHash || e.hash, status: 'failed'})
             }
             console.log(pendingTxsState);
 
-        } catch (e) {
+        } catch (e: any) {
             setApproving(false);
             handleErrorMessages({ err: e})
             console.error(e);
@@ -714,7 +716,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                   <Flex>
                       <Alert status="error" borderRadius={"2xl"} my={4}>
                             <AlertIcon/>
-                            {!!web3Error ? getErrorMessage(web3Error).message : localError}
+                            {web3Error ? getErrorMessage(web3Error).message : localError}
                         </Alert>
                     </Flex>
                 </SlideFade>
