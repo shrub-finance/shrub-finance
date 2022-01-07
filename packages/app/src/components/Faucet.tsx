@@ -30,7 +30,6 @@ import {TxContext} from './Store'
 import {SUSDIcon, PolygonIcon, HappyBud} from "../assets/Icons";
 import {ExternalLinkIcon, Icon} from "@chakra-ui/icons";
 import useAddNetwork from "../hooks/useAddNetwork";
-import {AiOutlineArrowDown, AiOutlineSwap } from 'react-icons/ai'
 import {BsArrowDownShort} from "react-icons/all";
 import {Balance} from "./ConnectWallet";
 
