@@ -35,7 +35,6 @@ import {useGetBalance} from "../hooks/useGetBalance";
 import {formatEther} from "ethers/lib/utils";
 
 
-
 function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
 
   // Constants
@@ -46,7 +45,9 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
   const currencyArray = ['SUSD', 'SMATIC'];
 
   const bg = useColorModeValue("sprout", "teal");
-  const polygonFaucetLinkColor = "gray.500";
+  const polygonFaucetLinkColor = useColorModeValue("blue.400", "blue.300");
+  const bgColor = useColorModeValue("gray.100", "blackAlpha.400");
+  const linkColor = useColorModeValue("blue","blue.100");
 
   const format = (val: string) => val;
   const { isBuyingSUSD, setIsBuyingSUSD } = hooks;
@@ -61,7 +62,6 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const [modalCurrency, setModalCurrency] = useState<'SUSD'|'SMATIC'>('SUSD');
   const [option, setRadioOption] = useState<string>('BUY');
-  const bgColor = useColorModeValue("gray.100", "blackAlpha.400");
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'currency',
     defaultValue: modalCurrency,
@@ -81,7 +81,6 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
   const [isLoading, setIsLoading] = useState(false);
   const invalidEntry = Number(amountValue)<0 ||isNaN(Number(amountValue));
 
-  const linkColor = useColorModeValue("blue","blue.100");
 
   async function handleFaucet(event: any) {
     setFaucetDrop(false);
@@ -157,11 +156,10 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
 
   const addNetwork = useAddNetwork();
   const {balance} = useGetBalance();
-  console.log(balance);
 
   return (
       <>
-        <Stack direction="column" spacing="40px" mb="40px" >
+        <Stack direction="column" spacing="30px" mb="20px" >
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
               <Alert status="error" borderRadius={9} >
@@ -178,89 +176,114 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
                     <Center>
                       <HappyBud boxSize={60}/>
                 </Center>
-
                   </Flex> :
               <>
-                 <Center>
-                   { // @ts-ignore
-                     balance && Number(formatEther(balance)) > 0  ?
-                   <Link fontSize='xs' fontWeight="extrabold" color={polygonFaucetLinkColor} href="https://faucet.polygon.technology/" isExternal>
-                  Get Polygon test MATIC<ExternalLinkIcon mx="1px" />
-                </Link>:
-                       <Alert status="warning" borderRadius={"md"} mb={3}>
-                         <AlertIcon />
-                         <Link fontSize='xs' fontWeight="extrabold" href="https://faucet.polygon.technology/" isExternal>
-                           You need test MATIC to use the Shrub faucet. Let's get some from the Polygon faucet<ExternalLinkIcon mx="2px" />
-                         </Link>
-                       </Alert>
+                       {balance && Number(formatEther(balance)) > 0  ?
+                         <>
+                         </>
+                           :
+                         <Text bgColor={useColorModeValue("gray.100", "dark.300")} p={'3'} rounded={"lg"} color={useColorModeValue("gray.600", "gray.300")} lineHeight={2.1} letterSpacing={".02rem"}>
+                           You need test MATIC to get Shrub MATIC or Shrub USD from the Shrub faucet.
+                         </Text>
                    }
-                 </Center>
-                 {!isBuyingSUSD && <FormControl id="faucetCurrency">
+
+                 {!isBuyingSUSD && balance && Number(formatEther(balance)) > 0 &&
+                 <FormControl id="faucetCurrency">
                   <Center>
                   <HStack {...currenciesRadiogroup}>
                     {currencyArray.map((value) => {
                       const radio = getRadioProps({ value })
                       return (
                           <RadioCard key={value} {...radio}>
-                            {value === 'SMATIC' ? 'sMATIC' : 'sUSD'}
+                           Get {value === 'SMATIC' ? 'sMATIC' : 'sUSD'}
                           </RadioCard>
                       )
                     })}
                   </HStack>
                   </Center>
                 </FormControl>}
-                <VStack>
-                  <Box>
-                    <Center><FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>You send</FormLabel></Center>
-                    <NumberInput
-                      isInvalid={invalidEntry}
-                      onChange={(valueString) => {
-                        const [integerPart, decimalPart] = valueString.split('.');
-                        if(valueString === '.') {
-                          setAmountValue('0.')
-                          return;
-                        }
-                        if (decimalPart && decimalPart.length > 6) {
-                          return;
-                        }
-                        if (integerPart && integerPart.length > 6) {
-                          return;
-                        }
-                        if (valueString === '00') {
-                          return;
-                        }
-                        if (isNaN(Number(valueString))) {
-                          return;
-                        }
-                        if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
-                          setAmountValue(Number(valueString).toFixed(6))
-                          return;
-                        }
-                        setAmountValue(valueString);
-                      }}
-                      value={format(amountValue)} size="lg"
-                    >
-                      <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold" fontSize="2xl"/>
-                      <InputRightElement pointerEvents="none" p={14} children={
-                        <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold" minW={"100"}>test MATIC</FormLabel>
-                      }/>
-                    </NumberInput>
-                  </Box>
-                  <Box>
-                    <Center><Icon as={BsArrowDownShort} boxSize={8}/></Center>
-                  </Box>
-                  <Box>
-                    <Center><FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>You receive</FormLabel></Center>
-                    <Box bg={bgColor} borderRadius="3xl" fontWeight="bold" fontSize="2xl"  p={"1.813rem"}>
-                      { modalCurrency === "SMATIC" ? <PolygonIcon/> : <SUSDIcon/> } {invalidEntry ? '?' : format((10000 * Number(amountValue)).toString())} {modalCurrency === "SMATIC" ? 'sMATIC' : 'sUSD'}
-                    </Box>
-                  </Box>
 
-                </VStack>
+                 {balance && Number(formatEther(balance)) > 0 ?
+                     <>
+                         <VStack>
+                             <Box>
+                                 <Center>
+                                   <FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>
+                                     You send</FormLabel>
+                                 </Center>
+                                 <NumberInput
+                                     isInvalid={invalidEntry}
+                                     onChange={(valueString) => {
+                                       const [integerPart, decimalPart] = valueString.split('.');
+                                       if (valueString === '.') {
+                                         setAmountValue('0.')
+                                         return;
+                                       }
+                                       if (decimalPart && decimalPart.length > 6) {
+                                         return;
+                                       }
+                                       if (integerPart && integerPart.length > 6) {
+                                         return;
+                                       }
+                                       if (valueString === '00') {
+                                         return;
+                                       }
+                                       if (isNaN(Number(valueString))) {
+                                         return;
+                                       }
+                                       if (Number(valueString) !== Math.round(Number(valueString) * 1e6) / 1e6) {
+                                         setAmountValue(Number(valueString).toFixed(6))
+                                         return;
+                                       }
+                                       setAmountValue(valueString);
+                                     }}
+                                     value={format(amountValue)} size="lg"
+                                 >
+                                     <NumberInputField h="6rem" borderRadius="3xl" shadow="sm" fontWeight="bold"
+                                                       fontSize="2xl"/>
+                                     <InputRightElement pointerEvents="none" p={14} children={
+                                       <FormLabel htmlFor="amount" color="gray.500" fontWeight="bold" minW={"100"}>test
+                                         MATIC</FormLabel>
+                                     }/>
+                                 </NumberInput>
+                               <Flex justifyContent="flex-end">
+                                 <Link fontWeight="semibold" fontSize='11px' color={polygonFaucetLinkColor} href="https://faucet.polygon.technology/"
+                                       pt={1} pr={6}
+                                       isExternal>
+                                   Get test MATIC
+                                 </Link>
+                               </Flex>
+                             </Box>
+                             <Box>
+                                 <Center><Icon as={BsArrowDownShort} boxSize={8}/></Center>
+                             </Box>
+                             <Box>
+                                 <Center><FormLabel fontSize={'sm'} color={'gray.500'} fontWeight={'semibold'}>You
+                                     receive</FormLabel></Center>
+                                 <Box bg={bgColor} borderRadius="3xl" fontWeight="bold" fontSize="2xl" p={"1.813rem"}>
+                                   {modalCurrency === "SMATIC" ? <PolygonIcon/> :
+                                     <SUSDIcon/>} {invalidEntry ? '?' : format((10000 * Number(amountValue)).toString())} {modalCurrency === "SMATIC" ? 'sMATIC' : 'sUSD'}
+                                 </Box>
+                             </Box>
 
-            <Button mb={1.5} size={"lg"} rounded="2xl" colorScheme={bg} isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === '' || balance && Number(formatEther(balance)) <= 0} onClick={handleFaucet} isLoading={isLoading}>
-            Get {modalCurrency === 'SUSD' ? 'sUSD' : 'sMATIC'}
-            </Button>
+                         </VStack>
+
+                         <Button mb={1.5} size={"lg"} rounded="2xl" colorScheme={bg} isFullWidth={true}
+                                 isDisabled={amountValue <= '0' || amountValue === ''} onClick={handleFaucet}
+                                 isLoading={isLoading}>
+                             Get {modalCurrency === 'SUSD' ? 'sUSD' : 'sMATIC'}
+                         </Button>
+                     </>
+                     :
+                   <Link fontWeight="extrabold" href="https://faucet.polygon.technology/" isExternal
+                         cursor="pointer"
+                         textAlign="center"
+                         rounded={"lg"}
+                         >
+                     Get test MATIC from the Polygon Faucet<ExternalLinkIcon mx="2px" display={{"base": "none", "md": "inline"}}/>
+                   </Link>
+
+                 }
             </>
           }
         </Stack>
