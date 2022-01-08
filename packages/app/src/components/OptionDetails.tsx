@@ -749,7 +749,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                                     </Center> :
                                     // Show normal tab display once loding is complete
                                     <Flex direction={{ base: "column", md: "row" }}>
-                                        <Stack spacing="24px" w={"full"}>
+                                        <Stack spacing="18px" w={"full"}>
                                             {/*Row 1*/}
                                             <Box >
                                                 <Flex pb={8}>
@@ -944,7 +944,7 @@ function OptionDetails({ appCommon, sellBuy, hooks, optionData, positionHash}: {
                               :
                                 // Show normal tab display once loading is complete
                           <Flex direction={{ base: "column", md: "row" }}>
-                              <Stack spacing="24px" w={"full"}>
+                              <Stack spacing="18px" w={"full"}>
                                   <Box >
                                       <Flex pb={8}>
                                           <Box fontSize={"xl"} fontWeight="semibold">

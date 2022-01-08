@@ -185,11 +185,15 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
                    { // @ts-ignore
                      balance && Number(formatEther(balance)) > 0  ?
                    <Link fontSize='xs' fontWeight="extrabold" color={polygonFaucetLinkColor} href="https://faucet.polygon.technology/" isExternal>
-                  Get Polygon test MATIC<ExternalLinkIcon mx="2px" />
+                  Get Polygon test MATIC<ExternalLinkIcon mx="1px" />
                 </Link>:
-                   <Link fontSize='xs' fontWeight="extrabold" color={linkColor} href="https://faucet.polygon.technology/" isExternal>
-                     Get test MATIC from the Polygon faucet first<ExternalLinkIcon mx="2px" />
-                   </Link>}
+                       <Alert status="warning" borderRadius={"md"} mb={3}>
+                         <AlertIcon />
+                         <Link fontSize='xs' fontWeight="extrabold" href="https://faucet.polygon.technology/" isExternal>
+                           You need test MATIC to use the Shrub faucet. Let's get some from the Polygon faucet<ExternalLinkIcon mx="2px" />
+                         </Link>
+                       </Alert>
+                   }
                  </Center>
                  {!isBuyingSUSD && <FormControl id="faucetCurrency">
                   <Center>

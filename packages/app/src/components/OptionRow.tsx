@@ -55,6 +55,11 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
     onClose();
   }
 
+  function handleModalOpen() {
+    setOrdersVisible.off;
+    onOpen();
+  }
+
   function formatDisplay(item: string) {
 
     // return Number(item).toLocaleString('en-US', {currency: 'USD', style: 'currency', maximumFractionDigits:4, maximumSignificantDigits: 7})
@@ -72,7 +77,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
             "linear(to-l, blue.700, teal.700)"
             )
           }}
-          onClick={onOpen}
+          onClick={handleModalOpen}
           mt={1}
           px={5}
           py={3}
@@ -108,7 +113,7 @@ function OptionRow({appCommon, last, ask, bid, option, optionData, positionHash}
           <Stack spacing={1} direction="column" >  <Text fontSize="sm" color="gray.400" fontWeight="bold">Last</Text><Text fontSize={{ base: "xs", md: "md" }} color={optionRowTextColor}>{last? formatDisplay(last) : "--"}</Text></Stack>
         </Box>
       </Flex>
-      <Modal  motionPreset="slideInBottom" isOpen={isOpen}  onClose={handleModalClose}
+      <Modal motionPreset="slideInBottom" isOpen={isOpen}  onClose={handleModalClose}
               scrollBehavior={isMobile ?"inside" : "outside"} size={isMobile ? 'full' : ordersVisible ? '2xl' : 'lg' }>
         <ModalOverlay />
         <ModalContent borderRadius={isMobile ? 'none' : '2xl'}>
