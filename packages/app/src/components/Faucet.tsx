@@ -31,7 +31,8 @@ import {SUSDIcon, PolygonIcon, HappyBud} from "../assets/Icons";
 import {ExternalLinkIcon, Icon} from "@chakra-ui/icons";
 import useAddNetwork from "../hooks/useAddNetwork";
 import {BsArrowDownShort} from "react-icons/all";
-import {Balance} from "./ConnectWallet";
+import {useGetBalance} from "../hooks/useGetBalance";
+import {formatEther} from "ethers/lib/utils";
 
 
 
@@ -45,11 +46,9 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
   const currencyArray = ['SUSD', 'SMATIC'];
 
   const bg = useColorModeValue("sprout", "teal");
-  const polygonFaucetLinkColor = useColorModeValue("blackAlpha.500", "whiteAlpha.500")
+  const polygonFaucetLinkColor = "gray.500";
 
   const format = (val: string) => val;
-  const parse = (val: string) => val.replace(/^\$/, "");
-
   const { isBuyingSUSD, setIsBuyingSUSD } = hooks;
 
   const { pendingTxs } = useContext(TxContext);
@@ -83,7 +82,6 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
   const invalidEntry = Number(amountValue)<0 ||isNaN(Number(amountValue));
 
   const linkColor = useColorModeValue("blue","blue.100");
-  const popOverColor = useColorModeValue("blue.500", "blue.200");
 
   async function handleFaucet(event: any) {
     setFaucetDrop(false);
@@ -157,7 +155,9 @@ function Faucet({hooks} : {hooks: {isBuyingSUSD: any, setIsBuyingSUSD: any}}) {
     }
   }
 
-const addNetwork = useAddNetwork();
+  const addNetwork = useAddNetwork();
+  const {balance} = useGetBalance();
+  console.log(balance);
 
   return (
       <>
@@ -182,9 +182,18 @@ const addNetwork = useAddNetwork();
                   </Flex> :
               <>
                  <Center>
+                   { // @ts-ignore
+                     balance && Number(formatEther(balance)) > 0  ?
                    <Link fontSize='xs' fontWeight="extrabold" color={polygonFaucetLinkColor} href="https://faucet.polygon.technology/" isExternal>
-                  Get test MATIC from the Polygon faucet<ExternalLinkIcon mx="2px" />
-                </Link>
+                  Get Polygon test MATIC<ExternalLinkIcon mx="1px" />
+                </Link>:
+                       <Alert status="warning" borderRadius={"md"} mb={3}>
+                         <AlertIcon />
+                         <Link fontSize='xs' fontWeight="extrabold" href="https://faucet.polygon.technology/" isExternal>
+                           You need test MATIC to use the Shrub faucet. Let's get some from the Polygon faucet<ExternalLinkIcon mx="2px" />
+                         </Link>
+                       </Alert>
+                   }
                  </Center>
                  {!isBuyingSUSD && <FormControl id="faucetCurrency">
                   <Center>
@@ -249,7 +258,7 @@ const addNetwork = useAddNetwork();
 
                 </VStack>
 
-            <Button mb={1.5} size={"lg"} rounded="2xl" colorScheme={bg} isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === ''} onClick={handleFaucet} isLoading={isLoading}>
+            <Button mb={1.5} size={"lg"} rounded="2xl" colorScheme={bg} isFullWidth={true} isDisabled={amountValue <= '0' || amountValue === '' || balance && Number(formatEther(balance)) <= 0} onClick={handleFaucet} isLoading={isLoading}>
             Get {modalCurrency === 'SUSD' ? 'sUSD' : 'sMATIC'}
             </Button>
             </>

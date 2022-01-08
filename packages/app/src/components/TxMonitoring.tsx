@@ -62,6 +62,7 @@ export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, s
               justifyContent="center"
               textAlign="center"
               height="200px"
+              mt="20px"
               bg="none"
             >
                 <TimeIcon boxSize="40px"/>
@@ -86,6 +87,7 @@ export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, s
               justifyContent="center"
               textAlign="center"
               height="400px"
+              mt="20px"
               bg="none"
             >
               <AlertIcon boxSize={showDeposit ? "140px" : "40px"} mr={0} mt={14} color={"sprout.300"}/>
@@ -117,6 +119,7 @@ export function Txmonitor({txHash, showDeposit, goToDeposit}:{txHash?: string, s
               justifyContent="center"
               textAlign="center"
               height="200px"
+              mt="20px"
             >
                 <AlertIcon boxSize="40px" mr={0}/>
                 <AlertTitle mt={4} mb={1} fontSize="lg">

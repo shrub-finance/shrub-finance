@@ -277,7 +277,7 @@ export async function withdraw(
   const signerAddress = await signer.getAddress();
   const availableBalance = await shrubContract.getAvailableBalance(signerAddress, tokenContractAddress);
   if (amount.gt(availableBalance)) {
-    throw new Error(`Not enough balance. You have ${ethers.utils.formatUnits(availableBalance, 18)}` );
+    throw new Error(`Amount you are trying to withdraw is greater than the available balance of ${ethers.utils.formatUnits(availableBalance, 18)}.` );
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
 }

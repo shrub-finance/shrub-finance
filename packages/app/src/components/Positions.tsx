@@ -721,7 +721,8 @@ function Positions() {
                             rounded={'lg'}
                             onClick={fillSendMax}
                         >
-                            MAX: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : String(shrubBalance.available[modalCurrency])}
+                            MAX: {withdrawDepositAction === 'Deposit' ? walletTokenBalance : Number(shrubBalance.available[modalCurrency]).toLocaleString('en-US', {maximumFractionDigits:4, maximumSignificantDigits: 7})}
+
                         </Button>
                     </Flex>
                       <NumberInput
