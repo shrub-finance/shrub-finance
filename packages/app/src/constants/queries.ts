@@ -194,6 +194,7 @@ export const SHRUBFOLIO_QUERY = gql`
             }
         }
         user(id:$id){
+            id
             activeUserOptions(where:{balance_not:0}, orderBy: balance, orderDirection: desc){
                 balance
                 option{
