@@ -8,15 +8,19 @@ export default function useAddNetwork() {
   const addNetwork = () => {
     const params = [
       {
-        chainId: "0x13881",
-        chainName: "Matic Testnet",
+        // chainId: "0x13881",
+        chainId: "0x89",
+        // chainName: "Matic Testnet",
+        chainName: "Matic Mainnet",
         nativeCurrency: {
           name: "Polygon Matic",
           symbol: "Matic",
           decimals: 18,
         },
-        rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
-        blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+        // rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+        rpcUrls: ["https://polygon-rpc.com/"],
+        // blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+        blockExplorerUrls: ["https://polygonscan.com/"],
       },
     ];
     // @ts-ignore

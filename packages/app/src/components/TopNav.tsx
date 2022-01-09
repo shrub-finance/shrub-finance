@@ -127,15 +127,17 @@ function TopNav() {
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
-              {NavRoutes.map((route) => (
-                <NavRoute
-                  itemIcon={route.itemIcon}
-                  key={route.item}
-                  path={route.item}
-                >
-                  {route.item}
-                </NavRoute>
-              ))}
+              {/*{*/}
+              {/*  NavRoutes.map((route) => (*/}
+              {/*  <NavRoute*/}
+              {/*    itemIcon={route.itemIcon}*/}
+              {/*    key={route.item}*/}
+              {/*    path={route.item}*/}
+              {/*  >*/}
+              {/*    {route.item}*/}
+              {/*  </NavRoute>*/}
+              {/*))*/}
+              {/*}*/}
               <Link
                 href="https://docs.shrub.finance"
                 isExternal
@@ -154,7 +156,7 @@ function TopNav() {
             {/*{!isMobile && <Box d={{ base: "none", sm: "none", md: "flex" }}><Chain/></Box>}*/}
             <Button
               pr={5}
-              d={{ base: "none", sm: "flex" }}
+              d={{ base: "none", sm: "none" }}
               onClick={onFaucetModalOpen}
               fontSize={"sm"}
               variant={"link"}
@@ -223,15 +225,15 @@ function TopNav() {
         {isMenuOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={3}>
-              {NavRoutes.map((route) => (
-                <NavRoute
-                  itemIcon={route.itemIcon}
-                  key={route.item}
-                  path={route.item}
-                >
-                  <Icon as={route.itemIcon} mr={2} /> {route.item}
-                </NavRoute>
-              ))}
+              {/*{NavRoutes.map((route) => (*/}
+              {/*  <NavRoute*/}
+              {/*    itemIcon={route.itemIcon}*/}
+              {/*    key={route.item}*/}
+              {/*    path={route.item}*/}
+              {/*  >*/}
+              {/*    <Icon as={route.itemIcon} mr={2} /> {route.item}*/}
+              {/*  </NavRoute>*/}
+              {/*))}*/}
               <Box
                 onClick={toggleColorMode}
                 variant="ghost"
