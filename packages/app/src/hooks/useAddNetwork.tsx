@@ -21,6 +21,7 @@ export default function useAddNetwork() {
     ];
     // @ts-ignore
     window.ethereum
+      // @ts-ignore
       .request({ method: "wallet_addEthereumChain", params })
       .then(() => console.log("Success"))
       .catch((e: Error) => {

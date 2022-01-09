@@ -148,6 +148,7 @@ function Faucet({
           try {
             // @ts-ignore
             window.ethereum
+              // @ts-ignore
               .request({
                 method: "wallet_watchAsset",
                 params: {
