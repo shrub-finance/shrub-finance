@@ -1,10 +1,10 @@
-import {extendTheme, ThemeConfig} from "@chakra-ui/react";
-import {mode} from "@chakra-ui/theme-tools"
+import { extendTheme, ThemeConfig } from "@chakra-ui/react";
+import { mode } from "@chakra-ui/theme-tools";
 
 const config: ThemeConfig = extendTheme({
   initialColorMode: "dark",
   useSystemColorMode: false,
-})
+});
 
 const components = {
   Modal: {
@@ -13,15 +13,15 @@ const components = {
         color: mode("dark.100", "white")(props),
         bg: mode("white", "dark.100")(props),
         boxShadow: "rgb(33 35 74 / 80%) 0px 22px 48px -9px",
-      }
-    })
+      },
+    }),
   },
   Tabs: {
     baseStyle: {
-      userSelect: 'none'
+      userSelect: "none",
     },
     tablist: {
-      userSelect: 'none'
+      userSelect: "none",
     },
   },
   Alert: {
@@ -29,32 +29,32 @@ const components = {
       shrubYellow: {
         container: {
           bg: "yellow.100",
-          color: "black"
-        }
-      }
-    }
-  }
-}
+          color: "black",
+        },
+      },
+    },
+  },
+};
 
 const fonts = {
   heading: "Montserrat",
   body: "Montserrat",
-}
+};
 
 const styles = {
   global: (props: any) => ({
     body: {
       fontFamily: "body",
       bg: mode("gray.50", "dark.200")(props),
-    }
+    },
   }),
-}
+};
 
 const colors = {
   dark: {
     100: "rgb(31, 31, 65)",
     200: "rgb(18, 18, 38)", // base
-    300: "rgb(21, 21, 38)"
+    300: "rgb(21, 21, 38)",
   },
   // base: #64A66A
   bud: {
@@ -67,7 +67,7 @@ const colors = {
     "600": "#4A824F",
     "700": "#38613C",
     "800": "#254128",
-    "900": "#132014"
+    "900": "#132014",
   },
   // base: #7ed166
   sprout: {
@@ -80,9 +80,9 @@ const colors = {
     "600": "#489D2F",
     "700": "#367623",
     "800": "#244E18",
-    "900": "#12270C"
-  }
-}
+    "900": "#12270C",
+  },
+};
 
-const theme = extendTheme({config, components, styles, fonts, colors});
+const theme = extendTheme({ config, components, styles, fonts, colors });
 export default theme;
