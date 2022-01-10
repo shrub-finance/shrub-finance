@@ -132,7 +132,7 @@ export function Chain() {
           fontSize={"sm"}
           mr={4}
           borderRadius="2xl"
-          fontWeight="bold"
+          fontWeight="medium"
         >
           <Icon as={RiSignalTowerLine} boxSize={3} mr={1} />
           {network}
@@ -157,7 +157,7 @@ export function Balance() {
           //@ts-ignore
           color={networkColor === "blue" ? mumbaiColor : networkColor}
           fontSize={"sm"}
-          fontWeight="bold"
+          fontWeight="medium"
         >
           {balance === null
             ? "Error"
@@ -225,7 +225,7 @@ export function ConnectionStatus({ displayStatus }) {
           <Flex pt={1}>
             <Box
               color="gray.500"
-              fontWeight="semibold"
+              fontWeight="medium"
               letterSpacing="wide"
               fontSize="sm"
               ml="2"
@@ -262,7 +262,7 @@ export function ConnectionStatus({ displayStatus }) {
             <Box
               cursor="pointer"
               color="gray.500"
-              fontWeight="semibold"
+              fontWeight="medium"
               letterSpacing="wide"
               fontSize="xs"
               ml="2"
@@ -274,7 +274,7 @@ export function ConnectionStatus({ displayStatus }) {
             <Spacer />
             <Box
               color="gray.500"
-              fontWeight="semibold"
+              fontWeight="medium"
               letterSpacing="wide"
               fontSize="xs"
               ml="2"

@@ -440,13 +440,13 @@ function HomeView(props: RouteComponentProps) {
             <Heading
               maxW="60rem"
               fontSize={["5xl", "6xl", "90px", "90px"]}
-              fontWeight="bold"
+              fontWeight="medium"
               textAlign="center"
             >
               <Text as="span">Shrub</Text>
               <Text
                 as="span"
-                bgGradient="linear(to-l, #7928CA, #FF0080)"
+                bgGradient="linear(to-l, #e3d606, #54885d, #b1e7a1, #a1beaf)"
                 bgClip="text"
               >
                 {" "}
@@ -494,7 +494,7 @@ function HomeView(props: RouteComponentProps) {
                         bg={step1complete ? connectedStepBg : stepsBg}
                         color={step1complete ? connectedStepColor : stepsColor}
                       >
-                        <Box as="span" fontWeight="bold" fontSize="6xl">
+                        <Box as="span" fontWeight="medium" fontSize="6xl">
                           {!step1complete ? 1 : <CheckIcon />}
                         </Box>
                       </Circle>
@@ -514,7 +514,7 @@ function HomeView(props: RouteComponentProps) {
                           <PopoverTrigger>
                             <Text
                               color={questionColor}
-                              fontWeight={"extrabold"}
+                              fontWeight={"medium"}
                               fontSize={"sm"}
                               cursor="pointer"
                             >
@@ -571,7 +571,7 @@ function HomeView(props: RouteComponentProps) {
                       }
                     >
                       {step1complete
-                        ? "Connected"
+                        ? "Connected!"
                         : !!web3Error &&
                           getErrorMessage(web3Error).title === "Wrong Network"
                         ? "Connect to Mumbai"
@@ -595,7 +595,7 @@ function HomeView(props: RouteComponentProps) {
                   }}
                 >
                   {account
-                    ? "Connected"
+                    ? "Connected!"
                     : !!web3Error &&
                       getErrorMessage(web3Error).title === "Wrong Network"
                     ? "Step 1: Connect to Mumbai"
@@ -622,7 +622,7 @@ function HomeView(props: RouteComponentProps) {
                         bg={step2complete ? connectedStepBg : stepsBg}
                         color={step2complete ? connectedStepColor : stepsColor}
                       >
-                        <Box as="span" fontWeight="bold" fontSize="6xl">
+                        <Box as="span" fontWeight="medium" fontSize="6xl">
                           {step2complete ? <CheckIcon /> : 2}
                         </Box>
                       </Circle>
@@ -637,7 +637,7 @@ function HomeView(props: RouteComponentProps) {
                             color={questionColor}
                             fontSize={"sm"}
                             cursor="pointer"
-                            fontWeight={"extrabold"}
+                            fontWeight={"medium"}
                           >
                             Learn More
                           </Text>
@@ -646,34 +646,26 @@ function HomeView(props: RouteComponentProps) {
                           <PopoverArrow />
                           <PopoverCloseButton />
                           <PopoverBody letterSpacing="wide" textAlign={"left"}>
-                            <UnorderedList fontSize={"sm"} lineHeight={1.8}>
+                            <UnorderedList fontSize={"sm"}>
                               <ListItem pb={2}>
-                                In <strong>mainnet,</strong> you will{" "}
-                                <strong>trade</strong> options in{" "}
-                                <strong>MATIC & USDC</strong>.{" "}
+                                In mainnet, you will trade options in MATIC &
+                                USDC.
                               </ListItem>
-                              <ListItem>
-                                In <strong>test environment</strong>:
-                              </ListItem>
+                              <ListItem>In test environment:</ListItem>
                               <UnorderedList>
+                                <ListItem>sMATIC represents MATIC</ListItem>
                                 <ListItem>
-                                  <strong>sMATIC </strong>
-                                  represents <strong>MATIC</strong>
+                                  sUSD represents USD stable coin
                                 </ListItem>
                                 <ListItem>
-                                  <strong>sUSD </strong> represents{" "}
-                                  <strong>USD stable coin</strong>{" "}
-                                </ListItem>
-                                <ListItem>
-                                  These are{" "}
-                                  <strong>Option underlying asset</strong>
+                                  These are Option underlying asset
                                 </ListItem>
                                 <ListItem>
                                   <Text>Rate:</Text>
-                                  <Text fontSize={"xs"} fontWeight={"bold"}>
+                                  <Text fontSize={"xs"} fontWeight={"semibold"}>
                                     1 MATIC = 10,000 sMATIC
                                   </Text>
-                                  <Text fontSize={"xs"} fontWeight={"bold"}>
+                                  <Text fontSize={"xs"} fontWeight={"semibold"}>
                                     1 MATIC = 10,000 sUSD
                                   </Text>
                                 </ListItem>
@@ -702,7 +694,7 @@ function HomeView(props: RouteComponentProps) {
                             }
                       }
                     >
-                      {step2complete ? "Complete" : "Get sUSD"}
+                      {step2complete ? "Complete!" : "Get sUSD"}
                     </Button>
                   </Box>
                 </Box>
@@ -721,7 +713,7 @@ function HomeView(props: RouteComponentProps) {
                     boxShadow: "lg",
                   }}
                 >
-                  {step2complete ? "Complete" : "Step 2: Get sUSD"}
+                  {step2complete ? "Complete!" : "Step 2: Get sUSD"}
                 </Button>
               )}
               <Spacer />
@@ -743,7 +735,7 @@ function HomeView(props: RouteComponentProps) {
                         bg={step3complete ? connectedStepBg : stepsBg}
                         color={step3complete ? connectedStepColor : stepsColor}
                       >
-                        <Box as="span" fontWeight="bold" fontSize="6xl">
+                        <Box as="span" fontWeight="medium" fontSize="6xl">
                           {step3complete ? <CheckIcon /> : 3}
                         </Box>
                       </Circle>
@@ -758,7 +750,7 @@ function HomeView(props: RouteComponentProps) {
                             color={questionColor}
                             fontSize={"sm"}
                             cursor="pointer"
-                            fontWeight={"extrabold"}
+                            fontWeight={"medium"}
                           >
                             Learn More
                           </Text>
@@ -769,8 +761,8 @@ function HomeView(props: RouteComponentProps) {
                           <PopoverBody letterSpacing="wide" textAlign={"left"}>
                             <Text pb={4}>
                               {" "}
-                              To buy Options, you need to deposit sUSD to the
-                              Shrub platform.
+                              To buy options in Shrub, you first need to deposit
+                              Shrub USD (sUSD) to the Shrub platform.
                             </Text>
                           </PopoverBody>
                         </PopoverContent>
@@ -797,7 +789,7 @@ function HomeView(props: RouteComponentProps) {
                             }
                       }
                     >
-                      {step3complete ? "Complete" : "Deposit sUSD"}
+                      {step3complete ? "Complete!" : "Deposit sUSD"}
                     </Button>
                   </Box>
                 </Box>
@@ -822,7 +814,7 @@ function HomeView(props: RouteComponentProps) {
                         }
                   }
                 >
-                  {step3complete ? "Complete" : "Step 3: Deposit sUSD"}
+                  {step3complete ? "Complete!" : "Step 3: Deposit sUSD"}
                 </Button>
               )}
             </Flex>
@@ -856,11 +848,15 @@ function HomeView(props: RouteComponentProps) {
               _hover={{ transform: "translateY(-2px)" }}
               bgGradient={
                 step1complete && step2complete && step3complete
-                  ? "linear(to-r,#74cecc,green.300,blue.400)"
+                  ? "linear(to-r, #74cecc, green.300, #e3d606)"
                   : undefined
               }
               as={ReachLink}
-              to={"/options"}
+              to={
+                !step1complete || !step2complete || !step3complete
+                  ? ""
+                  : "/options"
+              }
             >
               Start Trading
             </Button>
@@ -945,7 +941,7 @@ function HomeView(props: RouteComponentProps) {
                           h="6rem"
                           rounded="3xl"
                           shadow="sm"
-                          fontWeight="bold"
+                          fontWeight="medium"
                           fontSize="2xl"
                         />
                         <InputRightElement
@@ -955,7 +951,7 @@ function HomeView(props: RouteComponentProps) {
                             <FormLabel
                               htmlFor="amount"
                               color="gray.500"
-                              fontWeight="bold"
+                              fontWeight="medium"
                             >
                               sUSD
                             </FormLabel>

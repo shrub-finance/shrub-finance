@@ -25,10 +25,10 @@ function App() {
             <TopNav />
             <Router>
               <PaperView path="/" />
-              {/*<HomeView path="/" />*/}
+              <HomeView path="/home" />
               {/*<PaperView path="paper" />*/}
-              {/*<PositionsView path="shrubfolio" />*/}
-              {/*<OptionsView path="options" />*/}
+              <PositionsView path="shrubfolio" />
+              <OptionsView path="options" />
             </Router>
           </Store>
         </ApolloProvider>

@@ -273,7 +273,7 @@ function Faucet({
                       <FormLabel
                         fontSize={"sm"}
                         color={"gray.500"}
-                        fontWeight={"semibold"}
+                        fontWeight={"medium"}
                       >
                         You send
                       </FormLabel>
@@ -315,7 +315,7 @@ function Faucet({
                         h="6rem"
                         borderRadius="3xl"
                         shadow="sm"
-                        fontWeight="bold"
+                        fontWeight="medium"
                         fontSize="2xl"
                       />
                       <InputRightElement
@@ -325,7 +325,7 @@ function Faucet({
                           <FormLabel
                             htmlFor="amount"
                             color="gray.500"
-                            fontWeight="bold"
+                            fontWeight="medium"
                             minW={"100"}
                           >
                             test MATIC
@@ -335,7 +335,7 @@ function Faucet({
                     </NumberInput>
                     <Flex justifyContent="flex-end">
                       <Link
-                        fontWeight="semibold"
+                        fontWeight="bold"
                         fontSize="11px"
                         color={polygonFaucetLinkColor}
                         href="https://faucet.polygon.technology/"
@@ -357,7 +357,7 @@ function Faucet({
                       <FormLabel
                         fontSize={"sm"}
                         color={"gray.500"}
-                        fontWeight={"semibold"}
+                        fontWeight={"medium"}
                       >
                         You receive
                       </FormLabel>
@@ -365,7 +365,7 @@ function Faucet({
                     <Box
                       bg={bgColor}
                       borderRadius="3xl"
-                      fontWeight="bold"
+                      fontWeight="medium"
                       fontSize="2xl"
                       p={"1.813rem"}
                     >
@@ -397,7 +397,7 @@ function Faucet({
               </>
             ) : (
               <Link
-                fontWeight="extrabold"
+                fontWeight="medium"
                 href="https://faucet.polygon.technology/"
                 isExternal
                 cursor="pointer"

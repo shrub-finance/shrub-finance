@@ -156,7 +156,7 @@ function TopNav() {
             {/*{!isMobile && <Box d={{ base: "none", sm: "none", md: "flex" }}><Chain/></Box>}*/}
             <Button
               pr={5}
-              d={{ base: "none", sm: "none" }}
+              d={{ base: "none", sm: "none", md: "flex" }}
               onClick={onFaucetModalOpen}
               fontSize={"sm"}
               variant={"link"}

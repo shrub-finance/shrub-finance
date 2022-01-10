@@ -105,7 +105,7 @@ function PaperView(props: RouteComponentProps) {
             <Heading
               maxW="60rem"
               fontSize={["5xl", "6xl", "90px", "90px"]}
-              fontWeight="bold"
+              fontWeight="medium"
               textAlign="center"
             >
               <Text
@@ -123,7 +123,7 @@ function PaperView(props: RouteComponentProps) {
               color={useColorModeValue("gray.700", "gray.300")}
               fontSize="18px"
               textAlign="center"
-              fontWeight="bold"
+              fontWeight="medium"
               px={["4rem", "5rem", "17rem", "17rem"]}
               bgGradient="linear(to-r, #bd2bdd, #bfd71c, #c94b09)"
               bgClip="text"
