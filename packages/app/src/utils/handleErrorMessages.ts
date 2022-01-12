@@ -9,8 +9,16 @@ export function handleErrorMessagesFactory(
     if (err) {
       // @ts-ignore
       if (err.data) {
-        // @ts-ignore
-        setter(err.data.message);
+        if (
+          // @ts-ignore
+          err.data.message.includes("execution reverted:")
+        ) {
+          // @ts-ignore
+          setter(err.data.message.replace("execution reverted:", ""));
+        } else {
+          // @ts-ignore
+          setter(err.data.message);
+        }
       } else {
         setter(err.message);
       }
