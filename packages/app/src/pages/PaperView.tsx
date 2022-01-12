@@ -13,45 +13,49 @@ import {
   ModalCloseButton,
   ModalBody,
   Modal,
+  toast,
+  useToast,
+  SlideFade,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
-import { ArrowForwardIcon, CheckIcon } from "@chakra-ui/icons";
-import { Link as ReachLink, RouteComponentProps } from "@reach/router";
-import { PolygonIcon } from "../assets/Icons";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { RouteComponentProps } from "@reach/router";
+import React, { useContext, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import useAddNetwork from "../hooks/useAddNetwork";
 import { isMobile } from "react-device-detect";
-import Faucet from "../components/Faucet";
 import { useWeb3React } from "@web3-react/core";
 import {
   ConnectionStatus,
   ConnectWalletModal,
   getErrorMessage,
 } from "../components/ConnectWallet";
-import { TxStatusList } from "../components/TxMonitoring";
+import {
+  ToastDescription,
+  Txmonitor,
+  TxStatusList,
+} from "../components/TxMonitoring";
+import * as whiteList from "../assets/paper-merkle.json";
+import { claimNFT } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
+import Confetti from "../assets/Confetti";
 
 function PaperView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
+  const { pendingTxs } = useContext(TxContext);
+  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+  const [activeHash, setActiveHash] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isClaimed, setIsClaimed] = useState(false);
+  const toast = useToast();
+  const tradingBtnColor = useColorModeValue("sprout", "teal");
   const {
     isOpen: isConnectWalletOpen,
     onOpen: onConnectWalletOpen,
     onClose: onConnectWalletClose,
   } = useDisclosure();
   const addNetwork = useAddNetwork();
-  const connectedColor = useColorModeValue("green.100", "teal.500");
-  const bgConnect = useColorModeValue("white", "dark.100");
-  const questionColor = useColorModeValue("blue", "yellow.300");
-  const stepsColor = useColorModeValue("white", "black");
-  const connectedStepColor = useColorModeValue("green.400", "white");
-  const stepsBg = useColorModeValue("yellow.300", "gray.500");
-  const connectedStepBg = useColorModeValue("white", "dark.100");
-  const tradingBtnColor = useColorModeValue("sprout", "teal");
-  const mobileStepsBtnBg = useColorModeValue(
-    "linear(to-r, sprout.200, teal.200)",
-    "linear(to-l, blue.700, teal.700)"
-  );
   const displayStatus = (val: boolean) => {
     setIsHidden(val);
   };
@@ -59,13 +63,16 @@ function PaperView(props: RouteComponentProps) {
 
   const {
     active,
-    library,
     account,
     error: web3Error,
+    library,
     chainId,
   } = useWeb3React();
 
-  function handleConnect() {
+  async function handleClaimNFT() {
+    setLocalError("");
+    setIsClaimed(false);
+
     if (!account) {
       if (!!web3Error && getErrorMessage(web3Error).title === "Wrong Network") {
         return addNetwork();
@@ -73,22 +80,79 @@ function PaperView(props: RouteComponentProps) {
         return onConnectWalletOpen();
       }
     }
-    // if (account) {
-    //   // fire mint your NFT method
-    // if(not claimed) {
-    //   "yay! you just minted the first Shrub NFT. Only 5000 of such kind exist, and ever will! So congrats"
-    // Show image
-    // }
-    // if(already claimed) {
-    //   "already claimed"
-    // }
-    // if(not eligible) {
-    //   "this account is not eligible for the NFT"
-    // }
+    if (account) {
+      try {
+        // @ts-ignore
+        if (whiteList.claims[account]) {
+          // @ts-ignore
+          const eligibleAccount = whiteList.claims[account];
+          const eligibleAccountIndex = eligibleAccount.index;
+          const eligibleAccountID = parseInt(eligibleAccount.amount, 16);
+          const eligibleAccountProof = eligibleAccount.proof;
 
-    // }
-    console.log(addNetwork);
-    return addNetwork();
+          const tx = await claimNFT(
+            eligibleAccountIndex,
+            eligibleAccountID,
+            eligibleAccountProof,
+            library
+          );
+          const description = `You just got a Paper Seed!`;
+          pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+          setActiveHash(tx.hash);
+          try {
+            const receipt = await tx.wait();
+            if (receipt.status === 1) {
+              setIsClaimed(true);
+            }
+            const toastDescription = ToastDescription(
+              description,
+              receipt.transactionHash,
+              chainId
+            );
+            toast({
+              title: "Transaction Confirmed",
+              description: toastDescription,
+              status: "success",
+              isClosable: true,
+              variant: "solid",
+              position: "top-right",
+            });
+            pendingTxsDispatch({
+              type: "update",
+              txHash: receipt.transactionHash,
+              status: "confirmed",
+            });
+          } catch (e: any) {
+            setIsLoading(false);
+            handleErrorMessages({ err: e });
+            const toastDescription = ToastDescription(
+              description,
+              e.transactionHash,
+              chainId
+            );
+            pendingTxsDispatch({
+              type: "update",
+              txHash: e.transactionHash || e.hash,
+              status: "failed",
+            });
+            toast({
+              title: "Transaction Failed",
+              description: toastDescription,
+              status: "error",
+              isClosable: true,
+              variant: "solid",
+              position: "top-right",
+            });
+          }
+        } else {
+          setLocalError("This address is not on the Shrub NFT whitelist.");
+        }
+      } catch (e: any) {
+        setIsLoading(false);
+        handleErrorMessages({ err: e });
+      }
+      return addNetwork();
+    }
   }
 
   return (
@@ -100,6 +164,17 @@ function PaperView(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW="container.lg"
       >
+        {isClaimed && activeHash && <Confetti />}
+        <Center mt={10}>
+          {localError && (
+            <SlideFade in={true} unmountOnExit={true}>
+              <Alert status="error" borderRadius={9}>
+                <AlertIcon />
+                {localError}
+              </Alert>
+            </SlideFade>
+          )}
+        </Center>
         <Center mt={10}>
           <Box mb={10}>
             <Heading
@@ -114,46 +189,53 @@ function PaperView(props: RouteComponentProps) {
                 bgClip="text"
                 boxDecorationBreak="clone"
               >
-                Shrub Paper NFT
+                {!isClaimed
+                  ? "Shrub Paper NFT"
+                  : "Congrats! You just got a Paper Seed!"}
               </Text>
             </Heading>
-            <Text
-              mt="3"
-              mb={{ base: "16px", md: "10", lg: "10" }}
-              color={useColorModeValue("gray.700", "gray.300")}
-              fontSize="18px"
-              textAlign="center"
-              fontWeight="medium"
-              px={["4rem", "5rem", "17rem", "17rem"]}
-              bgGradient="linear(to-r, #bd2bdd, #bfd71c, #c94b09)"
-              bgClip="text"
-            >
-              {isMobile
-                ? "Time to mint your drop!"
-                : "Time to mint your drop. Let's go!"}
-            </Text>
-            <Center>
-              <Button
-                onClick={handleConnect}
-                colorScheme={tradingBtnColor}
-                variant="solid"
-                rounded="2xl"
-                size="lg"
-                px={["50", "70", "90", "90"]}
-                fontSize="25px"
-                py={10}
-                borderRadius="full"
-                _hover={{ transform: "translateY(-2px)" }}
-                bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+            {activeHash && <Txmonitor txHash={activeHash} />}
+            {!isClaimed && !activeHash && (
+              <Text
+                mt="3"
+                mb={{ base: "16px", md: "10", lg: "10" }}
+                color={useColorModeValue("gray.700", "gray.300")}
+                fontSize="18px"
+                textAlign="center"
+                fontWeight="medium"
+                px={["4rem", "5rem", "17rem", "17rem"]}
+                bgGradient="linear(to-r, #bd2bdd, #bfd71c, #c94b09)"
+                bgClip="text"
               >
-                {account
-                  ? "Mint your NFT"
-                  : !!web3Error &&
-                    getErrorMessage(web3Error).title === "Wrong Network"
-                  ? "Connect to Polygon"
-                  : // "Connect to Mumbai"
-                    "Connect Wallet"}
-              </Button>
+                {isMobile
+                  ? "Time to mint your drop!"
+                  : "Time to mint your drop. Let's go!"}
+              </Text>
+            )}
+            <Center>
+              {!isClaimed && !activeHash && (
+                <Button
+                  onClick={handleClaimNFT}
+                  colorScheme={tradingBtnColor}
+                  variant="solid"
+                  rounded="2xl"
+                  isLoading={isLoading}
+                  size="lg"
+                  px={["50", "70", "90", "90"]}
+                  fontSize="25px"
+                  py={10}
+                  borderRadius="full"
+                  _hover={{ transform: "translateY(-2px)" }}
+                  bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                >
+                  {account
+                    ? "Mint your NFT"
+                    : !!web3Error &&
+                      getErrorMessage(web3Error).title === "Wrong Network"
+                    ? "Connect to Polygon"
+                    : "Connect Wallet"}
+                </Button>
+              )}
             </Center>
           </Box>
         </Center>
