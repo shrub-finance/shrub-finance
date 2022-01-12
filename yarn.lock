@@ -6773,6 +6773,7 @@ __metadata:
     react-dom: 17.0.2
     react-icons: 4.3.1
     react-scripts: 4.0.3
+    react-tsparticles: 1.39.0
     typescript: 4.5.4
     web-vitals: 2.1.3
     web3: 1.6.1
@@ -21088,7 +21089,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"husky@npm:7.0.4, husky@npm:latest":
+"husky@npm:7.0.4, husky@npm:^7.0.0":
   version: 7.0.4
   resolution: "husky@npm:7.0.4"
   bin:
@@ -31022,6 +31023,18 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"react-tsparticles@npm:1.39.0":
+  version: 1.39.0
+  resolution: "react-tsparticles@npm:1.39.0"
+  dependencies:
+    fast-deep-equal: ^3.1.3
+    tsparticles: ^1.39.0
+  peerDependencies:
+    react: ">=16"
+  checksum: bd708918b1b7cd29dab9d22c32ce50aacc65f4f6a3312d1c1faf178f7518feed54c0de5cc4d13b02c782579344888e6ecc5b4a7b8ea903b2456abc912699020a
+  languageName: node
+  linkType: hard
+
 "react@npm:17.0.2":
   version: 17.0.2
   resolution: "react@npm:17.0.2"
@@ -32959,7 +32972,7 @@ resolve@^2.0.0-next.3:
     "@typescript-eslint/eslint-plugin": 5.9.0
     "@typescript-eslint/parser": 5.9.0
     eslint: 7.11.0
-    husky: latest
+    husky: ^7.0.0
     lint-staged: 12.1.5
     pinst: 2.0.0
     prettier: 2.5.1
@@ -35408,6 +35421,13 @@ resolve@^2.0.0-next.3:
   version: 0.0.1
   resolution: "tsort@npm:0.0.1"
   checksum: 581566c248690b9ea7e431e1545affb3d2cab0f5dcd0e45ddef815dfaec4864cb5f0cfd8072924dedbc0de9585ff07e3e65db60f14fab4123737b9bb6e72eacc
+  languageName: node
+  linkType: hard
+
+"tsparticles@npm:^1.39.0":
+  version: 1.39.0
+  resolution: "tsparticles@npm:1.39.0"
+  checksum: 960f005a1d9869d6634f3226f21c2914c29b05329319d69f91e410337d527e1d0ff060c8e3eb5cacc83dcc0302f15386260a647c70c4b92aac2e5b6910c5ae8d
   languageName: node
   linkType: hard
 
