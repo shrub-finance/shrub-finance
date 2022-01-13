@@ -26,6 +26,8 @@ import env from 'hardhat'
 import { toEthDate } from '@shrub/app/src/utils/ethMethods'
 const bs = require('./utils/black-scholes');
 const { Shrub712 } = require("./utils/EIP712");
+import dotenv from "dotenv";
+dotenv.config();
 
 const CHAINLINK_MATIC = '0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada';  // Mumbai
 const CHAINLINK_ETH = '0x0715A7794a1dc8e42615F059dD6e406A6594651A';  // Mumbai
@@ -722,13 +724,30 @@ const config: HardhatUserConfig & AbiExporter = {
     spacing: 2,
   },
   etherscan: {
-    // apiKey: '5TPEWR3JA9S4APSU2QJ7CNGTCFJM5G8PYC'  // For etherscan
-    apiKey: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'    // For polygonscan
+    apiKey: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'
+    // apiKey: {
+    //   mainnet: '5TPEWR3JA9S4APSU2QJ7CNGTCFJM5G8PYC',  // For etherscan
+    //   polygon: 'XXX',
+    //   polygonMumbai: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'    // For polygonscan
+    // }
   },
   mocha: {
     timeout: 35000
   }
 };
+
+if (process.env.MUMBAI_SECRET_KEY) {
+  config.networks.mumbai = {
+    chainId: 80001,
+    url: 'https://rpc-mumbai.maticvigil.com',
+    accounts: [process.env.MUMBAI_SECRET_KEY]
+  };
+  config.networks.rinkeby = {
+    chainId: 4,
+    url: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+    accounts: [process.env.MUMBAI_SECRET_KEY]
+  };
+}
 
 if (process.env.MUMBAI_SECRET_MNEMONIC) {
   config.networks.mumbai = {
