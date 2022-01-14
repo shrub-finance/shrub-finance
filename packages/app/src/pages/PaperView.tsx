@@ -35,7 +35,6 @@ import {
   Txmonitor,
   TxStatusList,
 } from "../components/TxMonitoring";
-import * as whiteList from "../assets/paper-merkle.json";
 import { claimNFT } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
