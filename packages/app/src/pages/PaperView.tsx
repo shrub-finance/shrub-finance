@@ -39,6 +39,7 @@ import * as whiteList from "../assets/paper-merkle.json";
 import { claimNFT } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
+import axios from "axios";
 
 function PaperView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -72,86 +73,96 @@ function PaperView(props: RouteComponentProps) {
   async function handleClaimNFT() {
     setLocalError("");
     setIsClaimed(false);
-
-    if (!account) {
-      if (!!web3Error && getErrorMessage(web3Error).title === "Wrong Network") {
-        return addNetwork();
-      } else {
-        return onConnectWalletOpen();
-      }
-    }
-    if (account) {
-      try {
-        // @ts-ignore
-        if (whiteList.claims[account]) {
-          // @ts-ignore
-          const eligibleAccount = whiteList.claims[account];
-          const eligibleAccountIndex = eligibleAccount.index;
-          const eligibleAccountID = parseInt(eligibleAccount.amount, 16);
-          const eligibleAccountProof = eligibleAccount.proof;
-
-          const tx = await claimNFT(
-            eligibleAccountIndex,
-            eligibleAccountID,
-            eligibleAccountProof,
-            library
-          );
-          const description = `You just got a Paper Seed!`;
-          pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
-          setActiveHash(tx.hash);
-          try {
-            const receipt = await tx.wait();
-            if (receipt.status === 1) {
-              setIsClaimed(true);
-            }
-            const toastDescription = ToastDescription(
-              description,
-              receipt.transactionHash,
-              chainId
-            );
-            toast({
-              title: "Transaction Confirmed",
-              description: toastDescription,
-              status: "success",
-              isClosable: true,
-              variant: "solid",
-              position: "top-right",
-            });
-            pendingTxsDispatch({
-              type: "update",
-              txHash: receipt.transactionHash,
-              status: "confirmed",
-            });
-          } catch (e: any) {
-            setIsLoading(false);
-            handleErrorMessages({ err: e });
-            const toastDescription = ToastDescription(
-              description,
-              e.transactionHash,
-              chainId
-            );
-            pendingTxsDispatch({
-              type: "update",
-              txHash: e.transactionHash || e.hash,
-              status: "failed",
-            });
-            toast({
-              title: "Transaction Failed",
-              description: toastDescription,
-              status: "error",
-              isClosable: true,
-              variant: "solid",
-              position: "top-right",
-            });
-          }
+    try {
+      if (!account) {
+        if (
+          !!web3Error &&
+          getErrorMessage(web3Error).title === "Wrong Network"
+        ) {
+          return addNetwork();
         } else {
-          setLocalError("This address is not on the Shrub NFT whitelist.");
+          return onConnectWalletOpen();
         }
-      } catch (e: any) {
-        setIsLoading(false);
-        handleErrorMessages({ err: e });
       }
-      return addNetwork();
+      if (account) {
+        try {
+          const whitelisted = await axios.get(
+            `https://merkle.vercel.app/merkle/${account}`
+          );
+          // @ts-ignore
+          if (whitelisted) {
+            // @ts-ignore
+            const eligibleAccount = whitelisted.data;
+            const eligibleAccountIndex = eligibleAccount.index;
+            const eligibleAccountID = parseInt(eligibleAccount.amount, 16);
+            const eligibleAccountProof = eligibleAccount.proof;
+
+            const tx = await claimNFT(
+              eligibleAccountIndex,
+              eligibleAccountID,
+              eligibleAccountProof,
+              library
+            );
+            const description = `You just got a Paper Seed!`;
+            pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+            setActiveHash(tx.hash);
+            try {
+              const receipt = await tx.wait();
+              if (receipt.status === 1) {
+                setIsClaimed(true);
+              }
+              const toastDescription = ToastDescription(
+                description,
+                receipt.transactionHash,
+                chainId
+              );
+              toast({
+                title: "Transaction Confirmed",
+                description: toastDescription,
+                status: "success",
+                isClosable: true,
+                variant: "solid",
+                position: "top-right",
+              });
+              pendingTxsDispatch({
+                type: "update",
+                txHash: receipt.transactionHash,
+                status: "confirmed",
+              });
+            } catch (e: any) {
+              setIsLoading(false);
+              handleErrorMessages({ err: e });
+              const toastDescription = ToastDescription(
+                description,
+                e.transactionHash,
+                chainId
+              );
+              pendingTxsDispatch({
+                type: "update",
+                txHash: e.transactionHash || e.hash,
+                status: "failed",
+              });
+              toast({
+                title: "Transaction Failed",
+                description: toastDescription,
+                status: "error",
+                isClosable: true,
+                variant: "solid",
+                position: "top-right",
+              });
+            }
+          } else {
+            setLocalError("This address is not on the Shrub NFT whitelist.");
+          }
+        } catch (e: any) {
+          setIsLoading(false);
+          handleErrorMessages({ err: e });
+        }
+        return addNetwork();
+      }
+    } catch (e: any) {
+      handleErrorMessages({ err: e });
+      console.error(e);
     }
   }
 

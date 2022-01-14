@@ -347,14 +347,11 @@ export async function claimNFT(
     PAPERSEED_CONTRACT_ADDRESS,
     signer
   );
-  console.log(paperseedContract);
-  console.log(PAPERSEED_CONTRACT_ADDRESS);
   const tx = await paperseedContract["claim(uint256,uint256,bytes32[])"](
     index,
     tokenID,
     proof
   );
-  console.log(tx);
   return tx;
 }
 
@@ -392,7 +389,6 @@ export async function getAddressFromSignedOrder(
   const smallOrder = iOrderToSmall(order);
   const commonOrder = iOrderToCommon(order);
 
-  // const shrubContract = ShrubExchange__factory.connect(SHRUB_CONTRACT_ADDRESS, provider);
   const hashUtil = HashUtil__factory.connect(
     HASH_UTIL_CONTRACT_ADDRESS,
     provider
