@@ -5,29 +5,29 @@ let index = 1;
 const types = [
   {
     name: "Paper Seed of Power",
-    count: 1,
-    image: "ipfs://Qmagcgd5gDp7HACb2uuFXFLSWnnmRT2ZSdW4sSjHRaZ637",
+    count: 10,
+    image: "ipfs://QmNsRMnK9gaqbcNhQToXBYeHTnR9y9HtoBNewQXvkDNjbo",
     rarity: "legendary",
     classType: "power",
   },
   {
     name: "Paper Seed of Hope",
-    count: 1,
-    image: "ipfs://Qmbgm9sK5p9vN6TDnLjVJs6ZBfgTPy6eftGZMVnddE1YpZ",
+    count: 100,
+    image: "ipfs://QmbFpE2ofJHig1Ci63DbshbEuaBtr9SAyLkeWn4Nofr7eJ",
     rarity: "rare",
     classType: "hope",
   },
   {
     name: "Paper Seed of Passion",
-    count: 2,
-    image: "ipfs://QmbKAe82vBgugba2CQoFndq6XE1DLRZAk1D8xbdLp5gboY",
+    count: 1000,
+    image: "ipfs://QmekzPPxpX71gqe9yu5FtX1canvEPGK85X5h2yQFDBZdRD",
     rarity: "uncommon",
     classType: "passion",
   },
   {
     name: "Paper Seed of Wonder",
-    count: 3,
-    image: "ipfs://Qmbg9s53Bs9QEw9g94mPfKrjgW79AvaFY43d6YahjAC2Hu",
+    count: 8890,
+    image: "ipfs://QmUAiWcJLfrqcZDhTgPmnYgPJzZBkDMyzDrawpgQfjSex6",
     rarity: "common",
     classType: "wonder",
   },
@@ -38,8 +38,9 @@ for (const type of types) {
   const { name, count, image, rarity, classType } = type;
   for (let i = 0; i < count; i++) {
     const metadata = {
-      name: `${name} #${i}`,
+      name: `${name} #${i + 1}`,
       image,
+      external_link: `https://shrub.finance/nft/paper-seed/${index}`,
       attributes: [
         { trait_type: "Class", value: classType },
         { trait_type: "Rarity", value: rarity },

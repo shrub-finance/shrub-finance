@@ -25,6 +25,10 @@ contract PaperSeed is ERC721, Ownable, IMerkleDistributor {
         return BASE_URI;
     }
 
+    function setBaseURI(string memory _baseUri) public onlyOwner {
+        BASE_URI = _baseUri;
+    }
+
     function contractURI() public view returns (string memory) {
         return CONTRACT_URI;
     }

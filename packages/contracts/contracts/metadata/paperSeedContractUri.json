@@ -1,8 +1,8 @@
 {
-  "name": "Paper Gardens",
-  "description": "Paper Gardens is an interactive adventure in 4 chapters brought to you by shrub.finance",
+  "name": "Garden of Test",
+  "description": "Garden of Test is a test to try polygon NFTs",
   "image": "ipfs://QmNNJBchmnHEko1bms1v84Aagtf4TAefWaCVzwogBuK6vN",
-  "external_link": "https://shrub.finance",
+  "external_link": "https://www.openwebcollective.com",
   "seller_fee_basis_points": 1000,
   "fee_recipient": "0x9Bd0297ce571c18B4986989f8008287159e55D8f"
 }

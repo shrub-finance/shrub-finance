@@ -759,4 +759,14 @@ if (process.env.MUMBAI_SECRET_MNEMONIC) {
   }
 }
 
+if (process.env.POLYGON_SECRET_MNEMONIC) {
+  config.networks.polygon = {
+    chainId: 137,
+    url: 'https://rpc-mainnet.maticvigil.com/',
+    accounts: {
+      mnemonic: process.env.POLYGON_SECRET_MNEMONIC,
+    },
+  }
+}
+
 export default config;
