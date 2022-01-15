@@ -47,7 +47,7 @@ for (const type of types) {
         { trait_type: "DNA", value: index % 100 },
       ],
     };
-    writeFileSync(`output/seedNft/${index}.json`, JSON.stringify(metadata));
+    writeFileSync(`output/seedNft/${index}`, JSON.stringify(metadata));
     console.log(`writing #${index}`);
     index++;
   }
