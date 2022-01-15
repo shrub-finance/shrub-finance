@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   CoinbaseIcon,
   FortmaticIcon,
   LedgerIcon,
   MetaMaskIcon,
-  PolygonIcon,
   PortisIcon,
   WalletConnectIcon,
 } from "../assets/Icons";
@@ -87,7 +86,8 @@ export function getErrorMessage(error: Error) {
   } else if (error instanceof UnsupportedChainIdError) {
     return {
       title: "Wrong Network",
-      message: "You are connected, but not to Polygon Mumbai Testnet.",
+      // message: "You are connected, but not to Polygon Mumbai Testnet.",
+      message: "You are connected, but not to Polygon Mainnet.",
     };
   } else if (
     error instanceof UserRejectedRequestErrorInjected ||
@@ -132,7 +132,7 @@ export function Chain() {
           fontSize={"sm"}
           mr={4}
           borderRadius="2xl"
-          fontWeight="bold"
+          fontWeight="medium"
         >
           <Icon as={RiSignalTowerLine} boxSize={3} mr={1} />
           {network}
@@ -146,6 +146,7 @@ export function Balance() {
   const { chainId } = useWeb3React();
   const networkColor = chainId && NETWORK_COLORS[chainId];
   const mumbaiColor = useColorModeValue("blue.600", "blue.200");
+  const balanceColor = useColorModeValue("blue", "white");
   const currency = currencySymbol(chainId);
   const { balance } = useGetBalance();
 
@@ -155,9 +156,10 @@ export function Balance() {
         <Box
           // leftIcon={balance ? <FaEthereum/> : undefined}
           //@ts-ignore
-          color={networkColor === "blue" ? mumbaiColor : networkColor}
+          // color={networkColor === "blue" ? mumbaiColor : networkColor}
+          color={balanceColor}
           fontSize={"sm"}
-          fontWeight="bold"
+          fontWeight="medium"
         >
           {balance === null
             ? "Error"
@@ -225,7 +227,7 @@ export function ConnectionStatus({ displayStatus }) {
           <Flex pt={1}>
             <Box
               color="gray.500"
-              fontWeight="semibold"
+              fontWeight="medium"
               letterSpacing="wide"
               fontSize="sm"
               ml="2"
@@ -262,7 +264,7 @@ export function ConnectionStatus({ displayStatus }) {
             <Box
               cursor="pointer"
               color="gray.500"
-              fontWeight="semibold"
+              fontWeight="medium"
               letterSpacing="wide"
               fontSize="xs"
               ml="2"
@@ -274,7 +276,7 @@ export function ConnectionStatus({ displayStatus }) {
             <Spacer />
             <Box
               color="gray.500"
-              fontWeight="semibold"
+              fontWeight="medium"
               letterSpacing="wide"
               fontSize="xs"
               ml="2"
@@ -346,14 +348,18 @@ export function ConnectWalletModal() {
             const disabled =
               !triedEager || !!activatingConnector || connected || !!error;
 
-            const mobileConnectors = ["Wallet Connect", "Coinbase Wallet"];
+            const mobileConnectors = [
+              "Wallet Connect",
+              "Coinbase Wallet",
+              "MetaMask",
+            ];
 
             const isMobileConnector = mobileConnectors.includes(connectorName);
 
             function WalletIconName(props: any) {
               switch (props.type) {
                 case "MetaMask":
-                  return !isMobile ? <MetaMaskIcon boxSize={8} /> : null;
+                  return <MetaMaskIcon boxSize={8} />;
                 case "Coinbase Wallet":
                   return <CoinbaseIcon boxSize={8} />;
                 case "Wallet Connect":
@@ -499,7 +505,8 @@ export function ConnectWalletModal() {
             colorScheme={bg}
             onClick={addNetwork}
           >
-            Switch to Mumbai Network
+            {/*Switch to Mumbai Network*/}
+            Switch to Polygon Network
           </Button>
         </Stack>
       )}

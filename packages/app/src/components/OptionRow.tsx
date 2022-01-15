@@ -112,10 +112,10 @@ function OptionRow({
             </Text>
           </Box>
           <Spacer />
-          <Box fontWeight="semibold" lineHeight={{ base: 1.8, md: 1.8 }}>
+          <Box fontWeight="medium" lineHeight={{ base: 1.8, md: 1.8 }}>
             <Stack spacing={{ base: 3, md: 8 }} direction="row">
               <Stack spacing={1} direction="column">
-                <Text fontSize="xs" color="gray.400" fontWeight="bold">
+                <Text fontSize="xs" color="gray.400" fontWeight="medium">
                   Ask
                 </Text>
                 <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
@@ -123,7 +123,7 @@ function OptionRow({
                 </Text>
               </Stack>
               <Stack spacing={1} direction="column">
-                <Text fontSize="xs" color="gray.400" fontWeight="bold">
+                <Text fontSize="xs" color="gray.400" fontWeight="medium">
                   Bid
                 </Text>
                 <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
@@ -133,10 +133,10 @@ function OptionRow({
             </Stack>
           </Box>
           <Spacer />
-          <Box fontWeight="semibold" lineHeight={{ base: 1.8, md: 1.8 }}>
+          <Box fontWeight="medium" lineHeight={{ base: 1.8, md: 1.8 }}>
             <Stack spacing={1} direction="column">
               {" "}
-              <Text fontSize="sm" color="gray.400" fontWeight="bold">
+              <Text fontSize="sm" color="gray.400" fontWeight="medium">
                 Last
               </Text>
               <Text

@@ -211,7 +211,7 @@ export function TxStatusList() {
       <Flex pt={3} pb={1}>
         <Box
           color={status === "failed" ? "red.500" : "teal.500"}
-          fontWeight="semibold"
+          fontWeight="medium"
           letterSpacing="tight"
           fontSize="xs"
           ml="2"
@@ -224,7 +224,7 @@ export function TxStatusList() {
           </Link>
         </Box>
         <Spacer />
-        <Box color="sprout.500" fontWeight="semibold" fontSize="xs" ml="2">
+        <Box color="sprout.500" fontWeight="medium" fontSize="xs" ml="2">
           {status === "confirming" ? (
             <Spinner
               thickness="1px"
@@ -259,7 +259,7 @@ export function TxStatusList() {
               <>
                 <Box
                   color="gray.500"
-                  fontWeight="semibold"
+                  fontWeight="medium"
                   letterSpacing="wide"
                   fontSize="sm"
                   ml="2"
@@ -283,7 +283,7 @@ export function TxStatusList() {
             ) : (
               <Center
                 color="gray.500"
-                fontWeight="semibold"
+                fontWeight="medium"
                 letterSpacing="wide"
                 fontSize={isMobile ? "md" : "lg"}
                 ml="2"

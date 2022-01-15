@@ -369,7 +369,7 @@ function OptionDetails({
       <>
         {noOrders && radioOrderType === "Market" && (
           <Text
-            fontWeight="bold"
+            fontWeight="medium"
             fontSize="xs"
             color={quantityErrorColor}
             pl="4"
@@ -384,7 +384,7 @@ function OptionDetails({
           <Box>
             <Text
               as={"span"}
-              fontWeight="bold"
+              fontWeight="medium"
               fontSize="xs"
               color={quantityErrorColor}
               pl="4"
@@ -399,7 +399,7 @@ function OptionDetails({
               radioOption === "SELL" && optionType === "CALL" ? (
                 <Text
                   as={"span"}
-                  fontWeight="bold"
+                  fontWeight="medium"
                   fontSize="xs"
                   color={errorSuggestionColor}
                 >
@@ -413,7 +413,7 @@ function OptionDetails({
               ) : (
                 <Text
                   as={"span"}
-                  fontWeight="bold"
+                  fontWeight="medium"
                   fontSize="xs"
                   color={errorSuggestionColor}
                 >
@@ -425,7 +425,7 @@ function OptionDetails({
                 </Text>
               )
             }
-            {/*<Text fontWeight="bold" fontSize="xs" color={'blue.300'} cursor={"pointer"} as={ReachLink} to={'/shrubfolio'}>*/}
+            {/*<Text fontWeight="medium" fontSize="xs" color={'blue.300'} cursor={"pointer"} as={ReachLink} to={'/shrubfolio'}>*/}
             {/*    Deposit*/}
             {/*</Text>*/}
           </Box>
@@ -435,7 +435,7 @@ function OptionDetails({
           <Box>
             <Text
               as={"span"}
-              fontWeight="bold"
+              fontWeight="medium"
               fontSize="xs"
               color={quantityErrorColor}
               pl="4"
@@ -449,14 +449,14 @@ function OptionDetails({
             {radioOption === "SELL" && optionType === "CALL" ? (
               <Text
                 as={"span"}
-                fontWeight="bold"
+                fontWeight="medium"
                 fontSize="xs"
                 color={errorSuggestionColor}
               >
                 You need: {collateralRequirement.toFixed(4)} sMATIC
               </Text>
             ) : (
-              <Text as={"span"} fontWeight="bold" fontSize="xs">
+              <Text as={"span"} fontWeight="medium" fontSize="xs">
                 You need: ${collateralRequirement.toFixed(4)}
               </Text>
             )}
@@ -466,7 +466,7 @@ function OptionDetails({
           <Box>
             <Text
               as={"span"}
-              fontWeight="bold"
+              fontWeight="medium"
               fontSize="xs"
               color={quantityErrorColor}
               pl="4"
@@ -476,7 +476,7 @@ function OptionDetails({
             </Text>
             <Text
               as={"span"}
-              fontWeight="bold"
+              fontWeight="medium"
               fontSize="xs"
               cursor={"pointer"}
               textDecoration={"underline"}
@@ -890,7 +890,7 @@ function OptionDetails({
         <Tr
           key={index}
           letterSpacing={"wide"}
-          fontWeight={"semibold"}
+          fontWeight={"medium"}
           color={orderBookColor}
         >
           <Td>{`$${sellOrder.unitPrice.toFixed(4)}`}</Td>
@@ -909,7 +909,7 @@ function OptionDetails({
         <Tr
           key={index}
           letterSpacing={"wide"}
-          fontWeight={"semibold"}
+          fontWeight={"medium"}
           color={orderBookColor}
         >
           <Td>{`$${buyOrder.unitPrice.toFixed(4)}`}</Td>
@@ -982,7 +982,7 @@ function OptionDetails({
         <Box
           color="gray.500"
           bgColor="gray.100"
-          fontWeight="semibold"
+          fontWeight="medium"
           letterSpacing="wide"
           fontSize="xs"
           ml="2"
@@ -1005,7 +1005,7 @@ function OptionDetails({
         <Box
           color={"gray.500"}
           bgColor={"gray.100"}
-          fontWeight="semibold"
+          fontWeight="medium"
           letterSpacing="wide"
           fontSize="xs"
           ml="2"
@@ -1101,21 +1101,21 @@ function OptionDetails({
                       {/*Row 1*/}
                       <Box>
                         <Flex pb={8}>
-                          <Text fontSize={"xl"} fontWeight="semibold">
+                          <Text fontSize={"xl"} fontWeight="medium">
                             {radioOption === "BUY" ? "Buy" : "Sell"} sMATIC{" "}
                             {optionType === "CALL" ? "Call" : "Put"}
                           </Text>
                           <Spacer />
                           <Text
                             fontSize={"xs"}
-                            fontWeight={"bold"}
+                            fontWeight={"medium"}
                             color={livePriceColor}
                           >
                             sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
                           </Text>
                         </Flex>
 
-                        <Box fontSize={"xs"} fontWeight={"bold"} pb={10}>
+                        <Box fontSize={"xs"} fontWeight={"medium"} pb={10}>
                           <Flex>
                             <Box>
                               <HStack pb={1}>
@@ -1227,7 +1227,7 @@ function OptionDetails({
                             h="6rem"
                             borderRadius="3xl"
                             shadow="sm"
-                            fontWeight="bold"
+                            fontWeight="medium"
                             fontSize="2xl"
                           />
                           <InputRightElement
@@ -1237,7 +1237,7 @@ function OptionDetails({
                               <FormLabel
                                 htmlFor="amount"
                                 color="gray.500"
-                                fontWeight="bold"
+                                fontWeight="medium"
                               >
                                 Quantity
                               </FormLabel>
@@ -1434,21 +1434,21 @@ function OptionDetails({
                     <Stack spacing="18px" w={"full"}>
                       <Box>
                         <Flex pb={8}>
-                          <Box fontSize={"xl"} fontWeight="semibold">
+                          <Box fontSize={"xl"} fontWeight="medium">
                             {radioOption === "BUY" ? "Buy" : "Sell"} sMATIC{" "}
                             {optionType === "CALL" ? "Call" : "Put"}
                           </Box>
                           <Spacer />
                           <Text
                             fontSize={"xs"}
-                            fontWeight={"bold"}
+                            fontWeight={"medium"}
                             color={livePriceColor}
                           >
                             sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
                           </Text>
                         </Flex>
 
-                        <Box fontSize={"xs"} fontWeight={"bold"} pb={10}>
+                        <Box fontSize={"xs"} fontWeight={"medium"} pb={10}>
                           <Flex>
                             <Box>
                               <HStack pb={1}>
@@ -1542,7 +1542,7 @@ function OptionDetails({
                             h="6rem"
                             borderRadius="3xl"
                             shadow="sm"
-                            fontWeight="bold"
+                            fontWeight="medium"
                             fontSize="2xl"
                           />
                           <InputRightElement
@@ -1552,7 +1552,7 @@ function OptionDetails({
                               <FormLabel
                                 htmlFor="amount"
                                 color="gray.500"
-                                fontWeight="bold"
+                                fontWeight="medium"
                               >
                                 Quantity
                               </FormLabel>
@@ -1609,7 +1609,7 @@ function OptionDetails({
                             h="6rem"
                             borderRadius="3xl"
                             shadow="sm"
-                            fontWeight="bold"
+                            fontWeight="medium"
                             fontSize="2xl"
                           />
                           <InputRightElement
@@ -1619,7 +1619,7 @@ function OptionDetails({
                               <FormLabel
                                 htmlFor="amount"
                                 color="gray.500"
-                                fontWeight="bold"
+                                fontWeight="medium"
                               >
                                 Price
                               </FormLabel>
@@ -1826,22 +1826,27 @@ function OptionDetails({
               letterSpacing={".02rem"}
             >
               Placing this order{" "}
-              <strong>gives {radioOption === "BUY" ? "you" : "someone"}</strong>{" "}
+              <Text as="span" fontWeight={"bold"}>
+                gives {radioOption === "BUY" ? "you" : "someone"}
+              </Text>{" "}
               the{" "}
-              <strong>
+              <Text as="span" fontWeight={"bold"}>
                 right to {optionType === "CALL" ? "buy" : "sell"} {newAmount}{" "}
                 sMATIC
-              </strong>{" "}
-              for <strong>{formattedStrike} sUSD/sMATIC</strong>{" "}
+              </Text>{" "}
+              for{" "}
+              <Text as="span" fontWeight={"bold"}>
+                {formattedStrike} sUSD/sMATIC
+              </Text>{" "}
               {radioOption === "SELL"
                 ? optionType === "CALL"
                   ? "from you"
                   : "to you"
                 : ""}{" "}
               until{" "}
-              <strong>
+              <Text as="span" fontWeight={"bold"}>
                 {formattedExpiry}, {formatTime(expiry)}
-              </strong>
+              </Text>
               .
             </Text>
           </AlertDialogBody>

@@ -1,24 +1,13 @@
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { useState } from "react";
+import { NETWORK_RPC_DETAILS } from "../constants/networks";
 
 export default function useAddNetwork() {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
   const addNetwork = () => {
-    const params = [
-      {
-        chainId: "0x13881",
-        chainName: "Matic Testnet",
-        nativeCurrency: {
-          name: "Polygon Matic",
-          symbol: "Matic",
-          decimals: 18,
-        },
-        rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
-        blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
-      },
-    ];
+    const params = [NETWORK_RPC_DETAILS[137]];
     // @ts-ignore
     window.ethereum
       // @ts-ignore

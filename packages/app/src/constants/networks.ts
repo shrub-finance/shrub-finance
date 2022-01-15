@@ -44,3 +44,52 @@ export const NETWORK_CONTRACT_ADDRESS: {
   [SupportedChainId.MUMBAI]: "0x97D46d03909D6B664880ce5A4b59edda0e41D080",
   [SupportedChainId.LOCAL]: "0x6a9D4aF8BF697679f4441dDeD9E2B8F1F31D3e85",
 };
+
+export const NETWORK_RPC_DETAILS: {
+  [chainId in SupportedChainId | number]: Record<string, unknown>;
+} = {
+  [SupportedChainId.MUMBAI]: {
+    chainId: "0x13881",
+    chainName: "Polygon Testnet",
+    nativeCurrency: {
+      name: "Polygon Matic",
+      symbol: "Matic",
+      decimals: 18,
+    },
+    rpcUrls: ["https://rpc-mumbai.maticvigil.com"],
+    blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+  },
+  [SupportedChainId.POLYGON]: {
+    chainId: "0x89",
+    chainName: "Polygon Network",
+    nativeCurrency: {
+      name: "Polygon Matic",
+      symbol: "Matic",
+      decimals: 18,
+    },
+    rpcUrls: ["https://polygon-rpc.com/"],
+    blockExplorerUrls: ["https://polygonscan.com/"],
+  },
+  [SupportedChainId.RINKEBY]: {
+    chainId: "0x4",
+    chainName: "Rinkeby Testnet",
+    nativeCurrency: {
+      name: "Rinkeby",
+      symbol: "ETH",
+      decimals: 18,
+    },
+    rpcUrls: ["https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+    blockExplorerUrls: ["https://rinkeby.etherscan.io"],
+  },
+  [SupportedChainId.MAINNET]: {
+    chainId: "0x1",
+    chainName: "Ethereum Mainnet",
+    nativeCurrency: {
+      name: "Ethereum",
+      symbol: "ETH",
+      decimals: 18,
+    },
+    rpcUrls: ["https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+    blockExplorerUrls: ["https://etherscan.io"],
+  },
+};

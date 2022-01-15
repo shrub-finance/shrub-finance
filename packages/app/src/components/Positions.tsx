@@ -348,7 +348,7 @@ function Positions() {
       if (!isExpired) {
         optionRow.push(
           <Tr key={optionId}>
-            <Td fontWeight={"bold"} fontSize={"xs"}>
+            <Td fontWeight={"medium"} fontSize={"xs"}>
               <Box>{pair}</Box>
               <Box>{pair2}</Box>
               <Box>
@@ -424,7 +424,7 @@ function Positions() {
       } else {
         expiredOptionRow.push(
           <Tr key={optionId}>
-            <Td fontWeight={"bold"} fontSize={"xs"}>
+            <Td fontWeight={"medium"} fontSize={"xs"}>
               <Box>{pair}</Box>
               <Box>{pair2}</Box>
               <Box>
@@ -546,7 +546,7 @@ function Positions() {
             <Box
               mt="1"
               fontSize={fluidFontAsset}
-              fontWeight="semibold"
+              fontWeight="medium"
               lineHeight="tight"
               pl={fluidPaddingAssetL}
               minW={fluidWidthAsset}
@@ -562,7 +562,7 @@ function Positions() {
               pl={fluidPaddingSplitL}
               flexBasis="60"
             >
-              <Box pb={2} color="gray.500" fontWeight="semibold">
+              <Box pb={2} color="gray.500" fontWeight="medium">
                 {shrubBalance.locked[currency]
                   ? shrubBalance.locked[currency].toLocaleString(undefined, {
                       minimumFractionDigits: currency === "MATIC" ? 6 : 2,
@@ -586,7 +586,7 @@ function Positions() {
                 )}
               </Box>
 
-              <Box color="gray.500" fontWeight="semibold">
+              <Box color="gray.500" fontWeight="medium">
                 {shrubBalance.available[currency]
                   ? shrubBalance.available[currency].toLocaleString(undefined, {
                       minimumFractionDigits: currency === "MATIC" ? 6 : 2,
@@ -858,7 +858,11 @@ function Positions() {
             <Box></Box>
             <Spacer />
             <Box>
-              <Text color={livePriceColor} fontSize={"xs"} fontWeight={"bold"}>
+              <Text
+                color={livePriceColor}
+                fontSize={"xs"}
+                fontWeight={"medium"}
+              >
                 sMATIC: ${maticPrice ? maticPrice.toFixed(2) : "-"}
               </Text>
               {/*<Button rightIcon={<ArrowForwardIcon />} colorScheme="blue" variant="link" fontSize={"xs"}>*/}
@@ -952,7 +956,7 @@ function Positions() {
               <Center pt={6}>
                 <Box
                   as="span"
-                  fontWeight="semibold"
+                  fontWeight="medium"
                   fontSize="sm"
                   color="gray.500"
                 >
@@ -1062,7 +1066,7 @@ function Positions() {
                           h="6rem"
                           rounded="3xl"
                           shadow="sm"
-                          fontWeight="bold"
+                          fontWeight="medium"
                           fontSize="2xl"
                         />
                         <InputRightElement
@@ -1072,7 +1076,7 @@ function Positions() {
                             <FormLabel
                               htmlFor="amount"
                               color="gray.500"
-                              fontWeight="bold"
+                              fontWeight="medium"
                             >
                               {modalCurrency === "SMATIC" ? "sMATIC" : "sUSD"}
                             </FormLabel>
