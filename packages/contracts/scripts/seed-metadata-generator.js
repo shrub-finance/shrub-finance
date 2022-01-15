@@ -1,4 +1,4 @@
-const { mkdir, writeFileSync } = require("fs");
+const { mkdirSync, writeFileSync } = require("fs");
 
 let index = 1;
 
@@ -33,7 +33,7 @@ const types = [
   },
 ];
 
-mkdir("output/seedNft", { recursive: true }, (err) => console.log(err));
+mkdirSync("output/seedNft", { recursive: true });
 for (const type of types) {
   const { name, count, image, rarity, classType } = type;
   for (let i = 0; i < count; i++) {
@@ -47,7 +47,7 @@ for (const type of types) {
         { trait_type: "DNA", value: index % 100 },
       ],
     };
-    writeFileSync(`output/seedNft/${index}`, JSON.stringify(metadata));
+    writeFileSync(`output/seedNft/${index}.json`, JSON.stringify(metadata));
     console.log(`writing #${index}`);
     index++;
   }
