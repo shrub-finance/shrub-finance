@@ -239,9 +239,7 @@ function PaperView(props: RouteComponentProps) {
                 bgClip="text"
                 boxDecorationBreak="clone"
               >
-                {!isClaimed
-                  ? "Shrub Paper NFT"
-                  : "Congrats! A seed has chosen you."}
+                {!isClaimed ? "Shrub Paper NFT" : "Congrats!"}
               </Text>
             </Heading>
             {!isClaimed && !activeHash && (
@@ -258,6 +256,19 @@ function PaperView(props: RouteComponentProps) {
                 {isMobile
                   ? "Time to claim your seed!"
                   : "Time to claim your seed. Let's go!"}
+              </Text>
+            )}
+            {isClaimed && (
+              <Text
+                mt="3"
+                color={useColorModeValue("gray.700", "gray.300")}
+                fontSize="18px"
+                textAlign="center"
+                fontWeight="medium"
+                bgGradient="linear(to-r, #bd2bdd, #bfd71c, #c94b09)"
+                bgClip="text"
+              >
+                A seed has chosen you
               </Text>
             )}
             <Center>
@@ -290,7 +301,7 @@ function PaperView(props: RouteComponentProps) {
         </Center>
       </Container>
 
-      {isClaimed && (
+      {isClaimed && nftImageId && (
         <Container
           borderRadius="2xl"
           flex="1"
@@ -309,18 +320,25 @@ function PaperView(props: RouteComponentProps) {
 
           {tokenId > 0 && (
             <Center>
-              <Button
-                variant="link"
-                colorScheme="blue"
-                leftIcon={<OpenSeaIcon />}
-              >
-                View in Open Sea
-              </Button>
+              <Link href={openSeaLink} isExternal>
+                <Button
+                  variant="link"
+                  colorScheme="blue"
+                  leftIcon={<OpenSeaIcon />}
+                >
+                  View in Open Sea
+                </Button>
+              </Link>
             </Center>
           )}
           <Center py={4}>
             <Link
-              href="https://twitter.com/intent/tweet?text=Check%20out%20this%20paper%20seed%20of%20wonder%20I%20minted%20via%20%40shrubfinance.%0Ahttps%3A//opensea.io/assets/matic/0x5be9b3ecbc0d5c7c8cad96a48c9c1b91dbe148aa/1/"
+              href={`https://twitter.com/intent/tweet?text=Check%20out%20this%20${nftTitle
+                .replace(/w/g, "%20")
+                .replace(
+                  "#",
+                  "%23"
+                )}%20I%20minted%20via%20%40shrubfinance.%0Ahttps%3A//opensea.io/assets/matic/${PAPERSEED_CONTRACT_ADDRESS}/${tokenId}/`}
               isExternal
             >
               <Button
