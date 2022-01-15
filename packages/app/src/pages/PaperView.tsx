@@ -117,25 +117,6 @@ function PaperView(props: RouteComponentProps) {
             const eligibleAccountID = parseInt(eligibleAccount.amount, 16);
             const eligibleAccountProof = eligibleAccount.proof;
 
-            let uri = await getTokenUri(eligibleAccountID, library);
-            setTokenId(eligibleAccountID);
-
-            let nfti = "";
-            let metadataName = "";
-            if (uri && uri.includes("://")) {
-              uri = `https://ipfs.io/ipfs/${uri.split("://")[1]}`;
-              const nftMetadata = await axios.get(uri);
-              if (
-                nftMetadata.data.image &&
-                nftMetadata.data.image.includes("://")
-              ) {
-                nfti = nftMetadata.data.image.split("://")[1];
-                metadataName = nftMetadata.data.name;
-              }
-            }
-            setNftImageId(nfti);
-            setNftTitle(metadataName);
-
             const tx = await claimNFT(
               eligibleAccountIndex,
               eligibleAccountID,
@@ -168,6 +149,24 @@ function PaperView(props: RouteComponentProps) {
                 txHash: receipt.transactionHash,
                 status: "confirmed",
               });
+              let uri = await getTokenUri(eligibleAccountID, library);
+              setTokenId(eligibleAccountID);
+
+              let nfti = "";
+              let metadataName = "";
+              if (uri && uri.includes("://")) {
+                uri = `https://ipfs.io/ipfs/${uri.split("://")[1]}`;
+                const nftMetadata = await axios.get(uri);
+                if (
+                  nftMetadata.data.image &&
+                  nftMetadata.data.image.includes("://")
+                ) {
+                  nfti = nftMetadata.data.image.split("://")[1];
+                  metadataName = nftMetadata.data.name;
+                }
+              }
+              setNftImageId(nfti);
+              setNftTitle(metadataName);
             } catch (e: any) {
               setIsLoading(false);
               handleErrorMessages({ err: e });
