@@ -120,6 +120,14 @@ describe("PaperSeed", () => {
     expect(tokenUri).to.equal("https://shrub.finance/0");
   });
 
+  it("owner should be able to transfer ownership", async () => {
+    const oldOwner = await paperSeed.owner();
+    expect(oldOwner).to.equal(signer0.address);
+    await paperSeed.transferOwnership(signer1.address);
+    const newOwner = await paperSeed.owner();
+    expect(newOwner).to.equal(signer1.address);
+  });
+
   it("owner should be able to set the contractURI", async () => {
     const ownerPaperSeed = paperSeed.connect(signer0);
     const oldContractURI = await paperSeed.contractURI();
