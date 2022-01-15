@@ -40,7 +40,7 @@ for (const type of types) {
     const metadata = {
       name: `${name} #${i + 1}`,
       image,
-      external_link: `https://shrub.finance/nft/paper-seed/${index}`,
+      external_link: `https://paper.shrub.finance/nft/paper-seed/${index}`,
       attributes: [
         { trait_type: "Class", value: classType },
         { trait_type: "Rarity", value: rarity },
