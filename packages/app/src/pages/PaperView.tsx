@@ -40,7 +40,7 @@ import {
   Txmonitor,
   TxStatusList,
 } from "../components/TxMonitoring";
-import { claimNFT, getTokenUri } from "../utils/ethMethods";
+import { claimNFT, getChecksumAddress, getTokenUri } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
 import axios from "axios";
@@ -105,9 +105,10 @@ function PaperView(props: RouteComponentProps) {
         }
       }
       if (account) {
+        const checksumAccount = getChecksumAddress(account);
         try {
           const whitelisted = await axios.get(
-            `https://merkle.vercel.app/merkle/${account}`
+            `https://merkle.vercel.app/merkle/${checksumAccount}`
           );
           // @ts-ignore
           if (whitelisted) {

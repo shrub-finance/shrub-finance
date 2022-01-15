@@ -203,6 +203,10 @@ export async function getDecimalsFor(token: string, provider: JsonRpcProvider) {
   return erc20Contract.decimals();
 }
 
+export function getChecksumAddress(address: string) {
+  return ethers.utils.getAddress(address);
+}
+
 export async function getSymbolFor(token: string, provider: JsonRpcProvider) {
   if (token === ethers.constants.AddressZero) {
     return "MATIC";
