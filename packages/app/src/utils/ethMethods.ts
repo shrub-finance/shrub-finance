@@ -355,6 +355,19 @@ export async function claimNFT(
   return tx;
 }
 
+export async function getTokenUri(
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperseedContract = PaperSeed__factory.connect(
+    PAPERSEED_CONTRACT_ADDRESS,
+    signer
+  );
+  const uri = await paperseedContract.tokenURI(tokenID);
+  return uri;
+}
+
 export async function buyFromFaucet(
   tokenContractAddress: string,
   amount: ethers.BigNumber,

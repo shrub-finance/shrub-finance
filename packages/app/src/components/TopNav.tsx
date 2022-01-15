@@ -154,17 +154,17 @@ function TopNav() {
           </HStack>
           <Flex alignItems={"center"}>
             {/*{!isMobile && <Box d={{ base: "none", sm: "none", md: "flex" }}><Chain/></Box>}*/}
-            <Button
-              pr={5}
-              d={{ base: "none", sm: "none", md: "flex" }}
-              onClick={onFaucetModalOpen}
-              fontSize={"sm"}
-              variant={"link"}
-              colorScheme={"purple"}
-              rounded={"full"}
-            >
-              Shrub Faucet
-            </Button>
+            {/*<Button*/}
+            {/*  pr={5}*/}
+            {/*  d={{ base: "none", sm: "none", md: "flex" }}*/}
+            {/*  onClick={onFaucetModalOpen}*/}
+            {/*  fontSize={"sm"}*/}
+            {/*  variant={"link"}*/}
+            {/*  colorScheme={"purple"}*/}
+            {/*  rounded={"full"}*/}
+            {/*>*/}
+            {/*  Shrub Faucet*/}
+            {/*</Button>*/}
             {!isMobile && (
               <Box pr={5} d={{ base: "none", sm: "flex" }}>
                 <Balance />
@@ -178,7 +178,7 @@ function TopNav() {
                 colorScheme={web3Error ? "red" : "yellow"}
                 size={"md"}
                 mr={4}
-                borderRadius="full"
+                borderRadius="xl"
                 leftIcon={
                   web3Error ? <InfoOutlineIcon colorScheme="red" /> : undefined
                 }
@@ -269,21 +269,21 @@ function TopNav() {
                 <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />
                 Docs <ExternalLinkIcon mx="2px" />
               </Link>
-              <Box
-                pr={5}
-                onClick={handleTestFaucetModalOpen}
-                variant="ghost"
-                colorScheme={"purple"}
-                rounded={"lg"}
-                py={"3"}
-                px={"2"}
-                _hover={{
-                  textDecoration: "none",
-                  bgGradient: gradient,
-                }}
-              >
-                <SUSDIcon /> Shrub Faucet
-              </Box>
+              {/*<Box*/}
+              {/*  pr={5}*/}
+              {/*  onClick={handleTestFaucetModalOpen}*/}
+              {/*  variant="ghost"*/}
+              {/*  colorScheme={"purple"}*/}
+              {/*  rounded={"lg"}*/}
+              {/*  py={"3"}*/}
+              {/*  px={"2"}*/}
+              {/*  _hover={{*/}
+              {/*    textDecoration: "none",*/}
+              {/*    bgGradient: gradient,*/}
+              {/*  }}*/}
+              {/*>*/}
+              {/*  <SUSDIcon /> Shrub Faucet*/}
+              {/*</Box>*/}
             </Stack>
           </Box>
         ) : null}

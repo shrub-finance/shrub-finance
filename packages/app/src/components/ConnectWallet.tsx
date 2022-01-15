@@ -146,6 +146,7 @@ export function Balance() {
   const { chainId } = useWeb3React();
   const networkColor = chainId && NETWORK_COLORS[chainId];
   const mumbaiColor = useColorModeValue("blue.600", "blue.200");
+  const balanceColor = useColorModeValue("blue", "white");
   const currency = currencySymbol(chainId);
   const { balance } = useGetBalance();
 
@@ -155,7 +156,8 @@ export function Balance() {
         <Box
           // leftIcon={balance ? <FaEthereum/> : undefined}
           //@ts-ignore
-          color={networkColor === "blue" ? mumbaiColor : networkColor}
+          // color={networkColor === "blue" ? mumbaiColor : networkColor}
+          color={balanceColor}
           fontSize={"sm"}
           fontWeight="medium"
         >

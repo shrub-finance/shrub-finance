@@ -18,8 +18,13 @@ import {
   SlideFade,
   Alert,
   AlertIcon,
+  Link,
+  Icon,
+  Spacer,
+  Flex,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
+import { Image } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import useAddNetwork from "../hooks/useAddNetwork";
@@ -35,10 +40,14 @@ import {
   Txmonitor,
   TxStatusList,
 } from "../components/TxMonitoring";
-import { claimNFT } from "../utils/ethMethods";
+import { claimNFT, getTokenUri } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
 import axios from "axios";
+const PAPERSEED_CONTRACT_ADDRESS =
+  process.env.REACT_APP_PAPERSEED_ADDRESS || "";
+import { FaTwitter } from "react-icons/all";
+import { OpenSeaIcon } from "../assets/Icons";
 
 function PaperView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -60,6 +69,9 @@ function PaperView(props: RouteComponentProps) {
     setIsHidden(val);
   };
   const [isHidden, setIsHidden] = useState(false);
+  const [nftImageId, setNftImageId] = useState("");
+  const [nftTitle, setNftTitle] = useState("");
+  const [tokenId, setTokenId] = useState(0);
 
   const {
     active,
@@ -69,11 +81,20 @@ function PaperView(props: RouteComponentProps) {
     chainId,
   } = useWeb3React();
 
+  const nftImageLink = `https://ipfs.io/ipfs/${nftImageId}`;
+  const openSeaLink = `https://opensea.io/assets/matic/${PAPERSEED_CONTRACT_ADDRESS}/${tokenId}`;
+
   async function handleClaimNFT() {
     setLocalError("");
-    setIsClaimed(false);
+    setIsClaimed(true);
+    setNftImageId("");
+    setTokenId(0);
+    setNftTitle("");
+    setIsLoading(true);
+
     try {
       if (!account) {
+        setIsLoading(false);
         if (
           !!web3Error &&
           getErrorMessage(web3Error).title === "Wrong Network"
@@ -95,6 +116,25 @@ function PaperView(props: RouteComponentProps) {
             const eligibleAccountIndex = eligibleAccount.index;
             const eligibleAccountID = parseInt(eligibleAccount.amount, 16);
             const eligibleAccountProof = eligibleAccount.proof;
+
+            let uri = await getTokenUri(eligibleAccountID, library);
+            setTokenId(eligibleAccountID);
+
+            let nfti = "";
+            let metadataName = "";
+            if (uri && uri.includes("://")) {
+              uri = `https://ipfs.io/ipfs/${uri.split("://")[1]}`;
+              const nftMetadata = await axios.get(uri);
+              if (
+                nftMetadata.data.image &&
+                nftMetadata.data.image.includes("://")
+              ) {
+                nfti = nftMetadata.data.image.split("://")[1];
+                metadataName = nftMetadata.data.name;
+              }
+            }
+            setNftImageId(nfti);
+            setNftTitle(metadataName);
 
             const tx = await claimNFT(
               eligibleAccountIndex,
@@ -172,7 +212,7 @@ function PaperView(props: RouteComponentProps) {
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW="container.lg"
+        maxW="container.sm"
       >
         {isClaimed && activeHash && <Confetti />}
         <Center mt={10}>
@@ -186,7 +226,7 @@ function PaperView(props: RouteComponentProps) {
           )}
         </Center>
         <Center mt={10}>
-          <Box mb={10}>
+          <Box mb={{ base: 6, md: 10 }}>
             <Heading
               maxW="60rem"
               fontSize={["5xl", "6xl", "90px", "90px"]}
@@ -201,10 +241,9 @@ function PaperView(props: RouteComponentProps) {
               >
                 {!isClaimed
                   ? "Shrub Paper NFT"
-                  : "Congrats! You just got a Paper Seed!"}
+                  : "Congrats! A seed has chosen you."}
               </Text>
             </Heading>
-            {activeHash && <Txmonitor txHash={activeHash} />}
             {!isClaimed && !activeHash && (
               <Text
                 mt="3"
@@ -213,13 +252,12 @@ function PaperView(props: RouteComponentProps) {
                 fontSize="18px"
                 textAlign="center"
                 fontWeight="medium"
-                px={["4rem", "5rem", "17rem", "17rem"]}
                 bgGradient="linear(to-r, #bd2bdd, #bfd71c, #c94b09)"
                 bgClip="text"
               >
                 {isMobile
-                  ? "Time to mint your drop!"
-                  : "Time to mint your drop. Let's go!"}
+                  ? "Time to claim your seed!"
+                  : "Time to claim your seed. Let's go!"}
               </Text>
             )}
             <Center>
@@ -237,9 +275,10 @@ function PaperView(props: RouteComponentProps) {
                   borderRadius="full"
                   _hover={{ transform: "translateY(-2px)" }}
                   bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                  loadingText="Claiming..."
                 >
                   {account
-                    ? "Mint your NFT"
+                    ? "Claim your Seed"
                     : !!web3Error &&
                       getErrorMessage(web3Error).title === "Wrong Network"
                     ? "Connect to Polygon"
@@ -250,6 +289,56 @@ function PaperView(props: RouteComponentProps) {
           </Box>
         </Center>
       </Container>
+
+      {isClaimed && (
+        <Container
+          borderRadius="2xl"
+          flex="1"
+          maxW="container.sm"
+          bg={useColorModeValue("white", "dark.100")}
+          shadow={useColorModeValue("2xl", "2xl")}
+          py={10}
+        >
+          {nftImageId && (
+            <Center>
+              <Heading pb={4} fontSize={{ base: "20px", md: "30px" }}>
+                {nftTitle}
+              </Heading>
+            </Center>
+          )}
+
+          {tokenId > 0 && (
+            <Center>
+              <Button
+                variant="link"
+                colorScheme="blue"
+                leftIcon={<OpenSeaIcon />}
+              >
+                View in Open Sea
+              </Button>
+            </Center>
+          )}
+          <Center py={4}>
+            <Link
+              href="https://twitter.com/intent/tweet?text=Check%20out%20this%20paper%20seed%20of%20wonder%20I%20minted%20via%20%40shrubfinance.%0Ahttps%3A//opensea.io/assets/matic/0x5be9b3ecbc0d5c7c8cad96a48c9c1b91dbe148aa/1/"
+              isExternal
+            >
+              <Button
+                variant="link"
+                colorScheme="twitter"
+                leftIcon={<FaTwitter />}
+              >
+                Share in Twitter
+              </Button>
+            </Link>
+          </Center>
+          {nftImageId && (
+            <Center>
+              <Image src={nftImageLink} />
+            </Center>
+          )}
+        </Container>
+      )}
 
       <Modal
         isOpen={isConnectWalletOpen}

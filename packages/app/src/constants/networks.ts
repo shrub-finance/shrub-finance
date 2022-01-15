@@ -50,7 +50,7 @@ export const NETWORK_RPC_DETAILS: {
 } = {
   [SupportedChainId.MUMBAI]: {
     chainId: "0x13881",
-    chainName: "Matic Testnet",
+    chainName: "Polygon Testnet",
     nativeCurrency: {
       name: "Polygon Matic",
       symbol: "Matic",
@@ -61,7 +61,7 @@ export const NETWORK_RPC_DETAILS: {
   },
   [SupportedChainId.POLYGON]: {
     chainId: "0x89",
-    chainName: "Matic Mainnet",
+    chainName: "Polygon Network",
     nativeCurrency: {
       name: "Polygon Matic",
       symbol: "Matic",
