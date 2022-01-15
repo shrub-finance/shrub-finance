@@ -86,7 +86,7 @@ function PaperView(props: RouteComponentProps) {
 
   async function handleClaimNFT() {
     setLocalError("");
-    setIsClaimed(true);
+    setIsClaimed(false);
     setNftImageId("");
     setTokenId(0);
     setNftTitle("");
