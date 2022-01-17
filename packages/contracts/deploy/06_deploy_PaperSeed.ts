@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 
 const metadataUri = 'QmX89dS39k2FG44TY8YMgENrwruWz96SRSvk3nbGxEnvDo';
-const merkleRoot = '0xef8bfdeda2cdb719dbb97e5d167e3f4424f0281c632ea32f33c37d2939f59c3c'
+const merkleRoot = '0x0d9ed8584731d0b6b1d26cc0281a79b44669a7f80ff14cd299decc674479ce3a'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts } = hre;
