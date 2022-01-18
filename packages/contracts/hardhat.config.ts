@@ -37,14 +37,6 @@ const CHAINLINK_USDC = '0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0';  // Mumbai
 const MINUTES_BETWEEN_ORDERS = 5;  // For maker2
 
 const expiryDates = [
-  // new Date('2021-11-08'),
-  // new Date('2021-11-15'),
-  // new Date('2021-11-22'),
-  // new Date('2021-12-02'),
-  // new Date('2021-12-11'),
-  // new Date('2021-12-18'),
-  // new Date('2021-12-25'),
-  // new Date('2022-01-02'),
   new Date('2022-02-02'),
   new Date('2022-03-02'),
   new Date('2022-04-02'),

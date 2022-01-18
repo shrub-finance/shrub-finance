@@ -3,45 +3,6 @@ const PaperSeed = artifacts.require("PaperSeed");
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-// const merkleData = {
-//   merkleRoot:
-//     "0x618ddd3b36d40f8d9b942cf72c5e92615e6594b3e8b537082310ae48e51cd059",
-//   tokenTotal: "0x0a",
-//   claims: {
-//     "0x31F837c2608143fC3A96aea05dc71AC8D6130c8a": {
-//       index: 0,
-//       amount: "0x04",
-//       proof: [
-//         "0x8c04a75065a5d10799ff50cf0e52baf2950cff47056f6e9287fc0e4f49374a5a",
-//         "0x49dac8941ba9bb1d705f0c148760e0b5a1da76b8726eaa9d9cddda4ef8106188",
-//       ],
-//     },
-//     "0x926D1de308513378fe5aFEbFaC77eaE14922bE98": {
-//       index: 1,
-//       amount: "0x01",
-//       proof: [
-//         "0xcb1815201ba88f8c779c33976cda40061a90f8e10f2106d9426152fde2dfda6a",
-//         "0x89b3a4652f32c078ccf97ba89bb125437209d862ffc34e63eb2fb667764350bd",
-//       ],
-//     },
-//     "0x9B8ea3F3F5eb77134CE2B821535b80F2852299d6": {
-//       index: 2,
-//       amount: "0x02",
-//       proof: [
-//         "0x92a6e4c532b8b56829091226ec11c446997c71f802311542cab4e25a73c129e6",
-//         "0x89b3a4652f32c078ccf97ba89bb125437209d862ffc34e63eb2fb667764350bd",
-//       ],
-//     },
-//     "0xa57D516331B3E7e4A3De905a24464353A380944F": {
-//       index: 3,
-//       amount: "0x03",
-//       proof: [
-//         "0x842fd73fe9a7995eddc968b0d9e8a4b87ed8521e048e5b86ee798dd214ab70cc",
-//         "0x49dac8941ba9bb1d705f0c148760e0b5a1da76b8726eaa9d9cddda4ef8106188",
-//       ],
-//     },
-//   },
-// };
 const merkleData = {
   merkleRoot:
     "0x618ddd3b36d40f8d9b942cf72c5e92615e6594b3e8b537082310ae48e51cd059",
