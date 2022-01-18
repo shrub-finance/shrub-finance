@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "start": "yarn hh:compile && hardhat node --show-accounts --hostname 0.0.0.0",
+    "start": "yarn hh:compile && hardhat node --hostname 0.0.0.0",
     "typechain": "yarn typechain:ethers && yarn typechain:web3",
     "typechain:ethers": "typechain --target ethers-v5 --out-dir types/ethers-v5 './abi/**/*.json'",
     "typechain:web3": "typechain --target web3-v1 --out-dir types/web3-v1 './abi/**/*.json'",
@@ -32,18 +32,18 @@
   "license": "ISC",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.3",
-    "@nomiclabs/hardhat-etherscan": "^3.0.0",
-    "@nomiclabs/hardhat-solhint": "^2.0.0",
+    "@nomiclabs/hardhat-etherscan": "3.0.0",
+    "@nomiclabs/hardhat-solhint": "2.0.0",
     "@nomiclabs/hardhat-truffle5": "2.0.3",
-    "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "2.0.1",
+    "@nomiclabs/hardhat-web3": "2.0.0",
     "@openzeppelin/contracts": "4.4.1",
     "@typechain/ethers-v5": "8.0.5",
     "@typechain/hardhat": "3.1.0",
     "@typechain/web3-v1": "4.0.0",
     "@types/config": "0.0.41",
     "@types/mocha": "9.0.0",
-    "chai": "^4.3.4",
+    "chai": "4.3.4",
     "ethereum-waffle": "3.3.0",
     "ethers": "5.5.2",
     "hardhat": "2.8.0",
@@ -53,12 +53,10 @@
     "solidity-coverage": "0.7.17",
     "ts-generator": "0.1.1",
     "ts-node": "10.4.0",
-    "tslint": "^6.1.3",
-    "tslint-config-prettier": "1.18.0",
     "typechain": "6.1.0",
     "typescript": "4.5.4"
   },
   "dependencies": {
-    "cross-fetch": "^3.1.4"
+    "cross-fetch": "3.1.4"
   }
 }

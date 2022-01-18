@@ -1,4 +1,4 @@
-import {Box, useColorModeValue, useRadio} from "@chakra-ui/react";
+import { Box, useColorModeValue, useRadio } from "@chakra-ui/react";
 
 // @ts-ignore
 function RadioCard(props) {
@@ -17,22 +17,22 @@ function RadioCard(props) {
         borderWidth="1px"
         borderColor={useColorModeValue("sprout.500", "gray.700")}
         boxShadow="lg"
-        sx={{userSelect:'none'}}
+        sx={{ userSelect: "none" }}
         _checked={{
           bg: useColorModeValue("sprout.500", "teal.200"),
           // bgGradient:"linear(to-r,green.300,blue.400,#6666d2)",
-          fontWeight: "semibold",
-          color: useColorModeValue("white", "black")
+          fontWeight: "medium",
+          color: useColorModeValue("white", "black"),
         }}
         _focus={{
           boxShadow: "outline",
         }}
-          // bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
-          // _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}
+        // bgGradient="linear(to-r,green.300,blue.400,#6666d2)"
+        // _hover={{bgGradient:"linear(to-r,green.300,blue.600,blue.400)"}}
         _hover={{
-            // borderColor: useColorModeValue("green.500", "gray.400"),
-            // borderWidth: "1px",
-            transform: 'translateY(-2px)'
+          // borderColor: useColorModeValue("green.500", "gray.400"),
+          // borderWidth: "1px",
+          transform: "translateY(-2px)",
         }}
         px={{ base: 4, md: 6 }}
         py={{ base: 2, md: 1 }}
