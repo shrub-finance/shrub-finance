@@ -6116,7 +6116,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomiclabs/hardhat-etherscan@npm:^3.0.0":
+"@nomiclabs/hardhat-etherscan@npm:3.0.0":
   version: 3.0.0
   resolution: "@nomiclabs/hardhat-etherscan@npm:3.0.0"
   dependencies:
@@ -32969,10 +32969,6 @@ resolve@^2.0.0-next.3:
   version: 0.0.0-use.local
   resolution: "shrub@workspace:."
   dependencies:
-    eslint: 8.6.0
-    husky: 7.0.4
-    lerna: ^4.0.0
-    "@nomiclabs/hardhat-etherscan": 2.1.8
     "@typescript-eslint/eslint-plugin": 5.9.0
     "@typescript-eslint/parser": 5.9.0
     eslint: 7.11.0
