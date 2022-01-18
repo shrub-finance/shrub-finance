@@ -160,7 +160,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                View Collection <ExternalLinkIcon mx="2px" />
+                Buy a seed <ExternalLinkIcon mx="2px" />
               </Link>
             </HStack>
           </HStack>
@@ -295,7 +295,7 @@ function TopNav() {
                 }}
               >
                 <Icon as={GiFlowerPot} mr={"2"} />
-                View Collection <ExternalLinkIcon mx="2px" />
+                Buy a seed <ExternalLinkIcon mx="2px" />
               </Link>
               {/*<Box*/}
               {/*<Box*/}
