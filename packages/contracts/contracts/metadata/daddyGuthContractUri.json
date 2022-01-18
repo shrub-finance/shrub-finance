@@ -1,0 +1,8 @@
+{
+  "name": "Daddy Guth's Special Collection",
+  "description": "Daddy Guth is a cool guy! Why not have his own collection",
+  "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Daddy%2C_what_did_You_do_in_the_Great_War_cropped.jpg/628px-Daddy%2C_what_did_You_do_in_the_Great_War_cropped.jpg",
+  "external_link": "https://www.fsu.edu",
+  "seller_fee_basis_points": 1000,
+  "fee_recipient": "0x4497C08e3FcC1580B13afA1ddDA10aB3aB0822ae"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Shrub Paper Gardens",
+  "description": "A mysterious man calling himself the paper merchant has come to town with seeds of different varieties. These seeds are calling for gardeners. Paper Gardens is an interactive multi-chapter story tied to Shrub Paper by Shrub Finance https://shrub.finance/paper-gardens",
+  "image": "https://shrub.finance/paper-gardens-logo.png",
+  "external_link": "https://shrub.finance/paper-gardens",
+  "seller_fee_basis_points": 1000,
+  "fee_recipient": "0x4497C08e3FcC1580B13afA1ddDA10aB3aB0822ae"
+}

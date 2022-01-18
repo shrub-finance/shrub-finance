@@ -1,686 +1,686 @@
-const Exchange = artifacts.require("ShrubExchange");
-const SUSDToken = artifacts.require("SUSDToken");
-const HashUtil = artifacts.require("HashUtil");
-const { Shrub712 } = require("../utils/EIP712");
-const utils = require("ethereumjs-util");
-const { assert } = require("chai");
-const util = require('util');
-
-const Assets = {
-  USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-  MATIC: "0x0000000000000000000000000000000000000000",
-};
-const STRIKE_BASE_SHIFT = 1000000;
-
-const WeiInEth = web3.utils.toBN(10).pow(web3.utils.toBN(18))
-const BigHundred = web3.utils.toBN(100);
-const BigTwo = web3.utils.toBN(2);
-const BigMillion = web3.utils.toBN(1e6);
-const wait = util.promisify(setTimeout);
-
-
-contract("ShrubExchange", (accounts) => {
-  let exchange;
-  let shrubInterface;
-  let hashUtil;
-  let susdToken;
-  let orderTypeHash;
-
-  const startTime = Date.now();
-  let sellOrder = {
-    size: WeiInEth.toString(),
-    isBuy: false,
-    nonce: 1,
-    price: WeiInEth.mul(BigHundred).toString(),
-    offerExpire: Math.floor((startTime + 5 * 1000 * 60) / 1000),
-    fee: 1,
-
-    baseAsset: Assets.USDC,
-    quoteAsset: Assets.MATIC,
-    expiry: Math.floor((startTime + (30 * 1000)) / 1000),
-    strike: BigHundred.mul(BigMillion).toString(),
-    optionType: 1,
-  };
-
-  let buyOrder = {
-    ...sellOrder,
-    isBuy: true,
-  };
-
-  before(async () => {
-    hashUtil = await HashUtil.deployed();
-    exchange = await Exchange.deployed();
-    shrubInterface = new Shrub712(17, exchange.address);
-    susdToken = await SUSDToken.deployed();
-    orderTypeHash = await exchange.ORDER_TYPEHASH.call();
-
-    Assets.USDC = susdToken.address;
-    sellOrder.baseAsset = susdToken.address;
-    buyOrder.baseAsset = susdToken.address;
-
-    console.log("Sending tokens to buyer account");
-    if (accounts.length < 2) {
-      const privKey =
-        "0x1fb827553fb70314fd91fd57468e658d08eb67ff5d3e0d6d0b6fad53e1da73d3";
-      const created = await web3.eth.accounts.privateKeyToAccount(privKey);
-      accounts.push(created.address);
-    }
-    console.log({ accounts });
-    await susdToken.transfer(accounts[1], WeiInEth.mul(web3.utils.toBN(10000)), { from: accounts[0] });
-  });
-
-  it("should hash an order and match the contract's hash", async () => {
-    const order = {
-      size: WeiInEth.toString(),
-      isBuy: true,
-      nonce: 0,
-      price: WeiInEth.mul(BigHundred).toString(),
-      offerExpire: new Date(0).getTime(),
-      fee: 1,
-
-      baseAsset: Assets.USDC,
-      quoteAsset: Assets.MATIC,
-      expiry: new Date(0).getTime(),
-      strike: web3.utils.toBN(3300).mul(BigMillion).toString(),
-      optionType: 1,
-    };
-
-    const sha3Message = shrubInterface.getOrderSha3Message(
-      orderTypeHash,
-      order
-    );
-    console.log(sha3Message);
-    const hash = await web3.utils.soliditySha3(...sha3Message);
-    const signature = await web3.eth.sign(hash, accounts[0]);
-
-    const sig = signature.slice(2);
-    const r = "0x" + sig.substr(0, 64);
-    const s = "0x" + sig.substr(64, 64);
-    const v = web3.utils.toDecimal("0x" + sig.substr(128, 2)) + 27;
-
-    const hashedOrder = await hashUtil.hashOrder(order);
-    console.log({ hash, hashedOrder, v, r, s });
-    assert.equal(hash, hashedOrder);
-  });
-
-  it("should hash a small order and match the contract's hash", async () => {
-    const common = shrubInterface.toCommon(buyOrder);
-    const sha3Message = shrubInterface.getSmallOrderSha3Message(orderTypeHash, {
-      ...buyOrder,
-      ...common,
-    });
-    console.log(sha3Message);
-
-    const hash = await web3.utils.soliditySha3(...sha3Message);
-    const hashedOrder = await hashUtil.hashSmallOrder(buyOrder, common);
-    console.log({ hash, hashedOrder });
-    assert.equal(hash, hashedOrder);
-  });
-
-  it("should hash a common data and match the contract's hash", async () => {
-    const commonTypeHash = await exchange.COMMON_TYPEHASH.call();
-
-    const common = {
-      baseAsset: Assets.USDC,
-      quoteAsset: Assets.MATIC,
-      expiry: new Date(0).getTime(),
-      strike: web3.utils.toBN(3300).mul(BigMillion).toString(),
-      optionType: 1,
-    };
-
-    const sha3Message = shrubInterface.getOrderCommonSha3Message(
-      commonTypeHash,
-      common
-    );
-    console.log(sha3Message);
-    const hash = await web3.utils.soliditySha3(...sha3Message);
-
-    const hashedOrder = await hashUtil.hashOrderCommon(common);
-    console.log({ hash, hashedOrder });
-    assert.equal(hash, hashedOrder);
-  });
-
-  it("should create a signature and be validated by the contract", async () => {
-    const hash = await web3.utils.soliditySha3("Hello worlds");
-    const signature = await web3.eth.sign(hash, accounts[0]);
-
-    const sig = signature.slice(2);
-    const r = "0x" + sig.substr(0, 64);
-    const s = "0x" + sig.substr(64, 64);
-    const v = web3.utils.toDecimal("0x" + sig.substr(128, 2));
-    const validSig = await hashUtil.validateSignature(
-      accounts[0],
-      hash,
-      v,
-      r,
-      s
-    );
-    console.log({ sig, validSig, v, r, s });
-    assert.isTrue(validSig);
-  });
-
-  it("should be able to deposit funds to the exchange", async () => {
-    await exchange.deposit(Assets.MATIC, 100, { value: 100, from: accounts[0] });
-    const balance = await exchange.userTokenBalances(accounts[0], Assets.MATIC);
-    console.log(balance.toNumber());
-  });
-
-  it("should be able to withdraw unlocked funds", async () => {
-    await exchange.withdraw(Assets.MATIC, 100, { from: accounts[0] });
-    const balance = await exchange.userTokenBalances(accounts[0], Assets.MATIC);
-    console.log(balance.toNumber());
-  });
-
-  it("should be able to match two orders", async () => {
-    const seller = accounts[0];
-    const buyer = accounts[1];
-
-    // Deposit MATIC
-    await exchange.deposit(Assets.MATIC, WeiInEth.mul(BigHundred).mul(BigTwo), { value: WeiInEth.mul(BigHundred).mul(BigTwo), from: seller });
-
-    // Deposit ERC20 to pay PRICE
-    await susdToken.approve(exchange.address, WeiInEth.mul(BigHundred), { from: buyer });
-    await exchange.deposit(susdToken.address, WeiInEth.mul(BigHundred), { from: buyer });
-
-    // Sign orders
-    const signedSellOrder = await shrubInterface.signOrderWithWeb3(
-      web3,
-      orderTypeHash,
-      sellOrder,
-      seller
-    );
-    const signedBuyOrder = await shrubInterface.signOrderWithWeb3(
-      web3,
-      orderTypeHash,
-      buyOrder,
-      buyer
-    );
-
-    // Filter off properties
-    const smallSellOrder = shrubInterface.toSmallOrder(sellOrder);
-    const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
-    const common = shrubInterface.toCommon(sellOrder);
-
-    // Sanity checks
-    assert.isTrue(smallSellOrder.isBuy === false, "sell isBuy should be false");
-    assert.isTrue(smallBuyOrder.isBuy === true, "buy isBuy should be true");
-    assert.isTrue(
-      smallSellOrder.price <= smallBuyOrder.price,
-      "Price should be sufficient for seller"
-    );
-    assert.isTrue(
-      smallSellOrder.size <= smallBuyOrder.size,
-      "Sell size should be sufficient for seller"
-    );
-    assert.isTrue(
-      smallSellOrder.offerExpire >= Date.now() / 1000,
-      "Sell Offer should not be expired"
-    );
-    assert.isTrue(
-      smallBuyOrder.offerExpire >= Date.now() / 1000,
-      "Buy Offer should not be expired"
-    );
-
-    // Make sure the signature recovers to our address
-    const sellerRecovered = await hashUtil.getAddressFromSignedOrder(
-      smallSellOrder,
-      common,
-      signedSellOrder.sig
-    );
-    assert.equal(seller, sellerRecovered, "Seller should match");
-
-    // Make sure the nonces match what we expect
-    const sellerNonce = await exchange.getCurrentNonce(
-      seller,
-      common
-    );
-    const buyerNonce = await exchange.getCurrentNonce(
-      buyer,
-      common
-    );
-    assert.isTrue(
-      sellerNonce == sellOrder.nonce - 1,
-      "Seller nonce should match order"
-    );
-    assert.isTrue(
-      buyerNonce == buyOrder.nonce - 1,
-      "Buyer nonce should match order"
-    );
-
-    // Make sure we've got balance available for seller
-    const sellerBalance = await exchange.getAvailableBalance(
-      seller,
-      common.quoteAsset
-    );
-    if (sellOrder.optionType == 1) {
-      console.log("SOLD A CALL");
-      assert.isTrue(
-        sellerBalance.gte(smallSellOrder.size),
-        "Seller should have enough free collateral"
-      );
-    } else {
-      console.log("SOLD A PUT");
-      assert.isTrue(
-        sellerBalance.toNumber() >= smallSellOrder.size * common.strike / STRIKE_BASE_SHIFT,
-        "Seller should have enough free collateral"
-      );
-    }
-
-    // Match the order, make sure seller has correct amount of asset locked up
-    await exchange.matchOrders(
-      [smallSellOrder],
-      [smallBuyOrder],
-      [common],
-      [signedSellOrder.sig],
-      [signedBuyOrder.sig],
-      { from: accounts[0] }
-    );
-
-    const sellerLockedBalance = (
-      await exchange.userTokenLockedBalance(seller, Assets.MATIC)
-    );
-
-    if (sellOrder.optionType == 1) {
-      assert.equal(
-        smallSellOrder.size,
-        sellerLockedBalance,
-        "Seller should have SIZE locked up for CALLS"
-      );
-    } else {
-      assert.equal(
-        smallSellOrder.size * common.strike / STRIKE_BASE_SHIFT,
-        sellerLockedBalance,
-        "Seller should have SIZE * STRIKE locked up for PUTS"
-      );
-    }
-
-    // Make sure the buyer paid us sellOrder.price
-    const paidToken =
-      sellOrder.optionType == 1 ? susdToken.address : Assets.MATIC;
-    const paidBalance = await exchange.userTokenBalances(seller, paidToken);
-    assert.equal(paidBalance, smallSellOrder.price);
-    const paid = { paidToken, paidBalance: paidBalance.toString() };
-
-    console.log({ signedBuyOrder, signedSellOrder, sellerLockedBalance, paid });
-  });
-
-  it("should be able to match array of orders", async () => {
-    const seller = accounts[0];
-    const buyer = accounts[1];
-    // console.log('seller starting balances');
-    // console.log(`sUSD: ${(await exchange.userTokenBalances(seller, Assets.USDC)).toString()}`);
-    // console.log(`sMATIC: ${(await exchange.userTokenBalances(seller, Assets.MATIC)).toString()}`);
-    // console.log('buyer starting balances');
-    // console.log(`sUSD: ${(await exchange.userTokenBalances(buyer, Assets.USDC)).toString()}`);
-    // console.log(`sMATIC: ${(await exchange.userTokenBalances(buyer, Assets.MATIC)).toString()}`);
-
-    // Deposit MATIC - not necessary already 100
-    // await exchange.deposit(Assets.MATIC, BigTwo.mul(BigHundred).mul(WeiInEth), { value: BigTwo.mul(BigHundred).mul(WeiInEth), from: seller });
-
-    // Deposit ERC20 to pay PRICE only 8 required
-    await susdToken.approve(exchange.address, web3.utils.toBN(11).mul(WeiInEth), { from: buyer });
-    await exchange.deposit(susdToken.address, web3.utils.toBN(11).mul(WeiInEth), { from: buyer });
-
-
-
-    const base = {
-      offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
-      fee: 1,
-      baseAsset: Assets.USDC,
-      quoteAsset: Assets.MATIC,
-      expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
-      strike: 100e6,
-      optionType: 1,
-    }
-
-    const sellerLockedBalanceBefore = (
-      await exchange.userTokenLockedBalance(seller, Assets.MATIC)
-    );
-
-
-    const sellerTokenBalanceBefore = (await exchange.userTokenBalances(seller, Assets.USDC));
-
-
-    const sellerNonce = (await exchange.getCurrentNonce(
-      seller,
-      base
-    )).toNumber();
-
-
-    const buyerNonce = (await exchange.getCurrentNonce(
-      buyer,
-      base
-    )).toNumber();
-
-    console.log({buyerNonce, sellerNonce});
-
-    // 3 orders
-    // Sell 1 @ 1.00
-    // Sell 3 @ 2 (each)
-    // Sell 3 @ 3 (each)
-    let sellOrders = [{
-      size: WeiInEth.toString(),
-      price: WeiInEth.toString(),
-      isBuy: false,
-      nonce: sellerNonce + 1,
-      ...base
-    }, {
-      size: WeiInEth.mul(web3.utils.toBN(2)).toString(),
-      price: WeiInEth.mul(web3.utils.toBN(4)).toString(),
-      isBuy: false,
-      nonce: sellerNonce + 2,
-      ...base
-    }, {
-      size: WeiInEth.mul(web3.utils.toBN(3)).toString(),
-      price: WeiInEth.mul(web3.utils.toBN(9)).toString(),
-      isBuy: false,
-      nonce: sellerNonce + 3,
-      ...base
-    }];
-
-    // 2 Orders
-    // Buy 1 @ 1.00
-    // Buy 4 @ 9.00 (total)
-    let buyOrders = [
-      {
-      ...base,
-      size: WeiInEth.mul(web3.utils.toBN(4)).toString(),
-      price: WeiInEth.mul(web3.utils.toBN(8)).toString(),
-      isBuy: true,
-      nonce: buyerNonce + 1
-    },
-      {
-      ...base,
-      size: WeiInEth.toString(),
-      price: WeiInEth.mul(web3.utils.toBN(3)).toString(),
-      isBuy: true,
-      nonce: buyerNonce + 2
-    }
-    ];
-    // console.log(sellOrders);
-    // console.log(buyOrders);
-
-    // Sign orders
-    const signedSellOrders = await Promise.all(sellOrders.map(s => shrubInterface.signOrderWithWeb3(
-      web3,
-      orderTypeHash,
-      s,
-      seller
-    )));
-
-    const signedBuyOrders = await Promise.all(buyOrders.map(b => shrubInterface.signOrderWithWeb3(
-      web3,
-      orderTypeHash,
-      b,
-      buyer
-    )));
-
-    // Filter off properties
-    const smallSellOrders = sellOrders.map(s => shrubInterface.toSmallOrder(s));
-    const smallBuyOrders = buyOrders.map(b => shrubInterface.toSmallOrder(b));
-    const commons = sellOrders.map(s => shrubInterface.toCommon(s));
-
-    for(const b of signedBuyOrders) {
-      const buyerRecovered = await hashUtil.getAddressFromSignedOrder(
-        shrubInterface.toSmallOrder(b.order),
-        commons[0],
-        b.sig
-      );
-      assert.equal(buyer, buyerRecovered, "Buyer should match");
-    }
-
-    // Match the order, make sure seller has correct amount of asset locked up
-    console.log('=== MATCH ORDERS ===')
-    const matchOrdersResult = await exchange.matchOrders(
-      smallSellOrders,
-      smallBuyOrders,
-      commons,
-      signedSellOrders.map(o => o.sig),
-      signedBuyOrders.map(o => o.sig),
-      { from: accounts[0] }
-    );
-    // console.log(matchOrdersResult);
-
-    const sellerLockedBalance = (
-      await exchange.userTokenLockedBalance(seller, Assets.MATIC)
-    );
-
-    // console.log('=== Seller locked balances ===');
-    // console.log(sellerLockedBalanceBefore.toString());
-    // console.log(sellerLockedBalance.toString());
-    // console.log('=== ===')
-
-    if (sellOrder.optionType == 1) {
-      assert.equal(
-        sellerLockedBalanceBefore.add(web3.utils.toBN(5).mul(WeiInEth)).toString(),
-        sellerLockedBalance.toString(),
-        "Seller should have 4 locked up for CALLS"
-      );
-    } else {
-      assert.equal(
-        300 + sellerLockedBalanceBefore,
-        sellerLockedBalance,
-        "Seller should have 300 locked up for PUTS"
-      );
-    }
-
-    // Make sure the buyer paid us sellOrder.price
-    const paidToken =
-      sellOrder.optionType == 1 ? susdToken.address : Assets.MATIC;
-    const paidBalance = (await exchange.userTokenBalances(seller, paidToken));
-    // console.log('=== paid balances ===');
-    // console.log('paidBalance');
-    // console.log(paidBalance.toString());
-    // console.log('sellerTokenBalanceBefore');
-    // console.log(sellerTokenBalanceBefore.toString());
-    // console.log('=== ===')
-    assert.isTrue(paidBalance.sub(sellerTokenBalanceBefore).eq(web3.utils.toBN(11).mul(WeiInEth)));
-    const paid = { paidToken, paidBalance };
-
-    // console.log({ sellerLockedBalance, paid });
-  });
-
-  it("should have an option position", async () => {
-    const susdToken = await SUSDToken.deployed();
-    const exchange = await Exchange.deployed();
-
-    const common = shrubInterface.toCommon(buyOrder);
-    const commonHash = await hashUtil.hashOrderCommon(common);
-    const seller = accounts[0];
-    const buyer = accounts[1];
-    const sellerPosition = await exchange.userOptionPosition(
-      seller,
-      commonHash
-    );
-    const buyerPosition = await exchange.userOptionPosition(buyer, commonHash);
-
-    assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 MATIC");
-    assert.isTrue(buyerPosition.eq(WeiInEth.mul(web3.utils.toBN(1))), "Buyer should be long 1 MATIC");
-    console.log({ sellerPosition, buyerPosition });
-  });
-
-  it("should be able to execute an option position", async () => {
-    const seller = accounts[0];
-    const buyer = accounts[1];
-
-    const susdToken = await SUSDToken.deployed();
-    const exchange = await Exchange.deployed();
-
-    const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
-    const common = shrubInterface.toCommon(sellOrder);
-    const commonHash = await hashUtil.hashOrderCommon(common);
-
-    // Sign orders
-    const signedBuyOrder = await shrubInterface.signOrderWithWeb3(
-      web3,
-      orderTypeHash,
-      buyOrder,
-      buyer
-    );
-
-    // Deposit ERC20 to pay STRIKE * SIZE
-    const totalPrice =
-      web3.utils.toBN(buyOrder.size)
-      .mul(web3.utils.toBN(buyOrder.strike))
-      .div(web3.utils.toBN(STRIKE_BASE_SHIFT));
-    await susdToken.approve(exchange.address, totalPrice, {
-      from: buyer,
-    });
-    await exchange.deposit(susdToken.address, totalPrice, {
-      from: buyer,
-    });
-
-    const poolBalanceBefore = await exchange.positionPoolTokenBalance(
-      commonHash,
-      susdToken.address
-    );
-    const buyerBalanceBefore = await exchange.userTokenBalances(
-      buyer,
-      susdToken.address
-    );
-
-
-    const buyerPosition = await exchange.userOptionPosition(buyer, commonHash);
-    await exchange.exercise(buyerPosition, common, {from: buyer});
-
-    const poolBalanceAfter = await exchange.positionPoolTokenBalance(
-      commonHash,
-      susdToken.address
-    );
-    const buyerBalanceAfter = await exchange.userTokenBalances(
-      buyer,
-      susdToken.address
-    );
-
-    assert.isTrue(
-      poolBalanceBefore < poolBalanceAfter,
-      "pool balance should increase"
-    );
-    assert.isTrue(
-      buyerBalanceBefore > buyerBalanceAfter,
-      "Buyer balance should decrease"
-    );
-    assert.equal(
-      poolBalanceAfter - poolBalanceBefore,
-      buyOrder.size * buyOrder.strike / STRIKE_BASE_SHIFT,
-      "Pool should now have the assets required to execute"
-    );
-  });
-
-  it("should be able to claim funds as a seller that has been exercised against", async () => {
-    const susdToken = await SUSDToken.deployed();
-    const exchange = await Exchange.deployed();
-
-    const common = shrubInterface.toCommon(buyOrder);
-    const commonHash = await hashUtil.hashOrderCommon(common);
-    const seller = accounts[0];
-    const buyer = accounts[1];
-    const sellerPosition = await exchange.userOptionPosition(
-      seller,
-      commonHash
-    );
-
-    const sellerBalanceBefore = await exchange.userTokenBalances(
-      seller,
-      susdToken.address
-    );
-
-    assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 MATIC");
-
-    const waitTime = 30000 - (Date.now() - startTime);
-    console.log(`Waiting ${Math.floor(waitTime / 1000)} seconds for option to expire`);
-    await wait(waitTime);
-
-    const baseBalance = (await exchange.userTokenBalances(
-      seller,
-      common.baseAsset
-    )).toString();
-
-
-    const quoteBalance = (await exchange.userTokenBalances(
-      seller,
-      common.quoteAsset
-    )).toString();
-
-
-    await exchange.claim(common, {from: seller});
-
-    const sellerBalanceAfter = await exchange.userTokenBalances(
-      seller,
-      susdToken.address
-    );
-
-    const baseBalanceAfter = (await exchange.userTokenBalances(
-      seller,
-      common.baseAsset
-    )).toString();
-
-
-    const quoteBalanceAfter = (await exchange.userTokenBalances(
-      seller,
-      common.quoteAsset
-    )).toString();
-
-
-
-    const sellerPositionAfter = await exchange.userOptionPosition(
-      seller,
-      commonHash
-    );
-
-    console.log({baseBalance, quoteBalance, baseBalanceAfter, quoteBalanceAfter});
-
-    assert.isTrue(
-      sellerBalanceBefore < sellerBalanceAfter,
-      "seller balance should increase"
-    );
-
-    assert.isTrue(
-      sellerPosition < sellerPositionAfter,
-      "seller balance should increase"
-    );
-
-    assert.isTrue(
-      sellerPositionAfter == 0,
-      "seller position should be zero"
-    );
-
-    console.log({ sellerPosition, sellerBalanceAfter });
-  });
-
-  it("should cancel an order if in correct nonce state", async () => {
-    const user = accounts[0];
-
-    const order = {
-      price: WeiInEth.mul(BigHundred).toString(),
-      offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
-      fee: 1,
-      baseAsset: Assets.USDC,
-      quoteAsset: Assets.MATIC,
-      expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
-      strike: 100e6,
-      optionType: 1,
-      size: WeiInEth.toString(),
-      isBuy: false,
-    };
-
-    const common = shrubInterface.toCommon(order);
-    const userNoncePre = (
-      await exchange.getCurrentNonce(user, common)
-    ).toNumber();
-    console.log("Pre-cancel user nonce", userNoncePre);
-    order.nonce = userNoncePre + 1;
-
-
-    console.log('Order nonce', order.nonce);
-    await exchange.cancel(order, { from: user });
-    const userNoncePost = (
-      await exchange.getCurrentNonce(user, common)
-    ).toNumber();
-    console.log('Post-cancel user nonce', userNoncePost);
-    assert.isTrue(
-      userNoncePost === order.nonce,
-      'User nonce should now equal canceled order nonce'
-    );
-  });
-});
+// const Exchange = artifacts.require("ShrubExchange");
+// const SUSDToken = artifacts.require("SUSDToken");
+// const HashUtil = artifacts.require("HashUtil");
+// const { Shrub712 } = require("../utils/EIP712");
+// const utils = require("ethereumjs-util");
+// const { assert } = require("chai");
+// const util = require('util');
+//
+// const Assets = {
+//   USDC: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+//   MATIC: "0x0000000000000000000000000000000000000000",
+// };
+// const STRIKE_BASE_SHIFT = 1000000;
+//
+// const WeiInEth = web3.utils.toBN(10).pow(web3.utils.toBN(18))
+// const BigHundred = web3.utils.toBN(100);
+// const BigTwo = web3.utils.toBN(2);
+// const BigMillion = web3.utils.toBN(1e6);
+// const wait = util.promisify(setTimeout);
+//
+//
+// contract("ShrubExchange", (accounts) => {
+//   let exchange;
+//   let shrubInterface;
+//   let hashUtil;
+//   let susdToken;
+//   let orderTypeHash;
+//
+//   const startTime = Date.now();
+//   let sellOrder = {
+//     size: WeiInEth.toString(),
+//     isBuy: false,
+//     nonce: 1,
+//     price: WeiInEth.mul(BigHundred).toString(),
+//     offerExpire: Math.floor((startTime + 5 * 1000 * 60) / 1000),
+//     fee: 1,
+//
+//     baseAsset: Assets.USDC,
+//     quoteAsset: Assets.MATIC,
+//     expiry: Math.floor((startTime + (30 * 1000)) / 1000),
+//     strike: BigHundred.mul(BigMillion).toString(),
+//     optionType: 1,
+//   };
+//
+//   let buyOrder = {
+//     ...sellOrder,
+//     isBuy: true,
+//   };
+//
+//   before(async () => {
+//     hashUtil = await HashUtil.deployed();
+//     exchange = await Exchange.deployed();
+//     shrubInterface = new Shrub712(17, exchange.address);
+//     susdToken = await SUSDToken.deployed();
+//     orderTypeHash = await exchange.ORDER_TYPEHASH.call();
+//
+//     Assets.USDC = susdToken.address;
+//     sellOrder.baseAsset = susdToken.address;
+//     buyOrder.baseAsset = susdToken.address;
+//
+//     console.log("Sending tokens to buyer account");
+//     if (accounts.length < 2) {
+//       const privKey =
+//         "0x1fb827553fb70314fd91fd57468e658d08eb67ff5d3e0d6d0b6fad53e1da73d3";
+//       const created = await web3.eth.accounts.privateKeyToAccount(privKey);
+//       accounts.push(created.address);
+//     }
+//     console.log({ accounts });
+//     await susdToken.transfer(accounts[1], WeiInEth.mul(web3.utils.toBN(10000)), { from: accounts[0] });
+//   });
+//
+//   it("should hash an order and match the contract's hash", async () => {
+//     const order = {
+//       size: WeiInEth.toString(),
+//       isBuy: true,
+//       nonce: 0,
+//       price: WeiInEth.mul(BigHundred).toString(),
+//       offerExpire: new Date(0).getTime(),
+//       fee: 1,
+//
+//       baseAsset: Assets.USDC,
+//       quoteAsset: Assets.MATIC,
+//       expiry: new Date(0).getTime(),
+//       strike: web3.utils.toBN(3300).mul(BigMillion).toString(),
+//       optionType: 1,
+//     };
+//
+//     const sha3Message = shrubInterface.getOrderSha3Message(
+//       orderTypeHash,
+//       order
+//     );
+//     console.log(sha3Message);
+//     const hash = await web3.utils.soliditySha3(...sha3Message);
+//     const signature = await web3.eth.sign(hash, accounts[0]);
+//
+//     const sig = signature.slice(2);
+//     const r = "0x" + sig.substr(0, 64);
+//     const s = "0x" + sig.substr(64, 64);
+//     const v = web3.utils.toDecimal("0x" + sig.substr(128, 2)) + 27;
+//
+//     const hashedOrder = await hashUtil.hashOrder(order);
+//     console.log({ hash, hashedOrder, v, r, s });
+//     assert.equal(hash, hashedOrder);
+//   });
+//
+//   it("should hash a small order and match the contract's hash", async () => {
+//     const common = shrubInterface.toCommon(buyOrder);
+//     const sha3Message = shrubInterface.getSmallOrderSha3Message(orderTypeHash, {
+//       ...buyOrder,
+//       ...common,
+//     });
+//     console.log(sha3Message);
+//
+//     const hash = await web3.utils.soliditySha3(...sha3Message);
+//     const hashedOrder = await hashUtil.hashSmallOrder(buyOrder, common);
+//     console.log({ hash, hashedOrder });
+//     assert.equal(hash, hashedOrder);
+//   });
+//
+//   it("should hash a common data and match the contract's hash", async () => {
+//     const commonTypeHash = await exchange.COMMON_TYPEHASH.call();
+//
+//     const common = {
+//       baseAsset: Assets.USDC,
+//       quoteAsset: Assets.MATIC,
+//       expiry: new Date(0).getTime(),
+//       strike: web3.utils.toBN(3300).mul(BigMillion).toString(),
+//       optionType: 1,
+//     };
+//
+//     const sha3Message = shrubInterface.getOrderCommonSha3Message(
+//       commonTypeHash,
+//       common
+//     );
+//     console.log(sha3Message);
+//     const hash = await web3.utils.soliditySha3(...sha3Message);
+//
+//     const hashedOrder = await hashUtil.hashOrderCommon(common);
+//     console.log({ hash, hashedOrder });
+//     assert.equal(hash, hashedOrder);
+//   });
+//
+//   it("should create a signature and be validated by the contract", async () => {
+//     const hash = await web3.utils.soliditySha3("Hello worlds");
+//     const signature = await web3.eth.sign(hash, accounts[0]);
+//
+//     const sig = signature.slice(2);
+//     const r = "0x" + sig.substr(0, 64);
+//     const s = "0x" + sig.substr(64, 64);
+//     const v = web3.utils.toDecimal("0x" + sig.substr(128, 2));
+//     const validSig = await hashUtil.validateSignature(
+//       accounts[0],
+//       hash,
+//       v,
+//       r,
+//       s
+//     );
+//     console.log({ sig, validSig, v, r, s });
+//     assert.isTrue(validSig);
+//   });
+//
+//   it("should be able to deposit funds to the exchange", async () => {
+//     await exchange.deposit(Assets.MATIC, 100, { value: 100, from: accounts[0] });
+//     const balance = await exchange.userTokenBalances(accounts[0], Assets.MATIC);
+//     console.log(balance.toNumber());
+//   });
+//
+//   it("should be able to withdraw unlocked funds", async () => {
+//     await exchange.withdraw(Assets.MATIC, 100, { from: accounts[0] });
+//     const balance = await exchange.userTokenBalances(accounts[0], Assets.MATIC);
+//     console.log(balance.toNumber());
+//   });
+//
+//   it("should be able to match two orders", async () => {
+//     const seller = accounts[0];
+//     const buyer = accounts[1];
+//
+//     // Deposit MATIC
+//     await exchange.deposit(Assets.MATIC, WeiInEth.mul(BigHundred).mul(BigTwo), { value: WeiInEth.mul(BigHundred).mul(BigTwo), from: seller });
+//
+//     // Deposit ERC20 to pay PRICE
+//     await susdToken.approve(exchange.address, WeiInEth.mul(BigHundred), { from: buyer });
+//     await exchange.deposit(susdToken.address, WeiInEth.mul(BigHundred), { from: buyer });
+//
+//     // Sign orders
+//     const signedSellOrder = await shrubInterface.signOrderWithWeb3(
+//       web3,
+//       orderTypeHash,
+//       sellOrder,
+//       seller
+//     );
+//     const signedBuyOrder = await shrubInterface.signOrderWithWeb3(
+//       web3,
+//       orderTypeHash,
+//       buyOrder,
+//       buyer
+//     );
+//
+//     // Filter off properties
+//     const smallSellOrder = shrubInterface.toSmallOrder(sellOrder);
+//     const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
+//     const common = shrubInterface.toCommon(sellOrder);
+//
+//     // Sanity checks
+//     assert.isTrue(smallSellOrder.isBuy === false, "sell isBuy should be false");
+//     assert.isTrue(smallBuyOrder.isBuy === true, "buy isBuy should be true");
+//     assert.isTrue(
+//       smallSellOrder.price <= smallBuyOrder.price,
+//       "Price should be sufficient for seller"
+//     );
+//     assert.isTrue(
+//       smallSellOrder.size <= smallBuyOrder.size,
+//       "Sell size should be sufficient for seller"
+//     );
+//     assert.isTrue(
+//       smallSellOrder.offerExpire >= Date.now() / 1000,
+//       "Sell Offer should not be expired"
+//     );
+//     assert.isTrue(
+//       smallBuyOrder.offerExpire >= Date.now() / 1000,
+//       "Buy Offer should not be expired"
+//     );
+//
+//     // Make sure the signature recovers to our address
+//     const sellerRecovered = await hashUtil.getAddressFromSignedOrder(
+//       smallSellOrder,
+//       common,
+//       signedSellOrder.sig
+//     );
+//     assert.equal(seller, sellerRecovered, "Seller should match");
+//
+//     // Make sure the nonces match what we expect
+//     const sellerNonce = await exchange.getCurrentNonce(
+//       seller,
+//       common
+//     );
+//     const buyerNonce = await exchange.getCurrentNonce(
+//       buyer,
+//       common
+//     );
+//     assert.isTrue(
+//       sellerNonce == sellOrder.nonce - 1,
+//       "Seller nonce should match order"
+//     );
+//     assert.isTrue(
+//       buyerNonce == buyOrder.nonce - 1,
+//       "Buyer nonce should match order"
+//     );
+//
+//     // Make sure we've got balance available for seller
+//     const sellerBalance = await exchange.getAvailableBalance(
+//       seller,
+//       common.quoteAsset
+//     );
+//     if (sellOrder.optionType == 1) {
+//       console.log("SOLD A CALL");
+//       assert.isTrue(
+//         sellerBalance.gte(smallSellOrder.size),
+//         "Seller should have enough free collateral"
+//       );
+//     } else {
+//       console.log("SOLD A PUT");
+//       assert.isTrue(
+//         sellerBalance.toNumber() >= smallSellOrder.size * common.strike / STRIKE_BASE_SHIFT,
+//         "Seller should have enough free collateral"
+//       );
+//     }
+//
+//     // Match the order, make sure seller has correct amount of asset locked up
+//     await exchange.matchOrders(
+//       [smallSellOrder],
+//       [smallBuyOrder],
+//       [common],
+//       [signedSellOrder.sig],
+//       [signedBuyOrder.sig],
+//       { from: accounts[0] }
+//     );
+//
+//     const sellerLockedBalance = (
+//       await exchange.userTokenLockedBalance(seller, Assets.MATIC)
+//     );
+//
+//     if (sellOrder.optionType == 1) {
+//       assert.equal(
+//         smallSellOrder.size,
+//         sellerLockedBalance,
+//         "Seller should have SIZE locked up for CALLS"
+//       );
+//     } else {
+//       assert.equal(
+//         smallSellOrder.size * common.strike / STRIKE_BASE_SHIFT,
+//         sellerLockedBalance,
+//         "Seller should have SIZE * STRIKE locked up for PUTS"
+//       );
+//     }
+//
+//     // Make sure the buyer paid us sellOrder.price
+//     const paidToken =
+//       sellOrder.optionType == 1 ? susdToken.address : Assets.MATIC;
+//     const paidBalance = await exchange.userTokenBalances(seller, paidToken);
+//     assert.equal(paidBalance, smallSellOrder.price);
+//     const paid = { paidToken, paidBalance: paidBalance.toString() };
+//
+//     console.log({ signedBuyOrder, signedSellOrder, sellerLockedBalance, paid });
+//   });
+//
+//   it("should be able to match array of orders", async () => {
+//     const seller = accounts[0];
+//     const buyer = accounts[1];
+//     // console.log('seller starting balances');
+//     // console.log(`sUSD: ${(await exchange.userTokenBalances(seller, Assets.USDC)).toString()}`);
+//     // console.log(`sMATIC: ${(await exchange.userTokenBalances(seller, Assets.MATIC)).toString()}`);
+//     // console.log('buyer starting balances');
+//     // console.log(`sUSD: ${(await exchange.userTokenBalances(buyer, Assets.USDC)).toString()}`);
+//     // console.log(`sMATIC: ${(await exchange.userTokenBalances(buyer, Assets.MATIC)).toString()}`);
+//
+//     // Deposit MATIC - not necessary already 100
+//     // await exchange.deposit(Assets.MATIC, BigTwo.mul(BigHundred).mul(WeiInEth), { value: BigTwo.mul(BigHundred).mul(WeiInEth), from: seller });
+//
+//     // Deposit ERC20 to pay PRICE only 8 required
+//     await susdToken.approve(exchange.address, web3.utils.toBN(11).mul(WeiInEth), { from: buyer });
+//     await exchange.deposit(susdToken.address, web3.utils.toBN(11).mul(WeiInEth), { from: buyer });
+//
+//
+//
+//     const base = {
+//       offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
+//       fee: 1,
+//       baseAsset: Assets.USDC,
+//       quoteAsset: Assets.MATIC,
+//       expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
+//       strike: 100e6,
+//       optionType: 1,
+//     }
+//
+//     const sellerLockedBalanceBefore = (
+//       await exchange.userTokenLockedBalance(seller, Assets.MATIC)
+//     );
+//
+//
+//     const sellerTokenBalanceBefore = (await exchange.userTokenBalances(seller, Assets.USDC));
+//
+//
+//     const sellerNonce = (await exchange.getCurrentNonce(
+//       seller,
+//       base
+//     )).toNumber();
+//
+//
+//     const buyerNonce = (await exchange.getCurrentNonce(
+//       buyer,
+//       base
+//     )).toNumber();
+//
+//     console.log({buyerNonce, sellerNonce});
+//
+//     // 3 orders
+//     // Sell 1 @ 1.00
+//     // Sell 3 @ 2 (each)
+//     // Sell 3 @ 3 (each)
+//     let sellOrders = [{
+//       size: WeiInEth.toString(),
+//       price: WeiInEth.toString(),
+//       isBuy: false,
+//       nonce: sellerNonce + 1,
+//       ...base
+//     }, {
+//       size: WeiInEth.mul(web3.utils.toBN(2)).toString(),
+//       price: WeiInEth.mul(web3.utils.toBN(4)).toString(),
+//       isBuy: false,
+//       nonce: sellerNonce + 2,
+//       ...base
+//     }, {
+//       size: WeiInEth.mul(web3.utils.toBN(3)).toString(),
+//       price: WeiInEth.mul(web3.utils.toBN(9)).toString(),
+//       isBuy: false,
+//       nonce: sellerNonce + 3,
+//       ...base
+//     }];
+//
+//     // 2 Orders
+//     // Buy 1 @ 1.00
+//     // Buy 4 @ 9.00 (total)
+//     let buyOrders = [
+//       {
+//       ...base,
+//       size: WeiInEth.mul(web3.utils.toBN(4)).toString(),
+//       price: WeiInEth.mul(web3.utils.toBN(8)).toString(),
+//       isBuy: true,
+//       nonce: buyerNonce + 1
+//     },
+//       {
+//       ...base,
+//       size: WeiInEth.toString(),
+//       price: WeiInEth.mul(web3.utils.toBN(3)).toString(),
+//       isBuy: true,
+//       nonce: buyerNonce + 2
+//     }
+//     ];
+//     // console.log(sellOrders);
+//     // console.log(buyOrders);
+//
+//     // Sign orders
+//     const signedSellOrders = await Promise.all(sellOrders.map(s => shrubInterface.signOrderWithWeb3(
+//       web3,
+//       orderTypeHash,
+//       s,
+//       seller
+//     )));
+//
+//     const signedBuyOrders = await Promise.all(buyOrders.map(b => shrubInterface.signOrderWithWeb3(
+//       web3,
+//       orderTypeHash,
+//       b,
+//       buyer
+//     )));
+//
+//     // Filter off properties
+//     const smallSellOrders = sellOrders.map(s => shrubInterface.toSmallOrder(s));
+//     const smallBuyOrders = buyOrders.map(b => shrubInterface.toSmallOrder(b));
+//     const commons = sellOrders.map(s => shrubInterface.toCommon(s));
+//
+//     for(const b of signedBuyOrders) {
+//       const buyerRecovered = await hashUtil.getAddressFromSignedOrder(
+//         shrubInterface.toSmallOrder(b.order),
+//         commons[0],
+//         b.sig
+//       );
+//       assert.equal(buyer, buyerRecovered, "Buyer should match");
+//     }
+//
+//     // Match the order, make sure seller has correct amount of asset locked up
+//     console.log('=== MATCH ORDERS ===')
+//     const matchOrdersResult = await exchange.matchOrders(
+//       smallSellOrders,
+//       smallBuyOrders,
+//       commons,
+//       signedSellOrders.map(o => o.sig),
+//       signedBuyOrders.map(o => o.sig),
+//       { from: accounts[0] }
+//     );
+//     // console.log(matchOrdersResult);
+//
+//     const sellerLockedBalance = (
+//       await exchange.userTokenLockedBalance(seller, Assets.MATIC)
+//     );
+//
+//     // console.log('=== Seller locked balances ===');
+//     // console.log(sellerLockedBalanceBefore.toString());
+//     // console.log(sellerLockedBalance.toString());
+//     // console.log('=== ===')
+//
+//     if (sellOrder.optionType == 1) {
+//       assert.equal(
+//         sellerLockedBalanceBefore.add(web3.utils.toBN(5).mul(WeiInEth)).toString(),
+//         sellerLockedBalance.toString(),
+//         "Seller should have 4 locked up for CALLS"
+//       );
+//     } else {
+//       assert.equal(
+//         300 + sellerLockedBalanceBefore,
+//         sellerLockedBalance,
+//         "Seller should have 300 locked up for PUTS"
+//       );
+//     }
+//
+//     // Make sure the buyer paid us sellOrder.price
+//     const paidToken =
+//       sellOrder.optionType == 1 ? susdToken.address : Assets.MATIC;
+//     const paidBalance = (await exchange.userTokenBalances(seller, paidToken));
+//     // console.log('=== paid balances ===');
+//     // console.log('paidBalance');
+//     // console.log(paidBalance.toString());
+//     // console.log('sellerTokenBalanceBefore');
+//     // console.log(sellerTokenBalanceBefore.toString());
+//     // console.log('=== ===')
+//     assert.isTrue(paidBalance.sub(sellerTokenBalanceBefore).eq(web3.utils.toBN(11).mul(WeiInEth)));
+//     const paid = { paidToken, paidBalance };
+//
+//     // console.log({ sellerLockedBalance, paid });
+//   });
+//
+//   it("should have an option position", async () => {
+//     const susdToken = await SUSDToken.deployed();
+//     const exchange = await Exchange.deployed();
+//
+//     const common = shrubInterface.toCommon(buyOrder);
+//     const commonHash = await hashUtil.hashOrderCommon(common);
+//     const seller = accounts[0];
+//     const buyer = accounts[1];
+//     const sellerPosition = await exchange.userOptionPosition(
+//       seller,
+//       commonHash
+//     );
+//     const buyerPosition = await exchange.userOptionPosition(buyer, commonHash);
+//
+//     assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 MATIC");
+//     assert.isTrue(buyerPosition.eq(WeiInEth.mul(web3.utils.toBN(1))), "Buyer should be long 1 MATIC");
+//     console.log({ sellerPosition, buyerPosition });
+//   });
+//
+//   it("should be able to execute an option position", async () => {
+//     const seller = accounts[0];
+//     const buyer = accounts[1];
+//
+//     const susdToken = await SUSDToken.deployed();
+//     const exchange = await Exchange.deployed();
+//
+//     const smallBuyOrder = shrubInterface.toSmallOrder(buyOrder);
+//     const common = shrubInterface.toCommon(sellOrder);
+//     const commonHash = await hashUtil.hashOrderCommon(common);
+//
+//     // Sign orders
+//     const signedBuyOrder = await shrubInterface.signOrderWithWeb3(
+//       web3,
+//       orderTypeHash,
+//       buyOrder,
+//       buyer
+//     );
+//
+//     // Deposit ERC20 to pay STRIKE * SIZE
+//     const totalPrice =
+//       web3.utils.toBN(buyOrder.size)
+//       .mul(web3.utils.toBN(buyOrder.strike))
+//       .div(web3.utils.toBN(STRIKE_BASE_SHIFT));
+//     await susdToken.approve(exchange.address, totalPrice, {
+//       from: buyer,
+//     });
+//     await exchange.deposit(susdToken.address, totalPrice, {
+//       from: buyer,
+//     });
+//
+//     const poolBalanceBefore = await exchange.positionPoolTokenBalance(
+//       commonHash,
+//       susdToken.address
+//     );
+//     const buyerBalanceBefore = await exchange.userTokenBalances(
+//       buyer,
+//       susdToken.address
+//     );
+//
+//
+//     const buyerPosition = await exchange.userOptionPosition(buyer, commonHash);
+//     await exchange.exercise(buyerPosition, common, {from: buyer});
+//
+//     const poolBalanceAfter = await exchange.positionPoolTokenBalance(
+//       commonHash,
+//       susdToken.address
+//     );
+//     const buyerBalanceAfter = await exchange.userTokenBalances(
+//       buyer,
+//       susdToken.address
+//     );
+//
+//     assert.isTrue(
+//       poolBalanceBefore < poolBalanceAfter,
+//       "pool balance should increase"
+//     );
+//     assert.isTrue(
+//       buyerBalanceBefore > buyerBalanceAfter,
+//       "Buyer balance should decrease"
+//     );
+//     assert.equal(
+//       poolBalanceAfter - poolBalanceBefore,
+//       buyOrder.size * buyOrder.strike / STRIKE_BASE_SHIFT,
+//       "Pool should now have the assets required to execute"
+//     );
+//   });
+//
+//   it("should be able to claim funds as a seller that has been exercised against", async () => {
+//     const susdToken = await SUSDToken.deployed();
+//     const exchange = await Exchange.deployed();
+//
+//     const common = shrubInterface.toCommon(buyOrder);
+//     const commonHash = await hashUtil.hashOrderCommon(common);
+//     const seller = accounts[0];
+//     const buyer = accounts[1];
+//     const sellerPosition = await exchange.userOptionPosition(
+//       seller,
+//       commonHash
+//     );
+//
+//     const sellerBalanceBefore = await exchange.userTokenBalances(
+//       seller,
+//       susdToken.address
+//     );
+//
+//     assert.isTrue(sellerPosition.eq(WeiInEth.mul(web3.utils.toBN(-1))), "Seller should be short 1 MATIC");
+//
+//     const waitTime = 30000 - (Date.now() - startTime);
+//     console.log(`Waiting ${Math.floor(waitTime / 1000)} seconds for option to expire`);
+//     await wait(waitTime);
+//
+//     const baseBalance = (await exchange.userTokenBalances(
+//       seller,
+//       common.baseAsset
+//     )).toString();
+//
+//
+//     const quoteBalance = (await exchange.userTokenBalances(
+//       seller,
+//       common.quoteAsset
+//     )).toString();
+//
+//
+//     await exchange.claim(common, {from: seller});
+//
+//     const sellerBalanceAfter = await exchange.userTokenBalances(
+//       seller,
+//       susdToken.address
+//     );
+//
+//     const baseBalanceAfter = (await exchange.userTokenBalances(
+//       seller,
+//       common.baseAsset
+//     )).toString();
+//
+//
+//     const quoteBalanceAfter = (await exchange.userTokenBalances(
+//       seller,
+//       common.quoteAsset
+//     )).toString();
+//
+//
+//
+//     const sellerPositionAfter = await exchange.userOptionPosition(
+//       seller,
+//       commonHash
+//     );
+//
+//     console.log({baseBalance, quoteBalance, baseBalanceAfter, quoteBalanceAfter});
+//
+//     assert.isTrue(
+//       sellerBalanceBefore < sellerBalanceAfter,
+//       "seller balance should increase"
+//     );
+//
+//     assert.isTrue(
+//       sellerPosition < sellerPositionAfter,
+//       "seller balance should increase"
+//     );
+//
+//     assert.isTrue(
+//       sellerPositionAfter == 0,
+//       "seller position should be zero"
+//     );
+//
+//     console.log({ sellerPosition, sellerBalanceAfter });
+//   });
+//
+//   it("should cancel an order if in correct nonce state", async () => {
+//     const user = accounts[0];
+//
+//     const order = {
+//       price: WeiInEth.mul(BigHundred).toString(),
+//       offerExpire: Math.floor((new Date().getTime() + 5 * 1000 * 60) / 1000),
+//       fee: 1,
+//       baseAsset: Assets.USDC,
+//       quoteAsset: Assets.MATIC,
+//       expiry: Math.floor((new Date().getTime() + 30 * 1000 * 60) / 1000),
+//       strike: 100e6,
+//       optionType: 1,
+//       size: WeiInEth.toString(),
+//       isBuy: false,
+//     };
+//
+//     const common = shrubInterface.toCommon(order);
+//     const userNoncePre = (
+//       await exchange.getCurrentNonce(user, common)
+//     ).toNumber();
+//     console.log("Pre-cancel user nonce", userNoncePre);
+//     order.nonce = userNoncePre + 1;
+//
+//
+//     console.log('Order nonce', order.nonce);
+//     await exchange.cancel(order, { from: user });
+//     const userNoncePost = (
+//       await exchange.getCurrentNonce(user, common)
+//     ).toNumber();
+//     console.log('Post-cancel user nonce', userNoncePost);
+//     assert.isTrue(
+//       userNoncePost === order.nonce,
+//       'User nonce should now equal canceled order nonce'
+//     );
+//   });
+// });
