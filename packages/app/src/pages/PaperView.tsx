@@ -359,7 +359,7 @@ function PaperView(props: RouteComponentProps) {
                 .replace(
                   "#",
                   "%23"
-                )}%20I%20minted%20via%20%40shrubfinance.%0Ahttps%3A//opensea.io/assets/matic/${PAPERSEED_CONTRACT_ADDRESS}/${tokenId}/`}
+                )}%23NFT%20I%20minted%20via%20%40shrubfinance%20%400xPolygon.%20Isn%27t%20he%20adorable%3F%0Ahttps%3A//opensea.io/assets/matic/${PAPERSEED_CONTRACT_ADDRESS}/${tokenId}/`}
               isExternal
             >
               <Button
