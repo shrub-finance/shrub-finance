@@ -138,8 +138,20 @@ function TopNav() {
               {/*  </NavRoute>*/}
               {/*))*/}
               {/*}*/}
+              {/*<Link*/}
+              {/*  href="https://docs.shrub.finance"*/}
+              {/*  isExternal*/}
+              {/*  variant="ghost"*/}
+              {/*  cursor="pointer"*/}
+              {/*  px={2}*/}
+              {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
+              {/*  rounded={"lg"}*/}
+              {/*  _hover={{ textDecoration: "none", bgGradient: gradient }}*/}
+              {/*>*/}
+              {/*  Docs <ExternalLinkIcon mx="2px" />*/}
+              {/*</Link>*/}
               <Link
-                href="https://docs.shrub.finance"
+                href="https://shrub.finance/paper-gardens"
                 isExternal
                 variant="ghost"
                 cursor="pointer"
@@ -148,7 +160,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Docs <ExternalLinkIcon mx="2px" />
+                The Story <ExternalLinkIcon mx="2px" />
               </Link>
               <Link
                 href="https://opensea.io/collection/shrub-paper-gardens"

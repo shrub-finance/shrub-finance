@@ -222,9 +222,24 @@ function PaperView(props: RouteComponentProps) {
         <Center mt={10}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
-              <Alert status="error" borderRadius={9}>
+              <Alert variant={"shrubYellow"} status="info" borderRadius={9}>
                 <AlertIcon />
-                {localError}
+                {localError.includes("Not a whitelisted address") ? (
+                  <Text>
+                    This address is not in the whitelist. You can still take
+                    part in Paper Gardens by{" "}
+                    <Link
+                      color="blue.500"
+                      fontWeight={"bold"}
+                      isExternal
+                      href="https://opensea.io/collection/shrub-paper-gardens"
+                    >
+                      buying a seed on Open Sea.
+                    </Link>
+                  </Text>
+                ) : (
+                  localError
+                )}
               </Alert>
             </SlideFade>
           )}
