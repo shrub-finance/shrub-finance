@@ -413,3 +413,15 @@ export const META_QUERY = gql`
     }
   }
 `;
+
+export const NFT_LEADERBOARD_QUERY = gql`
+  query NFTLeaderboard($numResults: Int) {
+    users(first: $numResults, orderBy: seedCount, orderDirection: desc) {
+      id
+      seedCount
+      seeds {
+        type
+      }
+    }
+  }
+`;

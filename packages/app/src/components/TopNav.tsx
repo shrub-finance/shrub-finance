@@ -42,7 +42,7 @@ import { ShrubLogo, SUSDIcon } from "../assets/Icons";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
-import { GiCoins, GiFlowerPot } from "react-icons/gi";
+import { GiCoins, GiFlowerPot, GiPostStamp } from "react-icons/gi";
 import { FaFileContract, HiOutlineDocumentDuplicate } from "react-icons/all";
 import Faucet from "./Faucet";
 import usePriceFeed from "../hooks/usePriceFeed";
@@ -172,7 +172,18 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Buy a seed <ExternalLinkIcon mx="2px" />
+                Buy Seed <ExternalLinkIcon mx="2px" />
+              </Link>
+              <Link
+                href="/claim"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Claim
               </Link>
             </HStack>
           </HStack>
@@ -277,9 +288,24 @@ function TopNav() {
                 )}
                 {colorMode === "light" ? "Dark Mode" : "Light Mode"}
               </Box>
+              {/*<Link*/}
+              {/*  href="https://docs.shrub.finance"*/}
+              {/*  isExternal*/}
+              {/*  variant="ghost"*/}
+              {/*  cursor="pointer"*/}
+              {/*  rounded="lg"*/}
+              {/*  py={"3"}*/}
+              {/*  px={"2"}*/}
+              {/*  _hover={{*/}
+              {/*    textDecoration: "none",*/}
+              {/*    bgGradient: gradient,*/}
+              {/*  }}*/}
+              {/*>*/}
+              {/*  <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />*/}
+              {/*  Docs <ExternalLinkIcon mx="2px" />*/}
+              {/*</Link>*/}
               <Link
-                href="https://docs.shrub.finance"
-                isExternal
+                href="/claim"
                 variant="ghost"
                 cursor="pointer"
                 rounded="lg"
@@ -290,8 +316,8 @@ function TopNav() {
                   bgGradient: gradient,
                 }}
               >
-                <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />
-                Docs <ExternalLinkIcon mx="2px" />
+                <Icon as={GiPostStamp} mr={"2"} />
+                Claim
               </Link>
               <Link
                 href="https://opensea.io/collection/shrub-paper-gardens"
@@ -307,7 +333,7 @@ function TopNav() {
                 }}
               >
                 <Icon as={GiFlowerPot} mr={"2"} />
-                Buy a seed <ExternalLinkIcon mx="2px" />
+                Buy Seed <ExternalLinkIcon mx="2px" />
               </Link>
               {/*<Box*/}
               {/*<Box*/}

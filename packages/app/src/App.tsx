@@ -9,6 +9,7 @@ import Store from "./components/Store";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import HomeView from "./pages/HomeView";
 import PaperView from "./pages/PaperView";
+import NFTView from "./pages/NFTView";
 
 function App() {
   const client = new ApolloClient({
@@ -24,7 +25,8 @@ function App() {
           <Store>
             <TopNav />
             <Router>
-              <PaperView path="/" />
+              <NFTView path="/" />
+              <PaperView path="/claim" />
               {/*<HomeView path="/" />*/}
               {/*<PositionsView path="shrubfolio" />*/}
               {/*<OptionsView path="options" />*/}

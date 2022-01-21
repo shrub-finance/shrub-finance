@@ -156,10 +156,6 @@ function Positions() {
 
   const livePriceColor = useColorModeValue("green.500", "green.200");
 
-  const goBack = () => {
-    navigate(-1);
-  };
-
   const spinnerRow = (
     <Tr>
       <Td>
