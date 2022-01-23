@@ -24,6 +24,8 @@ import {
   Thead,
   TableCaption,
   Table,
+  Image,
+  Stack,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useState } from "react";
@@ -77,16 +79,61 @@ function NFTView(props: RouteComponentProps) {
   }
   let count = 0;
 
+  // Captures 0x + 4 characters, then the last 4 characters.
+  const truncateRegex = /^([a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
+
+  /**
+   * Source: https://github.com/gpxl-dev/truncate-eth-address
+   * Truncates an ethereum address to the format 0x00…0000
+   */
+  const truncateEthAddress = (address: string) => {
+    const match = address.match(truncateRegex);
+    if (!match) return address;
+    return `${match[1]}…${match[2]}`;
+  };
+
   for (const item of leaderBoardData.users) {
     count++;
     const { id, seedCount, seeds } = item;
     const uniqueTypes = [...new Set(seeds.map((s: any) => s.type))];
+    console.log(uniqueTypes);
     leaderBoardRows.push(
       <Tr>
         <Td>{count}</Td>
-        <Td>{id}</Td>
+        <Td>{truncateEthAddress(id)}</Td>
         <Td>{seedCount}</Td>
-        <Td>{uniqueTypes.toString()}</Td>
+        <Td>
+          <Stack direction="row">
+            {uniqueTypes.includes("Power") && (
+              <Image
+                boxSize={isMobile ? 6 : 10}
+                src="https://shrub.finance/power.svg"
+                alt="Power Seed"
+              />
+            )}
+            {uniqueTypes.includes("Hope") && (
+              <Image
+                boxSize={isMobile ? 6 : 10}
+                src="https://shrub.finance/hope.svg"
+                alt="Hope Seed"
+              />
+            )}
+            {uniqueTypes.includes("Passion") && (
+              <Image
+                boxSize={isMobile ? 6 : 10}
+                src="https://shrub.finance/passion.svg"
+                alt="Passion Seed"
+              />
+            )}
+            {uniqueTypes.includes("Wonder") && (
+              <Image
+                boxSize={isMobile ? 6 : 10}
+                src="https://shrub.finance/wonder.svg"
+                alt="Wonder Seed"
+              />
+            )}
+          </Stack>
+        </Td>
       </Tr>
     );
   }
@@ -117,44 +164,43 @@ function NFTView(props: RouteComponentProps) {
           )}
         </Center>
         <Center>
-          <Box mb={{ base: 6, md: 10 }} mt={6}>
-            <Heading
-              maxW="60rem"
-              fontSize={["5xl", "6xl", "40px", "50px"]}
-              fontWeight="medium"
-              textAlign="center"
-              mb="14"
+          <Heading
+            maxW="60rem"
+            fontSize={["xl", "3xl", "3xl", "4xl"]}
+            fontWeight={{ base: "semibold", md: "medium" }}
+            textAlign="center"
+            mb="10"
+          >
+            <Text
+              as="span"
+              bgGradient={headingColor}
+              bgClip="text"
+              boxDecorationBreak="clone"
             >
-              <Text
-                as="span"
-                bgGradient={headingColor}
-                bgClip="text"
-                boxDecorationBreak="clone"
-              >
-                Paper Gardener's Leaderboard
-              </Text>
-            </Heading>
-            <Table variant="simple">
-              <TableCaption>Paper Gardener's Leaderboard</TableCaption>
-              <Thead>
-                <Tr>
-                  <Th>Rank</Th>
-                  <Th>Account</Th>
-                  <Th isNumeric>Owns</Th>
-                  <Th>SeedType</Th>
-                </Tr>
-              </Thead>
-              <Tbody>{leaderBoardRows}</Tbody>
-              <Tfoot>
-                <Tr>
-                  <Th>Rank</Th>
-                  <Th>Account</Th>
-                  <Th isNumeric>Owns</Th>
-                  <Th>SeedType</Th>
-                </Tr>
-              </Tfoot>
-            </Table>
-          </Box>
+              Paper Gardener's Leaderboard
+            </Text>
+          </Heading>
+        </Center>
+        <Center>
+          <Table variant="simple" size="sm">
+            <Thead>
+              <Tr>
+                <Th>Rank</Th>
+                <Th>Account</Th>
+                <Th isNumeric>Owns</Th>
+                <Th>SeedType</Th>
+              </Tr>
+            </Thead>
+            <Tbody>{leaderBoardRows}</Tbody>
+            <Tfoot>
+              <Tr>
+                <Th>Rank</Th>
+                <Th>Account</Th>
+                <Th isNumeric>Owns</Th>
+                <Th>SeedType</Th>
+              </Tr>
+            </Tfoot>
+          </Table>
         </Center>
       </Container>
 
