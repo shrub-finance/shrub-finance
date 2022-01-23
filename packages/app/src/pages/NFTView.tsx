@@ -187,7 +187,7 @@ function NFTView(props: RouteComponentProps) {
               <Tr>
                 <Th>Rank</Th>
                 <Th>Account</Th>
-                <Th isNumeric>Owns</Th>
+                <Th>Owns</Th>
                 <Th>SeedType</Th>
               </Tr>
             </Thead>
@@ -196,7 +196,7 @@ function NFTView(props: RouteComponentProps) {
               <Tr>
                 <Th>Rank</Th>
                 <Th>Account</Th>
-                <Th isNumeric>Owns</Th>
+                <Th>Owns</Th>
                 <Th>SeedType</Th>
               </Tr>
             </Tfoot>
