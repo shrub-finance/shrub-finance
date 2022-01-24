@@ -1,0 +1,39 @@
+specVersion: 0.0.2
+description: Shrub Paper Gardens
+repository: https://github.com/shrub-finance/shrub-finance
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: PaperSeed
+    network: matic
+#    network: mainnet
+    source:
+      address: '0xd415517378fe6832f8AA94037c52C0757a3A9915'
+      startBlock: 23740333
+#      address: '0x6a9d4af8bf697679f4441dded9e2b8f1f31d3e85'
+#      startBlock: 1
+      abi: PaperSeed
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Seed
+        - Exchange
+      abis:
+        - name: PaperSeed
+          file: ../contracts/abi/PaperSeed.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Claimed(uint256,address,uint256)
+          handler: handleClaim
+      file: ./src/mapping.ts

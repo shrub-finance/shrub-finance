@@ -195,7 +195,11 @@ function PaperView(props: RouteComponentProps) {
           }
         } catch (e: any) {
           setIsLoading(false);
-          handleErrorMessages({ err: e });
+          if (e.response && e.response.data) {
+            handleErrorMessages({ customMessage: e.response.data });
+          } else {
+            handleErrorMessages({ err: e });
+          }
         }
         return addNetwork();
       }

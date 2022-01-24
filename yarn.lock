@@ -6814,6 +6814,21 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@shrub/subgraph-paper-gardens@workspace:packages/subgraph-paper-gardens":
+  version: 0.0.0-use.local
+  resolution: "@shrub/subgraph-paper-gardens@workspace:packages/subgraph-paper-gardens"
+  dependencies:
+    "@graphprotocol/graph-cli": ^0.20.1
+    "@graphprotocol/graph-ts": ^0.20.0
+    "@protofire/subgraph-toolkit": 0.1.2
+    babel-polyfill: ^6.26.0
+    babel-register: ^6.26.0
+    truffle: ^5.0.4
+    truffle-contract: ^4.0.5
+    truffle-hdwallet-provider: ^1.0.4
+  languageName: unknown
+  linkType: soft
+
 "@shrub/subgraph@workspace:packages/subgraph":
   version: 0.0.0-use.local
   resolution: "@shrub/subgraph@workspace:packages/subgraph"
