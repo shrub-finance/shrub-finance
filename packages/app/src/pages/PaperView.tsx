@@ -316,23 +316,6 @@ function PaperView(props: RouteComponentProps) {
                 </Button>
               )}
             </Center>
-            {!isClaimed && !activeHash && (
-              <Center>
-                <Link
-                  mt="8"
-                  mb={{ base: "16px", md: "10", lg: "10" }}
-                  color={useColorModeValue("gray.700", "gray.300")}
-                  fontSize="18px"
-                  textAlign="center"
-                  fontWeight="medium"
-                  bgGradient="linear(to-r, #bd2bdd, #bfd71c, #c94b09)"
-                  bgClip="text"
-                  href="https://opensea.io/collection/shrub-paper-gardens"
-                >
-                  Don't have a seed? Buy one
-                </Link>
-              </Center>
-            )}
           </Box>
         </Center>
       </Container>
