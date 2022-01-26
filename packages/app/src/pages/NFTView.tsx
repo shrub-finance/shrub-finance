@@ -60,6 +60,20 @@ function NFTView(props: RouteComponentProps) {
   const leaderBoardRows: JSX.Element[] = [];
   const POLL_INTERVAL = 60000; // 15 second polling interval
 
+  const dictionary: { [address: string]: string } = {
+    "0x0073d46db23fa08221b76ba7f497c04b72bd3529": "Willdabeast00",
+    "0x1748657e354e30247fcdbb403e69e9dc3d9a7735": "Dafeng",
+    "0xdfc107cc5e5f4064c717966f8d54311afe97142a": "adadcarry",
+    "0xcd6b6d99b7751ff30b68fa1365488eb73fa7cefa": "kingnftvn",
+    "0x524a163e38e69fc120415875200922109a62ca05": "CrabInc",
+    "0x4b38ef4dbd564019a2fc51b6b280b736c62e0ae8": "niuning95",
+    "0x2553e6471c779ab3278ffa21300e12725ab5ab2f": "CypressPond",
+    "0xdc93fef5564989471d0ac9b047a95a5c8491b002": "0xbtroot",
+    "0x704de6418d5cac37bc5607290fbcbcb7a3b274b7": "Alexfawcett",
+    "0xbcd8671f0799646573f73e9aafb875219a8721a5": "xiuc",
+    "0xaa4efd397ed95854a1aabbd0d3c0f9a22583aca7": "0xbitsun",
+  };
+
   const {
     loading,
     error,
@@ -87,8 +101,13 @@ function NFTView(props: RouteComponentProps) {
    * Truncates an ethereum address to the format 0x00…0000
    */
   const truncateEthAddress = (address: string) => {
+    if (dictionary[address]) {
+      return dictionary[address];
+    }
     const match = address.match(truncateRegex);
-    if (!match) return address;
+    if (!match) {
+      return address;
+    }
     return `${match[1]}…${match[2]}`;
   };
 
@@ -99,9 +118,11 @@ function NFTView(props: RouteComponentProps) {
     console.log(uniqueTypes);
     leaderBoardRows.push(
       <Tr>
-        <Td>{count}</Td>
-        <Td>{truncateEthAddress(id)}</Td>
-        <Td>{seedCount}</Td>
+        <Td fontWeight={count === 1 ? "bold" : "medium"}>{count}</Td>
+        <Td fontWeight={count === 1 ? "bold" : "medium"}>
+          {truncateEthAddress(id)}
+        </Td>
+        <Td fontWeight={count === 1 ? "bold" : "medium"}>{seedCount}</Td>
         <Td>
           <Stack direction="row">
             {uniqueTypes.includes("Power") && (
