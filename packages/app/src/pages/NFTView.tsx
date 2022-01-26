@@ -72,6 +72,10 @@ function NFTView(props: RouteComponentProps) {
     "0x704de6418d5cac37bc5607290fbcbcb7a3b274b7": "Alexfawcett",
     "0xbcd8671f0799646573f73e9aafb875219a8721a5": "xiuc",
     "0xaa4efd397ed95854a1aabbd0d3c0f9a22583aca7": "0xbitsun",
+    "0x41a24d16715e5c0db012334595017abea537d33e": "nickewansmith.eth",
+    "0x12fe20de6b441f18ba9a3c9a7a78c9bd16723e8d": "188btc.eth",
+    "0x597f0f68aa64a2216d395d4829d4657a2f3fa745": "ariswap",
+    "0x0c7cdee7f65f2be9d3d241a8caf43fd2773e263b": "wealthfreedom.eth",
   };
 
   const {
@@ -80,7 +84,7 @@ function NFTView(props: RouteComponentProps) {
     data: leaderBoardData,
   } = useQuery(NFT_LEADERBOARD_QUERY, {
     variables: {
-      numResults: 10,
+      numResults: 20,
     },
     pollInterval: POLL_INTERVAL, // Poll every ten seconds
   });
@@ -115,7 +119,9 @@ function NFTView(props: RouteComponentProps) {
     count++;
     const { id, seedCount, seeds } = item;
     const uniqueTypes = [...new Set(seeds.map((s: any) => s.type))];
-    console.log(uniqueTypes);
+    if (count > 10 && seedCount < leaderBoardData.users[9].seedCount) {
+      break;
+    }
     leaderBoardRows.push(
       <Tr>
         <Td fontWeight={count === 1 ? "bold" : "medium"}>{count}</Td>
