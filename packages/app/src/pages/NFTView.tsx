@@ -26,6 +26,7 @@ import {
   Table,
   Image,
   Stack,
+  Link,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useState } from "react";
@@ -41,6 +42,7 @@ import {
 } from "../components/ConnectWallet";
 import { TxStatusList } from "../components/TxMonitoring";
 import { NFT_LEADERBOARD_QUERY } from "../constants/queries";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 function NFTView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
@@ -210,6 +212,18 @@ function NFTView(props: RouteComponentProps) {
         </Center>
         <Center>
           <Table variant="simple" size="sm">
+            <TableCaption>
+              <Button
+                variant="link"
+                fontSize="12px"
+                fontWeight="bold"
+                colorScheme="blue"
+                href="https://opensea.io/collection/shrub-paper-gardens"
+                isExternal
+              >
+                View collection in Open Sea <ExternalLinkIcon mx="2px" />
+              </Button>
+            </TableCaption>
             <Thead>
               <Tr>
                 <Th>Rank</Th>
@@ -219,14 +233,6 @@ function NFTView(props: RouteComponentProps) {
               </Tr>
             </Thead>
             <Tbody>{leaderBoardRows}</Tbody>
-            <Tfoot>
-              <Tr>
-                <Th>Rank</Th>
-                <Th>Account</Th>
-                <Th>Owns</Th>
-                <Th>SeedType</Th>
-              </Tr>
-            </Tfoot>
           </Table>
         </Center>
       </Container>
