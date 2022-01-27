@@ -214,16 +214,13 @@ function NFTView(props: RouteComponentProps) {
         <Center>
           <Table variant="simple" size="sm">
             <TableCaption>
-              <Button
-                variant="link"
-                fontSize="12px"
-                fontWeight="bold"
-                colorScheme="blue"
+              <Link
+                fontSize="14px"
                 href="https://opensea.io/collection/shrub-paper-gardens"
                 isExternal
               >
                 View collection in Open Sea <ExternalLinkIcon mx="2px" />
-              </Button>
+              </Link>
             </TableCaption>
             <Thead>
               <Tr>
