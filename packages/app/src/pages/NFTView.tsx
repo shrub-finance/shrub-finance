@@ -98,7 +98,7 @@ function NFTView(props: RouteComponentProps) {
   if (error) {
     return <p>Error: ${handleErrorMessages({ err: error })}</p>;
   }
-  let count = 0;
+  let i = 0;
 
   // Captures 0x + 4 characters, then the last 4 characters.
   const truncateRegex = /^([a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
@@ -118,49 +118,54 @@ function NFTView(props: RouteComponentProps) {
     return `${match[1]}…${match[2]}`;
   };
 
+  let lastRank = 0;
+  let lastSeedCount = 0;
+
   for (const item of leaderBoardData.users) {
-    count++;
+    i++;
     const { id, seedCount, seeds } = item;
+    const rank = seedCount === lastSeedCount ? lastRank : i;
+
     const uniqueTypes = [...new Set(seeds.map((s: any) => s.type))];
-    if (count > 10 && seedCount < leaderBoardData.users[9].seedCount) {
+    if (i > 10 && seedCount < leaderBoardData.users[9].seedCount) {
       break;
     }
     leaderBoardRows.push(
       <Tr>
-        <Td fontWeight={count === 1 ? "extrabold" : "medium"}>{count}</Td>
+        <Td fontWeight={rank === 1 ? "extrabold" : "medium"}>{rank}</Td>
         <Td
-          fontWeight={count === 1 ? "extrabold" : "medium"}
+          fontWeight={rank === 1 ? "extrabold" : "medium"}
           fontSize={isMobile ? "12px" : "auto"}
         >
           {truncateEthAddress(id)}
         </Td>
-        <Td fontWeight={count === 1 ? "extrabold" : "medium"}>{seedCount}</Td>
+        <Td fontWeight={rank === 1 ? "extrabold" : "medium"}>{seedCount}</Td>
         <Td>
           <Stack direction="row" spacing="0">
             {uniqueTypes.includes("Power") && (
               <Image
-                boxSize={isMobile ? 5 : 10}
+                boxSize={isMobile ? 5 : 9}
                 src="https://shrub.finance/power.svg"
                 alt="Power Seed"
               />
             )}
             {uniqueTypes.includes("Hope") && (
               <Image
-                boxSize={isMobile ? 5 : 10}
+                boxSize={isMobile ? 5 : 9}
                 src="https://shrub.finance/hope.svg"
                 alt="Hope Seed"
               />
             )}
             {uniqueTypes.includes("Passion") && (
               <Image
-                boxSize={isMobile ? 5 : 10}
+                boxSize={isMobile ? 5 : 9}
                 src="https://shrub.finance/passion.svg"
                 alt="Passion Seed"
               />
             )}
             {uniqueTypes.includes("Wonder") && (
               <Image
-                boxSize={isMobile ? 5 : 10}
+                boxSize={isMobile ? 5 : 9}
                 src="https://shrub.finance/wonder.svg"
                 alt="Wonder Seed"
               />
@@ -169,6 +174,9 @@ function NFTView(props: RouteComponentProps) {
         </Td>
       </Tr>
     );
+
+    lastSeedCount = seedCount;
+    lastRank = rank;
   }
 
   const {
