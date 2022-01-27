@@ -78,6 +78,7 @@ function NFTView(props: RouteComponentProps) {
     "0x12fe20de6b441f18ba9a3c9a7a78c9bd16723e8d": "188btc.eth",
     "0x597f0f68aa64a2216d395d4829d4657a2f3fa745": "ariswap",
     "0x0c7cdee7f65f2be9d3d241a8caf43fd2773e263b": "wealthfreedom.eth",
+    "0xc17ec9d8e72ab957ac73596846ac87b8c7f80be2": "Block_Invest1",
   };
 
   const {
