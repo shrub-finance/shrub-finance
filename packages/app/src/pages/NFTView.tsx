@@ -127,37 +127,37 @@ function NFTView(props: RouteComponentProps) {
     }
     leaderBoardRows.push(
       <Tr>
-        <Td fontWeight={count === 1 ? "bold" : "medium"}>{count}</Td>
-        <Td fontWeight={count === 1 ? "bold" : "medium"}>
+        <Td fontWeight={count === 1 ? "extrabold" : "medium"}>{count}</Td>
+        <Td fontWeight={count === 1 ? "extrabold" : "medium"} fontSize={"12px"}>
           {truncateEthAddress(id)}
         </Td>
-        <Td fontWeight={count === 1 ? "bold" : "medium"}>{seedCount}</Td>
+        <Td fontWeight={count === 1 ? "extrabold" : "medium"}>{seedCount}</Td>
         <Td>
-          <Stack direction="row">
+          <Stack direction="row" spacing="0">
             {uniqueTypes.includes("Power") && (
               <Image
-                boxSize={isMobile ? 6 : 10}
+                boxSize={isMobile ? 5 : 10}
                 src="https://shrub.finance/power.svg"
                 alt="Power Seed"
               />
             )}
             {uniqueTypes.includes("Hope") && (
               <Image
-                boxSize={isMobile ? 6 : 10}
+                boxSize={isMobile ? 5 : 10}
                 src="https://shrub.finance/hope.svg"
                 alt="Hope Seed"
               />
             )}
             {uniqueTypes.includes("Passion") && (
               <Image
-                boxSize={isMobile ? 6 : 10}
+                boxSize={isMobile ? 5 : 10}
                 src="https://shrub.finance/passion.svg"
                 alt="Passion Seed"
               />
             )}
             {uniqueTypes.includes("Wonder") && (
               <Image
-                boxSize={isMobile ? 6 : 10}
+                boxSize={isMobile ? 5 : 10}
                 src="https://shrub.finance/wonder.svg"
                 alt="Wonder Seed"
               />
