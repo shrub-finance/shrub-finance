@@ -128,7 +128,10 @@ function NFTView(props: RouteComponentProps) {
     leaderBoardRows.push(
       <Tr>
         <Td fontWeight={count === 1 ? "extrabold" : "medium"}>{count}</Td>
-        <Td fontWeight={count === 1 ? "extrabold" : "medium"} fontSize={"12px"}>
+        <Td
+          fontWeight={count === 1 ? "extrabold" : "medium"}
+          fontSize={isMobile ? "12px" : "auto"}
+        >
           {truncateEthAddress(id)}
         </Td>
         <Td fontWeight={count === 1 ? "extrabold" : "medium"}>{seedCount}</Td>
