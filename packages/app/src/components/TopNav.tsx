@@ -174,17 +174,6 @@ function TopNav() {
               >
                 Buy Seed <ExternalLinkIcon mx="2px" />
               </Link>
-              <Link
-                href="/claim"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Claim
-              </Link>
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
@@ -304,21 +293,6 @@ function TopNav() {
               {/*  <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />*/}
               {/*  Docs <ExternalLinkIcon mx="2px" />*/}
               {/*</Link>*/}
-              <Link
-                href="/claim"
-                variant="ghost"
-                cursor="pointer"
-                rounded="lg"
-                py={"3"}
-                px={"2"}
-                _hover={{
-                  textDecoration: "none",
-                  bgGradient: gradient,
-                }}
-              >
-                <Icon as={GiPostStamp} mr={"2"} />
-                Claim
-              </Link>
               <Link
                 href="https://opensea.io/collection/shrub-paper-gardens"
                 isExternal

@@ -26,7 +26,7 @@ function App() {
             <TopNav />
             <Router>
               <NFTView path="/" />
-              <PaperView path="/claim" />
+              <NFTView path="/claim" />
               {/*<HomeView path="/" />*/}
               {/*<PositionsView path="shrubfolio" />*/}
               {/*<OptionsView path="options" />*/}
