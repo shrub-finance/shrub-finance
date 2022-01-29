@@ -88,7 +88,10 @@ function NFTView(props: RouteComponentProps) {
   } = useQuery(NFT_LEADERBOARD_QUERY, {
     variables: {
       numResults: 20,
-      b: ["0xc5e7c5032d203b69da4d8feb7f3c3179fd9cb83b"],
+      b: [
+        "0xc5e7c5032d203b69da4d8feb7f3c3179fd9cb83b",
+        "0xbcfe78a91b6968322ed1b08fbe3a081353487910",
+      ],
     },
     pollInterval: POLL_INTERVAL, // Poll every ten seconds
   });
@@ -116,7 +119,8 @@ function NFTView(props: RouteComponentProps) {
     if (!match) {
       return address;
     }
-    return `${match[1]}…${match[2]}`;
+    // return `${match[1]}…${match[2]}`;
+    return address;
   };
 
   let lastRank = 0;
