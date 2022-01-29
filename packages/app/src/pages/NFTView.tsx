@@ -88,6 +88,7 @@ function NFTView(props: RouteComponentProps) {
   } = useQuery(NFT_LEADERBOARD_QUERY, {
     variables: {
       numResults: 20,
+      b: ["0xc5e7c5032d203b69da4d8feb7f3c3179fd9cb83b"],
     },
     pollInterval: POLL_INTERVAL, // Poll every ten seconds
   });
