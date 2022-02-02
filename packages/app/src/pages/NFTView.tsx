@@ -79,6 +79,8 @@ function NFTView(props: RouteComponentProps) {
     "0x597f0f68aa64a2216d395d4829d4657a2f3fa745": "ariswap",
     "0x0c7cdee7f65f2be9d3d241a8caf43fd2773e263b": "wealthfreedom.eth",
     "0xc17ec9d8e72ab957ac73596846ac87b8c7f80be2": "Block_Invest1",
+    "0x9bf68b9a9b377f3ba0c40c1c5d8322e3ed8ee590":
+      "ShrubFinanceTomydigitaltrader",
   };
 
   const {
@@ -119,8 +121,7 @@ function NFTView(props: RouteComponentProps) {
     if (!match) {
       return address;
     }
-    // return `${match[1]}…${match[2]}`;
-    return address;
+    return `${match[1]}…${match[2]}`;
   };
 
   let lastRank = 0;
