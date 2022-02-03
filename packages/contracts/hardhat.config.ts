@@ -26,6 +26,8 @@ import env from 'hardhat'
 import { toEthDate } from '@shrub/app/src/utils/ethMethods'
 const bs = require('./utils/black-scholes');
 const { Shrub712 } = require("./utils/EIP712");
+import dotenv from "dotenv";
+dotenv.config();
 
 const CHAINLINK_MATIC = '0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada';  // Mumbai
 const CHAINLINK_ETH = '0x0715A7794a1dc8e42615F059dD6e406A6594651A';  // Mumbai
@@ -35,14 +37,9 @@ const CHAINLINK_USDC = '0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0';  // Mumbai
 const MINUTES_BETWEEN_ORDERS = 5;  // For maker2
 
 const expiryDates = [
-  // new Date('2021-11-08'),
-  // new Date('2021-11-15'),
-  // new Date('2021-11-22'),
-  new Date('2021-12-02'),
-  new Date('2021-12-11'),
-  new Date('2021-12-18'),
-  new Date('2021-12-25'),
-  new Date('2022-01-02'),
+  new Date('2022-02-02'),
+  new Date('2022-03-02'),
+  new Date('2022-04-02'),
   // [toEthDate(new Date('2021-12-11')).toString()] : standardStrikes,
   // [toEthDate(new Date('2021-12-18')).toString()] : standardStrikes,
   // [toEthDate(new Date('2021-12-25')).toString()] : standardStrikes,
@@ -719,13 +716,30 @@ const config: HardhatUserConfig & AbiExporter = {
     spacing: 2,
   },
   etherscan: {
-    // apiKey: '5TPEWR3JA9S4APSU2QJ7CNGTCFJM5G8PYC'  // For etherscan
-    apiKey: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'    // For polygonscan
+    apiKey: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'
+    // apiKey: {
+    //   mainnet: '5TPEWR3JA9S4APSU2QJ7CNGTCFJM5G8PYC',  // For etherscan
+    //   polygon: 'XXX',
+    //   polygonMumbai: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'    // For polygonscan
+    // }
   },
   mocha: {
     timeout: 35000
   }
 };
+
+if (process.env.MUMBAI_SECRET_KEY) {
+  config.networks.mumbai = {
+    chainId: 80001,
+    url: 'https://rpc-mumbai.maticvigil.com',
+    accounts: [process.env.MUMBAI_SECRET_KEY]
+  };
+  config.networks.rinkeby = {
+    chainId: 4,
+    url: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+    accounts: [process.env.MUMBAI_SECRET_KEY]
+  };
+}
 
 if (process.env.MUMBAI_SECRET_MNEMONIC) {
   config.networks.mumbai = {
@@ -733,6 +747,16 @@ if (process.env.MUMBAI_SECRET_MNEMONIC) {
     url: 'https://rpc-mumbai.maticvigil.com',
     accounts: {
       mnemonic: process.env.MUMBAI_SECRET_MNEMONIC,
+    },
+  }
+}
+
+if (process.env.POLYGON_SECRET_MNEMONIC) {
+  config.networks.polygon = {
+    chainId: 137,
+    url: 'https://rpc-mainnet.maticvigil.com/',
+    accounts: {
+      mnemonic: process.env.POLYGON_SECRET_MNEMONIC,
     },
   }
 }

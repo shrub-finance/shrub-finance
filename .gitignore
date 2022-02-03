@@ -38,3 +38,4 @@ packages/subgraph/generated/*
 !.yarn/versions
 .pnp.*
 .vercel/*
+packages/contracts/scripts/output
