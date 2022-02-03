@@ -222,9 +222,24 @@ function PaperView(props: RouteComponentProps) {
         <Center mt={10}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
-              <Alert status="error" borderRadius={9}>
+              <Alert variant={"shrubYellow"} status="info" borderRadius={9}>
                 <AlertIcon />
-                {localError}
+                {localError.includes("Not a whitelisted address") ? (
+                  <Text>
+                    This address is not in the whitelist. You can still take
+                    part in Paper Gardens by{" "}
+                    <Link
+                      color="blue.500"
+                      fontWeight={"bold"}
+                      isExternal
+                      href="https://opensea.io/collection/shrub-paper-gardens"
+                    >
+                      buying a seed on Open Sea.
+                    </Link>
+                  </Text>
+                ) : (
+                  localError
+                )}
               </Alert>
             </SlideFade>
           )}
@@ -243,7 +258,7 @@ function PaperView(props: RouteComponentProps) {
                 bgClip="text"
                 boxDecorationBreak="clone"
               >
-                {!isClaimed ? "Shrub Paper NFT" : "Congrats!"}
+                {!isClaimed ? "Paper Gardens" : "Congrats!"}
               </Text>
             </Heading>
             {!isClaimed && !activeHash && (
@@ -342,7 +357,7 @@ function PaperView(props: RouteComponentProps) {
                 .replace(
                   "#",
                   "%23"
-                )}%20I%20minted%20via%20%40shrubfinance.%0Ahttps%3A//opensea.io/assets/matic/${PAPERSEED_CONTRACT_ADDRESS}/${tokenId}/`}
+                )}%23NFT%20I%20minted%20via%20%40shrubfinance%20%400xPolygon.%20Isn%27t%20he%20adorable%3F%0Ahttps%3A//opensea.io/assets/matic/${PAPERSEED_CONTRACT_ADDRESS}/${tokenId}/`}
               isExternal
             >
               <Button
