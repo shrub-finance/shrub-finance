@@ -42,7 +42,7 @@ import { ShrubLogo, SUSDIcon } from "../assets/Icons";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
-import { GiCoins } from "react-icons/gi";
+import { GiCoins, GiFlowerPot, GiPostStamp } from "react-icons/gi";
 import { FaFileContract, HiOutlineDocumentDuplicate } from "react-icons/all";
 import Faucet from "./Faucet";
 import usePriceFeed from "../hooks/usePriceFeed";
@@ -74,8 +74,10 @@ function TopNav() {
     "linear(to-r, gray.100, gray.200)",
     "linear(to-l, gray.700, gray.700)"
   );
-  const topNavShadow = useColorModeValue("md", "md");
-  const topNavBgColor = useColorModeValue("white", "dark.100");
+  // const topNavShadow = useColorModeValue("md", "md");
+  const topNavShadow = useColorModeValue("md", "2xl");
+  // const topNavBgColor = useColorModeValue("white", "dark.100");
+  const topNavBgColor = useColorModeValue("white", "whiteAlpha.100");
   useColorModeValue("sprout", "teal");
 
   function handleModalClose() {
@@ -138,8 +140,20 @@ function TopNav() {
               {/*  </NavRoute>*/}
               {/*))*/}
               {/*}*/}
+              {/*<Link*/}
+              {/*  href="https://docs.shrub.finance"*/}
+              {/*  isExternal*/}
+              {/*  variant="ghost"*/}
+              {/*  cursor="pointer"*/}
+              {/*  px={2}*/}
+              {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
+              {/*  rounded={"lg"}*/}
+              {/*  _hover={{ textDecoration: "none", bgGradient: gradient }}*/}
+              {/*>*/}
+              {/*  Docs <ExternalLinkIcon mx="2px" />*/}
+              {/*</Link>*/}
               <Link
-                href="https://docs.shrub.finance"
+                href="https://shrub.finance/paper-gardens"
                 isExternal
                 variant="ghost"
                 cursor="pointer"
@@ -148,7 +162,19 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Docs <ExternalLinkIcon mx="2px" />
+                The Story <ExternalLinkIcon mx="2px" />
+              </Link>
+              <Link
+                href="https://opensea.io/collection/shrub-paper-gardens"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                View Collection <ExternalLinkIcon mx="2px" />
               </Link>
             </HStack>
           </HStack>
@@ -253,8 +279,24 @@ function TopNav() {
                 )}
                 {colorMode === "light" ? "Dark Mode" : "Light Mode"}
               </Box>
+              {/*<Link*/}
+              {/*  href="https://docs.shrub.finance"*/}
+              {/*  isExternal*/}
+              {/*  variant="ghost"*/}
+              {/*  cursor="pointer"*/}
+              {/*  rounded="lg"*/}
+              {/*  py={"3"}*/}
+              {/*  px={"2"}*/}
+              {/*  _hover={{*/}
+              {/*    textDecoration: "none",*/}
+              {/*    bgGradient: gradient,*/}
+              {/*  }}*/}
+              {/*>*/}
+              {/*  <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />*/}
+              {/*  Docs <ExternalLinkIcon mx="2px" />*/}
+              {/*</Link>*/}
               <Link
-                href="https://docs.shrub.finance"
+                href="https://opensea.io/collection/shrub-paper-gardens"
                 isExternal
                 variant="ghost"
                 cursor="pointer"
@@ -266,9 +308,10 @@ function TopNav() {
                   bgGradient: gradient,
                 }}
               >
-                <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />
-                Docs <ExternalLinkIcon mx="2px" />
+                <Icon as={GiFlowerPot} mr={"2"} />
+                View Collection <ExternalLinkIcon mx="2px" />
               </Link>
+              {/*<Box*/}
               {/*<Box*/}
               {/*  pr={5}*/}
               {/*  onClick={handleTestFaucetModalOpen}*/}
