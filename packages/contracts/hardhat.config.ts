@@ -10,6 +10,7 @@ import "hardhat-gas-reporter";
 import "@nomiclabs/hardhat-etherscan";
 import { ApolloClient, gql, InMemoryCache, HttpLink } from '@apollo/client'
 import fetch from 'cross-fetch'
+import {readFileSync} from 'fs'
 
 import {ACTIVE_ORDERS_QUERY} from "./queries";
 import optionContracts from "./option-contracts.json";
@@ -19,6 +20,7 @@ import {
   HashUtil__factory,
   SUSDToken__factory,
   SMATICToken__factory,
+  PaperSeed__factory,
 } from './types/ethers-v5'
 import {OrderCommon, SmallOrder} from "@shrub/app/src/types";
 import chainlinkAggregatorV3Interface from './external-contracts/chainlinkAggregatorV3InterfaceABI.json';
@@ -57,6 +59,39 @@ task("accounts", "Prints the list of accounts", async (taskArgs, env) => {
     console.log(account.address);
   }
 });
+
+task('mintUnclaimed', 'seedContract owner mints the unclaimed seeds')
+  .addParam('unclaimedFile','json file with unclaimed tokenIds', null, types.string)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { unclaimedFile } = taskArgs
+    if (!unclaimedFile) {
+      console.log('unclaimedFile is a required param');
+    }
+    function setTimeoutAsync(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+    const unclaimed = JSON.parse(readFileSync(unclaimedFile, 'utf-8'));
+    const [signer] = await ethers.getSigners();
+    console.log(signer.address);
+    const seedDeployment = await deployments.get("PaperSeed")
+    const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
+    for (const tokenId of unclaimed) {
+      console.log(`claiming token ${tokenId}`)
+      try {
+        const tx = await PaperSeed.claimReserve(tokenId);
+      } catch (e) {
+        console.log(e.message);
+        if (e.message === 'transaction underpriced') {
+          await setTimeoutAsync(10000);
+          const tx = await PaperSeed.claimReserve(tokenId);
+        } else {
+          throw e;
+        }
+      }
+      await setTimeoutAsync(2000);
+    }
+  })
 
 task(
   'distribMatic',
@@ -711,6 +746,7 @@ const config: HardhatUserConfig & AbiExporter = {
   },
   abiExporter: {
     path: "./abi",
+    runOnCompile: true,
     clear: true,
     flat: true,
     spacing: 2,

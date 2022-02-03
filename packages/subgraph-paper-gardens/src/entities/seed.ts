@@ -1,6 +1,7 @@
 import { Seed } from '../../generated/schema'
 import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { getUser } from './user'
+import { getTypeStat, recordClaim } from './typestats'
 
 export function getType(tokenId: BigInt): string {
   if (tokenId.ge(BigInt.fromI32(1111)) && tokenId.le(BigInt.fromI32(10000))) {
@@ -27,6 +28,7 @@ export function createSeed(tokenId: BigInt, owner: Address): Seed {
   seed.type = getType(tokenId);
   seed.unmoved = true;
   seed.virgin = true;
+  recordClaim(seed.type);
   seed.save();
   return seed as Seed;
 }
@@ -38,6 +40,14 @@ export function updateOwner(tokenId: BigInt, newOwner: Address): Seed {
     throw new Error(`Seed with tokenId ${tokenId.toString()} doesn't exist`);
   }
   let newOwnerUser = getUser(newOwner);
+  let typestat = getTypeStat(seed.type);
+  if (seed.virgin) {
+    typestat.virgin--;
+  }
+  if (seed.unmoved) {
+    typestat.unmoved--;
+  }
+  typestat.save();
   seed.owner = newOwnerUser.id;
   seed.virgin = false;
   seed.unmoved = false;

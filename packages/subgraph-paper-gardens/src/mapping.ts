@@ -28,6 +28,7 @@ import { decrementCount, getUser, incrementCount } from './entities/user'
 import { createSeed, updateOwner } from './entities/seed'
 import { Address, log } from '@graphprotocol/graph-ts'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
+import { recordClaim } from './entities/typestats'
 
 export function handleTransfer(event: Transfer): void {
   let from = event.params.from;

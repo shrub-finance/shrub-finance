@@ -23,3 +23,11 @@ type Exchange @entity {
   "address"
   id: ID!
 }
+
+type TypeStat @entity {
+  "type"
+  id: ID!
+  claimed: Int!
+  unmoved: Int!
+  virgin: Int!
+}
