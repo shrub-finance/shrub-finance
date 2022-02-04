@@ -10,12 +10,12 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "target": "es6",
-    "typeRoots": ["./node_modules/@types", "./types/web3-v1"],
+    "target": "es2018",
     "baseUrl": ".",
     "outDir": "ts_build",
     "sourceMap": true
   },
-  "include": ["index.ts", "hardhat.config.ts"],
+  "include": ["./scripts", "./test"],
+  "files": ["./hardhat.config.ts"],
   "exclude": ["node_modules"]
 }
