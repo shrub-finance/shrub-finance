@@ -1,0 +1,33 @@
+type User @entity {
+  "address"
+  id: ID!
+  seeds: [Seed!]! @derivedFrom(field: "owner")
+  seedCount: BigInt!
+#  activeUserOptions: [UserOption!]!
+#  tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
+#  userMatches: [UserMatch!]! @derivedFrom(field: "user")
+#  userOptions: [UserOption!]! @derivedFrom(field: "user")
+}
+
+type Seed @entity {
+  "tokenId"
+  id: ID!
+  owner: User!
+  type: String!
+  unmoved: Boolean!
+  virgin: Boolean!
+#  approval: Exchange!
+}
+
+type Exchange @entity {
+  "address"
+  id: ID!
+}
+
+type TypeStat @entity {
+  "type"
+  id: ID!
+  claimed: Int!
+  unmoved: Int!
+  virgin: Int!
+}

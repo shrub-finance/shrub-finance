@@ -6796,9 +6796,11 @@ __metadata:
     "@typechain/ethers-v5": 8.0.5
     "@typechain/hardhat": 3.1.0
     "@typechain/web3-v1": 4.0.0
+    "@types/chai": ^4.3.0
     "@types/config": 0.0.41
-    "@types/mocha": 9.0.0
-    chai: 4.3.4
+    "@types/mocha": ^9.1.0
+    "@types/node": ^17.0.14
+    chai: ^4.3.6
     cross-fetch: 3.1.4
     ethereum-waffle: 3.3.0
     ethers: 5.5.2
@@ -6811,6 +6813,21 @@ __metadata:
     ts-node: 10.4.0
     typechain: 6.1.0
     typescript: 4.5.4
+  languageName: unknown
+  linkType: soft
+
+"@shrub/subgraph-paper-gardens@workspace:packages/subgraph-paper-gardens":
+  version: 0.0.0-use.local
+  resolution: "@shrub/subgraph-paper-gardens@workspace:packages/subgraph-paper-gardens"
+  dependencies:
+    "@graphprotocol/graph-cli": ^0.20.1
+    "@graphprotocol/graph-ts": ^0.20.0
+    "@protofire/subgraph-toolkit": 0.1.2
+    babel-polyfill: ^6.26.0
+    babel-register: ^6.26.0
+    truffle: ^5.0.4
+    truffle-contract: ^4.0.5
+    truffle-hdwallet-provider: ^1.0.4
   languageName: unknown
   linkType: soft
 
@@ -8045,6 +8062,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/chai@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "@types/chai@npm:4.3.0"
+  checksum: 3e393e094263db65df28a0123dc13f342937c1bab6cd173eae913d593c5b9a16b555713a08c34863a1fbf079aa7222b96197c70380a5c130549d6b2f6845a989
+  languageName: node
+  linkType: hard
+
 "@types/concat-stream@npm:^1.6.0":
   version: 1.6.1
   resolution: "@types/concat-stream@npm:1.6.1"
@@ -8412,10 +8436,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:9.0.0":
-  version: 9.0.0
-  resolution: "@types/mocha@npm:9.0.0"
-  checksum: 73e6edaba045bc250b69085a770d5029edfed006ed8e75344435474a2cb8d38064acd7b34b6cc62756caa845a5cf335bde66db11e8c8c6565c62a790e933704a
+"@types/mocha@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "@types/mocha@npm:9.1.0"
+  checksum: 21e1000dafcfe387c6812be41c44a47b48c27a74d5a70c3d5ef1bb5c88eadadfc74dba06e93f160e7248c8a57b3977b590f82504c801c9927816ecd4668023c0
   languageName: node
   linkType: hard
 
@@ -8475,6 +8499,13 @@ __metadata:
   version: 12.20.16
   resolution: "@types/node@npm:12.20.16"
   checksum: 172f0b445781377e1adca12ffe7f4a73d9f1eb6b235fd5165f97db19079477e871d59db5f95a8e1650094d9ec5d3b9f06c5ca9ec9d00ff923edb9bb7bd3c0427
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^17.0.14":
+  version: 17.0.14
+  resolution: "@types/node@npm:17.0.14"
+  checksum: cc059ce29686bad5890685f45741826a1a7d1d27382464f6d5fa00b72ba239f6f5b8245a7fa5a56c23ce928030dc76b165a4ab0b86dc078f05b44597d8fe1a46
   languageName: node
   linkType: hard
 
@@ -13143,6 +13174,21 @@ __metadata:
     pathval: ^1.1.1
     type-detect: ^4.0.5
   checksum: 772c522b3bfe3fcf0e0e74edfe584cd886b0e85a73126dec750095300e023d4e1ec6d40e3c35a80d2bd8f33dca46c42767a36f5f50f32dca6fa31c88b5f49ab8
+  languageName: node
+  linkType: hard
+
+"chai@npm:^4.3.6":
+  version: 4.3.6
+  resolution: "chai@npm:4.3.6"
+  dependencies:
+    assertion-error: ^1.1.0
+    check-error: ^1.0.2
+    deep-eql: ^3.0.1
+    get-func-name: ^2.0.0
+    loupe: ^2.3.1
+    pathval: ^1.1.1
+    type-detect: ^4.0.5
+  checksum: acff93fd537f96d4a4d62dd83810285dffcfccb5089e1bf2a1205b28ec82d93dff551368722893cf85004282df10ee68802737c33c90c5493957ed449ed7ce71
   languageName: node
   linkType: hard
 
@@ -25267,6 +25313,15 @@ fsevents@^1.2.7:
     currently-unhandled: ^0.4.1
     signal-exit: ^3.0.0
   checksum: 750e12defde34e8cbf263c2bff16f028a89b56e022ad6b368aa7c39495b5ac33f2349a8d00665a9b6d25c030b376396524d8a31eb0dde98aaa97956d7324f927
+  languageName: node
+  linkType: hard
+
+"loupe@npm:^2.3.1":
+  version: 2.3.2
+  resolution: "loupe@npm:2.3.2"
+  dependencies:
+    get-func-name: ^2.0.0
+  checksum: 8fe881e1d325560d7bbd24246dafd888d29c0c7e69b37c713085de6718cf29b0912e663b6a0f7599cac601079fa1e13e62a7773a6b0352d5b032f56166d905be
   languageName: node
   linkType: hard
 
