@@ -96,6 +96,9 @@ task('sendSeed', 'send a seed from the owner contract to an address')
       console.log('id is a required param');
       return;
     }
+    if (!ethers.utils.isAddress(receiver)) {
+      console.log('invalid receiver address');
+    }
     const [signer] = await ethers.getSigners();
     const seedDeployment = await deployments.get("PaperSeed")
     const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
@@ -104,7 +107,9 @@ task('sendSeed', 'send a seed from the owner contract to an address')
       console.log(`this seed is owned by ${seedOwner} - you cannot send it`);
       return;
     }
-    const conf = await promptly.confirm(`You are about to send tokenId ${id} to ${receiver}. Continue?`)
+    const receiverSeeds = await PaperSeed.balanceOf(receiver);
+    console.log(`${receiver} currently has ${receiverSeeds} Paper Seeds`);
+    const conf = await promptly.confirm(`You are about to send tokenId ${id} to ${receiver}. Continue? (y/n)`)
     if (!conf) {
       return;
     }
