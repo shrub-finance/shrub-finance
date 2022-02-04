@@ -55,7 +55,7 @@ contract SeedOrphanage is Ownable, IERC721Receiver {
     function register() public {
         // registers sender to the list
         address account = _msgSender();
-//        require(IERC721(SEED_CONTRACT_ADDRESS).balanceOf(account) > 0, "Account holds no seed NFTs");
+        require(IERC721(SEED_CONTRACT_ADDRESS).balanceOf(account) > 0, "Account holds no seed NFTs");
         require(isRegistered(account) == false, "Account already registered");
         adoptionRegistry.push(account);
         emit Register(account);

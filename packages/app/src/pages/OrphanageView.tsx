@@ -13,18 +13,13 @@ import {
   ModalCloseButton,
   ModalBody,
   Modal,
-  toast,
   useToast,
   SlideFade,
   Alert,
   AlertIcon,
   Link,
-  Icon,
-  Spacer,
-  Flex,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
-import { Image } from "@chakra-ui/react";
 import React, { useContext, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import useAddNetwork from "../hooks/useAddNetwork";
@@ -40,19 +35,12 @@ import {
   Txmonitor,
   TxStatusList,
 } from "../components/TxMonitoring";
-import {
-  registerForAdoption,
-  getChecksumAddress,
-  getTokenUri,
-} from "../utils/ethMethods";
+import { registerForAdoption } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
-import axios from "axios";
-const ORPHANAGE_CONTRACT_ADDRESS =
-  process.env.REACT_APP_ORPHANAGE_ADDRESS || "";
-import { FaTwitter } from "react-icons/all";
-import { AdoptionImg, OpenSeaIcon } from "../assets/Icons";
+import { AdoptionImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { FaTwitter } from "react-icons/all";
 
 function OrphanageView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -188,13 +176,13 @@ function OrphanageView(props: RouteComponentProps) {
                       isExternal
                       href="https://opensea.io/collection/shrub-paper-gardens"
                     >
-                      Own a seed today <ExternalLinkIcon />
+                      Become a seed owner <ExternalLinkIcon />
                     </Link>
                   </Text>
                 ) : localError.includes("'Account already registered") ? (
                   <Text>
-                    This address is already registered for adoption. Thanks for
-                    giving a sad seed a happy home.
+                    This address is already registered for adoption. Thank you
+                    for giving a sad seed a happy home.
                   </Text>
                 ) : (
                   localError
@@ -211,24 +199,31 @@ function OrphanageView(props: RouteComponentProps) {
               fontWeight="medium"
               textAlign="center"
             >
-              <Text as="span">
-                {!isRegistered ? "Seed Adoption Program" : "You did it!"}
-              </Text>
+              {!localError.includes("'Account already registered") ? (
+                <Text as="span">
+                  {!isRegistered ? "Seed Adoption Program" : "You did it!"}
+                </Text>
+              ) : (
+                <Text>You are all set</Text>
+              )}
             </Heading>
-            {!isRegistered && !activeHash && (
-              <Text
-                mt="3"
-                mb={{ base: "16px", md: "10", lg: "10" }}
-                color={useColorModeValue("gray.700", "gray.300")}
-                fontSize="18px"
-                textAlign="center"
-                fontWeight="medium"
-              >
-                {isMobile
-                  ? "Register to adopt a seed"
-                  : "Register below to adopt a sad seed"}
-              </Text>
-            )}
+            {!isRegistered &&
+              !activeHash &&
+              !localError.includes("'Account already registered") &&
+              !localError.includes("'Account holds no seed NFTs") && (
+                <Text
+                  mt="3"
+                  mb={{ base: "16px", md: "10", lg: "10" }}
+                  color={useColorModeValue("gray.700", "gray.300")}
+                  fontSize="18px"
+                  textAlign="center"
+                  fontWeight="medium"
+                >
+                  {isMobile
+                    ? "Register to adopt a seed"
+                    : "Register below to adopt a sad seed"}
+                </Text>
+              )}
             {isRegistered && (
               <Text
                 mt="3"
@@ -240,15 +235,58 @@ function OrphanageView(props: RouteComponentProps) {
                 Thank you being a proud sad seed adopter
               </Text>
             )}
-            <AdoptionImg boxSize={1000} />
+            {isRegistered ||
+              (localError.includes("'Account already registered") && (
+                <Center py={4}>
+                  <Link
+                    href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpaper.shrub.finance&text=I%20just%20became%20a%20proud%20seed%20adopter%20on%20@shrubfinance%21%20Join%20me%20in%20giving%20a%20seed%20a%20home%21%20&hashtags=NFTs%2CDeFi%2Cweb3"
+                    isExternal
+                  >
+                    <Button
+                      variant="link"
+                      colorScheme="twitter"
+                      leftIcon={<FaTwitter />}
+                    >
+                      Brag about it!
+                    </Button>
+                  </Link>
+                </Center>
+              ))}
+            {/*<AdoptionImg boxSize={1000} />*/}
             <Center>
-              {!isRegistered && !activeHash && (
+              {!isRegistered &&
+                !activeHash &&
+                !localError.includes("'Account already registered") &&
+                !localError.includes("'Account holds no seed NFTs") && (
+                  <Button
+                    onClick={handleAdoptionRegistration}
+                    colorScheme={tradingBtnColor}
+                    variant="solid"
+                    rounded="2xl"
+                    isLoading={isLoading}
+                    size="lg"
+                    px={["50", "70", "90", "90"]}
+                    fontSize="25px"
+                    py={10}
+                    borderRadius="full"
+                    _hover={{ transform: "translateY(-2px)" }}
+                    bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                    loadingText="Registering..."
+                  >
+                    {account
+                      ? "Register to adopt"
+                      : !!web3Error &&
+                        getErrorMessage(web3Error).title === "Wrong Network"
+                      ? "Connect to Polygon"
+                      : "Connect Wallet"}
+                  </Button>
+                )}
+              {localError.includes("'Account holds no seed NFTs") && (
                 <Button
-                  onClick={handleAdoptionRegistration}
                   colorScheme={tradingBtnColor}
                   variant="solid"
                   rounded="2xl"
-                  isLoading={isLoading}
+                  mt={10}
                   size="lg"
                   px={["50", "70", "90", "90"]}
                   fontSize="25px"
@@ -256,14 +294,13 @@ function OrphanageView(props: RouteComponentProps) {
                   borderRadius="full"
                   _hover={{ transform: "translateY(-2px)" }}
                   bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                  loadingText="Registering..."
                 >
-                  {account
-                    ? "Register to adopt"
-                    : !!web3Error &&
-                      getErrorMessage(web3Error).title === "Wrong Network"
-                    ? "Connect to Polygon"
-                    : "Connect Wallet"}
+                  <Link
+                    href="https://opensea.io/collection/shrub-paper-gardens"
+                    isExternal
+                  >
+                    Own a seed
+                  </Link>
                 </Button>
               )}
             </Center>
