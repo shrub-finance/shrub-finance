@@ -42,7 +42,7 @@ import {
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
-import { AdoptionImg, PostAdoptionImg } from "../assets/Icons";
+import { AdoptionImg, PostAdoptionImg, SeedBasketImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { FaTwitter } from "react-icons/all";
 
@@ -186,7 +186,6 @@ function OrphanageView(props: RouteComponentProps) {
       console.error(e);
     }
   }
-
   return (
     <>
       <Container
@@ -201,7 +200,7 @@ function OrphanageView(props: RouteComponentProps) {
           <Box mb={{ base: 6, md: 10 }}>
             <Heading
               maxW="60rem"
-              fontSize={["5xl", "6xl"]}
+              fontSize={["2xl", "5xl", "6xl"]}
               fontWeight="medium"
               textAlign="center"
             >
@@ -317,18 +316,24 @@ function OrphanageView(props: RouteComponentProps) {
                   </SlideFade>
                 )}
               </Center>
-              <Center zIndex={-1} mt={-40}>
-                {!isRegistered ? (
-                  <AdoptionImg boxSize={{ base: 0, md: 1000 }} />
+              <Center zIndex={-1} mt={{ base: 20, md: -40 }}>
+                {!isMobile ? (
+                  !isRegistered ? (
+                    <>
+                      <AdoptionImg boxSize={{ base: 0, md: 1000 }} />
+                      <SeedBasketImg boxSize={{ base: 320, md: 0 }} pt={14} />
+                    </>
+                  ) : (
+                    <>
+                      <PostAdoptionImg boxSize={{ base: 0, md: 1000 }} />
+                      <SeedBasketImg boxSize={{ base: 320, md: 0 }} pt={14} />
+                    </>
+                  )
                 ) : (
-                  <PostAdoptionImg boxSize={{ base: 0, md: 1000 }} />
+                  <SeedBasketImg boxSize={320} pt={14} />
                 )}
               </Center>
-              <Center
-                // right={{ base: 0, md: 8 }}
-                top={{ base: -20, md: 20 }}
-                position={"absolute"}
-              >
+              <Center top={{ base: 5, md: 20 }} position={"absolute"}>
                 {!isRegistered &&
                   !activeHash &&
                   !localError.includes("'Account already registered") &&
