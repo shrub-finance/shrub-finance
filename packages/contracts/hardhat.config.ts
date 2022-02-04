@@ -11,6 +11,7 @@ import "@nomiclabs/hardhat-etherscan";
 import { ApolloClient, gql, InMemoryCache, HttpLink } from '@apollo/client'
 import fetch from 'cross-fetch'
 import {readFileSync} from 'fs'
+import promptly from 'promptly'
 
 import {ACTIVE_ORDERS_QUERY} from "./queries";
 import optionContracts from "./option-contracts.json";
@@ -29,6 +30,7 @@ import { toEthDate } from '@shrub/app/src/utils/ethMethods'
 const bs = require('./utils/black-scholes');
 const { Shrub712 } = require("./utils/EIP712");
 import dotenv from "dotenv";
+import { address } from 'hardhat/internal/core/config/config-validation'
 dotenv.config();
 
 const CHAINLINK_MATIC = '0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada';  // Mumbai
@@ -60,6 +62,60 @@ task("accounts", "Prints the list of accounts", async (taskArgs, env) => {
   }
 });
 
+task('mintSeed', 'seedContract owner mints an unclaimed seed')
+  .addParam('id', 'tokenId of the seed to claim')
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { id } = taskArgs
+    if (!id) {
+      console.log('id is a required param');
+      return;
+    }
+    const [signer] = await ethers.getSigners();
+    const seedDeployment = await deployments.get("PaperSeed")
+    const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
+    console.log(`claiming token ${id}`)
+    try {
+      const tx = await PaperSeed.claimReserve(id);
+    } catch (e) {
+      console.log(e.message);
+    }
+  });
+
+task('sendSeed', 'send a seed from the owner contract to an address')
+  .addParam('id', 'tokenId of the seed to send')
+  .addParam('receiver', 'address of the receiver')
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { id, receiver } = taskArgs
+    if (!id) {
+      console.log('id is a required param');
+      return;
+    }
+    if (!id) {
+      console.log('id is a required param');
+      return;
+    }
+    if (!ethers.utils.isAddress(receiver)) {
+      console.log('invalid receiver address');
+    }
+    const [signer] = await ethers.getSigners();
+    const seedDeployment = await deployments.get("PaperSeed")
+    const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
+    const seedOwner = await PaperSeed.ownerOf(id);
+    if (seedOwner !== signer.address) {
+      console.log(`this seed is owned by ${seedOwner} - you cannot send it`);
+      return;
+    }
+    const receiverSeeds = await PaperSeed.balanceOf(receiver);
+    console.log(`${receiver} currently has ${receiverSeeds} Paper Seeds`);
+    const conf = await promptly.confirm(`You are about to send tokenId ${id} to ${receiver}. Continue? (y/n)`)
+    if (!conf) {
+      return;
+    }
+    const tx = await PaperSeed['safeTransferFrom(address,address,uint256)'](signer.address, receiver, id);
+  })
+
 task('mintUnclaimed', 'seedContract owner mints the unclaimed seeds')
   .addParam('unclaimedFile','json file with unclaimed tokenIds', null, types.string)
   .setAction(async (taskArgs, env) => {
@@ -67,6 +123,7 @@ task('mintUnclaimed', 'seedContract owner mints the unclaimed seeds')
     const { unclaimedFile } = taskArgs
     if (!unclaimedFile) {
       console.log('unclaimedFile is a required param');
+      return;
     }
     function setTimeoutAsync(ms) {
       return new Promise((resolve) => setTimeout(resolve, ms));
