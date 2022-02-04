@@ -20,7 +20,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import useAddNetwork from "../hooks/useAddNetwork";
 import { isMobile } from "react-device-detect";
@@ -35,10 +35,14 @@ import {
   Txmonitor,
   TxStatusList,
 } from "../components/TxMonitoring";
-import { registerForAdoption } from "../utils/ethMethods";
+import {
+  isRegisteredForAdoption,
+  registerForAdoption,
+  seedBalanceOf,
+} from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
-import { AdoptionImg } from "../assets/Icons";
+import { AdoptionImg, PostAdoptionImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { FaTwitter } from "react-icons/all";
 
@@ -50,8 +54,11 @@ function OrphanageView(props: RouteComponentProps) {
   const [activeHash, setActiveHash] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isSeedHolder, setIsSeedHolder] = useState(false);
+
   const toast = useToast();
   const tradingBtnColor = useColorModeValue("sprout", "teal");
+  const ownSeedCTA = useColorModeValue("pink.600", "yellow.200");
   const {
     isOpen: isConnectWalletOpen,
     onOpen: onConnectWalletOpen,
@@ -70,6 +77,35 @@ function OrphanageView(props: RouteComponentProps) {
     library,
     chainId,
   } = useWeb3React();
+
+  useEffect(() => {
+    async function main() {
+      if (!account) {
+        return;
+      }
+      const result = await isRegisteredForAdoption(library, account);
+      setIsRegistered(result);
+    }
+    main().catch((err) => {
+      handleErrorMessages({ err });
+      console.error(err);
+    });
+  }, [account]);
+
+  useEffect(() => {
+    async function main() {
+      if (!account) {
+        return;
+      }
+      const result = await seedBalanceOf(library, account);
+      const localSeedHolder = result.gt(0);
+      setIsSeedHolder(localSeedHolder);
+    }
+    main().catch((err) => {
+      handleErrorMessages({ err });
+      console.error(err);
+    });
+  }, [account]);
 
   async function handleAdoptionRegistration() {
     setLocalError("");
@@ -177,23 +213,50 @@ function OrphanageView(props: RouteComponentProps) {
                 <Text>You are all set</Text>
               )}
             </Heading>
-            {!isRegistered &&
-              !activeHash &&
-              !localError.includes("'Account already registered") &&
-              !localError.includes("'Account holds no seed NFTs") && (
-                <Text
-                  mt="3"
-                  mb={{ base: "16px", md: "10", lg: "10" }}
-                  color={useColorModeValue("gray.700", "gray.300")}
-                  fontSize="18px"
-                  textAlign="center"
-                  fontWeight="medium"
-                >
-                  {isMobile
-                    ? "Register to adopt a seed"
-                    : "Register below to adopt a sad seed"}
-                </Text>
-              )}
+            <Center>
+              {!isRegistered &&
+                !activeHash &&
+                !localError.includes("'Account already registered") &&
+                !localError.includes("'Account holds no seed NFTs") && (
+                  <Text
+                    mt="8"
+                    mb={{ base: "16px", md: "10", lg: "10" }}
+                    color={useColorModeValue("gray.700", "gray.300")}
+                    fontSize="18px"
+                    textAlign="justify"
+                    fontWeight="medium"
+                    maxW={650}
+                  >
+                    The Paper Merchant in his quest to find good homes for the
+                    sad seeds has started an adoption program. <br />
+                    <br />
+                    Every day <strong>2 seeds</strong> will be put out for
+                    adoption. They will be adopted by the users who have
+                    registered for the adoption batch.
+                    <br />
+                    <br />
+                    <strong>Batches last 1 week</strong>. Registration{" "}
+                    <strong>must be renewed</strong> on a weekly basis. <br />
+                    <br />
+                    <strong>Registration is free</strong>, but you have to be a{" "}
+                    <strong>seed owner to qualify.</strong>
+                    <br />
+                    <br />
+                    {!isSeedHolder && (
+                      <Link
+                        href="https://opensea.io/collection/shrub-paper-gardens"
+                        isExternal
+                        textAlign={"center"}
+                        color={ownSeedCTA}
+                        fontWeight={"bold"}
+                      >
+                        Give them a home. Become a seed owner{" "}
+                        <ExternalLinkIcon />
+                      </Link>
+                    )}
+                  </Text>
+                )}
+            </Center>
             {isRegistered && (
               <Text
                 mt="3"
@@ -201,8 +264,9 @@ function OrphanageView(props: RouteComponentProps) {
                 fontSize="18px"
                 textAlign="center"
                 fontWeight="medium"
+                maxW="60rem"
               >
-                Thank you being a proud sad seed adopter
+                Thank you for registering for this batch
               </Text>
             )}
             {isRegistered ||
@@ -253,10 +317,16 @@ function OrphanageView(props: RouteComponentProps) {
                   </SlideFade>
                 )}
               </Center>
-              <AdoptionImg boxSize={{ base: 0, md: 1000 }} mt={-40} />
+              <Center zIndex={-1} mt={-40}>
+                {!isRegistered ? (
+                  <AdoptionImg boxSize={{ base: 0, md: 1000 }} />
+                ) : (
+                  <PostAdoptionImg boxSize={{ base: 0, md: 1000 }} />
+                )}
+              </Center>
               <Center
-                right={{ base: 0, md: 8 }}
-                bottom={{ base: -20, md: 60 }}
+                // right={{ base: 0, md: 8 }}
+                top={{ base: -20, md: 20 }}
                 position={"absolute"}
               >
                 {!isRegistered &&
@@ -269,6 +339,7 @@ function OrphanageView(props: RouteComponentProps) {
                       variant="solid"
                       rounded="2xl"
                       isLoading={isLoading}
+                      isDisabled={!!account && !isSeedHolder}
                       size="lg"
                       px={["50", "70", "90", "90"]}
                       fontSize="25px"
@@ -279,35 +350,15 @@ function OrphanageView(props: RouteComponentProps) {
                       loadingText="Registering..."
                     >
                       {account
-                        ? "Register to adopt"
+                        ? isSeedHolder
+                          ? "Register to adopt"
+                          : "Must own a seed to adopt"
                         : !!web3Error &&
                           getErrorMessage(web3Error).title === "Wrong Network"
                         ? "Connect to Polygon"
                         : "Connect Wallet"}
                     </Button>
                   )}
-                {localError.includes("'Account holds no seed NFTs") && (
-                  <Button
-                    colorScheme={tradingBtnColor}
-                    variant="solid"
-                    rounded="2xl"
-                    mt={10}
-                    size="lg"
-                    px={["50", "70", "90", "90"]}
-                    fontSize="25px"
-                    py={10}
-                    borderRadius="full"
-                    _hover={{ transform: "translateY(-2px)" }}
-                    bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                  >
-                    <Link
-                      href="https://opensea.io/collection/shrub-paper-gardens"
-                      isExternal
-                    >
-                      Own a seed
-                    </Link>
-                  </Button>
-                )}
               </Center>
             </Center>
           </Box>
