@@ -368,7 +368,6 @@ export async function registerForAdoption(provider: JsonRpcProvider) {
     ORPHANAGE_CONTRACT_ADDRESS,
     signer
   );
-  console.log(orphanageContract);
   const tx = await orphanageContract.register();
   console.log(tx);
   return tx;
