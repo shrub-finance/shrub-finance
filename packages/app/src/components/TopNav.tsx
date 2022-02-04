@@ -162,7 +162,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                The Story <ExternalLinkIcon mx="2px" />
+                Story <ExternalLinkIcon mx="2px" />
               </Link>
               <Link
                 href="https://opensea.io/collection/shrub-paper-gardens"
@@ -174,7 +174,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                View Collection <ExternalLinkIcon mx="2px" />
+                Collection <ExternalLinkIcon mx="2px" />
               </Link>
             </HStack>
           </HStack>
@@ -309,7 +309,7 @@ function TopNav() {
                 }}
               >
                 <Icon as={GiFlowerPot} mr={"2"} />
-                View Collection <ExternalLinkIcon mx="2px" />
+                Collection <ExternalLinkIcon mx="2px" />
               </Link>
               {/*<Box*/}
               {/*<Box*/}
