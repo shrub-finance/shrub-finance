@@ -368,9 +368,29 @@ export async function registerForAdoption(provider: JsonRpcProvider) {
     ORPHANAGE_CONTRACT_ADDRESS,
     signer
   );
-  const tx = await orphanageContract.register();
-  console.log(tx);
-  return tx;
+  return orphanageContract.register();
+}
+
+export async function isRegisteredForAdoption(
+  provider: JsonRpcProvider,
+  address: string
+) {
+  const orphanageContract = SeedOrphanage__factory.connect(
+    ORPHANAGE_CONTRACT_ADDRESS,
+    provider
+  );
+  return orphanageContract.isRegistered(address);
+}
+
+export async function seedBalanceOf(
+  provider: JsonRpcProvider,
+  address: string
+) {
+  const paperseedContract = PaperSeed__factory.connect(
+    PAPERSEED_CONTRACT_ADDRESS,
+    provider
+  );
+  return paperseedContract.balanceOf(address);
 }
 
 export async function getTokenUri(
