@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import { Image } from "@chakra-ui/react";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import useAddNetwork from "../hooks/useAddNetwork";
 import { isMobile } from "react-device-detect";
@@ -33,11 +33,10 @@ import {
 } from "../components/ConnectWallet";
 import { TxStatusList } from "../components/TxMonitoring";
 import { getTokenUri } from "../utils/ethMethods";
-import Confetti from "../assets/Confetti";
 import axios from "axios";
 const PAPERSEED_CONTRACT_ADDRESS =
   process.env.REACT_APP_PAPERSEED_ADDRESS || "";
-import { FaTwitter, GiBasket } from "react-icons/all";
+import { FaTwitter } from "react-icons/all";
 import { HelloBud, OpenSeaIcon } from "../assets/Icons";
 
 function PaperView(props: RouteComponentProps) {
@@ -55,6 +54,10 @@ function PaperView(props: RouteComponentProps) {
   };
   const [isHidden, setIsHidden] = useState(false);
   const [nftImageId, setNftImageId] = useState("");
+  const [rarity, setRarity] = useState("");
+  const [emotion, setEmotion] = useState("");
+  const [dna, setDna] = useState("");
+  const [seedType, setSeedType] = useState("");
   const [nftTitle, setNftTitle] = useState("");
   const [tokenId, setTokenId] = useState(0);
 
@@ -71,6 +74,10 @@ function PaperView(props: RouteComponentProps) {
       setNftImageId("");
       setTokenId(0);
       setNftTitle("");
+      setRarity("");
+      setDna("");
+      setEmotion("");
+      setSeedType("");
       setIsLoading(true);
       try {
         if (!account) {
@@ -94,6 +101,10 @@ function PaperView(props: RouteComponentProps) {
             );
             let nfti = "";
             let metadataName = "";
+            let type = "";
+            let rarity = "";
+            let emotion = "";
+            let dna = "";
             if (uri && uri.includes("://")) {
               uri = `https://ipfs.io/ipfs/${uri.split("://")[1]}`;
               const nftMetadata = await axios.get(uri);
@@ -104,10 +115,18 @@ function PaperView(props: RouteComponentProps) {
               ) {
                 nfti = nftMetadata.data.image.split("://")[1];
                 metadataName = nftMetadata.data.name;
+                type = nftMetadata.data.attributes[0].value;
+                rarity = nftMetadata.data.attributes[1].value;
+                dna = nftMetadata.data.attributes[2].value;
+                emotion = nftMetadata.data.attributes[3].value;
               }
             }
             setNftImageId(nfti);
             setNftTitle(metadataName);
+            setEmotion(emotion);
+            setDna(dna);
+            setRarity(rarity);
+            setSeedType(type);
             // @ts-ignore
             setTokenId(props.tokenId);
             setIsLoading(false);
@@ -223,45 +242,82 @@ function PaperView(props: RouteComponentProps) {
             </Link>
           </Center>
           {nftImageId && (
-            <Center>
-              <Image src={nftImageLink} boxSize={400} />
-            </Center>
+            <>
+              <Center pb={6}>
+                <Image src={nftImageLink} boxSize={400} />
+              </Center>
+              <Center fontSize="sm" fontWeight={"bold"}>
+                <Box>
+                  DNA
+                  <Box as="span" pl={5}>
+                    {dna}
+                  </Box>
+                </Box>
+              </Center>
+              <Center fontSize="sm" fontWeight={"bold"}>
+                <Box>
+                  Class
+                  <Box as="span" pl={5}>
+                    {seedType}
+                  </Box>
+                </Box>
+              </Center>
+              <Center fontSize="sm" fontWeight={"bold"}>
+                <Box>
+                  Rarity
+                  <Box as="span" pl={5}>
+                    {rarity}
+                  </Box>
+                </Box>
+              </Center>
+              <Center fontSize="sm" fontWeight={"bold"}>
+                <Box>
+                  Emotion
+                  <Box as="span" pl={5}>
+                    {emotion}
+                  </Box>
+                </Box>
+              </Center>
+            </>
           )}
         </Container>
       )}
 
-      <Modal
-        isOpen={isConnectWalletOpen}
-        onClose={onConnectWalletClose}
-        motionPreset="slideInBottom"
-        scrollBehavior={isMobile ? "inside" : "outside"}
-      >
-        <ModalOverlay />
-        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
-          <ModalHeader>
-            {!active ? (
-              "Connect Wallet"
-            ) : !isHidden ? (
-              <Text fontSize={16}>Account Details</Text>
-            ) : (
-              <Button variant="ghost" onClick={() => displayStatus(false)}>
-                Back
-              </Button>
-            )}{" "}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {!active || isHidden ? (
-              <ConnectWalletModal />
-            ) : (
-              !isHidden && <ConnectionStatus displayStatus={displayStatus} />
-            )}
-            {!(
-              web3Error && getErrorMessage(web3Error).title === "Wrong Network"
-            ) && <TxStatusList />}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      {!account && (
+        <Modal
+          isOpen={isConnectWalletOpen}
+          onClose={onConnectWalletClose}
+          motionPreset="slideInBottom"
+          scrollBehavior={isMobile ? "inside" : "outside"}
+        >
+          <ModalOverlay />
+          <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
+            <ModalHeader>
+              {!active ? (
+                "Connect Wallet"
+              ) : !isHidden ? (
+                <Text fontSize={16}>Account Details</Text>
+              ) : (
+                <Button variant="ghost" onClick={() => displayStatus(false)}>
+                  Back
+                </Button>
+              )}{" "}
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              {!active || isHidden ? (
+                <ConnectWalletModal />
+              ) : (
+                !isHidden && <ConnectionStatus displayStatus={displayStatus} />
+              )}
+              {!(
+                web3Error &&
+                getErrorMessage(web3Error).title === "Wrong Network"
+              ) && <TxStatusList />}
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
     </>
   );
 }
