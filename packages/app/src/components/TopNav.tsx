@@ -74,10 +74,10 @@ function TopNav() {
     "linear(to-r, gray.100, gray.200)",
     "linear(to-l, gray.700, gray.700)"
   );
-  // const topNavShadow = useColorModeValue("md", "md");
-  const topNavShadow = useColorModeValue("md", "2xl");
-  // const topNavBgColor = useColorModeValue("white", "dark.100");
-  const topNavBgColor = useColorModeValue("white", "whiteAlpha.100");
+  const topNavShadow = useColorModeValue("md", "md");
+  // const topNavShadow = useColorModeValue("md", "2xl");
+  const topNavBgColor = useColorModeValue("white", "dark.100");
+  // const topNavBgColor = useColorModeValue("white", "whiteAlpha.100");
   useColorModeValue("sprout", "teal");
 
   function handleModalClose() {

@@ -9,7 +9,7 @@ import Store from "./components/Store";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import HomeView from "./pages/HomeView";
 import PaperView from "./pages/PaperView";
-import NFTView from "./pages/NFTView";
+import LeaderBoardView from "./pages/LeaderBoardView";
 
 function App() {
   const client = new ApolloClient({
@@ -25,8 +25,9 @@ function App() {
           <Store>
             <TopNav />
             <Router>
-              <NFTView path="/" />
-              <NFTView path="/claim" />
+              <LeaderBoardView path="/" />
+              <LeaderBoardView path="/claim" />
+              <PaperView path="/nft/paper-seed/:tokenId" />
               {/*<HomeView path="/" />*/}
               {/*<PositionsView path="shrubfolio" />*/}
               {/*<OptionsView path="options" />*/}

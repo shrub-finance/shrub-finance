@@ -45,8 +45,7 @@ const styles = {
   global: (props: any) => ({
     body: {
       fontFamily: "body",
-      // bg: mode("gray.50", "dark.200")(props),
-      bg: mode("gray.50", "black")(props),
+      bg: mode("gray.50", "dark.200")(props),
     },
   }),
 };
