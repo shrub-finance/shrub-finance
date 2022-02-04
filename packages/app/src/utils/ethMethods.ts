@@ -7,6 +7,7 @@ import {
   PaperSeed__factory,
   ShrubExchange__factory,
   HashUtil__factory,
+  SeedOrphanage__factory,
 } from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
@@ -31,6 +32,8 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const PAPERSEED_CONTRACT_ADDRESS =
   process.env.REACT_APP_PAPERSEED_ADDRESS || "";
+const ORPHANAGE_CONTRACT_ADDRESS =
+  process.env.REACT_APP_ORPHANAGE_ADDRESS || "";
 const HASH_UTIL_CONTRACT_ADDRESS =
   process.env.REACT_APP_HASH_UTIL_ADDRESS || "";
 const SUSD_TOKEN_ADDRESS = process.env.REACT_APP_SUSD_TOKEN_ADDRESS || "";
@@ -340,22 +343,33 @@ export async function withdraw(
   return shrubContract.withdraw(tokenContractAddress, amount);
 }
 
-export async function claimNFT(
-  index: ethers.BigNumberish,
-  tokenID: ethers.BigNumberish,
-  proof: BytesLike[],
-  provider: JsonRpcProvider
-) {
+// export async function claimNFT(
+//   index: ethers.BigNumberish,
+//   tokenID: ethers.BigNumberish,
+//   proof: BytesLike[],
+//   provider: JsonRpcProvider
+// ) {
+//   const signer = provider.getSigner();
+//   const paperseedContract = PaperSeed__factory.connect(
+//     PAPERSEED_CONTRACT_ADDRESS,
+//     signer
+//   );
+//   const tx = await paperseedContract["claim(uint256,uint256,bytes32[])"](
+//     index,
+//     tokenID,
+//     proof
+//   );
+//   return tx;
+// }
+
+export async function registerForAdoption(provider: JsonRpcProvider) {
   const signer = provider.getSigner();
-  const paperseedContract = PaperSeed__factory.connect(
-    PAPERSEED_CONTRACT_ADDRESS,
+  const orphanageContract = SeedOrphanage__factory.connect(
+    ORPHANAGE_CONTRACT_ADDRESS,
     signer
   );
-  const tx = await paperseedContract["claim(uint256,uint256,bytes32[])"](
-    index,
-    tokenID,
-    proof
-  );
+  const tx = await orphanageContract.register();
+  console.log(tx);
   return tx;
 }
 
