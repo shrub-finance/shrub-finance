@@ -1,5 +1,4 @@
 import {
-  Box,
   Heading,
   Text,
   Button,
@@ -18,7 +17,6 @@ import {
   AlertIcon,
   Th,
   Tr,
-  Tfoot,
   Td,
   Tbody,
   Thead,
@@ -43,7 +41,8 @@ import {
 import { TxStatusList } from "../components/TxMonitoring";
 import { NFT_LEADERBOARD_QUERY } from "../constants/queries";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-function NFTView(props: RouteComponentProps) {
+import { addressMap } from "../constants/dictionary";
+function LeaderBoardView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const headingColor = useColorModeValue(
@@ -62,26 +61,7 @@ function NFTView(props: RouteComponentProps) {
   const leaderBoardRows: JSX.Element[] = [];
   const POLL_INTERVAL = 60000; // 15 second polling interval
 
-  const dictionary: { [address: string]: string } = {
-    "0x0073d46db23fa08221b76ba7f497c04b72bd3529": "Willdabeast00",
-    "0x1748657e354e30247fcdbb403e69e9dc3d9a7735": "Dafeng",
-    "0xdfc107cc5e5f4064c717966f8d54311afe97142a": "adadcarry",
-    "0xcd6b6d99b7751ff30b68fa1365488eb73fa7cefa": "kingnftvn",
-    "0x524a163e38e69fc120415875200922109a62ca05": "CrabInc",
-    "0x4b38ef4dbd564019a2fc51b6b280b736c62e0ae8": "niuning95",
-    "0x2553e6471c779ab3278ffa21300e12725ab5ab2f": "CypressPond",
-    "0xdc93fef5564989471d0ac9b047a95a5c8491b002": "0xbtroot",
-    "0x704de6418d5cac37bc5607290fbcbcb7a3b274b7": "Alexfawcett",
-    "0xbcd8671f0799646573f73e9aafb875219a8721a5": "xiuc",
-    "0xaa4efd397ed95854a1aabbd0d3c0f9a22583aca7": "0xbitsun",
-    "0x41a24d16715e5c0db012334595017abea537d33e": "nickewansmith.eth",
-    "0x12fe20de6b441f18ba9a3c9a7a78c9bd16723e8d": "188btc.eth",
-    "0x597f0f68aa64a2216d395d4829d4657a2f3fa745": "ariswap",
-    "0x0c7cdee7f65f2be9d3d241a8caf43fd2773e263b": "wealthfreedom.eth",
-    "0xc17ec9d8e72ab957ac73596846ac87b8c7f80be2": "Block_Invest1",
-    "0x9bf68b9a9b377f3ba0c40c1c5d8322e3ed8ee590":
-      "ShrubFinanceTomydigitaltrader",
-  };
+  const dictionary: { [address: string]: string } = addressMap;
 
   const {
     loading,
@@ -288,4 +268,4 @@ function NFTView(props: RouteComponentProps) {
   );
 }
 
-export default NFTView;
+export default LeaderBoardView;
