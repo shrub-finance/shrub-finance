@@ -162,36 +162,6 @@ function OrphanageView(props: RouteComponentProps) {
       >
         {isRegistered && activeHash && <Confetti />}
         <Center mt={10}>
-          {localError && (
-            <SlideFade in={true} unmountOnExit={true}>
-              <Alert status="info" variant="shrubYellow" borderRadius={9}>
-                <AlertIcon />
-                {localError.includes("'Account holds no seed NFTs") ? (
-                  <Text>
-                    This address does not have any paper seeds. To adopt a seed
-                    you have to first be a seed owner.{" "}
-                    <Link
-                      color="blue.500"
-                      fontWeight={"bold"}
-                      isExternal
-                      href="https://opensea.io/collection/shrub-paper-gardens"
-                    >
-                      Become a seed owner <ExternalLinkIcon />
-                    </Link>
-                  </Text>
-                ) : localError.includes("'Account already registered") ? (
-                  <Text>
-                    This address is already registered for adoption. Thank you
-                    for giving a sad seed a happy home.
-                  </Text>
-                ) : (
-                  localError
-                )}
-              </Alert>
-            </SlideFade>
-          )}
-        </Center>
-        <Center mt={10}>
           <Box mb={{ base: 6, md: 10 }}>
             <Heading
               maxW="60rem"
@@ -252,18 +222,76 @@ function OrphanageView(props: RouteComponentProps) {
                   </Link>
                 </Center>
               ))}
-            {/*<AdoptionImg boxSize={1000} />*/}
-            <Center>
-              {!isRegistered &&
-                !activeHash &&
-                !localError.includes("'Account already registered") &&
-                !localError.includes("'Account holds no seed NFTs") && (
+            <Center position={"relative"}>
+              <Center mt={10} position={"absolute"} top={0}>
+                {localError && (
+                  <SlideFade in={true} unmountOnExit={true}>
+                    <Alert status="info" variant="shrubYellow" borderRadius={9}>
+                      <AlertIcon />
+                      {localError.includes("'Account holds no seed NFTs") ? (
+                        <Text>
+                          This address does not have any paper seeds. To adopt a
+                          seed you have to first be a seed owner.{" "}
+                          <Link
+                            color="blue.500"
+                            fontWeight={"bold"}
+                            isExternal
+                            href="https://opensea.io/collection/shrub-paper-gardens"
+                          >
+                            Become a seed owner <ExternalLinkIcon />
+                          </Link>
+                        </Text>
+                      ) : localError.includes("'Account already registered") ? (
+                        <Text>
+                          This address is already registered for adoption. Thank
+                          you for giving a sad seed a happy home.
+                        </Text>
+                      ) : (
+                        localError
+                      )}
+                    </Alert>
+                  </SlideFade>
+                )}
+              </Center>
+              <AdoptionImg boxSize={{ base: 0, md: 1000 }} mt={-40} />
+              <Center
+                right={{ base: 0, md: 8 }}
+                bottom={{ base: -20, md: 60 }}
+                position={"absolute"}
+              >
+                {!isRegistered &&
+                  !activeHash &&
+                  !localError.includes("'Account already registered") &&
+                  !localError.includes("'Account holds no seed NFTs") && (
+                    <Button
+                      onClick={handleAdoptionRegistration}
+                      colorScheme={tradingBtnColor}
+                      variant="solid"
+                      rounded="2xl"
+                      isLoading={isLoading}
+                      size="lg"
+                      px={["50", "70", "90", "90"]}
+                      fontSize="25px"
+                      py={10}
+                      borderRadius="full"
+                      _hover={{ transform: "translateY(-2px)" }}
+                      bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                      loadingText="Registering..."
+                    >
+                      {account
+                        ? "Register to adopt"
+                        : !!web3Error &&
+                          getErrorMessage(web3Error).title === "Wrong Network"
+                        ? "Connect to Polygon"
+                        : "Connect Wallet"}
+                    </Button>
+                  )}
+                {localError.includes("'Account holds no seed NFTs") && (
                   <Button
-                    onClick={handleAdoptionRegistration}
                     colorScheme={tradingBtnColor}
                     variant="solid"
                     rounded="2xl"
-                    isLoading={isLoading}
+                    mt={10}
                     size="lg"
                     px={["50", "70", "90", "90"]}
                     fontSize="25px"
@@ -271,38 +299,16 @@ function OrphanageView(props: RouteComponentProps) {
                     borderRadius="full"
                     _hover={{ transform: "translateY(-2px)" }}
                     bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                    loadingText="Registering..."
                   >
-                    {account
-                      ? "Register to adopt"
-                      : !!web3Error &&
-                        getErrorMessage(web3Error).title === "Wrong Network"
-                      ? "Connect to Polygon"
-                      : "Connect Wallet"}
+                    <Link
+                      href="https://opensea.io/collection/shrub-paper-gardens"
+                      isExternal
+                    >
+                      Own a seed
+                    </Link>
                   </Button>
                 )}
-              {localError.includes("'Account holds no seed NFTs") && (
-                <Button
-                  colorScheme={tradingBtnColor}
-                  variant="solid"
-                  rounded="2xl"
-                  mt={10}
-                  size="lg"
-                  px={["50", "70", "90", "90"]}
-                  fontSize="25px"
-                  py={10}
-                  borderRadius="full"
-                  _hover={{ transform: "translateY(-2px)" }}
-                  bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                >
-                  <Link
-                    href="https://opensea.io/collection/shrub-paper-gardens"
-                    isExternal
-                  >
-                    Own a seed
-                  </Link>
-                </Button>
-              )}
+              </Center>
             </Center>
           </Box>
         </Center>
