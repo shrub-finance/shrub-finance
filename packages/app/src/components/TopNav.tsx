@@ -38,7 +38,7 @@ import {
   getErrorMessage,
 } from "./ConnectWallet";
 import { useConnectWallet } from "../hooks/useConnectWallet";
-import { ShrubLogo, SUSDIcon } from "../assets/Icons";
+import { PaperGardensLogo, ShrubLogo, SUSDIcon } from "../assets/Icons";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
@@ -122,7 +122,7 @@ function TopNav() {
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={8} alignItems={"center"}>
             <Link as={ReachLink} to={"/"}>
-              <ShrubLogo boxSize={10} />
+              <PaperGardensLogo boxSize={10} />
             </Link>
             <HStack
               as={"nav"}
