@@ -176,6 +176,18 @@ function TopNav() {
               >
                 Collection <ExternalLinkIcon mx="2px" />
               </Link>
+              <Link
+                as={ReachLink}
+                to="/leaderboard"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Leaderboard
+              </Link>
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
@@ -260,6 +272,18 @@ function TopNav() {
               {/*    <Icon as={route.itemIcon} mr={2} /> {route.item}*/}
               {/*  </NavRoute>*/}
               {/*))}*/}
+              <Link
+                as={ReachLink}
+                to="/leaderboard"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Leaderboard
+              </Link>
               <Box
                 onClick={toggleColorMode}
                 variant="ghost"
@@ -272,11 +296,11 @@ function TopNav() {
                   bgGradient: gradient,
                 }}
               >
-                {colorMode === "light" ? (
-                  <MoonIcon mr={"2"} />
-                ) : (
-                  <SunIcon mr={"2"} />
-                )}
+                {/*{colorMode === "light" ? (*/}
+                {/*  <MoonIcon mr={"2"} />*/}
+                {/*) : (*/}
+                {/*  <SunIcon mr={"2"} />*/}
+                {/*)}*/}
                 {colorMode === "light" ? "Dark Mode" : "Light Mode"}
               </Box>
               {/*<Link*/}
@@ -308,7 +332,7 @@ function TopNav() {
                   bgGradient: gradient,
                 }}
               >
-                <Icon as={GiFlowerPot} mr={"2"} />
+                {/*<Icon as={GiFlowerPot} mr={"2"} />*/}
                 Collection <ExternalLinkIcon mx="2px" />
               </Link>
               {/*<Box*/}
