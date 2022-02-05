@@ -305,7 +305,7 @@ function OrphanageView(props: RouteComponentProps) {
             {isRegistered && (
               <Center py={4} maxW="60rem">
                 <Link
-                  href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpaper.shrub.finance&text=I%20just%20became%20a%20proud%20seed%20adopter%20on%20@shrubfinance%21%20Join%20me%20in%20giving%20a%20seed%20a%20home%21%20&hashtags=NFTs%2CDeFi%2Cweb3"
+                  href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpaper.shrub.finance&text=I%20just%20registered%20to%20became%20a%20proud%20seed%20adopter%20on%20@shrubfinance%21%20Join%20me%20in%20giving%20a%20seed%20a%20home%21%20&hashtags=NFTs%2CDeFi%2Cweb3"
                   isExternal
                 >
                   <Button
