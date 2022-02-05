@@ -200,9 +200,9 @@ function LeaderBoardView(props: RouteComponentProps) {
           >
             <Text
               as="span"
-              bgGradient={headingColor}
-              bgClip="text"
-              boxDecorationBreak="clone"
+              // bgGradient={headingColor}
+              // bgClip="text"
+              // boxDecorationBreak="clone"
             >
               Paper Gardener's Leaderboard
             </Text>

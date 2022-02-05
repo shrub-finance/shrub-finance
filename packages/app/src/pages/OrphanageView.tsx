@@ -230,11 +230,11 @@ function OrphanageView(props: RouteComponentProps) {
           )}
         </Center>
         {isRegistered && activeHash && <Confetti />}
-        <Center mt={10}>
+        <Center>
           <Box mb={{ base: 6, md: 10 }}>
             <Heading
               maxW="60rem"
-              fontSize={["2xl", "5xl", "6xl"]}
+              fontSize={["2xl", "5xl", "5xl"]}
               fontWeight="medium"
               textAlign="center"
             >

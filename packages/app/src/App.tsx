@@ -26,10 +26,9 @@ function App() {
           <Store>
             <TopNav />
             <Router>
-              <LeaderBoardView path="/" />
-              <LeaderBoardView path="/claim" />
+              <LeaderBoardView path="leaderboard" />
               <PaperView path="/nft/paper-seed/:tokenId" />
-              <OrphanageView path="/adoption" />
+              <OrphanageView path="/" />
               {/*<HomeView path="/" />*/}
               {/*<PositionsView path="shrubfolio" />*/}
               {/*<OptionsView path="options" />*/}
