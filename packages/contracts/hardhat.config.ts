@@ -22,6 +22,7 @@ import {
   SUSDToken__factory,
   SMATICToken__factory,
   PaperSeed__factory,
+  SeedOrphanage__factory,
 } from './types/ethers-v5'
 import {OrderCommon, SmallOrder} from "@shrub/app/src/types";
 import chainlinkAggregatorV3Interface from './external-contracts/chainlinkAggregatorV3InterfaceABI.json';
@@ -63,22 +64,29 @@ task("accounts", "Prints the list of accounts", async (taskArgs, env) => {
 });
 
 task('mintSeed', 'seedContract owner mints an unclaimed seed')
-  .addParam('id', 'tokenId of the seed to claim')
+  .addOptionalParam('id', 'tokenId of the seed to claim', undefined, types.int)
+  .addOptionalParam('ids', 'tokenIds of seeds to claim', undefined, types.json)
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
-    const { id } = taskArgs
-    if (!id) {
-      console.log('id is a required param');
+    const { id, ids } = taskArgs
+    if (!id && !ids) {
+      console.log('id or ids must be provided');
       return;
     }
+    const tokenIds = ids ? ids : [id];
     const [signer] = await ethers.getSigners();
     const seedDeployment = await deployments.get("PaperSeed")
     const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
-    console.log(`claiming token ${id}`)
-    try {
-      const tx = await PaperSeed.claimReserve(id);
-    } catch (e) {
-      console.log(e.message);
+    for (const tokenId of tokenIds) {
+      console.log(`claiming token ${tokenId}`)
+      try {
+        await PaperSeed.claimReserve(tokenId);
+      } catch (e) {
+        console.log(e.message);
+        console.log(`error minting tokenId ${tokenId}`);
+        console.log('breaking');
+        return;
+      }
     }
   });
 
@@ -116,7 +124,113 @@ task('sendSeed', 'send a seed from the owner contract to an address')
     const tx = await PaperSeed['safeTransferFrom(address,address,uint256)'](signer.address, receiver, id);
   })
 
-task('mintUnclaimed', 'seedContract owner mints the unclaimed seeds')
+task('getOrphanageRegistered', 'list of registered accounts who have signed up for the adoption program')
+  .setAction(async(taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const orphanageDeployment = await deployments.get("SeedOrphanage")
+    const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, ethers.provider);
+    const registeredAccounts = await SeedOrphanage.getRegister();
+    console.log(JSON.stringify(registeredAccounts));
+  })
+
+task('getOrphanageSeeds', 'list of seeds up for adoption in the orphanage')
+  .setAction(async(taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const orphanageDeployment = await deployments.get("SeedOrphanage")
+    const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, ethers.provider);
+    const registeredAccounts = await SeedOrphanage.getSeeds();
+    console.log(JSON.stringify(registeredAccounts.map(bn => bn.toNumber())));
+  })
+
+task('supplyOrphanage', 'send seeds to be adopted')
+  .addParam('ids', 'array of tokenIds to fund contract with', [], types.json)
+  .setAction(async(taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { ids } = taskArgs
+    if (!ids) {
+      console.log('ids is a required param');
+      return;
+    }
+    const [signer] = await ethers.getSigners();
+    const orphanageDeployment = await deployments.get("SeedOrphanage")
+    const seedDeployment = await deployments.get("PaperSeed")
+    const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, signer);
+    const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
+    // Check that all of the tokenIds are owned
+    let ownershipCheckFailed = false;
+    for (const tokenId of ids) {
+      const owner = await PaperSeed.ownerOf(tokenId);
+      if (owner !== signer.address) {
+        console.log(`tokenId ${tokenId} is owner by ${owner}, not ${signer.address}`)
+        ownershipCheckFailed = true;
+      }
+    }
+    if (ownershipCheckFailed) {
+      console.log('FAILURE: seeds were not delivered')
+      return;
+    }
+    const isApproved = await PaperSeed.isApprovedForAll(signer.address, SeedOrphanage.address);
+    if (!isApproved) {
+      // if not approved - then approve the orphanage for transferring the seeds
+      await PaperSeed.setApprovalForAll(SeedOrphanage.address, true);
+    }
+    // Loop through the tokenIds and send them.
+    for (const tokenId of ids) {
+      console.log(`adding seed with tokenId ${tokenId}`);
+      await SeedOrphanage.addSeed(tokenId);
+    }
+    await env.run("getOrphanageSeeds");
+  })
+
+task('deliverSeeds', 'send seeds to adoptive gardeners')
+  .addParam('id', 'tokenId of the seed', undefined, types.int)
+  .addParam('receiver', 'address of the receiver', '', types.string)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { id: tokenId, receiver } = taskArgs
+    if (!tokenId) {
+      console.log('id is a required param');
+      return;
+    }
+    if (!receiver) {
+      console.log('receiver is a required param');
+      return;
+    }
+    // validate the receiver address
+    if (!ethers.utils.isAddress(receiver)) {
+      console.log('receiver address is not valid');
+      return;
+    }
+    const [signer] = await ethers.getSigners();
+    const orphanageDeployment = await deployments.get("SeedOrphanage")
+    const seedDeployment = await deployments.get("PaperSeed")
+    const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, signer);
+    const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
+    // validate that this tokenId is owned by the orphanage
+    const ownerOf = await PaperSeed.ownerOf(tokenId)
+    if (ownerOf !== SeedOrphanage.address) {
+      console.log(`tokenId ${tokenId} is not owned by the orphanage contract`);
+      return;
+    }
+    // validate that the receiver is a seed holder
+    const seedCount = await PaperSeed.balanceOf(receiver);
+    if (seedCount.eq(0)) {
+      console.log(`account ${receiver} has no seeds, and is thus ineligible`);
+      return;
+    }
+    // final confirmation
+    const conf = await promptly.confirm(`You are about to deliver seed with tokenId ${tokenId} to ${receiver}. Continue? (y/n)`);
+    if (!conf) {
+      return;
+    }
+    console.log('sending seed');
+    const tx = await SeedOrphanage.deliver(tokenId, receiver);
+    console.log(`seed with tokenId ${tokenId} delivered in tx ${tx.hash}`);
+    console.log(`remaining seeds`);
+    await env.run("getOrphanageSeeds");
+  })
+
+  task('mintUnclaimed', 'seedContract owner mints the unclaimed seeds')
   .addParam('unclaimedFile','json file with unclaimed tokenIds', null, types.string)
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
