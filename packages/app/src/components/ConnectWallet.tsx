@@ -348,7 +348,11 @@ export function ConnectWalletModal() {
             const disabled =
               !triedEager || !!activatingConnector || connected || !!error;
 
-            const mobileConnectors = ["Wallet Connect", "Coinbase Wallet"];
+            const mobileConnectors = [
+              "Wallet Connect",
+              "Coinbase Wallet",
+              "MetaMask",
+            ];
 
             const isMobileConnector = mobileConnectors.includes(connectorName);
 
