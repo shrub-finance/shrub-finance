@@ -25,7 +25,7 @@ export default function Confetti() {
         },
         particles: {
           number: {
-            value: 0,
+            value: 1000,
           },
           color: {
             value: ["#1E00FF", "#FF0061", "#E1FF00", "#00FF9E"],
