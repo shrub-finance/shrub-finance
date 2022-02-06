@@ -414,6 +414,25 @@ export const META_QUERY = gql`
   }
 `;
 
+export const SEED_ADOPTION_QUERY = gql`
+  query SeedAdoption($numResults: Int) {
+    adoptionRecords(
+      first: $numResults
+      orderBy: timestamp
+      orderDirection: desc
+    ) {
+      seed {
+        name
+        type
+      }
+      user {
+        id
+      }
+      timestamp
+    }
+  }
+`;
+
 export const NFT_LEADERBOARD_QUERY = gql`
   query NFTLeaderboard($numResults: Int, $b: [String]) {
     users(
@@ -426,6 +445,22 @@ export const NFT_LEADERBOARD_QUERY = gql`
       seedCount
       seeds {
         type
+      }
+    }
+  }
+`;
+
+export const SEED_OWNERSHIP_QUERY = gql`
+  query SeedOwnership($address: String) {
+    user(id: $address) {
+      seeds {
+        id
+        type
+        name
+        emotion
+        dna
+        born
+        bornBlock
       }
     }
   }

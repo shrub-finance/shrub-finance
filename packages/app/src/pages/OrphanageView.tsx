@@ -18,6 +18,14 @@ import {
   Alert,
   AlertIcon,
   Link,
+  HStack,
+  Stack,
+  Tr,
+  Td,
+  Image,
+  Badge,
+  Flex,
+  Spacer,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -45,6 +53,12 @@ import Confetti from "../assets/Confetti";
 import { AdoptionImg, PostAdoptionImg, SeedBasketImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { FaTwitter } from "react-icons/all";
+import { useLazyQuery, useQuery } from "@apollo/client";
+import {
+  ORDER_HISTORY_QUERY,
+  SEED_ADOPTION_QUERY,
+  SEED_OWNERSHIP_QUERY,
+} from "../constants/queries";
 
 function OrphanageView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -55,6 +69,8 @@ function OrphanageView(props: RouteComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isSeedHolder, setIsSeedHolder] = useState(false);
+  const seedOwnershipDataRows: JSX.Element[] = [];
+  const seedAdoptionDataRows: JSX.Element[] = [];
 
   const toast = useToast();
   const tradingBtnColor = useColorModeValue("sprout", "teal");
@@ -69,6 +85,117 @@ function OrphanageView(props: RouteComponentProps) {
     setIsHidden(val);
   };
   const [isHidden, setIsHidden] = useState(false);
+  // const temp = "0xfa116901C7361677fb3248595655404f4BcF7A06";
+
+  const [
+    getSeedOwnerShipQuery,
+    {
+      loading: seedOwnershipLoading,
+      error: seedOwnershipError,
+      data: seedOwnershipData,
+    },
+  ] = useLazyQuery(SEED_OWNERSHIP_QUERY, {
+    variables: {
+      address:
+        process.env.REACT_APP_ORPHANAGE_ADDRESS &&
+        process.env.REACT_APP_ORPHANAGE_ADDRESS.toLowerCase(),
+      // address: temp && temp.toLowerCase(),
+    },
+  });
+  console.log(seedOwnershipData);
+  const [
+    getSeedAdoptionQuery,
+    {
+      loading: seedAdoptionLoading,
+      error: seedAdoptionError,
+      data: seedAdoptionData,
+    },
+  ] = useLazyQuery(SEED_ADOPTION_QUERY, {
+    variables: {
+      numResults: 20,
+    },
+  });
+
+  if (
+    seedOwnershipData &&
+    seedOwnershipData.user &&
+    seedOwnershipData.user.seeds
+  ) {
+    for (const item of seedOwnershipData.user.seeds) {
+      const { dna, type, name } = item;
+      seedOwnershipDataRows.push(
+        <Flex maxW="sm" borderWidth="1px" borderRadius="lg" p={3} mb={4}>
+          <Box>
+            <Image
+              boxSize={isMobile ? 5 : 20}
+              src={`https://shrub.finance/${type.toLowerCase()}-sad.svg`}
+              alt="Power Seed"
+            />
+          </Box>
+          <Spacer />
+          <Box p="6" borderRadius="lg">
+            <Box
+              fontWeight="semibold"
+              letterSpacing="wide"
+              fontSize="xs"
+              ml="2"
+            >
+              {name}
+            </Box>
+            {/*<Link*/}
+            {/*  href={`https://opensea.io/collection/shrub-paper-gardens?search[numericTraits][0][name]=DNA&search[numericTraits][0][ranges][0][min]=${dna}&search[numericTraits][0][ranges][0][max]=${dna}&search[sortAscending]=true&search[sortBy]=PRICE`}*/}
+            {/*  isExternal*/}
+            {/*>*/}
+            {/*  {dna}*/}
+            {/*</Link>*/}
+            <Box display="flex" alignItems="baseline" mt={2}>
+              <Badge borderRadius="full" px="2" colorScheme="teal">
+                DNA: {dna}
+              </Badge>
+            </Box>
+          </Box>
+        </Flex>
+      );
+    }
+  }
+
+  if (seedAdoptionData && seedAdoptionData.adoptionRecords) {
+    for (const item of seedAdoptionData.adoptionRecords) {
+      const { name, type } = item.seed;
+      const adoptionTime = new Date(item.timestamp * 1000).toLocaleString();
+      seedAdoptionDataRows.push(
+        <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={4}>
+          <Box>
+            <SeedBasketImg boxSize={20} p={4} />
+          </Box>
+          <Spacer />
+          <Box borderRadius="lg" p={4}>
+            <Box
+              fontWeight="semibold"
+              letterSpacing="wide"
+              fontSize="xs"
+              ml="2"
+            >
+              {name}
+            </Box>
+            <Box
+              fontWeight="semibold"
+              letterSpacing="wide"
+              fontSize="xs"
+              ml="2"
+            >
+              {type}
+            </Box>
+            <Box display="flex" mt={2}>
+              <Badge borderRadius="full" px="2" colorScheme="teal">
+                {adoptionTime}
+              </Badge>
+            </Box>
+          </Box>
+        </Flex>
+      );
+    }
+  }
 
   const {
     active,
@@ -85,6 +212,8 @@ function OrphanageView(props: RouteComponentProps) {
       }
       const result = await isRegisteredForAdoption(library, account);
       setIsRegistered(result);
+      getSeedOwnerShipQuery();
+      getSeedAdoptionQuery();
     }
     main().catch((err) => {
       handleErrorMessages({ err });
@@ -283,8 +412,7 @@ function OrphanageView(props: RouteComponentProps) {
                         color={ownSeedCTA}
                         fontWeight={"bold"}
                       >
-                        Give them a home. Become a seed owner{" "}
-                        <ExternalLinkIcon />
+                        Give them a home. Own a seed <ExternalLinkIcon />
                       </Link>
                     )}
                   </Text>
@@ -299,7 +427,7 @@ function OrphanageView(props: RouteComponentProps) {
                 fontWeight="medium"
                 maxW="60rem"
               >
-                Thank you for registering for this batch
+                Thanks for registering for this batch!
               </Text>
             )}
             {isRegistered && (
@@ -328,8 +456,28 @@ function OrphanageView(props: RouteComponentProps) {
                     </>
                   ) : (
                     <>
-                      <PostAdoptionImg boxSize={{ base: 0, md: 1000 }} />
-                      <SeedBasketImg boxSize={{ base: 320, md: 0 }} pt={14} />
+                      <Stack
+                        direction={{ base: "column", md: "row" }}
+                        spacing={8}
+                        pt={{ base: 10, md: 40 }}
+                      >
+                        <Box flex="1">
+                          <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
+                            Up for Adoption
+                          </Heading>
+                          {seedOwnershipDataRows}
+                        </Box>
+                        <Box flex="1" alignItems={"center"}>
+                          <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
+                            Adoption History
+                          </Heading>
+                          {seedAdoptionDataRows}
+                        </Box>
+                      </Stack>
+                      {/*<SeedBasketImg*/}
+                      {/*  boxSize={{ base: 320, md: 320 }}*/}
+                      {/*  pt={isRegistered ? 0 : 14}*/}
+                      {/*/>*/}
                     </>
                   )
                 ) : (
@@ -349,8 +497,8 @@ function OrphanageView(props: RouteComponentProps) {
                       isLoading={isLoading}
                       isDisabled={!!account && !isSeedHolder}
                       size="lg"
-                      px={["50", "70", "90", "90"]}
-                      fontSize="25px"
+                      px={["10", "70", "90", "90"]}
+                      fontSize={{ base: "20px", md: "25px" }}
                       py={10}
                       borderRadius="full"
                       _hover={{ transform: "translateY(-2px)" }}
