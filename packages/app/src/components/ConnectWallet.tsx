@@ -61,7 +61,7 @@ import { useGetBalance } from "../hooks/useGetBalance";
 enum ConnectorNames {
   MetaMask = "MetaMask",
   WalletConnect = "Wallet Connect",
-  // CoinbaseWallet = "Coinbase Wallet",
+  CoinbaseWallet = "Coinbase Wallet",
   // Ledger = "Ledger",
   // Portis= "Portis",
   // Fortmatic= "Fortmatic"
@@ -70,7 +70,7 @@ enum ConnectorNames {
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.MetaMask]: injected,
   [ConnectorNames.WalletConnect]: walletconnect,
-  // [ConnectorNames.CoinbaseWallet]: walletlink,
+  [ConnectorNames.CoinbaseWallet]: walletlink,
   // [ConnectorNames.Ledger]: ledger,
   // [ConnectorNames.Portis]: portis,
   // [ConnectorNames.Fortmatic]: fortmatic
