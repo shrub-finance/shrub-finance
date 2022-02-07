@@ -26,6 +26,12 @@ import {
   Badge,
   Flex,
   Spacer,
+  UnorderedList,
+  ListItem,
+  TagLeftIcon,
+  Tag,
+  TagLabel,
+  TagRightIcon,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -124,8 +130,8 @@ function OrphanageView(props: RouteComponentProps) {
     for (const item of seedOwnershipData.user.seeds) {
       const { dna, type, name } = item;
       seedOwnershipDataRows.push(
-        <Flex maxW="sm" borderWidth="1px" borderRadius="lg" p={3} mb={4}>
-          <Box>
+        <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
+          <Box pt={4} pl={4}>
             <Image
               boxSize={isMobile ? 5 : 20}
               src={`https://shrub.finance/${type.toLowerCase()}-sad.svg`}
@@ -142,16 +148,26 @@ function OrphanageView(props: RouteComponentProps) {
             >
               {name}
             </Box>
-            {/*<Link*/}
-            {/*  href={`https://opensea.io/collection/shrub-paper-gardens?search[numericTraits][0][name]=DNA&search[numericTraits][0][ranges][0][min]=${dna}&search[numericTraits][0][ranges][0][max]=${dna}&search[sortAscending]=true&search[sortBy]=PRICE`}*/}
-            {/*  isExternal*/}
-            {/*>*/}
-            {/*  {dna}*/}
-            {/*</Link>*/}
             <Box display="flex" alignItems="baseline" mt={2}>
-              <Badge borderRadius="full" px="2" colorScheme="teal">
+              <Box
+                fontWeight="semibold"
+                letterSpacing="wide"
+                fontSize="xs"
+                ml="2"
+              >
                 DNA: {dna}
-              </Badge>
+              </Box>
+            </Box>
+            <Box display="flex" alignItems="baseline" mt={2}>
+              <Link
+                href={`https://opensea.io/collection/shrub-paper-gardens?search[numericTraits][0][name]=DNA&search[numericTraits][0][ranges][0][min]=${dna}&search[numericTraits][0][ranges][0][max]=${dna}&search[sortAscending]=true&search[sortBy]=PRICE`}
+                isExternal
+              >
+                <Tag size={"sm"} variant="subtle" colorScheme="cyan">
+                  <TagLabel>Matching DNAs</TagLabel>
+                  <TagRightIcon boxSize="12px" as={ExternalLinkIcon} />
+                </Tag>
+              </Link>
             </Box>
           </Box>
         </Flex>
@@ -164,11 +180,7 @@ function OrphanageView(props: RouteComponentProps) {
       const { name, type } = item.seed;
       const adoptionTime = new Date(item.timestamp * 1000).toLocaleString();
       seedAdoptionDataRows.push(
-        <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={4}>
-          <Box>
-            <SeedBasketImg boxSize={20} p={4} />
-          </Box>
-          <Spacer />
+        <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
           <Box borderRadius="lg" p={4}>
             <Box
               fontWeight="semibold"
@@ -178,18 +190,15 @@ function OrphanageView(props: RouteComponentProps) {
             >
               {name}
             </Box>
-            <Box
-              fontWeight="semibold"
-              letterSpacing="wide"
-              fontSize="xs"
-              ml="2"
-            >
-              {type}
-            </Box>
             <Box display="flex" mt={2}>
-              <Badge borderRadius="full" px="2" colorScheme="teal">
-                {adoptionTime}
-              </Badge>
+              <Box
+                fontWeight="bold"
+                letterSpacing="wide"
+                fontSize="11px"
+                ml="2"
+              >
+                Adopted: {adoptionTime}
+              </Box>
             </Box>
           </Box>
         </Flex>
@@ -369,7 +378,7 @@ function OrphanageView(props: RouteComponentProps) {
             >
               {!localError.includes("'Account already registered") ? (
                 <Text as="span">
-                  {!isRegistered ? "Seed Adoption Program" : "You did it!"}
+                  {!isRegistered ? "Seed Adoption Center" : "You did it!"}
                 </Text>
               ) : (
                 <Text>You are all set</Text>
@@ -390,20 +399,7 @@ function OrphanageView(props: RouteComponentProps) {
                     maxW={650}
                   >
                     The Paper Merchant in his quest to find good homes for the
-                    sad seeds has started an adoption program. <br />
-                    <br />
-                    Every day <strong>2 seeds</strong> will be put out for
-                    adoption. They will be adopted by the users who have
-                    registered for the adoption batch.
-                    <br />
-                    <br />
-                    <strong>Batches last 1 week</strong>. Registration{" "}
-                    <strong>must be renewed</strong> on a weekly basis. <br />
-                    <br />
-                    <strong>Registration is free</strong>, but you have to be a{" "}
-                    <strong>seed owner to qualify.</strong>
-                    <br />
-                    <br />
+                    sad seeds has started an adoption center.{" "}
                     {!isSeedHolder && (
                       <Link
                         href="https://opensea.io/collection/shrub-paper-gardens"
@@ -412,9 +408,34 @@ function OrphanageView(props: RouteComponentProps) {
                         color={ownSeedCTA}
                         fontWeight={"bold"}
                       >
-                        Give them a home. Own a seed <ExternalLinkIcon />
+                        Own a seed to sign up for adoption <ExternalLinkIcon />
                       </Link>
                     )}
+                    <UnorderedList mt={4}>
+                      <ListItem pb={2}>
+                        {" "}
+                        <strong>2 seeds</strong> are up for adoption every day.
+                        They will be adopted by the users who have registered
+                        for the adoption batch.
+                      </ListItem>
+                      <ListItem pb={2}>
+                        We are attempting to{" "}
+                        <strong>unite seeds with their siblings</strong>. Owning
+                        a seed with the <strong>same DNA</strong> as the one up
+                        for adoption, greatly{" "}
+                        <strong>increases your chance</strong> of being selected
+                        as its adoptive gardener.
+                      </ListItem>
+                      <ListItem pb={2}>
+                        <strong>Batches last 1 week</strong>. Registration{" "}
+                        <strong>must be renewed</strong> on a weekly basis.{" "}
+                      </ListItem>
+                      <ListItem pb={2}>
+                        {" "}
+                        <strong>Registration is free</strong>, but you have to
+                        be a <strong>seed owner to qualify.</strong>
+                      </ListItem>
+                    </UnorderedList>
                   </Text>
                 )}
             </Center>
@@ -447,7 +468,7 @@ function OrphanageView(props: RouteComponentProps) {
               </Center>
             )}
             <Center position={"relative"}>
-              <Center zIndex={-1} mt={{ base: 20, md: -40 }}>
+              <Center mt={{ base: 20, md: -40 }}>
                 {!isMobile ? (
                   !isRegistered ? (
                     <>
@@ -457,6 +478,7 @@ function OrphanageView(props: RouteComponentProps) {
                   ) : (
                     <>
                       <Stack
+                        mt={6}
                         direction={{ base: "column", md: "row" }}
                         spacing={8}
                         pt={{ base: 10, md: 40 }}
@@ -474,16 +496,13 @@ function OrphanageView(props: RouteComponentProps) {
                           {seedAdoptionDataRows}
                         </Box>
                       </Stack>
-                      {/*<SeedBasketImg*/}
-                      {/*  boxSize={{ base: 320, md: 320 }}*/}
-                      {/*  pt={isRegistered ? 0 : 14}*/}
-                      {/*/>*/}
                     </>
                   )
                 ) : (
                   <SeedBasketImg boxSize={320} pt={14} />
                 )}
               </Center>
+
               <Center top={{ base: 5, md: 20 }} position={"absolute"}>
                 {!isRegistered &&
                   !activeHash &&
