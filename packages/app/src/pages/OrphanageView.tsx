@@ -467,7 +467,7 @@ function OrphanageView(props: RouteComponentProps) {
                 </Link>
               </Center>
             )}
-            <Center position={"relative"}>
+            <Center position={!isRegistered ? "relative" : "static"}>
               <Center mt={{ base: 20, md: -40 }}>
                 {!isMobile ? (
                   !isRegistered ? (
