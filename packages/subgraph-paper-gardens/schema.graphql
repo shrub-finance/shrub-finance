@@ -16,6 +16,11 @@ type Seed @entity {
   type: String!
   unmoved: Boolean!
   virgin: Boolean!
+  dna: Int!
+  name: String!
+  emotion: String!
+  born: Int!
+  bornBlock: Int!
 #  approval: Exchange!
 }
 
@@ -30,4 +35,13 @@ type TypeStat @entity {
   claimed: Int!
   unmoved: Int!
   virgin: Int!
+}
+
+type AdoptionRecord @entity {
+  "tokenId"
+  id: ID!
+  seed: Seed!
+  user: User!
+  block: Int!
+  timestamp: Int!
 }

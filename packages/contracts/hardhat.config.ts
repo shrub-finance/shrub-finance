@@ -122,6 +122,7 @@ task('sendSeed', 'send a seed from the owner contract to an address')
       return;
     }
     const tx = await PaperSeed['safeTransferFrom(address,address,uint256)'](signer.address, receiver, id);
+    console.log(tx.hash);
   })
 
 task('getOrphanageRegistered', 'list of registered accounts who have signed up for the adoption program')
@@ -130,7 +131,7 @@ task('getOrphanageRegistered', 'list of registered accounts who have signed up f
     const orphanageDeployment = await deployments.get("SeedOrphanage")
     const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, ethers.provider);
     const registeredAccounts = await SeedOrphanage.getRegister();
-    console.log(JSON.stringify(registeredAccounts));
+    console.log(JSON.stringify(registeredAccounts.map(r => r.toLowerCase())));
   })
 
 task('getOrphanageSeeds', 'list of seeds up for adoption in the orphanage')
@@ -145,6 +146,9 @@ task('getOrphanageSeeds', 'list of seeds up for adoption in the orphanage')
 task('supplyOrphanage', 'send seeds to be adopted')
   .addParam('ids', 'array of tokenIds to fund contract with', [], types.json)
   .setAction(async(taskArgs, env) => {
+    function setTimeoutAsync(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
     const { ethers, deployments } = env;
     const { ids } = taskArgs
     if (!ids) {
@@ -177,7 +181,9 @@ task('supplyOrphanage', 'send seeds to be adopted')
     // Loop through the tokenIds and send them.
     for (const tokenId of ids) {
       console.log(`adding seed with tokenId ${tokenId}`);
-      await SeedOrphanage.addSeed(tokenId);
+      const tx = await SeedOrphanage.addSeed(tokenId);
+      console.log(tx.hash);
+      await setTimeoutAsync(1000);
     }
     await env.run("getOrphanageSeeds");
   })
@@ -898,6 +904,10 @@ const config: HardhatUserConfig & AbiExporter = {
         },*/
       chainId: 1337,
     },
+    polygon: {
+      chainId: 137,
+      url: 'https://rpc-mainnet.maticvigil.com/',
+    }
   },
   namedAccounts: {
     deployer: 0,
@@ -923,12 +933,8 @@ const config: HardhatUserConfig & AbiExporter = {
     spacing: 2,
   },
   etherscan: {
-    apiKey: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'
-    // apiKey: {
-    //   mainnet: '5TPEWR3JA9S4APSU2QJ7CNGTCFJM5G8PYC',  // For etherscan
-    //   polygon: 'XXX',
-    //   polygonMumbai: 'VMEZG2T4BYXFQRKR8GZV5ZQDIVHYWUU8SD'    // For polygonscan
-    // }
+    apiKey: process.env.POLYGONSCAN_API_KEY  // polygon
+    // apiKey: process.env.ETHERSCAN_API_KEY  // ethereum
   },
   mocha: {
     timeout: 35000
