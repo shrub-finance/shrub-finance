@@ -264,6 +264,10 @@ describe("SeedOrphanage", () => {
       await seedOrphanage.removeSeed(4);
       const seedsAfterAfter = await seedOrphanage.getSeeds();
       expect(seedsAfterAfter.length).to.equal(0);
+      const ownerOfTwo = await paperSeed.ownerOf(2);
+      const ownerOfThree = await paperSeed.ownerOf(3);
+      expect(ownerOfTwo).to.equal(owner.address);
+      expect(ownerOfThree).to.equal(owner.address);
     });
   });
 

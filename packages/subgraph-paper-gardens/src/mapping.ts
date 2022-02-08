@@ -53,7 +53,8 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
 export function handleClaim(event: Claimed): void {
   let userAddress = event.params.account;
   let tokenId = event.params.amount;
+  let block = event.block;
   let user = getUser(userAddress);
   incrementCount(user);
-  createSeed(tokenId, Address.fromString(user.id));
+  createSeed(tokenId, Address.fromString(user.id), block);
 }

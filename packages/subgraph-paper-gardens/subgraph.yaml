@@ -7,12 +7,9 @@ dataSources:
   - kind: ethereum/contract
     name: PaperSeed
     network: matic
-#    network: mainnet
     source:
       address: '0xd415517378fe6832f8AA94037c52C0757a3A9915'
       startBlock: 23740333
-#      address: '0x6a9d4af8bf697679f4441dded9e2b8f1f31d3e85'
-#      startBlock: 1
       abi: PaperSeed
     mapping:
       kind: ethereum/events
@@ -37,3 +34,33 @@ dataSources:
         - event: Claimed(uint256,address,uint256)
           handler: handleClaim
       file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: SeedOrphanage
+    network: matic
+    source:
+      address: '0xfa116901C7361677fb3248595655404f4BcF7A06'
+      startBlock: 24561047
+      abi: SeedOrphanage
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Seed
+        - Exchange
+      abis:
+        - name: SeedOrphanage
+          file: ../contracts/abi/SeedOrphanage.json
+      eventHandlers:
+        - event: Add(uint256)
+          handler: handleAdd
+        - event: Remove(uint256)
+          handler: handleRemove
+        - event: ClearRegister()
+          handler: handleClearRegister
+        - event: Register(address)
+          handler: handleRegister
+        - event: Deliver(uint256,address)
+          handler: handleDeliver
+      file: ./src/mapping-orphanage.ts
