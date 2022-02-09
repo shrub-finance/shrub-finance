@@ -27,7 +27,6 @@ import {
   Tag,
   TagLabel,
   TagRightIcon,
-  Code,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -46,6 +45,7 @@ import {
   TxStatusList,
 } from "../components/TxMonitoring";
 import {
+  getRegisterForAdoption,
   isRegisteredForAdoption,
   registerForAdoption,
   seedBalanceOf,
@@ -57,6 +57,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { FaTwitter } from "react-icons/all";
 import { useLazyQuery } from "@apollo/client";
 import {
+  REGISTERED_SIBLINGS_QUERY,
   SEED_ADOPTION_QUERY,
   SEED_OWNERSHIP_QUERY,
 } from "../constants/queries";
@@ -71,6 +72,8 @@ function OrphanageView(props: RouteComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isSeedHolder, setIsSeedHolder] = useState(false);
+  const [adoptionRegister, setAdoptionRegister] = useState<string[]>([]);
+  const [dnas, setDnas] = useState<number[]>([]);
   const seedOwnershipDataRows: JSX.Element[] = [];
   const seedAdoptionDataRows: JSX.Element[] = [];
 
@@ -106,6 +109,21 @@ function OrphanageView(props: RouteComponentProps) {
   });
 
   const [
+    getRegisteredSiblingsQuery,
+    {
+      loading: registeredSiblingsLoading,
+      error: registeredSiblingsError,
+      data: registeredSiblingsData,
+    },
+  ] = useLazyQuery(REGISTERED_SIBLINGS_QUERY, {
+    variables: {
+      dnas: dnas,
+      registered: adoptionRegister,
+    },
+  });
+  console.log(registeredSiblingsData);
+
+  const [
     getSeedAdoptionQuery,
     {
       loading: seedAdoptionLoading,
@@ -123,8 +141,11 @@ function OrphanageView(props: RouteComponentProps) {
     seedOwnershipData.user &&
     seedOwnershipData.user.seeds
   ) {
+    const tempDna: number[] = [];
     for (const item of seedOwnershipData.user.seeds) {
       const { dna, type, name } = item;
+      tempDna.push(dna);
+      console.log(tempDna);
       seedOwnershipDataRows.push(
         <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
           <Box pt={4} pl={4}>
@@ -169,10 +190,10 @@ function OrphanageView(props: RouteComponentProps) {
         </Flex>
       );
     }
+    setDnas(tempDna);
   }
 
   if (seedAdoptionData && seedAdoptionData.adoptionRecords) {
-    console.log(seedAdoptionData);
     for (const item of seedAdoptionData.adoptionRecords) {
       const { name, type } = item.seed;
       const adoptionTime = new Date(item.timestamp * 1000).toLocaleString();
@@ -211,14 +232,24 @@ function OrphanageView(props: RouteComponentProps) {
   } = useWeb3React();
 
   useEffect(() => {
+    if (adoptionRegister && adoptionRegister.length && dnas && dnas.length) {
+      getRegisteredSiblingsQuery();
+    }
+  }, [adoptionRegister, dnas]);
+
+  useEffect(() => {
     async function main() {
       if (!account) {
         return;
       }
       const result = await isRegisteredForAdoption(library, account);
+      const adoptionRegister = await getRegisterForAdoption(library);
+      console.log(adoptionRegister);
+      setAdoptionRegister(adoptionRegister);
       setIsRegistered(result);
       getSeedOwnerShipQuery();
       getSeedAdoptionQuery();
+      getRegisteredSiblingsQuery();
     }
     main().catch((err) => {
       handleErrorMessages({ err });
