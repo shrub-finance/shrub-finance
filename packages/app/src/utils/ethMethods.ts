@@ -373,7 +373,7 @@ export async function registerForAdoption(provider: JsonRpcProvider) {
 
 export async function getRegisterForAdoption(provider: JsonRpcProvider) {
   const orphanageContract = SeedOrphanage__factory.connect(
-    "0x4BFA3A0Ab519Ea028fE030f297F9Cb5601D1dAF7",
+    ORPHANAGE_CONTRACT_ADDRESS,
     provider
   );
   return orphanageContract.getRegister();
