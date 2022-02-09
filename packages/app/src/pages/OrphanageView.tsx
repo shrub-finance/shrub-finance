@@ -122,6 +122,7 @@ function OrphanageView(props: RouteComponentProps) {
     },
   });
   console.log(registeredSiblingsData);
+  console.log(registeredSiblingsData.seeds.length);
 
   const [
     getSeedAdoptionQuery,
@@ -185,6 +186,17 @@ function OrphanageView(props: RouteComponentProps) {
                   <TagRightIcon boxSize="12px" as={ExternalLinkIcon} />
                 </Tag>
               </Link>
+            </Box>
+          </Box>
+          <Box display="flex" alignItems="baseline" mt={2}>
+            <Box
+              fontWeight="semibold"
+              letterSpacing="wide"
+              fontSize="xs"
+              ml="2"
+            >
+              Registered accounts with this DNA:{" "}
+              {registeredSiblingsData.seeds.length}
             </Box>
           </Box>
         </Flex>
