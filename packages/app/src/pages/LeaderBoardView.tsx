@@ -42,6 +42,7 @@ import { TxStatusList } from "../components/TxMonitoring";
 import { NFT_LEADERBOARD_QUERY } from "../constants/queries";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { addressMap } from "../constants/dictionary";
+import useTruncateAddress from "../hooks/useTruncateAddress";
 function LeaderBoardView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
@@ -60,8 +61,6 @@ function LeaderBoardView(props: RouteComponentProps) {
   const [isHidden, setIsHidden] = useState(false);
   const leaderBoardRows: JSX.Element[] = [];
   const POLL_INTERVAL = 60000; // 15 second polling interval
-
-  const dictionary: { [address: string]: string } = addressMap;
 
   const {
     loading,
@@ -86,24 +85,6 @@ function LeaderBoardView(props: RouteComponentProps) {
   }
   let i = 0;
 
-  // Captures 0x + 4 characters, then the last 4 characters.
-  const truncateRegex = /^([a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
-
-  /**
-   * Source: https://github.com/gpxl-dev/truncate-eth-address
-   * Truncates an ethereum address to the format 0x00…0000
-   */
-  const truncateEthAddress = (address: string) => {
-    if (dictionary[address]) {
-      return dictionary[address];
-    }
-    const match = address.match(truncateRegex);
-    if (!match) {
-      return address;
-    }
-    return `${match[1]}…${match[2]}`;
-  };
-
   let lastRank = 0;
   let lastSeedCount = 0;
 
@@ -123,7 +104,7 @@ function LeaderBoardView(props: RouteComponentProps) {
           fontWeight={rank === 1 ? "extrabold" : "medium"}
           fontSize={isMobile ? "12px" : "auto"}
         >
-          {truncateEthAddress(id)}
+          {useTruncateAddress(id)}
         </Td>
         <Td fontWeight={rank === 1 ? "extrabold" : "medium"}>{seedCount}</Td>
         <Td>

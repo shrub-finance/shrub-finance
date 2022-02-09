@@ -18,20 +18,16 @@ import {
   Alert,
   AlertIcon,
   Link,
-  HStack,
   Stack,
-  Tr,
-  Td,
   Image,
-  Badge,
   Flex,
   Spacer,
   UnorderedList,
   ListItem,
-  TagLeftIcon,
   Tag,
   TagLabel,
   TagRightIcon,
+  Code,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -56,15 +52,15 @@ import {
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
-import { AdoptionImg, PostAdoptionImg, SeedBasketImg } from "../assets/Icons";
+import { AdoptionImg, SeedBasketImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { FaTwitter } from "react-icons/all";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import {
-  ORDER_HISTORY_QUERY,
   SEED_ADOPTION_QUERY,
   SEED_OWNERSHIP_QUERY,
 } from "../constants/queries";
+import useTruncateAddress from "../hooks/useTruncateAddress";
 
 function OrphanageView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -91,7 +87,7 @@ function OrphanageView(props: RouteComponentProps) {
     setIsHidden(val);
   };
   const [isHidden, setIsHidden] = useState(false);
-  // const temp = "0xfa116901C7361677fb3248595655404f4BcF7A06";
+  const temp = "0xfa116901C7361677fb3248595655404f4BcF7A06";
 
   const [
     getSeedOwnerShipQuery,
@@ -102,13 +98,13 @@ function OrphanageView(props: RouteComponentProps) {
     },
   ] = useLazyQuery(SEED_OWNERSHIP_QUERY, {
     variables: {
-      address:
-        process.env.REACT_APP_ORPHANAGE_ADDRESS &&
-        process.env.REACT_APP_ORPHANAGE_ADDRESS.toLowerCase(),
-      // address: temp && temp.toLowerCase(),
+      // address:
+      //   process.env.REACT_APP_ORPHANAGE_ADDRESS &&
+      //   process.env.REACT_APP_ORPHANAGE_ADDRESS.toLowerCase(),
+      address: temp && temp.toLowerCase(),
     },
   });
-  console.log(seedOwnershipData);
+
   const [
     getSeedAdoptionQuery,
     {
@@ -176,9 +172,11 @@ function OrphanageView(props: RouteComponentProps) {
   }
 
   if (seedAdoptionData && seedAdoptionData.adoptionRecords) {
+    console.log(seedAdoptionData);
     for (const item of seedAdoptionData.adoptionRecords) {
       const { name, type } = item.seed;
       const adoptionTime = new Date(item.timestamp * 1000).toLocaleString();
+      const owner = item.user.id;
       seedAdoptionDataRows.push(
         <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
           <Box borderRadius="lg" p={4}>
@@ -190,14 +188,12 @@ function OrphanageView(props: RouteComponentProps) {
             >
               {name}
             </Box>
-            <Box display="flex" mt={2}>
-              <Box
-                fontWeight="bold"
-                letterSpacing="wide"
-                fontSize="11px"
-                ml="2"
-              >
-                Adopted: {adoptionTime}
+            <Box letterSpacing="wide" ml="2" mt={4} fontSize="11px">
+              Adopter: <strong>{useTruncateAddress(owner)}</strong>
+            </Box>
+            <Box mt={2}>
+              <Box letterSpacing="wide" fontSize="11px" ml="2">
+                Adopted: <strong>{adoptionTime}</strong>
               </Box>
             </Box>
           </Box>
