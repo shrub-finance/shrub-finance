@@ -87,7 +87,7 @@ function OrphanageView(props: RouteComponentProps) {
     setIsHidden(val);
   };
   const [isHidden, setIsHidden] = useState(false);
-  const temp = "0xfa116901C7361677fb3248595655404f4BcF7A06";
+  // const temp = "0xfa116901C7361677fb3248595655404f4BcF7A06";
 
   const [
     getSeedOwnerShipQuery,
@@ -98,10 +98,10 @@ function OrphanageView(props: RouteComponentProps) {
     },
   ] = useLazyQuery(SEED_OWNERSHIP_QUERY, {
     variables: {
-      // address:
-      //   process.env.REACT_APP_ORPHANAGE_ADDRESS &&
-      //   process.env.REACT_APP_ORPHANAGE_ADDRESS.toLowerCase(),
-      address: temp && temp.toLowerCase(),
+      address:
+        process.env.REACT_APP_ORPHANAGE_ADDRESS &&
+        process.env.REACT_APP_ORPHANAGE_ADDRESS.toLowerCase(),
+      // address: temp && temp.toLowerCase(),
     },
   });
 
