@@ -56,18 +56,18 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight={"medium"}
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
-                  After the Paper Merchant set up his stall all of the seeds
+                  After the Paper Merchant set up his stall, all of the seeds
                   were giddy with anticipation.
                   <Text pt="6">
                     {" "}
-                    "I wonder what my gardener is like" exclaimed one seed of
+                    "I wonder what my gardener is like!" exclaimed one seed of
                     wonder.
                   </Text>{" "}
                   <Text pt="6">
-                    "I can't wait to meet my gardener", said a seed of passion.
+                    "I can't wait to meet my gardener!" said a seed of passion.
                   </Text>
                   <Text pt="6">
-                    "This is a great day!", said a seed of power.
+                    "This is a great day!" said a seed of power.
                   </Text>
                 </Text>
                 <Text
@@ -91,7 +91,7 @@ function HomeView(props: RouteComponentProps) {
                 >
                   However, as the days went by, and the line of gardeners went
                   away, some of the seeds began to worry. "I hope my gardener
-                  didn't forget about me", said a seed of hope.
+                  didn't forget about me," said a seed of hope.
                 </Text>
                 <Text
                   pt="6"
@@ -112,8 +112,8 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight={"medium"}
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
-                  Finally the moment came, it was time for the Paper Merchant to
-                  go, and the remaining seeds gasped as they realized their
+                  Finally, the moment came, it was time for the Paper Merchant
+                  to go, and the remaining seeds gasped as they realized their
                   fate: they would remain without a gardener.
                 </Text>
                 <Text
@@ -123,7 +123,7 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight={"medium"}
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
-                  One of the Seeds of Passion shrieked "What will we do???"
+                  One of the Seeds of Passion shrieked, "What will we do???"
                 </Text>
                 <Text
                   pt="6"
@@ -161,7 +161,7 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight={"medium"}
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
-                  "It will not be easy", responded the Paper Merchant, "and true
+                  "It will not be easy." responded the Paper Merchant, "and true
                   happiness will be a challenge to find, but there is still a
                   way for you".
                 </Text>
@@ -173,7 +173,7 @@ function HomeView(props: RouteComponentProps) {
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
                   "I will search for foster gardeners. Those who are willing to
-                  take care for the unchosen. If you are united with the right
+                  take care of the unchosen. If you are united with the right
                   one, you too can thrive".
                 </Text>
                 <Text
@@ -183,7 +183,7 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight={"medium"}
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
-                  Who are the gardeners willing to care for sad seeds and how
+                  Who are the gardeners willing to care for sad seeds, and how
                   will the Paper Merchant find them. It will all become clear in
                   the days to come.
                 </Text>
@@ -232,7 +232,7 @@ function HomeView(props: RouteComponentProps) {
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
                   A tall man with dark worn clothes. His face wore the signs of
-                  his journeys and his eyes were full of wisdom. Outsiders
+                  his journeys, and his eyes were full of wisdom. Outsiders
                   didn't normally visit the town. The residents took notice.
                 </Text>
                 <Text
@@ -251,7 +251,7 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight={"medium"}
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
-                  "I am the Paper Merchant", replied the man.
+                  "I am the Paper Merchant," replied the man.
                 </Text>
                 <Text
                   pt="6"
@@ -315,7 +315,7 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight={"medium"}
                   color={useColorModeValue("gray.600", "gray.300")}
                 >
-                  "If you have been chosen, come forth", he said.
+                  "If you have been chosen, come forth." he said.
                 </Text>
                 <Text
                   pt="6"
