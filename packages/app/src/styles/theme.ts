@@ -1,4 +1,4 @@
-import { extendTheme, ThemeConfig } from "@chakra-ui/react";
+import { extendTheme, ThemeConfig, useColorModeValue } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
 
 const config: ThemeConfig = extendTheme({
@@ -56,7 +56,7 @@ const colors = {
     200: "rgb(18, 18, 38)", // base
     300: "rgb(21, 21, 38)",
   },
-  // base: #64A66A
+  // derived from #64A66A
   bud: {
     "50": "#EFF6EF",
     "100": "#D2E5D3",
@@ -69,7 +69,7 @@ const colors = {
     "800": "#254128",
     "900": "#132014",
   },
-  // base: #7ed166
+  // derived from #7ed166
   sprout: {
     "50": "#EEF9EB",
     "100": "#D1EEC8",
@@ -84,5 +84,18 @@ const colors = {
   },
 };
 
-const theme = extendTheme({ config, components, styles, fonts, colors });
+const textStyles = {
+  reading: {
+    color: mode("gray.600", "gray.300"),
+  },
+};
+
+const theme = extendTheme({
+  config,
+  components,
+  styles,
+  fonts,
+  colors,
+  textStyles,
+});
 export default theme;

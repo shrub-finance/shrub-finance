@@ -54,7 +54,7 @@ function HomeView(props: RouteComponentProps) {
                 textAlign={"left"}
                 fontSize="20px"
                 fontWeight={"medium"}
-                color={useColorModeValue("gray.600", "gray.300")}
+                textStyle={"reading"}
               >
                 <Text pt="8">
                   After the Paper Merchant set up his stall, all of the seeds
@@ -150,7 +150,7 @@ function HomeView(props: RouteComponentProps) {
                 fontSize="20px"
                 fontWeight={"medium"}
                 textAlign={"left"}
-                color={useColorModeValue("gray.600", "gray.300")}
+                textStyle={"reading"}
               >
                 <Text pt="8">
                   There was something different in the air on the day when he

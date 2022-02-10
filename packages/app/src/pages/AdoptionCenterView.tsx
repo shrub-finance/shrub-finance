@@ -64,7 +64,7 @@ import {
 } from "../constants/queries";
 import useTruncateAddress from "../hooks/useTruncateAddress";
 
-function OrphanageView(props: RouteComponentProps) {
+function AdoptionCenterView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const { pendingTxs } = useContext(TxContext);
@@ -445,7 +445,7 @@ function OrphanageView(props: RouteComponentProps) {
                   <Text
                     mt="8"
                     mb={{ base: "16px", md: "10", lg: "10" }}
-                    color={useColorModeValue("gray.700", "gray.300")}
+                    textStyle={"reading"}
                     fontSize="18px"
                     textAlign="justify"
                     fontWeight="medium"
@@ -651,4 +651,4 @@ function OrphanageView(props: RouteComponentProps) {
   );
 }
 
-export default OrphanageView;
+export default AdoptionCenterView;
