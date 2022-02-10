@@ -27,6 +27,7 @@ import {
   Tag,
   TagLabel,
   TagRightIcon,
+  Spinner,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -74,8 +75,12 @@ function OrphanageView(props: RouteComponentProps) {
   const [isSeedHolder, setIsSeedHolder] = useState(false);
   const [adoptionRegister, setAdoptionRegister] = useState<string[]>([]);
   const [dnas, setDnas] = useState<number[]>([]);
-  const seedOwnershipDataRows: JSX.Element[] = [];
-  const seedAdoptionDataRows: JSX.Element[] = [];
+  const [seedOwnershipDataRows, setSeedOwnershipDataRows] = useState<
+    JSX.Element[]
+  >([]);
+  const [seedAdoptionDataRows, setSeedAdoptionDataRows] = useState<
+    JSX.Element[]
+  >([]);
 
   const toast = useToast();
   const tradingBtnColor = useColorModeValue("sprout", "teal");
@@ -90,7 +95,14 @@ function OrphanageView(props: RouteComponentProps) {
     setIsHidden(val);
   };
   const [isHidden, setIsHidden] = useState(false);
-  // const temp = "0xfa116901C7361677fb3248595655404f4BcF7A06";
+
+  const {
+    active,
+    account,
+    error: web3Error,
+    library,
+    chainId,
+  } = useWeb3React();
 
   const [
     getSeedOwnerShipQuery,
@@ -104,7 +116,6 @@ function OrphanageView(props: RouteComponentProps) {
       address:
         process.env.REACT_APP_ORPHANAGE_ADDRESS &&
         process.env.REACT_APP_ORPHANAGE_ADDRESS.toLowerCase(),
-      // address: temp && temp.toLowerCase(),
     },
   });
 
@@ -118,11 +129,9 @@ function OrphanageView(props: RouteComponentProps) {
   ] = useLazyQuery(REGISTERED_SIBLINGS_QUERY, {
     variables: {
       dnas: dnas,
-      registered: adoptionRegister,
+      registered: adoptionRegister.map((a) => a.toLowerCase()),
     },
   });
-  console.log(registeredSiblingsData);
-  console.log(registeredSiblingsData.seeds.length);
 
   const [
     getSeedAdoptionQuery,
@@ -137,112 +146,6 @@ function OrphanageView(props: RouteComponentProps) {
     },
   });
 
-  if (
-    seedOwnershipData &&
-    seedOwnershipData.user &&
-    seedOwnershipData.user.seeds
-  ) {
-    const tempDna: number[] = [];
-    for (const item of seedOwnershipData.user.seeds) {
-      const { dna, type, name } = item;
-      tempDna.push(dna);
-      console.log(tempDna);
-      seedOwnershipDataRows.push(
-        <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
-          <Box pt={4} pl={4}>
-            <Image
-              boxSize={isMobile ? 5 : 20}
-              src={`https://shrub.finance/${type.toLowerCase()}-sad.svg`}
-              alt="Power Seed"
-            />
-          </Box>
-          <Spacer />
-          <Box p="6" borderRadius="lg">
-            <Box
-              fontWeight="semibold"
-              letterSpacing="wide"
-              fontSize="xs"
-              ml="2"
-            >
-              {name}
-            </Box>
-            <Box display="flex" alignItems="baseline" mt={2}>
-              <Box
-                fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="xs"
-                ml="2"
-              >
-                DNA: {dna}
-              </Box>
-            </Box>
-            <Box display="flex" alignItems="baseline" mt={2}>
-              <Link
-                href={`https://opensea.io/collection/shrub-paper-gardens?search[numericTraits][0][name]=DNA&search[numericTraits][0][ranges][0][min]=${dna}&search[numericTraits][0][ranges][0][max]=${dna}&search[sortAscending]=true&search[sortBy]=PRICE`}
-                isExternal
-              >
-                <Tag size={"sm"} variant="subtle" colorScheme="cyan">
-                  <TagLabel>Matching DNAs</TagLabel>
-                  <TagRightIcon boxSize="12px" as={ExternalLinkIcon} />
-                </Tag>
-              </Link>
-            </Box>
-          </Box>
-          <Box display="flex" alignItems="baseline" mt={2}>
-            <Box
-              fontWeight="semibold"
-              letterSpacing="wide"
-              fontSize="xs"
-              ml="2"
-            >
-              Registered accounts with this DNA:{" "}
-              {registeredSiblingsData.seeds.length}
-            </Box>
-          </Box>
-        </Flex>
-      );
-    }
-    setDnas(tempDna);
-  }
-
-  if (seedAdoptionData && seedAdoptionData.adoptionRecords) {
-    for (const item of seedAdoptionData.adoptionRecords) {
-      const { name, type } = item.seed;
-      const adoptionTime = new Date(item.timestamp * 1000).toLocaleString();
-      const owner = item.user.id;
-      seedAdoptionDataRows.push(
-        <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
-          <Box borderRadius="lg" p={4}>
-            <Box
-              fontWeight="semibold"
-              letterSpacing="wide"
-              fontSize="xs"
-              ml="2"
-            >
-              {name}
-            </Box>
-            <Box letterSpacing="wide" ml="2" mt={4} fontSize="11px">
-              Adopter: <strong>{useTruncateAddress(owner)}</strong>
-            </Box>
-            <Box mt={2}>
-              <Box letterSpacing="wide" fontSize="11px" ml="2">
-                Adopted: <strong>{adoptionTime}</strong>
-              </Box>
-            </Box>
-          </Box>
-        </Flex>
-      );
-    }
-  }
-
-  const {
-    active,
-    account,
-    error: web3Error,
-    library,
-    chainId,
-  } = useWeb3React();
-
   useEffect(() => {
     if (adoptionRegister && adoptionRegister.length && dnas && dnas.length) {
       getRegisteredSiblingsQuery();
@@ -255,13 +158,11 @@ function OrphanageView(props: RouteComponentProps) {
         return;
       }
       const result = await isRegisteredForAdoption(library, account);
-      const adoptionRegister = await getRegisterForAdoption(library);
-      console.log(adoptionRegister);
-      setAdoptionRegister(adoptionRegister);
       setIsRegistered(result);
       getSeedOwnerShipQuery();
       getSeedAdoptionQuery();
-      getRegisteredSiblingsQuery();
+      const adoptionRegister = await getRegisterForAdoption(library);
+      setAdoptionRegister(adoptionRegister);
     }
     main().catch((err) => {
       handleErrorMessages({ err });
@@ -287,6 +188,114 @@ function OrphanageView(props: RouteComponentProps) {
       console.error(err);
     });
   }, [account]);
+
+  useEffect(() => {
+    if (
+      seedOwnershipData &&
+      seedOwnershipData.user &&
+      seedOwnershipData.user.seeds
+    ) {
+      const tempDna: number[] = [];
+      const tempSeedOwnershipDataRows: JSX.Element[] = [];
+      for (const item of seedOwnershipData.user.seeds) {
+        const { dna, type, name } = item;
+        tempDna.push(dna);
+
+        tempSeedOwnershipDataRows.push(
+          <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
+            <Box pt={4} pl={4}>
+              <Image
+                boxSize={isMobile ? 5 : 20}
+                src={`https://shrub.finance/${type.toLowerCase()}-sad.svg`}
+                alt="Power Seed"
+              />
+              <Text
+                fontWeight="semibold"
+                letterSpacing="wide"
+                fontSize="xs"
+                ml="2"
+              >
+                DNA {dna}
+              </Text>
+            </Box>
+            <Spacer />
+            <Box p="6" borderRadius="lg">
+              <Box
+                fontWeight="semibold"
+                letterSpacing="wide"
+                fontSize="xs"
+                ml="2"
+              >
+                {name}
+              </Box>
+              <Box
+                fontWeight="semibold"
+                letterSpacing="wide"
+                fontSize="xs"
+                ml="2"
+                mt={2}
+              >
+                Registered accounts with this DNA:{" "}
+                {registeredSiblingsData &&
+                  registeredSiblingsData.seeds.filter((s: any) => s.dna === dna)
+                    .length}
+              </Box>
+              <Box display="flex" alignItems="baseline" mt={4}>
+                <Link
+                  href={`https://opensea.io/collection/shrub-paper-gardens?search[numericTraits][0][name]=DNA&search[numericTraits][0][ranges][0][min]=${dna}&search[numericTraits][0][ranges][0][max]=${dna}&search[sortAscending]=true&search[sortBy]=PRICE`}
+                  isExternal
+                >
+                  <Tag size={"sm"} variant="subtle" colorScheme="cyan">
+                    <TagLabel>Matching DNAs</TagLabel>
+                    <TagRightIcon boxSize="12px" as={ExternalLinkIcon} />
+                  </Tag>
+                </Link>
+              </Box>
+            </Box>
+          </Flex>
+        );
+      }
+      setDnas(tempDna);
+      setSeedOwnershipDataRows(tempSeedOwnershipDataRows);
+    }
+  }, [seedOwnershipData, registeredSiblingsData]);
+
+  useEffect(() => {
+    if (seedAdoptionData && seedAdoptionData.adoptionRecords) {
+      const tempSeedAdoptionRows: JSX.Element[] = [];
+      for (const item of seedAdoptionData.adoptionRecords) {
+        const { name } = item.seed;
+        const adoptionTime = new Date(item.timestamp * 1000).toLocaleString(
+          undefined,
+          { year: "numeric", month: "long", day: "numeric" }
+        );
+        const owner = item.user.id;
+        tempSeedAdoptionRows.push(
+          <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
+            <Box borderRadius="lg" p={4}>
+              <Box
+                fontWeight="semibold"
+                letterSpacing="wide"
+                fontSize="xs"
+                ml="2"
+              >
+                {name}
+              </Box>
+              <Box letterSpacing="wide" ml="2" mt={4} fontSize="11px">
+                Adopter: <strong>{useTruncateAddress(owner)}</strong>
+              </Box>
+              <Box mt={2}>
+                <Box letterSpacing="wide" fontSize="11px" ml="2">
+                  Adopted: <strong>{adoptionTime}</strong>
+                </Box>
+              </Box>
+            </Box>
+          </Flex>
+        );
+      }
+      setSeedAdoptionDataRows(tempSeedAdoptionRows);
+    }
+  }, [seedAdoptionData]);
 
   async function handleAdoptionRegistration() {
     setLocalError("");
@@ -410,14 +419,19 @@ function OrphanageView(props: RouteComponentProps) {
         <Center>
           <Box mb={{ base: 6, md: 10 }}>
             <Heading
+              fontSize={{ base: "30px", md: "50px" }}
+              letterSpacing={"tight"}
+              mb={{ base: !isRegistered ? 0 : -20, md: 8 }}
+              textAlign={"center"}
               maxW="60rem"
-              fontSize={["2xl", "5xl", "5xl"]}
-              fontWeight="medium"
-              textAlign="center"
             >
               {!localError.includes("'Account already registered") ? (
                 <Text as="span">
-                  {!isRegistered ? "Seed Adoption Center" : "You did it!"}
+                  {!isRegistered
+                    ? "Seed Adoption Center"
+                    : activeHash
+                    ? "You did it!"
+                    : "Seed Adoption Center"}
                 </Text>
               ) : (
                 <Text>You are all set</Text>
@@ -478,7 +492,7 @@ function OrphanageView(props: RouteComponentProps) {
                   </Text>
                 )}
             </Center>
-            {isRegistered && (
+            {isRegistered && activeHash && (
               <Text
                 mt="3"
                 color={useColorModeValue("gray.700", "gray.300")}
@@ -490,7 +504,7 @@ function OrphanageView(props: RouteComponentProps) {
                 Thanks for registering for this batch!
               </Text>
             )}
-            {isRegistered && (
+            {isRegistered && activeHash && (
               <Center py={4} maxW="60rem">
                 <Link
                   href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpaper.shrub.finance&text=I%20just%20registered%20to%20became%20a%20proud%20seed%20adopter%20on%20@shrubfinance%21%20Join%20me%20in%20giving%20a%20seed%20a%20home%21%20&hashtags=NFTs%2CDeFi%2Cweb3"
@@ -523,16 +537,39 @@ function OrphanageView(props: RouteComponentProps) {
                         pt={{ base: 10, md: 40 }}
                       >
                         <Box flex="1">
-                          <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
-                            Up for Adoption
-                          </Heading>
-                          {seedOwnershipDataRows}
+                          <Center>
+                            <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
+                              Up for Adoption
+                            </Heading>
+                          </Center>
+                          {seedOwnershipLoading ? (
+                            <Center>
+                              {" "}
+                              <Spinner size="xl" />
+                            </Center>
+                          ) : (
+                            seedOwnershipDataRows
+                          )}
                         </Box>
                         <Box flex="1" alignItems={"center"}>
-                          <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
-                            Adoption History
-                          </Heading>
-                          {seedAdoptionDataRows}
+                          <Center>
+                            <Heading
+                              fontSize="xl"
+                              pb={6}
+                              fontWeight={"medium"}
+                              minW={200}
+                            >
+                              Adoption History
+                            </Heading>
+                          </Center>
+                          {seedAdoptionLoading ? (
+                            <Center>
+                              {" "}
+                              <Spinner size="xl" />
+                            </Center>
+                          ) : (
+                            seedAdoptionDataRows
+                          )}
                         </Box>
                       </Stack>
                     </>

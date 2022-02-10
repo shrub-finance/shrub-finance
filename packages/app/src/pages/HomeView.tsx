@@ -36,8 +36,13 @@ import {
   InputRightElement,
   useRadioGroup,
   useBoolean,
+  Link,
 } from "@chakra-ui/react";
-import { ArrowForwardIcon, CheckIcon } from "@chakra-ui/icons";
+import {
+  ArrowForwardIcon,
+  CheckIcon,
+  ExternalLinkIcon,
+} from "@chakra-ui/icons";
 import { Link as ReachLink, RouteComponentProps } from "@reach/router";
 import { PolygonIcon } from "../assets/Icons";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -436,620 +441,325 @@ function HomeView(props: RouteComponentProps) {
         maxW="container.lg"
       >
         <Center mt={10}>
-          <Box mb={10}>
-            <Heading
-              maxW="60rem"
-              fontSize={["5xl", "6xl", "90px", "90px"]}
-              fontWeight="medium"
-              textAlign="center"
-            >
-              <Text as="span">Shrub</Text>
-              <Text
-                as="span"
-                bgGradient="linear(to-l, #e3d606, #54885d, #b1e7a1, #a1beaf)"
-                bgClip="text"
-              >
-                {" "}
-                Beta
-              </Text>
-            </Heading>
-            <Text
-              mt="3"
-              mb={{ base: "16px", md: "20", lg: "20" }}
-              color={useColorModeValue("gray.500", "gray.400")}
-              fontSize="18px"
-              textAlign="center"
-              px={["4rem", "5rem", "17rem", "17rem"]}
-            >
-              {isMobile
-                ? "Get started in 3 easy steps"
-                : "Practice crypto options trading on the Polygon Mumbai blockchain"}
-            </Text>
-
-            {!isMobile && (
-              <Box maxW="60rem" mb={8} textAlign={"center"}>
-                <Heading fontSize="50px">Get started in 3 easy steps!</Heading>
-              </Box>
-            )}
-            <Flex
-              direction={{ base: "column", md: "row", lg: "row" }}
-              alignItems={{ base: "center", md: "center", lg: "center" }}
-            >
-              {!isMobile ? (
-                <Box
-                  mb={{ base: "10", md: "0", lg: "0" }}
-                  maxW="280px"
-                  minW="280px"
-                  mr={5}
-                  shadow="2xl"
-                  bg={step1complete ? connectedColor : bgConnect}
-                  borderRadius="2xl"
-                  overflow="hidden"
-                >
-                  <Box p={6}>
-                    <Stack py={6} align={"center"}>
-                      <Circle
-                        w="100px"
-                        h="100px"
-                        bg={step1complete ? connectedStepBg : stepsBg}
-                        color={step1complete ? connectedStepColor : stepsColor}
-                      >
-                        <Box as="span" fontWeight="medium" fontSize="6xl">
-                          {!step1complete ? 1 : <CheckIcon />}
-                        </Box>
-                      </Circle>
-                    </Stack>
-                    <Stack align={"center"}>
-                      <Heading fontSize={"xl"} fontWeight={"500"}>
-                        {step1complete && <PolygonIcon />}{" "}
-                        {step1complete
-                          ? "Mumbai"
-                          : !!web3Error &&
-                            getErrorMessage(web3Error).title === "Wrong Network"
-                          ? "Connect to Mumbai"
-                          : "Connect Wallet"}
-                      </Heading>
-                      {!step1complete ? (
-                        <Popover placement="top" trigger="hover">
-                          <PopoverTrigger>
-                            <Text
-                              color={questionColor}
-                              fontWeight={"medium"}
-                              fontSize={"sm"}
-                              cursor="pointer"
-                            >
-                              Learn More
-                            </Text>
-                          </PopoverTrigger>
-                          <PopoverContent>
-                            <PopoverArrow />
-                            <PopoverCloseButton />
-                            <PopoverBody
-                              letterSpacing="wide"
-                              textAlign={"left"}
-                            >
-                              <UnorderedList lineHeight={1.8} fontSize={"sm"}>
-                                <ListItem pb={2}>
-                                  {" "}
-                                  <Text>
-                                    {" "}
-                                    To beta test Shrub, you need to{" "}
-                                    <strong>connect your wallet</strong> to the
-                                    Polygon Test Network (Mumbai).
-                                  </Text>
-                                </ListItem>
-                                <ListItem>
-                                  {" "}
-                                  Click the button below to automatically
-                                  connect to Mumbai.
-                                </ListItem>
-                              </UnorderedList>
-                            </PopoverBody>
-                          </PopoverContent>
-                        </Popover>
-                      ) : (
-                        <Box>Testnet</Box>
-                      )}
-                    </Stack>
-                    <Button
-                      onClick={handleConnect}
-                      w={"full"}
-                      mt={8}
-                      disabled={step1complete}
-                      colorScheme={tradingBtnColor}
-                      variant={step1complete ? "unstyled" : "solid"}
-                      rounded="2xl"
-                      _hover={
-                        step1complete
-                          ? {
-                              cursor: "text",
-                            }
-                          : {
-                              transform: "translateY(-2px)",
-                              boxShadow: "lg",
-                            }
-                      }
-                    >
-                      {step1complete
-                        ? "Connected!"
-                        : !!web3Error &&
-                          getErrorMessage(web3Error).title === "Wrong Network"
-                        ? "Connect to Mumbai"
-                        : "Connect Wallet"}
-                    </Button>
-                  </Box>
-                </Box>
-              ) : (
-                <Button
-                  onClick={handleConnect}
-                  disabled={step1complete}
-                  w={"full"}
-                  mt={8}
-                  p={8}
-                  fontSize={"xl"}
-                  bgGradient={mobileStepsBtnBg}
-                  rounded={"2xl"}
-                  _hover={{
-                    transform: "translateY(-2px)",
-                    boxShadow: "lg",
-                  }}
-                >
-                  {account
-                    ? "Connected!"
-                    : !!web3Error &&
-                      getErrorMessage(web3Error).title === "Wrong Network"
-                    ? "Step 1: Connect to Mumbai"
-                    : "Step 1: Connect Wallet"}
-                </Button>
-              )}
-              <Spacer />
-              {!isMobile ? (
-                <Box
-                  mb={{ base: "10", md: "0", lg: "0" }}
-                  mr={5}
-                  maxW="285px"
-                  minW="285px"
-                  shadow="2xl"
-                  borderRadius="2xl"
-                  overflow="hidden"
-                  bg={step2complete ? connectedColor : bgConnect}
-                >
-                  <Box p={6}>
-                    <Stack py={6} align={"center"}>
-                      <Circle
-                        w="100px"
-                        h="100px"
-                        bg={step2complete ? connectedStepBg : stepsBg}
-                        color={step2complete ? connectedStepColor : stepsColor}
-                      >
-                        <Box as="span" fontWeight="medium" fontSize="6xl">
-                          {step2complete ? <CheckIcon /> : 2}
-                        </Box>
-                      </Circle>
-                    </Stack>
-                    <Stack align={"center"}>
-                      <Heading fontSize={"xl"} fontWeight={"500"}>
-                        Get sUSD
-                      </Heading>
-                      <Popover placement="top" trigger="hover">
-                        <PopoverTrigger>
-                          <Text
-                            color={questionColor}
-                            fontSize={"sm"}
-                            cursor="pointer"
-                            fontWeight={"medium"}
-                          >
-                            Learn More
-                          </Text>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <PopoverArrow />
-                          <PopoverCloseButton />
-                          <PopoverBody letterSpacing="wide" textAlign={"left"}>
-                            <UnorderedList fontSize={"sm"}>
-                              <ListItem pb={2}>
-                                In mainnet, you will trade options in MATIC &
-                                USDC.
-                              </ListItem>
-                              <ListItem>In test environment:</ListItem>
-                              <UnorderedList>
-                                <ListItem>sMATIC represents MATIC</ListItem>
-                                <ListItem>
-                                  sUSD represents USD stable coin
-                                </ListItem>
-                                <ListItem>
-                                  These are Option underlying asset
-                                </ListItem>
-                                <ListItem>
-                                  <Text>Rate:</Text>
-                                  <Text fontSize={"xs"} fontWeight={"semibold"}>
-                                    1 MATIC = 10,000 sMATIC
-                                  </Text>
-                                  <Text fontSize={"xs"} fontWeight={"semibold"}>
-                                    1 MATIC = 10,000 sUSD
-                                  </Text>
-                                </ListItem>
-                              </UnorderedList>
-                            </UnorderedList>
-                          </PopoverBody>
-                        </PopoverContent>
-                      </Popover>
-                    </Stack>
-                    <Button
-                      onClick={openTestFaucetModal}
-                      disabled={!step1complete || step2complete}
-                      w={"full"}
-                      mt={8}
-                      colorScheme={tradingBtnColor}
-                      variant={step2complete ? "unstyled" : "solid"}
-                      rounded="2xl"
-                      _hover={
-                        step2complete
-                          ? {
-                              cursor: "text",
-                            }
-                          : {
-                              transform: "translateY(-2px)",
-                              boxShadow: "lg",
-                            }
-                      }
-                    >
-                      {step2complete ? "Complete!" : "Get sUSD"}
-                    </Button>
-                  </Box>
-                </Box>
-              ) : (
-                <Button
-                  onClick={openTestFaucetModal}
-                  disabled={!step1complete || step2complete}
-                  w={"full"}
-                  mt={8}
-                  p={8}
-                  fontSize={"xl"}
-                  bgGradient={mobileStepsBtnBg}
-                  rounded={"2xl"}
-                  _hover={{
-                    transform: "translateY(-2px)",
-                    boxShadow: "lg",
-                  }}
-                >
-                  {step2complete ? "Complete!" : "Step 2: Get sUSD"}
-                </Button>
-              )}
-              <Spacer />
-
-              {!isMobile ? (
-                <Box
-                  maxW="280px"
-                  minW="280px"
-                  shadow="2xl"
-                  borderRadius="2xl"
-                  overflow="hidden"
-                  bg={step3complete ? connectedColor : bgConnect}
-                >
-                  <Box p={6}>
-                    <Stack py={6} align={"center"}>
-                      <Circle
-                        w="100px"
-                        h="100px"
-                        bg={step3complete ? connectedStepBg : stepsBg}
-                        color={step3complete ? connectedStepColor : stepsColor}
-                      >
-                        <Box as="span" fontWeight="medium" fontSize="6xl">
-                          {step3complete ? <CheckIcon /> : 3}
-                        </Box>
-                      </Circle>
-                    </Stack>
-                    <Stack align={"center"}>
-                      <Heading fontSize={"xl"} fontWeight={"500"}>
-                        Deposit sUSD
-                      </Heading>
-                      <Popover placement="top" trigger="hover">
-                        <PopoverTrigger>
-                          <Text
-                            color={questionColor}
-                            fontSize={"sm"}
-                            cursor="pointer"
-                            fontWeight={"medium"}
-                          >
-                            Learn More
-                          </Text>
-                        </PopoverTrigger>
-                        <PopoverContent fontSize="sm">
-                          <PopoverArrow />
-                          <PopoverCloseButton />
-                          <PopoverBody letterSpacing="wide" textAlign={"left"}>
-                            <Text pb={4}>
-                              {" "}
-                              To buy options in Shrub, you first need to deposit
-                              Shrub USD (sUSD) to the Shrub platform.
-                            </Text>
-                          </PopoverBody>
-                        </PopoverContent>
-                      </Popover>
-                    </Stack>
-                    <Button
-                      disabled={
-                        !step1complete || !step2complete || step3complete
-                      }
-                      w={"full"}
-                      onClick={handleWithdrawDepositModalOpen("Deposit")}
-                      mt={8}
-                      colorScheme={tradingBtnColor}
-                      rounded="2xl"
-                      variant={step3complete ? "unstyled" : "solid"}
-                      _hover={
-                        step3complete
-                          ? {
-                              cursor: "text",
-                            }
-                          : {
-                              transform: "translateY(-2px)",
-                              boxShadow: "lg",
-                            }
-                      }
-                    >
-                      {step3complete ? "Complete!" : "Deposit sUSD"}
-                    </Button>
-                  </Box>
-                </Box>
-              ) : (
-                <Button
-                  p={8}
-                  fontSize={"xl"}
-                  bgGradient={mobileStepsBtnBg}
-                  rounded={"2xl"}
-                  disabled={!step1complete || !step2complete || step3complete}
-                  w={"full"}
-                  onClick={handleWithdrawDepositModalOpen("Deposit")}
-                  mt={8}
-                  _hover={
-                    step3complete
-                      ? {
-                          cursor: "text",
-                        }
-                      : {
-                          transform: "translateY(-2px)",
-                          boxShadow: "lg",
-                        }
-                  }
-                >
-                  {step3complete ? "Complete!" : "Step 3: Deposit sUSD"}
-                </Button>
-              )}
-            </Flex>
-          </Box>
-        </Center>
-      </Container>
-      <Container mt={25} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
-        <Center>
           <Box maxW="60rem" mb={8} textAlign={"center"}>
-            <Heading fontSize="50px" letterSpacing={"tight"}>
-              Done with 1-2-3 above?
+            <Heading
+              fontSize={{ base: "30px", md: "50px" }}
+              letterSpacing={"tight"}
+            >
+              Paper Gardens
             </Heading>
-            <Text
-              pt="3"
-              mb="8"
-              fontSize="18px"
-              color={useColorModeValue("gray.500", "gray.500")}
-            >
-              Sweet. Let's buy some options!
-            </Text>
-            <Button
-              disabled={!step1complete || !step2complete || !step3complete}
-              rightIcon={<ArrowForwardIcon />}
-              size="lg"
-              px="50"
-              fontSize="25px"
-              py="10"
-              colorScheme={tradingBtnColor}
-              variant="solid"
-              borderRadius="full"
-              _hover={{ transform: "translateY(-2px)" }}
-              bgGradient={
-                step1complete && step2complete && step3complete
-                  ? "linear(to-r, #74cecc, green.300, #e3d606)"
-                  : undefined
-              }
-              as={ReachLink}
-              to={
-                !step1complete || !step2complete || !step3complete
-                  ? ""
-                  : "/options"
-              }
-            >
-              Start Trading
-            </Button>
-          </Box>
-        </Center>
-      </Container>
-
-      <Modal
-        isOpen={isTestTokenModalOpen}
-        onClose={onTestTokenModalClose}
-        motionPreset="slideInBottom"
-        scrollBehavior={isMobile ? "inside" : "outside"}
-        size={isMobile ? "full" : "md"}
-      >
-        <ModalOverlay />
-        <ModalContent
-          boxShadow="dark-lg"
-          borderRadius={isMobile ? "none" : "2xl"}
-        >
-          <ModalHeader> Get sUSD</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Faucet hooks={{ isBuyingSUSD, setIsBuyingSUSD }} />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-
-      {/*withdraw deposit modal*/}
-      <Modal
-        motionPreset="slideInBottom"
-        onClose={handleWithdrawDepositModalClose}
-        isOpen={isOpenModal}
-        size={isMobile ? "full" : "md"}
-        scrollBehavior={isMobile ? "inside" : "outside"}
-      >
-        <ModalOverlay />
-        <ModalContent borderRadius={isMobile ? "none" : "2xl"}>
-          <ModalHeader>{withdrawDepositAction} sUSD</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {!approving && !activeHash && (
+            {!isMobile && (
               <>
-                <Stack direction={["column"]} spacing="40px" mb="40px">
-                  {localError && (
-                    <SlideFade in={true} unmountOnExit={true}>
-                      <Alert status="error" borderRadius={9}>
-                        <AlertIcon />
-                        {localError}
-                      </Alert>
-                    </SlideFade>
-                  )}
-
-                  {(modalCurrency === "MATIC" ||
-                    (isApproved && withdrawDepositAction === "Deposit") ||
-                    withdrawDepositAction === "Withdraw") && (
-                    <FormControl id="amount">
-                      <Flex pt={4}>
-                        <Spacer />
-                        <Button
-                          variant={"link"}
-                          colorScheme={"black"}
-                          size={"xs"}
-                          mb={3}
-                          rounded={"lg"}
-                          onClick={fillSendMax}
-                        >
-                          MAX:{" "}
-                          {withdrawDepositAction === "Deposit"
-                            ? walletTokenBalance
-                            : String(shrubBalance.available[modalCurrency])}
-                        </Button>
-                      </Flex>
-
-                      <NumberInput
-                        onChange={(valueString) =>
-                          setAmountValue(parse(valueString))
-                        }
-                        value={format(amountValue)}
-                        size="lg"
-                      >
-                        <NumberInputField
-                          h="6rem"
-                          rounded="3xl"
-                          shadow="sm"
-                          fontWeight="medium"
-                          fontSize="2xl"
-                        />
-                        <InputRightElement
-                          pointerEvents="none"
-                          p={14}
-                          children={
-                            <FormLabel
-                              htmlFor="amount"
-                              color="gray.500"
-                              fontWeight="medium"
-                            >
-                              sUSD
-                            </FormLabel>
-                          }
-                        />
-                      </NumberInput>
-                    </FormControl>
-                  )}
-                </Stack>
-                {modalCurrency !== "MATIC" &&
-                  withdrawDepositAction === "Deposit" &&
-                  !isApproved && (
-                    <>
-                      <Alert
-                        bgColor={alertColor}
-                        status="info"
-                        borderRadius={"md"}
-                        mb={3}
-                      >
-                        <AlertIcon />
-                        You will only have to approve once
-                      </Alert>
-                      <Button
-                        mb={1.5}
-                        colorScheme={btnBg}
-                        size={"lg"}
-                        isFullWidth={true}
-                        rounded="2xl"
-                        onClick={() => {
-                          if (active) {
-                            handleDepositWithdraw(undefined, "approve");
-                          }
-                        }}
-                      >
-                        Approve
-                      </Button>
-                    </>
-                  )}
-                {(modalCurrency === "MATIC" ||
-                  isApproved ||
-                  withdrawDepositAction === "Withdraw") && (
-                  <Button
-                    rounded="2xl"
-                    mb={1.5}
-                    size={"lg"}
-                    colorScheme={btnBg}
-                    isFullWidth={true}
-                    isDisabled={amountValue === "0" || amountValue === ""}
-                    onClick={handleDepositWithdraw}
+                <Box maxW="60rem" mb={4} textAlign={"center"} mt={6}>
+                  <Text
+                    fontSize={{ base: "20px", md: "30px" }}
+                    fontWeight="semibold"
+                    color={useColorModeValue("gray.500", "gray.400")}
                   >
-                    {withdrawDepositAction}
-                  </Button>
-                )}
+                    CHAPTER 2: THE SAD SEEDS
+                  </Text>
+                </Box>
+                <Box maxW="60rem" mb={8} textAlign={"justify"}>
+                  <Text
+                    pt="8"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    After the Paper Merchant set up his stall all of the seeds
+                    were giddy with anticipation. "I wonder what my gardener is
+                    like" exclaimed one seed of wonder. "I can't wait to meet my
+                    gardener", said a seed of passion. "This is a great day!",
+                    said a seed of power.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    The stall opened, and gardeners lined up, each claiming
+                    their seeds. Every time a gardener and seed matched, the
+                    seed beamed with happiness, excited to begin its journey
+                    with its chosen gardener.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    However, as the days went by, and the line of gardeners went
+                    away, some of the seeds began to worry. "I hope my gardener
+                    didn't forget about me", said a seed of hope.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    Every day, only a few gardeners came to unite with their
+                    seeds. Those lucky chosen seeds were happy, but the rest
+                    began to realize the cold truth that they might not be
+                    united with their gardener at all.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    Finally the moment came, it was time for the Paper Merchant
+                    to go, and the remaining seeds gasped as they realized their
+                    fate: they would remain without a gardener.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    One of the Seeds of Passion shrieked "What will we do???"
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    The Paper Merchant, who had been silent all this while, got
+                    up and spoke calmly.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "The gardeners that you all chose did not make it."
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "How will we ever grow? Is this the end for us?" asked a
+                    seed of Wonder.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "It will not be easy", responded the Paper Merchant, "and
+                    true happiness will be a challenge to find, but there is
+                    still a way for you".
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "I will search for foster gardeners. Those who are willing
+                    to take care for the unchosen. If you are united with the
+                    right one, you too can thrive".
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="14"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    Who are the gardeners willing to care for sad seeds and how
+                    will the Paper Merchant find them. It will all become clear
+                    in the days to come.
+                  </Text>
+                </Box>
+                <Button
+                  size="sm"
+                  px="30"
+                  fontSize="25px"
+                  py="8"
+                  colorScheme={tradingBtnColor}
+                  variant="solid"
+                  rounded="3xl"
+                  _hover={{ transform: "translateY(-2px)" }}
+                  bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
+                  as={ReachLink}
+                  to={"/adoptions"}
+                >
+                  Adopt a Seed
+                </Button>
+                <Box maxW="60rem" mb={4} textAlign={"center"} mt={20}>
+                  <Text
+                    fontSize="30px"
+                    fontWeight="semibold"
+                    color={useColorModeValue("gray.500", "gray.400")}
+                  >
+                    CHAPTER 1: THE TRAVELLING MERCHANT
+                  </Text>
+                </Box>
+                <Box maxW="60rem" mb={8} textAlign={"justify"}>
+                  <Text
+                    pt="8"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    There was something different in the air on the day when he
+                    appeared, something mysterious and filled with possibility.
+                    He came in on foot, towing along his cart.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    A tall man with dark worn clothes. His face wore the signs
+                    of his journeys and his eyes were full of wisdom. Outsiders
+                    didn't normally visit the town. The residents took notice.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "What do they call you?" one resident asked.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "I am the Paper Merchant", replied the man.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "I have come bearing paper seeds. Some of you have been
+                    chosen by the seeds. If you ask, I will give you yours."
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "I have four varieties of seeds in my wares:
+                    <UnorderedList>
+                      <ListItem>
+                        SEEDS OF WONDER - excited for the world, these are the
+                        most plentiful.
+                      </ListItem>
+                      <ListItem>
+                        SEEDS OF PASSION - filled with love, these are uncommon.
+                      </ListItem>
+                      <ListItem>
+                        SEEDS OF HOPE - with visions of future greatness, these
+                        are rare.
+                      </ListItem>
+                      <ListItem>
+                        SEEDS OF POWER - legendary, with an aura that makes
+                        others gravitate to them."
+                      </ListItem>
+                    </UnorderedList>
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "I am only here for sometime. If a seed is calling, you must
+                    visit me by then, or it will go to another."
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    The paper merchant setup his stall in the corner of town.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    "If you have been chosen, come forth", he said.
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="8"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    But what do these seeds do? And what is a seed without soil?
+                  </Text>
+                  <Text
+                    pt="6"
+                    mb="14"
+                    fontSize="20px"
+                    fontWeight={"medium"}
+                    color={useColorModeValue("gray.600", "gray.300")}
+                  >
+                    Read Chapter 2.
+                  </Text>
+                </Box>
+                <Link
+                  href="https://opensea.io/collection/shrub-paper-gardens"
+                  isExternal
+                  cursor="pointer"
+                  rounded="3xl"
+                  size="sm"
+                  px="6"
+                  fontSize="25px"
+                  fontWeight="semibold"
+                  py="5"
+                  _hover={{ transform: "translateY(-2px)" }}
+                  bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
+                  color={useColorModeValue("white", "black")}
+                >
+                  View Collection <ExternalLinkIcon mx="2px" />
+                </Link>
               </>
             )}
-            {(approving || activeHash) && (
-              <Txmonitor
-                txHash={activeHash}
-                showDeposit={showDepositButton}
-                goToDeposit={goToDeposit}
-              />
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-
-      <Modal
-        isOpen={isConnectWalletOpen}
-        onClose={onConnectWalletClose}
-        motionPreset="slideInBottom"
-        scrollBehavior={isMobile ? "inside" : "outside"}
-      >
-        <ModalOverlay />
-        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
-          <ModalHeader>
-            {!active ? (
-              "Connect Wallet"
-            ) : !isHidden ? (
-              <Text fontSize={16}>Account Details</Text>
-            ) : (
-              <Button variant="ghost" onClick={() => displayStatus(false)}>
-                Back
-              </Button>
-            )}{" "}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {!active || isHidden ? (
-              <ConnectWalletModal />
-            ) : (
-              !isHidden && <ConnectionStatus displayStatus={displayStatus} />
-            )}
-            {!(
-              web3Error && getErrorMessage(web3Error).title === "Wrong Network"
-            ) && <TxStatusList />}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          </Box>
+        </Center>
+      </Container>
     </>
   );
 }

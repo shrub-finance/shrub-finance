@@ -153,8 +153,8 @@ function TopNav() {
               {/*  Docs <ExternalLinkIcon mx="2px" />*/}
               {/*</Link>*/}
               <Link
-                href="https://shrub.finance/paper-gardens"
-                isExternal
+                as={ReachLink}
+                to="/adoption"
                 variant="ghost"
                 cursor="pointer"
                 px={2}
@@ -162,19 +162,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Story <ExternalLinkIcon mx="2px" />
-              </Link>
-              <Link
-                href="https://opensea.io/collection/shrub-paper-gardens"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Collection <ExternalLinkIcon mx="2px" />
+                Adoption
               </Link>
               <Link
                 as={ReachLink}
@@ -187,6 +175,22 @@ function TopNav() {
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
                 Leaderboard
+              </Link>
+              <Link
+                href="https://opensea.io/collection/shrub-paper-gardens"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Collection{" "}
+                <ExternalLinkIcon
+                  mx="2px"
+                  display={{ base: "inline", md: "none", lg: "inline" }}
+                />
               </Link>
             </HStack>
           </HStack>
@@ -274,6 +278,18 @@ function TopNav() {
               {/*))}*/}
               <Link
                 as={ReachLink}
+                to="/adoption"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Adoption
+              </Link>
+              <Link
+                as={ReachLink}
                 to="/leaderboard"
                 variant="ghost"
                 cursor="pointer"
@@ -283,6 +299,22 @@ function TopNav() {
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
                 Leaderboard
+              </Link>
+              <Link
+                href="https://opensea.io/collection/shrub-paper-gardens"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                rounded="lg"
+                py={"3"}
+                px={"2"}
+                _hover={{
+                  textDecoration: "none",
+                  bgGradient: gradient,
+                }}
+              >
+                {/*<Icon as={GiFlowerPot} mr={"2"} />*/}
+                Collection <ExternalLinkIcon mx="2px" />
               </Link>
               <Box
                 onClick={toggleColorMode}
@@ -319,22 +351,6 @@ function TopNav() {
               {/*  <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />*/}
               {/*  Docs <ExternalLinkIcon mx="2px" />*/}
               {/*</Link>*/}
-              <Link
-                href="https://opensea.io/collection/shrub-paper-gardens"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                rounded="lg"
-                py={"3"}
-                px={"2"}
-                _hover={{
-                  textDecoration: "none",
-                  bgGradient: gradient,
-                }}
-              >
-                {/*<Icon as={GiFlowerPot} mr={"2"} />*/}
-                Collection <ExternalLinkIcon mx="2px" />
-              </Link>
               {/*<Box*/}
               {/*<Box*/}
               {/*  pr={5}*/}

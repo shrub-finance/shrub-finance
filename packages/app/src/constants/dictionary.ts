@@ -15,7 +15,7 @@ export const addressMap = {
   "0x597f0f68aa64a2216d395d4829d4657a2f3fa745": "ariswap",
   "0x0c7cdee7f65f2be9d3d241a8caf43fd2773e263b": "wealthfreedom.eth",
   "0xc17ec9d8e72ab957ac73596846ac87b8c7f80be2": "Block_Invest1",
-  "0x9bf68b9a9b377f3ba0c40c1c5d8322e3ed8ee590": "ShrubFinanceTomydigitaltrader",
+  "0x9bf68b9a9b377f3ba0c40c1c5d8322e3ed8ee590": "Tomydigitaltrader",
   "0x2808edd543813fcf418de85bb42eedf3b39ba72c": "DCal",
   "0x2c02078935fe5b407583209d7bc22df60fbdf958": "blocktv.eth",
   "0xebb8f70d40d62864eab334c66bb5b88ce558054f": "hogehoge.eth",
