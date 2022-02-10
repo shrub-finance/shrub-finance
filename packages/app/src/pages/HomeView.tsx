@@ -199,7 +199,7 @@ function HomeView(props: RouteComponentProps) {
                 _hover={{ transform: "translateY(-2px)" }}
                 bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
                 as={ReachLink}
-                to={"/adoptions"}
+                to={"/adoption"}
               >
                 Adopt a Seed
               </Button>
