@@ -48,14 +48,7 @@ function HomeView(props: RouteComponentProps) {
                   CHAPTER 2: THE SAD SEEDS
                 </Text>
               </Box>
-              <Box
-                maxW="60rem"
-                mb={8}
-                textAlign={"left"}
-                fontSize="20px"
-                fontWeight={"medium"}
-                textStyle={"reading"}
-              >
+              <Box maxW="60rem" mb={8} fontSize="20px" textStyle={"reading"}>
                 <Text pt="8">
                   After the Paper Merchant set up his stall, all of the seeds
                   were giddy with anticipation.
@@ -144,14 +137,7 @@ function HomeView(props: RouteComponentProps) {
                   CHAPTER 1: THE TRAVELLING MERCHANT
                 </Text>
               </Box>
-              <Box
-                maxW="60rem"
-                mb={8}
-                fontSize="20px"
-                fontWeight={"medium"}
-                textAlign={"left"}
-                textStyle={"reading"}
-              >
+              <Box maxW="60rem" mb={8} fontSize="20px" textStyle={"reading"}>
                 <Text pt="8">
                   There was something different in the air on the day when he
                   appeared, something mysterious and filled with possibility. He

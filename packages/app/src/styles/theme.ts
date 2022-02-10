@@ -89,6 +89,8 @@ const textStyles = {
   reading: {
     color: "gray.600",
     ".chakra-ui-dark &": { color: "gray.300" },
+    fontWeight: "medium",
+    textAlign: "left",
   },
 };
 

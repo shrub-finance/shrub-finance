@@ -447,8 +447,6 @@ function AdoptionCenterView(props: RouteComponentProps) {
                     mb={{ base: "16px", md: "10", lg: "10" }}
                     textStyle={"reading"}
                     fontSize="18px"
-                    textAlign="justify"
-                    fontWeight="medium"
                     maxW={650}
                   >
                     The Paper Merchant in his quest to find good homes for the
@@ -461,7 +459,8 @@ function AdoptionCenterView(props: RouteComponentProps) {
                         color={ownSeedCTA}
                         fontWeight={"bold"}
                       >
-                        Own a seed to sign up for adoption <ExternalLinkIcon />
+                        Become a seed owner
+                        <ExternalLinkIcon />
                       </Link>
                     )}
                     <UnorderedList mt={4}>
