@@ -285,6 +285,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
               >
                 Adoption
               </Link>
@@ -297,6 +298,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
               >
                 Leaderboard
               </Link>
@@ -313,7 +315,6 @@ function TopNav() {
                   bgGradient: gradient,
                 }}
               >
-                {/*<Icon as={GiFlowerPot} mr={"2"} />*/}
                 Collection <ExternalLinkIcon mx="2px" />
               </Link>
               <Box

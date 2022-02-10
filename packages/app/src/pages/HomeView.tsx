@@ -56,7 +56,7 @@ function HomeView(props: RouteComponentProps) {
                 <Text pt="6">
                   "I wonder what my gardener is like!" exclaimed one seed of
                   wonder.
-                </Text>{" "}
+                </Text>
                 <Text pt="6">
                   "I can't wait to meet my gardener!" said a seed of passion.
                 </Text>
