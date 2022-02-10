@@ -30,6 +30,7 @@ function App() {
               <PaperView path="/nft/paper-seed/:tokenId" />
               <OrphanageView path="/adoption" />
               <HomeView path="/" />
+              <HomeView path="/claim" />
               {/*<PositionsView path="shrubfolio" />*/}
               {/*<OptionsView path="options" />*/}
             </Router>
