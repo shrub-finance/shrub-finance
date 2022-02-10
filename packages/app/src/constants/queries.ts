@@ -433,6 +433,15 @@ export const SEED_ADOPTION_QUERY = gql`
   }
 `;
 
+export const REGISTERED_SIBLINGS_QUERY = gql`
+  query RegisteredSiblings($dnas: [Int], $registered: [String]) {
+    seeds(where: { dna_in: $dnas, owner_in: $registered }) {
+      id
+      dna
+    }
+  }
+`;
+
 export const NFT_LEADERBOARD_QUERY = gql`
   query NFTLeaderboard($numResults: Int, $b: [String]) {
     users(

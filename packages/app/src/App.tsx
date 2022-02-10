@@ -28,8 +28,8 @@ function App() {
             <Router>
               <LeaderBoardView path="leaderboard" />
               <PaperView path="/nft/paper-seed/:tokenId" />
-              <OrphanageView path="/" />
-              {/*<HomeView path="/" />*/}
+              <OrphanageView path="/adoption" />
+              <HomeView path="/" />
               {/*<PositionsView path="shrubfolio" />*/}
               {/*<OptionsView path="options" />*/}
             </Router>

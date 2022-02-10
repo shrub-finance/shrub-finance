@@ -25,14 +25,15 @@ import {
   Image,
   Stack,
   Link,
+  Spinner,
+  Box,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { isMobile } from "react-device-detect";
 import { useWeb3React } from "@web3-react/core";
 import { useQuery } from "@apollo/client";
-
 import {
   ConnectionStatus,
   ConnectWalletModal,
@@ -41,15 +42,11 @@ import {
 import { TxStatusList } from "../components/TxMonitoring";
 import { NFT_LEADERBOARD_QUERY } from "../constants/queries";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { addressMap } from "../constants/dictionary";
 import useTruncateAddress from "../hooks/useTruncateAddress";
+
 function LeaderBoardView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
-  const headingColor = useColorModeValue(
-    "linear(to-l, #50514f, #54885d)",
-    "linear(to-l, #e3d606, #54885d, #b1e7a1, #a1beaf, #cd5959)"
-  );
   const {
     isOpen: isConnectWalletOpen,
     onOpen: onConnectWalletOpen,
@@ -59,7 +56,7 @@ function LeaderBoardView(props: RouteComponentProps) {
     setIsHidden(val);
   };
   const [isHidden, setIsHidden] = useState(false);
-  const leaderBoardRows: JSX.Element[] = [];
+  const [leaderBoardRows, setLeaderBoardRows] = useState<JSX.Element[]>([]);
   const POLL_INTERVAL = 60000; // 15 second polling interval
 
   const {
@@ -77,80 +74,84 @@ function LeaderBoardView(props: RouteComponentProps) {
     pollInterval: POLL_INTERVAL, // Poll every ten seconds
   });
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-  if (error) {
-    return <p>Error: ${handleErrorMessages({ err: error })}</p>;
-  }
-  let i = 0;
+  useEffect(() => {
+    if (leaderBoardData && leaderBoardData.users) {
+      let i = 0;
+      let lastRank = 0;
+      let lastSeedCount = 0;
+      const tempLeaderBoardRows: JSX.Element[] = [];
+      for (const item of leaderBoardData.users) {
+        i++;
+        const { id, seedCount, seeds } = item;
+        const rank = seedCount === lastSeedCount ? lastRank : i;
 
-  let lastRank = 0;
-  let lastSeedCount = 0;
+        const uniqueTypes = [...new Set(seeds.map((s: any) => s.type))];
+        if (i > 10 && seedCount < leaderBoardData.users[9].seedCount) {
+          break;
+        }
+        tempLeaderBoardRows.push(
+          <Tr>
+            <Td fontWeight={rank === 1 ? "extrabold" : "medium"}>{rank}</Td>
+            <Td
+              fontWeight={rank === 1 ? "extrabold" : "medium"}
+              fontSize={isMobile ? "12px" : "auto"}
+              maxW={"9rem"}
+            >
+              {useTruncateAddress(id)}
+            </Td>
+            <Td fontWeight={rank === 1 ? "extrabold" : "medium"}>
+              {seedCount}
+            </Td>
+            <Td>
+              {loading ? (
+                <Center>
+                  {" "}
+                  <Spinner size="xl" />
+                </Center>
+              ) : (
+                <Stack direction="row" spacing="0">
+                  {uniqueTypes.includes("Power") && (
+                    <Image
+                      boxSize={isMobile ? 5 : 9}
+                      src="https://shrub.finance/power.svg"
+                      alt="Power Seed"
+                    />
+                  )}
+                  {uniqueTypes.includes("Hope") && (
+                    <Image
+                      boxSize={isMobile ? 5 : 9}
+                      src="https://shrub.finance/hope.svg"
+                      alt="Hope Seed"
+                    />
+                  )}
+                  {uniqueTypes.includes("Passion") && (
+                    <Image
+                      boxSize={isMobile ? 5 : 9}
+                      src="https://shrub.finance/passion.svg"
+                      alt="Passion Seed"
+                    />
+                  )}
+                  {uniqueTypes.includes("Wonder") && (
+                    <Image
+                      boxSize={isMobile ? 5 : 9}
+                      src="https://shrub.finance/wonder.svg"
+                      alt="Wonder Seed"
+                    />
+                  )}
+                </Stack>
+              )}
+            </Td>
+          </Tr>
+        );
 
-  for (const item of leaderBoardData.users) {
-    i++;
-    const { id, seedCount, seeds } = item;
-    const rank = seedCount === lastSeedCount ? lastRank : i;
-
-    const uniqueTypes = [...new Set(seeds.map((s: any) => s.type))];
-    if (i > 10 && seedCount < leaderBoardData.users[9].seedCount) {
-      break;
+        lastSeedCount = seedCount;
+        lastRank = rank;
+      }
+      setLeaderBoardRows(tempLeaderBoardRows);
     }
-    leaderBoardRows.push(
-      <Tr>
-        <Td fontWeight={rank === 1 ? "extrabold" : "medium"}>{rank}</Td>
-        <Td
-          fontWeight={rank === 1 ? "extrabold" : "medium"}
-          fontSize={isMobile ? "12px" : "auto"}
-        >
-          {useTruncateAddress(id)}
-        </Td>
-        <Td fontWeight={rank === 1 ? "extrabold" : "medium"}>{seedCount}</Td>
-        <Td>
-          <Stack direction="row" spacing="0">
-            {uniqueTypes.includes("Power") && (
-              <Image
-                boxSize={isMobile ? 5 : 9}
-                src="https://shrub.finance/power.svg"
-                alt="Power Seed"
-              />
-            )}
-            {uniqueTypes.includes("Hope") && (
-              <Image
-                boxSize={isMobile ? 5 : 9}
-                src="https://shrub.finance/hope.svg"
-                alt="Hope Seed"
-              />
-            )}
-            {uniqueTypes.includes("Passion") && (
-              <Image
-                boxSize={isMobile ? 5 : 9}
-                src="https://shrub.finance/passion.svg"
-                alt="Passion Seed"
-              />
-            )}
-            {uniqueTypes.includes("Wonder") && (
-              <Image
-                boxSize={isMobile ? 5 : 9}
-                src="https://shrub.finance/wonder.svg"
-                alt="Wonder Seed"
-              />
-            )}
-          </Stack>
-        </Td>
-      </Tr>
-    );
+  }, [leaderBoardData]);
 
-    lastSeedCount = seedCount;
-    lastRank = rank;
-  }
-
-  const {
-    active,
-
-    error: web3Error,
-  } = useWeb3React();
+  const { active, error: web3Error } = useWeb3React();
 
   return (
     <>
@@ -173,20 +174,13 @@ function LeaderBoardView(props: RouteComponentProps) {
         </Center>
         <Center>
           <Heading
+            fontSize={{ base: "30px", md: "50px" }}
+            letterSpacing={"tight"}
+            textAlign={"center"}
             maxW="60rem"
-            fontSize={["xl", "3xl", "3xl", "4xl"]}
-            fontWeight={{ base: "semibold", md: "medium" }}
-            textAlign="center"
-            mb="10"
+            mb={{ base: 8, md: 14 }}
           >
-            <Text
-              as="span"
-              // bgGradient={headingColor}
-              // bgClip="text"
-              // boxDecorationBreak="clone"
-            >
-              Paper Gardener's Leaderboard
-            </Text>
+            Leaderboard
           </Heading>
         </Center>
         <Center>
@@ -208,7 +202,26 @@ function LeaderBoardView(props: RouteComponentProps) {
                 <Th>SeedType</Th>
               </Tr>
             </Thead>
-            <Tbody>{leaderBoardRows}</Tbody>
+            <Tbody>
+              {loading ? (
+                <>
+                  <Td>
+                    <Spinner size="xs" />
+                  </Td>
+                  <Td>
+                    <Spinner size="xs" />
+                  </Td>
+                  <Td>
+                    <Spinner size="xs" />
+                  </Td>
+                  <Td>
+                    <Spinner size="xs" />
+                  </Td>
+                </>
+              ) : (
+                leaderBoardRows
+              )}
+            </Tbody>
           </Table>
         </Center>
       </Container>
