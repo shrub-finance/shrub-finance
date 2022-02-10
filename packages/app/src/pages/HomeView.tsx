@@ -188,7 +188,7 @@ function HomeView(props: RouteComponentProps) {
                   But what do these seeds do? And what is a seed without soil?
                 </Text>
                 <Text pt="6" mb="14">
-                  Read Chapter 2.
+                  More will be revealed in Chapter 2.
                 </Text>
               </Box>
               <Link
