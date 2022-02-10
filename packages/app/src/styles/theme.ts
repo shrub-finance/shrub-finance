@@ -1,5 +1,6 @@
 import { extendTheme, ThemeConfig, useColorModeValue } from "@chakra-ui/react";
-import { mode } from "@chakra-ui/theme-tools";
+import { mode, StyleFunctionProps } from "@chakra-ui/theme-tools";
+import { Dict } from "@chakra-ui/utils";
 
 const config: ThemeConfig = extendTheme({
   initialColorMode: "dark",
@@ -86,7 +87,8 @@ const colors = {
 
 const textStyles = {
   reading: {
-    color: mode("gray.600", "gray.300"),
+    color: "gray.600",
+    ".chakra-ui-dark &": { color: "gray.300" },
   },
 };
 
