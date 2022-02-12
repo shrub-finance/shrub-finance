@@ -94,6 +94,13 @@ const textStyles = {
   },
 };
 
+const layerStyles = {
+  shrubBg: {
+    bg: "white",
+    ".chakra-ui-dark &": { bg: "dark.100" },
+  },
+};
+
 const theme = extendTheme({
   config,
   components,
@@ -101,5 +108,6 @@ const theme = extendTheme({
   fonts,
   colors,
   textStyles,
+  layerStyles,
 });
 export default theme;

@@ -28,6 +28,7 @@ import {
   TagLabel,
   TagRightIcon,
   Spinner,
+  Badge,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -200,23 +201,35 @@ function AdoptionCenterView(props: RouteComponentProps) {
       for (const item of seedOwnershipData.user.seeds) {
         const { dna, type, name } = item;
         tempDna.push(dna);
+        const dnaAccounts =
+          registeredSiblingsData &&
+          registeredSiblingsData.seeds.filter((s: any) => s.dna === dna).length;
 
         tempSeedOwnershipDataRows.push(
-          <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
+          <Flex
+            maxW="sm"
+            mb={3}
+            w={"full"}
+            layerStyle="shrubBg"
+            boxShadow={"2xl"}
+            rounded={"xl"}
+          >
             <Box pt={4} pl={4}>
               <Image
                 boxSize={isMobile ? 5 : 20}
                 src={`https://shrub.finance/${type.toLowerCase()}-sad.svg`}
-                alt="Power Seed"
+                alt="Seed"
               />
-              <Text
-                fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="xs"
-                ml="2"
+              <Badge
+                px={2}
+                py={1}
+                layerStyle="shrubBg"
+                fontWeight={"400"}
+                fontSize={"11px"}
+                rounded={"md"}
               >
                 DNA {dna}
-              </Text>
+              </Badge>
             </Box>
             <Spacer />
             <Box p="6" borderRadius="lg">
@@ -225,20 +238,11 @@ function AdoptionCenterView(props: RouteComponentProps) {
                 letterSpacing="wide"
                 fontSize="xs"
                 ml="2"
-              >
-                {name}
-              </Box>
-              <Box
-                fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="xs"
-                ml="2"
                 mt={2}
               >
-                Registered accounts with this DNA:{" "}
-                {registeredSiblingsData &&
-                  registeredSiblingsData.seeds.filter((s: any) => s.dna === dna)
-                    .length}
+                {dnaAccounts} registered{" "}
+                {dnaAccounts < 2 ? "account has" : "accounts have"} a seed with
+                this DNA
               </Box>
               <Box display="flex" alignItems="baseline" mt={4}>
                 <Link
@@ -246,7 +250,7 @@ function AdoptionCenterView(props: RouteComponentProps) {
                   isExternal
                 >
                   <Tag size={"sm"} variant="subtle" colorScheme="cyan">
-                    <TagLabel>Matching DNAs</TagLabel>
+                    <TagLabel>See matching DNAs</TagLabel>
                     <TagRightIcon boxSize="12px" as={ExternalLinkIcon} />
                   </Tag>
                 </Link>
@@ -271,7 +275,14 @@ function AdoptionCenterView(props: RouteComponentProps) {
         );
         const owner = item.user.id;
         tempSeedAdoptionRows.push(
-          <Flex maxW="sm" borderWidth="1px" borderRadius="lg" mb={3}>
+          <Flex
+            maxW="sm"
+            mb={3}
+            w={"full"}
+            layerStyle="shrubBg"
+            boxShadow={"lg"}
+            rounded={"xl"}
+          >
             <Box borderRadius="lg" p={4}>
               <Box
                 fontWeight="semibold"

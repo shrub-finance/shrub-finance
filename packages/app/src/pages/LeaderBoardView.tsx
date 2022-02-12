@@ -26,7 +26,6 @@ import {
   Stack,
   Link,
   Spinner,
-  Box,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useEffect, useState } from "react";
