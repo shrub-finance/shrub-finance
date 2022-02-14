@@ -235,7 +235,7 @@ function AdoptionCenterView(props: RouteComponentProps) {
   }
   return (
     <Container maxW={{ base: "container.sm", md: "container.xl" }}>
-      <Center mt={10}>
+      <Center mt={20}>
         {localError && (
           <SlideFade in={true} unmountOnExit={true}>
             <Alert status="info" variant="shrubYellow" borderRadius={9}>
