@@ -18,17 +18,9 @@ import {
   Alert,
   AlertIcon,
   Link,
-  Stack,
-  Image,
-  Flex,
-  Spacer,
   UnorderedList,
   ListItem,
-  Tag,
-  TagLabel,
-  TagRightIcon,
-  Spinner,
-  Badge,
+  Grid,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -59,11 +51,12 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { FaTwitter } from "react-icons/all";
 import { useLazyQuery } from "@apollo/client";
 import {
-  REGISTERED_SIBLINGS_QUERY,
   SEED_ADOPTION_QUERY,
   SEED_OWNERSHIP_QUERY,
 } from "../constants/queries";
-import useTruncateAddress from "../hooks/useTruncateAddress";
+
+import UpcomingAdoptions from "../components/UpcomingAdoptions";
+import AdoptionHistory from "../components/AdoptionHistory";
 
 function AdoptionCenterView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -74,15 +67,6 @@ function AdoptionCenterView(props: RouteComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [isSeedHolder, setIsSeedHolder] = useState(false);
-  const [adoptionRegister, setAdoptionRegister] = useState<string[]>([]);
-  const [dnas, setDnas] = useState<number[]>([]);
-  const [seedOwnershipDataRows, setSeedOwnershipDataRows] = useState<
-    JSX.Element[]
-  >([]);
-  const [seedAdoptionDataRows, setSeedAdoptionDataRows] = useState<
-    JSX.Element[]
-  >([]);
-
   const toast = useToast();
   const tradingBtnColor = useColorModeValue("sprout", "teal");
   const ownSeedCTA = useColorModeValue("pink.600", "yellow.200");
@@ -96,7 +80,7 @@ function AdoptionCenterView(props: RouteComponentProps) {
     setIsHidden(val);
   };
   const [isHidden, setIsHidden] = useState(false);
-
+  const [adoptionRegister, setAdoptionRegister] = useState<string[]>([]);
   const {
     active,
     account,
@@ -121,20 +105,6 @@ function AdoptionCenterView(props: RouteComponentProps) {
   });
 
   const [
-    getRegisteredSiblingsQuery,
-    {
-      loading: registeredSiblingsLoading,
-      error: registeredSiblingsError,
-      data: registeredSiblingsData,
-    },
-  ] = useLazyQuery(REGISTERED_SIBLINGS_QUERY, {
-    variables: {
-      dnas: dnas,
-      registered: adoptionRegister.map((a) => a.toLowerCase()),
-    },
-  });
-
-  const [
     getSeedAdoptionQuery,
     {
       loading: seedAdoptionLoading,
@@ -146,12 +116,6 @@ function AdoptionCenterView(props: RouteComponentProps) {
       numResults: 20,
     },
   });
-
-  useEffect(() => {
-    if (adoptionRegister && adoptionRegister.length && dnas && dnas.length) {
-      getRegisteredSiblingsQuery();
-    }
-  }, [adoptionRegister, dnas]);
 
   useEffect(() => {
     async function main() {
@@ -189,124 +153,6 @@ function AdoptionCenterView(props: RouteComponentProps) {
       console.error(err);
     });
   }, [account]);
-
-  useEffect(() => {
-    if (
-      seedOwnershipData &&
-      seedOwnershipData.user &&
-      seedOwnershipData.user.seeds
-    ) {
-      const tempDna: number[] = [];
-      const tempSeedOwnershipDataRows: JSX.Element[] = [];
-      for (const item of seedOwnershipData.user.seeds) {
-        const { dna, type, name } = item;
-        tempDna.push(dna);
-        const dnaAccounts =
-          registeredSiblingsData &&
-          registeredSiblingsData.seeds.filter((s: any) => s.dna === dna).length;
-
-        tempSeedOwnershipDataRows.push(
-          <Flex
-            maxW="sm"
-            mb={3}
-            w={"full"}
-            layerStyle="shrubBg"
-            boxShadow={"2xl"}
-            rounded={"xl"}
-          >
-            <Box pt={4} pl={4}>
-              <Image
-                boxSize={isMobile ? 5 : 20}
-                src={`https://shrub.finance/${type.toLowerCase()}-sad.svg`}
-                alt="Seed"
-              />
-              <Badge
-                px={2}
-                py={1}
-                layerStyle="shrubBg"
-                fontWeight={"400"}
-                fontSize={"11px"}
-                rounded={"md"}
-              >
-                DNA {dna}
-              </Badge>
-            </Box>
-            <Spacer />
-            <Box p="6" borderRadius="lg">
-              <Box
-                fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="xs"
-                ml="2"
-                mt={2}
-              >
-                {dnaAccounts} registered{" "}
-                {dnaAccounts < 2 ? "account has" : "accounts have"} a seed with
-                this DNA
-              </Box>
-              <Box display="flex" alignItems="baseline" mt={4}>
-                <Link
-                  href={`https://opensea.io/collection/shrub-paper-gardens?search[numericTraits][0][name]=DNA&search[numericTraits][0][ranges][0][min]=${dna}&search[numericTraits][0][ranges][0][max]=${dna}&search[sortAscending]=true&search[sortBy]=PRICE`}
-                  isExternal
-                >
-                  <Tag size={"sm"} variant="subtle" colorScheme="cyan">
-                    <TagLabel>See matching DNAs</TagLabel>
-                    <TagRightIcon boxSize="12px" as={ExternalLinkIcon} />
-                  </Tag>
-                </Link>
-              </Box>
-            </Box>
-          </Flex>
-        );
-      }
-      setDnas(tempDna);
-      setSeedOwnershipDataRows(tempSeedOwnershipDataRows);
-    }
-  }, [seedOwnershipData, registeredSiblingsData]);
-
-  useEffect(() => {
-    if (seedAdoptionData && seedAdoptionData.adoptionRecords) {
-      const tempSeedAdoptionRows: JSX.Element[] = [];
-      for (const item of seedAdoptionData.adoptionRecords) {
-        const { name } = item.seed;
-        const adoptionTime = new Date(item.timestamp * 1000).toLocaleString(
-          undefined,
-          { year: "numeric", month: "long", day: "numeric" }
-        );
-        const owner = item.user.id;
-        tempSeedAdoptionRows.push(
-          <Flex
-            maxW="sm"
-            mb={3}
-            w={"full"}
-            layerStyle="shrubBg"
-            boxShadow={"lg"}
-            rounded={"xl"}
-          >
-            <Box borderRadius="lg" p={4}>
-              <Box
-                fontWeight="semibold"
-                letterSpacing="wide"
-                fontSize="xs"
-                ml="2"
-              >
-                {name}
-              </Box>
-              <Box letterSpacing="wide" ml="2" mt={4} fontSize="11px">
-                Adopter: <strong>{useTruncateAddress(owner)}</strong>
-              </Box>
-              <Box mt={2}>
-                <Box letterSpacing="wide" fontSize="11px" ml="2">
-                  Adopted: <strong>{adoptionTime}</strong>
-                </Box>
-              </Box>
-            </Box>
-          </Flex>
-        );
-      }
-      setSeedAdoptionDataRows(tempSeedAdoptionRows);
-    }
-  }, [seedAdoptionData]);
 
   async function handleAdoptionRegistration() {
     setLocalError("");
@@ -388,243 +234,234 @@ function AdoptionCenterView(props: RouteComponentProps) {
     }
   }
   return (
-    <>
-      <Container
-        mt={isMobile ? 30 : 50}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW="container.sm"
-      >
-        <Center mt={10}>
-          {localError && (
-            <SlideFade in={true} unmountOnExit={true}>
-              <Alert status="info" variant="shrubYellow" borderRadius={9}>
-                <AlertIcon />
-                {localError.includes("'Account holds no seed NFTs") ? (
-                  <Text>
-                    This address does not have any paper seeds. To adopt a seed
-                    you have to first be a seed owner.{" "}
-                    <Link
-                      color="blue.500"
-                      fontWeight={"bold"}
-                      isExternal
-                      href="https://opensea.io/collection/shrub-paper-gardens"
-                    >
-                      Become a seed owner <ExternalLinkIcon />
-                    </Link>
-                  </Text>
-                ) : localError.includes("'Account already registered") ? (
-                  <Text>
-                    This address is already registered for adoption. Thank you
-                    for giving a sad seed a happy home.
-                  </Text>
-                ) : (
-                  localError
-                )}
-              </Alert>
-            </SlideFade>
-          )}
-        </Center>
-        {isRegistered && activeHash && <Confetti />}
-        <Center>
-          <Box mb={{ base: 6, md: 10 }}>
-            <Heading
-              fontSize={{ base: "30px", md: "50px" }}
-              letterSpacing={"tight"}
-              mb={{ base: !isRegistered ? 0 : -20, md: 8 }}
-              textAlign={"center"}
-              maxW="60rem"
-            >
-              {!localError.includes("'Account already registered") ? (
-                <Text as="span">
-                  {!isRegistered
-                    ? "Seed Adoption Center"
-                    : activeHash
-                    ? "You did it!"
-                    : "Seed Adoption Center"}
+    <Container maxW={{ base: "container.sm", md: "container.xl" }}>
+      <Center mt={20}>
+        {localError && (
+          <SlideFade in={true} unmountOnExit={true}>
+            <Alert status="info" variant="shrubYellow" borderRadius={9}>
+              <AlertIcon />
+              {localError.includes("'Account holds no seed NFTs") ? (
+                <Text>
+                  This address does not have any paper seeds. To adopt a seed
+                  you have to first be a seed owner.{" "}
+                  <Link
+                    color="blue.500"
+                    fontWeight={"bold"}
+                    isExternal
+                    href="https://opensea.io/collection/shrub-paper-gardens"
+                  >
+                    Become a seed owner <ExternalLinkIcon />
+                  </Link>
+                </Text>
+              ) : localError.includes("'Account already registered") ? (
+                <Text>
+                  This address is already registered for adoption. Thank you for
+                  giving a sad seed a happy home.
                 </Text>
               ) : (
-                <Text>You are all set</Text>
+                localError
               )}
-            </Heading>
+            </Alert>
+          </SlideFade>
+        )}
+      </Center>
+      {isRegistered && activeHash && <Confetti />}
+      <Center>
+        <Grid
+          templateColumns={{
+            base: "repeat(1, 1fr)",
+            md: "repeat(1, 1fr)",
+            lg: isRegistered ? "repeat(1, 1fr)" : "repeat(3, 1fr)",
+          }}
+          gap={6}
+          mt={50}
+        >
+          {isRegistered && (
             <Center>
-              {!isRegistered &&
-                !activeHash &&
-                !localError.includes("'Account already registered") &&
-                !localError.includes("'Account holds no seed NFTs") && (
-                  <Text
-                    mt="8"
-                    mb={{ base: "16px", md: "10", lg: "10" }}
-                    textStyle={"reading"}
-                    fontSize="18px"
-                    maxW={650}
-                  >
-                    The Paper Merchant in his quest to find good homes for the
-                    sad seeds has started an adoption center.{" "}
-                    {!isSeedHolder && (
-                      <Link
-                        href="https://opensea.io/collection/shrub-paper-gardens"
-                        isExternal
-                        textAlign={"center"}
-                        color={ownSeedCTA}
-                        fontWeight={"bold"}
-                      >
-                        Become a seed owner
-                        <ExternalLinkIcon />
-                      </Link>
-                    )}
-                    <UnorderedList mt={4}>
-                      <ListItem pb={2}>
-                        {" "}
-                        <strong>2 seeds</strong> are up for adoption every day.
-                        They will be adopted by the users who have registered
-                        for the adoption batch.
-                      </ListItem>
-                      <ListItem pb={2}>
-                        We are attempting to{" "}
-                        <strong>unite seeds with their siblings</strong>. Owning
-                        a seed with the <strong>same DNA</strong> as the one up
-                        for adoption, greatly{" "}
-                        <strong>increases your chance</strong> of being selected
-                        as its adoptive gardener.
-                      </ListItem>
-                      <ListItem pb={2}>
-                        <strong>Batches last 1 week</strong>. Registration{" "}
-                        <strong>must be renewed</strong> on a weekly basis.{" "}
-                      </ListItem>
-                      <ListItem pb={2}>
-                        {" "}
-                        <strong>Registration is free</strong>, but you have to
-                        be a <strong>seed owner to qualify.</strong>
-                      </ListItem>
-                    </UnorderedList>
-                  </Text>
-                )}
-            </Center>
-            {isRegistered && activeHash && (
-              <Text
-                mt="3"
-                color={useColorModeValue("gray.700", "gray.300")}
-                fontSize="18px"
-                textAlign="center"
-                fontWeight="medium"
+              <Heading
+                fontSize={{ base: "30px", md: "50px" }}
+                letterSpacing={"tight"}
+                textAlign={"center"}
                 maxW="60rem"
               >
-                Thanks for registering for this batch!
-              </Text>
-            )}
-            {isRegistered && activeHash && (
-              <Center py={4} maxW="60rem">
-                <Link
-                  href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpaper.shrub.finance&text=I%20just%20registered%20to%20became%20a%20proud%20seed%20adopter%20on%20@shrubfinance%21%20Join%20me%20in%20giving%20a%20seed%20a%20home%21%20&hashtags=NFTs%2CDeFi%2Cweb3"
-                  isExternal
-                >
-                  <Button
-                    variant="link"
-                    colorScheme="twitter"
-                    leftIcon={<FaTwitter />}
-                  >
-                    Tweet this!
-                  </Button>
-                </Link>
-              </Center>
-            )}
-            <Center position={!isRegistered ? "relative" : "static"}>
-              <Center mt={{ base: 20, md: -40 }}>
-                {!isMobile ? (
-                  !isRegistered ? (
-                    <>
-                      <AdoptionImg boxSize={{ base: 0, md: 1000 }} />
-                      <SeedBasketImg boxSize={{ base: 320, md: 0 }} pt={14} />
-                    </>
-                  ) : (
-                    <>
-                      <Stack
-                        mt={6}
-                        direction={{ base: "column", md: "row" }}
-                        spacing={8}
-                        pt={{ base: 10, md: 40 }}
-                      >
-                        <Box flex="1">
-                          <Center>
-                            <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
-                              Up for Adoption
-                            </Heading>
-                          </Center>
-                          {seedOwnershipLoading ? (
-                            <Center>
-                              {" "}
-                              <Spinner size="xl" />
-                            </Center>
-                          ) : (
-                            seedOwnershipDataRows
-                          )}
-                        </Box>
-                        <Box flex="1" alignItems={"center"}>
-                          <Center>
-                            <Heading
-                              fontSize="xl"
-                              pb={6}
-                              fontWeight={"medium"}
-                              minW={200}
-                            >
-                              Adoption History
-                            </Heading>
-                          </Center>
-                          {seedAdoptionLoading ? (
-                            <Center>
-                              {" "}
-                              <Spinner size="xl" />
-                            </Center>
-                          ) : (
-                            seedAdoptionDataRows
-                          )}
-                        </Box>
-                      </Stack>
-                    </>
-                  )
-                ) : (
-                  <SeedBasketImg boxSize={320} pt={14} />
-                )}
-              </Center>
+                Hello, Registered Gardener!
+              </Heading>
+            </Center>
+          )}
 
-              <Center top={{ base: 5, md: 20 }} position={"absolute"}>
+          {/*upcoming adoption*/}
+          <UpcomingAdoptions
+            hooks={{
+              adoptionRegister,
+              seedOwnershipData,
+              seedOwnershipLoading,
+              isRegistered,
+            }}
+          />
+
+          {/*adoption center */}
+          {!isRegistered && (
+            <Box>
+              <Heading
+                fontSize={{ base: "30px", md: "50px" }}
+                letterSpacing={"tight"}
+                mb={{ base: !isRegistered ? 0 : -20, md: 8 }}
+                textAlign={"center"}
+                maxW="60rem"
+              >
+                {!localError.includes("'Account already registered") ? (
+                  <Text as="span">
+                    {!isRegistered
+                      ? "Seed Adoption Center"
+                      : activeHash
+                      ? "You did it!"
+                      : "Seed Adoption Center"}
+                  </Text>
+                ) : (
+                  <Text>You are all set</Text>
+                )}
+              </Heading>
+              <Center px={4}>
                 {!isRegistered &&
                   !activeHash &&
                   !localError.includes("'Account already registered") &&
                   !localError.includes("'Account holds no seed NFTs") && (
-                    <Button
-                      onClick={handleAdoptionRegistration}
-                      colorScheme={tradingBtnColor}
-                      variant="solid"
-                      rounded="2xl"
-                      isLoading={isLoading}
-                      isDisabled={!!account && !isSeedHolder}
-                      size="lg"
-                      px={["10", "70", "90", "90"]}
-                      fontSize={{ base: "20px", md: "25px" }}
-                      py={10}
-                      borderRadius="full"
-                      _hover={{ transform: "translateY(-2px)" }}
-                      bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                      loadingText="Registering..."
+                    <Text
+                      mt="8"
+                      mb={{ base: "16px", md: "10", lg: "10" }}
+                      textStyle={"reading"}
+                      maxW={650}
+                      fontSize="17px"
                     >
-                      {account
-                        ? isSeedHolder
-                          ? "Register to adopt"
-                          : "Must own a seed to adopt"
-                        : !!web3Error &&
-                          getErrorMessage(web3Error).title === "Wrong Network"
-                        ? "Connect to Polygon"
-                        : "Connect Wallet"}
-                    </Button>
+                      The Paper Merchant in his quest to find good homes for the
+                      sad seeds has started an adoption center. He is attempting
+                      to <strong>unite seeds with their siblings. </strong>
+                      {!isSeedHolder && (
+                        <Link
+                          href="https://opensea.io/collection/shrub-paper-gardens"
+                          isExternal
+                          textAlign={"center"}
+                          color={ownSeedCTA}
+                          fontWeight={"bold"}
+                        >
+                          Help a seed in need. Become a seed owner
+                          <ExternalLinkIcon ml={1} />
+                        </Link>
+                      )}
+                      <UnorderedList mt={4}>
+                        <ListItem pb={2}>
+                          {" "}
+                          <strong>2 seeds</strong> are up for adoption every
+                          day. They are adopted by the users who have registered
+                          for adoption.
+                        </ListItem>
+                        <ListItem pb={2}>
+                          <strong>Batches last 1 week</strong>. Registration{" "}
+                          <strong>must be renewed</strong> on a weekly basis.{" "}
+                        </ListItem>
+                        <ListItem pb={2}>
+                          <strong>Registration is free</strong>, but you have to
+                          be a <strong>seed owner to qualify.</strong>
+                        </ListItem>
+                        <ListItem pb={2}>
+                          <strong>Owning a seed with the same DNA</strong> as
+                          the one up for adoption,
+                          <strong> increases your chance</strong> of being
+                          selected as its adoptive gardener.
+                        </ListItem>
+                      </UnorderedList>
+                    </Text>
                   )}
               </Center>
-            </Center>
-          </Box>
-        </Center>
-      </Container>
+              {isRegistered && activeHash && (
+                <Text
+                  mt="3"
+                  color={useColorModeValue("gray.700", "gray.300")}
+                  fontSize="18px"
+                  textAlign="center"
+                  fontWeight="medium"
+                  maxW="60rem"
+                >
+                  Thanks for registering for this batch!
+                </Text>
+              )}
+              {isRegistered && activeHash && (
+                <Center py={4} maxW="60rem">
+                  <Link
+                    href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fpaper.shrub.finance&text=I%20just%20registered%20to%20became%20a%20proud%20seed%20adopter%20on%20@shrubfinance%21%20Join%20me%20in%20giving%20a%20seed%20a%20home%21%20&hashtags=NFTs%2CDeFi%2Cweb3"
+                    isExternal
+                  >
+                    <Button
+                      variant="link"
+                      colorScheme="twitter"
+                      leftIcon={<FaTwitter />}
+                    >
+                      Tweet this!
+                    </Button>
+                  </Link>
+                </Center>
+              )}
+              <Center position={!isRegistered ? "relative" : "static"}>
+                <Center mt={{ base: 20, md: "-124px" }}>
+                  {!isMobile ? (
+                    !isRegistered ? (
+                      <>
+                        <AdoptionImg boxSize={{ base: 0, md: 640 }} />
+                        <SeedBasketImg boxSize={{ base: 320, md: 0 }} pt={14} />
+                      </>
+                    ) : (
+                      <></>
+                    )
+                  ) : (
+                    <SeedBasketImg boxSize={320} pt={14} />
+                  )}
+                </Center>
+                <Center top={{ base: 5, md: 0 }} position={"absolute"}>
+                  {!isRegistered &&
+                    !activeHash &&
+                    !localError.includes("'Account already registered") &&
+                    !localError.includes("'Account holds no seed NFTs") && (
+                      <Button
+                        onClick={handleAdoptionRegistration}
+                        colorScheme={tradingBtnColor}
+                        variant="solid"
+                        rounded="2xl"
+                        isLoading={isLoading}
+                        isDisabled={!!account && !isSeedHolder}
+                        size="lg"
+                        fontSize={{ base: "20px", md: "25px" }}
+                        py={10}
+                        borderRadius="full"
+                        _hover={{ transform: "translateY(-2px)" }}
+                        bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                        loadingText="Registering..."
+                      >
+                        {account
+                          ? isSeedHolder
+                            ? "Register to adopt"
+                            : "Must own a seed to adopt"
+                          : !!web3Error &&
+                            getErrorMessage(web3Error).title === "Wrong Network"
+                          ? "Connect to Polygon"
+                          : "Connect Wallet"}
+                      </Button>
+                    )}
+                </Center>
+              </Center>
+            </Box>
+          )}
+
+          {/*adoption history*/}
+          <AdoptionHistory
+            hooks={{
+              seedAdoptionData,
+              seedAdoptionLoading,
+              isRegistered,
+            }}
+          />
+        </Grid>
+      </Center>
+
       <Modal
         isOpen={isConnectWalletOpen}
         onClose={onConnectWalletClose}
@@ -657,7 +494,7 @@ function AdoptionCenterView(props: RouteComponentProps) {
           </ModalBody>
         </ModalContent>
       </Modal>
-    </>
+    </Container>
   );
 }
 
