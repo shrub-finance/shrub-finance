@@ -20,10 +20,11 @@ function AdoptionHistory({
   hooks: {
     seedAdoptionData: any;
     seedAdoptionLoading: any;
+    isRegistered: any;
   };
 }) {
   const { account } = useWeb3React();
-  const { seedAdoptionData, seedAdoptionLoading } = hooks;
+  const { seedAdoptionData, seedAdoptionLoading, isRegistered } = hooks;
   const [seedAdoptionDataRows, setSeedAdoptionDataRows] = useState<
     JSX.Element[]
   >([]);
@@ -41,21 +42,22 @@ function AdoptionHistory({
         tempSeedAdoptionRows.push(
           <Flex
             mb={3}
-            minW={{ base: "100px", md: "280px" }}
-            maxW={"250px"}
+            minW={{ base: "100px", md: "300px" }}
+            maxW={"300px"}
             w={"full"}
             layerStyle="shrubBg"
             boxShadow={"2xl"}
             rounded={"xl"}
+            p={2}
           >
-            <Box pt={4} pl={4}>
+            <Box ml={2} mt={5}>
               <Image
-                boxSize={isMobile ? 5 : 20}
+                boxSize={16}
                 src={`https://shrub.finance/${type.toLowerCase()}-sad.svg`}
                 alt="Seed"
               />
             </Box>
-            <Box borderRadius="lg" p="6">
+            <Box borderRadius="lg" py={4} minW={200}>
               <Box
                 fontWeight="semibold"
                 letterSpacing="wide"
@@ -82,9 +84,14 @@ function AdoptionHistory({
   return (
     <>
       {account && (
-        <Box>
+        <Box
+          pt={8}
+          display={
+            isRegistered ? "block" : { base: "none", md: "none", lg: "block" }
+          }
+        >
           <Center>
-            <Heading fontSize="xl" pb={6} fontWeight={"medium"} minW={200}>
+            <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
               Adoption History
             </Heading>
           </Center>
@@ -94,7 +101,10 @@ function AdoptionHistory({
               <Spinner size="xl" />
             </Center>
           ) : (
-            <Wrap> {seedAdoptionDataRows}</Wrap>
+            <Wrap spacing="20px" justify="center">
+              {" "}
+              {seedAdoptionDataRows}
+            </Wrap>
           )}
         </Box>
       )}

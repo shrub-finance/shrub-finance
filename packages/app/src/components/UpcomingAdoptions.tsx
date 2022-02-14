@@ -29,13 +29,19 @@ function UpcomingAdoptions({
     adoptionRegister: any;
     seedOwnershipData: any;
     seedOwnershipLoading: any;
+    isRegistered: any;
   };
 }) {
   const [dnas, setDnas] = useState<number[]>([]);
   const [seedOwnershipDataRows, setSeedOwnershipDataRows] = useState<
     JSX.Element[]
   >([]);
-  const { adoptionRegister, seedOwnershipData, seedOwnershipLoading } = hooks;
+  const {
+    adoptionRegister,
+    seedOwnershipData,
+    seedOwnershipLoading,
+    isRegistered,
+  } = hooks;
   const { account } = useWeb3React();
 
   const [
@@ -75,17 +81,16 @@ function UpcomingAdoptions({
 
         tempSeedOwnershipDataRows.push(
           <Flex
-            mb={3}
-            w={"full"}
             layerStyle="shrubBg"
             boxShadow={"2xl"}
             rounded={"xl"}
-            // minW={{ base: "100px", md: "280px" }}
+            minW={{ base: "100px", md: "300px" }}
             maxW={"300px"}
+            p={2}
           >
-            <Box pt={4} pl={4}>
+            <Box ml={2}>
               <Image
-                boxSize={isMobile ? 5 : 20}
+                boxSize={20}
                 src={`https://shrub.finance/${type.toLowerCase()}-sad.svg`}
                 alt="Seed"
               />
@@ -100,7 +105,7 @@ function UpcomingAdoptions({
                 DNA {dna}
               </Badge>
             </Box>
-            <Box p="6" borderRadius="lg">
+            <Box p="4" borderRadius="lg">
               <Box
                 fontWeight="semibold"
                 letterSpacing="wide"
@@ -135,7 +140,12 @@ function UpcomingAdoptions({
   return (
     <>
       {account && (
-        <Box>
+        <Box
+          pt={!isRegistered ? 8 : 0}
+          display={
+            isRegistered ? "block" : { base: "none", md: "none", lg: "block" }
+          }
+        >
           <Center>
             <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
               Up for Adoption
@@ -146,7 +156,10 @@ function UpcomingAdoptions({
               <Spinner size="xl" />
             </Center>
           ) : (
-            <Wrap> {seedOwnershipDataRows}</Wrap>
+            <Wrap spacing="20px" justify="center">
+              {" "}
+              {seedOwnershipDataRows}
+            </Wrap>
           )}
         </Box>
       )}
