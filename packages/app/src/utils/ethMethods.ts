@@ -368,7 +368,7 @@ export async function registerForAdoption(provider: JsonRpcProvider) {
     ORPHANAGE_CONTRACT_ADDRESS,
     signer
   );
-  return orphanageContract.register({ gasLimit: 1200000 });
+  return orphanageContract.register();
 }
 
 export async function getRegisterForAdoption(provider: JsonRpcProvider) {
