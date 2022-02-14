@@ -118,14 +118,14 @@ function AdoptionCenterView(props: RouteComponentProps) {
   });
 
   useEffect(() => {
+    getSeedOwnerShipQuery();
+    getSeedAdoptionQuery();
     async function main() {
       if (!account) {
         return;
       }
       const result = await isRegisteredForAdoption(library, account);
       setIsRegistered(result);
-      getSeedOwnerShipQuery();
-      getSeedAdoptionQuery();
       const adoptionRegister = await getRegisterForAdoption(library);
       setAdoptionRegister(adoptionRegister);
     }
@@ -273,7 +273,7 @@ function AdoptionCenterView(props: RouteComponentProps) {
             md: "repeat(1, 1fr)",
             lg: isRegistered ? "repeat(1, 1fr)" : "repeat(3, 1fr)",
           }}
-          gap={6}
+          gap={20}
           mt={50}
         >
           {isRegistered && (
