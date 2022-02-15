@@ -1,5 +1,6 @@
-import { extendTheme, ThemeConfig } from "@chakra-ui/react";
-import { mode } from "@chakra-ui/theme-tools";
+import { extendTheme, ThemeConfig, useColorModeValue } from "@chakra-ui/react";
+import { mode, StyleFunctionProps } from "@chakra-ui/theme-tools";
+import { Dict } from "@chakra-ui/utils";
 
 const config: ThemeConfig = extendTheme({
   initialColorMode: "dark",
@@ -56,7 +57,7 @@ const colors = {
     200: "rgb(18, 18, 38)", // base
     300: "rgb(21, 21, 38)",
   },
-  // base: #64A66A
+  // derived from #64A66A
   bud: {
     "50": "#EFF6EF",
     "100": "#D2E5D3",
@@ -69,7 +70,7 @@ const colors = {
     "800": "#254128",
     "900": "#132014",
   },
-  // base: #7ed166
+  // derived from #7ed166
   sprout: {
     "50": "#EEF9EB",
     "100": "#D1EEC8",
@@ -84,5 +85,29 @@ const colors = {
   },
 };
 
-const theme = extendTheme({ config, components, styles, fonts, colors });
+const textStyles = {
+  reading: {
+    color: "gray.600",
+    ".chakra-ui-dark &": { color: "gray.300" },
+    fontWeight: "medium",
+    textAlign: "left",
+  },
+};
+
+const layerStyles = {
+  shrubBg: {
+    bg: "white",
+    ".chakra-ui-dark &": { bg: "dark.100" },
+  },
+};
+
+const theme = extendTheme({
+  config,
+  components,
+  styles,
+  fonts,
+  colors,
+  textStyles,
+  layerStyles,
+});
 export default theme;
