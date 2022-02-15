@@ -18,7 +18,7 @@ describe("SeedOrphanage", () => {
     signer2 = signers[2];
     signer3 = signers[3];
     signer4 = signers[4];
-    const maxIndex = 4;
+    const maxIndex = 20;
     const merkleRoot =
       "0x618ddd3b36d40f8d9b942cf72c5e92615e6594b3e8b537082310ae48e51cd059";
     const baseUri = "https://shrub.finance/";
@@ -321,6 +321,23 @@ describe("SeedOrphanage", () => {
   });
 
   describe("view", async () => {
+    it("should have constant gas at scale", async () => {
+      const signers = await ethers.getSigners();
+      for (let i = 5; i < 20; i++) {
+        await paperSeed.claimReserve(i);
+      }
+      for (let i = 1; i < 20; i++) {
+        await paperSeed["safeTransferFrom(address,address,uint256)"](
+          owner.address,
+          signers[i].address,
+          i
+        );
+        const signerSeedOrphanage = seedOrphanage.connect(signers[i]);
+        await signerSeedOrphanage.register();
+      }
+      const register = await seedOrphanage.getRegister();
+      expect(register.length).to.equal(19);
+    });
     it("getRegister should work", async () => {
       let register = await seedOrphanage.getRegister();
       expect(register).to.deep.equal([]);
@@ -339,6 +356,11 @@ describe("SeedOrphanage", () => {
         signer3.address,
         3
       );
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer4.address,
+        4
+      );
       await signer1SeedOrphanage.register();
       register = await seedOrphanage.getRegister();
       expect(register).to.deep.equal([signer1.address]);
@@ -352,6 +374,7 @@ describe("SeedOrphanage", () => {
         signer3.address,
         signer2.address,
       ]);
+      // await signer4SeedOrphanage.register();
       await seedOrphanage.clearRegister();
       register = await seedOrphanage.getRegister();
       expect(register).to.deep.equal([]);
