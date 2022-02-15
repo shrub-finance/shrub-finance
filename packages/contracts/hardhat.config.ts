@@ -22,7 +22,7 @@ import {
   SUSDToken__factory,
   SMATICToken__factory,
   PaperSeed__factory,
-  SeedOrphanage__factory,
+  SeedOrphanageV2__factory,
 } from './types/ethers-v5'
 import {OrderCommon, SmallOrder} from "@shrub/app/src/types";
 import chainlinkAggregatorV3Interface from './external-contracts/chainlinkAggregatorV3InterfaceABI.json';
@@ -128,18 +128,18 @@ task('sendSeed', 'send a seed from the owner contract to an address')
 task('getOrphanageRegistered', 'list of registered accounts who have signed up for the adoption program')
   .setAction(async(taskArgs, env) => {
     const { ethers, deployments } = env;
-    const orphanageDeployment = await deployments.get("SeedOrphanage")
-    const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, ethers.provider);
-    const registeredAccounts = await SeedOrphanage.getRegister();
+    const orphanageDeploymentV2 = await deployments.get("SeedOrphanageV2")
+    const SeedOrphanageV2 = SeedOrphanageV2__factory.connect(orphanageDeploymentV2.address, ethers.provider);
+    const registeredAccounts = await SeedOrphanageV2.getRegister();
     console.log(JSON.stringify(registeredAccounts.map(r => r.toLowerCase())));
   })
 
 task('getOrphanageSeeds', 'list of seeds up for adoption in the orphanage')
   .setAction(async(taskArgs, env) => {
     const { ethers, deployments } = env;
-    const orphanageDeployment = await deployments.get("SeedOrphanage")
-    const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, ethers.provider);
-    const registeredAccounts = await SeedOrphanage.getSeeds();
+    const orphanageDeploymentV2 = await deployments.get("SeedOrphanageV2")
+    const SeedOrphanageV2 = SeedOrphanageV2__factory.connect(orphanageDeploymentV2.address, ethers.provider);
+    const registeredAccounts = await SeedOrphanageV2.getSeeds();
     console.log(JSON.stringify(registeredAccounts.map(bn => bn.toNumber())));
   })
 
@@ -156,9 +156,9 @@ task('supplyOrphanage', 'send seeds to be adopted')
       return;
     }
     const [signer] = await ethers.getSigners();
-    const orphanageDeployment = await deployments.get("SeedOrphanage")
+    const orphanageDeploymentV2 = await deployments.get("SeedOrphanageV2")
     const seedDeployment = await deployments.get("PaperSeed")
-    const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, signer);
+    const SeedOrphanageV2 = SeedOrphanageV2__factory.connect(orphanageDeploymentV2.address, signer);
     const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
     // Check that all of the tokenIds are owned
     let ownershipCheckFailed = false;
@@ -173,20 +173,45 @@ task('supplyOrphanage', 'send seeds to be adopted')
       console.log('FAILURE: seeds were not delivered')
       return;
     }
-    const isApproved = await PaperSeed.isApprovedForAll(signer.address, SeedOrphanage.address);
+    const isApproved = await PaperSeed.isApprovedForAll(signer.address, SeedOrphanageV2.address);
     if (!isApproved) {
       // if not approved - then approve the orphanage for transferring the seeds
-      await PaperSeed.setApprovalForAll(SeedOrphanage.address, true);
+      await PaperSeed.setApprovalForAll(SeedOrphanageV2.address, true);
     }
     // Loop through the tokenIds and send them.
     for (const tokenId of ids) {
       console.log(`adding seed with tokenId ${tokenId}`);
-      const tx = await SeedOrphanage.addSeed(tokenId);
+      const tx = await SeedOrphanageV2.addSeed(tokenId);
       console.log(tx.hash);
       await setTimeoutAsync(1000);
     }
     await env.run("getOrphanageSeeds");
   })
+
+task('emptyOrphanage', 'reclaim seeds from orphanage')
+  .addParam('id')
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { id } = taskArgs
+    if (!id) {
+      console.log('id is a required param');
+      return;
+    }
+    const [signer] = await ethers.getSigners();
+    const orphanageDeploymentV2 = await deployments.get("SeedOrphanageV2")
+    const seedDeployment = await deployments.get("PaperSeed")
+    const SeedOrphanageV2 = SeedOrphanageV2__factory.connect(orphanageDeploymentV2.address, signer);
+    const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
+    // Ensure that the seed is owned by the orphanage
+    const ownerOfSeed = await PaperSeed.ownerOf(id);
+    if (ownerOfSeed !== SeedOrphanageV2.address) {
+      console.log(`tokenId ${id} not in orphanage address: ${SeedOrphanageV2.address}`)
+      return;
+    }
+    const tx = await SeedOrphanageV2.removeSeed(id);
+    console.log(tx.hash);
+    await env.run("getOrphanageSeeds");
+  });
 
 task('deliverSeeds', 'send seeds to adoptive gardeners')
   .addParam('id', 'tokenId of the seed', undefined, types.int)
@@ -208,13 +233,13 @@ task('deliverSeeds', 'send seeds to adoptive gardeners')
       return;
     }
     const [signer] = await ethers.getSigners();
-    const orphanageDeployment = await deployments.get("SeedOrphanage")
+    const orphanageDeploymentV2 = await deployments.get("SeedOrphanageV2")
     const seedDeployment = await deployments.get("PaperSeed")
-    const SeedOrphanage = SeedOrphanage__factory.connect(orphanageDeployment.address, signer);
+    const SeedOrphanageV2 = SeedOrphanageV2__factory.connect(orphanageDeploymentV2.address, signer);
     const PaperSeed = PaperSeed__factory.connect(seedDeployment.address, signer);
     // validate that this tokenId is owned by the orphanage
     const ownerOf = await PaperSeed.ownerOf(tokenId)
-    if (ownerOf !== SeedOrphanage.address) {
+    if (ownerOf !== SeedOrphanageV2.address) {
       console.log(`tokenId ${tokenId} is not owned by the orphanage contract`);
       return;
     }
@@ -230,7 +255,7 @@ task('deliverSeeds', 'send seeds to adoptive gardeners')
       return;
     }
     console.log('sending seed');
-    const tx = await SeedOrphanage.deliver(tokenId, receiver);
+    const tx = await SeedOrphanageV2.deliver(tokenId, receiver);
     console.log(`seed with tokenId ${tokenId} delivered in tx ${tx.hash}`);
     console.log(`remaining seeds`);
     await env.run("getOrphanageSeeds");
@@ -906,7 +931,8 @@ const config: HardhatUserConfig & AbiExporter = {
     },
     polygon: {
       chainId: 137,
-      url: 'https://rpc-mainnet.maticvigil.com/',
+      url: 'https://polygon-rpc.com',
+      // url: 'https://rpc-mainnet.maticvigil.com/',
     }
   },
   namedAccounts: {
@@ -965,13 +991,14 @@ if (process.env.MUMBAI_SECRET_MNEMONIC) {
 }
 
 if (process.env.POLYGON_SECRET_MNEMONIC) {
-  config.networks.polygon = {
-    chainId: 137,
-    url: 'https://rpc-mainnet.maticvigil.com/',
-    accounts: {
-      mnemonic: process.env.POLYGON_SECRET_MNEMONIC,
-    },
-  }
+  config.networks.polygon.accounts = { mnemonic: process.env.POLYGON_SECRET_MNEMONIC }
+  // config.networks.polygon = {
+  //   chainId: 137,
+  //   url: 'https://rpc-mainnet.maticvigil.com/',
+  //   accounts: {
+  //     mnemonic: process.env.POLYGON_SECRET_MNEMONIC,
+  //   },
+  // }
 }
 
 export default config;
