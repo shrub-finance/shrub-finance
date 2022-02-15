@@ -2,6 +2,7 @@
   "name": "@shrub/subgraph-paper-gardens",
   "version": "0.1.0",
   "scripts": {
+    "auth": "npx graph auth --product hosted-service https://api.thegraph.com/deploy/",
     "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
     "create": "graph create jguthrie7/shrub-paper-gardens --node https://api.thegraph.com/deploy/",
     "create-local": "graph create jguthrie7/shrub-subgraph --node http://127.0.0.1:8020",
