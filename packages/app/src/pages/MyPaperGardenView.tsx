@@ -96,8 +96,7 @@ function LeaderBoardView(props: RouteComponentProps) {
     { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
   ] = useLazyQuery(MY_GARDENS_QUERY, {
     variables: {
-      // user: account && account.toLowerCase(),
-      user: "0x0073d46db23fa08221b76ba7f497c04b72bd3529",
+      user: account && account.toLowerCase(),
     },
   });
 
