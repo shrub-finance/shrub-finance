@@ -154,6 +154,18 @@ function TopNav() {
               {/*</Link>*/}
               <Link
                 as={ReachLink}
+                to="/my-garden"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                My Gardens
+              </Link>
+              <Link
+                as={ReachLink}
                 to="/adoption"
                 variant="ghost"
                 cursor="pointer"
@@ -276,6 +288,19 @@ function TopNav() {
               {/*    <Icon as={route.itemIcon} mr={2} /> {route.item}*/}
               {/*  </NavRoute>*/}
               {/*))}*/}
+              <Link
+                as={ReachLink}
+                to="/my-garden"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
+              >
+                My Gardens
+              </Link>
               <Link
                 as={ReachLink}
                 to="/adoption"
