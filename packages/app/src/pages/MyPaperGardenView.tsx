@@ -71,7 +71,9 @@ function LeaderBoardView(props: RouteComponentProps) {
   const displayStatus = (val: boolean) => {
     setIsHidden(val);
   };
+
   const [isHidden, setIsHidden] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [mySeedRows, setMySeedRows] = useState<JSX.Element[]>([]);
   const [selectedItem, setSelectedItem] = useState<{
     name: string;
@@ -86,39 +88,33 @@ function LeaderBoardView(props: RouteComponentProps) {
   });
 
   const { active, account, error: web3Error, library } = useWeb3React();
-  const [isSeedHolder, setIsSeedHolder] = useState(false);
   const [
     getMySeedDataQuery,
     { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
   ] = useLazyQuery(MY_GARDENS_QUERY, {
     variables: {
-      user: account && account.toLowerCase(),
-      // user: "0x0073d46db23fa08221b76ba7f497c04b72bd3529",
+      // user: account && account.toLowerCase(),
+      user: "0x0073d46db23fa08221b76ba7f497c04b72bd3529",
     },
   });
-
+  console.log(isInitialized);
+  const holdsSeed = mySeedData && mySeedData.seeds && mySeedData.seeds.length;
   useEffect(() => {
-    async function main() {
-      if (!account) {
-        return;
+    setTimeout(() => {
+      if (!isInitialized) {
+        setIsInitialized(true);
       }
-      const result = await seedBalanceOf(library, account);
-      const localSeedHolder = result.gt(0);
-      setIsSeedHolder(localSeedHolder);
-    }
-    main().catch((err) => {
-      handleErrorMessages({ err });
-      console.error(err);
-    });
-  }, [account]);
+    }, 3000);
+  }, []);
 
   useEffect(() => {
-    if (mySeedData && mySeedData.seeds && mySeedData.seeds.length) {
+    console.log(mySeedData);
+    if (holdsSeed) {
       const tempMySeedDataRows: JSX.Element[] = [];
       const mySeeds = [...mySeedData.seeds].sort(
         (a: any, b: any) => Number(a.id) - Number(b.id)
       );
-      console.log(mySeeds);
+
       for (const item of mySeeds) {
         const { dna, type, name, emotion } = item;
         const seedNumber = name.split("#")[1];
@@ -171,6 +167,11 @@ function LeaderBoardView(props: RouteComponentProps) {
         dna: mySeeds[0].dna,
       });
     }
+
+    if (mySeedData && mySeedData.seeds) {
+      console.log("setting");
+      setIsInitialized(true);
+    }
   }, [mySeedData]);
 
   useEffect(() => {
@@ -218,10 +219,16 @@ function LeaderBoardView(props: RouteComponentProps) {
             My Paper Garden
           </Heading>
         </Center>
-        {/*content*/}
-        {!isSeedHolder || !account ? (
+        {!isInitialized ? (
+          <Center p={10}>
+            <Spinner size="xl" />
+          </Center>
+        ) : !holdsSeed || !account ? (
           <Grid templateColumns="repeat(1, 1fr)">
             <Center>
+              {console.log("hi")}
+              {/*{console.log(isSeedHolder)}*/}
+              {console.log(account)}
               <SeedBasketImg boxSize={220} />
             </Center>
             <Center>
@@ -229,14 +236,14 @@ function LeaderBoardView(props: RouteComponentProps) {
                 <Text pt="8">
                   {!account
                     ? "Please connect your wallet"
-                    : !isSeedHolder
-                    ? "The garden has no seeds"
+                    : !holdsSeed
+                    ? "Your garden has no seeds"
                     : ""}
                 </Text>
               </Box>
             </Center>
             <Center>
-              {!isSeedHolder && account && (
+              {!holdsSeed && account && (
                 <Link
                   href="https://opensea.io/collection/shrub-paper-gardens"
                   isExternal
@@ -251,7 +258,7 @@ function LeaderBoardView(props: RouteComponentProps) {
                   bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
                   color={useColorModeValue("white", "black")}
                 >
-                  View Collection <ExternalLinkIcon mx="2px" />
+                  Get a Seed <ExternalLinkIcon mx="2px" />
                 </Link>
               )}
             </Center>
