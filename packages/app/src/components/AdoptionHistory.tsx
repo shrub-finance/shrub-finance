@@ -5,14 +5,14 @@ import {
   Flex,
   Heading,
   Image,
-  Spacer,
   Spinner,
+  Tag,
+  TagLabel,
   Wrap,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import useTruncateAddress from "../hooks/useTruncateAddress";
 import { useWeb3React } from "@web3-react/core";
-import { isMobile } from "react-device-detect";
 
 function AdoptionHistory({
   hooks,
@@ -23,7 +23,6 @@ function AdoptionHistory({
     isRegistered: any;
   };
 }) {
-  const { account } = useWeb3React();
   const { seedAdoptionData, seedAdoptionLoading, isRegistered } = hooks;
   const [seedAdoptionDataRows, setSeedAdoptionDataRows] = useState<
     JSX.Element[]
@@ -33,7 +32,7 @@ function AdoptionHistory({
     if (seedAdoptionData && seedAdoptionData.adoptionRecords) {
       const tempSeedAdoptionRows: JSX.Element[] = [];
       for (const item of seedAdoptionData.adoptionRecords) {
-        const { name, type, dna } = item.seed;
+        const { name, type } = item.seed;
         const adoptionTime = new Date(item.timestamp * 1000).toLocaleString(
           undefined,
           { year: "numeric", month: "long", day: "numeric" }
@@ -67,12 +66,21 @@ function AdoptionHistory({
                 {name}
               </Box>
               <Box letterSpacing="wide" ml="2" mt={4} fontSize="11px">
-                Adopter: <strong>{useTruncateAddress(owner)}</strong>
+                <Badge
+                  px={2}
+                  py={1}
+                  fontWeight={"600"}
+                  colorScheme="orange"
+                  rounded={"lg"}
+                  fontSize="10px"
+                >
+                  Adopter: {useTruncateAddress(owner)}
+                </Badge>
               </Box>
               <Box mt={2}>
-                <Box letterSpacing="wide" fontSize="11px" ml="2">
-                  Adopted: <strong>{adoptionTime}</strong>
-                </Box>
+                <Tag size="sm" variant="subtle" colorScheme="white">
+                  <TagLabel>Adopted: {adoptionTime}</TagLabel>
+                </Tag>
               </Box>
             </Box>
           </Flex>

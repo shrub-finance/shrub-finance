@@ -13,13 +13,9 @@ import {
   TagRightIcon,
   Wrap,
 } from "@chakra-ui/react";
-import { isMobile } from "react-device-detect";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useLazyQuery } from "@apollo/client";
-import {
-  REGISTERED_SIBLINGS_QUERY,
-  SEED_OWNERSHIP_QUERY,
-} from "../constants/queries";
+import { REGISTERED_SIBLINGS_QUERY } from "../constants/queries";
 import { useWeb3React } from "@web3-react/core";
 
 function UpcomingAdoptions({
@@ -42,8 +38,6 @@ function UpcomingAdoptions({
     seedOwnershipLoading,
     isRegistered,
   } = hooks;
-  const { account } = useWeb3React();
-
   const [
     getRegisteredSiblingsQuery,
     {
@@ -100,9 +94,9 @@ function UpcomingAdoptions({
               />
               <Badge
                 px={2}
-                py={1}
+                py={0.5}
                 layerStyle="shrubBg"
-                fontWeight={"400"}
+                fontWeight={"600"}
                 fontSize={"11px"}
                 rounded={"md"}
               >
@@ -121,7 +115,7 @@ function UpcomingAdoptions({
                 {dnaAccounts < 2 ? "account has" : "accounts have"} a seed with
                 this DNA
               </Box>
-              <Box display="flex" alignItems="baseline" mt={4}>
+              <Box display="flex" alignItems="baseline" mt={4} pt={2}>
                 <Link
                   href={`https://opensea.io/collection/shrub-paper-gardens?search[numericTraits][0][name]=DNA&search[numericTraits][0][ranges][0][min]=${dna}&search[numericTraits][0][ranges][0][max]=${dna}&search[sortAscending]=true&search[sortBy]=PRICE`}
                   isExternal

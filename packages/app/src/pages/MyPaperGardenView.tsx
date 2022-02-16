@@ -41,6 +41,7 @@ import {
   Drawer,
   SimpleGrid,
   Badge,
+  VStack,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useEffect, useState } from "react";
@@ -55,6 +56,9 @@ import {
 } from "../components/ConnectWallet";
 import { TxStatusList } from "../components/TxMonitoring";
 import { MY_GARDENS_QUERY } from "../constants/queries";
+import { seedBalanceOf } from "../utils/ethMethods";
+import { SeedBasketImg } from "../assets/Icons";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 function LeaderBoardView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -69,46 +73,103 @@ function LeaderBoardView(props: RouteComponentProps) {
   };
   const [isHidden, setIsHidden] = useState(false);
   const [mySeedRows, setMySeedRows] = useState<JSX.Element[]>([]);
+  const [selectedItem, setSelectedItem] = useState<{
+    name: string;
+    emotion: string;
+    type: string;
+    dna: number;
+  }>({
+    name: "",
+    emotion: "",
+    type: "",
+    dna: 0,
+  });
 
-  const { active, account, error: web3Error } = useWeb3React();
+  const { active, account, error: web3Error, library } = useWeb3React();
+  const [isSeedHolder, setIsSeedHolder] = useState(false);
   const [
     getMySeedDataQuery,
     { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
   ] = useLazyQuery(MY_GARDENS_QUERY, {
     variables: {
-      // user: account && account.toLowerCase(),
-      user: "0x0073d46db23fa08221b76ba7f497c04b72bd3529",
+      user: account && account.toLowerCase(),
+      // user: "0x0073d46db23fa08221b76ba7f497c04b72bd3529",
     },
   });
 
   useEffect(() => {
+    async function main() {
+      if (!account) {
+        return;
+      }
+      const result = await seedBalanceOf(library, account);
+      const localSeedHolder = result.gt(0);
+      setIsSeedHolder(localSeedHolder);
+    }
+    main().catch((err) => {
+      handleErrorMessages({ err });
+      console.error(err);
+    });
+  }, [account]);
+
+  useEffect(() => {
     if (mySeedData && mySeedData.seeds && mySeedData.seeds.length) {
       const tempMySeedDataRows: JSX.Element[] = [];
-
-      for (const item of mySeedData.seeds) {
-        const { dna, type, name, emotion, id } = item;
+      const mySeeds = [...mySeedData.seeds].sort(
+        (a: any, b: any) => Number(a.id) - Number(b.id)
+      );
+      console.log(mySeeds);
+      for (const item of mySeeds) {
+        const { dna, type, name, emotion } = item;
+        const seedNumber = name.split("#")[1];
         tempMySeedDataRows.push(
-          <Center
+          <Box
+            as="button"
             shadow="md"
             borderRadius="md"
             minW={20}
             p={2}
             layerStyle="shrubBg"
+            cursor="pointer"
+            _hover={{
+              transform: "translateY(-2px)",
+              boxShadow: "lg",
+            }}
+            _focus={{
+              borderWidth: "2px",
+              borderColor: "seed.600",
+            }}
+            onClick={() => {
+              setSelectedItem({ name, emotion, type, dna });
+            }}
           >
-            <Image
-              w={20}
-              h={20}
-              src={
-                emotion === "sad"
-                  ? `https://shrub.finance/${type.toLowerCase()}-sad.svg`
-                  : `https://shrub.finance/${type.toLowerCase()}.svg`
-              }
-              alt="Seed"
-            />
-          </Center>
+            <VStack>
+              <Box>
+                <Image
+                  w={20}
+                  h={20}
+                  src={
+                    emotion === "sad"
+                      ? `https://shrub.finance/${type.toLowerCase()}-sad.svg`
+                      : `https://shrub.finance/${type.toLowerCase()}.svg`
+                  }
+                  alt="Seed"
+                />
+              </Box>
+              <Text fontWeight={600} color="gray.500" fontSize="sm">
+                #{seedNumber}
+              </Text>
+            </VStack>
+          </Box>
         );
       }
       setMySeedRows(tempMySeedDataRows);
+      setSelectedItem({
+        name: mySeeds[0].name,
+        emotion: mySeeds[0].emotion,
+        type: mySeeds[0].type,
+        dna: mySeeds[0].dna,
+      });
     }
   }, [mySeedData]);
 
@@ -134,6 +195,7 @@ function LeaderBoardView(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW="container.lg"
       >
+        {/*error states*/}
         <Center mt={10}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
@@ -144,6 +206,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             </SlideFade>
           )}
         </Center>
+        {/*heading*/}
         <Center>
           <Heading
             fontSize={{ base: "30px", md: "50px" }}
@@ -155,114 +218,168 @@ function LeaderBoardView(props: RouteComponentProps) {
             My Paper Garden
           </Heading>
         </Center>
-        <Grid templateColumns="repeat(2, 1fr)" gap={20}>
-          <Box>
-            <Grid templateColumns="repeat(5, 1fr)" gap={2}>
-              {mySeedRows}
-            </Grid>
-          </Box>
-          <Box minW={400}>
+        {/*content*/}
+        {!isSeedHolder || !account ? (
+          <Grid templateColumns="repeat(1, 1fr)">
             <Center>
-              <Box
-                w={"full"}
-                layerStyle="shrubBg"
-                boxShadow={"2xl"}
-                rounded={"xl"}
-                p={10}
-              >
-                <Image
-                  // h={"120px"}
-                  // w={"full"}
-                  src={"https://shrub.finance/wonder-sad.svg"}
-                  objectFit={"cover"}
-                />
-                <Center mt={6}>
-                  <Heading fontSize={"2xl"}>Lindsey James</Heading>
-                </Center>
-                <Center>
-                  <Text fontWeight={600} color={"gray.500"} mb={4}>
-                    @lindsey_jam3s
-                  </Text>
-                </Center>
-                {/*<Text*/}
-                {/*  textAlign={"center"}*/}
-                {/*  color={useColorModeValue("gray.700", "gray.400")}*/}
-                {/*  px={3}*/}
-                {/*>*/}
-                {/*  Actress, musician, songwriter and artist. PM for work inquires*/}
-                {/*  or{" "}*/}
-                {/*  <Link href={"#"} color={"blue.400"}>*/}
-                {/*    #tag*/}
-                {/*  </Link>{" "}*/}
-                {/*  me in your posts*/}
-                {/*</Text>*/}
-
-                <Stack
-                  align={"center"}
-                  justify={"center"}
-                  direction={"row"}
-                  mt={6}
-                >
-                  {/*<Badge*/}
-                  {/*  px={2}*/}
-                  {/*  py={1}*/}
-                  {/*  bg={useColorModeValue("gray.50", "gray.800")}*/}
-                  {/*  fontWeight={"400"}*/}
-                  {/*>*/}
-                  {/*  #art*/}
-                  {/*</Badge>*/}
-                  {/*<Badge*/}
-                  {/*  px={2}*/}
-                  {/*  py={1}*/}
-                  {/*  bg={useColorModeValue("gray.50", "gray.800")}*/}
-                  {/*  fontWeight={"400"}*/}
-                  {/*>*/}
-                  {/*  #photography*/}
-                  {/*</Badge>*/}
-                  {/*<Badge*/}
-                  {/*  px={2}*/}
-                  {/*  py={1}*/}
-                  {/*  bg={useColorModeValue("gray.50", "gray.800")}*/}
-                  {/*  fontWeight={"400"}*/}
-                  {/*>*/}
-                  {/*  #music*/}
-                  {/*</Badge>*/}
-                </Stack>
-
-                <Stack mt={8} direction={"row"} spacing={4}>
-                  <Button
-                    flex={1}
-                    fontSize={"sm"}
-                    rounded={"full"}
-                    _focus={{
-                      bg: "gray.200",
-                    }}
-                  >
-                    Water
-                  </Button>
-                  <Button
-                    flex={1}
-                    fontSize={"sm"}
-                    rounded={"full"}
-                    bg={"blue.400"}
-                    color={"white"}
-                    boxShadow={
-                      "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"
-                    }
-                    _hover={{
-                      bg: "blue.500",
-                    }}
-                    _focus={{
-                      bg: "blue.500",
-                    }}
-                  >
-                    Plant
-                  </Button>
-                </Stack>
+              <SeedBasketImg boxSize={220} />
+            </Center>
+            <Center>
+              <Box maxW="30rem" mb={8} fontSize="20px" textStyle={"reading"}>
+                <Text pt="8">
+                  {!account
+                    ? "Please connect your wallet"
+                    : !isSeedHolder
+                    ? "The garden has no seeds"
+                    : ""}
+                </Text>
               </Box>
             </Center>
-          </Box>
-        </Grid>
+            <Center>
+              {!isSeedHolder && account && (
+                <Link
+                  href="https://opensea.io/collection/shrub-paper-gardens"
+                  isExternal
+                  cursor="pointer"
+                  rounded="3xl"
+                  size="sm"
+                  px="6"
+                  fontSize="25px"
+                  fontWeight="semibold"
+                  py="5"
+                  _hover={{ transform: "translateY(-2px)" }}
+                  bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
+                  color={useColorModeValue("white", "black")}
+                >
+                  View Collection <ExternalLinkIcon mx="2px" />
+                </Link>
+              )}
+            </Center>
+          </Grid>
+        ) : (
+          <Grid templateColumns="repeat(2, 1fr)" gap={20}>
+            {/*all seeds*/}
+            <Box>
+              <Grid
+                templateColumns={
+                  mySeedDataLoading || mySeedDataError
+                    ? "repeat(1, 1fr)"
+                    : "repeat(5, 1fr)"
+                }
+                gap={2}
+                overflow="scroll"
+                maxH="620px"
+                shadow="2xl"
+                borderRadius="2xl"
+                p={4}
+              >
+                {mySeedDataLoading || mySeedDataError ? (
+                  <Center p={10}>
+                    <Spinner size="xl" />
+                  </Center>
+                ) : (
+                  mySeedRows
+                )}
+              </Grid>
+            </Box>
+            {/*seed details*/}
+            <Box minW={400} maxH="614px">
+              {mySeedDataLoading || mySeedDataError ? (
+                <Center p={10}>
+                  <Spinner size="xl" />
+                </Center>
+              ) : (
+                <Box
+                  w={"full"}
+                  layerStyle="shrubBg"
+                  boxShadow={"2xl"}
+                  rounded={"xl"}
+                  p={4}
+                >
+                  <Center>
+                    <Image
+                      objectFit={"cover"}
+                      maxH="450px"
+                      src={
+                        selectedItem.emotion === "sad"
+                          ? `https://shrub.finance/${selectedItem.type.toLowerCase()}-sad.svg`
+                          : `https://shrub.finance/${selectedItem.type.toLowerCase()}.svg`
+                      }
+                      alt="Seed"
+                    />
+                  </Center>
+                  <Center mt={6}>
+                    <Heading fontSize={"2xl"}>{selectedItem.name}</Heading>
+                  </Center>
+                  <Stack
+                    align={"center"}
+                    justify={"center"}
+                    direction={"row"}
+                    mt={6}
+                  >
+                    <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                      Rarity:{" "}
+                      {selectedItem.type === "Hope"
+                        ? "Rare"
+                        : selectedItem.type === "Power"
+                        ? "Legendary"
+                        : selectedItem.type === "Passion"
+                        ? "Uncommon"
+                        : "Common"}
+                    </Badge>
+                    <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                      Emotion: {selectedItem.emotion}
+                    </Badge>
+                  </Stack>
+                  <Stack
+                    align={"center"}
+                    justify={"center"}
+                    direction={"row"}
+                    mt={2}
+                  >
+                    <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                      Class: {selectedItem.type}
+                    </Badge>
+                    <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                      DNA: {selectedItem.dna}
+                    </Badge>
+                  </Stack>
+
+                  {/*<Stack mt={8} direction={"row"} spacing={4}>*/}
+                  {/*  <Button*/}
+                  {/*    flex={1}*/}
+                  {/*    fontSize={"sm"}*/}
+                  {/*    rounded={"full"}*/}
+                  {/*    _focus={{*/}
+                  {/*      bg: "gray.200",*/}
+                  {/*    }}*/}
+                  {/*  >*/}
+                  {/*    Action A*/}
+                  {/*  </Button>*/}
+                  {/*  <Button*/}
+                  {/*    flex={1}*/}
+                  {/*    fontSize={"sm"}*/}
+                  {/*    rounded={"full"}*/}
+                  {/*    bg={"blue.400"}*/}
+                  {/*    color={"white"}*/}
+                  {/*    boxShadow={*/}
+                  {/*      "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"*/}
+                  {/*    }*/}
+                  {/*    _hover={{*/}
+                  {/*      bg: "blue.500",*/}
+                  {/*    }}*/}
+                  {/*    _focus={{*/}
+                  {/*      bg: "blue.500",*/}
+                  {/*    }}*/}
+                  {/*  >*/}
+                  {/*    Plant*/}
+                  {/*  </Button>*/}
+                  {/*</Stack>*/}
+                </Box>
+              )}
+            </Box>
+          </Grid>
+        )}
       </Container>
 
       <Modal
