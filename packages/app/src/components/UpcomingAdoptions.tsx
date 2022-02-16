@@ -72,7 +72,11 @@ function UpcomingAdoptions({
     ) {
       const tempDna: number[] = [];
       const tempSeedOwnershipDataRows: JSX.Element[] = [];
-      for (const item of seedOwnershipData.user.seeds) {
+      const seedData = [...seedOwnershipData.user.seeds].sort(
+        (a: any, b: any) => Number(a.id) - Number(b.id)
+      );
+
+      for (const item of seedData) {
         const { dna, type } = item;
         tempDna.push(dna);
         const dnaAccounts =
@@ -139,30 +143,28 @@ function UpcomingAdoptions({
 
   return (
     <>
-      {account && (
-        <Box
-          pt={!isRegistered ? 8 : 0}
-          display={
-            isRegistered ? "block" : { base: "none", md: "none", lg: "block" }
-          }
-        >
+      <Box
+        pt={!isRegistered ? 8 : 0}
+        display={
+          isRegistered ? "block" : { base: "none", md: "none", lg: "block" }
+        }
+      >
+        <Center>
+          <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
+            Up for Adoption
+          </Heading>
+        </Center>
+        {seedOwnershipLoading ? (
           <Center>
-            <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
-              Up for Adoption
-            </Heading>
+            <Spinner size="xl" />
           </Center>
-          {seedOwnershipLoading ? (
-            <Center>
-              <Spinner size="xl" />
-            </Center>
-          ) : (
-            <Wrap spacing="20px" justify="center">
-              {" "}
-              {seedOwnershipDataRows}
-            </Wrap>
-          )}
-        </Box>
-      )}
+        ) : (
+          <Wrap spacing="20px" justify="center">
+            {" "}
+            {seedOwnershipDataRows}
+          </Wrap>
+        )}
+      </Box>
     </>
   );
 }

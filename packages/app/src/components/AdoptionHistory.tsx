@@ -83,31 +83,29 @@ function AdoptionHistory({
   }, [seedAdoptionData]);
   return (
     <>
-      {account && (
-        <Box
-          pt={8}
-          display={
-            isRegistered ? "block" : { base: "none", md: "none", lg: "block" }
-          }
-        >
+      <Box
+        pt={8}
+        display={
+          isRegistered ? "block" : { base: "none", md: "none", lg: "block" }
+        }
+      >
+        <Center>
+          <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
+            Adoption History
+          </Heading>
+        </Center>
+        {seedAdoptionLoading ? (
           <Center>
-            <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
-              Adoption History
-            </Heading>
+            {" "}
+            <Spinner size="xl" />
           </Center>
-          {seedAdoptionLoading ? (
-            <Center>
-              {" "}
-              <Spinner size="xl" />
-            </Center>
-          ) : (
-            <Wrap spacing="20px" justify="center">
-              {" "}
-              {seedAdoptionDataRows}
-            </Wrap>
-          )}
-        </Box>
-      )}
+        ) : (
+          <Wrap spacing="20px" justify="center">
+            {" "}
+            {seedAdoptionDataRows}
+          </Wrap>
+        )}
+      </Box>
     </>
   );
 }

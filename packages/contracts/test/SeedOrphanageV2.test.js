@@ -29,7 +29,7 @@ describe("SeedOrphanage", () => {
     await paperSeed.claimReserve(2);
     await paperSeed.claimReserve(3);
     await paperSeed.claimReserve(4);
-    const SeedOrphanage = await ethers.getContractFactory("SeedOrphanage");
+    const SeedOrphanage = await ethers.getContractFactory("SeedOrphanageV2");
     seedOrphanage = await SeedOrphanage.deploy(paperSeed.address);
     await seedOrphanage.deployed();
     signer1PaperSeed = paperSeed.connect(signer1);
@@ -137,6 +137,12 @@ describe("SeedOrphanage", () => {
       await signer3SeedOrphanage.register();
       const registeredListBefore = await seedOrphanage.getRegister();
       expect(registeredListBefore.length).to.equal(3);
+      let isRegistered1 = await seedOrphanage.isRegistered(signer1.address);
+      let isRegistered2 = await seedOrphanage.isRegistered(signer2.address);
+      let isRegistered3 = await seedOrphanage.isRegistered(signer3.address);
+      expect(isRegistered1).to.equal(true);
+      expect(isRegistered2).to.equal(true);
+      expect(isRegistered3).to.equal(true);
       const clearTx = await seedOrphanage.clearRegister();
       const clearReceipt = await clearTx.wait();
       const clearEvent = clearReceipt.events.find(
@@ -145,6 +151,12 @@ describe("SeedOrphanage", () => {
       expect(clearEvent).to.exist;
       const registeredListAfter = await seedOrphanage.getRegister();
       expect(registeredListAfter.length).to.equal(0);
+      isRegistered1 = await seedOrphanage.isRegistered(signer1.address);
+      isRegistered2 = await seedOrphanage.isRegistered(signer2.address);
+      isRegistered3 = await seedOrphanage.isRegistered(signer3.address);
+      expect(isRegistered1).to.equal(false);
+      expect(isRegistered2).to.equal(false);
+      expect(isRegistered3).to.equal(false);
     });
   });
 
@@ -374,7 +386,7 @@ describe("SeedOrphanage", () => {
         signer3.address,
         signer2.address,
       ]);
-      // await signer4SeedOrphanage.register();
+      await signer4SeedOrphanage.register();
       await seedOrphanage.clearRegister();
       register = await seedOrphanage.getRegister();
       expect(register).to.deep.equal([]);
