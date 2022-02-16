@@ -59,6 +59,7 @@ import { MY_GARDENS_QUERY } from "../constants/queries";
 import { seedBalanceOf } from "../utils/ethMethods";
 import { SeedBasketImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import SeedDetails from "../components/SeedDetails";
 
 function LeaderBoardView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -71,6 +72,8 @@ function LeaderBoardView(props: RouteComponentProps) {
   const displayStatus = (val: boolean) => {
     setIsHidden(val);
   };
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [isHidden, setIsHidden] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -87,7 +90,7 @@ function LeaderBoardView(props: RouteComponentProps) {
     dna: 0,
   });
 
-  const { active, account, error: web3Error, library } = useWeb3React();
+  const { active, account, error: web3Error } = useWeb3React();
   const [
     getMySeedDataQuery,
     { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
@@ -97,8 +100,9 @@ function LeaderBoardView(props: RouteComponentProps) {
       user: "0x0073d46db23fa08221b76ba7f497c04b72bd3529",
     },
   });
-  console.log(isInitialized);
+
   const holdsSeed = mySeedData && mySeedData.seeds && mySeedData.seeds.length;
+
   useEffect(() => {
     setTimeout(() => {
       if (!isInitialized) {
@@ -108,11 +112,10 @@ function LeaderBoardView(props: RouteComponentProps) {
   }, []);
 
   useEffect(() => {
-    console.log(mySeedData);
     if (holdsSeed) {
       const tempMySeedDataRows: JSX.Element[] = [];
       const mySeeds = [...mySeedData.seeds].sort(
-        (a: any, b: any) => Number(a.id) - Number(b.id)
+        (a, b) => Number(a.id) - Number(b.id)
       );
 
       for (const item of mySeeds) {
@@ -137,6 +140,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             }}
             onClick={() => {
               setSelectedItem({ name, emotion, type, dna });
+              onOpen();
             }}
           >
             <VStack>
@@ -169,7 +173,6 @@ function LeaderBoardView(props: RouteComponentProps) {
     }
 
     if (mySeedData && mySeedData.seeds) {
-      console.log("setting");
       setIsInitialized(true);
     }
   }, [mySeedData]);
@@ -226,9 +229,6 @@ function LeaderBoardView(props: RouteComponentProps) {
         ) : !holdsSeed || !account ? (
           <Grid templateColumns="repeat(1, 1fr)">
             <Center>
-              {console.log("hi")}
-              {/*{console.log(isSeedHolder)}*/}
-              {console.log(account)}
               <SeedBasketImg boxSize={220} />
             </Center>
             <Center>
@@ -264,14 +264,17 @@ function LeaderBoardView(props: RouteComponentProps) {
             </Center>
           </Grid>
         ) : (
-          <Grid templateColumns="repeat(2, 1fr)" gap={20}>
+          <Grid
+            templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
+            gap="20"
+          >
             {/*all seeds*/}
             <Box>
               <Grid
                 templateColumns={
                   mySeedDataLoading || mySeedDataError
                     ? "repeat(1, 1fr)"
-                    : "repeat(5, 1fr)"
+                    : { base: "repeat(4, 1fr)", md: "repeat(5, 1fr)" }
                 }
                 gap={2}
                 overflow="scroll"
@@ -290,100 +293,42 @@ function LeaderBoardView(props: RouteComponentProps) {
               </Grid>
             </Box>
             {/*seed details*/}
-            <Box minW={400} maxH="614px">
-              {mySeedDataLoading || mySeedDataError ? (
-                <Center p={10}>
-                  <Spinner size="xl" />
-                </Center>
-              ) : (
-                <Box
-                  w={"full"}
-                  layerStyle="shrubBg"
-                  boxShadow={"2xl"}
-                  rounded={"xl"}
-                  p={4}
-                >
-                  <Center>
-                    <Image
-                      objectFit={"cover"}
-                      maxH="450px"
-                      src={
-                        selectedItem.emotion === "sad"
-                          ? `https://shrub.finance/${selectedItem.type.toLowerCase()}-sad.svg`
-                          : `https://shrub.finance/${selectedItem.type.toLowerCase()}.svg`
-                      }
-                      alt="Seed"
+            <Box display={{ base: "none", md: "block" }}>
+              <SeedDetails
+                hooks={{
+                  mySeedDataLoading,
+                  mySeedDataError,
+                  selectedItem,
+                }}
+              />
+            </Box>
+            <Box display={{ base: "block", md: "none" }}>
+              <Drawer
+                isOpen={isOpen}
+                placement="right"
+                onClose={onClose}
+                size="xs"
+              >
+                <DrawerOverlay />
+                <DrawerContent>
+                  <DrawerCloseButton />
+                  <DrawerBody>
+                    <SeedDetails
+                      hooks={{
+                        mySeedDataLoading,
+                        mySeedDataError,
+                        selectedItem,
+                      }}
                     />
-                  </Center>
-                  <Center mt={6}>
-                    <Heading fontSize={"2xl"}>{selectedItem.name}</Heading>
-                  </Center>
-                  <Stack
-                    align={"center"}
-                    justify={"center"}
-                    direction={"row"}
-                    mt={6}
-                  >
-                    <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                      Rarity:{" "}
-                      {selectedItem.type === "Hope"
-                        ? "Rare"
-                        : selectedItem.type === "Power"
-                        ? "Legendary"
-                        : selectedItem.type === "Passion"
-                        ? "Uncommon"
-                        : "Common"}
-                    </Badge>
-                    <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                      Emotion: {selectedItem.emotion}
-                    </Badge>
-                  </Stack>
-                  <Stack
-                    align={"center"}
-                    justify={"center"}
-                    direction={"row"}
-                    mt={2}
-                  >
-                    <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                      Class: {selectedItem.type}
-                    </Badge>
-                    <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                      DNA: {selectedItem.dna}
-                    </Badge>
-                  </Stack>
-
-                  {/*<Stack mt={8} direction={"row"} spacing={4}>*/}
-                  {/*  <Button*/}
-                  {/*    flex={1}*/}
-                  {/*    fontSize={"sm"}*/}
-                  {/*    rounded={"full"}*/}
-                  {/*    _focus={{*/}
-                  {/*      bg: "gray.200",*/}
-                  {/*    }}*/}
-                  {/*  >*/}
-                  {/*    Action A*/}
+                  </DrawerBody>
+                  {/*<DrawerFooter>*/}
+                  {/*  <Button variant="outline" mr={3} onClick={onClose}>*/}
+                  {/*    Cancel*/}
                   {/*  </Button>*/}
-                  {/*  <Button*/}
-                  {/*    flex={1}*/}
-                  {/*    fontSize={"sm"}*/}
-                  {/*    rounded={"full"}*/}
-                  {/*    bg={"blue.400"}*/}
-                  {/*    color={"white"}*/}
-                  {/*    boxShadow={*/}
-                  {/*      "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"*/}
-                  {/*    }*/}
-                  {/*    _hover={{*/}
-                  {/*      bg: "blue.500",*/}
-                  {/*    }}*/}
-                  {/*    _focus={{*/}
-                  {/*      bg: "blue.500",*/}
-                  {/*    }}*/}
-                  {/*  >*/}
-                  {/*    Plant*/}
-                  {/*  </Button>*/}
-                  {/*</Stack>*/}
-                </Box>
-              )}
+                  {/*  <Button colorScheme="blue">Save</Button>*/}
+                  {/*</DrawerFooter>*/}
+                </DrawerContent>
+              </Drawer>
             </Box>
           </Grid>
         )}
