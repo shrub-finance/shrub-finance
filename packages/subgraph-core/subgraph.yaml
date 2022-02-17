@@ -6,13 +6,13 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: ShrubExchange
-    network: mumbai
-#    network: mainnet
+#    network: mumbai
+    network: mainnet
     source:
-      address: '0xBC710773BCa2e5bc125A1704b910231e23a1d405'
-      startBlock: 20461060
-#      address: '0x6a9d4af8bf697679f4441dded9e2b8f1f31d3e85'
-#      startBlock: 1
+#      address: '0xBC710773BCa2e5bc125A1704b910231e23a1d405'
+#      startBlock: 20461060
+      address: '0x6a9d4af8bf697679f4441dded9e2b8f1f31d3e85'
+      startBlock: 1
       abi: ShrubExchange
     mapping:
       kind: ethereum/events
