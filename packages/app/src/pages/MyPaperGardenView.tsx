@@ -42,6 +42,8 @@ import {
   SimpleGrid,
   Badge,
   VStack,
+  useMediaQuery,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useEffect, useState } from "react";
@@ -74,6 +76,10 @@ function LeaderBoardView(props: RouteComponentProps) {
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const drawerSize = useBreakpointValue({
+    base: "xs",
+    md: "sm",
+  });
 
   const [isHidden, setIsHidden] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -301,34 +307,33 @@ function LeaderBoardView(props: RouteComponentProps) {
                 }}
               />
             </Box>
-            <Box display={{ base: "block", md: "none" }}>
-              <Drawer
-                isOpen={isOpen}
-                placement="right"
-                onClose={onClose}
-                size="xs"
-              >
-                <DrawerOverlay />
-                <DrawerContent>
-                  <DrawerCloseButton />
-                  <DrawerBody>
-                    <SeedDetails
-                      hooks={{
-                        mySeedDataLoading,
-                        mySeedDataError,
-                        selectedItem,
-                      }}
-                    />
-                  </DrawerBody>
-                  {/*<DrawerFooter>*/}
-                  {/*  <Button variant="outline" mr={3} onClick={onClose}>*/}
-                  {/*    Cancel*/}
-                  {/*  </Button>*/}
-                  {/*  <Button colorScheme="blue">Save</Button>*/}
-                  {/*</DrawerFooter>*/}
-                </DrawerContent>
-              </Drawer>
-            </Box>
+            <Drawer
+              isOpen={isOpen}
+              placement="right"
+              onClose={onClose}
+              size={drawerSize}
+              preserveScrollBarGap={true}
+            >
+              <DrawerOverlay />
+              <DrawerContent pt={10}>
+                <DrawerCloseButton />
+                <DrawerBody>
+                  <SeedDetails
+                    hooks={{
+                      mySeedDataLoading,
+                      mySeedDataError,
+                      selectedItem,
+                    }}
+                  />
+                </DrawerBody>
+                <DrawerFooter>
+                  <Button variant="outline" mr={3} onClick={onClose}>
+                    Close
+                  </Button>
+                  {/*<Button colorScheme="blue">Save</Button>*/}
+                </DrawerFooter>
+              </DrawerContent>
+            </Drawer>
           </Grid>
         )}
       </Container>
