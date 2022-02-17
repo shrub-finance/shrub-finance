@@ -20,7 +20,7 @@ function SeedDetails({
 }) {
   const { mySeedDataLoading, mySeedDataError, selectedItem } = hooks;
   return (
-    <Box minW={400} maxH="614px">
+    <Box minW={{ base: "290", md: "400" }} maxH="614px">
       {mySeedDataLoading || mySeedDataError ? (
         <Center p={10}>
           <Spinner size="xl" />
@@ -33,6 +33,7 @@ function SeedDetails({
           rounded={"xl"}
           p={4}
         >
+          {/*image*/}
           <Center mt={{ base: "6", md: "0" }}>
             <Image
               objectFit={"cover"}
@@ -45,6 +46,7 @@ function SeedDetails({
               alt="Seed"
             />
           </Center>
+          {/*title*/}
           <Center mt={6}>
             <Heading fontSize={{ base: "lg", md: "2xl" }}>
               {selectedItem.name}

@@ -15,33 +15,19 @@ import {
   SlideFade,
   Alert,
   AlertIcon,
-  Th,
-  Tr,
-  Td,
-  Tbody,
-  Thead,
-  TableCaption,
-  Table,
   Image,
-  Stack,
   Link,
   Spinner,
   Box,
-  HStack,
-  WrapItem,
-  Wrap,
-  GridItem,
   Grid,
-  DrawerHeader,
   DrawerCloseButton,
   DrawerOverlay,
   DrawerBody,
   DrawerContent,
   DrawerFooter,
   Drawer,
-  SimpleGrid,
-  Badge,
   VStack,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useEffect, useState } from "react";
@@ -56,7 +42,6 @@ import {
 } from "../components/ConnectWallet";
 import { TxStatusList } from "../components/TxMonitoring";
 import { MY_GARDENS_QUERY } from "../constants/queries";
-import { seedBalanceOf } from "../utils/ethMethods";
 import { SeedBasketImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import SeedDetails from "../components/SeedDetails";
@@ -74,6 +59,15 @@ function LeaderBoardView(props: RouteComponentProps) {
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const drawerSize = useBreakpointValue({
+    base: "xs",
+    md: "sm",
+  });
+  //@ts-ignore
+  const openDrawer: boolean = useBreakpointValue({
+    base: isOpen,
+    md: false,
+  });
 
   const [isHidden, setIsHidden] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -301,34 +295,33 @@ function LeaderBoardView(props: RouteComponentProps) {
                 }}
               />
             </Box>
-            <Box display={{ base: "block", md: "none" }}>
-              <Drawer
-                isOpen={isOpen}
-                placement="right"
-                onClose={onClose}
-                size="xs"
-              >
-                <DrawerOverlay />
-                <DrawerContent>
-                  <DrawerCloseButton />
-                  <DrawerBody>
-                    <SeedDetails
-                      hooks={{
-                        mySeedDataLoading,
-                        mySeedDataError,
-                        selectedItem,
-                      }}
-                    />
-                  </DrawerBody>
-                  {/*<DrawerFooter>*/}
-                  {/*  <Button variant="outline" mr={3} onClick={onClose}>*/}
-                  {/*    Cancel*/}
-                  {/*  </Button>*/}
-                  {/*  <Button colorScheme="blue">Save</Button>*/}
-                  {/*</DrawerFooter>*/}
-                </DrawerContent>
-              </Drawer>
-            </Box>
+            <Drawer
+              isOpen={openDrawer}
+              placement="right"
+              onClose={onClose}
+              size={drawerSize}
+              preserveScrollBarGap={true}
+            >
+              <DrawerOverlay />
+              <DrawerContent pt={10}>
+                <DrawerCloseButton />
+                <DrawerBody>
+                  <SeedDetails
+                    hooks={{
+                      mySeedDataLoading,
+                      mySeedDataError,
+                      selectedItem,
+                    }}
+                  />
+                </DrawerBody>
+                <DrawerFooter>
+                  <Button variant="outline" mr={3} onClick={onClose}>
+                    Close
+                  </Button>
+                  {/*<Button colorScheme="blue">Save</Button>*/}
+                </DrawerFooter>
+              </DrawerContent>
+            </Drawer>
           </Grid>
         )}
       </Container>

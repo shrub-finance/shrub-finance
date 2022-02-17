@@ -207,7 +207,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             </Thead>
             <Tbody>
               {loading ? (
-                <>
+                <Tr>
                   <Td display={{ base: "none", md: "block" }}>
                     <Spinner size="xs" />
                   </Td>
@@ -220,7 +220,7 @@ function LeaderBoardView(props: RouteComponentProps) {
                   <Td>
                     <Spinner size="xs" />
                   </Td>
-                </>
+                </Tr>
               ) : (
                 leaderBoardRows
               )}
