@@ -1,0 +1,7 @@
+{
+  "name": "@shrub/graph-node",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "rm -r data; docker-compose up"
+  }
+}

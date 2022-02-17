@@ -10,10 +10,10 @@ module.exports = {
       network_id: '*',
     },
     ropsten: {
-      provider: function() {
+      provider: function () {
         return new HDWalletProvider(
           process.env.MNEMONIC,
-          `https://ropsten.infura.io/v3/${process.env.ROPSTEN_INFURA_API_KEY}`
+          `https://ropsten.infura.io/v3/${process.env.ROPSTEN_INFURA_API_KEY}`,
         )
       },
       network_id: '3',
@@ -21,7 +21,7 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: '0.4.25'    // Fetch exact version from solc-bin (default: truffle's version)
-    }
-  }
+      version: '0.4.25', // Fetch exact version from solc-bin (default: truffle's version)
+    },
+  },
 }

@@ -6817,9 +6817,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shrub/subgraph-paper-gardens@workspace:packages/subgraph-paper-gardens":
+"@shrub/graph-node@workspace:packages/graph-node":
   version: 0.0.0-use.local
-  resolution: "@shrub/subgraph-paper-gardens@workspace:packages/subgraph-paper-gardens"
+  resolution: "@shrub/graph-node@workspace:packages/graph-node"
+  languageName: unknown
+  linkType: soft
+
+"@shrub/subgraph-core@workspace:packages/subgraph-core":
+  version: 0.0.0-use.local
+  resolution: "@shrub/subgraph-core@workspace:packages/subgraph-core"
   dependencies:
     "@graphprotocol/graph-cli": ^0.20.1
     "@graphprotocol/graph-ts": ^0.20.0
@@ -6832,9 +6838,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shrub/subgraph@workspace:packages/subgraph":
+"@shrub/subgraph-paper-gardens@workspace:packages/subgraph-paper-gardens":
   version: 0.0.0-use.local
-  resolution: "@shrub/subgraph@workspace:packages/subgraph"
+  resolution: "@shrub/subgraph-paper-gardens@workspace:packages/subgraph-paper-gardens"
   dependencies:
     "@graphprotocol/graph-cli": ^0.20.1
     "@graphprotocol/graph-ts": ^0.20.0
