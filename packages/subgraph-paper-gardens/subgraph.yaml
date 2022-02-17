@@ -6,10 +6,13 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: PaperSeed
-    network: matic
+#    network: matic
+    network: mainnet
     source:
-      address: '0xd415517378fe6832f8AA94037c52C0757a3A9915'
-      startBlock: 23740333
+#      address: '0xd415517378fe6832f8AA94037c52C0757a3A9915'
+#      startBlock: 23740333
+      address: '0xA7Ede11859c5ca177b2252d8f8f9df38E80C38cf'
+      startBlock: 1
       abi: PaperSeed
     mapping:
       kind: ethereum/events
@@ -36,10 +39,13 @@ dataSources:
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: SeedOrphanage
-    network: matic
+#    network: matic
+    network: mainnet
     source:
-      address: '0xfa116901C7361677fb3248595655404f4BcF7A06'
-      startBlock: 24561047
+#      address: '0xfa116901C7361677fb3248595655404f4BcF7A06'
+#      startBlock: 24561047
+      address: '0x4BFA3A0Ab519Ea028fE030f297F9Cb5601D1dAF7'
+      startBlock: 1
       abi: SeedOrphanage
     mapping:
       kind: ethereum/events
@@ -66,10 +72,13 @@ dataSources:
       file: ./src/mapping-orphanage.ts
   - kind: ethereum/contract
     name: SeedOrphanageV2
-    network: matic
+#    network: matic
+    network: mainnet
     source:
-      address: '0x2E4286B71ba5808f006C6e3bf41fA9daB064C46d'
-      startBlock: 24561047
+#      address: '0x2E4286B71ba5808f006C6e3bf41fA9daB064C46d'
+#      startBlock: 24561047
+      address: '0xeFf21B278066ed8986639F3B88037FF37401Ee6f'
+      startBlock: 1
       abi: SeedOrphanage
     mapping:
       kind: ethereum/events
