@@ -162,7 +162,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                My Gardens
+                My Garden
               </Link>
               <Link
                 as={ReachLink}
@@ -198,7 +198,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Collection{" "}
+                OpenSea{" "}
                 <ExternalLinkIcon
                   mx="2px"
                   display={{ base: "inline", md: "none", lg: "inline" }}
@@ -299,7 +299,7 @@ function TopNav() {
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
                 onClick={onMenuClose}
               >
-                My Gardens
+                My Garden
               </Link>
               <Link
                 as={ReachLink}
@@ -340,7 +340,7 @@ function TopNav() {
                   bgGradient: gradient,
                 }}
               >
-                Collection <ExternalLinkIcon mx="2px" />
+                OpenSea <ExternalLinkIcon mx="2px" />
               </Link>
               <Box
                 onClick={toggleColorMode}
