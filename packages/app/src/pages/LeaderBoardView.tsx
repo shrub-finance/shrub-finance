@@ -90,7 +90,12 @@ function LeaderBoardView(props: RouteComponentProps) {
         }
         tempLeaderBoardRows.push(
           <Tr>
-            <Td fontWeight={rank === 1 ? "extrabold" : "medium"}>{rank}</Td>
+            <Td
+              display={{ base: "none", md: "block" }}
+              fontWeight={rank === 1 ? "extrabold" : "medium"}
+            >
+              {rank}
+            </Td>
             <Td
               fontWeight={rank === 1 ? "extrabold" : "medium"}
               fontSize={isMobile ? "12px" : "auto"}
@@ -194,7 +199,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             </TableCaption>
             <Thead>
               <Tr>
-                <Th>Rank</Th>
+                <Th display={{ base: "none", md: "block" }}>Rank</Th>
                 <Th>Account</Th>
                 <Th>Owns</Th>
                 <Th>SeedType</Th>
@@ -202,8 +207,8 @@ function LeaderBoardView(props: RouteComponentProps) {
             </Thead>
             <Tbody>
               {loading ? (
-                <>
-                  <Td>
+                <Tr>
+                  <Td display={{ base: "none", md: "block" }}>
                     <Spinner size="xs" />
                   </Td>
                   <Td>
@@ -215,7 +220,7 @@ function LeaderBoardView(props: RouteComponentProps) {
                   <Td>
                     <Spinner size="xs" />
                   </Td>
-                </>
+                </Tr>
               ) : (
                 leaderBoardRows
               )}

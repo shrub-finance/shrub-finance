@@ -154,6 +154,18 @@ function TopNav() {
               {/*</Link>*/}
               <Link
                 as={ReachLink}
+                to="/my-garden"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                My Garden
+              </Link>
+              <Link
+                as={ReachLink}
                 to="/adoption"
                 variant="ghost"
                 cursor="pointer"
@@ -186,7 +198,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Collection{" "}
+                OpenSea{" "}
                 <ExternalLinkIcon
                   mx="2px"
                   display={{ base: "inline", md: "none", lg: "inline" }}
@@ -278,6 +290,19 @@ function TopNav() {
               {/*))}*/}
               <Link
                 as={ReachLink}
+                to="/my-garden"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
+              >
+                My Garden
+              </Link>
+              <Link
+                as={ReachLink}
                 to="/adoption"
                 variant="ghost"
                 cursor="pointer"
@@ -315,7 +340,7 @@ function TopNav() {
                   bgGradient: gradient,
                 }}
               >
-                Collection <ExternalLinkIcon mx="2px" />
+                OpenSea <ExternalLinkIcon mx="2px" />
               </Link>
               <Box
                 onClick={toggleColorMode}
