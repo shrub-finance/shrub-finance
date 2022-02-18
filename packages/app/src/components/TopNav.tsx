@@ -189,6 +189,22 @@ function TopNav() {
                 Leaderboard
               </Link>
               <Link
+                href="https://shrub.finance/roadmap"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Roadmap
+                <ExternalLinkIcon
+                  mx="2px"
+                  display={{ base: "inline", md: "none", lg: "inline" }}
+                />
+              </Link>
+              <Link
                 href="https://opensea.io/collection/shrub-paper-gardens"
                 isExternal
                 variant="ghost"
@@ -326,6 +342,22 @@ function TopNav() {
                 onClick={onMenuClose}
               >
                 Leaderboard
+              </Link>
+              <Link
+                href="https://shrub.finance/roadmap"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Roadmap
+                <ExternalLinkIcon
+                  mx="2px"
+                  display={{ base: "inline", md: "none", lg: "inline" }}
+                />
               </Link>
               <Link
                 href="https://opensea.io/collection/shrub-paper-gardens"
