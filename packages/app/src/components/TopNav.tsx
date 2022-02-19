@@ -19,6 +19,7 @@ import {
   ModalCloseButton,
   Spinner,
   useBoolean,
+  Badge,
 } from "@chakra-ui/react";
 import {
   HamburgerIcon,
@@ -199,10 +200,9 @@ function TopNav() {
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
                 Roadmap
-                <ExternalLinkIcon
-                  mx="2px"
-                  display={{ base: "inline", md: "none", lg: "inline" }}
-                />
+                <Badge ml="1" colorScheme="green">
+                  New
+                </Badge>
               </Link>
               <Link
                 href="https://opensea.io/collection/shrub-paper-gardens"
@@ -358,6 +358,9 @@ function TopNav() {
                   mx="2px"
                   display={{ base: "inline", md: "none", lg: "inline" }}
                 />
+                <Badge ml="1" colorScheme="green">
+                  New
+                </Badge>
               </Link>
               <Link
                 href="https://opensea.io/collection/shrub-paper-gardens"
