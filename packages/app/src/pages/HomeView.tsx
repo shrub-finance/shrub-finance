@@ -39,7 +39,13 @@ function HomeView(props: RouteComponentProps) {
               Paper Gardens
             </Heading>
             <>
-              <Box maxW="60rem" mb={4} textAlign={"center"} mt={6}>
+              <Box
+                maxW="60rem"
+                mb={4}
+                textAlign={"center"}
+                mt={6}
+                id="chapter2"
+              >
                 <Text
                   fontSize={{ base: "20px", md: "30px" }}
                   fontWeight="semibold"
@@ -128,7 +134,13 @@ function HomeView(props: RouteComponentProps) {
               >
                 Adopt a Seed
               </Button>
-              <Box maxW="60rem" mb={4} textAlign={"center"} mt={20}>
+              <Box
+                maxW="60rem"
+                mb={4}
+                textAlign={"center"}
+                mt={20}
+                id="chapter1"
+              >
                 <Text
                   fontSize="30px"
                   fontWeight="semibold"
