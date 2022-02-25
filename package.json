@@ -19,6 +19,7 @@
     "build": "CI=false && yarn workspace @shrub/app build",
     "contracts": "yarn workspace @shrub/contracts start",
     "app": "yarn workspace @shrub/app start",
+    "paper-gardens": "yarn workspace @shrub/paper-gardens start",
     "graph-node": "yarn workspace @shrub/graph-node start",
     "subgraph-paper-gardens": "yarn workspace @shrub/subgraph-paper-gardens deploy-again-local",
     "subgraph-core": "yarn workspace @shrub/subgraph-core deploy-again-local",
@@ -30,6 +31,10 @@
   },
   "lint-staged": {
     "packages/app/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "packages/paper-gardens/**/*.{ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],
@@ -48,7 +53,7 @@
     "@typescript-eslint/eslint-plugin": "5.9.0",
     "@typescript-eslint/parser": "5.9.0",
     "eslint": "7.11.0",
-    "husky": "^7.0.0",
+    "husky": "7.0.0",
     "lint-staged": "12.1.5",
     "pinst": "2.0.0",
     "prettier": "2.5.1",

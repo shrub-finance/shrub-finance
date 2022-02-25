@@ -6724,9 +6724,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shrub/app@workspace:packages/app":
+"@shrub/app@workspace:packages/paper-gardens":
   version: 0.0.0-use.local
-  resolution: "@shrub/app@workspace:packages/app"
+  resolution: "@shrub/app@workspace:packages/paper-gardens"
   dependencies:
     "@apollo/client": 3.5.6
     "@chakra-ui/icons": 1.1.1
@@ -21143,7 +21143,16 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"husky@npm:7.0.4, husky@npm:^7.0.0":
+"husky@npm:7.0.0":
+  version: 7.0.0
+  resolution: "husky@npm:7.0.0"
+  bin:
+    husky: lib/bin.js
+  checksum: 2b9848c6365ad43110e19cffbf715ef695f2bcd8c98ee263b67389b492fe6b4045cad7be2af393b89c2d5effe3b97a6ff0443f869e9407d954bb93e17dade8a0
+  languageName: node
+  linkType: hard
+
+"husky@npm:7.0.4":
   version: 7.0.4
   resolution: "husky@npm:7.0.4"
   bin:
@@ -33052,7 +33061,7 @@ resolve@^2.0.0-next.3:
     "@typescript-eslint/eslint-plugin": 5.9.0
     "@typescript-eslint/parser": 5.9.0
     eslint: 7.11.0
-    husky: ^7.0.0
+    husky: 7.0.0
     lint-staged: 12.1.5
     pinst: 2.0.0
     prettier: 2.5.1

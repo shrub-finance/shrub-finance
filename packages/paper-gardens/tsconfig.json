@@ -17,5 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "downlevelIteration": true
   },
-  "include": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.tsx", "src/react-app-env.d.ts"]
+  "include": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.tsx",
+    "../app/src/react-app-env.d.ts"
+  ]
 }
