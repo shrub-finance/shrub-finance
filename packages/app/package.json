@@ -1,5 +1,5 @@
 {
-  "name": "@shrub/paper-gardens",
+  "name": "@shrub/app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

@@ -1,4 +1,3 @@
-import React from "react";
 import { createIcon, Icon } from "@chakra-ui/icons";
 
 // pass path as an array of elements, if you have multiple paths, lines, shapes, etc.

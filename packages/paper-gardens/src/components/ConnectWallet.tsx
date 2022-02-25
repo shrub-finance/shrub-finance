@@ -70,8 +70,7 @@ export function getErrorMessage(error: Error) {
   } else if (error instanceof UnsupportedChainIdError) {
     return {
       title: "Wrong Network",
-      // message: "You are connected, but not to Polygon Mumbai Testnet.",
-      message: "You are connected, but not to Polygon Mainnet.",
+      message: "You are connected, but not to Polygon Mumbai Testnet.",
     };
   } else if (
     error instanceof UserRejectedRequestErrorInjected ||
@@ -485,7 +484,6 @@ export function ConnectWalletModal() {
             colorScheme={bg}
             onClick={addNetwork}
           >
-            {/*Switch to Mumbai Network*/}
             Switch to Polygon Network
           </Button>
         </Stack>
