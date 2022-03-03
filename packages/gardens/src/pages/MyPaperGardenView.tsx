@@ -46,7 +46,7 @@ import { SeedBasketImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import SeedDetails from "../components/SeedDetails";
 
-function LeaderBoardView(props: RouteComponentProps) {
+function MyPaperGardenView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const {
@@ -362,4 +362,4 @@ function LeaderBoardView(props: RouteComponentProps) {
   );
 }
 
-export default LeaderBoardView;
+export default MyPaperGardenView;
