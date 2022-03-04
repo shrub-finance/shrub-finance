@@ -48,8 +48,8 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco ../app/build",
-    "test": "craco ../app/test",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "craco eject"
   },
   "eslintConfig": {
