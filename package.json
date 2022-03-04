@@ -16,8 +16,8 @@
   },
   "scripts": {
     "start": "yarn start",
-    "build": "CI=false && yarn workspace @shrub/gardens build",
-    "build:app": "CI=false && yarn workspace @shrub/app build",
+    "build": "CI=false && yarn workspace @shrub/app build",
+    "build:garden": "CI=false && yarn workspace @shrub/gardens build",
     "contracts": "yarn workspace @shrub/contracts start",
     "app": "yarn workspace @shrub/app start",
     "gardens": "yarn workspace @shrub/gardens start",
