@@ -1,5 +1,4 @@
 import {
-  Box,
   Heading,
   Text,
   Button,
@@ -18,8 +17,6 @@ import {
   Alert,
   AlertIcon,
   Link,
-  UnorderedList,
-  ListItem,
   Grid,
   Spinner,
 } from "@chakra-ui/react";
@@ -34,11 +31,7 @@ import {
   ConnectWalletModal,
   getErrorMessage,
 } from "../components/ConnectWallet";
-import {
-  ToastDescription,
-  Txmonitor,
-  TxStatusList,
-} from "../components/TxMonitoring";
+import { ToastDescription, TxStatusList } from "../components/TxMonitoring";
 import {
   getRegisterForAdoption,
   isRegisteredForAdoption,
@@ -47,16 +40,13 @@ import {
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
-import { AdoptionImg, SeedBasketImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { FaTwitter } from "react-icons/all";
 import { useLazyQuery } from "@apollo/client";
 import {
   SEED_ADOPTION_QUERY,
   SEED_OWNERSHIP_QUERY,
 } from "../constants/queries";
 
-import UpcomingAdoptions from "../components/UpcomingAdoptions";
 import AdoptionHistory from "../components/AdoptionHistory";
 
 function AdoptionCenterView(props: RouteComponentProps) {

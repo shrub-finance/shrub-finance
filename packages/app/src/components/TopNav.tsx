@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext, useState } from "react";
+import { ReactNode, useContext, useState } from "react";
 import {
   Box,
   Flex,
@@ -19,7 +19,6 @@ import {
   ModalCloseButton,
   Spinner,
   useBoolean,
-  Badge,
 } from "@chakra-ui/react";
 import {
   HamburgerIcon,
@@ -39,11 +38,11 @@ import {
   getErrorMessage,
 } from "./ConnectWallet";
 import { useConnectWallet } from "../hooks/useConnectWallet";
-import { PaperGardensLogo, ShrubLogo, SUSDIcon } from "../assets/Icons";
+import { ShrubLogo, SUSDIcon } from "../assets/Icons";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
-import { GiCoins, GiFlowerPot, GiPostStamp } from "react-icons/gi";
+import { GiCoins } from "react-icons/gi";
 import { FaFileContract, HiOutlineDocumentDuplicate } from "react-icons/all";
 import Faucet from "./Faucet";
 import usePriceFeed from "../hooks/usePriceFeed";
@@ -76,9 +75,7 @@ function TopNav() {
     "linear(to-l, gray.700, gray.700)"
   );
   const topNavShadow = useColorModeValue("md", "md");
-  // const topNavShadow = useColorModeValue("md", "2xl");
   const topNavBgColor = useColorModeValue("white", "dark.100");
-  // const topNavBgColor = useColorModeValue("white", "whiteAlpha.100");
   useColorModeValue("sprout", "teal");
 
   function handleModalClose() {
@@ -123,74 +120,24 @@ function TopNav() {
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={8} alignItems={"center"}>
             <Link as={ReachLink} to={"/"}>
-              <PaperGardensLogo boxSize={10} />
+              <ShrubLogo boxSize={10} />
             </Link>
             <HStack
               as={"nav"}
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
-              {/*{*/}
-              {/*  NavRoutes.map((route) => (*/}
-              {/*  <NavRoute*/}
-              {/*    itemIcon={route.itemIcon}*/}
-              {/*    key={route.item}*/}
-              {/*    path={route.item}*/}
-              {/*  >*/}
-              {/*    {route.item}*/}
-              {/*  </NavRoute>*/}
-              {/*))*/}
-              {/*}*/}
-              {/*<Link*/}
-              {/*  href="https://docs.shrub.finance"*/}
-              {/*  isExternal*/}
-              {/*  variant="ghost"*/}
-              {/*  cursor="pointer"*/}
-              {/*  px={2}*/}
-              {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
-              {/*  rounded={"lg"}*/}
-              {/*  _hover={{ textDecoration: "none", bgGradient: gradient }}*/}
-              {/*>*/}
-              {/*  Docs <ExternalLinkIcon mx="2px" />*/}
-              {/*</Link>*/}
+              {NavRoutes.map((route) => (
+                <NavRoute
+                  itemIcon={route.itemIcon}
+                  key={route.item}
+                  path={route.item}
+                >
+                  {route.item}
+                </NavRoute>
+              ))}
               <Link
-                as={ReachLink}
-                to="/my-garden"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                My Garden
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/adoption"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Adoption
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/leaderboard"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Leaderboard
-              </Link>
-              <Link
-                href="https://shrub.finance/roadmap"
+                href="https://docs.shrub.finance"
                 isExternal
                 variant="ghost"
                 cursor="pointer"
@@ -199,42 +146,23 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Roadmap
-                <Badge ml="1" colorScheme="green">
-                  New
-                </Badge>
-              </Link>
-              <Link
-                href="https://opensea.io/collection/shrub-paper-gardens"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                OpenSea{" "}
-                <ExternalLinkIcon
-                  mx="2px"
-                  display={{ base: "inline", md: "none", lg: "inline" }}
-                />
+                Docs <ExternalLinkIcon mx="2px" />
               </Link>
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
             {/*{!isMobile && <Box d={{ base: "none", sm: "none", md: "flex" }}><Chain/></Box>}*/}
-            {/*<Button*/}
-            {/*  pr={5}*/}
-            {/*  d={{ base: "none", sm: "none", md: "flex" }}*/}
-            {/*  onClick={onFaucetModalOpen}*/}
-            {/*  fontSize={"sm"}*/}
-            {/*  variant={"link"}*/}
-            {/*  colorScheme={"purple"}*/}
-            {/*  rounded={"full"}*/}
-            {/*>*/}
-            {/*  Shrub Faucet*/}
-            {/*</Button>*/}
+            <Button
+              pr={5}
+              d={{ base: "none", sm: "flex" }}
+              onClick={onFaucetModalOpen}
+              fontSize={"sm"}
+              variant={"link"}
+              colorScheme={"purple"}
+              rounded={"full"}
+            >
+              Shrub Faucet
+            </Button>
             {!isMobile && (
               <Box pr={5} d={{ base: "none", sm: "flex" }}>
                 <Balance />
@@ -248,7 +176,7 @@ function TopNav() {
                 colorScheme={web3Error ? "red" : "yellow"}
                 size={"md"}
                 mr={4}
-                borderRadius="xl"
+                borderRadius="full"
                 leftIcon={
                   web3Error ? <InfoOutlineIcon colorScheme="red" /> : undefined
                 }
@@ -295,88 +223,15 @@ function TopNav() {
         {isMenuOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={3}>
-              {/*{NavRoutes.map((route) => (*/}
-              {/*  <NavRoute*/}
-              {/*    itemIcon={route.itemIcon}*/}
-              {/*    key={route.item}*/}
-              {/*    path={route.item}*/}
-              {/*  >*/}
-              {/*    <Icon as={route.itemIcon} mr={2} /> {route.item}*/}
-              {/*  </NavRoute>*/}
-              {/*))}*/}
-              <Link
-                as={ReachLink}
-                to="/my-garden"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
-              >
-                My Garden
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/adoption"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
-              >
-                Adoption
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/leaderboard"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
-              >
-                Leaderboard
-              </Link>
-              <Link
-                href="https://shrub.finance/roadmap"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Roadmap
-                <ExternalLinkIcon
-                  mx="2px"
-                  display={{ base: "inline", md: "none", lg: "inline" }}
-                />
-                <Badge ml="1" colorScheme="green">
-                  New
-                </Badge>
-              </Link>
-              <Link
-                href="https://opensea.io/collection/shrub-paper-gardens"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                rounded="lg"
-                py={"3"}
-                px={"2"}
-                _hover={{
-                  textDecoration: "none",
-                  bgGradient: gradient,
-                }}
-              >
-                OpenSea <ExternalLinkIcon mx="2px" />
-              </Link>
+              {NavRoutes.map((route) => (
+                <NavRoute
+                  itemIcon={route.itemIcon}
+                  key={route.item}
+                  path={route.item}
+                >
+                  <Icon as={route.itemIcon} mr={2} /> {route.item}
+                </NavRoute>
+              ))}
               <Box
                 onClick={toggleColorMode}
                 variant="ghost"
@@ -389,45 +244,44 @@ function TopNav() {
                   bgGradient: gradient,
                 }}
               >
-                {/*{colorMode === "light" ? (*/}
-                {/*  <MoonIcon mr={"2"} />*/}
-                {/*) : (*/}
-                {/*  <SunIcon mr={"2"} />*/}
-                {/*)}*/}
+                {colorMode === "light" ? (
+                  <MoonIcon mr={"2"} />
+                ) : (
+                  <SunIcon mr={"2"} />
+                )}
                 {colorMode === "light" ? "Dark Mode" : "Light Mode"}
               </Box>
-              {/*<Link*/}
-              {/*  href="https://docs.shrub.finance"*/}
-              {/*  isExternal*/}
-              {/*  variant="ghost"*/}
-              {/*  cursor="pointer"*/}
-              {/*  rounded="lg"*/}
-              {/*  py={"3"}*/}
-              {/*  px={"2"}*/}
-              {/*  _hover={{*/}
-              {/*    textDecoration: "none",*/}
-              {/*    bgGradient: gradient,*/}
-              {/*  }}*/}
-              {/*>*/}
-              {/*  <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />*/}
-              {/*  Docs <ExternalLinkIcon mx="2px" />*/}
-              {/*</Link>*/}
-              {/*<Box*/}
-              {/*<Box*/}
-              {/*  pr={5}*/}
-              {/*  onClick={handleTestFaucetModalOpen}*/}
-              {/*  variant="ghost"*/}
-              {/*  colorScheme={"purple"}*/}
-              {/*  rounded={"lg"}*/}
-              {/*  py={"3"}*/}
-              {/*  px={"2"}*/}
-              {/*  _hover={{*/}
-              {/*    textDecoration: "none",*/}
-              {/*    bgGradient: gradient,*/}
-              {/*  }}*/}
-              {/*>*/}
-              {/*  <SUSDIcon /> Shrub Faucet*/}
-              {/*</Box>*/}
+              <Link
+                href="https://docs.shrub.finance"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                rounded="lg"
+                py={"3"}
+                px={"2"}
+                _hover={{
+                  textDecoration: "none",
+                  bgGradient: gradient,
+                }}
+              >
+                <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />
+                Docs <ExternalLinkIcon mx="2px" />
+              </Link>
+              <Box
+                pr={5}
+                onClick={handleTestFaucetModalOpen}
+                variant="ghost"
+                colorScheme={"purple"}
+                rounded={"lg"}
+                py={"3"}
+                px={"2"}
+                _hover={{
+                  textDecoration: "none",
+                  bgGradient: gradient,
+                }}
+              >
+                <SUSDIcon /> Shrub Faucet
+              </Box>
             </Stack>
           </Box>
         ) : null}

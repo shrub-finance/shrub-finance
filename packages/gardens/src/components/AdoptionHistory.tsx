@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import useTruncateAddress from "../hooks/useTruncateAddress";
-import { useWeb3React } from "@web3-react/core";
 
 function AdoptionHistory({
   hooks,
