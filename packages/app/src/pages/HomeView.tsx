@@ -450,7 +450,7 @@ function HomeView(props: RouteComponentProps) {
                 bgClip="text"
               >
                 {" "}
-                Beta
+                Paper
               </Text>
             </Heading>
             <Text
@@ -533,7 +533,7 @@ function HomeView(props: RouteComponentProps) {
                                   {" "}
                                   <Text>
                                     {" "}
-                                    To beta test Shrub, you need to{" "}
+                                    To use Shrub Paper, you need to{" "}
                                     <strong>connect your wallet</strong> to the
                                     Polygon Test Network (Mumbai).
                                   </Text>
