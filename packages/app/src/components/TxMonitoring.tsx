@@ -109,7 +109,6 @@ export function Txmonitor({
 
       {status === "confirmed" && (
         <>
-          <Confetti />
           <Alert
             status="success"
             variant="subtle"
@@ -127,6 +126,7 @@ export function Txmonitor({
               mt={14}
               color={"sprout.300"}
             />
+            <Confetti />
             <AlertTitle mt={showDeposit ? 12 : 4} mb={1} fontSize="lg">
               Transaction Confirmed
             </AlertTitle>

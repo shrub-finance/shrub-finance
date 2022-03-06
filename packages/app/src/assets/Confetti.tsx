@@ -25,13 +25,13 @@ export default function Confetti() {
         },
         particles: {
           number: {
-            value: 1000,
+            value: 500,
           },
           color: {
-            value: ["#1E00FF", "#FF0061", "#E1FF00", "#00FF9E"],
+            value: ["#41871e", "#d70d57", "#E1FF00", "#00FF9E"],
           },
           shape: {
-            type: ["square"],
+            type: ["circle", "square"],
           },
           opacity: {
             value: {
@@ -59,7 +59,7 @@ export default function Confetti() {
             enable: true,
             gravity: {
               enable: true,
-              acceleration: 30,
+              acceleration: 10,
             },
             speed: {
               min: 25,
