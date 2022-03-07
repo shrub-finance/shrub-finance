@@ -1,0 +1,37 @@
+{
+  "name": "Potted Plant of Hope",
+  "description": "",
+  "image": "ipfs://pottedplant",
+  "preview_image": "ipfs://pottedplant-small",
+  "external_link": "https://paper.shrub.finance/nft/paper-pot/1000001",
+  "attributes": [
+    {
+      "trait_type": "seedId",
+      "value": 2001
+    },
+    {
+      "trait_type": "seedId",
+      "value": 2001
+    },
+    {
+      "trait_type": "seedId",
+      "value": 2001
+    },
+    {
+      "trait_type": "seedId",
+      "value": 2001
+    },
+    {
+      "trait_type": "seedId",
+      "value": 2001
+    },
+    {
+      "trait_type": "seedId",
+      "value": 2001
+    },
+    {
+      "trait_type": "trait",
+      "value": "value"
+    }
+  ]
+}

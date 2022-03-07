@@ -1,0 +1,13 @@
+{
+  "name": "Water",
+  "description": "The essence of life. Paper plants must be watered to grow",
+  "image": "ipfs://water",
+  "preview_image": "ipfs://water-small",
+  "external_link": "https://paper.shrub.finance/nft/paper-pot/2",
+  "attributes": [
+    {
+      "trait_type": "trait",
+      "value": "value"
+    }
+  ]
+}

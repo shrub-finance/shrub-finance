@@ -6,12 +6,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
 
   const { deployer } = await getNamedAccounts();
-  const seedDeployment = await deployments.get("PaperSeed")
-  const seedAddress = seedDeployment.address;
 
   await deploy("BabyBudAvatar", {
     from: deployer,
-    args: [seedAddress],
+    args: [],
     log: true,
   });
 };

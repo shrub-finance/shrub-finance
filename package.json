@@ -1,5 +1,6 @@
 {
-  "name": "shrub",
+  "title": "Hello World!",
+  "project": "shrub",
   "version": "1.0.0",
   "description": "The mono-repo for shrub.finance",
   "homepage": "https://github.com/shrub-finance/shrub#readme",
