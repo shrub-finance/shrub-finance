@@ -25,10 +25,10 @@ export default function Confetti() {
         },
         particles: {
           number: {
-            value: 1000,
+            value: 200,
           },
           color: {
-            value: ["#1E00FF", "#FF0061", "#E1FF00", "#00FF9E"],
+            value: ["#41871e", "#d70d57", "#E1FF00", "#00FF9E"],
           },
           shape: {
             type: ["square"],
@@ -59,7 +59,7 @@ export default function Confetti() {
             enable: true,
             gravity: {
               enable: true,
-              acceleration: 30,
+              acceleration: 10,
             },
             speed: {
               min: 25,
@@ -141,11 +141,11 @@ export default function Confetti() {
                   direction: "top-right",
                   rate: {
                     delay: 0.1,
-                    quantity: 20,
+                    quantity: 10,
                   },
                   position: {
                     x: 0,
-                    y: 50,
+                    y: 100,
                   },
                   size: {
                     width: 0,
@@ -160,11 +160,11 @@ export default function Confetti() {
                   direction: "top-left",
                   rate: {
                     delay: 0.1,
-                    quantity: 20,
+                    quantity: 10,
                   },
                   position: {
-                    x: 100,
-                    y: 50,
+                    x: 0,
+                    y: 100,
                   },
                   size: {
                     width: 0,
@@ -184,11 +184,11 @@ export default function Confetti() {
             direction: "top-right",
             rate: {
               delay: 0.1,
-              quantity: 50,
+              quantity: 10,
             },
             position: {
               x: 0,
-              y: 50,
+              y: 100,
             },
             size: {
               width: 0,
@@ -203,11 +203,11 @@ export default function Confetti() {
             direction: "top-left",
             rate: {
               delay: 0.1,
-              quantity: 50,
+              quantity: 10,
             },
             position: {
-              x: 100,
-              y: 50,
+              x: 0,
+              y: 100,
             },
             size: {
               width: 0,

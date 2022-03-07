@@ -26,6 +26,7 @@ import { VscError } from "react-icons/all";
 import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
+import Confetti from "../assets/Confetti";
 
 export function Txmonitor({
   txHash,
@@ -107,54 +108,61 @@ export function Txmonitor({
       )}
 
       {status === "confirmed" && (
-        <Alert
-          status="success"
-          variant="subtle"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          height="400px"
-          mt="20px"
-          bg="none"
-        >
-          <AlertIcon
-            boxSize={showDeposit ? "140px" : "40px"}
-            mr={0}
-            mt={14}
-            color={"sprout.300"}
-          />
-          <AlertTitle mt={showDeposit ? 12 : 4} mb={1} fontSize="lg">
-            Transaction Confirmed
-          </AlertTitle>
-          <AlertDescription maxWidth="sm">
-            <Link
-              color={"gray"}
-              fontSize={"sm"}
-              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
-              isExternal
-            >
-              View on explorer <ExternalLinkIcon mx="2px" />
-            </Link>
-            {!showDeposit && (
-              <Center>
-                <HappyBud mt={8} boxSize={260} />
-              </Center>
-            )}
-            {showDeposit && (
-              <Button
-                variant={"ghost"}
-                mt={10}
-                colorScheme="teal"
-                size={"lg"}
-                isFullWidth={true}
-                onClick={goToDeposit}
+        <>
+          <Alert
+            status="success"
+            variant="subtle"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            height="400px"
+            mt="20px"
+            bg="none"
+          >
+            <AlertIcon
+              boxSize={showDeposit ? "140px" : "40px"}
+              mr={0}
+              mt={14}
+              color={"sprout.300"}
+            />
+            <Confetti />
+            <AlertTitle mt={showDeposit ? 12 : 4} mb={1} fontSize="lg">
+              Transaction Confirmed
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+              <Link
+                color={"gray"}
+                fontSize={"sm"}
+                href={explorerLink(
+                  chainId,
+                  txHash,
+                  ExplorerDataType.TRANSACTION
+                )}
+                isExternal
               >
-                Go to Deposit
-              </Button>
-            )}
-          </AlertDescription>
-        </Alert>
+                View on explorer <ExternalLinkIcon mx="2px" />
+              </Link>
+              {!showDeposit && (
+                <Center>
+                  <HappyBud mt={8} boxSize={260} />
+                </Center>
+              )}
+              {showDeposit && (
+                <Button
+                  variant={"ghost"}
+                  mt={10}
+                  colorScheme="teal"
+                  size={"lg"}
+                  isFullWidth={true}
+                  onClick={goToDeposit}
+                >
+                  Go to Deposit
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        </>
       )}
 
       {status === "failed" && (

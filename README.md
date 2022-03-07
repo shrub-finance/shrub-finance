@@ -16,10 +16,11 @@ An options exchange where users can deposit liquidity and write options against 
 [//]: # (- Allow flashloans of collateral that has been locked)
 
 - Website: [shrub.finance](https://shrub.finance/)
+- Blog: [Shrub Blog](https://medium.com/@shrubfinance)
 - Docs: [docs.shrub.finance](https://docs.shrub.finance)
 - Twitter: [@shrubfinance](https://twitter.com/shrubfinance)
 - Email: [info@shrub.finance](mailto:info@shrub.finance)
-- Discord: [Shrub](https://discord.gg/yAc9JQT9dk)
+- Discord: [Shrub](https://discord.gg/csusZhYgTg)
 
 # Installation
 

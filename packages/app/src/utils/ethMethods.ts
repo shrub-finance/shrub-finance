@@ -4,10 +4,8 @@ import {
   ShrubExchange,
   ERC20__factory,
   TokenFaucet__factory,
-  PaperSeed__factory,
   ShrubExchange__factory,
   HashUtil__factory,
-  SeedOrphanage__factory,
 } from "@shrub/contracts/types/ethers-v5";
 import { Currencies } from "../constants/currencies";
 import {
@@ -30,10 +28,6 @@ import { useWeb3React } from "@web3-react/core";
 import { JsonRpcProvider } from "@ethersproject/providers";
 
 const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
-const PAPERSEED_CONTRACT_ADDRESS =
-  process.env.REACT_APP_PAPERSEED_ADDRESS || "";
-const ORPHANAGE_CONTRACT_ADDRESS =
-  process.env.REACT_APP_ORPHANAGE_ADDRESS || "";
 const HASH_UTIL_CONTRACT_ADDRESS =
   process.env.REACT_APP_HASH_UTIL_ADDRESS || "";
 const SUSD_TOKEN_ADDRESS = process.env.REACT_APP_SUSD_TOKEN_ADDRESS || "";
@@ -130,6 +124,7 @@ export async function signOrder(
 
   // TODO: change this to sign with ethers to enable EIP712 metamask view
   // Sign with shrubInterface
+  // @ts-ignore
   const web3 = new Web3(window.ethereum as any);
   const shrubContract = ShrubExchange__factory.connect(
     SHRUB_CONTRACT_ADDRESS,
@@ -341,77 +336,6 @@ export async function withdraw(
     );
   }
   return shrubContract.withdraw(tokenContractAddress, amount);
-}
-
-// export async function claimNFT(
-//   index: ethers.BigNumberish,
-//   tokenID: ethers.BigNumberish,
-//   proof: BytesLike[],
-//   provider: JsonRpcProvider
-// ) {
-//   const signer = provider.getSigner();
-//   const paperseedContract = PaperSeed__factory.connect(
-//     PAPERSEED_CONTRACT_ADDRESS,
-//     signer
-//   );
-//   const tx = await paperseedContract["claim(uint256,uint256,bytes32[])"](
-//     index,
-//     tokenID,
-//     proof
-//   );
-//   return tx;
-// }
-
-export async function registerForAdoption(provider: JsonRpcProvider) {
-  const signer = provider.getSigner();
-  const orphanageContract = SeedOrphanage__factory.connect(
-    ORPHANAGE_CONTRACT_ADDRESS,
-    signer
-  );
-  return orphanageContract.register();
-}
-
-export async function getRegisterForAdoption(provider: JsonRpcProvider) {
-  const orphanageContract = SeedOrphanage__factory.connect(
-    ORPHANAGE_CONTRACT_ADDRESS,
-    provider
-  );
-  return orphanageContract.getRegister();
-}
-
-export async function isRegisteredForAdoption(
-  provider: JsonRpcProvider,
-  address: string
-) {
-  const orphanageContract = SeedOrphanage__factory.connect(
-    ORPHANAGE_CONTRACT_ADDRESS,
-    provider
-  );
-  return orphanageContract.isRegistered(address);
-}
-
-export async function seedBalanceOf(
-  provider: JsonRpcProvider,
-  address: string
-) {
-  const paperseedContract = PaperSeed__factory.connect(
-    PAPERSEED_CONTRACT_ADDRESS,
-    provider
-  );
-  return paperseedContract.balanceOf(address);
-}
-
-export async function getTokenUri(
-  tokenID: ethers.BigNumberish,
-  provider: JsonRpcProvider
-) {
-  const signer = provider.getSigner();
-  const paperseedContract = PaperSeed__factory.connect(
-    PAPERSEED_CONTRACT_ADDRESS,
-    signer
-  );
-  const uri = await paperseedContract.tokenURI(tokenID);
-  return uri;
 }
 
 export async function buyFromFaucet(

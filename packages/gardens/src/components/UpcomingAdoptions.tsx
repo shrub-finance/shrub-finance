@@ -16,7 +16,6 @@ import {
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useLazyQuery } from "@apollo/client";
 import { REGISTERED_SIBLINGS_QUERY } from "../constants/queries";
-import { useWeb3React } from "@web3-react/core";
 
 function UpcomingAdoptions({
   hooks,

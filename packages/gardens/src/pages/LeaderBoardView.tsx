@@ -3,7 +3,6 @@ import {
   Text,
   Button,
   Center,
-  useColorModeValue,
   Container,
   useDisclosure,
   ModalOverlay,

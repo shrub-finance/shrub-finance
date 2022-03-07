@@ -37,7 +37,7 @@ import axios from "axios";
 const PAPERSEED_CONTRACT_ADDRESS =
   process.env.REACT_APP_PAPERSEED_ADDRESS || "";
 import { FaTwitter } from "react-icons/all";
-import { HelloBud, OpenSeaIcon } from "../assets/Icons";
+import { OpenSeaIcon, PostAdoptionImg } from "../assets/Icons";
 
 function PaperView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -60,8 +60,6 @@ function PaperView(props: RouteComponentProps) {
   const [seedType, setSeedType] = useState("");
   const [nftTitle, setNftTitle] = useState("");
   const [tokenId, setTokenId] = useState(0);
-
-  const isSeedView = props.uri && props.uri.includes("/nft/paper-seed");
 
   const { active, account, library, error: web3Error } = useWeb3React();
 
@@ -174,7 +172,7 @@ function PaperView(props: RouteComponentProps) {
                 shadow={useColorModeValue("2xl", "2xl")}
                 py={10}
               >
-                <HelloBud boxSize={400} />
+                <PostAdoptionImg boxSize={400} />
               </Center>
             </SlideFade>
           )}
