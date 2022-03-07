@@ -32280,6 +32280,21 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"root-workspace-0b6124@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "root-workspace-0b6124@workspace:."
+  dependencies:
+    "@typescript-eslint/eslint-plugin": 5.9.0
+    "@typescript-eslint/parser": 5.9.0
+    eslint: 7.11.0
+    husky: ^7.0.0
+    lint-staged: 12.1.5
+    pinst: 2.0.0
+    prettier: 2.5.1
+    typescript: 4.5.4
+  languageName: unknown
+  linkType: soft
+
 "rpc-websockets@npm:^5.3.1":
   version: 5.3.1
   resolution: "rpc-websockets@npm:5.3.1"
@@ -33044,21 +33059,6 @@ resolve@^2.0.0-next.3:
   checksum: 8d73a5e9861f5e5f1068e2cfc39bc0002400fe58558ab5e5fa75630d2c3adf44ca1fac81957609c8320d5533e093802fcafc72904bf1a32b95de3c19a0b1c0d4
   languageName: node
   linkType: hard
-
-"shrub@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "shrub@workspace:."
-  dependencies:
-    "@typescript-eslint/eslint-plugin": 5.9.0
-    "@typescript-eslint/parser": 5.9.0
-    eslint: 7.11.0
-    husky: ^7.0.0
-    lint-staged: 12.1.5
-    pinst: 2.0.0
-    prettier: 2.5.1
-    typescript: 4.5.4
-  languageName: unknown
-  linkType: soft
 
 "side-channel@npm:^1.0.4":
   version: 1.0.4
