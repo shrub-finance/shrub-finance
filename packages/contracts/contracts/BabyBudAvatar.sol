@@ -5,12 +5,21 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract BabyBudAvatar is ERC721URIStorage, Ownable {
     uint public tokenIndex;
+    string private CONTRACT_URI;
     constructor() ERC721("Baby Bud Avatars", "BBA") {}
 
     function burn(uint256 tokenId) public {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
         _burn(tokenId);
+    }
+
+    function contractURI() public view returns (string memory) {
+        return CONTRACT_URI;
+    }
+
+    function setContractURI(string memory _contractUri) public onlyOwner {
+        CONTRACT_URI = _contractUri;
     }
 
     /**

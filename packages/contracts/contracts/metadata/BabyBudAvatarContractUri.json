@@ -1,0 +1,8 @@
+{
+  "name": "Baby Bud Avatars",
+  "description": "A gift to Shrub's biggest early supporters",
+  "image": "ipfs://QmVRWPeuX6Drh77vWp3Zqnds3oaGLUfEaD6gpf4HfsAMRa",
+  "external_link": "https://shrub.finance",
+  "seller_fee_basis_points": 1000,
+  "fee_recipient": "0x4497C08e3FcC1580B13afA1ddDA10aB3aB0822ae"
+}

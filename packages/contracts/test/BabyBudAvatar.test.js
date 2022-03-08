@@ -34,6 +34,23 @@ describe("BabyBudAvatar", () => {
       expect(name).to.equal("Baby Bud Avatars");
       expect(symbol).to.equal("BBA");
     });
+
+    it("owner should be able to set the contractURI", async () => {
+      const oldContractURI = await babyBudAvatar.contractURI();
+      expect(oldContractURI).to.equal("");
+      await babyBudAvatar.setContractURI("ipfs://XYZ");
+      const newContractURI = await babyBudAvatar.contractURI();
+      expect(newContractURI).to.equal("ipfs://XYZ");
+    });
+
+    it("non-owner should not be able to set the contractURI", async () => {
+      const signer1BabyBudAvatar = babyBudAvatar.connect(signer1);
+      const oldContractURI = await babyBudAvatar.contractURI();
+      expect(oldContractURI).to.equal("");
+      await expect(
+        signer1BabyBudAvatar.setContractURI("ipfs://XYZ")
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
   });
 
   describe("Admin Mint", async () => {
