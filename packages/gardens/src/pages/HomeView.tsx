@@ -119,21 +119,6 @@ function HomeView(props: RouteComponentProps) {
                   the days to come.
                 </Text>
               </Box>
-              <Button
-                size="sm"
-                px="30"
-                fontSize="25px"
-                py="8"
-                colorScheme={btnColor}
-                variant="solid"
-                rounded="3xl"
-                _hover={{ transform: "translateY(-2px)" }}
-                bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
-                as={ReachLink}
-                to={"/adoption"}
-              >
-                Adopt a Seed
-              </Button>
               <Box
                 maxW="60rem"
                 mb={4}
