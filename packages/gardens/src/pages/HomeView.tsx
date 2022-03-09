@@ -15,12 +15,15 @@ import { Link as ReachLink, RouteComponentProps } from "@reach/router";
 import React, { useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { isMobile } from "react-device-detect";
+import useReactGATracker from "../hooks/useReactGATracker";
+
 
 function HomeView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const btnColor = useColorModeValue("sprout", "teal");
-
+  const gaEventTrackerButton=useReactGATracker('ButtonClick');
+  const gaEventTracker=useReactGATracker('outBound')
   return (
     <>
       <Container
@@ -131,6 +134,7 @@ function HomeView(props: RouteComponentProps) {
                 bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
                 as={ReachLink}
                 to={"/adoption"}
+                onClick={e=> gaEventTrackerButton('Click','Adoption Button')} 
               >
                 Adopt a Seed
               </Button>
@@ -146,7 +150,7 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight="semibold"
                   color={useColorModeValue("gray.500", "gray.400")}
                 >
-                  CHAPTER 1: THE TRAVELLING MERCHANT
+                   CHAPTER 1: THE TRAVELLING MERCHANT
                 </Text>
               </Box>
               <Box maxW="60rem" mb={8} fontSize="20px" textStyle={"reading"}>
@@ -216,6 +220,7 @@ function HomeView(props: RouteComponentProps) {
                 _hover={{ transform: "translateY(-2px)" }}
                 bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
                 color={useColorModeValue("white", "black")}
+                onClick={e=> gaEventTracker('Click','View Collection click')}
               >
                 View Collection <ExternalLinkIcon mx="2px" />
               </Link>

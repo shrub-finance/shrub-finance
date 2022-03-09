@@ -41,6 +41,7 @@ import { PaperGardensLogo } from "../assets/Icons";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
+import useReactGATracker from "../hooks/useReactGATracker";
 
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -71,13 +72,15 @@ function TopNav() {
     onClose();
     displayStatus(false);
   }
-
+  const gaEventTracker = useReactGATracker("OutBound");
+  const gaEventTrackerButton = useReactGATracker("ButtonClick")  
   return (
     <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={8} alignItems={"center"}>
-            <Link as={ReachLink} to={"/"}>
+            <Link as={ReachLink} to={"/"}
+             onClick={e => gaEventTracker('Click', 'PaperGarden Logo Clicked')}>
               <PaperGardensLogo boxSize={10} />
             </Link>
             <HStack
@@ -94,6 +97,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={e => gaEventTracker('Click', 'My-garden Link Click')}
               >
                 My Garden
               </Link>
@@ -106,6 +110,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={e => gaEventTracker('Click', 'Adoption Link Click')}
               >
                 Adoption
               </Link>
@@ -118,6 +123,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={e => gaEventTracker('Click', 'LeaderBoard Link Click')}
               >
                 Leaderboard
               </Link>
@@ -130,6 +136,8 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={e => gaEventTracker('Click', 'RoadMap Link Click')}
+                
               >
                 Roadmap
                 <Badge ml="1" colorScheme="green">
@@ -145,7 +153,8 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
+                onClick={e => gaEventTracker('Click', 'OpenSea Link Click')}
+                >
                 OpenSea{" "}
                 <ExternalLinkIcon
                   mx="2px"
@@ -172,6 +181,7 @@ function TopNav() {
                 leftIcon={
                   web3Error ? <InfoOutlineIcon colorScheme="red" /> : undefined
                 }
+                onClick={e => gaEventTrackerButton('Click', 'Wallet Button Click')}
               >
                 {" "}
                 {!!web3Error && !active ? (
