@@ -10,6 +10,7 @@ import PaperView from "./pages/PaperView";
 import LeaderBoardView from "./pages/LeaderBoardView";
 import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
+import ChaptersView from "./pages/ChaptersView";
 
 function App() {
   const client = new ApolloClient({
@@ -27,6 +28,7 @@ function App() {
             <Router>
               <HomeView path="/" />
               <HomeView path="/claim" />
+              <ChaptersView path="/story" />
               <LeaderBoardView path="leaderboard" />
               <PaperView path="/nft/paper-seed/:tokenId" />
               <AdoptionCenterView path="/adoption" />
