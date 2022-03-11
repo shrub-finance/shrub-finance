@@ -11,8 +11,8 @@ import LeaderBoardView from "./pages/LeaderBoardView";
 import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ReactGA from 'react-ga'
-const trackingID=123;
-if(typeof trackingID ==="string"){
+const trackingID=process.env.REACT_APP_TRACKING_ID;
+if(typeof trackingID === 'number'){
      ReactGA.initialize(trackingID,{
        gaOptions:{
          storage:'none',
