@@ -15,15 +15,21 @@ import { Link as ReachLink, RouteComponentProps } from "@reach/router";
 import React, { useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { isMobile } from "react-device-detect";
-import useReactGATracker from "../hooks/useReactGATracker";
+import { handleGATrackingFactory } from "../utils/handleGATracking";
 
 
 function HomeView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const btnColor = useColorModeValue("sprout", "teal");
-  const gaEventTrackerButton=useReactGATracker('ButtonClick');
-  const gaEventTracker=useReactGATracker('outBound')
+ 
+  const gaEventTracker=handleGATrackingFactory();
+  function handleGA(event:any){
+    console.log("evnet inside",event)
+    gaEventTracker({
+    action:event.type,
+  label:event.target.innerText})
+  }
   return (
     <>
       <Container
@@ -35,7 +41,7 @@ function HomeView(props: RouteComponentProps) {
       >
         <Center mt={10}>
           <Box maxW="60rem" mb={8} textAlign={"center"}>
-            <Heading
+           <Heading
               fontSize={{ base: "30px", md: "50px" }}
               letterSpacing={"tight"}
             >
@@ -134,7 +140,7 @@ function HomeView(props: RouteComponentProps) {
                 bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
                 as={ReachLink}
                 to={"/adoption"}
-                onClick={e=> gaEventTrackerButton('Click','Adoption Button')} 
+                onClick={handleGA} 
               >
                 Adopt a Seed
               </Button>
@@ -220,7 +226,7 @@ function HomeView(props: RouteComponentProps) {
                 _hover={{ transform: "translateY(-2px)" }}
                 bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
                 color={useColorModeValue("white", "black")}
-                onClick={e=> gaEventTracker('Click','View Collection click')}
+                onClick={handleGA}
               >
                 View Collection <ExternalLinkIcon mx="2px" />
               </Link>

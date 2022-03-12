@@ -11,26 +11,26 @@ import LeaderBoardView from "./pages/LeaderBoardView";
 import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ReactGA from 'react-ga'
-const trackingID=process.env.REACT_APP_TRACKING_ID;
-if(typeof trackingID === 'number'){
-     ReactGA.initialize(trackingID,{
-       gaOptions:{
-         storage:'none',
-         storeGac:false
-       }
-     })
-     ReactGA.set({
-      anonymizeIp: true
-     })
+const trackingID = process.env.REACT_APP_TRACKING_ID;
+if (typeof trackingID === 'number') {
+  ReactGA.initialize(trackingID, {
+    gaOptions: {
+      storage: 'none',
+      storeGac: false
+    }
+  })
+  ReactGA.set({
+    anonymizeIp: true
+  })
 }
-else{
-  ReactGA.initialize('test',{testMode:true,debug:true})
+else {
+  ReactGA.initialize('test', { testMode: true, debug: true })
 }
 
 
-function trackPage(page:any) {
-       ReactGA.set({page})
-       ReactGA.pageview(page);       
+function trackPage(page: any) {
+  ReactGA.set({ page })
+  ReactGA.pageview(page);
 }
 function App() {
   const client = new ApolloClient({
@@ -38,10 +38,11 @@ function App() {
     cache: new InMemoryCache(),
     connectToDevTools: process.env.REACT_APP_ENVIRONMENT === "development",
   });
-  useEffect(()=>{
-    const page=location.pathname;
+  useEffect(() => {
+    const page = location.pathname;
     trackPage(page);
-  },[])
+    
+  }, [])
 
   return (
     <div className="App">
