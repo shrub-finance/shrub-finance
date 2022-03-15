@@ -12,7 +12,7 @@ import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ReactGA from 'react-ga'
 const trackingID = process.env.REACT_APP_TRACKING_ID;
-if (typeof trackingID === 'number') {
+if (trackingID) {
   ReactGA.initialize(trackingID, {
     gaOptions: {
       storage: 'none',
@@ -28,7 +28,7 @@ else {
 }
 
 
-function trackPage(page: any) {
+function trackPage(page: string) {
   ReactGA.set({ page })
   ReactGA.pageview(page);
 }

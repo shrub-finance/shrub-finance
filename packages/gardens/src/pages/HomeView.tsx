@@ -15,20 +15,16 @@ import { Link as ReachLink, RouteComponentProps } from "@reach/router";
 import React, { useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { isMobile } from "react-device-detect";
-import { handleGATrackingFactory } from "../utils/handleGATracking";
-
-
+import { trackEvent } from "../utils/handleGATracking";
 function HomeView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const btnColor = useColorModeValue("sprout", "teal");
- 
-  const gaEventTracker=handleGATrackingFactory();
-  function handleGA(event:any){
-    console.log("evnet inside",event)
-    gaEventTracker({
-    action:event.type,
-  label:event.target.innerText})
+  function handleGA(event: any) {
+    trackEvent({
+      action: event.type,
+      label: event.target.innerText
+    })
   }
   return (
     <>
@@ -41,7 +37,7 @@ function HomeView(props: RouteComponentProps) {
       >
         <Center mt={10}>
           <Box maxW="60rem" mb={8} textAlign={"center"}>
-           <Heading
+            <Heading
               fontSize={{ base: "30px", md: "50px" }}
               letterSpacing={"tight"}
             >
@@ -140,7 +136,7 @@ function HomeView(props: RouteComponentProps) {
                 bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
                 as={ReachLink}
                 to={"/adoption"}
-                onClick={handleGA} 
+                onClick={handleGA}
               >
                 Adopt a Seed
               </Button>
@@ -156,7 +152,7 @@ function HomeView(props: RouteComponentProps) {
                   fontWeight="semibold"
                   color={useColorModeValue("gray.500", "gray.400")}
                 >
-                   CHAPTER 1: THE TRAVELLING MERCHANT
+                  CHAPTER 1: THE TRAVELLING MERCHANT
                 </Text>
               </Box>
               <Box maxW="60rem" mb={8} fontSize="20px" textStyle={"reading"}>

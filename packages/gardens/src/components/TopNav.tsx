@@ -41,11 +41,8 @@ import { PaperGardensLogo } from "../assets/Icons";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
-import { handleGATrackingFactory } from "../utils/handleGATracking";
-
-
+import { trackEvent } from "../utils/handleGATracking";
 function TopNav() {
-  const gaEventTracker = handleGATrackingFactory();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isMenuOpen,
@@ -74,10 +71,8 @@ function TopNav() {
     onClose();
     displayStatus(false);
   }
-
-
   function handleGA(event: any) {
-    gaEventTracker({
+    trackEvent({
       action: event.type,
       label: event.target.innerText
     })
