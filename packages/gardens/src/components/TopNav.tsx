@@ -42,6 +42,7 @@ import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
 import { trackEvent } from "../utils/handleGATracking";
+
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -71,6 +72,7 @@ function TopNav() {
     onClose();
     displayStatus(false);
   }
+
   function handleGA(event: any) {
     trackEvent({
       action: event.type,
@@ -82,8 +84,7 @@ function TopNav() {
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={8} alignItems={"center"}>
-            <Link as={ReachLink} to={"/"}
-            >
+            <Link as={ReachLink} to={"/"}>
               <PaperGardensLogo boxSize={10} />
             </Link>
             <HStack

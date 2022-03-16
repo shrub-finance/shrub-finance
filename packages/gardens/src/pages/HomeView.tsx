@@ -16,10 +16,12 @@ import React, { useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { isMobile } from "react-device-detect";
 import { trackEvent } from "../utils/handleGATracking";
+
 function HomeView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const btnColor = useColorModeValue("sprout", "teal");
+  
   function handleGA(event: any) {
     trackEvent({
       action: event.type,
