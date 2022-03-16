@@ -142,6 +142,7 @@ function HomeView(props: RouteComponentProps) {
               >
                 Adopt a Seed
               </Button>
+
               <Box
                 maxW="60rem"
                 mb={4}
