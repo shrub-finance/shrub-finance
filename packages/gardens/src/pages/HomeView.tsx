@@ -21,7 +21,6 @@ function HomeView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const btnColor = useColorModeValue("sprout", "teal");
-  
   function handleGA(event: any) {
     trackEvent({
       action: event.type,
