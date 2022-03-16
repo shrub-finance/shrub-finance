@@ -27,6 +27,7 @@ function HomeView(props: RouteComponentProps) {
       label: event.target.innerText
     })
   }
+  
   return (
     <>
       <Container
