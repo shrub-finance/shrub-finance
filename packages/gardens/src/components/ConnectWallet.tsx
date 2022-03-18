@@ -141,7 +141,7 @@ export function Balance() {
           //@ts-ignore
           // color={networkColor === "blue" ? mumbaiColor : networkColor}
           color={balanceColor}
-          fontSize={"sm"}
+          fontSize={{ base: "sm", md: "xs", lg: "sm" }}
           fontWeight="medium"
         >
           {balance === null
