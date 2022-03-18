@@ -82,8 +82,9 @@ function TopNav() {
             </Link>
             <HStack
               as={"nav"}
-              spacing={4}
-              display={{ base: "none", md: "flex" }}
+              spacing={"4"}
+              display={{ base: "none", md: "inline" }}
+              fontSize={{ base: "xs", md: "xs", lg: "md" }}
             >
               <Link
                 as={ReachLink}
@@ -106,6 +107,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                display={{ md: "none", lg: "inline" }}
               >
                 Adoption
               </Link>
@@ -132,7 +134,11 @@ function TopNav() {
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
                 Roadmap
-                <Badge ml="1" colorScheme="green">
+                <Badge
+                  ml="1"
+                  colorScheme="green"
+                  fontSize={{ base: "8px", md: "8px", lg: "xs" }}
+                >
                   New
                 </Badge>
               </Link>
@@ -146,11 +152,9 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                OpenSea{" "}
-                <ExternalLinkIcon
-                  mx="2px"
-                  display={{ base: "inline", md: "none", lg: "inline" }}
-                />
+                <Box as={"span"} whiteSpace={"nowrap"}>
+                  OpenSea <ExternalLinkIcon mx="2px" />
+                </Box>
               </Link>
             </HStack>
           </HStack>
