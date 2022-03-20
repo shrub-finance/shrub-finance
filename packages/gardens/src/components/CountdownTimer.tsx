@@ -3,8 +3,17 @@ import { useCountdown } from "../hooks/useCountdown";
 import DateTimeDisplay from "./DateTimeDisplay";
 import { HStack } from "@chakra-ui/react";
 
-// @ts-ignore
-const ShowCounter = ({ days, hours, minutes, seconds }) => {
+const ShowCounter = ({
+  days,
+  hours,
+  minutes,
+  seconds,
+}: {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}) => {
   return (
     <HStack className="show-counter">
       <DateTimeDisplay value={days} type={"Days"} />
@@ -15,8 +24,7 @@ const ShowCounter = ({ days, hours, minutes, seconds }) => {
   );
 };
 
-// @ts-ignore
-const CountdownTimer = ({ targetDate }) => {
+const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
   const [days, hours, minutes, seconds] = useCountdown(targetDate);
 
   if (days + hours + minutes + seconds <= 0) {

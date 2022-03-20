@@ -1,8 +1,7 @@
 import React from "react";
 import { Box, Text } from "@chakra-ui/react";
 
-// @ts-ignore
-const DateTimeDisplay = ({ value, type }) => {
+const DateTimeDisplay = ({ value, type }: { value: number; type: string }) => {
   return (
     <Box>
       <Text>{value}</Text>

@@ -8,12 +8,10 @@ const useCountdown = (targetDate) => {
   );
 
   useEffect(() => {
-    // eslint-disable-next-line no-undef
     const interval = setInterval(() => {
       setCountDown(countDownDate - new Date().getTime());
     }, 1000);
 
-    // eslint-disable-next-line no-undef
     return () => clearInterval(interval);
   }, [countDownDate]);
 
