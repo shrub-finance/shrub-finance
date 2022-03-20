@@ -440,7 +440,7 @@ function HomeView(props: RouteComponentProps) {
             <Heading
               maxW="60rem"
               fontSize={["5xl", "6xl", "90px", "90px"]}
-              fontWeight="medium"
+              fontWeight="bold"
               textAlign="center"
             >
               <Text as="span">Shrub</Text>
