@@ -118,6 +118,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                display={{ base: "none", md: "none", lg: "inline" }}
               >
                 Adoption
               </Link>
@@ -144,7 +145,11 @@ function TopNav() {
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
                 Roadmap
-                <Badge ml="1" colorScheme="green">
+                <Badge
+                  ml="1"
+                  colorScheme="green"
+                  display={{ base: "none", md: "none", lg: "inline" }}
+                >
                   New
                 </Badge>
               </Link>
@@ -161,7 +166,7 @@ function TopNav() {
                 OpenSea{" "}
                 <ExternalLinkIcon
                   mx="2px"
-                  display={{ base: "inline", md: "none", lg: "inline" }}
+                  display={{ base: "none", md: "none", lg: "inline" }}
                 />
               </Link>
             </HStack>
