@@ -14,10 +14,7 @@ import { BsQuestionLg } from "react-icons/all";
 import { Icon } from "@chakra-ui/icons";
 
 function PotSaleCountdown() {
-  const DAYS = 35 * 24 * 60 * 60 * 1000;
-  const NOW_IN_MS = new Date().getTime();
-
-  const saleDay = NOW_IN_MS + DAYS;
+  const saleDay = new Date("2022-04-22T22:00:00Z");
   return (
     <Container
       mt={isMobile ? 30 : 50}
