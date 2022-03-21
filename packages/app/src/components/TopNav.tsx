@@ -46,6 +46,7 @@ import { GiCoins } from "react-icons/gi";
 import { FaFileContract, HiOutlineDocumentDuplicate } from "react-icons/all";
 import Faucet from "./Faucet";
 import usePriceFeed from "../hooks/usePriceFeed";
+import trackEvent from "../utils/handleGATracking";
 
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -87,6 +88,28 @@ function TopNav() {
     onFaucetModalOpen();
   }
 
+  function sendEvent( actionEvent:string, labelText: string, category?:string) {
+    trackEvent({
+      categoryText:category ? category: "Navigation",
+      action: actionEvent,
+      label: labelText
+    });
+  }
+
+  function handleNavRoutes(event:any){
+    onMenuClose();
+    sendEvent(event.type,event.target.innerText);
+  }
+
+  function handleDocs(event:any){
+    sendEvent(event.type,event.target.innerText);
+  }
+
+  function handleShrubFaucet(event:any){
+    onFaucetModalOpen();
+    sendEvent(event.type,event.target.innerText);
+  }
+
   const NavRoutes = [
     { item: "Shrubfolio", itemIcon: GiCoins },
     { item: "Options", itemIcon: FaFileContract },
@@ -108,7 +131,7 @@ function TopNav() {
       _hover={{ textDecoration: "none", bgGradient: gradient }}
       as={ReachLink}
       to={path.toLowerCase()}
-      onClick={onMenuClose}
+      onClick={handleNavRoutes}
     >
       {children}
     </Link>
@@ -145,6 +168,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleDocs}
               >
                 Docs
               </Link>
@@ -167,7 +191,7 @@ function TopNav() {
             <Button
               pr={5}
               d={{ base: "none", sm: "flex" }}
-              onClick={onFaucetModalOpen}
+              onClick={handleShrubFaucet}
               fontSize={"sm"}
               variant={"link"}
               colorScheme={"purple"}
