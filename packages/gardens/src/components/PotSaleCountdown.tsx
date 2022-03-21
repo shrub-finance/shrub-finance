@@ -6,6 +6,7 @@ import {
   Container,
   Text,
   useColorModeValue,
+  Link,
 } from "@chakra-ui/react";
 import { Leaf1, Leaf2, Leaf3, Leaf4, Pot } from "../assets/Icons";
 import AnimatedPot from "./AnimatedPot";
@@ -49,6 +50,9 @@ function PotSaleCountdown() {
             <Text fontSize={{ base: "20px", md: "30px" }} fontWeight="semibold">
               <CountdownTimer targetDate={saleDay} />
             </Text>
+            {/*<Link href="/intro" cursor="pointer" textDecoration="underline">*/}
+            {/*  Paper Gardens Main*/}
+            {/*</Link>*/}
           </Box>
         </Box>
       </Center>
