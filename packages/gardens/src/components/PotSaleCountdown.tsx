@@ -54,11 +54,17 @@ function PotSaleCountdown() {
       </Center>
       <Center>
         {AnimatedPot(
-          [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+          [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
           <Leaf1 boxSize={40} ml={5} />
         )}
-        {AnimatedPot([0, 0, 0, 0, 1, 1, 0, 0, 0, 0], <Leaf2 boxSize={40} />)}
-        {AnimatedPot([0, 0, 0, 0, 0, 0, 1, 1, 0, 0], <Leaf3 boxSize={40} />)}
+        {AnimatedPot(
+          [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+          <Leaf2 boxSize={40} />
+        )}
+        {AnimatedPot(
+          [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+          <Leaf3 boxSize={40} />
+        )}
         {AnimatedPot(
           [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
           <Leaf4 boxSize={40} />
