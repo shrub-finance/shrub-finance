@@ -41,6 +41,7 @@ import { TxStatusList } from "../components/TxMonitoring";
 import { NFT_LEADERBOARD_QUERY } from "../constants/queries";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import useTruncateAddress from "../hooks/useTruncateAddress";
+import { b } from "../constants/dictionary";
 
 function LeaderBoardView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -63,11 +64,8 @@ function LeaderBoardView(props: RouteComponentProps) {
     data: leaderBoardData,
   } = useQuery(NFT_LEADERBOARD_QUERY, {
     variables: {
-      numResults: 20,
-      b: [
-        "0xc5e7c5032d203b69da4d8feb7f3c3179fd9cb83b",
-        "0xbcfe78a91b6968322ed1b08fbe3a081353487910",
-      ],
+      numResults: 30,
+      b: b,
     },
     pollInterval: POLL_INTERVAL, // Poll every ten seconds
   });
@@ -84,13 +82,13 @@ function LeaderBoardView(props: RouteComponentProps) {
         const rank = seedCount === lastSeedCount ? lastRank : i;
 
         const uniqueTypes = [...new Set(seeds.map((s: any) => s.type))];
-        if (i > 10 && seedCount < leaderBoardData.users[9].seedCount) {
+        if (i > 21 && seedCount < leaderBoardData.users[9].seedCount) {
           break;
         }
         tempLeaderBoardRows.push(
           <Tr>
             <Td
-              display={{ base: "none", md: "block" }}
+              display={{ base: "none", md: "table-cell" }}
               fontWeight={rank === 1 ? "extrabold" : "medium"}
             >
               {rank}

@@ -39,7 +39,7 @@ const PAPERSEED_CONTRACT_ADDRESS =
 import { FaTwitter } from "react-icons/all";
 import { OpenSeaIcon, PostAdoptionImg } from "../assets/Icons";
 
-function PaperView(props: RouteComponentProps) {
+function NFTView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const [isLoading, setIsLoading] = useState(false);
@@ -320,4 +320,4 @@ function PaperView(props: RouteComponentProps) {
   );
 }
 
-export default PaperView;
+export default NFTView;

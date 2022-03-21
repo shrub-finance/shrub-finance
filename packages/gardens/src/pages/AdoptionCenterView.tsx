@@ -288,7 +288,7 @@ function AdoptionCenterView(props: RouteComponentProps) {
                 textAlign={"center"}
                 maxW="60rem"
               >
-                Lucky seeds that got a home!
+                Adopted seeds
               </Heading>
             </Center>
 
