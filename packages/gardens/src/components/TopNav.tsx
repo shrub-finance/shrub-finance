@@ -100,7 +100,7 @@ function TopNav() {
               </Link>
               <Link
                 as={ReachLink}
-                to="/story"
+                to="/chapters"
                 variant="ghost"
                 cursor="pointer"
                 px={2}
@@ -108,7 +108,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Story
+                Chapters
               </Link>
               <Link
                 as={ReachLink}
@@ -246,16 +246,17 @@ function TopNav() {
               </Link>
               <Link
                 as={ReachLink}
-                to="/story"
+                to="/chapters"
                 variant="ghost"
                 cursor="pointer"
                 px={2}
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
               >
                 {" "}
-                Story
+                Chapters
               </Link>
               <Link
                 as={ReachLink}

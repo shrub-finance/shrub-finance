@@ -6,11 +6,12 @@ import React from "react";
 import Store from "./components/Store";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import HomeView from "./pages/HomeView";
-import PaperView from "./pages/PaperView";
+import NFTView from "./pages/NFTView";
 import LeaderBoardView from "./pages/LeaderBoardView";
 import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ChaptersView from "./pages/ChaptersView";
+import PotSaleView from "./pages/PotSaleView";
 
 function App() {
   const client = new ApolloClient({
@@ -28,9 +29,10 @@ function App() {
             <Router>
               <HomeView path="/" />
               <HomeView path="/claim" />
-              <ChaptersView path="/story" />
+              <PotSaleView path="sale" />
+              <ChaptersView path="/chapters" />
               <LeaderBoardView path="leaderboard" />
-              <PaperView path="/nft/paper-seed/:tokenId" />
+              <NFTView path="/nft/paper-seed/:tokenId" />
               <AdoptionCenterView path="/adoption" />
               <MyPaperGardenView path="/my-garden" />
             </Router>

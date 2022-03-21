@@ -31,6 +31,69 @@ function Chapters() {
             Paper Gardens
           </Heading>
           <>
+            <Box maxW="60rem" mb={4} textAlign={"center"} mt={20} id="chapter1">
+              <Text
+                fontSize={{ base: "20px", md: "30px" }}
+                fontWeight="semibold"
+                color={useColorModeValue("gray.500", "gray.400")}
+              >
+                CHAPTER 1: THE TRAVELLING MERCHANT
+              </Text>
+            </Box>
+            <Box maxW="60rem" mb={8} fontSize="20px" textStyle={"reading"}>
+              <Text pt="8">
+                There was something different in the air on the day when he
+                appeared, something mysterious and filled with possibility. He
+                came in on foot, towing along his cart.
+              </Text>
+              <Text pt="6">
+                A tall man with dark worn clothes. His face wore the signs of
+                his journeys, and his eyes were full of wisdom. Outsiders didn't
+                normally visit the town. The residents took notice.
+              </Text>
+              <Text pt="6">"What do they call you?" one resident asked.</Text>
+              <Text pt="6">"I am the Paper Merchant," replied the man.</Text>
+              <Text pt="6">
+                "I have come bearing paper seeds. Some of you have been chosen
+                by the seeds. If you ask, I will give you yours."
+              </Text>
+              <Text pt="6">
+                "I have four varieties of seeds in my wares:
+                <UnorderedList>
+                  <ListItem>
+                    SEEDS OF WONDER - excited for the world, these are the most
+                    plentiful.
+                  </ListItem>
+                  <ListItem>
+                    SEEDS OF PASSION - filled with love, these are uncommon.
+                  </ListItem>
+                  <ListItem>
+                    SEEDS OF HOPE - with visions of future greatness, these are
+                    rare.
+                  </ListItem>
+                  <ListItem>
+                    SEEDS OF POWER - legendary, with an aura that makes others
+                    gravitate to them."
+                  </ListItem>
+                </UnorderedList>
+              </Text>
+              <Text pt="6">
+                "I am only here for sometime. If a seed is calling, you must
+                visit me by then, or it will go to another."
+              </Text>
+              <Text pt="6">
+                The paper merchant setup his stall in the corner of town.
+              </Text>
+              <Text pt="6">
+                "If you have been chosen, come forth." he said.
+              </Text>
+              <Text pt="6">
+                But what do these seeds do? And what is a seed without soil?
+              </Text>
+              <Text pt="6" mb="14">
+                More will be revealed in Chapter 2.
+              </Text>
+            </Box>
             <Box maxW="60rem" mb={4} textAlign={"center"} mt={6} id="chapter2">
               <Text
                 fontSize={{ base: "20px", md: "30px" }}
@@ -105,69 +168,6 @@ function Chapters() {
                 the days to come.
               </Text>
             </Box>
-            <Box maxW="60rem" mb={4} textAlign={"center"} mt={20} id="chapter1">
-              <Text
-                fontSize="30px"
-                fontWeight="semibold"
-                color={useColorModeValue("gray.500", "gray.400")}
-              >
-                CHAPTER 1: THE TRAVELLING MERCHANT
-              </Text>
-            </Box>
-            <Box maxW="60rem" mb={8} fontSize="20px" textStyle={"reading"}>
-              <Text pt="8">
-                There was something different in the air on the day when he
-                appeared, something mysterious and filled with possibility. He
-                came in on foot, towing along his cart.
-              </Text>
-              <Text pt="6">
-                A tall man with dark worn clothes. His face wore the signs of
-                his journeys, and his eyes were full of wisdom. Outsiders didn't
-                normally visit the town. The residents took notice.
-              </Text>
-              <Text pt="6">"What do they call you?" one resident asked.</Text>
-              <Text pt="6">"I am the Paper Merchant," replied the man.</Text>
-              <Text pt="6">
-                "I have come bearing paper seeds. Some of you have been chosen
-                by the seeds. If you ask, I will give you yours."
-              </Text>
-              <Text pt="6">
-                "I have four varieties of seeds in my wares:
-                <UnorderedList>
-                  <ListItem>
-                    SEEDS OF WONDER - excited for the world, these are the most
-                    plentiful.
-                  </ListItem>
-                  <ListItem>
-                    SEEDS OF PASSION - filled with love, these are uncommon.
-                  </ListItem>
-                  <ListItem>
-                    SEEDS OF HOPE - with visions of future greatness, these are
-                    rare.
-                  </ListItem>
-                  <ListItem>
-                    SEEDS OF POWER - legendary, with an aura that makes others
-                    gravitate to them."
-                  </ListItem>
-                </UnorderedList>
-              </Text>
-              <Text pt="6">
-                "I am only here for sometime. If a seed is calling, you must
-                visit me by then, or it will go to another."
-              </Text>
-              <Text pt="6">
-                The paper merchant setup his stall in the corner of town.
-              </Text>
-              <Text pt="6">
-                "If you have been chosen, come forth." he said.
-              </Text>
-              <Text pt="6">
-                But what do these seeds do? And what is a seed without soil?
-              </Text>
-              <Text pt="6" mb="14">
-                More will be revealed in Chapter 2.
-              </Text>
-            </Box>
             <Link
               href="https://opensea.io/collection/shrub-paper-gardens"
               isExternal
@@ -179,8 +179,8 @@ function Chapters() {
               fontWeight="semibold"
               py="5"
               _hover={{ transform: "translateY(-2px)" }}
-              bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
-              color={useColorModeValue("white", "black")}
+              bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
+              color={"black"}
             >
               View Collection <ExternalLinkIcon mx="2px" />
             </Link>

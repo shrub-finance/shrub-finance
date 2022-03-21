@@ -91,11 +91,6 @@ function AdoptionHistory({
   return (
     <>
       <Box>
-        <Center>
-          <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
-            Adoption History
-          </Heading>
-        </Center>
         {seedAdoptionLoading ? (
           <Center>
             {" "}
