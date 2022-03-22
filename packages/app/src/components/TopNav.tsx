@@ -1,4 +1,4 @@
-import { ReactNode, useContext, useState } from "react";
+import { ReactNode, SyntheticEvent, useContext, useState } from "react";
 import {
   Box,
   Flex,
@@ -88,26 +88,30 @@ function TopNav() {
     onFaucetModalOpen();
   }
 
-  function sendEvent( actionEvent:string, labelText: string, category?:string) {
+  function sendEvent(
+    actionEvent: string,
+    labelText: string,
+    category?: string
+  ) {
     trackEvent({
-      categoryText:category ? category: "Navigation",
+      categoryText: category ? category : "Navigation",
       action: actionEvent,
-      label: labelText
+      label: labelText,
     });
   }
 
-  function handleNavRoutes(event:any){
+  function handleNavRoutes(event: React.BaseSyntheticEvent) {
     onMenuClose();
-    sendEvent(event.type,event.target.innerText);
+    sendEvent(event.type, event.target.innerText);
   }
 
-  function handleDocs(event:any){
-    sendEvent(event.type,event.target.innerText);
+  function handleDocs(event: React.BaseSyntheticEvent) {
+    sendEvent(event.type, event.target.innerText);
   }
 
-  function handleShrubFaucet(event:any){
+  function handleShrubFaucet(event: React.BaseSyntheticEvent) {
     onFaucetModalOpen();
-    sendEvent(event.type,event.target.innerText);
+    sendEvent(event.type, event.target.innerText);
   }
 
   const NavRoutes = [

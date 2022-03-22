@@ -7,26 +7,25 @@ import { getLibrary } from "./components/ConnectWallet";
 import Store from "./components/Store";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import HomeView from "./pages/HomeView";
-import ReactGA from "react-ga"
+import ReactGA from "react-ga";
 import { useEffect } from "react";
 
-const trackingID=process.env.REACT_APP_TRACKING_ID;
-if(trackingID){
-  ReactGA.initialize(trackingID,{
-    gaOptions:{
-      storage:"none",
-      storeGac:false
-    }
-  })
-  ReactGA.set({anonymizeIp:true})
-}
-else{
-  ReactGA.initialize("test",{testMode:true,debug:true})
+const trackingID = process.env.REACT_APP_TRACKING_ID;
+if (trackingID) {
+  ReactGA.initialize(trackingID, {
+    gaOptions: {
+      storage: "none",
+      storeGac: false,
+    },
+  });
+  ReactGA.set({ anonymizeIp: true });
+} else {
+  ReactGA.initialize("test", { testMode: true, debug: true });
 }
 
-function trackPage(page:string){
-  ReactGA.set({page})
-  ReactGA.pageview(page)
+function trackPage(page: string) {
+  ReactGA.set({ page });
+  ReactGA.pageview(page);
 }
 
 function App() {
@@ -35,10 +34,9 @@ function App() {
     cache: new InMemoryCache(),
     connectToDevTools: process.env.REACT_APP_ENVIRONMENT === "development",
   });
-  useEffect(()=>{
-    const page=location.pathname;
-    trackPage(page);
-  },[])
+  useEffect(() => {
+    trackPage(location.pathname);
+  }, []);
 
   return (
     <div className="App">
