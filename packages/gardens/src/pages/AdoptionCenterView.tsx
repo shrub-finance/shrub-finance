@@ -19,6 +19,8 @@ import {
   Link,
   Grid,
   Spinner,
+  Box,
+  VStack,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -282,16 +284,28 @@ function AdoptionCenterView(props: RouteComponentProps) {
             mt={50}
           >
             <Center>
-              <Heading
-                fontSize={{ base: "30px", md: "50px" }}
-                letterSpacing={"tight"}
-                textAlign={"center"}
-                maxW="60rem"
-              >
-                Adopted seeds
-              </Heading>
+              <VStack>
+                <Heading
+                  fontSize={{ base: "30px", md: "50px" }}
+                  letterSpacing={"tight"}
+                  textAlign={"center"}
+                  maxW="60rem"
+                >
+                  Adopted seeds
+                </Heading>
+                <Text fontSize="18px" textAlign="center" px={"5"}>
+                  Seed Adoptions are now over.{" "}
+                  <Link
+                    isExternal
+                    href="https://medium.com/@shrubfinance/paper-gardens-seed-adoption-program-94d68bbc7158"
+                    cursor="pointer"
+                    textDecoration="underline"
+                  >
+                    You can read more about the program here.
+                  </Link>
+                </Text>
+              </VStack>
             </Center>
-
             {/*adoption history*/}
             <AdoptionHistory
               hooks={{
