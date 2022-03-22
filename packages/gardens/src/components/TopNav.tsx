@@ -168,6 +168,19 @@ function TopNav() {
                   OpenSea <ExternalLinkIcon mx="2px" />
                 </Box>
               </Link>
+              <Link
+                as={ReachLink}
+                to="https://medium.com/@shrubfinance"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
+              >
+                Blog
+              </Link>
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
@@ -317,6 +330,19 @@ function TopNav() {
                 }}
               >
                 OpenSea <ExternalLinkIcon mx="2px" />
+              </Link>
+              <Link
+                as={ReachLink}
+                to="https://medium.com/@shrubfinance"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
+              >
+                Blog
               </Link>
               <Box
                 onClick={toggleColorMode}

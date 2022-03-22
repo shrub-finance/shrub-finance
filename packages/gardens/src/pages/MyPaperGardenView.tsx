@@ -205,15 +205,19 @@ function MyPaperGardenView(props: RouteComponentProps) {
         </Center>
         {/*heading*/}
         <Center>
-          <Heading
-            fontSize={{ base: "30px", md: "50px" }}
-            letterSpacing={"tight"}
-            textAlign={"center"}
-            maxW="60rem"
-            mb={{ base: 8, md: 14 }}
-          >
-            My Paper Garden
-          </Heading>
+          <VStack mb={{ base: 8, md: 14 }}>
+            <Heading
+              fontSize={{ base: "30px", md: "50px" }}
+              letterSpacing={"tight"}
+              textAlign={"center"}
+              maxW="60rem"
+            >
+              My Paper Garden
+            </Heading>
+            <Text fontSize="18px" textAlign="center" px={"5"}>
+              Home for your seeds.
+            </Text>
+          </VStack>
         </Center>
         {!isInitialized ? (
           <Center p={10}>
