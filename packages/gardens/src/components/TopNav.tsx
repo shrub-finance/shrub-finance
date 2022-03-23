@@ -76,8 +76,8 @@ function TopNav() {
   function handleGA(event: any) {
     trackEvent({
       action: event.type,
-      label: event.target.innerText
-    })
+      label: event.target.innerText,
+    });
   }
   return (
     <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
@@ -89,8 +89,9 @@ function TopNav() {
             </Link>
             <HStack
               as={"nav"}
-              spacing={4}
-              display={{ base: "none", md: "flex" }}
+              spacing={"4"}
+              display={{ base: "none", md: "inline" }}
+              fontSize={{ base: "xs", md: "xs", lg: "md" }}
             >
               <Link
                 as={ReachLink}
@@ -107,6 +108,18 @@ function TopNav() {
               </Link>
               <Link
                 as={ReachLink}
+                to="/chapters"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Chapters
+              </Link>
+              <Link
+                as={ReachLink}
                 to="/adoption"
                 variant="ghost"
                 cursor="pointer"
@@ -115,6 +128,7 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
                 onClick={handleGA}
+                display={{ md: "none", lg: "inline" }}
               >
                 Adoption
               </Link>
@@ -141,10 +155,13 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
                 onClick={handleGA}
-
               >
                 Roadmap
-                <Badge ml="1" colorScheme="green">
+                <Badge
+                  ml="1"
+                  colorScheme="green"
+                  fontSize={{ base: "8px", md: "8px", lg: "xs" }}
+                >
                   New
                 </Badge>
               </Link>
@@ -159,11 +176,22 @@ function TopNav() {
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
                 onClick={handleGA}
               >
-                OpenSea{" "}
-                <ExternalLinkIcon
-                  mx="2px"
-                  display={{ base: "inline", md: "none", lg: "inline" }}
-                />
+                <Box as={"span"} whiteSpace={"nowrap"}>
+                  OpenSea <ExternalLinkIcon mx="2px" />
+                </Box>
+              </Link>
+              <Link
+                as={ReachLink}
+                to="https://medium.com/@shrubfinance"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
+              >
+                Blog
               </Link>
             </HStack>
           </HStack>
@@ -244,6 +272,20 @@ function TopNav() {
               </Link>
               <Link
                 as={ReachLink}
+                to="/chapters"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
+              >
+                {" "}
+                Chapters
+              </Link>
+              <Link
+                as={ReachLink}
                 to="/adoption"
                 variant="ghost"
                 cursor="pointer"
@@ -301,6 +343,19 @@ function TopNav() {
                 }}
               >
                 OpenSea <ExternalLinkIcon mx="2px" />
+              </Link>
+              <Link
+                as={ReachLink}
+                to="https://medium.com/@shrubfinance"
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={onMenuClose}
+              >
+                Blog
               </Link>
               <Box
                 onClick={toggleColorMode}

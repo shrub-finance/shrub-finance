@@ -90,17 +90,7 @@ function AdoptionHistory({
   }, [seedAdoptionData]);
   return (
     <>
-      <Box
-        pt={8}
-        display={
-          isRegistered ? "block" : { base: "none", md: "none", lg: "block" }
-        }
-      >
-        <Center>
-          <Heading fontSize="xl" pb={6} fontWeight={"medium"}>
-            Adoption History
-          </Heading>
-        </Center>
+      <Box>
         {seedAdoptionLoading ? (
           <Center>
             {" "}

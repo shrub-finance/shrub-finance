@@ -6,30 +6,30 @@ import React, { useEffect } from "react";
 import Store from "./components/Store";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import HomeView from "./pages/HomeView";
-import PaperView from "./pages/PaperView";
+import NFTView from "./pages/NFTView";
 import LeaderBoardView from "./pages/LeaderBoardView";
 import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
-import ReactGA from 'react-ga'
+import ChaptersView from "./pages/ChaptersView";
+import IntroView from "./pages/IntroView";
+import ReactGA from "react-ga";
 const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
   ReactGA.initialize(trackingID, {
     gaOptions: {
-      storage: 'none',
-      storeGac: false
-    }
-  })
+      storage: "none",
+      storeGac: false,
+    },
+  });
   ReactGA.set({
-    anonymizeIp: true
-  })
+    anonymizeIp: true,
+  });
+} else {
+  ReactGA.initialize("test", { testMode: true, debug: true });
 }
-else {
-  ReactGA.initialize('test', { testMode: true, debug: true })
-}
-
 
 function trackPage(page: string) {
-  ReactGA.set({ page })
+  ReactGA.set({ page });
   ReactGA.pageview(page);
 }
 function App() {
@@ -41,8 +41,7 @@ function App() {
   useEffect(() => {
     const page = location.pathname;
     trackPage(page);
-    
-  }, [])
+  }, []);
 
   return (
     <div className="App">
@@ -53,8 +52,10 @@ function App() {
             <Router>
               <HomeView path="/" />
               <HomeView path="/claim" />
+              <ChaptersView path="/chapters" />
+              <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
-              <PaperView path="/nft/paper-seed/:tokenId" />
+              <NFTView path="/nft/paper-seed/:tokenId" />
               <AdoptionCenterView path="/adoption" />
               <MyPaperGardenView path="/my-garden" />
             </Router>

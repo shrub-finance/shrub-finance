@@ -13,10 +13,20 @@ export const addressMap = {
   "0x41a24d16715e5c0db012334595017abea537d33e": "nickewansmith.eth",
   "0x12fe20de6b441f18ba9a3c9a7a78c9bd16723e8d": "188btc.eth",
   "0x597f0f68aa64a2216d395d4829d4657a2f3fa745": "ariswap",
-  "0x0c7cdee7f65f2be9d3d241a8caf43fd2773e263b": "wealthfreedom.eth",
+  "0x0c7cdee7f65f2be9d3d241a8caf43fd2773e263b": "W_O_W",
   "0xc17ec9d8e72ab957ac73596846ac87b8c7f80be2": "Block_Invest1",
   "0x9bf68b9a9b377f3ba0c40c1c5d8322e3ed8ee590": "Tomydigitaltrader",
   "0x2808edd543813fcf418de85bb42eedf3b39ba72c": "DCal",
   "0x2c02078935fe5b407583209d7bc22df60fbdf958": "blocktv.eth",
   "0xebb8f70d40d62864eab334c66bb5b88ce558054f": "hogehoge.eth",
+  "0x8b4e7ac91e8a6aac0c087f2bfa7c42cdcea32e96": "Yagami96",
+  "0xc5e7c5032d203b69da4d8feb7f3c3179fd9cb83b": "ShawnXP",
 };
+
+export const b = [
+  "0xbcfe78a91b6968322ed1b08fbe3a081353487910",
+  "0xda534b166b94e4eb80a12ba005469140402c76f7",
+  "0xca5cf09f56491abc63a7bfbee8ff1e25d2edd88f",
+  "0xcd6b6d99b7751ff30b68fa1365488eb73fa7cefa",
+  "0xce557bb2eeb69162116e60472890503b9da8c5a6",
+];
