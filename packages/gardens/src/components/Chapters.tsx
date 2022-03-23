@@ -12,8 +12,15 @@ import {
 } from "@chakra-ui/react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import React from "react";
+import { trackEvent } from "../utils/handleGATracking";
 
 function Chapters() {
+  function handleGA(event: any) {
+    trackEvent({
+      action: event.type,
+      label: event.target.innerText,
+    });
+  }
   return (
     <Container
       mt={isMobile ? 30 : 50}
@@ -181,6 +188,7 @@ function Chapters() {
               _hover={{ transform: "translateY(-2px)" }}
               bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
               color={"black"}
+              onClick={handleGA}
             >
               View Collection <ExternalLinkIcon mx="2px" />
             </Link>

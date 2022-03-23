@@ -41,6 +41,7 @@ import { PaperGardensLogo } from "../assets/Icons";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
+import { trackEvent } from "../utils/handleGATracking";
 
 function TopNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -72,6 +73,12 @@ function TopNav() {
     displayStatus(false);
   }
 
+  function handleGA(event: any) {
+    trackEvent({
+      action: event.type,
+      label: event.target.innerText,
+    });
+  }
   return (
     <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
@@ -95,6 +102,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleGA}
               >
                 My Garden
               </Link>
@@ -119,6 +127,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleGA}
                 display={{ md: "none", lg: "inline" }}
               >
                 Adoption
@@ -132,6 +141,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleGA}
               >
                 Leaderboard
               </Link>
@@ -144,6 +154,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleGA}
               >
                 Roadmap
                 <Badge
@@ -163,6 +174,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleGA}
               >
                 <Box as={"span"} whiteSpace={"nowrap"}>
                   OpenSea <ExternalLinkIcon mx="2px" />
@@ -201,6 +213,7 @@ function TopNav() {
                 leftIcon={
                   web3Error ? <InfoOutlineIcon colorScheme="red" /> : undefined
                 }
+                onClick={handleGA}
               >
                 {" "}
                 {!!web3Error && !active ? (
