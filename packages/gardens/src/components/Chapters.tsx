@@ -64,26 +64,24 @@ function Chapters() {
                 "I have come bearing paper seeds. Some of you have been chosen
                 by the seeds. If you ask, I will give you yours."
               </Text>
-              <Text pt="6">
-                "I have four varieties of seeds in my wares:
-                <UnorderedList>
-                  <ListItem>
-                    SEEDS OF WONDER - excited for the world, these are the most
-                    plentiful.
-                  </ListItem>
-                  <ListItem>
-                    SEEDS OF PASSION - filled with love, these are uncommon.
-                  </ListItem>
-                  <ListItem>
-                    SEEDS OF HOPE - with visions of future greatness, these are
-                    rare.
-                  </ListItem>
-                  <ListItem>
-                    SEEDS OF POWER - legendary, with an aura that makes others
-                    gravitate to them."
-                  </ListItem>
-                </UnorderedList>
-              </Text>
+              <Text pt="6">"I have four varieties of seeds in my wares:</Text>
+              <UnorderedList>
+                <ListItem>
+                  SEEDS OF WONDER - excited for the world, these are the most
+                  plentiful.
+                </ListItem>
+                <ListItem>
+                  SEEDS OF PASSION - filled with love, these are uncommon.
+                </ListItem>
+                <ListItem>
+                  SEEDS OF HOPE - with visions of future greatness, these are
+                  rare.
+                </ListItem>
+                <ListItem>
+                  SEEDS OF POWER - legendary, with an aura that makes others
+                  gravitate to them."
+                </ListItem>
+              </UnorderedList>
               <Text pt="6">
                 "I am only here for sometime. If a seed is calling, you must
                 visit me by then, or it will go to another."

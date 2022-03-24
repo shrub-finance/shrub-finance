@@ -47,6 +47,7 @@ function AdoptionHistory({
             boxShadow={"2xl"}
             rounded={"xl"}
             p={2}
+            key={name}
           >
             <Box ml={2} mt={5}>
               <Image
