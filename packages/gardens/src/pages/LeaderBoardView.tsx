@@ -86,7 +86,7 @@ function LeaderBoardView(props: RouteComponentProps) {
           break;
         }
         tempLeaderBoardRows.push(
-          <Tr>
+          <Tr key={id}>
             <Td
               display={{ base: "none", md: "table-cell" }}
               fontWeight={rank === 1 ? "extrabold" : "medium"}
