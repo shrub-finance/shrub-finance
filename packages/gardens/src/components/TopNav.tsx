@@ -115,6 +115,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleGA}
               >
                 Chapters
               </Link>
@@ -181,15 +182,15 @@ function TopNav() {
                 </Box>
               </Link>
               <Link
-                as={ReachLink}
-                to="https://medium.com/@shrubfinance"
+                href="https://medium.com/@shrubfinance"
+                isExternal
                 variant="ghost"
                 cursor="pointer"
                 px={2}
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleGA}
               >
                 Blog
               </Link>
@@ -345,8 +346,8 @@ function TopNav() {
                 OpenSea <ExternalLinkIcon mx="2px" />
               </Link>
               <Link
-                as={ReachLink}
-                to="https://medium.com/@shrubfinance"
+                href="https://medium.com/@shrubfinance"
+                isExternal
                 variant="ghost"
                 cursor="pointer"
                 px={2}
