@@ -27,6 +27,8 @@ import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
 import Confetti from "../assets/Confetti";
+import { ObjectCanon } from "@apollo/client/cache/inmemory/object-canon";
+import { objectFilter } from "@chakra-ui/utils";
 
 export function Txmonitor({
   txHash,
@@ -208,11 +210,37 @@ export function TxStatusList() {
   const { pendingTxs } = useContext(TxContext);
   const { chainId, account, active } = useWeb3React();
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-  const entries = Object.entries(pendingTxsState)
+  let entries = Object.entries(pendingTxsState)
     .sort((a, b) => b[1].created.getTime() - a[1].created.getTime())
     //  Only retain the most recent 10 records
     .slice(0, 10);
   const list: React.ReactElement[] = [];
+
+  if (Object.keys(entries).length !== 0) {
+    if (
+      localStorage.getItem("txAccount") &&
+      localStorage.getItem("txAccount") == account
+    ) {
+      localStorage.removeItem("txHistory");
+      localStorage.removeItem("txAccount");
+      localStorage.setItem("txAccount", JSON.stringify(account));
+      localStorage.setItem("txHistory", JSON.stringify(entries));
+    } else {
+      localStorage.removeItem("txHistory");
+      localStorage.removeItem("txAccount");
+      localStorage.setItem("txAccount", JSON.stringify(account));
+      localStorage.setItem("txHistory", JSON.stringify(entries));
+    }
+  }
+
+  if (
+    Object.keys(entries).length === 0 &&
+    JSON.parse(localStorage.getItem("txAccount")!) === account
+  ) {
+    const txHistory = JSON.parse(localStorage.getItem("txHistory") || "{}");
+    entries = txHistory;
+    console.log("EnteriesValue", entries);
+  }
 
   for (const [txHash, { description, status }] of entries) {
     list.push(
