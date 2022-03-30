@@ -79,6 +79,11 @@ function TopNav() {
       label: event.target.innerText,
     });
   }
+
+  function handleClick(event: any) {
+    onMenuClose();
+    handleGA(event);
+    }
   return (
     <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
@@ -267,7 +272,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 My Garden
               </Link>
@@ -280,7 +285,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 {" "}
                 Chapters
@@ -294,7 +299,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 Adoption
               </Link>
@@ -307,7 +312,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 Leaderboard
               </Link>
@@ -354,7 +359,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 Blog
               </Link>
