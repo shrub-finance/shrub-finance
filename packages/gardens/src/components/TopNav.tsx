@@ -79,6 +79,17 @@ function TopNav() {
       label: event.target.innerText,
     });
   }
+
+  function handleClick(event: any) {
+    onMenuClose();
+    handleGA(event);
+    }
+
+  function handleToggleColorMode(event: any) {
+    toggleColorMode();
+    handleGA(event);
+    }
+
   return (
     <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
@@ -115,6 +126,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleGA}
               >
                 Chapters
               </Link>
@@ -181,15 +193,15 @@ function TopNav() {
                 </Box>
               </Link>
               <Link
-                as={ReachLink}
-                to="https://medium.com/@shrubfinance"
+                href="https://medium.com/@shrubfinance"
+                isExternal
                 variant="ghost"
                 cursor="pointer"
                 px={2}
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleGA}
               >
                 Blog
               </Link>
@@ -213,7 +225,6 @@ function TopNav() {
                 leftIcon={
                   web3Error ? <InfoOutlineIcon colorScheme="red" /> : undefined
                 }
-                onClick={handleGA}
               >
                 {" "}
                 {!!web3Error && !active ? (
@@ -244,7 +255,7 @@ function TopNav() {
 
             {!isMobile && (
               <Button
-                onClick={toggleColorMode}
+                onClick={handleToggleColorMode}
                 variant="ghost"
                 display={{ base: "none", md: "block" }}
               >
@@ -266,7 +277,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 My Garden
               </Link>
@@ -279,7 +290,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 {" "}
                 Chapters
@@ -293,7 +304,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 Adoption
               </Link>
@@ -306,7 +317,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 Leaderboard
               </Link>
@@ -345,20 +356,20 @@ function TopNav() {
                 OpenSea <ExternalLinkIcon mx="2px" />
               </Link>
               <Link
-                as={ReachLink}
-                to="https://medium.com/@shrubfinance"
+                href="https://medium.com/@shrubfinance"
+                isExternal
                 variant="ghost"
                 cursor="pointer"
                 px={2}
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={onMenuClose}
+                onClick={handleClick}
               >
                 Blog
               </Link>
               <Box
-                onClick={toggleColorMode}
+                onClick={handleToggleColorMode}
                 variant="ghost"
                 cursor="pointer"
                 rounded="lg"

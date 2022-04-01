@@ -42,6 +42,13 @@ import { NFT_LEADERBOARD_QUERY } from "../constants/queries";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import useTruncateAddress from "../hooks/useTruncateAddress";
 import { b } from "../constants/dictionary";
+import { trackEvent } from "../utils/handleGATracking";
+function handleGA(event: any) {
+  trackEvent({
+    action: event.type,
+    label: event.target.innerText,
+  });
+}
 
 function LeaderBoardView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -190,6 +197,7 @@ function LeaderBoardView(props: RouteComponentProps) {
                 fontSize="14px"
                 href="https://opensea.io/collection/shrub-paper-gardens"
                 isExternal
+                onClick={handleGA}
               >
                 View collection in Open Sea <ExternalLinkIcon mx="2px" />
               </Link>
