@@ -84,6 +84,12 @@ function TopNav() {
     onMenuClose();
     handleGA(event);
     }
+
+  function handleToggleColorMode(event: any) {
+    toggleColorMode();
+    handleGA(event);
+    }
+
   return (
     <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
@@ -219,7 +225,6 @@ function TopNav() {
                 leftIcon={
                   web3Error ? <InfoOutlineIcon colorScheme="red" /> : undefined
                 }
-                onClick={handleGA}
               >
                 {" "}
                 {!!web3Error && !active ? (
@@ -250,7 +255,7 @@ function TopNav() {
 
             {!isMobile && (
               <Button
-                onClick={toggleColorMode}
+                onClick={handleToggleColorMode}
                 variant="ghost"
                 display={{ base: "none", md: "block" }}
               >
@@ -364,7 +369,7 @@ function TopNav() {
                 Blog
               </Link>
               <Box
-                onClick={toggleColorMode}
+                onClick={handleToggleColorMode}
                 variant="ghost"
                 cursor="pointer"
                 rounded="lg"
