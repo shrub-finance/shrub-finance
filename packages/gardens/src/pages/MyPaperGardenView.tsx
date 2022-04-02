@@ -117,6 +117,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         tempMySeedDataRows.push(
           <Box
             as="button"
+            key={name}
             shadow="md"
             borderRadius="md"
             minW={20}
@@ -207,14 +208,18 @@ function MyPaperGardenView(props: RouteComponentProps) {
         <Center>
           <VStack mb={{ base: 8, md: 14 }}>
             <Heading
-              fontSize={{ base: "30px", md: "50px" }}
+              fontSize={{ base: "30px", md: "30px", lg: "50px" }}
               letterSpacing={"tight"}
               textAlign={"center"}
               maxW="60rem"
             >
               My Paper Garden
             </Heading>
-            <Text fontSize="18px" textAlign="center" px={"5"}>
+            <Text
+              textAlign="center"
+              px={"5"}
+              fontSize={{ base: "15px", md: "15px", lg: "18px" }}
+            >
               Home for your seeds.
             </Text>
           </VStack>
@@ -322,7 +327,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   <Button variant="outline" mr={3} onClick={onClose}>
                     Close
                   </Button>
-                  {/*<Button colorScheme="blue">Save</Button>*/}
+                  <Button colorScheme="blue">Save</Button>
                 </DrawerFooter>
               </DrawerContent>
             </Drawer>
