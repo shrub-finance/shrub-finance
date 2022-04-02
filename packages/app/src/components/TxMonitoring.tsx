@@ -27,8 +27,16 @@ import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
 import Confetti from "../assets/Confetti";
-import { ObjectCanon } from "@apollo/client/cache/inmemory/object-canon";
-import { objectFilter } from "@chakra-ui/utils";
+import { Account } from "./ConnectWallet";
+
+interface localType {
+  description: string;
+  txHash: string;
+  status: string;
+}
+
+const localStorageEntery: localType[] = [];
+let checkTxHash: string;
 
 export function Txmonitor({
   txHash,
@@ -39,7 +47,7 @@ export function Txmonitor({
   showDeposit?: boolean;
   goToDeposit?: any;
 }) {
-  const { chainId } = useWeb3React();
+  const { chainId, account } = useWeb3React();
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
   if (!txHash) {
@@ -199,9 +207,56 @@ export function Txmonitor({
 }
 
 export function confirmingCount(pendingTxsState: PendingTxState) {
+  const entries = Object.entries(pendingTxsState)
+    .sort((a, b) => b[1].created.getTime() - a[1].created.getTime())
+    .slice(0, 1);
+  if (Object.keys(entries).length > 0) {
+    if (entries[0][1].status == "confirmed") {
+      localTxStorage(pendingTxsState);
+    }
+  }
   return Object.values(pendingTxsState).filter(
     (txState) => txState.status === "confirming"
   ).length;
+}
+
+//Function to store Transcation Locally
+export function localTxStorage(pendingTxsState: PendingTxState) {
+  const entries = Object.entries(pendingTxsState)
+    .sort((a, b) => b[1].created.getTime() - a[1].created.getTime())
+    .slice(0, 1);
+  const txAccount = JSON.parse(localStorage.getItem("txAccount")!);
+  const txHistory = JSON.parse(localStorage.getItem("txHistory")!);
+  if (checkTxHash !== entries[0][0]) {
+    const { account } = useWeb3React();
+    checkTxHash = entries[0][0];
+    if (txAccount == account) {
+      for (const [txHash, { description, status }] of entries) {
+        if (txHash) {
+          localStorageEntery.unshift({
+            description: description,
+            txHash: txHash,
+            status: status,
+          });
+          localStorage.setItem("txHistory", JSON.stringify(localStorageEntery));
+        }
+      }
+    } else {
+      localStorage.removeItem("txHistory");
+      localStorage.removeItem("txAccount");
+      for (const [txHash, { description, status }] of entries) {
+        if (txHash) {
+          localStorageEntery.push({
+            description: description,
+            txHash: txHash,
+            status: status,
+          });
+          localStorage.setItem("txHistory", JSON.stringify(localStorageEntery));
+          localStorage.setItem("txAccount", JSON.stringify(account));
+        }
+      }
+    }
+  }
 }
 
 // displayed inside connect wallet modal
@@ -210,75 +265,114 @@ export function TxStatusList() {
   const { pendingTxs } = useContext(TxContext);
   const { chainId, account, active } = useWeb3React();
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
-  let entries = Object.entries(pendingTxsState)
+  const { description, status, txHash } = pendingTxsState;
+  let txHistory;
+  const entries = Object.entries(pendingTxsState)
     .sort((a, b) => b[1].created.getTime() - a[1].created.getTime())
     //  Only retain the most recent 10 records
     .slice(0, 10);
   const list: React.ReactElement[] = [];
 
-  if (Object.keys(entries).length !== 0) {
-    if (
-      localStorage.getItem("txAccount") &&
-      localStorage.getItem("txAccount") == account
-    ) {
-      localStorage.removeItem("txHistory");
-      localStorage.removeItem("txAccount");
-      localStorage.setItem("txAccount", JSON.stringify(account));
-      localStorage.setItem("txHistory", JSON.stringify(entries));
-    } else {
-      localStorage.removeItem("txHistory");
-      localStorage.removeItem("txAccount");
-      localStorage.setItem("txAccount", JSON.stringify(account));
-      localStorage.setItem("txHistory", JSON.stringify(entries));
-    }
+  if (
+    JSON.parse(localStorage.getItem("txAccount")!) &&
+    JSON.parse(localStorage.getItem("txAccount")!) !== account
+  ) {
+    localStorage.clear();
   }
 
   if (
     Object.keys(entries).length === 0 &&
-    JSON.parse(localStorage.getItem("txAccount")!) === account
+    JSON.parse(localStorage.getItem("txHistory")!)
   ) {
-    const txHistory = JSON.parse(localStorage.getItem("txHistory") || "{}");
-    entries = txHistory;
-    console.log("EnteriesValue", entries);
+    if (localStorage.getItem("txHistory")) {
+      txHistory = JSON.parse(localStorage.getItem("txHistory") || "{}");
+    }
   }
 
-  for (const [txHash, { description, status }] of entries) {
-    list.push(
-      <Flex pt={3} pb={1}>
-        <Box
-          color={status === "failed" ? "red.500" : "teal.500"}
-          fontWeight="medium"
-          letterSpacing="tight"
-          fontSize="xs"
-          ml="2"
-        >
-          <Link
-            href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
-            isExternal
+  if (Object.keys(entries).length > 0) {
+    for (const [txHash, { description, status }] of entries) {
+      list.push(
+        <Flex pt={3} pb={1}>
+          <Box
+            color={status === "failed" ? "red.500" : "teal.500"}
+            fontWeight="medium"
+            letterSpacing="tight"
+            fontSize="xs"
+            ml="2"
           >
-            {description}
-          </Link>
-        </Box>
-        <Spacer />
-        <Box color="sprout.500" fontWeight="medium" fontSize="xs" ml="2">
-          {status === "confirming" ? (
-            <Spinner
-              thickness="1px"
-              speed="0.65s"
-              emptyColor="blue.200"
-              color="teal.500"
-              size="xs"
-              label="loading"
-            />
-          ) : status === "confirmed" ? (
-            <CheckCircleIcon color="teal.400" />
-          ) : (
-            <Icon as={VscError} color="red.400" boxSize={3} />
-          )}
-        </Box>
-      </Flex>
-    );
+            <Link
+              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
+              isExternal
+            >
+              {description}
+            </Link>
+          </Box>
+          <Spacer />
+          <Box color="sprout.500" fontWeight="medium" fontSize="xs" ml="2">
+            {status === "confirming" ? (
+              <Spinner
+                thickness="1px"
+                speed="0.65s"
+                emptyColor="blue.200"
+                color="teal.500"
+                size="xs"
+                label="loading"
+              />
+            ) : status === "confirmed" ? (
+              <CheckCircleIcon color="teal.400" />
+            ) : (
+              <Icon as={VscError} color="red.400" boxSize={3} />
+            )}
+          </Box>
+        </Flex>
+      );
+    }
+  } else {
+    if (JSON.parse(localStorage.getItem("txHistory")!)) {
+      for (const key of txHistory) {
+        list.push(
+          <Flex pt={3} pb={1}>
+            <Box
+              color={key.status === "failed" ? "red.500" : "teal.500"}
+              fontWeight="medium"
+              letterSpacing="tight"
+              fontSize="xs"
+              ml="2"
+            >
+              <Link
+                href={explorerLink(
+                  chainId,
+                  key.txHash,
+                  ExplorerDataType.TRANSACTION
+                )}
+                isExternal
+              >
+                {key.description}
+              </Link>
+            </Box>
+            <Spacer />
+            <Box color="sprout.500" fontWeight="medium" fontSize="xs" ml="2">
+              {key.status === "confirming" ? (
+                <Spinner
+                  thickness="1px"
+                  speed="0.65s"
+                  emptyColor="blue.200"
+                  color="teal.500"
+                  size="xs"
+                  label="loading"
+                />
+              ) : key.status === "confirmed" ? (
+                <CheckCircleIcon color="teal.400" />
+              ) : (
+                <Icon as={VscError} color="red.400" boxSize={3} />
+              )}
+            </Box>
+          </Flex>
+        );
+      }
+    }
   }
+
   console.log(entries);
   console.log(pendingTxsState);
   console.log(list);
