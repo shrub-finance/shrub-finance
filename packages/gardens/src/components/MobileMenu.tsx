@@ -10,6 +10,7 @@ import {
 import { Link as ReachLink } from "@reach/router";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import React from "react";
+import { trackEvent } from "../utils/handleGATracking";
 
 function MobileMenu() {
   const gradient = useColorModeValue(
@@ -20,6 +21,23 @@ function MobileMenu() {
   const { onClose: onMenuClose } = useDisclosure();
 
   const { colorMode, toggleColorMode } = useColorMode();
+
+  function handleGA(event: any) {
+    trackEvent({
+      action: event.type,
+      label: event.target.innerText,
+    });
+  }
+
+  function handleClick(event: any) {
+    onMenuClose();
+    handleGA(event);
+  }
+
+  function handleToggleColorMode(event: any) {
+    toggleColorMode();
+    handleGA(event);
+  }
 
   return (
     <Box pb={4} display={{ md: "none" }}>
@@ -33,7 +51,7 @@ function MobileMenu() {
           py={{ base: "3", md: "1", lg: "1" }}
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={onMenuClose}
+          onClick={handleClick}
         >
           My Garden
         </Link>
@@ -46,7 +64,7 @@ function MobileMenu() {
           py={{ base: "3", md: "1", lg: "1" }}
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={onMenuClose}
+          onClick={handleClick}
         >
           {" "}
           Chapters
@@ -60,7 +78,7 @@ function MobileMenu() {
           py={{ base: "3", md: "1", lg: "1" }}
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={onMenuClose}
+          onClick={handleClick}
         >
           Adoption
         </Link>
@@ -73,7 +91,7 @@ function MobileMenu() {
           py={{ base: "3", md: "1", lg: "1" }}
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={onMenuClose}
+          onClick={handleClick}
         >
           Leaderboard
         </Link>
@@ -86,6 +104,7 @@ function MobileMenu() {
           py={{ base: "3", md: "1", lg: "1" }}
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
+          onClick={handleGA}
         >
           Roadmap
           <ExternalLinkIcon
@@ -105,6 +124,7 @@ function MobileMenu() {
             textDecoration: "none",
             bgGradient: gradient,
           }}
+          onClick={handleGA}
         >
           OpenSea <ExternalLinkIcon mx="2px" />
         </Link>
@@ -117,7 +137,7 @@ function MobileMenu() {
           py={{ base: "3", md: "1", lg: "1" }}
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={onMenuClose}
+          onClick={handleClick}
         >
           Blog{" "}
           <ExternalLinkIcon
@@ -126,7 +146,7 @@ function MobileMenu() {
           />
         </Link>
         <Box
-          onClick={toggleColorMode}
+          onClick={handleToggleColorMode}
           variant="ghost"
           cursor="pointer"
           rounded="lg"

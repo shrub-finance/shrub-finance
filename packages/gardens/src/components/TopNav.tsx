@@ -85,11 +85,6 @@ function TopNav() {
     });
   }
 
-  function handleClick(event: any) {
-    onMenuClose();
-    handleGA(event);
-  }
-
   function handleToggleColorMode(event: any) {
     toggleColorMode();
     handleGA(event);
