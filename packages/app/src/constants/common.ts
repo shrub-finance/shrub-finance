@@ -9,9 +9,9 @@ const standardStrikes = {
 
 const generator = {
   "SMATIC-SUSD": {
-    [toEthDate(new Date("2022-02-02")).toString()]: standardStrikes,
-    [toEthDate(new Date("2022-03-02")).toString()]: standardStrikes,
-    [toEthDate(new Date("2022-04-02")).toString()]: standardStrikes,
+    [toEthDate(new Date("2022-05-02")).toString()]: standardStrikes,
+    [toEthDate(new Date("2022-06-02")).toString()]: standardStrikes,
+    [toEthDate(new Date("2022-07-02")).toString()]: standardStrikes,
   },
 };
 
