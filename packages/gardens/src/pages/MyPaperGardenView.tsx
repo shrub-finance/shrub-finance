@@ -323,12 +323,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     }}
                   />
                 </DrawerBody>
-                <DrawerFooter>
-                  <Button variant="outline" mr={3} onClick={onClose}>
-                    Close
-                  </Button>
-                  <Button colorScheme="blue">Save</Button>
-                </DrawerFooter>
+                {/*<DrawerFooter>*/}
+                {/*  <Button variant="outline" mr={3} onClick={onClose}>*/}
+                {/*    Close*/}
+                {/*  </Button>*/}
+                {/*  <Button colorScheme="blue">Save</Button>*/}
+                {/*</DrawerFooter>*/}
               </DrawerContent>
             </Drawer>
           </Grid>

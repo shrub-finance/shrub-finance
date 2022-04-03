@@ -3,14 +3,9 @@ import { Box, BoxProps } from "@chakra-ui/react";
 
 export function TransformScale(
   animationItem: JSX.Element,
-  setExplosion: React.Dispatch<React.SetStateAction<boolean>>,
   controls: AnimationControls
 ) {
   const MotionBox = motion<BoxProps>(Box);
-  function onComplete() {
-    console.log("ts complete");
-    // setExplosion(true);
-  }
 
   const flying = {
     initial: { y: -130, scale: 3 },
@@ -29,7 +24,7 @@ export function TransformScale(
         default: { duration: 2 },
       }}
       onAnimationStart={() => console.log("tS start")}
-      onAnimationComplete={onComplete}
+      onAnimationComplete={() => console.log("tS complete")}
     >
       {animationItem}
     </MotionBox>

@@ -1,7 +1,6 @@
 import {
   Badge,
   Box,
-  BoxProps,
   Button,
   Center,
   Heading,
@@ -16,7 +15,6 @@ import {
   Spinner,
   Stack,
   useDisclosure,
-  useTimeout,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -36,7 +34,6 @@ function SeedDetails({
 }) {
   const { mySeedDataLoading, mySeedDataError, selectedItem } = hooks;
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [explosion, setExplosion] = useState(false);
   const controls = useAnimation();
   useEffect(() => {
     if (!isOpen) {
@@ -150,44 +147,26 @@ function SeedDetails({
         size={"xl"}
       >
         <ModalOverlay />
-        {/*<MotionModalContent*/}
-        {/*  animate={{*/}
-        {/*    backgroundColor: ["#60F", "#09F", "#FA0"],*/}
-        {/*    transition: {*/}
-        {/*      delay: 1,*/}
-        {/*      duration: 2,*/}
-        {/*      ease: [0.075, 0.82, 0.165, 1],*/}
-        {/*      repeat: Infinity,*/}
-        {/*      repeatType: "reverse"*/}
-        {/*    }*/}
-        {/*  }}*/}
-        {/*>*/}
         <MotionModalContent
           top="6rem"
           boxShadow="dark-lg"
           borderRadius="2xl"
+          // initial={{ backgroundColor: "#ffffff" }}
           animate={{
-            backgroundColor: ["white", "#ffd06b"],
-            transition: {
-              delay: 1,
-              duration: 2,
-              ease: [0.075, 0.82, 0.165],
-              repeat: Infinity,
-              repeatType: "reverse",
-            },
+            backgroundColor: ["#ffffff", "#ffd06b", "#ffffff"],
           }}
-
+          //@ts-ignore
+          transition={{
+            duration: 0.25,
+            delay: 1.97,
+          }}
           // bg={explosion ? "#ffd06b" : "white"}
         >
           <ModalHeader>Plant your seed</ModalHeader>
           <ModalCloseButton />
           <ModalBody pt={40}>
             <Center>
-              {TransformScale(
-                <FlyingSeed boxSize={20} />,
-                setExplosion,
-                controls
-              )}
+              {TransformScale(<FlyingSeed boxSize={20} />, controls)}
             </Center>
             <Center>
               {Disappear(<PlantingPot boxSize={40} />, controls)}
@@ -195,7 +174,6 @@ function SeedDetails({
             </Center>
           </ModalBody>
         </MotionModalContent>
-        {/*</MotionModalContent>*/}
       </Modal>
     </>
   );
