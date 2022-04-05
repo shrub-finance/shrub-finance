@@ -14,9 +14,10 @@ import {
   ModalOverlay,
   Spinner,
   Stack,
+  useColorMode,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { isMobile } from "react-device-detect";
 import { FlyingSeed, PlantingPot, WonderPot } from "../assets/Icons";
 import { TransformScale } from "./animations/TransformScale";
@@ -33,13 +34,16 @@ function SeedDetails({
   };
 }) {
   const { mySeedDataLoading, mySeedDataError, selectedItem } = hooks;
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
+  const { colorMode } = useColorMode();
+
   useEffect(() => {
     if (!isOpen) {
       return;
     }
-    console.log(" iam here");
+    console.log(" animation effect starts");
     setTimeout(() => {
       controls.start("final");
     }, 1);
@@ -114,26 +118,47 @@ function SeedDetails({
                   bg: "gray.200",
                 }}
               >
-                Action A
+                Water
               </Button>
               <Button
                 onClick={onOpen}
                 flex={1}
                 fontSize={"sm"}
                 rounded={"full"}
-                bg={"blue.400"}
-                color={"white"}
-                boxShadow={
-                  "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"
-                }
+                bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                color={"black"}
+                boxShadow={"xl"}
                 _hover={{
-                  bg: "blue.500",
+                  bg: "shrub.200",
                 }}
                 _focus={{
-                  bg: "blue.500",
+                  bg: "shrub.100",
                 }}
               >
                 Plant
+              </Button>
+            </Stack>
+            <Stack mt={8} direction={"row"} spacing={4}>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                rounded={"full"}
+                _focus={{
+                  bg: "gray.200",
+                }}
+              >
+                Fertilize
+              </Button>
+              <Button
+                onClick={onOpen}
+                flex={1}
+                fontSize={"sm"}
+                rounded={"full"}
+                _focus={{
+                  bg: "gray.200",
+                }}
+              >
+                Harvest
               </Button>
             </Stack>
           </Box>
@@ -151,16 +176,18 @@ function SeedDetails({
           top="6rem"
           boxShadow="dark-lg"
           borderRadius="2xl"
-          // initial={{ backgroundColor: "#ffffff" }}
           animate={{
-            backgroundColor: ["#ffffff", "#ffd06b", "#ffffff"],
+            backgroundColor: [
+              colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+              "#ffd06b",
+              colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+            ],
           }}
           //@ts-ignore
           transition={{
             duration: 0.25,
             delay: 1.97,
           }}
-          // bg={explosion ? "#ffd06b" : "white"}
         >
           <ModalHeader>Plant your seed</ModalHeader>
           <ModalCloseButton />

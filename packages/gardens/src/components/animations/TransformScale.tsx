@@ -6,17 +6,20 @@ export function TransformScale(
   controls: AnimationControls
 ) {
   const MotionBox = motion<BoxProps>(Box);
-
   const flying = {
-    initial: { y: -130, scale: 3 },
-    final: { y: 70, scale: 0 },
+    // initial: { y: -130, scale: 3 },
+    // final: { y: 70, scale: 0 },
   };
-
   return (
     <MotionBox
-      initial="initial"
-      animate={controls}
-      variants={flying}
+      animate={{
+        x: ["300px", "26.8553px", "0px"],
+        y: ["-72.6283px", "-237.143px", "82.165px"],
+        scale: [3, 2, 0],
+      }}
+      // initial="initial"
+      // animate={controls}
+      // variants={flying}
       // @ts-ignore
       transition={{
         type: "spring",

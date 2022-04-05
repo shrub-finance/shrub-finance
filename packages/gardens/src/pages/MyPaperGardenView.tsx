@@ -28,6 +28,7 @@ import {
   Drawer,
   VStack,
   useBreakpointValue,
+  useColorMode,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useEffect, useState } from "react";
@@ -58,6 +59,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
     setIsHidden(val);
   };
 
+  const btnShadow = useColorModeValue("md", "dark-lg");
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const drawerSize = useBreakpointValue({
     base: "xs",
@@ -85,6 +88,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   });
 
   const { active, account, error: web3Error } = useWeb3React();
+
   const [
     getMySeedDataQuery,
     { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
@@ -118,11 +122,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <Box
             as="button"
             key={name}
-            shadow="md"
+            shadow={btnShadow}
             borderRadius="md"
             minW={20}
+            h={32}
             p={2}
-            layerStyle="shrubBg"
             cursor="pointer"
             _hover={{
               transform: "translateY(-2px)",
@@ -220,7 +224,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
               px={"5"}
               fontSize={{ base: "15px", md: "15px", lg: "18px" }}
             >
-              Home for your seeds.
+              Place where seeds grow into Shrubs!
             </Text>
           </VStack>
         </Center>
@@ -279,9 +283,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     : { base: "repeat(4, 1fr)", md: "repeat(5, 1fr)" }
                 }
                 gap={2}
+                minH={"565px"}
                 overflow="scroll"
                 maxH="620px"
                 shadow="2xl"
+                layerStyle={"shrubBg"}
                 borderRadius="2xl"
                 p={4}
               >
