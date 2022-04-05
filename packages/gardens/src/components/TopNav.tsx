@@ -1,16 +1,13 @@
-import React, { useContext, useState } from "react";
+import React, { Suspense, useContext, useState } from "react";
 import {
   Box,
   Flex,
   Text,
-  HStack,
-  Link,
   IconButton,
   Button,
   useDisclosure,
   useColorMode,
   useColorModeValue,
-  Stack,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -18,7 +15,7 @@ import {
   ModalBody,
   ModalCloseButton,
   Spinner,
-  Badge,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import {
   HamburgerIcon,
@@ -26,9 +23,7 @@ import {
   SunIcon,
   MoonIcon,
   InfoOutlineIcon,
-  ExternalLinkIcon,
 } from "@chakra-ui/icons";
-import { Link as ReachLink } from "@reach/router";
 import {
   Account,
   Balance,
@@ -37,20 +32,24 @@ import {
   getErrorMessage,
 } from "./ConnectWallet";
 import { useConnectWallet } from "../hooks/useConnectWallet";
-import { PaperGardensLogo } from "../assets/Icons";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
 import { trackEvent } from "../utils/handleGATracking";
 
 function TopNav() {
+  const DesktopMenu = React.lazy(() => import("./DesktopMenu"));
+  const MobileMenu = React.lazy(() => import("./MobileMenu"));
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isMenuOpen,
     onOpen: onMenuOpen,
     onClose: onMenuClose,
   } = useDisclosure();
+
   const { colorMode, toggleColorMode } = useColorMode();
+
   const spinnerBg = useColorModeValue("black", "cyan.500");
   const { active, error: web3Error } = useConnectWallet();
   const { pendingTxs } = useContext(TxContext);
@@ -68,6 +67,12 @@ function TopNav() {
   const topNavBgColor = useColorModeValue("white", "dark.100");
   useColorModeValue("sprout", "teal");
 
+  const buttonSize = useBreakpointValue({
+    base: "sm",
+    md: "sm",
+    lg: "md",
+  });
+
   function handleModalClose() {
     onClose();
     displayStatus(false);
@@ -80,136 +85,22 @@ function TopNav() {
     });
   }
 
-  function handleClick(event: any) {
-    onMenuClose();
-    handleGA(event);
-    }
-
   function handleToggleColorMode(event: any) {
     toggleColorMode();
     handleGA(event);
-    }
+  }
 
   return (
     <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
       <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <HStack spacing={8} alignItems={"center"}>
-            <Link as={ReachLink} to={"/"}>
-              <PaperGardensLogo boxSize={10} />
-            </Link>
-            <HStack
-              as={"nav"}
-              spacing={"4"}
-              display={{ base: "none", md: "inline" }}
-              fontSize={{ base: "xs", md: "xs", lg: "md" }}
-            >
-              <Link
-                as={ReachLink}
-                to="/my-garden"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleGA}
-              >
-                My Garden
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/chapters"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleGA}
-              >
-                Chapters
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/adoption"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleGA}
-                display={{ md: "none", lg: "inline" }}
-              >
-                Adoption
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/leaderboard"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleGA}
-              >
-                Leaderboard
-              </Link>
-              <Link
-                href="https://shrub.finance/roadmap"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleGA}
-              >
-                Roadmap
-                <Badge
-                  ml="1"
-                  colorScheme="green"
-                  fontSize={{ base: "8px", md: "8px", lg: "xs" }}
-                >
-                  New
-                </Badge>
-              </Link>
-              <Link
-                href="https://opensea.io/collection/shrub-paper-gardens"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleGA}
-              >
-                <Box as={"span"} whiteSpace={"nowrap"}>
-                  OpenSea <ExternalLinkIcon mx="2px" />
-                </Box>
-              </Link>
-              <Link
-                href="https://medium.com/@shrubfinance"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleGA}
-              >
-                Blog
-              </Link>
-            </HStack>
-          </HStack>
+          <Suspense fallback={<Box>…</Box>}>
+            <DesktopMenu />
+          </Suspense>
+
           <Flex alignItems={"center"}>
             {!isMobile && (
-              <Box pr={5} d={{ base: "none", sm: "flex" }}>
+              <Box pr={5} d={{ base: "none", sm: "flex" }} size={buttonSize}>
                 <Balance />
               </Box>
             )}
@@ -219,7 +110,7 @@ function TopNav() {
               <Button
                 variant={"solid"}
                 colorScheme={web3Error ? "red" : "yellow"}
-                size={"md"}
+                size={buttonSize}
                 mr={4}
                 borderRadius="xl"
                 leftIcon={
@@ -266,124 +157,9 @@ function TopNav() {
         </Flex>
 
         {isMenuOpen ? (
-          <Box pb={4} display={{ md: "none" }}>
-            <Stack as={"nav"} spacing={3}>
-              <Link
-                as={ReachLink}
-                to="/my-garden"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleClick}
-              >
-                My Garden
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/chapters"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleClick}
-              >
-                {" "}
-                Chapters
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/adoption"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleClick}
-              >
-                Adoption
-              </Link>
-              <Link
-                as={ReachLink}
-                to="/leaderboard"
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleClick}
-              >
-                Leaderboard
-              </Link>
-              <Link
-                href="https://shrub.finance/roadmap"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Roadmap
-                <ExternalLinkIcon
-                  mx="2px"
-                  display={{ base: "inline", md: "none", lg: "inline" }}
-                />
-                <Badge ml="1" colorScheme="green">
-                  New
-                </Badge>
-              </Link>
-              <Link
-                href="https://opensea.io/collection/shrub-paper-gardens"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                rounded="lg"
-                py={"3"}
-                px={"2"}
-                _hover={{
-                  textDecoration: "none",
-                  bgGradient: gradient,
-                }}
-              >
-                OpenSea <ExternalLinkIcon mx="2px" />
-              </Link>
-              <Link
-                href="https://medium.com/@shrubfinance"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-                onClick={handleClick}
-              >
-                Blog
-              </Link>
-              <Box
-                onClick={handleToggleColorMode}
-                variant="ghost"
-                cursor="pointer"
-                rounded="lg"
-                py={"3"}
-                px={"2"}
-                _hover={{
-                  textDecoration: "none",
-                  bgGradient: gradient,
-                }}
-              >
-                {colorMode === "light" ? "Dark Mode" : "Light Mode"}
-              </Box>
-            </Stack>
-          </Box>
+          <Suspense fallback={<Box>…</Box>}>
+            <MobileMenu />
+          </Suspense>
         ) : null}
       </Box>
 
