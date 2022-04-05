@@ -14,7 +14,7 @@ export function TransformScale(
     <MotionBox
       animate={{
         x: ["300px", "26.8553px", "0px"],
-        y: ["-72.6283px", "-237.143px", "82.165px"],
+        y: ["-72.6283px", "-237.143px", "72.165px"],
         scale: [3, 2, 0],
       }}
       // initial="initial"
