@@ -93,6 +93,7 @@ export function Tilt(animationItem: JSX.Element, controls: AnimationControls) {
   return (
     <MotionBox
       animate={{
+        opacity: [0, 1, 1, 1, 0],
         rotate: [15, 0, 15],
         y: [-111, -130, -111],
         x: [75, 75, 75],
@@ -101,8 +102,8 @@ export function Tilt(animationItem: JSX.Element, controls: AnimationControls) {
       transition={{
         type: "spring",
         stiffness: 100,
-        duration: 2,
-        delay: 1,
+        opacity: { delay: 0.005, duration: 4, times: [0, 0.25, 0.5, 0.75, 1] },
+        default: { delay: 1, duration: 2 },
       }}
     >
       {animationItem}
