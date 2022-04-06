@@ -1,5 +1,5 @@
 import TopNav from "./components/TopNav";
-import { Router } from "@reach/router";
+import { Router, createHistory, LocationProvider } from "@reach/router";
 import { Web3ReactProvider } from "@web3-react/core";
 import { getLibrary } from "./components/ConnectWallet";
 import React, { useEffect } from "react";
@@ -33,6 +33,10 @@ function trackPage(page: string) {
   ReactGA.set({ page });
   ReactGA.pageview(page);
 }
+
+const windowContext: any = window;
+const history = createHistory(windowContext);
+
 function App() {
   const client = new ApolloClient({
     uri: process.env.REACT_APP_SUBGRAPH_QUERY,
@@ -46,23 +50,27 @@ function App() {
 
   return (
     <div className="App">
-      <Web3ReactProvider getLibrary={getLibrary}>
-        <ApolloProvider client={client}>
-          <Store>
-            <TopNav />
-            <Router>
-              <HomeView path="/" />
-              {/*<MysteryBoxView path="/mystery-box" />*/}
-              <ChaptersView path="/chapters" />
-              <IntroView path="/intro" />
-              <LeaderBoardView path="leaderboard" />
-              <NFTView path="/nft/paper-seed/:tokenId" />
-              <AdoptionCenterView path="/adoption" />
-              <MyPaperGardenView path="/my-garden" />
-            </Router>
-          </Store>
-        </ApolloProvider>
-      </Web3ReactProvider>
+
+      <LocationProvider history={history}>
+        <Web3ReactProvider getLibrary={getLibrary}>
+          <ApolloProvider client={client}>
+            <Store>
+              <TopNav />
+              <Router>
+                <HomeView path="/" />
+                <HomeView path="/claim" />
+                <ChaptersView path="/chapters" />
+                <IntroView path="/intro" />
+                <LeaderBoardView path="leaderboard" />
+                <NFTView path="/nft/paper-seed/:tokenId" />
+                <AdoptionCenterView path="/adoption" />
+                <MyPaperGardenView path="/my-garden" />
+              </Router>
+            </Store>
+          </ApolloProvider>
+        </Web3ReactProvider>
+      </LocationProvider>
+
     </div>
   );
 }

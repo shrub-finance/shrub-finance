@@ -39,3 +39,5 @@ packages/subgraph/generated/*
 .pnp.*
 .vercel/*
 packages/contracts/scripts/output
+yarn.lock
+.vscode/
