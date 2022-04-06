@@ -190,6 +190,7 @@ function SeedDetails({
         <ModalOverlay />
         <MotionModalContent
           top="6rem"
+          minH={"470px"}
           boxShadow="dark-lg"
           borderRadius="2xl"
           // animate={{
