@@ -15,14 +15,29 @@ import {
   Spinner,
   Stack,
   useColorMode,
+  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 import { isMobile } from "react-device-detect";
-import { FlyingSeed, PlantingPot, WonderPot } from "../assets/Icons";
-import { TransformScale } from "./animations/TransformScale";
+import {
+  FlyingSeed,
+  Leaf2,
+  Pot,
+  Water,
+  WateringCan,
+  WonderPot,
+} from "../assets/Icons";
+import {
+  Scale,
+  Spray,
+  Tilt,
+  TransformScale,
+} from "./animations/TransformScale";
 import { Disappear, Appear } from "./animations/Fade";
 import { motion, useAnimation } from "framer-motion";
+import { GiHeartPlus } from "react-icons/all";
+import { Icon } from "@chakra-ui/icons";
 
 function SeedDetails({
   hooks,
@@ -38,6 +53,7 @@ function SeedDetails({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
   const { colorMode } = useColorMode();
+  const dropColor = useColorModeValue("blue.300", "blue.100");
 
   useEffect(() => {
     if (!isOpen) {
@@ -111,16 +127,6 @@ function SeedDetails({
 
             <Stack mt={8} direction={"row"} spacing={4}>
               <Button
-                flex={1}
-                fontSize={"sm"}
-                rounded={"full"}
-                _focus={{
-                  bg: "gray.200",
-                }}
-              >
-                Water
-              </Button>
-              <Button
                 onClick={onOpen}
                 flex={1}
                 fontSize={"sm"}
@@ -133,6 +139,16 @@ function SeedDetails({
                 }}
                 _focus={{
                   bg: "shrub.100",
+                }}
+              >
+                Water
+              </Button>
+              <Button
+                flex={1}
+                fontSize={"sm"}
+                rounded={"full"}
+                _focus={{
+                  bg: "gray.200",
                 }}
               >
                 Plant
@@ -176,28 +192,70 @@ function SeedDetails({
           top="6rem"
           boxShadow="dark-lg"
           borderRadius="2xl"
-          animate={{
-            backgroundColor: [
-              colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-              "#ffd06b",
-              colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-            ],
-          }}
-          //@ts-ignore
-          transition={{
-            duration: 0.25,
-            delay: 1.97,
-          }}
+          // animate={{
+          //   backgroundColor: [
+          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+          //     "#ffd06b",
+          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+          //   ],
+          // }}
+          // //@ts-ignore
+          // transition={{
+          //   duration: 0.25,
+          //   delay: 1.97,
+          // }}
         >
           <ModalHeader>Plant your seed</ModalHeader>
           <ModalCloseButton />
           <ModalBody pt={40}>
+            {/*watering animation*/}
+            {/*<Icon*/}
+            {/*  as={GiHeartPlus}*/}
+            {/*  boxSize={40}*/}
+            {/*  position={"absolute"}*/}
+            {/*  top={20}*/}
+            {/*  left={16}*/}
+            {/*  color={"red.300"}*/}
+            {/*/>*/}
+            {/*<Center>*/}
+            {/*  {Scale(*/}
+            {/*    <Heading*/}
+            {/*      fontSize="50px"*/}
+            {/*      letterSpacing={"tight"}*/}
+            {/*      // position={"absolute"}*/}
+            {/*      // left={20}*/}
+            {/*    >*/}
+            {/*      +314*/}
+            {/*    </Heading>,*/}
+            {/*    controls*/}
+            {/*  )}*/}
+            {/*</Center>*/}
+
             <Center>
-              {TransformScale(<FlyingSeed boxSize={20} />, controls)}
-            </Center>
-            <Center>
-              {Disappear(<PlantingPot boxSize={40} />, controls)}
-              {Appear(<WonderPot boxSize={40} />, controls)}
+              <WonderPot boxSize={40} position={"relative"} left={"79px"} />
+              <Center>
+                <Center>
+                  <Leaf2
+                    boxSize={28}
+                    position={"absolute"}
+                    bottom={"140px"}
+                    left={"236px"}
+                  />
+                </Center>
+                <Center>
+                  {Spray(
+                    <Water
+                      stroke={dropColor}
+                      boxSize={28}
+                      position={"absolute"}
+                      top={"147px"}
+                      right={"207px"}
+                    />,
+                    controls
+                  )}
+                  {Tilt(<WateringCan boxSize={40} />, controls)}
+                </Center>
+              </Center>
             </Center>
           </ModalBody>
         </MotionModalContent>

@@ -111,6 +111,10 @@ const layerStyles = {
     bg: "white",
     ".chakra-ui-dark &": { bg: "dark.100" },
   },
+  shrubColor: {
+    color: "white",
+    ".chakra-ui-dark &": { color: "dark.100" },
+  },
 };
 
 const theme = extendTheme({

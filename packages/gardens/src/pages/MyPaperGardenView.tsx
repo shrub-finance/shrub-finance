@@ -59,8 +59,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
     setIsHidden(val);
   };
 
-  const btnShadow = useColorModeValue("md", "dark-lg");
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const drawerSize = useBreakpointValue({
     base: "xs",
@@ -71,6 +69,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
     base: isOpen,
     md: false,
   });
+
+  const btnShadow = useColorModeValue("md", "dark-lg");
 
   const [isHidden, setIsHidden] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -122,7 +122,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <Box
             as="button"
             key={name}
-            shadow={btnShadow}
+            // shadow={btnShadow}
+            shadow={"dark-lg"}
             borderRadius="md"
             minW={20}
             h={32}
