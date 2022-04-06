@@ -231,16 +231,20 @@ function SeedDetails({
             {/*    controls*/}
             {/*  )}*/}
             {/*</Center>*/}
-
             <Center>
-              <WonderPot boxSize={40} position={"relative"} left={"79px"} />
+              <WonderPot
+                boxSize={40}
+                position={"relative"}
+                left={"88px"}
+                bottom={"-72px"}
+              />
               <Center>
-                <Center>
+                <Center visibility={"hidden"}>
                   <Leaf2
                     boxSize={28}
                     position={"absolute"}
-                    bottom={"140px"}
-                    left={"236px"}
+                    bottom={"141px"}
+                    left={"237px"}
                   />
                 </Center>
                 <Center>
@@ -249,12 +253,12 @@ function SeedDetails({
                       stroke={dropColor}
                       boxSize={28}
                       position={"absolute"}
-                      top={"147px"}
-                      right={"207px"}
+                      top={"224px"}
+                      right={"210px"}
                     />,
                     controls
                   )}
-                  {Tilt(<WateringCan boxSize={40} />, controls)}
+                  {Tilt(<WateringCan boxSize={44} />, controls)}
                 </Center>
               </Center>
             </Center>

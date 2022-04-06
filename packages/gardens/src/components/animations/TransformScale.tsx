@@ -52,35 +52,9 @@ export function Spray(animationItem: JSX.Element, controls: AnimationControls) {
       // @ts-ignore
       transition={{
         duration: 1.5,
-        ease: "circInOut",
-        type: "linear",
+        type: "tween",
+        ease: "linear",
         delay: 1.5,
-      }}
-    >
-      {animationItem}
-    </MotionBox>
-  );
-}
-
-export function Scale(animationItem: JSX.Element, controls: AnimationControls) {
-  const MotionBox = motion<BoxProps>(Box);
-  const flying = {
-    // initial: { y: -130, scale: 3 },
-    // final: { y: 70, scale: 0 },
-  };
-  return (
-    <MotionBox
-      animate={{
-        scale: [1, 1, 3, 1, 1],
-      }}
-      // initial="initial"
-      // animate={controls}
-      // variants={flying}
-      // @ts-ignore
-      transition={{
-        type: "spring",
-        stiffness: 100,
-        duration: 2,
       }}
     >
       {animationItem}
@@ -95,8 +69,8 @@ export function Tilt(animationItem: JSX.Element, controls: AnimationControls) {
       animate={{
         opacity: [0, 1, 1, 1, 0],
         rotate: [15, 0, 15],
-        y: [-111, -130, -111],
-        x: [75, 75, 75],
+        y: [-39, -61, -39],
+        x: [74, 74, 74],
       }}
       // @ts-ignore
       transition={{
@@ -104,6 +78,25 @@ export function Tilt(animationItem: JSX.Element, controls: AnimationControls) {
         stiffness: 100,
         opacity: { delay: 0.005, duration: 4, times: [0, 0.25, 0.5, 0.75, 1] },
         default: { delay: 1, duration: 2 },
+      }}
+    >
+      {animationItem}
+    </MotionBox>
+  );
+}
+
+export function Scale(animationItem: JSX.Element, controls: AnimationControls) {
+  const MotionBox = motion<BoxProps>(Box);
+  return (
+    <MotionBox
+      animate={{
+        scale: [1, 1, 3, 1, 1],
+      }}
+      // @ts-ignore
+      transition={{
+        type: "spring",
+        stiffness: 100,
+        duration: 2,
       }}
     >
       {animationItem}
