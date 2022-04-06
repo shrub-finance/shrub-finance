@@ -29,13 +29,14 @@ ts_build
 build
 .husky
 packages/subgraph/generated/*
-# **/.yarn/*
-# .yarn/*
-# !.yarn/patches
-# !.yarn/releases
-# !.yarn/plugins
-# !.yarn/sdks
-# !.yarn/versions
+**/.yarn/*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
 .pnp.*
 .vercel/*
 packages/contracts/scripts/output
+.vscode/

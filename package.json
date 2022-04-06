@@ -54,7 +54,7 @@
     "@typescript-eslint/eslint-plugin": "5.9.0",
     "@typescript-eslint/parser": "5.9.0",
     "eslint": "7.11.0",
-    "husky": "7.0.0",
+    "husky": "7.0.4",
     "lint-staged": "12.1.5",
     "pinst": "2.0.0",
     "prettier": "2.5.1",
