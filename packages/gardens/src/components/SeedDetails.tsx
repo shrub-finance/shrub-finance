@@ -21,6 +21,8 @@ import {
 import React, { useEffect } from "react";
 import { isMobile } from "react-device-detect";
 import {
+  Fertilizer,
+  FertilizerSoil,
   FlyingSeed,
   Leaf1,
   Leaf2,
@@ -34,7 +36,9 @@ import {
   Scale,
   Shake,
   Spray,
+  Spray2,
   Tilt,
+  Tilt2,
   TransformScale,
 } from "./animations/TransformScale";
 import { Disappear, Appear } from "./animations/Fade";
@@ -130,18 +134,11 @@ function SeedDetails({
 
             <Stack mt={8} direction={"row"} spacing={4}>
               <Button
-                onClick={onOpen}
                 flex={1}
                 fontSize={"sm"}
                 rounded={"full"}
-                bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
-                color={"black"}
-                boxShadow={"xl"}
-                _hover={{
-                  bg: "shrub.200",
-                }}
                 _focus={{
-                  bg: "shrub.100",
+                  bg: "gray.200",
                 }}
               >
                 Water
@@ -159,14 +156,21 @@ function SeedDetails({
             </Stack>
             <Stack mt={8} direction={"row"} spacing={4}>
               <Button
+                onClick={onOpen}
                 flex={1}
                 fontSize={"sm"}
                 rounded={"full"}
+                bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                color={"black"}
+                boxShadow={"xl"}
+                _hover={{
+                  bg: "shrub.200",
+                }}
                 _focus={{
-                  bg: "gray.200",
+                  bg: "shrub.100",
                 }}
               >
-                Fertilize
+                Water + Fertilize
               </Button>
               <Button
                 onClick={onOpen}
@@ -200,7 +204,7 @@ function SeedDetails({
           <ModalHeader>Plant your seed</ModalHeader>
           <ModalCloseButton />
           <ModalBody pt={40}>
-            {/*watering animation*/}
+            {/*fertilizing animation*/}
             <Center>
               {Shake(
                 <WonderPot
@@ -212,14 +216,6 @@ function SeedDetails({
                 controls
               )}
               <Center>
-                {/*<Center visibility={"hidden"}>*/}
-                {/*    <Leaf2*/}
-                {/*      boxSize={28}*/}
-                {/*      position={"absolute"}*/}
-                {/*      bottom={"141px"}*/}
-                {/*      left={"237px"}*/}
-                {/*    />*/}
-                {/*</Center>*/}
                 <Center>
                   {Grow(
                     <Leaf1
@@ -243,6 +239,22 @@ function SeedDetails({
                     controls
                   )}
                   {Tilt(<WateringCan boxSize={44} />, controls)}
+                </Center>
+                <Center>
+                  {Spray2(
+                    <FertilizerSoil
+                      stroke={dropColor}
+                      boxSize={28}
+                      position={"absolute"}
+                      top={"229px"}
+                      left={"163px"}
+                    />,
+                    controls
+                  )}
+                  {Tilt2(
+                    <Fertilizer boxSize={28} position={"absolute"} />,
+                    controls
+                  )}
                 </Center>
               </Center>
             </Center>

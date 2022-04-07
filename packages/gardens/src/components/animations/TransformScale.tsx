@@ -62,12 +62,43 @@ export function Spray(animationItem: JSX.Element, controls: AnimationControls) {
   );
 }
 
+export function Spray2(
+  animationItem: JSX.Element,
+  controls: AnimationControls
+) {
+  const MotionBox = motion<BoxProps>(Box);
+  return (
+    <MotionBox
+      animate={{
+        opacity: [0, 1, 1, 1, 1, 0],
+        strokeDasharray: [
+          "30px, 30px",
+          "30px, 30px",
+          "30px, 30px",
+          "30px, 30px",
+          "30px, 30px",
+        ],
+        strokeDashoffset: [0, -15, -125, -300, -500, -800],
+      }}
+      // @ts-ignore
+      transition={{
+        duration: 1.5,
+        type: "tween",
+        ease: "linear",
+        delay: 3.5,
+      }}
+    >
+      {animationItem}
+    </MotionBox>
+  );
+}
+
 export function Tilt(animationItem: JSX.Element, controls: AnimationControls) {
   const MotionBox = motion<BoxProps>(Box);
   return (
     <MotionBox
       animate={{
-        opacity: [0, 1, 1, 1, 0],
+        opacity: [0, 1, 1, 1, 1],
         rotate: [15, 0, 15],
         y: [-39, -61, -39],
         x: [74, 74, 74],
@@ -85,18 +116,22 @@ export function Tilt(animationItem: JSX.Element, controls: AnimationControls) {
   );
 }
 
-export function Scale(animationItem: JSX.Element, controls: AnimationControls) {
+export function Tilt2(animationItem: JSX.Element, controls: AnimationControls) {
   const MotionBox = motion<BoxProps>(Box);
   return (
     <MotionBox
       animate={{
-        scale: [1, 1, 3, 1, 1],
+        opacity: [0, 1, 1, 1, 1],
+        rotate: [0, 15, 0],
+        x: [-392, -391, -392],
+        y: [-73, -101, -73],
       }}
       // @ts-ignore
       transition={{
         type: "spring",
         stiffness: 100,
-        duration: 2,
+        opacity: { delay: 0.005, duration: 4, times: [0, 0.25, 0.5, 0.75, 1] },
+        default: { delay: 3, duration: 2 },
       }}
     >
       {animationItem}
@@ -119,20 +154,18 @@ export function Shake(animationItem: JSX.Element, controls: AnimationControls) {
         stiffness: 100,
         duration: 0.25,
         repeat: 4,
-        delay: 3,
+        delay: 5,
       }}
     >
       {animationItem}
     </MotionBox>
   );
 }
-
 export function Grow(animationItem: JSX.Element, controls: AnimationControls) {
   const MotionBox = motion<BoxProps>(Box);
   return (
     <MotionBox
       animate={{
-        // y: [224, 160],
         y: [165, 160],
         x: [-276, -276],
         opacity: [0, 0, 0, 0, 1],
@@ -141,8 +174,26 @@ export function Grow(animationItem: JSX.Element, controls: AnimationControls) {
       transition={{
         type: "spring",
         stiffness: 100,
-        opacity: { delay: 2.5, duration: 3, times: [0, 0.25, 0.5, 0.75, 1] },
+        opacity: { delay: 5.5, duration: 3, times: [0, 0.25, 0.5, 0.75, 1] },
         default: { delay: 4, duration: 2 },
+      }}
+    >
+      {animationItem}
+    </MotionBox>
+  );
+}
+export function Scale(animationItem: JSX.Element, controls: AnimationControls) {
+  const MotionBox = motion<BoxProps>(Box);
+  return (
+    <MotionBox
+      animate={{
+        scale: [1, 1, 3, 1, 1],
+      }}
+      // @ts-ignore
+      transition={{
+        type: "spring",
+        stiffness: 100,
+        duration: 2,
       }}
     >
       {animationItem}
