@@ -103,3 +103,49 @@ export function Scale(animationItem: JSX.Element, controls: AnimationControls) {
     </MotionBox>
   );
 }
+
+export function Shake(animationItem: JSX.Element, controls: AnimationControls) {
+  const MotionBox = motion<BoxProps>(Box);
+  return (
+    <MotionBox
+      animate={{
+        rotate: [0, -1, 1, 0, 1, -1, 0, -1, 1, 0, -1],
+        y: [1, -1, -3, 3, 1, -1, -3, 3, -1, 1, 1],
+        x: [1, -2, 0, 2, -1, 2, 1, 1, -1, 2, -2],
+      }}
+      // @ts-ignore
+      transition={{
+        type: "spring",
+        stiffness: 100,
+        duration: 0.25,
+        repeat: 4,
+        delay: 3,
+      }}
+    >
+      {animationItem}
+    </MotionBox>
+  );
+}
+
+export function Grow(animationItem: JSX.Element, controls: AnimationControls) {
+  const MotionBox = motion<BoxProps>(Box);
+  return (
+    <MotionBox
+      animate={{
+        // y: [224, 160],
+        y: [165, 160],
+        x: [-276, -276],
+        opacity: [0, 0, 0, 0, 1],
+      }}
+      // @ts-ignore
+      transition={{
+        type: "spring",
+        stiffness: 100,
+        opacity: { delay: 2.5, duration: 3, times: [0, 0.25, 0.5, 0.75, 1] },
+        default: { delay: 4, duration: 2 },
+      }}
+    >
+      {animationItem}
+    </MotionBox>
+  );
+}

@@ -22,6 +22,7 @@ import React, { useEffect } from "react";
 import { isMobile } from "react-device-detect";
 import {
   FlyingSeed,
+  Leaf1,
   Leaf2,
   Pot,
   Water,
@@ -29,7 +30,9 @@ import {
   WonderPot,
 } from "../assets/Icons";
 import {
+  Grow,
   Scale,
+  Shake,
   Spray,
   Tilt,
   TransformScale,
@@ -193,59 +196,40 @@ function SeedDetails({
           minH={"470px"}
           boxShadow="dark-lg"
           borderRadius="2xl"
-          // animate={{
-          //   backgroundColor: [
-          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-          //     "#ffd06b",
-          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-          //   ],
-          // }}
-          // //@ts-ignore
-          // transition={{
-          //   duration: 0.25,
-          //   delay: 1.97,
-          // }}
         >
           <ModalHeader>Plant your seed</ModalHeader>
           <ModalCloseButton />
           <ModalBody pt={40}>
             {/*watering animation*/}
-            {/*<Icon*/}
-            {/*  as={GiHeartPlus}*/}
-            {/*  boxSize={40}*/}
-            {/*  position={"absolute"}*/}
-            {/*  top={20}*/}
-            {/*  left={16}*/}
-            {/*  color={"red.300"}*/}
-            {/*/>*/}
-            {/*<Center>*/}
-            {/*  {Scale(*/}
-            {/*    <Heading*/}
-            {/*      fontSize="50px"*/}
-            {/*      letterSpacing={"tight"}*/}
-            {/*      // position={"absolute"}*/}
-            {/*      // left={20}*/}
-            {/*    >*/}
-            {/*      +314*/}
-            {/*    </Heading>,*/}
-            {/*    controls*/}
-            {/*  )}*/}
-            {/*</Center>*/}
             <Center>
-              <WonderPot
-                boxSize={40}
-                position={"relative"}
-                left={"88px"}
-                bottom={"-72px"}
-              />
+              {Shake(
+                <WonderPot
+                  boxSize={40}
+                  position={"relative"}
+                  left={"88px"}
+                  bottom={"-72px"}
+                />,
+                controls
+              )}
               <Center>
-                <Center visibility={"hidden"}>
-                  <Leaf2
-                    boxSize={28}
-                    position={"absolute"}
-                    bottom={"141px"}
-                    left={"237px"}
-                  />
+                {/*<Center visibility={"hidden"}>*/}
+                {/*    <Leaf2*/}
+                {/*      boxSize={28}*/}
+                {/*      position={"absolute"}*/}
+                {/*      bottom={"141px"}*/}
+                {/*      left={"237px"}*/}
+                {/*    />*/}
+                {/*</Center>*/}
+                <Center>
+                  {Grow(
+                    <Leaf1
+                      boxSize={28}
+                      position={"absolute"}
+                      bottom={"141px"}
+                      left={"237px"}
+                    />,
+                    controls
+                  )}
                 </Center>
                 <Center>
                   {Spray(
