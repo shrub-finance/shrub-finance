@@ -95,8 +95,8 @@ function DesktopMenu() {
           Leaderboard
         </Link>
         <Link
-          href="https://shrub.finance/roadmap"
-          isExternal
+          as={ReachLink}
+          to="/roadmap"
           variant="ghost"
           cursor="pointer"
           px={2}

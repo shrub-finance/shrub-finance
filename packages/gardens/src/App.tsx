@@ -12,6 +12,7 @@ import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ChaptersView from "./pages/ChaptersView";
 import IntroView from "./pages/IntroView";
+import RoadmapView from "./pages/RoadmapView";
 import ReactGA from "react-ga";
 const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
@@ -54,6 +55,7 @@ function App() {
               <HomeView path="/claim" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
+              <RoadmapView path="/roadmap" />
               <LeaderBoardView path="leaderboard" />
               <NFTView path="/nft/paper-seed/:tokenId" />
               <AdoptionCenterView path="/adoption" />
