@@ -91,6 +91,8 @@ import { SHRUBFOLIO_QUERY } from "../constants/queries";
 import { isMobile } from "react-device-detect";
 import usePriceFeed from "../hooks/usePriceFeed";
 import { CHAINLINK_MATIC } from "../constants/chainLinkPrices";
+import { useGetBalance } from "../hooks/useGetBalance";
+import { formatEther } from "ethers/lib/utils";
 
 const POLL_INTERVAL = 1000; // 1 second polling interval
 
@@ -104,11 +106,13 @@ function Positions() {
     error: web3Error,
     chainId,
   } = useWeb3React();
+  const { balance } = useGetBalance();
   const alertColor = useColorModeValue("gray.100", "dark.300");
   const [withdrawDepositAction, setWithdrawDepositAction] = useState("");
   const [shrubfolioRows, setShrubfolioRows] = useState<JSX.Element[]>([]);
   const [isApproved, setIsApproved] = useState(false);
   const [walletTokenBalance, setWalletTokenBalance] = useState("");
+  const [buttonLabel, setButtonLabel] = useState("");
   const [approving, setApproving] = useState(false);
   const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
   const [polling, setPolling] = useState(false);
@@ -136,6 +140,7 @@ function Positions() {
     onClose: onCloseConnectWalletModal,
   } = useDisclosure();
   const [amountValue, setAmountValue] = useState("0");
+  const [buttonStatus, setButtonStatus] = useState(false);
   const [modalCurrency, setModalCurrency] =
     useState<SupportedCurrencies>("SUSD");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
@@ -145,7 +150,12 @@ function Positions() {
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: "currency",
     defaultValue: modalCurrency,
-    onChange: (value: SupportedCurrencies) => setModalCurrency(value),
+    onChange: (value: SupportedCurrencies) => {
+      setModalCurrency(value);
+      setAmountValue("0");
+      setButtonStatus(false);
+      setButtonLabel(withdrawDepositAction);
+    },
   });
   const currenciesRadiogroup = getRootProps();
   const [showDepositButton, setShowDepositButton] = useState(false);
@@ -639,6 +649,7 @@ function Positions() {
     return async function handleClick() {
       onOpenModal();
       setWithdrawDepositAction(buttonText);
+      setButtonLabel(buttonText);
       setLocalError("");
       setAmountValue("");
       setModalCurrency(modalCurrency);
@@ -801,6 +812,37 @@ function Positions() {
     expiredOptionsRows.length ? "green.50" : undefined,
     expiredOptionsRows.length ? "#000809" : undefined
   );
+  // deposit Model Input Change Handler
+  function InputDepositChangeHandler(enterAmount: string) {
+    const amount = Number(enterAmount);
+
+    if (withdrawDepositAction === "Deposit") {
+      setAmountValue(parse(enterAmount));
+      if (enterAmount && enterAmount.trim()) {
+        setButtonLabel(withdrawDepositAction);
+        setButtonStatus(false);
+        if (balance) {
+          const newBalance = Number(formatEther(balance)).toFixed(5);
+          if (enterAmount > newBalance) {
+            setButtonLabel("insufficient Balance");
+            setButtonStatus(false);
+          } else {
+            if (amount > 0) {
+              setButtonLabel(withdrawDepositAction);
+              setButtonStatus(true);
+            }
+          }
+        }
+      }
+    } else {
+      setAmountValue(parse(enterAmount));
+      setButtonStatus(false);
+      if (amount > 0) {
+        setButtonStatus(true);
+      }
+    }
+  }
+
   return (
     <>
       {/*web3 errors*/}
@@ -1052,9 +1094,7 @@ function Positions() {
                         </Button>
                       </Flex>
                       <NumberInput
-                        onChange={(valueString) =>
-                          setAmountValue(parse(valueString))
-                        }
+                        onChange={InputDepositChangeHandler}
                         value={format(amountValue)}
                         size="lg"
                       >
@@ -1119,11 +1159,11 @@ function Positions() {
                     size={"lg"}
                     colorScheme={btnBg}
                     isFullWidth={true}
-                    isDisabled={amountValue === "0" || amountValue === ""}
+                    isDisabled={!buttonStatus}
                     onClick={handleDepositWithdraw}
                     rounded="2xl"
                   >
-                    {withdrawDepositAction}
+                    {buttonLabel}
                   </Button>
                 )}
               </>
