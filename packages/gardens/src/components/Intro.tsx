@@ -18,7 +18,7 @@ import {
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
-import { GoofyWonder, Pot, Ticket, WonderPot } from "../assets/Icons";
+import { GoofyWonder, Night, Pot, Ticket, WonderPot } from "../assets/Icons";
 import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
 
 function Intro(props: RouteComponentProps) {
@@ -30,7 +30,7 @@ function Intro(props: RouteComponentProps) {
       borderRadius="2xl"
       maxW={{ base: "container.xs", md: "container.lg" }}
     >
-      <Box maxW="80rem" mb={8} textAlign={"center"}>
+      <Box maxW="80rem" mb={8} mt={100} textAlign={"center"}>
         <Heading
           fontSize={{ base: "30px", md: "90px" }}
           letterSpacing={"tight"}
@@ -62,6 +62,7 @@ function Intro(props: RouteComponentProps) {
           />
         </AspectRatio>
       </Box>
+
       <Grid
         gap={[20, 32]}
         mt={{ base: 20, md: 60 }}
@@ -94,18 +95,31 @@ function Intro(props: RouteComponentProps) {
             interacting with it on-chain.
           </Text>
         </Box>
-        <HStack>
-          <Pot boxSize={{ base: 20, md: 60 }} />
-          <Icon as={FaPlus} boxSize={{ base: 12, md: 16 }} />
-          <GoofyWonder boxSize={{ base: 20, md: 60 }} />
-          <Icon as={FaLongArrowAltRight} boxSize={{ base: 12, md: 20 }} />
-          <WonderPot boxSize={{ base: 20, md: 60 }} />
-        </HStack>
+        <Box maxW="80rem" mb={8}>
+          <HStack mb={80}>
+            <Pot boxSize={{ base: 20, md: 60 }} />
+            <Icon as={FaPlus} boxSize={{ base: 12, md: 16 }} />
+            <GoofyWonder boxSize={{ base: 20, md: 60 }} />
+            <Icon as={FaLongArrowAltRight} boxSize={{ base: 12, md: 20 }} />
+            <WonderPot boxSize={{ base: 20, md: 60 }} />
+          </HStack>
+        </Box>
 
         {/*section 2*/}
-        <Box></Box>
+        <Box
+          // boxSize={["sm", "md", "lg", "xl", "6xl"]}
+          maxW="80rem"
+          mb={80}
+        >
+          <Image
+            width={"72rem"}
+            src="/grow.png"
+            fallbackSrc="https://shrub.finance/lovely-passion-shrub.png"
+            alt="Lovely"
+          />
+        </Box>
 
-        <Box maxW="80rem" mb={8}>
+        <Box maxW="80rem">
           <Heading
             fontSize={{ base: "30px", md: "70px" }}
             letterSpacing={"tight"}
@@ -145,16 +159,24 @@ function Intro(props: RouteComponentProps) {
             Shrub is unique.
           </Text>
         </Box>
-        <Box boxSize={["sm", "md", "lg", "xl", "4xl"]}>
+        <Box
+          // boxSize={["sm", "md", "lg", "xl", "4xl"]}
+          maxW="80rem"
+          mb={8}
+        >
           <Image
+            width={"72rem"}
             src="https://shrub.finance/lovely-passion-shrub.webp"
             fallbackSrc="https://shrub.finance/lovely-passion-shrub.png"
             alt="Lovely"
           />
         </Box>
         {/*section 4*/}
-        <GridItem />
-        <GridItem>
+        <Box maxW="80rem" mb={8}>
+          <Night boxSize={"6xl"} />
+        </Box>
+
+        <Box maxW="80rem" mb={8}>
           <Heading
             fontSize={{ base: "30px", md: "70px" }}
             letterSpacing={"tight"}
@@ -189,9 +211,9 @@ function Intro(props: RouteComponentProps) {
             be planted in. It is the moment that everyone has been waiting for.
             It is time to grow!
           </Text>
-        </GridItem>
+        </Box>
         {/*section 5*/}
-        <Box>
+        <Box maxW="80rem" mb={8}>
           <Heading
             fontSize={{ base: "30px", md: "70px" }}
             letterSpacing={"tight"}
@@ -199,7 +221,12 @@ function Intro(props: RouteComponentProps) {
           >
             An innovative distribution system
           </Heading>
-          <Text mt="3" fontSize="28px">
+          <Text
+            mt="3"
+            fontSize={{ base: "20px", md: "28px" }}
+            maxW={{ base: "22rem", md: "40rem" }}
+            fontWeight={{ base: "semibold", md: "medium" }}
+          >
             {/*NFT Tickets are an innovative distribution mechanism for NFTs by*/}
             {/*the team at Shrub.finance. NFT tickets represent the right to mint*/}
             {/*an NFT between certain dates at a certain price. NFT tickets are*/}
@@ -207,17 +234,32 @@ function Intro(props: RouteComponentProps) {
             {/*Chapter 3 pot sale in Shrub Paper Gardens, we will be debuting the*/}
             {/*NFT tickets product.*/}
           </Text>
-          <Text mt="3" fontSize="28px">
+          <Text
+            mt="3"
+            fontSize={{ base: "20px", md: "28px" }}
+            maxW={{ base: "22rem", md: "40rem" }}
+            fontWeight={{ base: "semibold", md: "medium" }}
+          >
             The whitelist for the Pot sale will make use of a new distribution
             method created by the Shrub engineering team. NFT tickets will be
             distributed and sold in a pre-sale that will be redeemable for pots
             at the time of the public sale (and some time afterwards).
           </Text>
-          <Text mt="3" fontSize="28px">
+          <Text
+            mt="3"
+            fontSize={{ base: "20px", md: "28px" }}
+            maxW={{ base: "22rem", md: "40rem" }}
+            fontWeight={{ base: "semibold", md: "medium" }}
+          >
             NFT Tickets are NFTs themselves (ERC-1155) and are gas-efficient to
             mint.
           </Text>
-          <Text mt="3" fontSize="28px">
+          <Text
+            mt="3"
+            fontSize={{ base: "20px", md: "28px" }}
+            maxW={{ base: "22rem", md: "40rem" }}
+            fontWeight={{ base: "semibold", md: "medium" }}
+          >
             When purchasing NFT tickets in a pre-sale only a portion of the
             total cost must be paid, the NFT ticket can then either be redeemed
             for the pot after the public sale by paying the remainder of the
@@ -225,18 +267,23 @@ function Intro(props: RouteComponentProps) {
             markets. This provides collectors with tons of flexibility.
           </Text>
         </Box>
-        <Box>
-          <Ticket boxSize={{ base: 400, md: 800 }} />
+        <Box maxW="80rem" mb={8}>
+          <Ticket boxSize={{ base: 400, md: "72rem" }} />
         </Box>
         {/*section 6*/}
-        <Box boxSize={["sm", "md", "lg", "xl", "4xl"]}>
+        <Box
+          // boxSize={["sm", "md", "lg", "xl", "4xl"]}
+          maxW="80rem"
+          mb={8}
+        >
           <Image
+            width={"72rem"}
             src="https://shrub.finance/rock-power-shrub.webp"
             fallbackSrc="https://shrub.finance/rock-power-shrub.png"
             alt="Rock"
           />
         </Box>
-        <Box>
+        <Box maxW="80rem" mb={8}>
           <Heading
             fontSize={{ base: "30px", md: "70px" }}
             letterSpacing={"tight"}
@@ -244,7 +291,12 @@ function Intro(props: RouteComponentProps) {
           >
             Shrub is a movement
           </Heading>
-          <Text mt="3" fontSize="28px">
+          <Text
+            mt="3"
+            fontSize={{ base: "20px", md: "28px" }}
+            maxW={{ base: "22rem", md: "40rem" }}
+            fontWeight={{ base: "semibold", md: "medium" }}
+          >
             It takes a special sort of person to hold a Shrub. Shrubs represent
             those who believe in the decentralized world and are willing to put
             in the effort to make it a reality. Shrub holders are dreamers,
