@@ -125,9 +125,12 @@ function Intro(props: RouteComponentProps) {
           <Box mt={{ base: 20, md: 32 }} ml={{ base: 0, md: 0, lg: 80 }}>
             <HStack>
               <Pot boxSize={{ base: 20, md: 52, lg: 80 }} />
-              <Icon as={FaPlus} boxSize={{ base: 10, md: 20 }} />
+              <Icon as={FaPlus} boxSize={{ base: 10, md: 16, lg: 20 }} />
               <GoofyWonder boxSize={{ base: 20, md: 52, lg: 80 }} />
-              <Icon as={FaLongArrowAltRight} boxSize={{ base: 10, md: 24 }} />
+              <Icon
+                as={FaLongArrowAltRight}
+                boxSize={{ base: 10, md: 20, lg: 24 }}
+              />
               <WonderPot boxSize={{ base: 20, md: 52, lg: 80 }} />
             </HStack>
           </Box>
@@ -153,7 +156,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               Take care of your plant to help it grow.
@@ -161,7 +164,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               Watering the Potted plants makes it grow big and strong!
@@ -170,7 +173,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               Watch the traits of your plant update dynamically on OpenSea after
@@ -240,7 +243,7 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
       <Container
-        mt={{ base: 110, md: 40 }}
+        mt={{ base: 110, md: 60, lg: 40 }}
         p={5}
         flex="1"
         borderRadius="2xl"
@@ -294,7 +297,7 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
       <Container
-        mt={{ base: 0, md: 50 }}
+        mt={{ base: 0, md: 54, lg: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
@@ -309,7 +312,7 @@ function Intro(props: RouteComponentProps) {
             />
           </Box>
           <Spacer display={{ base: "none", md: "none", lg: "flex" }} />
-          <Box mt={8} ml={{ base: 0, md: 40 }}>
+          <Box mt={8} ml={{ base: 0, md: 0, lg: 40 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -320,7 +323,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               It all started with a visit from the mysterious traveller the
@@ -336,7 +339,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               The seeds are now ready to transform and grow. The potter has come
@@ -346,7 +349,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               {" "}
@@ -355,8 +358,11 @@ function Intro(props: RouteComponentProps) {
             </Text>
           </Box>
           <Spacer display={{ base: "flex", md: "flex", lg: "none" }} />
-          <Box display={{ base: "flex", md: "flex", lg: "none" }}>
-            <Night boxSize={{ base: "xs", md: "xl" }} />
+          <Box
+            mt={{ base: "auto", md: -20, lg: "auto" }}
+            display={{ base: "flex", md: "flex", lg: "none" }}
+          >
+            <Night boxSize={{ base: "xs", md: "3xl", lg: "xl" }} />
           </Box>
         </Flex>
       </Container>
@@ -373,14 +379,14 @@ function Intro(props: RouteComponentProps) {
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
-              maxW="40rem"
+              maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}
             >
               An innovative distribution system
             </Heading>
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               The whitelist for the Pot sale will make use of a new distribution
@@ -389,7 +395,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               NFT Tickets are NFTs themselves (ERC-1155) and are super
@@ -398,7 +404,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               When buying NFT tickets in a pre-sale, only a portion of the total
@@ -408,7 +414,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               Because NFT ticket itself can be sold on the secondary markets, it
