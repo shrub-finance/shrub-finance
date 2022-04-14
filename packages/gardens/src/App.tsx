@@ -51,7 +51,6 @@ function App() {
             <TopNav />
             <Router>
               <HomeView path="/" />
-              <HomeView path="/claim" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
