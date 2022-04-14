@@ -23,346 +23,486 @@ import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
 
 function Intro(props: RouteComponentProps) {
   return (
-    <Container
-      mt={{ base: 110, md: 50 }}
-      p={5}
-      flex="1"
-      borderRadius="2xl"
-      maxW={{ base: "container.xs", md: "container.lg" }}
-    >
-      <Box maxW="80rem" mb={8} mt={100} textAlign={"center"}>
-        <Heading
-          fontSize={{ base: "30px", md: "90px" }}
-          letterSpacing={"tight"}
-        >
-          What will you grow?
-          {/*<Text as="span">Shrub </Text>{" "}*/}
-          {/*<Text*/}
-          {/*  as="span"*/}
-          {/*  bgGradient="linear(145deg, #ffa9c2, #d05b17)"*/}
-          {/*  bgClip="text"*/}
-          {/*>*/}
-          {/*  Paper Gardens*/}
-          {/*</Text>*/}
-        </Heading>
-        <Text
-          mt="3"
-          mb={{ base: "16", md: "20", lg: "20" }}
-          fontSize="28px"
-          textAlign="center"
-          px={["4rem", "5rem", "10rem", "10rem"]}
-        >
-          {/*An interactive NFT story like no other.*/}
-        </Text>
-        <AspectRatio ratio={16 / 9}>
-          <iframe
-            title="shrub trailer"
-            src="https://www.youtube.com/embed/O5DSYCrSWEo"
-            allowFullScreen
-          />
-        </AspectRatio>
-      </Box>
-
-      <Grid
-        gap={[20, 32]}
-        mt={{ base: 20, md: 60 }}
-        templateColumns={[
-          "repeat(1, 1fr)",
-          "repeat(1, 1fr)",
-          "repeat(1, 1fr)",
-          "repeat(1, 1fr)",
-          "repeat(2, 1fr)",
-          "repeat(2, 1fr)",
-        ]}
+    <>
+      <Container
+        mt={{ base: 110, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.xs", md: "container.lg" }}
       >
-        {/*section 1*/}
-        <Box maxW="80rem" mb={8}>
+        <Box maxW="80rem" mb={8} mt={100} textAlign={"center"}>
           <Heading
-            fontSize={{ base: "30px", md: "70px" }}
+            fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
-            maxW={{ base: "20rem", md: "40rem" }}
           >
-            The first on-chain growth NFT
+            What will you grow?
+            {/*<Text as="span">Shrub </Text>{" "}*/}
+            {/*<Text*/}
+            {/*  as="span"*/}
+            {/*  bgGradient="linear(145deg, #ffa9c2, #d05b17)"*/}
+            {/*  bgClip="text"*/}
+            {/*>*/}
+            {/*  Paper Gardens*/}
+            {/*</Text>*/}
           </Heading>
           <Text
             mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
+            mb={{ base: "16", md: "20", lg: "20" }}
+            fontSize="28px"
+            textAlign="center"
+            px={["4rem", "5rem", "10rem", "10rem"]}
           >
-            Plant your seed, grow a shrub. Planting your Paper Seed into a pot
-            yields a Potted Plant. For the first time ever, grow your NFT by
-            interacting with it on-chain.
+            {/*An interactive NFT story like no other.*/}
           </Text>
+          <AspectRatio ratio={16 / 9}>
+            <iframe
+              title="shrub trailer"
+              src="https://www.youtube.com/embed/O5DSYCrSWEo"
+              allowFullScreen
+            />
+          </AspectRatio>
         </Box>
-        <Box maxW="80rem" mb={8}>
-          <HStack mb={80}>
-            <Pot boxSize={{ base: 20, md: 60 }} />
-            <Icon as={FaPlus} boxSize={{ base: 12, md: 16 }} />
-            <GoofyWonder boxSize={{ base: 20, md: 60 }} />
-            <Icon as={FaLongArrowAltRight} boxSize={{ base: 12, md: 20 }} />
-            <WonderPot boxSize={{ base: 20, md: 60 }} />
-          </HStack>
-        </Box>
-
+      </Container>
+      <Container
+        mt={{ base: 110, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.xs", md: "1400px" }}
+      >
+        <Flex
+          direction={{ base: "column", md: "column", lg: "column" }}
+          // alignItems={{ base: "center", md: "left", lg: "left" }}
+        >
+          {/*section 1*/}
+          <Box mt={20}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW={{ base: "20rem", md: "40rem" }}
+            >
+              The first on-chain growth NFT
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Plant your seed, grow a shrub.
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Planting your Paper Seed into a pot creates a Potted Plant!{" "}
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              For the first time ever, grow your NFT by interacting with it
+              on-chain.
+            </Text>
+          </Box>
+          <Spacer />
+          <Box mt={32} ml={80}>
+            <HStack>
+              <Pot boxSize={{ base: 20, md: 80 }} />
+              <Icon as={FaPlus} boxSize={{ base: 12, md: 20 }} />
+              <GoofyWonder boxSize={{ base: 20, md: 80 }} />
+              <Icon as={FaLongArrowAltRight} boxSize={{ base: 12, md: 24 }} />
+              <WonderPot boxSize={{ base: 20, md: 80 }} />
+            </HStack>
+          </Box>
+        </Flex>
+      </Container>
+      <Container
+        mt={{ base: 110, md: 40 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.xs", md: "1400px" }}
+      >
         {/*section 2*/}
-        <Box
-          // boxSize={["sm", "md", "lg", "xl", "6xl"]}
-          maxW="80rem"
-          mb={80}
+        <Flex
+          direction={{ base: "column", md: "column", lg: "column" }}
+          // alignItems={{ base: "center", md: "left", lg: "left" }}
         >
-          <Image
-            width={"72rem"}
-            src="/grow.png"
-            fallbackSrc="https://shrub.finance/lovely-passion-shrub.png"
-            alt="Lovely"
-          />
-        </Box>
-
-        <Box maxW="80rem">
-          <Heading
-            fontSize={{ base: "30px", md: "70px" }}
-            letterSpacing={"tight"}
-            maxW={{ base: "20rem", md: "40rem" }}
-          >
-            Grow your Shrub on-chain
-          </Heading>
-          <Text
-            mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            Take care of your plant to help it grow. Potted plants need water to
-            grow big and strong. Fertilizer can also provide a boost! See the
-            traits of your plant update on OpenSea after you interact with it.
-          </Text>
-        </Box>
+          <Box mt={8}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW={{ base: "20rem", md: "40rem" }}
+            >
+              Grow your Shrub on-chain
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Take care of your plant to help it grow.
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Watering the Potted plants makes it grow big and strong!
+              Fertilizing also gives it a boost!{" "}
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Watch the traits of your plant update dynamically on OpenSea after
+              you interact with it.
+            </Text>
+          </Box>
+          <Spacer />
+          <Box maxW="80rem" mt={20} ml={80}>
+            <Image width={"1400px"} src="/grow.png" />
+          </Box>
+        </Flex>
+      </Container>
+      <Container
+        mt={{ base: 110, md: 40 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.xs", md: "1400px" }}
+      >
         {/*section 3*/}
-        <Box maxW="80rem" mb={8}>
-          <Heading
-            fontSize={{ base: "30px", md: "70px" }}
-            letterSpacing={"tight"}
-            maxW={{ base: "20rem", md: "40rem" }}
-          >
-            Harvest your Shrub
-          </Heading>
-          <Text
-            mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            Once your potted plant is fully grown it is time to harvest. Out
-            will come a shrub, based on the type of seed you planted, its
-            emotion and its DNA. Some combinations result in rare traits! Every
-            Shrub is unique.
-          </Text>
-        </Box>
-        <Box
-          // boxSize={["sm", "md", "lg", "xl", "4xl"]}
-          maxW="80rem"
-          mb={8}
+        <Flex
+          direction={{ base: "column", md: "column", lg: "row" }}
+          // alignItems={{ base: "center", md: "left", lg: "left" }}
         >
-          <Image
-            width={"72rem"}
-            src="https://shrub.finance/lovely-passion-shrub.webp"
-            fallbackSrc="https://shrub.finance/lovely-passion-shrub.png"
-            alt="Lovely"
-          />
-        </Box>
+          <Box mt={8}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW={{ base: "20rem", md: "40rem" }}
+            >
+              Harvest your Shrub
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Once your potted plant is fully grown it is time to harvest.
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Out will come a shrub, based on the type of seed you planted, its
+              emotion and its DNA. Some combinations result in rare traits!
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Every Shrub is unique.
+            </Text>
+          </Box>
+          <Spacer />
+          <Box
+            // boxSize={["sm", "md", "lg", "xl", "4xl"]}
+            mt={20}
+          >
+            <Image
+              width={"72rem"}
+              src="https://shrub.finance/lovely-passion-shrub.webp"
+              fallbackSrc="https://shrub.finance/lovely-passion-shrub.png"
+              alt="Lovely"
+            />
+          </Box>
+        </Flex>
+      </Container>
+      <Container
+        mt={{ base: 110, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.xs", md: "1400px" }}
+      >
         {/*section 4*/}
-        <Box maxW="80rem" mb={8}>
-          <Night boxSize={"6xl"} />
-        </Box>
-
-        <Box maxW="80rem" mb={8}>
-          <Heading
-            fontSize={{ base: "30px", md: "70px" }}
-            letterSpacing={"tight"}
-            maxW={{ base: "20rem", md: "40rem" }}
-          >
-            The story so far
-          </Heading>
-          <Text
-            mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            It all started with a visit from the mysterious traveller the Paper
-            Merchant. He came with seeds to give to the chosen. Some seeds were
-            neglected and became sad.{" "}
-            <Link
-              textDecoration={"underline"}
-              href={"https://gardens.shrub.finance/chapters"}
+        <Flex
+          direction={{ base: "column", md: "row", lg: "row" }}
+          // alignItems={{ base: "center", md: "left", lg: "left" }}
+        >
+          <Box>
+            <Night boxSize={"xl"} />
+          </Box>
+          <Spacer />
+          <Box mt={8} ml={40}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW={{ base: "20rem", md: "40rem" }}
             >
-              Read all the chapters here.
-            </Link>
-          </Text>
-          <Text
-            mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            The seeds are now ready to transform and grow. The potter has come
-            to help. He has a limited supply of pots which the paper seeds can
-            be planted in. It is the moment that everyone has been waiting for.
-            It is time to grow!
-          </Text>
-        </Box>
+              The story so far
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              It all started with a visit from the mysterious traveller the
+              Paper Merchant. He came with seeds to give to the chosen. Some
+              seeds were neglected and became sad.{" "}
+              <Link
+                textDecoration={"underline"}
+                href={"https://gardens.shrub.finance/chapters"}
+              >
+                Read all the chapters here.
+              </Link>
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              The seeds are now ready to transform and grow. The potter has come
+              to help. He has a limited supply of pots which the paper seeds can
+              be planted in.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              {" "}
+              It is the moment that everyone has been waiting for. It is time to
+              grow!
+            </Text>
+          </Box>
+        </Flex>
+      </Container>
+      <Container
+        mt={{ base: 110, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.xs", md: "1400px" }}
+      >
         {/*section 5*/}
-        <Box maxW="80rem" mb={8}>
-          <Heading
-            fontSize={{ base: "30px", md: "70px" }}
-            letterSpacing={"tight"}
-            maxW="40rem"
-          >
-            An innovative distribution system
-          </Heading>
-          <Text
-            mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            {/*NFT Tickets are an innovative distribution mechanism for NFTs by*/}
-            {/*the team at Shrub.finance. NFT tickets represent the right to mint*/}
-            {/*an NFT between certain dates at a certain price. NFT tickets are*/}
-            {/*NFTs themselves (that follow the ERC-1155 standard). For the*/}
-            {/*Chapter 3 pot sale in Shrub Paper Gardens, we will be debuting the*/}
-            {/*NFT tickets product.*/}
-          </Text>
-          <Text
-            mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            The whitelist for the Pot sale will make use of a new distribution
-            method created by the Shrub engineering team. NFT tickets will be
-            distributed and sold in a pre-sale that will be redeemable for pots
-            at the time of the public sale (and some time afterwards).
-          </Text>
-          <Text
-            mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            NFT Tickets are NFTs themselves (ERC-1155) and are gas-efficient to
-            mint.
-          </Text>
-          <Text
-            mt="3"
-            fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            When purchasing NFT tickets in a pre-sale only a portion of the
-            total cost must be paid, the NFT ticket can then either be redeemed
-            for the pot after the public sale by paying the remainder of the
-            price, or the NFT ticket itself can be sold on the secondary
-            markets. This provides collectors with tons of flexibility.
-          </Text>
-        </Box>
-        <Box maxW="80rem" mb={8}>
-          <Ticket boxSize={{ base: 400, md: "72rem" }} />
-        </Box>
+        <Flex
+          direction={{ base: "column", md: "row", lg: "row" }}
+          // alignItems={{ base: "center", md: "left", lg: "left" }}
+        >
+          <Box mt={8}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW="40rem"
+            >
+              An innovative distribution system
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              The whitelist for the Pot sale will make use of a new distribution
+              method created by the Shrub engineering team.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              NFT Tickets are NFTs themselves (ERC-1155) and are super
+              gas-efficient to mint!
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              When buying NFT tickets in a pre-sale, only a portion of the total
+              cost must be paid. The NFT ticket can later be redeemed after the
+              public sale by paying the rest.{" "}
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Because NFT ticket itself can be sold on the secondary markets, it
+              provides collectors with tons of flexibility.
+            </Text>
+          </Box>
+          <Box ml={40}>
+            <Ticket boxSize={{ base: 400, md: 600 }} />
+          </Box>
+        </Flex>
+      </Container>
+      <Container
+        mt={{ base: 110, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.xs", md: "1400px" }}
+      >
         {/*section 6*/}
-        <Box
-          // boxSize={["sm", "md", "lg", "xl", "4xl"]}
-          maxW="80rem"
-          mb={8}
+        <Flex
+          direction={{ base: "column", md: "row", lg: "row" }}
+          // alignItems={{ base: "center", md: "left", lg: "left" }}
         >
-          <Image
-            width={"72rem"}
-            src="https://shrub.finance/rock-power-shrub.webp"
-            fallbackSrc="https://shrub.finance/rock-power-shrub.png"
-            alt="Rock"
-          />
-        </Box>
-        <Box maxW="80rem" mb={8}>
+          <Box mt={40}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW="40rem"
+            >
+              The Shrub Club
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              It takes a special sort of person to hold a Shrub.{" "}
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Shrubs represent those who believe in the decentralized world and
+              are willing to put in the effort to make it a reality.
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Shrub holders are dreamers, builders, innovators, thinkers, and
+              freedom-lovers. They think outside the box and change the world in
+              their vision.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              We do it by going beyond the jpeg, and finding real use cases.
+            </Text>
+          </Box>
+          <Box mt={64}>
+            <Image
+              width={"72rem"}
+              src="https://shrub.finance/rock-power-shrub.webp"
+              fallbackSrc="https://shrub.finance/rock-power-shrub.png"
+              alt="Rock"
+            />
+          </Box>
+        </Flex>
+      </Container>
+      <Container
+        mt={{ base: 110, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.xs", md: "container.lg" }}
+      >
+        <Box maxW="80rem" mt={32} textAlign={"center"}>
           <Heading
-            fontSize={{ base: "30px", md: "70px" }}
+            fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
-            maxW="40rem"
           >
-            Shrub is a movement
+            Stand apart. Raise the bar. Set the standard.
           </Heading>
           <Text
-            mt="3"
+            mt="6"
+            mb={{ base: "16", md: "20", lg: "20" }}
             fontSize={{ base: "20px", md: "28px" }}
-            maxW={{ base: "22rem", md: "40rem" }}
+            textAlign="center"
+            px={["4rem", "5rem", "10rem", "10rem"]}
             fontWeight={{ base: "semibold", md: "medium" }}
           >
-            It takes a special sort of person to hold a Shrub. Shrubs represent
-            those who believe in the decentralized world and are willing to put
-            in the effort to make it a reality. Shrub holders are dreamers,
-            builders, innovators, thinkers, and freedom-lovers. They think
-            outside the box and bring positive change to the world
+            Owning a Shrub means you stand by the ethos of decentralization, and
+            believe in the core idea that innovation is necessary to create the
+            future.
           </Text>
+          <Text
+            mt="6"
+            mb={{ base: "16", md: "20", lg: "20" }}
+            fontSize={{ base: "20px", md: "28px" }}
+            textAlign="center"
+            px={["4rem", "5rem", "10rem", "10rem"]}
+            fontWeight={{ base: "semibold", md: "medium" }}
+          >
+            Mint details coming soon...
+          </Text>
+          <Center>
+            <Flex direction={{ base: "column", md: "row" }}>
+              <Link
+                href="https://discord.gg/YnHsUP8g"
+                isExternal
+                cursor="pointer"
+                rounded="3xl"
+                size="sm"
+                px="6"
+                fontSize="25px"
+                fontWeight="semibold"
+                py="5"
+                _hover={{ transform: "translateY(-2px)" }}
+                bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
+                color={"black"}
+              >
+                Join our Discord <ExternalLinkIcon mx="2px" />
+              </Link>
+              <Link
+                href="https://discord.gg/YnHsUP8g"
+                isExternal
+                cursor="pointer"
+                rounded="3xl"
+                size="sm"
+                px="6"
+                fontSize="25px"
+                fontWeight="semibold"
+                py="5"
+                ml="8"
+                _hover={{ transform: "translateY(-2px)" }}
+                bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
+                color={"black"}
+              >
+                Follow on Twitter <ExternalLinkIcon mx="2px" />
+              </Link>
+            </Flex>
+          </Center>
         </Box>
-      </Grid>
-
-      <Box maxW="80rem" mt={32} textAlign={"center"}>
-        <Heading
-          fontSize={{ base: "30px", md: "90px" }}
-          letterSpacing={"tight"}
-        >
-          Stand apart. Raise the bar. Set the standard.
-        </Heading>
-        <Text
-          mt="3"
-          mb={{ base: "16", md: "20", lg: "20" }}
-          fontSize="28px"
-          textAlign="center"
-          px={["4rem", "5rem", "10rem", "10rem"]}
-        >
-          Owning a Shrub means you stand by the ethos of decentralization, and
-          believe in the core idea that innovation is necessary to create the
-          future.
-        </Text>
-        <Center>
-          <Flex direction={{ base: "column", md: "row" }}>
-            <Link
-              href="https://discord.gg/YnHsUP8g"
-              isExternal
-              cursor="pointer"
-              rounded="3xl"
-              size="sm"
-              px="6"
-              fontSize="25px"
-              fontWeight="semibold"
-              py="5"
-              _hover={{ transform: "translateY(-2px)" }}
-              bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
-              color={"black"}
-            >
-              Join our Discord <ExternalLinkIcon mx="2px" />
-            </Link>
-            <Link
-              href="https://discord.gg/YnHsUP8g"
-              isExternal
-              cursor="pointer"
-              rounded="3xl"
-              size="sm"
-              px="6"
-              fontSize="25px"
-              fontWeight="semibold"
-              py="5"
-              ml="8"
-              _hover={{ transform: "translateY(-2px)" }}
-              bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
-              color={"black"}
-            >
-              Follow on Twitter <ExternalLinkIcon mx="2px" />
-            </Link>
-          </Flex>
-        </Center>
-      </Box>
-    </Container>
+      </Container>
+    </>
   );
 }
 
