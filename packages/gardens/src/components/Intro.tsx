@@ -24,6 +24,7 @@ import {
   Night,
   Pot,
   Ticket,
+  Ticket1,
   Water,
   WateringCan,
   WonderPot,
@@ -122,16 +123,22 @@ function Intro(props: RouteComponentProps) {
             </Text>
           </Box>
           <Spacer />
-          <Box mt={{ base: 20, md: 32 }} ml={{ base: 0, md: 0, lg: 80 }}>
+          <Box
+            mt={{ base: 20, md: 32 }}
+            ml={{ base: 0, md: 0, lg: 60, xl: 70 }}
+          >
             <HStack>
-              <Pot boxSize={{ base: 20, md: 52, lg: 80 }} />
-              <Icon as={FaPlus} boxSize={{ base: 10, md: 16, lg: 20 }} />
-              <GoofyWonder boxSize={{ base: 20, md: 52, lg: 80 }} />
+              <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 80 }} />
+              <Icon
+                as={FaPlus}
+                boxSize={{ base: 10, md: 16, lg: 16, xl: 20 }}
+              />
+              <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 80 }} />
               <Icon
                 as={FaLongArrowAltRight}
-                boxSize={{ base: 10, md: 20, lg: 24 }}
+                boxSize={{ base: 10, md: 20, lg: 16, xl: 24 }}
               />
-              <WonderPot boxSize={{ base: 20, md: 52, lg: 80 }} />
+              <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 80 }} />
             </HStack>
           </Box>
         </Flex>
@@ -305,14 +312,15 @@ function Intro(props: RouteComponentProps) {
       >
         {/*section 4*/}
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
+          {/*visible for large screens*/}
           <Box>
             <Night
-              boxSize={"xl"}
+              boxSize={{ lg: "md", xl: "xl" }}
               display={{ base: "none", md: "none", lg: "flex" }}
             />
           </Box>
           <Spacer display={{ base: "none", md: "none", lg: "flex" }} />
-          <Box mt={8} ml={{ base: 0, md: 0, lg: 40 }}>
+          <Box mt={8} ml={{ base: 0, md: 0, lg: 20, xl: 40 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -358,6 +366,7 @@ function Intro(props: RouteComponentProps) {
             </Text>
           </Box>
           <Spacer display={{ base: "flex", md: "flex", lg: "none" }} />
+          {/*visible for smaller screens*/}
           <Box
             mt={{ base: "auto", md: -20, lg: "auto" }}
             display={{ base: "flex", md: "flex", lg: "none" }}
@@ -389,8 +398,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              The whitelist for the Pot sale will make use of a new distribution
-              method created by the Shrub engineering team.
+              The whitelist for the Pot sale will make use of an entirely new
+              distribution method created by the Shrub engineering team.
             </Text>
             <Text
               mt="3"
@@ -421,8 +430,17 @@ function Intro(props: RouteComponentProps) {
               provides collectors with tons of flexibility.
             </Text>
           </Box>
-          <Box ml={{ base: 0, md: 40 }}>
-            <Ticket boxSize={{ base: 320, md: 600 }} />
+          <Box
+            mt={{ base: 0, md: 0, lg: 40, xl: 40, "2xl": 0 }}
+            ml={{ base: 0, md: 40, lg: 20, xl: 40 }}
+          >
+            <Ticket
+              boxSize={{ base: 320, md: 600, lg: 400, xl: 400, "2xl": 500 }}
+            />
+            <Ticket1
+              display={{ base: "none", md: "none", lg: "flex" }}
+              boxSize={{ base: 320, md: 600, lg: 400, xl: 400, "2xl": 500 }}
+            />
           </Box>
         </Flex>
       </Container>
@@ -441,7 +459,7 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW="40rem"
             >
-              The Shrub Club
+              Shrub is a movement
             </Heading>
             <Text
               mt="3"
