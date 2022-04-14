@@ -116,15 +116,20 @@ export function Tilt(animationItem: JSX.Element, controls: AnimationControls) {
   );
 }
 
-export function Tilt2(animationItem: JSX.Element, controls: AnimationControls) {
+export function Tilt2(
+  animationItem: JSX.Element,
+  controls: AnimationControls,
+  x: number[],
+  y: number[]
+) {
   const MotionBox = motion<BoxProps>(Box);
   return (
     <MotionBox
       animate={{
         opacity: [0, 1, 1, 1, 0],
         rotate: [0, 15, 0],
-        x: [-392, -391, -392],
-        y: [-73, -101, -73],
+        x: x,
+        y: y,
       }}
       // @ts-ignore
       transition={{
@@ -174,7 +179,9 @@ export function Grow(animationItem: JSX.Element, controls: AnimationControls) {
       transition={{
         type: "spring",
         stiffness: 100,
-        opacity: { delay: 9, duration: 3, times: [0, 0.25, 0.5, 0.75, 1] },
+        // opacity: { delay: 9, duration: 3, times: [0, 0.25, 0.5, 0.75, 1] },
+        // default: { delay: 4, duration: 2 },
+        opacity: { delay: 2.5, duration: 3, times: [0, 0.25, 0.5, 0.75, 1] },
         default: { delay: 4, duration: 2 },
       }}
     >

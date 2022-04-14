@@ -284,7 +284,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     : { base: "repeat(4, 1fr)", md: "repeat(5, 1fr)" }
                 }
                 gap={2}
-                minH={"565px"}
+                minH={"620px"}
                 overflow="scroll"
                 maxH="620px"
                 shadow="2xl"

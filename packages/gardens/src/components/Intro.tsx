@@ -1,35 +1,49 @@
-import { isMobile } from "react-device-detect";
 import {
   AspectRatio,
   Box,
   Center,
   Container,
-  Grid,
-  GridItem,
   Heading,
   HStack,
   Link,
-  Stack,
   Text,
   Image,
   Spacer,
   Flex,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
-import { GoofyWonder, Night, Pot, Ticket, WonderPot } from "../assets/Icons";
+import {
+  Fertilizer,
+  FertilizerSoil,
+  GoofyWonder,
+  Leaf1,
+  Leaf2,
+  Night,
+  Pot,
+  Ticket,
+  Water,
+  WateringCan,
+  WonderPot,
+} from "../assets/Icons";
 import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
+import { Grow, Spray, Spray2, Tilt, Tilt2 } from "./animations/TransformScale";
+import { useAnimation } from "framer-motion";
 
 function Intro(props: RouteComponentProps) {
+  const controls = useAnimation();
+  const dropColor = useColorModeValue("blue.300", "blue.100");
+
   return (
     <>
       <Container
-        mt={{ base: 110, md: 50 }}
+        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.xs", md: "container.lg" }}
+        maxW={{ base: "container.sm", md: "container.lg" }}
       >
         <Box maxW="80rem" mb={8} mt={100} textAlign={"center"}>
           <Heading
@@ -65,18 +79,15 @@ function Intro(props: RouteComponentProps) {
         </Box>
       </Container>
       <Container
-        mt={{ base: 110, md: 50 }}
+        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.xs", md: "1400px" }}
+        maxW={{ base: "container.sm", md: "1400px" }}
       >
-        <Flex
-          direction={{ base: "column", md: "column", lg: "column" }}
-          // alignItems={{ base: "center", md: "left", lg: "left" }}
-        >
+        <Flex direction={{ base: "column", md: "column", lg: "column" }}>
           {/*section 1*/}
-          <Box mt={20}>
+          <Box mt={{ base: 0, md: 20 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -111,29 +122,26 @@ function Intro(props: RouteComponentProps) {
             </Text>
           </Box>
           <Spacer />
-          <Box mt={32} ml={80}>
+          <Box mt={{ base: 20, md: 32 }} ml={{ base: 0, md: 0, lg: 80 }}>
             <HStack>
-              <Pot boxSize={{ base: 20, md: 80 }} />
-              <Icon as={FaPlus} boxSize={{ base: 12, md: 20 }} />
-              <GoofyWonder boxSize={{ base: 20, md: 80 }} />
-              <Icon as={FaLongArrowAltRight} boxSize={{ base: 12, md: 24 }} />
-              <WonderPot boxSize={{ base: 20, md: 80 }} />
+              <Pot boxSize={{ base: 20, md: 52, lg: 80 }} />
+              <Icon as={FaPlus} boxSize={{ base: 10, md: 20 }} />
+              <GoofyWonder boxSize={{ base: 20, md: 52, lg: 80 }} />
+              <Icon as={FaLongArrowAltRight} boxSize={{ base: 10, md: 24 }} />
+              <WonderPot boxSize={{ base: 20, md: 52, lg: 80 }} />
             </HStack>
           </Box>
         </Flex>
       </Container>
       <Container
-        mt={{ base: 110, md: 40 }}
+        mt={{ base: 0, md: 40 }}
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.xs", md: "1400px" }}
+        maxW={{ base: "container.sm", md: "1400px" }}
       >
         {/*section 2*/}
-        <Flex
-          direction={{ base: "column", md: "column", lg: "column" }}
-          // alignItems={{ base: "center", md: "left", lg: "left" }}
-        >
+        <Flex direction={{ base: "column", md: "column", lg: "column" }}>
           <Box mt={8}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
@@ -170,8 +178,64 @@ function Intro(props: RouteComponentProps) {
             </Text>
           </Box>
           <Spacer />
-          <Box maxW="80rem" mt={20} ml={80}>
-            <Image width={"1400px"} src="/grow.png" />
+          <Box mt={{ base: 10, md: 32 }} ml={20}>
+            <Center>
+              <WonderPot
+                boxSize={60}
+                position={"relative"}
+                left={"225px"}
+                bottom={"-88px"}
+              />
+              <Center>
+                <Center>
+                  {Grow(
+                    <Leaf1
+                      boxSize={52}
+                      position={"absolute"}
+                      bottom={"150px"}
+                      left={"296px"}
+                    />,
+                    controls
+                  )}
+                </Center>
+                <Center>
+                  {Spray(
+                    <Water
+                      stroke={dropColor}
+                      boxSize={28}
+                      position={"relative"}
+                      top={"-32px"}
+                      right={"-86px"}
+                    />,
+                    controls
+                  )}
+                  {Tilt(<WateringCan boxSize={60} />, controls)}
+                </Center>
+                <Center>
+                  {Spray2(
+                    <FertilizerSoil
+                      stroke={dropColor}
+                      boxSize={28}
+                      position={"relative"}
+                      left={"-407px"}
+                      top={"-35px"}
+                    />,
+                    controls
+                  )}
+                  {Tilt2(
+                    <Fertilizer
+                      boxSize={40}
+                      position="relative"
+                      left={"-395px"}
+                      top={"-21px"}
+                    />,
+                    controls,
+                    [-285, -306, -285],
+                    [17, 100, 17]
+                  )}
+                </Center>
+              </Center>
+            </Center>
           </Box>
         </Flex>
       </Container>
@@ -180,13 +244,10 @@ function Intro(props: RouteComponentProps) {
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.xs", md: "1400px" }}
+        maxW={{ base: "container.sm", md: "1400px" }}
       >
         {/*section 3*/}
-        <Flex
-          direction={{ base: "column", md: "column", lg: "row" }}
-          // alignItems={{ base: "center", md: "left", lg: "left" }}
-        >
+        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
           <Box mt={8}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
@@ -222,10 +283,7 @@ function Intro(props: RouteComponentProps) {
             </Text>
           </Box>
           <Spacer />
-          <Box
-            // boxSize={["sm", "md", "lg", "xl", "4xl"]}
-            mt={20}
-          >
+          <Box mt={20}>
             <Image
               width={"72rem"}
               src="https://shrub.finance/lovely-passion-shrub.webp"
@@ -236,22 +294,22 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
       <Container
-        mt={{ base: 110, md: 50 }}
+        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.xs", md: "1400px" }}
+        maxW={{ base: "container.sm", md: "1400px" }}
       >
         {/*section 4*/}
-        <Flex
-          direction={{ base: "column", md: "row", lg: "row" }}
-          // alignItems={{ base: "center", md: "left", lg: "left" }}
-        >
+        <Flex direction={{ base: "column", md: "column", lg: "row" }}>
           <Box>
-            <Night boxSize={"xl"} />
+            <Night
+              boxSize={"xl"}
+              display={{ base: "none", md: "none", lg: "flex" }}
+            />
           </Box>
-          <Spacer />
-          <Box mt={8} ml={40}>
+          <Spacer display={{ base: "none", md: "none", lg: "flex" }} />
+          <Box mt={8} ml={{ base: 0, md: 40 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -296,21 +354,22 @@ function Intro(props: RouteComponentProps) {
               grow!
             </Text>
           </Box>
+          <Spacer display={{ base: "flex", md: "flex", lg: "none" }} />
+          <Box display={{ base: "flex", md: "flex", lg: "none" }}>
+            <Night boxSize={{ base: "xs", md: "xl" }} />
+          </Box>
         </Flex>
       </Container>
       <Container
-        mt={{ base: 110, md: 50 }}
+        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.xs", md: "1400px" }}
+        maxW={{ base: "container.sm", md: "1400px" }}
       >
         {/*section 5*/}
-        <Flex
-          direction={{ base: "column", md: "row", lg: "row" }}
-          // alignItems={{ base: "center", md: "left", lg: "left" }}
-        >
-          <Box mt={8}>
+        <Flex direction={{ base: "column", md: "column", lg: "row" }}>
+          <Box mt={{ base: 0, md: 8 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -356,24 +415,21 @@ function Intro(props: RouteComponentProps) {
               provides collectors with tons of flexibility.
             </Text>
           </Box>
-          <Box ml={40}>
-            <Ticket boxSize={{ base: 400, md: 600 }} />
+          <Box ml={{ base: 0, md: 40 }}>
+            <Ticket boxSize={{ base: 320, md: 600 }} />
           </Box>
         </Flex>
       </Container>
       <Container
-        mt={{ base: 110, md: 50 }}
+        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.xs", md: "1400px" }}
+        maxW={{ base: "container.sm", md: "1400px" }}
       >
         {/*section 6*/}
-        <Flex
-          direction={{ base: "column", md: "row", lg: "row" }}
-          // alignItems={{ base: "center", md: "left", lg: "left" }}
-        >
-          <Box mt={40}>
+        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -408,16 +464,8 @@ function Intro(props: RouteComponentProps) {
               freedom-lovers. They think outside the box and change the world in
               their vision.
             </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              We do it by going beyond the jpeg, and finding real use cases.
-            </Text>
           </Box>
-          <Box mt={64}>
+          <Box mt={{ base: 0, md: 64 }}>
             <Image
               width={"72rem"}
               src="https://shrub.finance/rock-power-shrub.webp"
@@ -428,13 +476,13 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
       <Container
-        mt={{ base: 110, md: 50 }}
+        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.xs", md: "container.lg" }}
+        maxW={{ base: "container.sm", md: "container.lg" }}
       >
-        <Box maxW="80rem" mt={32} textAlign={"center"}>
+        <Box maxW="80rem" mt={{ base: 16, md: 32 }} textAlign={"center"}>
           <Heading
             fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
@@ -446,7 +494,7 @@ function Intro(props: RouteComponentProps) {
             mb={{ base: "16", md: "20", lg: "20" }}
             fontSize={{ base: "20px", md: "28px" }}
             textAlign="center"
-            px={["4rem", "5rem", "10rem", "10rem"]}
+            px={["0", "5rem", "10rem"]}
             fontWeight={{ base: "semibold", md: "medium" }}
           >
             Owning a Shrub means you stand by the ethos of decentralization, and
@@ -458,13 +506,13 @@ function Intro(props: RouteComponentProps) {
             mb={{ base: "16", md: "20", lg: "20" }}
             fontSize={{ base: "20px", md: "28px" }}
             textAlign="center"
-            px={["4rem", "5rem", "10rem", "10rem"]}
+            px={["4rem", "5rem", "10rem"]}
             fontWeight={{ base: "semibold", md: "medium" }}
           >
             Mint details coming soon...
           </Text>
           <Center>
-            <Flex direction={{ base: "column", md: "row" }}>
+            <Flex direction={{ base: "column", md: "row" }} gap={8}>
               <Link
                 href="https://discord.gg/YnHsUP8g"
                 isExternal
@@ -479,7 +527,11 @@ function Intro(props: RouteComponentProps) {
                 bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
                 color={"black"}
               >
-                Join our Discord <ExternalLinkIcon mx="2px" />
+                Join our Discord{" "}
+                <ExternalLinkIcon
+                  mx="2px"
+                  display={{ base: "none", md: "inline" }}
+                />
               </Link>
               <Link
                 href="https://discord.gg/YnHsUP8g"
@@ -491,12 +543,16 @@ function Intro(props: RouteComponentProps) {
                 fontSize="25px"
                 fontWeight="semibold"
                 py="5"
-                ml="8"
+                ml={{ base: 0, md: "8" }}
                 _hover={{ transform: "translateY(-2px)" }}
                 bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
                 color={"black"}
               >
-                Follow on Twitter <ExternalLinkIcon mx="2px" />
+                Follow on Twitter{" "}
+                <ExternalLinkIcon
+                  mx="2px"
+                  display={{ base: "none", md: "inline" }}
+                />
               </Link>
             </Flex>
           </Center>
