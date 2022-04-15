@@ -14,7 +14,7 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import {
   GoofyWonder,
@@ -22,16 +22,17 @@ import {
   Pot,
   Ticket,
   Ticket1,
+  Watering,
   WonderPot,
 } from "../assets/Icons";
 import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
 import Stage1 from "./animations/Stage1";
-import { useAnimation } from "framer-motion";
 
 function Intro(props: RouteComponentProps) {
   const gold =
     "linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C)";
   const { colorMode } = useColorMode();
+  const dropColor = useColorModeValue("blue.300", "blue.100");
 
   return (
     <>
@@ -42,7 +43,12 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "container.lg" }}
       >
-        <Box maxW="80rem" mb={8} mt={100} textAlign={"center"}>
+        <Box
+          maxW="80rem"
+          mb={8}
+          mt={100}
+          textAlign={{ base: "left", md: "center" }}
+        >
           <Heading
             fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
@@ -66,9 +72,7 @@ function Intro(props: RouteComponentProps) {
             fontSize="28px"
             textAlign="center"
             px={["4rem", "5rem", "10rem", "10rem"]}
-          >
-            {/*An interactive NFT story like no other.*/}
-          </Text>
+          ></Text>
           <AspectRatio ratio={16 / 9}>
             <iframe
               title="shrub trailer"
@@ -213,14 +217,17 @@ function Intro(props: RouteComponentProps) {
           <Box
             mt={{ base: 10, md: 32 }}
             ml={20}
-            // maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+            display={{ base: "none", md: "flex" }}
           >
             <Stage1 />
+          </Box>
+          <Box mt={{ base: 10, md: 32 }} display={{ base: "flex", md: "none" }}>
+            <Watering boxSize={360} />
           </Box>
         </Flex>
       </Container>
       <Container
-        mt={{ base: 110, md: 60, lg: 40 }}
+        mt={{ base: 0, md: 60, lg: 40 }}
         p={5}
         flex="1"
         borderRadius="2xl"
