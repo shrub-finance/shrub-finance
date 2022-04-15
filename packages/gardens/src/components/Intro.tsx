@@ -166,7 +166,9 @@ function Intro(props: RouteComponentProps) {
         maxW={{ base: "container.sm", md: "1400px" }}
       >
         {/*section 2*/}
-        <Flex direction={{ base: "column", md: "column", lg: "column" }}>
+        <Flex
+          direction={{ base: "column", md: "column", lg: "column", xl: "row" }}
+        >
           <Box mt={8}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
@@ -189,7 +191,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               mt="3"
               fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              maxW={{ base: "30rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               Take care of your plant to help it grow.
@@ -215,14 +217,14 @@ function Intro(props: RouteComponentProps) {
           </Box>
           <Spacer />
           <Box
-            mt={{ base: 10, md: 32 }}
-            ml={20}
-            display={{ base: "none", md: "flex" }}
+            mt={{ base: 10, md: 32, lg: 32, xl: 286 }}
+            ml={{ md: 20, lg: 80, xl: 0 }}
+            display={{ base: "none", md: "block" }}
           >
             <Stage1 />
           </Box>
           <Box mt={{ base: 10, md: 32 }} display={{ base: "flex", md: "none" }}>
-            <Watering boxSize={360} />
+            <Watering boxSize={"350px"} />
           </Box>
         </Flex>
       </Container>
