@@ -12,6 +12,8 @@ import {
   Flex,
   useColorModeValue,
   useColorMode,
+  OrderedList,
+  ListItem,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
@@ -46,42 +48,27 @@ function Intro(props: RouteComponentProps) {
         <Box
           maxW="80rem"
           mb={8}
-          mt={100}
-          textAlign={{ base: "left", md: "center" }}
+          mt={{ base: 20, md: 100 }}
+          textAlign={{ base: "center", md: "center" }}
         >
           <Heading
-            fontSize={{ base: "30px", md: "90px" }}
+            fontSize={{ base: "30px", md: "70px" }}
             letterSpacing={"tight"}
           >
-            What will you{" "}
-            <Text
-              as="span"
-              bgGradient={gold}
-              bgClip="text"
-              sx={{
-                "-webkit-text-stroke":
-                  colorMode === "light" ? "2px #7e5807" : "transparent",
-              }}
-            >
-              grow?
-            </Text>
+            An interactive NFT story like no other
           </Heading>
-          <Text
-            mt="3"
-            mb={{ base: "16", md: "20", lg: "20" }}
-            fontSize="28px"
-            textAlign="center"
-            px={["4rem", "5rem", "10rem", "10rem"]}
-          ></Text>
-          <AspectRatio ratio={16 / 9}>
-            <iframe
-              title="shrub trailer"
-              src="https://www.youtube.com/embed/O5DSYCrSWEo"
-              allowFullScreen
-            />
-          </AspectRatio>
+          <Box mt={16}>
+            <AspectRatio ratio={16 / 9}>
+              <iframe
+                title="shrub trailer"
+                src="https://www.youtube.com/embed/O5DSYCrSWEo"
+                allowFullScreen
+              />
+            </AspectRatio>
+          </Box>
         </Box>
       </Container>
+      {/*section 1*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -89,8 +76,14 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        <Flex direction={{ base: "column", md: "column", lg: "column" }}>
-          {/*section 1*/}
+        <Flex
+          direction={{
+            base: "column",
+            md: "column",
+            lg: "column",
+            xl: "column",
+          }}
+        >
           <Box mt={{ base: 0, md: 20 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
@@ -104,7 +97,9 @@ function Intro(props: RouteComponentProps) {
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
-                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
                 }}
               >
                 on-chain
@@ -117,7 +112,7 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Plant your seed, grow a shrub.
+              Plant your seed, grow a Shrub.
             </Text>{" "}
             <Text
               mt="3"
@@ -125,7 +120,7 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Planting your Paper Seed into a pot creates a Potted Plant!{" "}
+              Planting your Paper Seed into a pot creates a Potted Plant.{" "}
             </Text>{" "}
             <Text
               mt="3"
@@ -133,31 +128,29 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              For the first time ever, grow your NFT by interacting with it
+              For the first time ever, grow an NFT by interacting with it
               on-chain.
             </Text>
           </Box>
           <Spacer />
-          <Box
-            mt={{ base: 20, md: 32 }}
-            ml={{ base: 0, md: 0, lg: 60, xl: 70 }}
-          >
-            <HStack>
-              <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 80 }} />
+          <Box mt={{ base: 20, md: 32 }}>
+            <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
+              <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
               <Icon
                 as={FaPlus}
-                boxSize={{ base: 10, md: 16, lg: 16, xl: 20 }}
+                boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
               />
-              <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 80 }} />
+              <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
               <Icon
                 as={FaLongArrowAltRight}
-                boxSize={{ base: 10, md: 20, lg: 16, xl: 24 }}
+                boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
               />
-              <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 80 }} />
+              <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
             </HStack>
           </Box>
         </Flex>
       </Container>
+      {/*section 2*/}
       <Container
         mt={{ base: 0, md: 40 }}
         p={5}
@@ -165,7 +158,6 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        {/*section 2*/}
         <Flex
           direction={{ base: "column", md: "column", lg: "column", xl: "row" }}
         >
@@ -181,7 +173,9 @@ function Intro(props: RouteComponentProps) {
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
-                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
                 }}
               >
                 Grow
@@ -194,7 +188,7 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "30rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Take care of your plant to help it grow.
+              Take care of your potted plant to help it grow.
             </Text>{" "}
             <Text
               mt="3"
@@ -202,8 +196,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Watering the Potted plants makes it grow big and strong!
-              Fertilizing also gives it a boost!{" "}
+              Watering potted plants makes them grow big and strong! Fertilizing
+              also gives them a boost!{" "}
             </Text>
             <Text
               mt="3"
@@ -211,8 +205,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Watch the traits of your plant update dynamically on OpenSea after
-              you interact with it.
+              Watch the traits of your potted plant update dynamically on
+              OpenSea after you interact with it.
             </Text>
           </Box>
           <Spacer />
@@ -221,13 +215,15 @@ function Intro(props: RouteComponentProps) {
             ml={{ md: 20, lg: 80, xl: 0 }}
             display={{ base: "none", md: "block" }}
           >
-            <Stage1 />
+            {/*<Stage1 />*/}
+            <Watering boxSize={600} />
           </Box>
           <Box mt={{ base: 10, md: 32 }} display={{ base: "flex", md: "none" }}>
-            <Watering boxSize={"350px"} />
+            <Watering boxSize={350} />
           </Box>
         </Flex>
       </Container>
+      {/*section 3*/}
       <Container
         mt={{ base: 0, md: 60, lg: 40 }}
         p={5}
@@ -235,7 +231,6 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        {/*section 3*/}
         <Flex direction={{ base: "column", md: "row", lg: "row" }}>
           <Box mt={8}>
             <Heading
@@ -249,7 +244,9 @@ function Intro(props: RouteComponentProps) {
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
-                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
                 }}
               >
                 Harvest
@@ -270,8 +267,16 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Out will come a shrub, based on the type of seed you planted, its
-              emotion and its DNA. Some combinations result in rare traits!
+              Out will come a shrub!
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Traits are based on the type of seed you planted, its emotion and
+              its DNA. Some combinations result in rare traits!
             </Text>
             <Text
               mt="3"
@@ -293,6 +298,8 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+
+      {/*section 4*/}
       <Container
         mt={{ base: 0, md: 54, lg: 50 }}
         p={5}
@@ -300,7 +307,6 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        {/*section 4*/}
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
           {/*visible for large screens*/}
           <Box>
@@ -323,7 +329,9 @@ function Intro(props: RouteComponentProps) {
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
-                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
                 }}
               >
                 story
@@ -337,8 +345,7 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               It all started with a visit from the mysterious traveller the
-              Paper Merchant. He came with seeds to give to the chosen. Some
-              seeds were neglected and became sad.{" "}
+              Paper Merchant. He came with the seeds.{" "}
               <Link
                 textDecoration={"underline"}
                 href={"https://gardens.shrub.finance/chapters"}
@@ -377,6 +384,7 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+      {/*section 5*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -384,7 +392,6 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        {/*section 5*/}
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
           <Box mt={{ base: 0, md: 8 }}>
             <Heading
@@ -399,7 +406,9 @@ function Intro(props: RouteComponentProps) {
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
-                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
                 }}
               >
                 innovative
@@ -412,8 +421,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              The whitelist for the Pot sale will make use of an entirely new
-              distribution method created by the Shrub engineering team.
+              The whitelist for the Pot sale will make use of a new distribution
+              system created by the Shrub engineering team.
             </Text>
             <Text
               mt="3"
@@ -422,7 +431,7 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               NFT Tickets are NFTs themselves (ERC-1155) and are super
-              gas-efficient to mint!
+              gas-efficient to mint.
             </Text>
             <Text
               mt="3"
@@ -431,8 +440,17 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               When buying NFT tickets in a pre-sale, only a portion of the total
-              cost must be paid. The NFT ticket can later be redeemed after the
-              public sale by paying the rest.{" "}
+              cost must be paid.
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              {/*When redeeming */}
+              The NFT ticket can later be redeemed after the public sale, by
+              paying the remainder price.{" "}
             </Text>
             <Text
               mt="3"
@@ -440,8 +458,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Because NFT ticket itself can be sold on the secondary markets, it
-              provides collectors with tons of flexibility.
+              NFT tickets themselves can be sold on the secondary markets so
+              they provide collectors a lot of flexibility!
             </Text>
           </Box>
           <Box
@@ -458,6 +476,8 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+
+      {/*section 6*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -465,7 +485,6 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        {/*section 6*/}
         <Flex direction={{ base: "column", md: "row", lg: "row" }}>
           <Box mt={{ base: "0", md: "0", lg: "40" }}>
             <Heading
@@ -480,7 +499,9 @@ function Intro(props: RouteComponentProps) {
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
-                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
                 }}
               >
                 movement
@@ -492,15 +513,7 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              It takes a special sort of person to hold a Shrub.{" "}
-            </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Shrubs represent those who believe in the decentralized world and
+              Shrubs represent those who believe in a decentralized world, and
               are willing to put in the effort to make it a reality.
             </Text>{" "}
             <Text
@@ -509,8 +522,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Shrub holders are dreamers, builders, innovators, thinkers, and
-              freedom-lovers. They think outside the box and change the world in
+              They are dreamers, builders, innovators, thinkers, and
+              freedom-lovers who think outside the box and mold the world to
               their vision.
             </Text>
           </Box>
@@ -524,6 +537,229 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+
+      {/*section 7*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Flex direction={{ base: "column", md: "column", lg: "row" }}>
+          <Box mt={{ base: 0, md: 8 }}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}
+            >
+              FAQs
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={"bold"}
+            >
+              How will the mint occur?
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              The minting will take place in stages.
+              <OrderedList>
+                <ListItem>Ticket whitelist pre-sale</ListItem>
+                <ListItem>Ticket public pre-sale</ListItem>
+                <ListItem>Public Pot sale</ListItem>
+              </OrderedList>
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={"bold"}
+            >
+              When is the mint?
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Minting will happen in May 2022.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={"bold"}
+            >
+              How many pots will be there?
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              There will be a supply of 250 pots. However, there will be a
+              supply of up to 950 tickets available to purchase in the limited
+              pre-sale.{" "}
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              If more than 200 tickets are purchased, it will increase the
+              supply of pots.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              {" "}
+              We will guarantee at least 50 pots available during the public pot
+              sale.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={"bold"}
+            >
+              What will be the mint price?
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Mint price of pots will be 0.05 ETH for the public sale.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={"bold"}
+            >
+              How will the pre-sale tickets work?
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Pre-sale tickets will be sold at a discount to whitelist holders.
+              The pricing is:
+              <OrderedList>
+                <ListItem>0.015 ETH - Whitelist</ListItem>
+                <ListItem>0.035 ETH - Public</ListItem>
+              </OrderedList>
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              All tickets will be redeemable for a pot for up to a month after
+              the public pot sale for a redemption price of 0.015 ETH.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Tickets are tradable NFTs and can be purchased on secondary
+              markets.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={"bold"}
+            >
+              Will my NFTs be stored on-chain?
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              The latest in NFT technology is being used to store all metadata
+              for pots and shrubs on-chain and is also dynamic.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              {" "}
+              All art is stored on a redundant Inter-Planetary File System
+              (IPFS) setup. It's not going anywhere.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={"bold"}
+            >
+              How do I get on the whitelist?
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              The guaranteed way to get a whitelist spot is to hold 15 seeds.
+              Every 15 seeds that you hold will result in a whitelist for 1
+              pre-sale ticket.
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Also, follow us on twitter and join the discord. There will be
+              contests on both to win additional whitelist spots.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={"bold"}
+            >
+              Do I need a seed to participate?
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Yes, to transform a pot into a potted-plant you will need a seed.
+              Possession of a seed is also a pre-requisite to participate in the
+              pot sale.
+            </Text>{" "}
+          </Box>
+        </Flex>
+      </Container>
+
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -536,30 +772,11 @@ function Intro(props: RouteComponentProps) {
             fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
           >
-            Stand apart. <br />
-            Raise the bar. <br />
-            Set the standard.
+            {/*Stand apart. <br />*/}
+            {/*Raise the bar. <br />*/}
+            {/*Set the standard.*/}
+            Join the movement
           </Heading>
-          <Text
-            mt="6"
-            fontSize={{ base: "20px", md: "28px" }}
-            textAlign="center"
-            px={["0", "5rem", "10rem"]}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            Owning a Shrub means you stand by the ethos of decentralization, and
-            believe in the core idea that innovation is necessary to create the
-            future.
-          </Text>
-          <Text
-            mt="6"
-            fontSize={{ base: "20px", md: "28px" }}
-            textAlign="center"
-            px={["4rem", "5rem", "10rem"]}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            An interactive NFT story like no other.
-          </Text>{" "}
           <Text
             mt="6"
             mb={{ base: "16", md: "20", lg: "20" }}
@@ -568,12 +785,12 @@ function Intro(props: RouteComponentProps) {
             px={["4rem", "5rem", "10rem"]}
             fontWeight={{ base: "semibold", md: "medium" }}
           >
-            Mint details coming soon...
+            Mint May 2022
           </Text>
           <Center>
             <Flex direction={{ base: "column", md: "row" }} gap={8}>
               <Link
-                href="https://discord.gg/YnHsUP8g"
+                href="https://discord.gg/csusZhYgTg"
                 isExternal
                 cursor="pointer"
                 rounded="3xl"
@@ -593,7 +810,7 @@ function Intro(props: RouteComponentProps) {
                 />
               </Link>
               <Link
-                href="https://discord.gg/YnHsUP8g"
+                href="https://twitter.com/shrubfinance"
                 isExternal
                 cursor="pointer"
                 rounded="3xl"
