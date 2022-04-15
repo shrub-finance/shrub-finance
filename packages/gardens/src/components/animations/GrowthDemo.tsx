@@ -13,8 +13,7 @@ export function GrowStage1(
       x: [-276, -276],
       opacity: [0, 0, 0, 0, 1],
     },
-    closed: { opacity: [0, 0, 1, 1, 1, 1, 1, 1, 0] },
-    // closed: { opacity: [0, 0, 1, 1, 0] },
+    closed: { opacity: [0, 0, 1, 1, 0] },
   };
 
   return (
@@ -28,7 +27,7 @@ export function GrowStage1(
         stiffness: 100,
         opacity: {
           delay: 2,
-          duration: 5,
+          duration: 7,
           times: [0, 0.25, 0.5, 0.75, 1],
         },
         default: { delay: 1.5, duration: 2 },
@@ -61,7 +60,7 @@ export function GrowStage2(
         type: "spring",
         stiffness: 100,
         opacity: {
-          delay: 5,
+          delay: 6.5,
           duration: 3,
           times: [0, 0.25, 0.5, 0.75, 1],
         },
