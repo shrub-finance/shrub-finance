@@ -11,31 +11,27 @@ import {
   Spacer,
   Flex,
   useColorModeValue,
+  useColorMode,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { RouteComponentProps } from "@reach/router";
 import {
-  Fertilizer,
-  FertilizerSoil,
   GoofyWonder,
-  Leaf1,
-  Leaf2,
   Night,
   Pot,
   Ticket,
   Ticket1,
-  Water,
-  WateringCan,
   WonderPot,
 } from "../assets/Icons";
 import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
-import { Grow, Spray, Spray2, Tilt, Tilt2 } from "./animations/TransformScale";
+import Stage1 from "./animations/Stage1";
 import { useAnimation } from "framer-motion";
 
 function Intro(props: RouteComponentProps) {
-  const controls = useAnimation();
-  const dropColor = useColorModeValue("blue.300", "blue.100");
+  const gold =
+    "linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C)";
+  const { colorMode } = useColorMode();
 
   return (
     <>
@@ -51,15 +47,18 @@ function Intro(props: RouteComponentProps) {
             fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
           >
-            What will you grow?
-            {/*<Text as="span">Shrub </Text>{" "}*/}
-            {/*<Text*/}
-            {/*  as="span"*/}
-            {/*  bgGradient="linear(145deg, #ffa9c2, #d05b17)"*/}
-            {/*  bgClip="text"*/}
-            {/*>*/}
-            {/*  Paper Gardens*/}
-            {/*</Text>*/}
+            What will you{" "}
+            <Text
+              as="span"
+              bgGradient={gold}
+              bgClip="text"
+              sx={{
+                "-webkit-text-stroke":
+                  colorMode === "light" ? "2px #7e5807" : "transparent",
+              }}
+            >
+              grow?
+            </Text>
           </Heading>
           <Text
             mt="3"
@@ -94,7 +93,19 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW={{ base: "20rem", md: "40rem" }}
             >
-              The first on-chain growth NFT
+              The first{" "}
+              <Text
+                as="span"
+                bgGradient={gold}
+                bgClip="text"
+                sx={{
+                  "-webkit-text-stroke":
+                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                }}
+              >
+                on-chain
+              </Text>{" "}
+              growth NFT
             </Heading>
             <Text
               mt="3"
@@ -158,7 +169,18 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW={{ base: "20rem", md: "40rem" }}
             >
-              Grow your Shrub on-chain
+              <Text
+                as="span"
+                bgGradient={gold}
+                bgClip="text"
+                sx={{
+                  "-webkit-text-stroke":
+                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                }}
+              >
+                Grow
+              </Text>{" "}
+              your Shrub on-chain
             </Heading>
             <Text
               mt="3"
@@ -188,64 +210,12 @@ function Intro(props: RouteComponentProps) {
             </Text>
           </Box>
           <Spacer />
-          <Box mt={{ base: 10, md: 32 }} ml={20}>
-            <Center>
-              <WonderPot
-                boxSize={60}
-                position={"relative"}
-                left={"225px"}
-                bottom={"-88px"}
-              />
-              <Center>
-                <Center>
-                  {Grow(
-                    <Leaf1
-                      boxSize={52}
-                      position={"absolute"}
-                      bottom={"150px"}
-                      left={"296px"}
-                    />,
-                    controls
-                  )}
-                </Center>
-                <Center>
-                  {Spray(
-                    <Water
-                      stroke={dropColor}
-                      boxSize={28}
-                      position={"relative"}
-                      top={"-32px"}
-                      right={"-86px"}
-                    />,
-                    controls
-                  )}
-                  {Tilt(<WateringCan boxSize={60} />, controls)}
-                </Center>
-                <Center>
-                  {Spray2(
-                    <FertilizerSoil
-                      stroke={dropColor}
-                      boxSize={28}
-                      position={"relative"}
-                      left={"-407px"}
-                      top={"-35px"}
-                    />,
-                    controls
-                  )}
-                  {Tilt2(
-                    <Fertilizer
-                      boxSize={40}
-                      position="relative"
-                      left={"-395px"}
-                      top={"-21px"}
-                    />,
-                    controls,
-                    [-285, -306, -285],
-                    [17, 100, 17]
-                  )}
-                </Center>
-              </Center>
-            </Center>
+          <Box
+            mt={{ base: 10, md: 32 }}
+            ml={20}
+            // maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+          >
+            <Stage1 />
           </Box>
         </Flex>
       </Container>
@@ -264,7 +234,18 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW={{ base: "20rem", md: "40rem" }}
             >
-              Harvest your Shrub
+              <Text
+                as="span"
+                bgGradient={gold}
+                bgClip="text"
+                sx={{
+                  "-webkit-text-stroke":
+                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                }}
+              >
+                Harvest
+              </Text>{" "}
+              your Shrub
             </Heading>
             <Text
               mt="3"
@@ -326,7 +307,19 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW={{ base: "20rem", md: "40rem" }}
             >
-              The story so far
+              The{" "}
+              <Text
+                as="span"
+                bgGradient={gold}
+                bgClip="text"
+                sx={{
+                  "-webkit-text-stroke":
+                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                }}
+              >
+                story
+              </Text>{" "}
+              so far
             </Heading>
             <Text
               mt="3"
@@ -390,7 +383,19 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}
             >
-              An innovative distribution system
+              An{" "}
+              <Text
+                as="span"
+                bgGradient={gold}
+                bgClip="text"
+                sx={{
+                  "-webkit-text-stroke":
+                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                }}
+              >
+                innovative
+              </Text>{" "}
+              distribution system
             </Heading>
             <Text
               mt="3"
@@ -459,7 +464,18 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW="40rem"
             >
-              Shrub is a movement
+              Shrub is a{" "}
+              <Text
+                as="span"
+                bgGradient={gold}
+                bgClip="text"
+                sx={{
+                  "-webkit-text-stroke":
+                    colorMode === "light" ? "2px #7e5807" : "transparent",
+                }}
+              >
+                movement
+              </Text>
             </Heading>
             <Text
               mt="3"
@@ -511,11 +527,12 @@ function Intro(props: RouteComponentProps) {
             fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
           >
-            Stand apart. Raise the bar. Set the standard.
+            Stand apart. <br />
+            Raise the bar. <br />
+            Set the standard.
           </Heading>
           <Text
             mt="6"
-            mb={{ base: "16", md: "20", lg: "20" }}
             fontSize={{ base: "20px", md: "28px" }}
             textAlign="center"
             px={["0", "5rem", "10rem"]}
@@ -525,6 +542,15 @@ function Intro(props: RouteComponentProps) {
             believe in the core idea that innovation is necessary to create the
             future.
           </Text>
+          <Text
+            mt="6"
+            fontSize={{ base: "20px", md: "28px" }}
+            textAlign="center"
+            px={["4rem", "5rem", "10rem"]}
+            fontWeight={{ base: "semibold", md: "medium" }}
+          >
+            An interactive NFT story like no other.
+          </Text>{" "}
           <Text
             mt="6"
             mb={{ base: "16", md: "20", lg: "20" }}
@@ -548,7 +574,7 @@ function Intro(props: RouteComponentProps) {
                 fontWeight="semibold"
                 py="5"
                 _hover={{ transform: "translateY(-2px)" }}
-                bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
+                bgGradient={gold}
                 color={"black"}
               >
                 Join our Discord{" "}
@@ -569,7 +595,7 @@ function Intro(props: RouteComponentProps) {
                 py="5"
                 ml={{ base: 0, md: "8" }}
                 _hover={{ transform: "translateY(-2px)" }}
-                bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
+                bgGradient={gold}
                 color={"black"}
               >
                 Follow on Twitter{" "}
