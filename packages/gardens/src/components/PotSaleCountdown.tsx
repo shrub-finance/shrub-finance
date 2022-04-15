@@ -9,7 +9,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { Leaf1, Leaf2, Leaf3, Leaf4, Pot } from "../assets/Icons";
-import AnimatedPot from "./AnimatedPot";
+import { Fade } from "./animations/Fade";
 import CountdownTimer from "./CountdownTimer";
 import { BsQuestionLg } from "react-icons/all";
 import { Icon } from "@chakra-ui/icons";
@@ -50,30 +50,18 @@ function PotSaleCountdown() {
             <Text fontSize={{ base: "20px", md: "30px" }} fontWeight="semibold">
               <CountdownTimer targetDate={saleDay} />
             </Text>
-            {/*<Link href="/intro" cursor="pointer" textDecoration="underline">*/}
-            {/*  Paper Gardens Main*/}
-            {/*</Link>*/}
           </Box>
         </Box>
       </Center>
       <Center>
-        {AnimatedPot(
+        {Fade(
           [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
           <Leaf1 boxSize={40} ml={5} />
         )}
-        {AnimatedPot(
-          [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-          <Leaf2 boxSize={40} />
-        )}
-        {AnimatedPot(
-          [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-          <Leaf3 boxSize={40} />
-        )}
-        {AnimatedPot(
-          [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-          <Leaf4 boxSize={40} />
-        )}
-        {AnimatedPot(
+        {Fade([0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0], <Leaf2 boxSize={40} />)}
+        {Fade([0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0], <Leaf3 boxSize={40} />)}
+        {Fade([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0], <Leaf4 boxSize={40} />)}
+        {Fade(
           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
           <Icon as={BsQuestionLg} boxSize={40} />
         )}

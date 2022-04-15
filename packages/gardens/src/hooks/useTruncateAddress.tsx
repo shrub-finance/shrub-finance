@@ -2,7 +2,7 @@ import { addressMap } from "../constants/dictionary";
 
 const dictionary: { [address: string]: string } = addressMap;
 
-export default function useTruncateAddress(address: string) {
+function useTruncateAddress(address: string) {
   // Captures 0x + 4 characters, then the last 4 characters.
   const truncateRegex = /^([a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
 
@@ -19,3 +19,5 @@ export default function useTruncateAddress(address: string) {
   }
   return `${match[1]}…${match[2]}`;
 }
+
+export default useTruncateAddress;

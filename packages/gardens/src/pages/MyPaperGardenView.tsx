@@ -28,6 +28,7 @@ import {
   Drawer,
   VStack,
   useBreakpointValue,
+  useColorMode,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useEffect, useState } from "react";
@@ -69,6 +70,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
     md: false,
   });
 
+  const btnShadow = useColorModeValue("md", "dark-lg");
+
   const [isHidden, setIsHidden] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [mySeedRows, setMySeedRows] = useState<JSX.Element[]>([]);
@@ -85,6 +88,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   });
 
   const { active, account, error: web3Error } = useWeb3React();
+
   const [
     getMySeedDataQuery,
     { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
@@ -117,11 +121,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
         tempMySeedDataRows.push(
           <Box
             as="button"
-            shadow="md"
+            key={name}
+            // shadow={btnShadow}
+            shadow={"dark-lg"}
             borderRadius="md"
             minW={20}
+            h={32}
             p={2}
-            layerStyle="shrubBg"
             cursor="pointer"
             _hover={{
               transform: "translateY(-2px)",
@@ -207,15 +213,19 @@ function MyPaperGardenView(props: RouteComponentProps) {
         <Center>
           <VStack mb={{ base: 8, md: 14 }}>
             <Heading
-              fontSize={{ base: "30px", md: "50px" }}
+              fontSize={{ base: "30px", md: "30px", lg: "50px" }}
               letterSpacing={"tight"}
               textAlign={"center"}
               maxW="60rem"
             >
               My Paper Garden
             </Heading>
-            <Text fontSize="18px" textAlign="center" px={"5"}>
-              Home for your seeds.
+            <Text
+              textAlign="center"
+              px={"5"}
+              fontSize={{ base: "15px", md: "15px", lg: "18px" }}
+            >
+              Place where seeds grow into Shrubs!
             </Text>
           </VStack>
         </Center>
@@ -274,9 +284,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     : { base: "repeat(4, 1fr)", md: "repeat(5, 1fr)" }
                 }
                 gap={2}
+                minH={"620px"}
                 overflow="scroll"
                 maxH="620px"
                 shadow="2xl"
+                layerStyle={"shrubBg"}
                 borderRadius="2xl"
                 p={4}
               >
@@ -318,12 +330,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     }}
                   />
                 </DrawerBody>
-                <DrawerFooter>
-                  <Button variant="outline" mr={3} onClick={onClose}>
-                    Close
-                  </Button>
-                  {/*<Button colorScheme="blue">Save</Button>*/}
-                </DrawerFooter>
+                {/*<DrawerFooter>*/}
+                {/*  <Button variant="outline" mr={3} onClick={onClose}>*/}
+                {/*    Close*/}
+                {/*  </Button>*/}
+                {/*  <Button colorScheme="blue">Save</Button>*/}
+                {/*</DrawerFooter>*/}
               </DrawerContent>
             </Drawer>
           </Grid>

@@ -291,7 +291,7 @@ function AdoptionCenterView(props: RouteComponentProps) {
                   textAlign={"center"}
                   maxW="60rem"
                 >
-                  Adopted seeds
+                  Seed Adoption Program
                 </Heading>
                 <Text fontSize="18px" textAlign="center" px={"5"}>
                   Seed Adoptions are now over.{" "}
