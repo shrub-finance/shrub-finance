@@ -56,17 +56,11 @@ function Intro(props: RouteComponentProps) {
           mt={{ base: 20, md: 100 }}
           textAlign={{ base: "center", md: "center" }}
         >
-          {/*<Heading*/}
-          {/*  fontSize={{ base: "30px", md: "70px" }}*/}
-          {/*  letterSpacing={"tight"}*/}
-          {/*>*/}
-          {/*  An interactive NFT story like no other*/}
-          {/*</Heading>*/}
           <Box mt={16}>
             <AspectRatio ratio={16 / 9}>
               <iframe
-                title="shrub trailer"
-                src="https://www.youtube.com/embed/O5DSYCrSWEo"
+                title="Shrub Paper Gardens trailer"
+                src="https://www.youtube.com/embed/9JBKPdFuBGE"
                 allowFullScreen
               />
             </AspectRatio>
@@ -201,7 +195,7 @@ function Intro(props: RouteComponentProps) {
           </Box>
           <Spacer />
           <Box
-            mt={{ base: 10, md: 32, lg: 32, xl: 286 }}
+            mt={{ base: 10, md: 32, lg: 32, xl: 32 }}
             ml={{ md: 20, lg: 80, xl: 0 }}
             display={{ base: "none", md: "block" }}
           >
