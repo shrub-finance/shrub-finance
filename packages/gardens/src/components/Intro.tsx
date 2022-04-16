@@ -719,13 +719,13 @@ function Intro(props: RouteComponentProps) {
           <Spacer />
           <Box display={{ base: "none", md: "flex", lg: "flex" }}>
             <Flex direction={"column"} gap={60}>
-              <BusStop boxSize={{ lg: "md", xl: "xl" }} />
-              <City boxSize={{ lg: "md", xl: "xl" }} />
+              {/*<BusStop boxSize={{ lg: "md", xl: "xl" }} />*/}
+              {/*<City boxSize={{ lg: "md", xl: "xl" }} />*/}
               <Home boxSize={{ lg: "md", xl: "xl" }} />
-              <Beach
-                boxSize={{ lg: "md", xl: "xl" }}
-                display={{ md: "flex", lg: "flex", xl: "none" }}
-              />
+              {/*<Beach*/}
+              {/*  boxSize={{ lg: "md", xl: "xl" }}*/}
+              {/*  display={{ md: "flex", lg: "flex", xl: "none" }}*/}
+              {/*/>*/}
             </Flex>
           </Box>
         </Flex>
@@ -756,7 +756,15 @@ function Intro(props: RouteComponentProps) {
             Stand apart. Raise the bar. Set the standard.
           </Text>
           <Center>
-            <Flex direction={{ base: "column", md: "row" }} gap={8}>
+            <Flex
+              direction={{
+                base: "column",
+                md: "column",
+                lg: "column",
+                xl: "row",
+              }}
+              gap={8}
+            >
               <Box>
                 <Link
                   href="https://opensea.io/collection/shrub-paper-gardens"
@@ -772,7 +780,7 @@ function Intro(props: RouteComponentProps) {
                   bgGradient={gold}
                   color={"black"}
                 >
-                  Get a Seed
+                  Get a Seed on OpenSea
                   <ExternalLinkIcon
                     mx="2px"
                     display={{ base: "none", md: "inline" }}
@@ -780,7 +788,8 @@ function Intro(props: RouteComponentProps) {
                 </Link>
                 <Center>
                   <Text mt={8} maxW={"19rem"}>
-                    To grow a Shrub you need a seed. Available on secondary
+                    To grow a Shrub you need a seed
+                    {/*Available on secondary.*/}
                   </Text>
                 </Center>
               </Box>
