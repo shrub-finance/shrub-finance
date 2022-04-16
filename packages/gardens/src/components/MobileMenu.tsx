@@ -5,7 +5,6 @@ import {
   Stack,
   useColorMode,
   useColorModeValue,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { Link as ReachLink } from "@reach/router";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
@@ -18,8 +17,6 @@ function MobileMenu({ onMenuClose }) {
     "linear(to-r, gray.100, gray.200)",
     "linear(to-l, gray.700, gray.700)"
   );
-
-  // const { onClose: onMenuClose } = useDisclosure();
 
   const { colorMode, toggleColorMode } = useColorMode();
 
