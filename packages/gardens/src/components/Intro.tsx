@@ -34,6 +34,7 @@ import {
 } from "../assets/Icons";
 import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
 import Stage1 from "./animations/Stage1";
+import { isMobile } from "react-device-detect";
 
 function Intro(props: RouteComponentProps) {
   const gold =
@@ -780,7 +781,7 @@ function Intro(props: RouteComponentProps) {
                   bgGradient={gold}
                   color={"black"}
                 >
-                  Get a Seed on OpenSea
+                  {isMobile ? "Get a Seed" : "Get a Seed on OpenSea"}
                   <ExternalLinkIcon
                     mx="2px"
                     display={{ base: "none", md: "inline" }}
