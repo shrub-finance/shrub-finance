@@ -4,7 +4,6 @@ import {
   Center,
   Container,
   Heading,
-  HStack,
   Link,
   Text,
   Image,
@@ -14,12 +13,18 @@ import {
   useColorMode,
   OrderedList,
   ListItem,
+  HStack,
+  VStack,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import {
+  Beach,
+  BusStop,
+  City,
   GoofyWonder,
+  Home,
   Night,
   Pot,
   Ticket,
@@ -51,12 +56,12 @@ function Intro(props: RouteComponentProps) {
           mt={{ base: 20, md: 100 }}
           textAlign={{ base: "center", md: "center" }}
         >
-          <Heading
-            fontSize={{ base: "30px", md: "70px" }}
-            letterSpacing={"tight"}
-          >
-            An interactive NFT story like no other
-          </Heading>
+          {/*<Heading*/}
+          {/*  fontSize={{ base: "30px", md: "70px" }}*/}
+          {/*  letterSpacing={"tight"}*/}
+          {/*>*/}
+          {/*  An interactive NFT story like no other*/}
+          {/*</Heading>*/}
           <Box mt={16}>
             <AspectRatio ratio={16 / 9}>
               <iframe
@@ -112,24 +117,9 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Plant your seed, grow a Shrub.
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Planting your Paper Seed into a pot creates a Potted Plant.{" "}
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              For the first time ever, grow an NFT by interacting with it
-              on-chain.
+              Plant your seed, grow a Shrub. Planting your seed into a pot
+              creates a potted plant. For the first time ever, grow an NFT by
+              interacting with it on-chain.
             </Text>
           </Box>
           <Spacer />
@@ -196,7 +186,7 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Watering potted plants makes them grow big and strong! Fertilizing
+              Watering potted plants makes them grow big and strong. Fertilizing
               also gives them a boost!{" "}
             </Text>
             <Text
@@ -205,8 +195,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Watch the traits of your potted plant update dynamically on
-              OpenSea after you interact with it.
+              Watch the traits of your potted plant update dynamically when you
+              interact.
             </Text>
           </Box>
           <Spacer />
@@ -267,7 +257,7 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Out will come a shrub!
+              Out comes a shrub!
             </Text>{" "}
             <Text
               mt="3"
@@ -275,8 +265,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Traits are based on the type of seed you planted, its emotion and
-              its DNA. Some combinations result in rare traits!
+              Shrub traits are based on the type of seed you planted, emotion
+              and DNA. Some combinations result in rare traits!
             </Text>
             <Text
               mt="3"
@@ -359,9 +349,9 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              The seeds are now ready to transform and grow. The potter has come
-              to help. He has a limited supply of pots which the paper seeds can
-              be planted in.
+              The seeds are now ready to transform and grow. The Potter has come
+              to help. He has a limited supply of pots which the seeds can be
+              planted in. It is the moment that everyone has been waiting for.
             </Text>
             <Text
               mt="3"
@@ -370,8 +360,7 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               {" "}
-              It is the moment that everyone has been waiting for. It is time to
-              grow!
+              It is time to grow!
             </Text>
           </Box>
           <Spacer display={{ base: "flex", md: "flex", lg: "none" }} />
@@ -421,8 +410,9 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              The whitelist for the Pot sale will make use of a new distribution
-              system created by the Shrub engineering team.
+              The distribution for the Pot sale will make use of a new product
+              created by the Shrub engineering team that provides NFT collectors
+              more flexibility than a traditional whitelist.
             </Text>
             <Text
               mt="3"
@@ -430,8 +420,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              NFT Tickets are NFTs themselves (ERC-1155) and are super
-              gas-efficient to mint.
+              NFT Tickets are NFTs themselves (ERC-1155) and are gas-efficient
+              to mint.
             </Text>
             <Text
               mt="3"
@@ -439,27 +429,10 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              When buying NFT tickets in a pre-sale, only a portion of the total
-              cost must be paid.
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              {/*When redeeming */}
-              The NFT ticket can later be redeemed after the public sale, by
-              paying the remainder price.{" "}
-            </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              NFT tickets themselves can be sold on the secondary markets so
-              they provide collectors a lot of flexibility!
+              When buying tickets during the pre-sale, collectors only pay a
+              portion of the total price. The ticket can later be redeemed for
+              the pot by paying the remainder, or can be sold on the secondary
+              markets.
             </Text>
           </Box>
           <Box
@@ -570,14 +543,16 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               The minting will take place in stages.
-              <OrderedList>
-                <ListItem>Ticket whitelist pre-sale</ListItem>
-                <ListItem>Ticket public pre-sale</ListItem>
-                <ListItem>Public Pot sale</ListItem>
-              </OrderedList>
+              <Box ml={10}>
+                <OrderedList>
+                  <ListItem>Ticket whitelist pre-sale</ListItem>
+                  <ListItem>Ticket public pre-sale</ListItem>
+                  <ListItem>Public Pot sale</ListItem>
+                </OrderedList>
+              </Box>
             </Text>
             <Text
-              mt="3"
+              mt="16"
               fontSize={{ base: "20px", md: "28px" }}
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={"bold"}
@@ -590,15 +565,15 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Minting will happen in May 2022.
+              May 2022.
             </Text>
             <Text
-              mt="3"
+              mt="16"
               fontSize={{ base: "20px", md: "28px" }}
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={"bold"}
             >
-              How many pots will be there?
+              What's the total pot supply ?
             </Text>{" "}
             <Text
               mt="3"
@@ -606,31 +581,11 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              There will be a supply of 250 pots. However, there will be a
-              supply of up to 950 tickets available to purchase in the limited
-              pre-sale.{" "}
+              There will be a supply of 250 pots. This can flex up to 1000 based
+              on the limited pre-sale.
             </Text>
             <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              If more than 200 tickets are purchased, it will increase the
-              supply of pots.
-            </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              {" "}
-              We will guarantee at least 50 pots available during the public pot
-              sale.
-            </Text>
-            <Text
-              mt="3"
+              mt="16"
               fontSize={{ base: "20px", md: "28px" }}
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={"bold"}
@@ -643,10 +598,10 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Mint price of pots will be 0.05 ETH for the public sale.
+              0.05 ETH for the public sale.
             </Text>
             <Text
-              mt="3"
+              mt="16"
               fontSize={{ base: "20px", md: "28px" }}
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={"bold"}
@@ -661,10 +616,12 @@ function Intro(props: RouteComponentProps) {
             >
               Pre-sale tickets will be sold at a discount to whitelist holders.
               The pricing is:
-              <OrderedList>
-                <ListItem>0.015 ETH - Whitelist</ListItem>
-                <ListItem>0.035 ETH - Public</ListItem>
-              </OrderedList>
+              <Box ml={10}>
+                <OrderedList>
+                  <ListItem>0.015 ETH - Whitelist</ListItem>
+                  <ListItem>0.035 ETH - Public</ListItem>
+                </OrderedList>
+              </Box>
             </Text>
             <Text
               mt="3"
@@ -673,7 +630,7 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               All tickets will be redeemable for a pot for up to a month after
-              the public pot sale for a redemption price of 0.015 ETH.
+              the public sale for a redemption price of 0.015 ETH.
             </Text>
             <Text
               mt="3"
@@ -685,7 +642,7 @@ function Intro(props: RouteComponentProps) {
               markets.
             </Text>
             <Text
-              mt="3"
+              mt="16"
               fontSize={{ base: "20px", md: "28px" }}
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={"bold"}
@@ -699,7 +656,7 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               The latest in NFT technology is being used to store all metadata
-              for pots and shrubs on-chain and is also dynamic.
+              for pots and shrubs on-chain dynamically.
             </Text>
             <Text
               mt="3"
@@ -712,7 +669,7 @@ function Intro(props: RouteComponentProps) {
               (IPFS) setup. It's not going anywhere.
             </Text>
             <Text
-              mt="3"
+              mt="16"
               fontSize={{ base: "20px", md: "28px" }}
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={"bold"}
@@ -726,8 +683,8 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               The guaranteed way to get a whitelist spot is to hold 15 seeds.
-              Every 15 seeds that you hold will result in a whitelist for 1
-              pre-sale ticket.
+              Every 15 seeds that you hold give you a whitelist for 1 pre-sale
+              ticket.
             </Text>{" "}
             <Text
               mt="3"
@@ -735,11 +692,19 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Also, follow us on twitter and join the discord. There will be
-              contests on both to win additional whitelist spots.
+              This will be based on a snapshot taken 1 day before the pre-sale.
             </Text>
             <Text
               mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Follow us on twitter and join the discord. There will be contests
+              on both to win additional whitelist spots.
+            </Text>
+            <Text
+              mt="16"
               fontSize={{ base: "20px", md: "28px" }}
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={"bold"}
@@ -752,10 +717,22 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Yes, to transform a pot into a potted-plant you will need a seed.
-              Possession of a seed is also a pre-requisite to participate in the
-              pot sale.
+              Yes, to transform a pot into a potted plant you need a seed.
+              Owning a seed is also a pre-requisite to participate in the
+              pre-sale.
             </Text>{" "}
+          </Box>
+          <Spacer />
+          <Box display={{ base: "none", md: "flex", lg: "flex" }}>
+            <Flex direction={"column"} gap={60}>
+              <BusStop boxSize={{ lg: "md", xl: "xl" }} />
+              <City boxSize={{ lg: "md", xl: "xl" }} />
+              <Home boxSize={{ lg: "md", xl: "xl" }} />
+              <Beach
+                boxSize={{ lg: "md", xl: "xl" }}
+                display={{ md: "flex", lg: "flex", xl: "none" }}
+              />
+            </Flex>
           </Box>
         </Flex>
       </Container>
@@ -765,17 +742,14 @@ function Intro(props: RouteComponentProps) {
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "container.lg" }}
+        maxW={{ base: "container.sm", md: "1400px" }}
       >
-        <Box maxW="80rem" mt={{ base: 16, md: 32 }} textAlign={"center"}>
+        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
           <Heading
             fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
           >
-            {/*Stand apart. <br />*/}
-            {/*Raise the bar. <br />*/}
-            {/*Set the standard.*/}
-            Join the movement
+            Grow a Shrub
           </Heading>
           <Text
             mt="6"
@@ -785,51 +759,91 @@ function Intro(props: RouteComponentProps) {
             px={["4rem", "5rem", "10rem"]}
             fontWeight={{ base: "semibold", md: "medium" }}
           >
-            Mint May 2022
+            Stand apart. Raise the bar. Set the standard.
           </Text>
           <Center>
             <Flex direction={{ base: "column", md: "row" }} gap={8}>
-              <Link
-                href="https://discord.gg/csusZhYgTg"
-                isExternal
-                cursor="pointer"
-                rounded="3xl"
-                size="sm"
-                px="6"
-                fontSize="25px"
-                fontWeight="semibold"
-                py="5"
-                _hover={{ transform: "translateY(-2px)" }}
-                bgGradient={gold}
-                color={"black"}
-              >
-                Join our Discord{" "}
-                <ExternalLinkIcon
-                  mx="2px"
-                  display={{ base: "none", md: "inline" }}
-                />
-              </Link>
-              <Link
-                href="https://twitter.com/shrubfinance"
-                isExternal
-                cursor="pointer"
-                rounded="3xl"
-                size="sm"
-                px="6"
-                fontSize="25px"
-                fontWeight="semibold"
-                py="5"
-                ml={{ base: 0, md: "8" }}
-                _hover={{ transform: "translateY(-2px)" }}
-                bgGradient={gold}
-                color={"black"}
-              >
-                Follow on Twitter{" "}
-                <ExternalLinkIcon
-                  mx="2px"
-                  display={{ base: "none", md: "inline" }}
-                />
-              </Link>
+              <Box>
+                <Link
+                  href="https://opensea.io/collection/shrub-paper-gardens"
+                  isExternal
+                  cursor="pointer"
+                  rounded="3xl"
+                  size="sm"
+                  px="6"
+                  fontSize="25px"
+                  fontWeight="semibold"
+                  py="5"
+                  _hover={{ transform: "translateY(-2px)" }}
+                  bgGradient={gold}
+                  color={"black"}
+                >
+                  Get a Seed
+                  <ExternalLinkIcon
+                    mx="2px"
+                    display={{ base: "none", md: "inline" }}
+                  />
+                </Link>
+                <Center>
+                  <Text mt={8} maxW={"19rem"}>
+                    To grow a Shrub you need a seed. Available on secondary
+                  </Text>
+                </Center>
+              </Box>
+              <Spacer />
+              <Box>
+                <Link
+                  href="https://discord.gg/csusZhYgTg"
+                  // isExternal
+                  cursor="pointer"
+                  rounded="3xl"
+                  size="sm"
+                  px="6"
+                  fontSize="25px"
+                  fontWeight="semibold"
+                  py="5"
+                  _hover={{ transform: "translateY(-2px)" }}
+                  bgGradient={gold}
+                  color={"black"}
+                >
+                  Join our Discord{" "}
+                  <ExternalLinkIcon
+                    mx="2px"
+                    display={{ base: "none", md: "inline" }}
+                  />
+                </Link>
+                <Center>
+                  <Text mt={8}>
+                    Whitelist contests, games, talk to the creators
+                  </Text>
+                </Center>
+              </Box>
+              <Spacer />
+              <Box>
+                <Link
+                  href="https://twitter.com/shrubfinance"
+                  isExternal
+                  cursor="pointer"
+                  rounded="3xl"
+                  size="sm"
+                  px="6"
+                  fontSize="25px"
+                  fontWeight="semibold"
+                  py="5"
+                  _hover={{ transform: "translateY(-2px)" }}
+                  bgGradient={gold}
+                  color={"black"}
+                >
+                  Follow on Twitter{" "}
+                  <ExternalLinkIcon
+                    mx="2px"
+                    display={{ base: "none", md: "inline" }}
+                  />
+                </Link>
+                <Center>
+                  <Text mt={8}>Follow for all official announcements</Text>
+                </Center>
+              </Box>
             </Flex>
           </Center>
         </Box>
