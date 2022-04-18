@@ -31,12 +31,10 @@ import {
   Pot,
   Ticket,
   Ticket1,
-  Watering,
   WonderPot,
 } from "../assets/Icons";
 import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
 import Stage1 from "./animations/Stage1";
-import { isMobile } from "react-device-detect";
 
 function Intro(props: RouteComponentProps) {
   const gold =
@@ -212,16 +210,26 @@ function Intro(props: RouteComponentProps) {
             display={{ base: "none", md: "block" }}
           >
             {/*<Stage1 />*/}
-            <Watering boxSize={600} />
+            <Image
+              width={{ base: "32rem", md: "42rem" }}
+              src="https://shrub.finance/watering.png"
+              fallbackSrc="https://shrub.finance/watering.png"
+              alt="Lovely"
+            />
           </Box>
           <Box mt={{ base: 10, md: 32 }} display={{ base: "flex", md: "none" }}>
-            <Watering boxSize={350} />
+            <Image
+              width={{ base: "32rem", md: "42rem" }}
+              src="https://shrub.finance/watering.png"
+              fallbackSrc="https://shrub.finance/watering.png"
+              alt="Lovely"
+            />
           </Box>
         </Flex>
       </Container>
       {/*section 3*/}
       <Container
-        mt={{ base: 0, md: 60, lg: 40 }}
+        mt={{ base: 0, md: 40, lg: 40 }}
         p={5}
         flex="1"
         borderRadius="2xl"
