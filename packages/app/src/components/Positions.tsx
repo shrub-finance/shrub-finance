@@ -495,7 +495,7 @@ function Positions() {
 
     setOptionsRows(optionRow);
     setExpiredOptionsRows(expiredOptionRow);
-  }, [shrubfolioData, exerciseConfirmationFlag]);
+  }, [shrubfolioData]);
 
   // determine if approved
   useEffect(() => {
@@ -670,7 +670,7 @@ function Positions() {
     pair: string,
     common: OrderCommon,
     amount: string,
-    outcomeOption: any
+    totalProfitOrLoss: any
   ) {
     setExerciseConfirmationFlag(true);
     const handleExcerciseConfirmation = (val = "NO") => {
@@ -682,7 +682,7 @@ function Positions() {
         pair={pair}
         common={common}
         amount={amount}
-        orderStack={outcomeOption}
+        orderStack={totalProfitOrLoss}
       />
     );
   }
