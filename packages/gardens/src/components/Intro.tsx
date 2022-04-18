@@ -15,16 +15,18 @@ import {
   ListItem,
   HStack,
   VStack,
+  UnorderedList,
+  AccordionItem,
+  AccordionIcon,
+  AccordionPanel,
+  Accordion,
+  AccordionButton,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import {
-  Beach,
-  BusStop,
-  City,
   GoofyWonder,
-  Home,
   Night,
   Pot,
   Ticket,
@@ -113,8 +115,16 @@ function Intro(props: RouteComponentProps) {
               fontWeight={{ base: "semibold", md: "medium" }}
             >
               Plant your seed, grow a Shrub. Planting your seed into a pot
-              creates a potted plant. For the first time ever, grow an NFT by
-              interacting with it on-chain.
+              creates a potted plant.
+            </Text>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              For the first time ever, grow an NFT by interacting with it
+              on-chain!
             </Text>
           </Box>
           <Spacer />
@@ -130,6 +140,7 @@ function Intro(props: RouteComponentProps) {
                 as={FaLongArrowAltRight}
                 boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
               />
+
               <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
             </HStack>
           </Box>
@@ -190,8 +201,8 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Watch the traits of your potted plant update dynamically when you
-              interact.
+              Traits of your potted plant will update dynamically when you
+              interact with it!
             </Text>
           </Box>
           <Spacer />
@@ -405,9 +416,9 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              The distribution for the Pot sale will make use of a new product
-              created by the Shrub engineering team that provides NFT collectors
-              more flexibility than a traditional whitelist.
+              The distribution for the Pot sale will use a new product created
+              by the Shrub engineering team that provides NFT collectors more
+              flexibility than a traditional whitelist.
             </Text>
             <Text
               mt="3"
@@ -481,8 +492,9 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              Shrubs represent those who believe in a decentralized world, and
-              are willing to put in the effort to make it a reality.
+              It takes a special sort of person to hold a Shrub. Shrubs
+              represent those who believe in the decentralized world and are
+              willing to put in the effort to make it a reality.
             </Text>{" "}
             <Text
               mt="3"
@@ -490,9 +502,9 @@ function Intro(props: RouteComponentProps) {
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "medium" }}
             >
-              They are dreamers, builders, innovators, thinkers, and
-              freedom-lovers who think outside the box and mold the world to
-              their vision.
+              Shrub holders are dreamers, builders, innovators, thinkers, and
+              freedom-lovers. They think outside the box and bring positive
+              change to the world.
             </Text>
           </Box>
           <Box mt={{ base: 0, md: 64 }}>
@@ -515,6 +527,32 @@ function Intro(props: RouteComponentProps) {
         maxW={{ base: "container.sm", md: "1400px" }}
       >
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
+          <Box
+            mt={{ base: 0, md: 64 }}
+            display={{
+              base: "none",
+              md: "none",
+              lg: "flex",
+              xl: "flex",
+              "2xl": "flex",
+            }}
+          >
+            <Image
+              width={{ base: "22rem", md: "22rem", lg: "52rem" }}
+              src="https://shrub.finance/funky-pineapple-shrub.webp"
+              fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
+              alt="Rock"
+            />
+          </Box>
+          <Spacer
+            display={{
+              base: "none",
+              md: "none",
+              lg: "flex",
+              xl: "flex",
+              "2xl": "flex",
+            }}
+          />
           <Box mt={{ base: 0, md: 8 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
@@ -523,215 +561,287 @@ function Intro(props: RouteComponentProps) {
             >
               FAQs
             </Heading>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={"bold"}
-            >
-              How will the mint occur?
-            </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              The minting will take place in stages.
-              <Box ml={10}>
-                <OrderedList>
-                  <ListItem>Ticket whitelist pre-sale</ListItem>
-                  <ListItem>Ticket public pre-sale</ListItem>
-                  <ListItem>Public Pot sale</ListItem>
-                </OrderedList>
-              </Box>
-            </Text>
-            <Text
-              mt="16"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={"bold"}
-            >
-              When is the mint?
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              May 2022.
-            </Text>
-            <Text
-              mt="16"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={"bold"}
-            >
-              What's the total pot supply ?
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              There will be a supply of 250 pots. This can flex up to 1000 based
-              on the limited pre-sale.
-            </Text>
-            <Text
-              mt="16"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={"bold"}
-            >
-              What will be the mint price?
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              0.05 ETH for the public sale.
-            </Text>
-            <Text
-              mt="16"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={"bold"}
-            >
-              How will the pre-sale tickets work?
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Pre-sale tickets will be sold at a discount to whitelist holders.
-              The pricing is:
-              <Box ml={10}>
-                <OrderedList>
-                  <ListItem>0.015 ETH - Whitelist</ListItem>
-                  <ListItem>0.035 ETH - Public</ListItem>
-                </OrderedList>
-              </Box>
-            </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              All tickets will be redeemable for a pot for up to a month after
-              the public sale for a redemption price of 0.015 ETH.
-            </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Tickets are tradable NFTs and can be purchased on secondary
-              markets.
-            </Text>
-            <Text
-              mt="16"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={"bold"}
-            >
-              Will my NFTs be stored on-chain?
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              The latest in NFT technology is being used to store all metadata
-              for pots and shrubs on-chain dynamically.
-            </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              {" "}
-              All art is stored on a redundant Inter-Planetary File System
-              (IPFS) setup. It's not going anywhere.
-            </Text>
-            <Text
-              mt="16"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={"bold"}
-            >
-              How do I get on the whitelist?
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              The guaranteed way to get a whitelist spot is to hold 15 seeds.
-              Every 15 seeds that you hold give you a whitelist for 1 pre-sale
-              ticket.
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              This will be based on a snapshot taken 1 day before the pre-sale.
-            </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Follow us on twitter and join the discord. There will be contests
-              on both to win additional whitelist spots.
-            </Text>
-            <Text
-              mt="16"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={"bold"}
-            >
-              Do I need a seed to participate?
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Yes, to transform a pot into a potted plant you need a seed.
-              Owning a seed is also a pre-requisite to participate in the
-              pre-sale.
-            </Text>{" "}
-          </Box>
-          <Spacer />
-          <Box display={{ base: "none", md: "flex", lg: "flex" }}>
-            <Flex direction={"column"} gap={60}>
-              {/*<BusStop boxSize={{ lg: "md", xl: "xl" }} />*/}
-              {/*<City boxSize={{ lg: "md", xl: "xl" }} />*/}
-              <Home boxSize={{ lg: "md", xl: "xl" }} />
-              {/*<Beach*/}
-              {/*  boxSize={{ lg: "md", xl: "xl" }}*/}
-              {/*  display={{ md: "flex", lg: "flex", xl: "none" }}*/}
-              {/*/>*/}
-            </Flex>
+            <Accordion allowToggle>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    When mint?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    May 2022.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    What's the total pot supply ?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    {" "}
+                    There will be a supply of 250 pots.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    How will the mint occur?{" "}
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    The minting will take place in stages.
+                    <Box ml={10}>
+                      <UnorderedList>
+                        <ListItem>
+                          Stage 1: NFT Ticket whitelist pre-sale
+                        </ListItem>
+                        <ListItem>Stage 2: NFT Ticket public pre-sale</ListItem>
+                        <ListItem>Stage 3: Pot public sale</ListItem>
+                      </UnorderedList>
+                    </Box>
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    How will the NFT ticket pre-sale work?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Pre-sale NFT tickets will be sold at a discount to Shrub
+                    whitelist holders. Pricing will be:
+                    <Box ml={10}>
+                      <UnorderedList>
+                        <ListItem>0.015 ETH - Whitelist</ListItem>
+                        <ListItem>0.035 ETH - Public</ListItem>
+                      </UnorderedList>
+                    </Box>
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    All tickets will be redeemable for a pot for up to a week
+                    after the public sale. Redemption price for the tickets will
+                    be 0.015 ETH.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    *Note: Tickets are tradable NFTs and can be purchased on
+                    secondary markets.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    What's the mint price for the Pot sale?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    0.05 ETH for the Pot public sale.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    How do I get on the whitelist?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    The guaranteed way to get a whitelist spot is to hold 15
+                    seeds. Every 15 seeds that you hold give you a whitelist for
+                    1 pre-sale ticket.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    This will be based on a snapshot taken 1 day before the
+                    pre-sale.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Follow us on twitter and join the discord. There will be
+                    contests on both to win additional whitelist spots.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Do I need a seed to buy a pot?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Yes, this is the first on-chain growth NFT. You will see an
+                    NFT grow dynamically on-chain. When you buy a pot, you will
+                    need a seed to turn it into a potted plant NFT. Owning a
+                    seed is also a pre-requisite to participate in the pre-sale.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Will my NFTs be stored on-chain?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    The latest in NFT technology is being used to store all
+                    metadata for pots and shrubs on-chain dynamically.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    All art is stored on a redundant Inter-Planetary File System
+                    (IPFS) setup. It's not going anywhere.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
           </Box>
         </Flex>
       </Container>
 
+      {/*ending*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -743,19 +853,10 @@ function Intro(props: RouteComponentProps) {
           <Heading
             fontSize={{ base: "30px", md: "90px" }}
             letterSpacing={"tight"}
+            mb={16}
           >
-            Grow a Shrub
+            Get Started
           </Heading>
-          <Text
-            mt="6"
-            mb={{ base: "16", md: "20", lg: "20" }}
-            fontSize={{ base: "20px", md: "28px" }}
-            textAlign="center"
-            px={["4rem", "5rem", "10rem"]}
-            fontWeight={{ base: "semibold", md: "medium" }}
-          >
-            Stand apart. Raise the bar. Set the standard.
-          </Text>
           <Center>
             <Flex
               direction={{
@@ -781,7 +882,7 @@ function Intro(props: RouteComponentProps) {
                   bgGradient={gold}
                   color={"black"}
                 >
-                  {isMobile ? "Get a Seed" : "Get a Seed on OpenSea"}
+                  Acquire a Seed
                   <ExternalLinkIcon
                     mx="2px"
                     display={{ base: "none", md: "inline" }}
@@ -789,8 +890,7 @@ function Intro(props: RouteComponentProps) {
                 </Link>
                 <Center>
                   <Text mt={8} maxW={"19rem"}>
-                    To grow a Shrub you need a seed
-                    {/*Available on secondary.*/}
+                    To grow a Shrub you want a seed, available on secondary
                   </Text>
                 </Center>
               </Box>
@@ -798,7 +898,7 @@ function Intro(props: RouteComponentProps) {
               <Box>
                 <Link
                   href="https://discord.gg/csusZhYgTg"
-                  // isExternal
+                  isExternal
                   cursor="pointer"
                   rounded="3xl"
                   size="sm"
