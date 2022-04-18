@@ -17,6 +17,7 @@ import {
   Button,
   Divider,
   HStack,
+  Image,
   Text,
   useToast,
   useColorModeValue,
@@ -29,8 +30,9 @@ function ExcerciseConfirmationAlert(prop: {
   common: OrderCommon;
   amount: string;
   onCustomClose: any;
+  orderStack: any;
 }) {
-  const callMeCancel = () => {
+  const handleCancel = () => {
     prop.onCustomClose("NO");
     onClose();
   };
@@ -49,6 +51,7 @@ function ExcerciseConfirmationAlert(prop: {
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const { library, chainId } = useWeb3React();
+  const totalProfitOrLoss = Math.abs(prop.orderStack);
   useEffect(() => {
     onOpenConfirmDialog();
   }, []);
@@ -88,7 +91,7 @@ function ExcerciseConfirmationAlert(prop: {
       handleErrorMessages({ err: e });
     }
   }
-  const callMeConfirm = () => {
+  const handleConfirm = () => {
     prop.onCustomClose("YES");
     exerciseOption();
     onClose();
@@ -100,31 +103,64 @@ function ExcerciseConfirmationAlert(prop: {
         // @ts-ignore
         leastDestructiveRef={cancelRef}
         isOpen={isOpenConfirmDialog}
-        onClose={callMeCancel}
+        onClose={handleCancel}
         isCentered
       >
         <AlertDialogOverlay />
         <AlertDialogContent>
-          <AlertDialogHeader>Exercise Option Confirmation</AlertDialogHeader>
+          <AlertDialogHeader>Confirmation</AlertDialogHeader>
           <AlertDialogCloseButton />
           <Divider />
           <AlertDialogBody>
             <Box fontSize="sm" pt={6}>
-              <HStack spacing={8} fontSize={"sm"}>
-                <VStack spacing={1.5} alignItems={"flex-start"}>
-                  <Text>Price per contract</Text>
-                  <Text>Quantity</Text>
-                  <Text>buy</Text>
-                </VStack>
-                <VStack
-                  spacing={1.5}
-                  alignItems={"flex-start"}
-                  fontWeight={"600"}
-                >
-                  <Text>1</Text>
-                  <Text>2</Text>
-                  <Text>3</Text>
-                </VStack>
+              <HStack marginLeft="40%">
+                {prop.orderStack > 0 ? (
+                  <VStack>
+                    <Image
+                      src="../bull-market.png"
+                      alt="bull-market"
+                      w={20}
+                      h={20}
+                    />
+                    <HStack>
+                      <Text>$</Text>
+                      <Text
+                        fontSize={"sm"}
+                        mt={6}
+                        rounded={"lg"}
+                        lineHeight={2.1}
+                        letterSpacing={".02rem"}
+                        fontWeight={"bold"}
+                        color="green"
+                      >
+                        {totalProfitOrLoss}
+                      </Text>
+                    </HStack>
+                  </VStack>
+                ) : (
+                  <VStack>
+                    <Image
+                      src="../bear-market.png"
+                      alt="bear-market"
+                      w={20}
+                      h={20}
+                    />
+                    <HStack>
+                      <Text>$</Text>
+                      <Text
+                        fontSize={"sm"}
+                        mt={6}
+                        rounded={"lg"}
+                        lineHeight={2.1}
+                        letterSpacing={".02rem"}
+                        fontWeight={"bold"}
+                        color="red"
+                      >
+                        {totalProfitOrLoss}
+                      </Text>
+                    </HStack>
+                  </VStack>
+                )}
               </HStack>
             </Box>
             <Text
@@ -136,41 +172,28 @@ function ExcerciseConfirmationAlert(prop: {
               color={useColorModeValue("gray.600", "gray.400")}
               lineHeight={2.1}
               letterSpacing={".02rem"}
+              fontWeight={"bold"}
             >
-              Placing this order{" "}
-              <Text as="span" fontWeight={"bold"}>
-                gives
-              </Text>{" "}
-              the{" "}
-              <Text as="span" fontWeight={"bold"}>
-                right`` to sMATIC
-              </Text>{" "}
-              for{" "}
-              <Text as="span" fontWeight={"bold"}>
-                sUSD/sMATIC
-              </Text>{" "}
-              <Text as="span" fontWeight={"bold"}>
-                4
-              </Text>
-              .
+              Do you really want to continue
             </Text>
           </AlertDialogBody>
           <AlertDialogFooter>
             <Button
               // @ts-ignore
               ref={cancelRef}
-              onClick={() => callMeCancel()}
+              onClick={() => handleCancel()}
             >
               Cancel
             </Button>
             <Button
               colorScheme={ctaColor}
               ml={3}
-              onClick={() => callMeConfirm()}
+              onClick={() => handleConfirm()}
             >
-              Exercise
+              Continue
             </Button>
           </AlertDialogFooter>
+          1
         </AlertDialogContent>
       </AlertDialog>
     </>
