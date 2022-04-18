@@ -31,12 +31,10 @@ import {
   Pot,
   Ticket,
   Ticket1,
-  Watering,
   WonderPot,
 } from "../assets/Icons";
 import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
 import Stage1 from "./animations/Stage1";
-import { isMobile } from "react-device-detect";
 
 function Intro(props: RouteComponentProps) {
   const gold =
@@ -212,16 +210,26 @@ function Intro(props: RouteComponentProps) {
             display={{ base: "none", md: "block" }}
           >
             {/*<Stage1 />*/}
-            <Watering boxSize={600} />
+            <Image
+              width={{ base: "32rem", md: "42rem" }}
+              src="https://shrub.finance/watering.png"
+              fallbackSrc="https://shrub.finance/watering.png"
+              alt="watering"
+            />
           </Box>
           <Box mt={{ base: 10, md: 32 }} display={{ base: "flex", md: "none" }}>
-            <Watering boxSize={350} />
+            <Image
+              width={{ base: "32rem", md: "42rem" }}
+              src="https://shrub.finance/watering.png"
+              fallbackSrc="https://shrub.finance/watering.png"
+              alt="watering"
+            />
           </Box>
         </Flex>
       </Container>
       {/*section 3*/}
       <Container
-        mt={{ base: 0, md: 60, lg: 40 }}
+        mt={{ base: 0, md: 40, lg: 40 }}
         p={5}
         flex="1"
         borderRadius="2xl"
@@ -538,10 +546,10 @@ function Intro(props: RouteComponentProps) {
             }}
           >
             <Image
-              width={{ base: "22rem", md: "22rem", lg: "52rem" }}
+              width={"72rem"}
               src="https://shrub.finance/funky-pineapple-shrub.webp"
               fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
-              alt="Rock"
+              alt="pineapple"
             />
           </Box>
           <Spacer
@@ -561,7 +569,10 @@ function Intro(props: RouteComponentProps) {
             >
               FAQs
             </Heading>
-            <Accordion allowToggle>
+            <Accordion
+              allowToggle
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+            >
               <AccordionItem>
                 <AccordionButton>
                   <Text
@@ -837,6 +848,43 @@ function Intro(props: RouteComponentProps) {
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
+          </Box>
+        </Flex>
+      </Container>
+
+      {/*section 8*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW="40rem"
+            >
+              Roadmap
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "35px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Coming soon...
+            </Text>{" "}
+          </Box>
+          <Box mt={{ base: 0, md: 64 }}>
+            <Image
+              width={"72rem"}
+              src="https://shrub.finance/beany-hope.webp"
+              fallbackSrc="https://shrub.finance/beany-hope.png"
+              alt="Beany"
+            />
           </Box>
         </Flex>
       </Container>
