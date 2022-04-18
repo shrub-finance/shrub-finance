@@ -214,7 +214,7 @@ function Intro(props: RouteComponentProps) {
               width={{ base: "32rem", md: "42rem" }}
               src="https://shrub.finance/watering.png"
               fallbackSrc="https://shrub.finance/watering.png"
-              alt="Lovely"
+              alt="watering"
             />
           </Box>
           <Box mt={{ base: 10, md: 32 }} display={{ base: "flex", md: "none" }}>
@@ -222,7 +222,7 @@ function Intro(props: RouteComponentProps) {
               width={{ base: "32rem", md: "42rem" }}
               src="https://shrub.finance/watering.png"
               fallbackSrc="https://shrub.finance/watering.png"
-              alt="Lovely"
+              alt="watering"
             />
           </Box>
         </Flex>
@@ -546,10 +546,10 @@ function Intro(props: RouteComponentProps) {
             }}
           >
             <Image
-              width={{ base: "22rem", md: "22rem", lg: "52rem" }}
+              width={"72rem"}
               src="https://shrub.finance/funky-pineapple-shrub.webp"
               fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
-              alt="Rock"
+              alt="pineapple"
             />
           </Box>
           <Spacer
@@ -569,7 +569,10 @@ function Intro(props: RouteComponentProps) {
             >
               FAQs
             </Heading>
-            <Accordion allowToggle>
+            <Accordion
+              allowToggle
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+            >
               <AccordionItem>
                 <AccordionButton>
                   <Text
@@ -845,6 +848,43 @@ function Intro(props: RouteComponentProps) {
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
+          </Box>
+        </Flex>
+      </Container>
+
+      {/*section 8*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW="40rem"
+            >
+              Roadmap
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "35px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Coming soon...
+            </Text>{" "}
+          </Box>
+          <Box mt={{ base: 0, md: 64 }}>
+            <Image
+              width={"72rem"}
+              src="https://shrub.finance/beany-hope.webp"
+              fallbackSrc="https://shrub.finance/beany-hope.png"
+              alt="Beany"
+            />
           </Box>
         </Flex>
       </Container>
