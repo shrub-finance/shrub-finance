@@ -31,6 +31,7 @@ import {
   ConnectWalletModal,
   getErrorMessage,
 } from "./ConnectWallet";
+import BuyMatic from "./BuyMatic";
 import { useConnectWallet } from "../hooks/useConnectWallet";
 import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
@@ -100,11 +101,13 @@ function TopNav() {
 
           <Flex alignItems={"center"}>
             {!isMobile && (
-              <Box pr={5} d={{ base: "none", sm: "flex" }} size={buttonSize}>
-                <Balance />
-              </Box>
+              <>
+                <BuyMatic></BuyMatic>
+                <Box pr={5} d={{ base: "none", sm: "flex" }} size={buttonSize}>
+                  <Balance />
+                </Box>
+              </>
             )}
-
             <Box onClick={onOpen} mr={isMobile ? "19.5" : "0"}>
               {/*connect wallet button*/}
               <Button
