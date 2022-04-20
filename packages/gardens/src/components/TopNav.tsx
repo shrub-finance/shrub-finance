@@ -102,8 +102,12 @@ function TopNav() {
           <Flex alignItems={"center"}>
             {!isMobile && (
               <>
-                <BuyMatic></BuyMatic>
-                <Box pr={5} d={{ base: "none", sm: "flex" }} size={buttonSize}>
+                <BuyMatic />
+                <Box
+                  pr={5}
+                  display={{ base: "none", sm: "flex" }}
+                  size={buttonSize}
+                >
                   <Balance />
                 </Box>
               </>
