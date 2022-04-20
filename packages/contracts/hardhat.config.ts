@@ -4,6 +4,7 @@ import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-truffle5";
 import "@nomiclabs/hardhat-solhint";
+import "@typechain/hardhat";
 import "solidity-coverage";
 import "hardhat-abi-exporter";
 import "hardhat-gas-reporter";
@@ -23,7 +24,7 @@ import {
   SMATICToken__factory,
   PaperSeed__factory,
   SeedOrphanageV2__factory,
-} from './types/ethers-v5'
+} from './types'
 import {OrderCommon, SmallOrder} from "@shrub/app/src/types";
 import chainlinkAggregatorV3Interface from './external-contracts/chainlinkAggregatorV3InterfaceABI.json';
 import env from 'hardhat'
@@ -42,9 +43,9 @@ const CHAINLINK_USDC = '0x572dDec9087154dC5dfBB1546Bb62713147e0Ab0';  // Mumbai
 const MINUTES_BETWEEN_ORDERS = 5;  // For maker2
 
 const expiryDates = [
-  new Date('2022-02-02'),
-  new Date('2022-03-02'),
-  new Date('2022-04-02'),
+  new Date('2022-05-02'),
+  new Date('2022-06-02'),
+  new Date('2022-07-02'),
   // [toEthDate(new Date('2021-12-11')).toString()] : standardStrikes,
   // [toEthDate(new Date('2021-12-18')).toString()] : standardStrikes,
   // [toEthDate(new Date('2021-12-25')).toString()] : standardStrikes,
@@ -964,6 +965,11 @@ const config: HardhatUserConfig & AbiExporter = {
   },
   mocha: {
     timeout: 35000
+  },
+  typechain: {
+    outDir: 'types',
+    target: 'ethers-v5',
+    alwaysGenerateOverloads: false
   }
 };
 

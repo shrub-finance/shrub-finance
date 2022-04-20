@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
+// Inspired by merge
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./JsonBuilder.sol";
+import "./PaperPotEnum.sol";
+import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import "./basic/baseERC1155.sol";
+import "./PaperPotEnum.sol";
 
 interface IPaperPotMetadata {
     function tokenMetadata(
-        uint tokenId,
+        string memory name,
+        uint seedTokenId,
+        uint growth,
         bool isSad
     ) external view returns (string memory);
 }
 
-contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder {
+contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable {
     struct ERC1155MetadataStructure {
         bool isImageLinked;
         string name;
@@ -29,30 +38,63 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder {
         string value;
     }
 
+    // images for the potted plants by class and stage
+    mapping(NftClass => mapping(GrowthStages => string)) private _pottedPlantImages;
+
+    using Base64 for string;
+    using Strings for uint256;
+
     function tokenMetadata(
-        uint tokenId,
+        string memory name,
+        uint seedTokenId,
+        uint growth,
         bool isSad
     ) external view returns (string memory) {
-//        string memory json = string(abi.encodePacked(_getJson(tokenId, rarity, tokenMass, alphaMass, isAlpha, mergeCount)));
-        string memory json = "";
-        return string(abi.encodePacked('data:application/json;utf8,', json));
+        string memory base64json = Base64.encode(bytes(string(abi.encodePacked(_getJson(name, seedTokenId, growth, isSad)))));
+        return string(abi.encodePacked('data:application/json;base64,', base64json));
     }
 
-    function _getJson(uint tokenId, string memory class, string memory emotion) private returns (string memory) {
+    function _getJson(string memory name, uint _seedTokenId, uint _growth, bool _isSad) private view returns (string memory) {
         ERC1155MetadataStructure memory metadata = ERC1155MetadataStructure({
             isImageLinked: true,
-            name: "Potted Plant #1",
-            description: "Potter Plant #1 Description",
+            name: name,
+            description: "created by Shrub.finance",
             createdBy: "Shrub.finance",
-            image: "ipfs://image",
-            attributes: _getJsonAttributes()
+            image: "https://pottedplant",
+            attributes: _getJsonAttributes(_seedTokenId, _growth, _isSad)
         });
         return _generateERC1155Metadata(metadata);
     }
 
-    function _getJsonAttributes() private returns (ERC1155MetadataAttribute[] memory) {
-        ERC1155MetadataAttribute[] memory attributes;
+    function _getJsonAttributes(uint _seedTokenId, uint growth, bool isSad) private view returns (ERC1155MetadataAttribute[] memory) {
+        string[3] memory classRarity = getClassFromSeedId(_seedTokenId);
+        ERC1155MetadataAttribute[] memory attributes = new ERC1155MetadataAttribute[](6);
+        attributes[0] = _getERC721MetadataAttribute(false, true, true, "", "Class", classRarity[0]);
+        attributes[1] = _getERC721MetadataAttribute(false, true, true, "", "Rarity", classRarity[1]);
+        attributes[2] = _getERC721MetadataAttribute(false, true, false, "", "DNA", getDnaFromSeedId(_seedTokenId).toString());
+        attributes[3] = _getERC721MetadataAttribute(false, true, false, "", "Growth", growth.toString());
+        attributes[4] = _getERC721MetadataAttribute(false, true, true, "", "Emotion", isSad ? "Sad" : "Happy");
+        attributes[5] = _getERC721MetadataAttribute(false, true, true, "", "Planted Seed", classRarity[2]);
         return attributes;
+    }
+
+    function _getERC721MetadataAttribute(
+        bool includeDisplayType,
+        bool includeTraitType,
+        bool isValueAString,
+        string memory displayType,
+        string memory traitType,
+        string memory value
+    ) private pure returns (ERC1155MetadataAttribute memory) {
+        ERC1155MetadataAttribute memory attribute = ERC1155MetadataAttribute({
+        includeDisplayType: includeDisplayType,
+        includeTraitType: includeTraitType,
+        isValueAString: isValueAString,
+        displayType: displayType,
+        traitType: traitType,
+        value: value
+        });
+        return attribute;
     }
 
     function _generateERC1155Metadata(ERC1155MetadataStructure memory metadata) private pure returns (string memory) {
@@ -152,6 +194,39 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder {
 
         return string(byteString);
     }
+
+    function seedIdInRange(uint256 _seedTokenId) private pure returns (bool) {
+        return _seedTokenId > 0 && _seedTokenId < 10001;
+    }
+
+    function getClassFromSeedId(uint256 _seedTokenId) private pure returns (string[3] memory) {
+        require(seedIdInRange(_seedTokenId), "seedTokenId not in range");
+        if (_seedTokenId > 1110) {
+            return ["Wonder", "Common", string(abi.encodePacked("Paper Seed of Wonder #",(_seedTokenId - 1110).toString()))];
+        }
+        if (_seedTokenId > 110) {
+            return ["Passion", "Uncommon", string(abi.encodePacked("Paper Seed of Passion #",(_seedTokenId - 110).toString()))];
+        }
+        if (_seedTokenId > 10) {
+            return ["Hope", "Rare", string(abi.encodePacked("Paper Seed of Hope #",(_seedTokenId - 10).toString()))];
+        }
+        return ["Power", "Legendary", string(abi.encodePacked("Paper Seed of Power #",_seedTokenId.toString()))];
+    }
+
+    function getDnaFromSeedId(uint256 _seedTokenId) private pure returns (uint256 dna) {
+        require(seedIdInRange(_seedTokenId), "seedTokenId not in range");
+        return _seedTokenId % 100;
+    }
+
+//    function setPottedPlantImages(NftClass class, GrowthStages[] calldata stages, string[] calldata images) public onlyOwner {
+//        require(stages.length == images.length, "length mismatch");
+//        require(class <= type(NftClass).max, "invalid class");
+//        for (uint i = 0; i < stages.length; i++) {
+//            require(stages[i] <= type(GrowthStages).max, "invalid stage");
+//            _pottedPlantImages[class][stages[i]] = images[i];
+//        }
+//    }
+
 }
 
 //    function _getJson(uint _tokenId, bool _isSad) internal returns (string memory) {

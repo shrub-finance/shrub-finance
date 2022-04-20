@@ -1,20 +1,48 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import {
+  PaperPot,
+  PaperPot__factory,
+  PaperPotMetadata,
+  PaperPotMetadata__factory,
+  PaperSeed,
+  PaperSeed__factory,
+} from '../types'
+import { describe } from 'mocha'
+
 const { BigNumber } = ethers;
 const { Zero, One } = ethers.constants;
+const BYTES_ZERO = ethers.utils.toUtf8Bytes('');
+
+function toEthDate(date: Date) {
+  return Math.round(Number(date) / 1000);
+}
 
 describe("PaperPot", () => {
-  let owner, signer1, signer2, signer3, signer4;
-  let signer1PaperSeed, signer2PaperSeed;
-  let signer1PaperPot, signer2PaperPot, signer3PaperPot, signer4PaperPot;
-  let paperSeed;
-  let paperPot;
+  let now: Date;
+  let ethNow: number;
+  let owner: SignerWithAddress;
+  let signer1: SignerWithAddress;
+  let signer2: SignerWithAddress;
+  let signer3: SignerWithAddress;
+  let signer4: SignerWithAddress;
+  let signer1PaperSeed: PaperSeed;
+  let signer2PaperSeed: PaperSeed;
+  let signer1PaperPot: PaperPot;
+  let signer2PaperPot: PaperPot;
+  let signer3PaperPot: PaperPot;
+  let signer4PaperPot: PaperPot;
+  let paperSeed: PaperSeed;
+  let paperPot: PaperPot;
+  let paperPotMetadata: PaperPotMetadata;
   const SAD_SEEDS = [11, 13, 15, 17, 19];
-  const BASE_URI = "http://test.xyz";
+  const BASE_URI = "http://test.xyz/{id}";
   const ADDRESS_ONE = "0x0000000000000000000000000000000000000001";
   const DEAD_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 
   beforeEach(async () => {
+    now = new Date();
     const signers = await ethers.getSigners();
     owner = signers[0];
     signer1 = signers[1];
@@ -25,16 +53,19 @@ describe("PaperPot", () => {
     const merkleRoot =
       "0x618ddd3b36d40f8d9b942cf72c5e92615e6594b3e8b537082310ae48e51cd059";
     const baseUri = "https://shrub.finance/";
-    const PaperSeed = await ethers.getContractFactory("PaperSeed");
+    const PaperSeed = await ethers.getContractFactory("PaperSeed") as PaperSeed__factory;
     paperSeed = await PaperSeed.deploy(maxIndex, merkleRoot, baseUri);
     await paperSeed.deployed();
     await paperSeed.claimReserve(1);
     await paperSeed.claimReserve(2);
     await paperSeed.claimReserve(3);
     await paperSeed.claimReserve(4);
-    const PaperPot = await ethers.getContractFactory("PaperPot");
-    paperPot = await PaperPot.deploy([paperSeed.address], SAD_SEEDS, BASE_URI);
+    const PaperPotMetadata = await ethers.getContractFactory("PaperPotMetadata") as PaperPotMetadata__factory;
+    paperPotMetadata = await PaperPotMetadata.deploy();
+    const PaperPot = await ethers.getContractFactory("PaperPot") as PaperPot__factory;
+    paperPot = await PaperPot.deploy([paperSeed.address], SAD_SEEDS, BASE_URI, paperPotMetadata.address);
 
+    ethNow = (await ethers.provider.getBlock('latest')).timestamp;
     signer1PaperSeed = paperSeed.connect(signer1);
     signer2PaperSeed = paperSeed.connect(signer2);
     signer1PaperPot = paperPot.connect(signer1);
@@ -300,7 +331,7 @@ describe("PaperPot", () => {
       expect(pottedPlantBalance).to.equal(One);
       expect(plantedSeed).to.equal(3);
       expect(growthLevel).to.equal(0);
-      expect(lastWatering).to.equal(0);
+      expect(lastWatering).to.equal(1);
     });
     it("should not allow minting with the same seed twice", async () => {
       await paperPot.adminMintPot(signer1.address, 3);
@@ -347,7 +378,7 @@ describe("PaperPot", () => {
       expect(pottedPlantBalanceTwo).to.equal(Zero);
       expect(plantedSeedOne).to.equal(3);
       expect(growthLevelOne).to.equal(0);
-      expect(lastWateringOne).to.equal(0);
+      expect(lastWateringOne).to.equal(1);
     });
     it("should be able to mint many with correct conditions", async () => {
       // Transfer also seed 4 to signer1
@@ -414,10 +445,251 @@ describe("PaperPot", () => {
       expect(pottedPlantBalanceTwo).to.equal(One);
       expect(plantedSeedOne).to.equal(3);
       expect(growthLevelOne).to.equal(0);
-      expect(lastWateringOne).to.equal(0);
+      expect(lastWateringOne).to.equal(1);
       expect(plantedSeedTwo).to.equal(4);
       expect(growthLevelTwo).to.equal(0);
-      expect(lastWateringTwo).to.equal(0);
+      expect(lastWateringTwo).to.equal(1);
     });
+  });
+
+  describe("uri", async () => {
+    it('Should reject if token does not exist', async () => {
+      await expect(paperPot.uri(1)).to.be.revertedWith(
+        "PaperPot: URI query for nonexistent token"
+      );
+      await expect(paperPot.uri(4)).to.be.revertedWith("PaperPot: URI query for nonexistent token");
+      await expect(paperPot.uri(3000001)).to.be.revertedWith("PaperPot: URI query for nonexistent token");
+    });
+    it('Should return standard uri if tokenId is 1-2-3', async () => {
+      await paperPot.adminMintPot(signer1.address, 1);
+      await paperPot.adminDistributeFertilizer(signer1.address, 1);
+      await paperPot.adminDistributeWater(signer1.address, 1);
+      const uri1 = await paperPot.uri(1);
+      const uri2 = await paperPot.uri(2);
+      const uri3 = await paperPot.uri(3);
+      expect(uri1).to.equal('http://test.xyz/{id}');
+      expect(uri2).to.equal('http://test.xyz/{id}');
+      expect(uri3).to.equal('http://test.xyz/{id}');
+    });
+
+    it('Should work', async () => {
+      const expectedMetadata = {
+        name: 'Potted Plant of Power #1',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'https://pottedplant',
+        attributes: [
+          { trait_type: 'Class', value: 'Power' },
+          { trait_type: 'Rarity', value: 'Legendary' },
+          { trait_type: 'DNA', value: 3 },
+          { trait_type: 'Growth', value: 0 },
+          { trait_type: 'Emotion', value: 'Happy' },
+          { trait_type: 'Planted Seed', value: 'Paper Seed of Power #3' }
+        ]
+      }
+      await paperPot.adminMintPot(signer1.address, 3);
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer1.address,
+        3
+      );
+      await signer1PaperSeed.approve(paperPot.address, 3);
+      const plantTx = await signer1PaperPot.plant(paperSeed.address, 3);
+      const uri = await paperPot.uri(1e6 + 1);
+      const splitUri = uri.split(',');
+      console.log(uri);
+      console.log(splitUri);
+      console.log(splitUri.length);
+      expect(splitUri.length).to.equal(2);
+      expect(splitUri[0]).to.equal('data:application/json;base64');
+      const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+      const decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+      expect(decodedMetadata).to.deep.equal(expectedMetadata);
+      const plantReceipt = await plantTx.wait();
+      const plantEvent = plantReceipt.events.find(
+        (event) => event.event === "Plant"
+      );
+      const plantedSeed = await paperPot.getPlantedSeed(1e6 + 1);
+      const growthLevel = await paperPot.getGrowthLevel(1e6 + 1);
+      const lastWatering = await paperPot.getLastWatering(1e6 + 1);
+      expect(plantedSeed).to.equal(3);
+      expect(growthLevel).to.equal(0);
+      expect(lastWatering).to.equal(1);
+    })
+  });
+
+  describe("watering", async () => {
+    let expectedMetadata;
+    beforeEach(async () => {
+      expectedMetadata = {
+        name: 'Potted Plant of Power #1',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'https://pottedplant',
+        attributes: [
+          { trait_type: 'Class', value: 'Power' },
+          { trait_type: 'Rarity', value: 'Legendary' },
+          { trait_type: 'DNA', value: 3 },
+          { trait_type: 'Growth', value: 0 },
+          { trait_type: 'Emotion', value: 'Happy' },
+          { trait_type: 'Planted Seed', value: 'Paper Seed of Power #3' }
+        ]
+      }
+      await paperPot.adminMintPot(signer1.address, 3);
+      await paperPot.adminDistributeWater(signer1.address, 1);
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer1.address,
+        3
+      );
+      await signer1PaperSeed.approve(paperPot.address, 3);
+      await signer1PaperPot.plant(paperSeed.address, 3);
+      const plantedSeed = await paperPot.getPlantedSeed(1e6 + 1);
+      const growthLevel = await paperPot.getGrowthLevel(1e6 + 1);
+      const lastWatering = await paperPot.getLastWatering(1e6 + 1);
+      const waterSupplyBefore = await paperPot.balanceOf(signer1.address, 3);
+      expect(plantedSeed).to.equal(3);
+      expect(growthLevel).to.equal(0);
+      expect(lastWatering).to.equal(1);
+      expect(waterSupplyBefore).to.equal(1);
+    })
+    it("should fail if there is insufficient water for watering 1", async () => {
+      await signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO);
+      const waterSupply = await paperPot.balanceOf(signer1.address, 3);
+      expect(waterSupply).to.equal(0)
+      await expect(signer1PaperPot.water([1e6 + 1])).to.be.revertedWith(
+        "PaperPot: Insufficient balance"
+      );
+    });
+    it("should fail if there is insufficient water for watering 2", async () => {
+      const waterSupply = await paperPot.balanceOf(signer1.address, 3);
+      expect(waterSupply).to.equal(1)
+      await expect(signer1PaperPot.water([1e6 + 1, 1e6 + 2])).to.be.revertedWith(
+        "PaperPot: Insufficient balance"
+      );
+    });
+    it("should fail if the potted plant does not exist", async () => {
+      await signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO);
+      const waterSupply = await paperPot.balanceOf(signer2.address, 3);
+      expect(waterSupply).to.equal(1)
+      await expect(signer2PaperPot.water([1e6 + 100])).to.be.revertedWith(
+        "PaperPot: ineligible tokenId"
+      );
+    });
+    it("should fail if the potted plant is not owned by the sender", async () => {
+      await signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO);
+      const waterSupply = await paperPot.balanceOf(signer2.address, 3);
+      expect(waterSupply).to.equal(1)
+      await expect(signer2PaperPot.water([1e6 + 1])).to.be.revertedWith(
+        "PaperPot: Potted plant not owned by sender"
+      );
+    });
+    it("should fail if the same plant is in the array twice", async () => {
+      await paperPot.adminDistributeWater(signer1.address, 1);
+      const waterSupply = await paperPot.balanceOf(signer1.address, 3);
+      expect(waterSupply).to.equal(2);
+      await expect(signer1PaperPot.water([1e6 + 1, 1e6 + 1])).to.be.revertedWith(
+        "PaperPot: provided tokenIds not eligible"
+      );
+    });
+    it("should work to water a plant if everything is there", async() => {
+      const waterTx = await signer1PaperPot.water([1e6 + 1]);
+      const waterTxReceipt = await waterTx.wait();
+      const waterTxBlockHash = waterTxReceipt.blockHash;
+      const waterTxBlock = await ethers.provider.getBlock(waterTxBlockHash);
+      const waterTxTimestamp = waterTxBlock.timestamp;
+      const waterSupplyAfter = await paperPot.balanceOf(signer1.address, 3);
+      const plantedSeed2 = await paperPot.getPlantedSeed(1e6 + 1);
+      const growthLevel2 = await paperPot.getGrowthLevel(1e6 + 1);
+      const lastWatering2 = await paperPot.getLastWatering(1e6 + 1);
+
+      const afterWaterUri = await paperPot.uri(1e6 + 1);
+      const splitUri = afterWaterUri.split(',');
+      expect(splitUri.length).to.equal(2);
+      expect(splitUri[0]).to.equal('data:application/json;base64');
+      const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+      const decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+      expectedMetadata.attributes[3].value = growthLevel2.toNumber();
+      console.log(decodedMetadata);
+      expect(decodedMetadata).to.deep.equal(expectedMetadata);
+
+      // Case: Sad Potted Plant (100-175)
+      // Case: Happy Potted Plant (200-350)
+      // Case: Sad Potted Plant with Fertilizer (150-263)
+      // Case: Happy Potted Plant with Fertilizer (300-525)
+
+      console.log(waterTxTimestamp);
+      // console.log(waterTxReceipt);
+      console.log(growthLevel2);
+      // console.log(lastWatering2);
+      expect(waterSupplyAfter).to.equal(0);
+      expect(plantedSeed2).to.equal(3);
+      expect(growthLevel2).to.be.gte(200);
+      expect(growthLevel2).to.be.lte(350);
+      expect(lastWatering2).to.equal(waterTxTimestamp);
+    });
+    it("should fail to water a second time if less than eight hours have past", async () => {
+      await paperPot.adminDistributeWater(signer1.address, 1);
+      const waterSupply = await paperPot.balanceOf(signer1.address, 3);
+      expect(waterSupply).to.equal(2);
+      await signer1PaperPot.water([1e6 + 1]);
+      const waterSupplyAfter = await paperPot.balanceOf(signer1.address, 3);
+      expect(waterSupplyAfter).to.equal(1);
+      await expect(signer1PaperPot.water([1e6 + 1])).to.be.revertedWith(
+        "PaperPot: provided tokenIds not eligible"
+      );
+    });
+    it("should fail to water a second time if more than eight hours have past but same day", async () => {
+      await paperPot.adminDistributeWater(signer1.address, 1);
+      const waterSupply = await paperPot.balanceOf(signer1.address, 3);
+      expect(waterSupply).to.equal(2);
+      const twoDaysFromNow = new Date(ethNow * 1000);
+      twoDaysFromNow.setUTCDate(now.getUTCDate() + 2);
+      twoDaysFromNow.setUTCHours(0,0,0,0);
+      const nineHoursLater = new Date(twoDaysFromNow);
+      nineHoursLater.setUTCHours(twoDaysFromNow.getUTCHours() + 9);
+      await ethers.provider.send('evm_setNextBlockTimestamp', [toEthDate(twoDaysFromNow)]);
+      const lastBlock = await ethers.provider.getBlock('latest');
+      const waterTx = await signer1PaperPot.water([1e6 + 1]);
+      const waterSupplyAfter = await paperPot.balanceOf(signer1.address, 3);
+      const waterTxTimestamp = (await ethers.provider.getBlock(waterTx.blockHash)).timestamp;
+      expect(waterSupplyAfter).to.equal(1);
+      expect(waterTxTimestamp).to.equal(toEthDate(twoDaysFromNow));
+      // await ethers.provider.send('evm_mine', []);
+      await ethers.provider.send('evm_setNextBlockTimestamp', [toEthDate(nineHoursLater)]);
+      await expect(signer1PaperPot.water([1e6 + 1])).to.be.revertedWith(
+        "PaperPot: provided tokenIds not eligible"
+      );
+      const latestTimestamp = (await ethers.provider.getBlock('latest')).timestamp;
+      expect(latestTimestamp).to.equal(toEthDate(nineHoursLater));
+    });
+    it("should succeed watering a second time if more than eight hours have past and new day", async () => {
+      // await paperPot.adminDistributeWater(signer1.address, 1);
+      // const waterSupply = await paperPot.balanceOf(signer1.address, 3);
+      // expect(waterSupply).to.equal(2);
+      // const twoDaysFromNow = new Date(ethNow * 1000);
+      // twoDaysFromNow.setUTCDate(now.getUTCDate() + 2);
+      // twoDaysFromNow.setUTCHours(0,0,0,0);
+      // const nineHoursLater = new Date(twoDaysFromNow);
+      // nineHoursLater.setUTCHours(twoDaysFromNow.getUTCHours() + 9);
+      // await ethers.provider.send('evm_setNextBlockTimestamp', [toEthDate(twoDaysFromNow)]);
+      // const lastBlock = await ethers.provider.getBlock('latest');
+      // const waterTx = await signer1PaperPot.water([1e6 + 1]);
+      // const waterSupplyAfter = await paperPot.balanceOf(signer1.address, 3);
+      // const waterTxTimestamp = (await ethers.provider.getBlock(waterTx.blockHash)).timestamp;
+      // expect(waterSupplyAfter).to.equal(1);
+      // expect(waterTxTimestamp).to.equal(toEthDate(twoDaysFromNow));
+      // // await ethers.provider.send('evm_mine', []);
+      // await ethers.provider.send('evm_setNextBlockTimestamp', [toEthDate(nineHoursLater)]);
+      // await expect(signer1PaperPot.water([1e6 + 1])).to.be.revertedWith(
+      //   "PaperPot: provided tokenIds not eligible"
+      // );
+      // const latestTimestamp = (await ethers.provider.getBlock('latest')).timestamp;
+      // expect(latestTimestamp).to.equal(toEthDate(nineHoursLater));
+    });
+    it("_growPlant should handle normal growth", async () => {});
+    it("_growPlant should handle the final growth", async () => {});
+
+
   });
 });
