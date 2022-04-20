@@ -58,6 +58,7 @@ function App() {
 
   return (
     <div className="App">
+
       <LocationProvider history={history}>
         <Web3ReactProvider getLibrary={getLibrary}>
           <ApolloProvider client={client}>
@@ -77,6 +78,7 @@ function App() {
           </ApolloProvider>
         </Web3ReactProvider>
       </LocationProvider>
+
     </div>
   );
 }

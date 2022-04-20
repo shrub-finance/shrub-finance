@@ -158,7 +158,7 @@ function TopNav() {
 
         {isMenuOpen ? (
           <Suspense fallback={<Box>…</Box>}>
-            <MobileMenu />
+            <MobileMenu onMenuClose={onMenuClose} />
           </Suspense>
         ) : null}
       </Box>

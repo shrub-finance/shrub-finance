@@ -1,4 +1,4 @@
-import { extendTheme, ThemeConfig } from "@chakra-ui/react";
+import { extendTheme, ThemeConfig, useColorModeValue } from "@chakra-ui/react";
 import { mode } from "@chakra-ui/theme-tools";
 
 const config: ThemeConfig = extendTheme({
@@ -45,7 +45,7 @@ const styles = {
   global: (props: any) => ({
     body: {
       fontFamily: "body",
-      bg: mode("gray.50", "dark.200")(props),
+      bg: mode({ bgGradient: "gradient.100" }, "dark.200")(props),
     },
   }),
 };
@@ -55,6 +55,9 @@ const colors = {
     100: "rgb(31, 31, 65)",
     200: "rgb(18, 18, 38)", // base
     300: "rgb(21, 21, 38)",
+  },
+  gradient: {
+    100: "linear(to-tr,#d16ba5, #ef7388, #f7896a, #eda656, #d2c457, #bbd468, #a1e282, #82eea2, #73f2b7, #67f6cc, #5ff9df, #5ffbf1)",
   },
   // derived from #64A66A
   bud: {

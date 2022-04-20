@@ -12,13 +12,14 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import React from "react";
 import { trackEvent } from "../utils/handleGATracking";
 
-function MobileMenu() {
+// @ts-ignore
+function MobileMenu({ onMenuClose }) {
   const gradient = useColorModeValue(
     "linear(to-r, gray.100, gray.200)",
     "linear(to-l, gray.700, gray.700)"
   );
 
-  const { onClose: onMenuClose } = useDisclosure();
+  // const { onClose: onMenuClose } = useDisclosure();
 
   const { colorMode, toggleColorMode } = useColorMode();
 
@@ -94,23 +95,6 @@ function MobileMenu() {
           onClick={handleClick}
         >
           Leaderboard
-        </Link>
-        <Link
-          href="https://shrub.finance/roadmap"
-          isExternal
-          variant="ghost"
-          cursor="pointer"
-          px={2}
-          py={{ base: "3", md: "1", lg: "1" }}
-          rounded={"lg"}
-          _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={handleGA}
-        >
-          Roadmap
-          <ExternalLinkIcon
-            mx="2px"
-            display={{ base: "inline", md: "none", lg: "inline" }}
-          />
         </Link>
         <Link
           href="https://opensea.io/collection/shrub-paper-gardens"
