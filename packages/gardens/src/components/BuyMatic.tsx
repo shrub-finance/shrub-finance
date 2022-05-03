@@ -90,7 +90,8 @@ function BuyMatic() {
         display={{ base: "none", sm: "flex" }}
         fontSize={"sm"}
         variant={"link"}
-        colorScheme={"purple"}
+        fontWeight={"bold"}
+        colorScheme={"green"}
         rounded={"full"}
         onClick={wyreCheckout}
       >
