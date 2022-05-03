@@ -77,7 +77,7 @@ function DesktopMenu() {
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
           onClick={handleGA}
-          display={{ md: "none", lg: "inline" }}
+          display={{ md: "none", lg: "none", xl: "inline" }}
         >
           Adoption
         </Link>
@@ -119,6 +119,7 @@ function DesktopMenu() {
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
           onClick={onMenuClose}
+          display={{ md: "none", lg: "none", xl: "inline" }}
         >
           Blog
         </Link>
