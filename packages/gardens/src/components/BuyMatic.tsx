@@ -94,7 +94,7 @@ function BuyMatic() {
         rounded={"full"}
         onClick={wyreCheckout}
       >
-        {account ? "Buy MATIC" : ""}
+        Buy MATIC
       </Button>
     </>
   );
