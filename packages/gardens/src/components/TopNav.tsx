@@ -100,22 +100,21 @@ function TopNav() {
           </Suspense>
 
           <Flex alignItems={"center"}>
-            {!isMobile && (
-              <>
-                <BuyMatic />
-                <Box
-                  pr={5}
-                  display={{ base: "none", sm: "flex" }}
-                  size={buttonSize}
-                >
-                  <Balance />
-                </Box>
-              </>
-            )}
-            <Box onClick={onOpen} mr={isMobile ? "19.5" : "0"}>
+            <>
+              <BuyMatic />
+              <Box
+                pr={5}
+                display={{ base: "none", sm: "flex" }}
+                size={buttonSize}
+              >
+                <Balance />
+              </Box>
+            </>
+
+            <Box onClick={onOpen}>
               {/*connect wallet button*/}
               <Button
-                variant={"solid"}
+                variant={isMobile ? "outline" : "solid"}
                 colorScheme={web3Error ? "red" : "yellow"}
                 size={buttonSize}
                 mr={4}
@@ -150,7 +149,6 @@ function TopNav() {
               display={{ md: "none" }}
               onClick={isMenuOpen ? onMenuClose : onMenuOpen}
             />
-
             {!isMobile && (
               <Button
                 onClick={handleToggleColorMode}
