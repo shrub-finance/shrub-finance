@@ -44,8 +44,7 @@ function MobileMenu({ onMenuClose }) {
     <Box pb={4} display={{ md: "none" }}>
       <Stack as={"nav"} spacing={3}>
         <Link
-          isExternal
-          href="https://medium.com/@shrubfinance"
+          href="https://shrub.finance"
           variant="ghost"
           cursor="pointer"
           px={2}
@@ -54,11 +53,19 @@ function MobileMenu({ onMenuClose }) {
           _hover={{ textDecoration: "none", bgGradient: gradient }}
           onClick={handleClick}
         >
-          Blog{" "}
-          <ExternalLinkIcon
-            mx="2px"
-            display={{ base: "inline", md: "none", lg: "inline" }}
-          />
+          Shrub Main
+        </Link>
+        <Link
+          href="https://gardens.shrub.finance"
+          variant="ghost"
+          cursor="pointer"
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
+          _hover={{ textDecoration: "none", bgGradient: gradient }}
+          onClick={handleClick}
+        >
+          Paper Gardens
         </Link>
         <Box
           onClick={handleToggleColorMode}

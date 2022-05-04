@@ -930,7 +930,7 @@ function Intro(props: RouteComponentProps) {
                   bgGradient={gold}
                   color={"black"}
                 >
-                  Acquire a Seed
+                  Get a Seed
                   <ExternalLinkIcon
                     mx="2px"
                     display={{ base: "none", md: "inline" }}
