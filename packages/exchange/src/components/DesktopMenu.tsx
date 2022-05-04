@@ -39,12 +39,11 @@ function DesktopMenu() {
       <HStack
         as={"nav"}
         spacing={"4"}
-        display={{ base: "none", md: "inline" }}
         fontSize={{ base: "xs", md: "xs", lg: "sm" }}
       >
         <Link
           isExternal
-          href="https://medium.com/@shrubfinance"
+          href="https://shrub.finance"
           variant="ghost"
           cursor="pointer"
           px={2}
@@ -52,9 +51,23 @@ function DesktopMenu() {
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
           onClick={onMenuClose}
-          display={{ md: "none", lg: "none", xl: "inline" }}
+          display={{ base: "none", md: "inline" }}
         >
-          Blog
+          Shrub Main
+        </Link>
+        <Link
+          isExternal
+          href="https://gardens.shrub.finance"
+          variant="ghost"
+          cursor="pointer"
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
+          _hover={{ textDecoration: "none", bgGradient: gradient }}
+          display={{ base: "none", md: "inline" }}
+          onClick={onMenuClose}
+        >
+          Paper Gardens
         </Link>
       </HStack>
     </HStack>
