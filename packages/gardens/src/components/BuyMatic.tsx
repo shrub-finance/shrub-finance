@@ -87,12 +87,10 @@ function BuyMatic() {
     <>
       <Button
         pr={5}
-        display={{ base: "none", sm: "flex" }}
         fontSize={"sm"}
         variant={"link"}
-        fontWeight={"bold"}
+        fontWeight={"extrabold"}
         colorScheme={"green"}
-        rounded={"full"}
         onClick={wyreCheckout}
       >
         Buy MATIC
