@@ -3,6 +3,7 @@ pragma solidity 0.8.9;
 // Inspired by merge
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "./JsonBuilder.sol";
 import "./PaperPotEnum.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
@@ -19,7 +20,7 @@ interface IPaperPotMetadata {
     ) external view returns (string memory);
 }
 
-contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable {
+contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, ERC165 {
     struct ERC1155MetadataStructure {
         bool isImageLinked;
         string name;
@@ -38,11 +39,26 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable {
         string value;
     }
 
+    string private _imageBaseUri;
+
     // images for the potted plants by class and stage
     mapping(NftClass => mapping(GrowthStages => string)) private _pottedPlantImages;
 
     using Base64 for string;
     using Strings for uint256;
+
+    constructor(string memory imageBaseUri_) {
+        _imageBaseUri = imageBaseUri_;
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return
+        interfaceId == type(IPaperPotMetadata).interfaceId ||
+        super.supportsInterface(interfaceId);
+    }
 
     function tokenMetadata(
         string memory name,
@@ -60,13 +76,25 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable {
             name: name,
             description: "created by Shrub.finance",
             createdBy: "Shrub.finance",
-            image: "https://pottedplant",
+            image: string(abi.encodePacked(_getImage(_seedTokenId, _growth, _isSad))),
             attributes: _getJsonAttributes(_seedTokenId, _growth, _isSad)
         });
         return _generateERC1155Metadata(metadata);
     }
 
-    function _getJsonAttributes(uint _seedTokenId, uint growth, bool isSad) private view returns (ERC1155MetadataAttribute[] memory) {
+    function _getImage(uint seedTokenId, uint growth, bool isSad) private view returns (string memory) {
+        string[3] memory classRarity = getClassFromSeedId(seedTokenId);
+        string memory class = classRarity[0];
+        string memory sadString = isSad ? "sad" : "happy";
+        uint growthLevel = getGrowthLevel(growth);
+        return string(abi.encodePacked(_imageBaseUri, "pottedplant-", class, "-", growthLevel.toString(), "-", sadString));
+    }
+
+    function getGrowthLevel(uint growth) internal pure returns (uint) {
+        return growth / 2000;
+    }
+
+    function _getJsonAttributes(uint _seedTokenId, uint growth, bool isSad) private pure returns (ERC1155MetadataAttribute[] memory) {
         string[3] memory classRarity = getClassFromSeedId(_seedTokenId);
         ERC1155MetadataAttribute[] memory attributes = new ERC1155MetadataAttribute[](6);
         attributes[0] = _getERC721MetadataAttribute(false, true, true, "", "Class", classRarity[0]);
