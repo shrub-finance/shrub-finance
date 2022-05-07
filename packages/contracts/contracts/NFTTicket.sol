@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
-
 contract NFTTicket is ERC1155, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenCounter;
@@ -85,12 +84,18 @@ contract NFTTicket is ERC1155, Ownable {
         ticketData.redeemPrice = redeemPrice_;
     }
 
+    function redeem(uint tokenId_, uint amount_) public {
+        // ensure that the sender owns the ticket
+        // transfer the redeemPrice to the recipient
+        // burn the ticket
+        // mint the NFT that the ticket is tied to
+    }
+
     function updateMaxSupply(uint tokenId_, uint16 maxSupply_) public onlyController(tokenId_) {
         Ticket storage ticketData = ticketDatas[tokenId_];
         require(totalSupply[tokenId_] <= maxSupply_, "specified maxSupply has already been exceeded");
         ticketData.maxSupply = maxSupply_;
     }
-
 
     function updatePaused(uint tokenId_, bool paused_) public onlyController(tokenId_) {
         Ticket storage ticketData = ticketDatas[tokenId_];
@@ -150,15 +155,6 @@ contract NFTTicket is ERC1155, Ownable {
         }
     }
 
-//    function _mint(
-//        address to,
-//        uint256 id,
-//        uint256 amount,
-//        bytes memory data
-//    ) internal override {
-//        totalSupply[id] += amount;
-//        super._mint(to, id, amount, data);
-//    }
 
     function mint(uint tokenId_, uint amount) external {
         // TODO: Check if whitelist

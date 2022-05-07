@@ -142,7 +142,7 @@ describe("PaperPot", () => {
       it("should not allow non-owner to add seed contract address", async () => {
         await expect(
           signer1PaperPot.addSeedContractAddress(ADDRESS_ONE)
-        ).to.be.revertedWith("Ownable: caller is not the owner");
+        ).to.be.revertedWith("AdminControl: caller is not an admin");
         await baselineCheck();
       });
       it("should not allow owner to add same seed contract address", async () => {
@@ -176,7 +176,7 @@ describe("PaperPot", () => {
       it("should not allow non-owner to remove seed contract address", async () => {
         await expect(
           signer1PaperPot.removeSeedContractAddress(paperSeed.address)
-        ).to.be.revertedWith("Ownable: caller is not the owner");
+        ).to.be.revertedWith("AdminControl: caller is not an admin");
         await baselineCheck();
       });
       it("should not allow owner to remove seed contract address when address is not on list", async () => {
@@ -210,7 +210,7 @@ describe("PaperPot", () => {
       it("should not allow non-admin to mint pot", async () => {
         await expect(
           signer1PaperPot.adminMintPot(signer1.address, 1)
-        ).to.be.revertedWith("Ownable: caller is not the owner");
+        ).to.be.revertedWith("AdminControl: caller is not an admin");
       });
       it("should allow admin to mint pot to self", async () => {
         const before = await paperPot.balanceOf(owner.address, 1);
@@ -231,7 +231,7 @@ describe("PaperPot", () => {
       it("should not allow non-admin to mint water", async () => {
         await expect(
           signer1PaperPot.adminDistributeWater(signer1.address, 1)
-        ).to.be.revertedWith("Ownable: caller is not the owner");
+        ).to.be.revertedWith("AdminControl: caller is not an admin");
       });
       it("should allow admin to mint water to self", async () => {
         const before = await paperPot.balanceOf(owner.address, 3);
@@ -252,7 +252,7 @@ describe("PaperPot", () => {
       it("should not allow non-admin to mint fertilizer", async () => {
         await expect(
           signer1PaperPot.adminDistributeFertilizer(signer1.address, 1)
-        ).to.be.revertedWith("Ownable: caller is not the owner");
+        ).to.be.revertedWith("AdminControl: caller is not an admin");
       });
       it("should allow admin to mint fertilizer to self", async () => {
         const before = await paperPot.balanceOf(owner.address, 2);
@@ -694,7 +694,7 @@ describe("PaperPot", () => {
       expect(growthLevel).to.equal(0);
       expect(lastWatering).to.equal(1);
       await expect(signer1PaperPot.setURI(1e6 + 1, 'test.abc.def/100')).to.be.revertedWith(
-        "Ownable: caller is not the owner"
+        "AdminControl: caller is not an admin"
       );
     })
     it('Should be able to override potted plant uri', async () => {
@@ -966,7 +966,7 @@ describe("PaperPot", () => {
     it("should reject for non-admin", async () => {
       await expect(
         signer1PaperPot.adminSetSadSeeds([],[])
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+      ).to.be.revertedWith("AdminControl: caller is not an admin");
     });
     it("should reject if seedTokenIds and isSads are not equal length", async () => {
       await expect(
@@ -1004,7 +1004,7 @@ describe("PaperPot", () => {
     it("should reject for non-owner", async () => {
       await expect(
         signer1PaperPot.setURI(1, "https://testUri/one")
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+      ).to.be.revertedWith("AdminControl: caller is not an admin");
     });
     it("should work for owner", async () => {
       await paperPot.setURI(1, "https://testUri/one")
@@ -1021,11 +1021,54 @@ describe("PaperPot", () => {
     });
   });
 
+  describe("setShrubSeedUris", async () => {
+    it("should reject for non-owner", async () => {
+      await expect(
+        signer1PaperPot.setShrubSeedUris([1], ["https://testUri/seed1"])
+      ).to.be.revertedWith("caller is not an admin");
+    });
+    // require(seedTokenIds_.length == uris_.length, "PaperPot: seedTokenIds and uris must be same length");
+    it("should reject if seedTokenIds is longer than uris", async () => {
+      await expect(
+        paperPot.setShrubSeedUris([1,2], ["https://testUri/seed1"])
+      ).to.be.revertedWith("PaperPot: seedTokenIds and uris must be same length");
+    });
+    it("should reject if seedTokenIds is shorter than uris", async () => {
+      await expect(
+        paperPot.setShrubSeedUris([1,2], [
+          "https://testUri/seed1",
+          "https://testUri/seed2",
+          "https://testUri/seed3"
+        ])
+      ).to.be.revertedWith("PaperPot: seedTokenIds and uris must be same length");
+    });
+    // require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPot: invalid seedTokenId");
+    it("should reject if seedTokenId is too high", async () => {
+      await expect(
+        paperPot.setShrubSeedUris([1, 2, 1000001], [
+          "https://testUri/seed1",
+          "https://testUri/seed2",
+          "https://testUri/seed3"
+        ])
+      ).to.be.revertedWith("PaperPot: invalid seedTokenId");
+    });
+    it("should allow setting one", async () => {
+      await paperPot.setShrubSeedUris([1], ["https://testUri/seed1"])
+    });
+    it("should allow setting many", async () => {
+      await paperPot.setShrubSeedUris([1,2,3], [
+        "https://testUri/seed1",
+        "https://testUri/seed2",
+        "https://testUri/seed3"
+      ])
+    });
+  });
+
   describe("setMetadataGenerator", async () => {
     it("should reject for non-owner", async () => {
       await expect(
         signer1PaperPot.setMetadataGenerator(paperPotMetadata.address)
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+      ).to.be.revertedWith("AdminControl: caller is not an admin");
     });
     it("should reject if contract address is not a contract", async () => {
       await expect(
@@ -1471,6 +1514,37 @@ describe("PaperPot", () => {
       expect(uris[3]).to.equal('http://test.xyz/wonder');
       expect(uris[4]).to.equal('http://test.xyz/wonder');
 
+      // Update 2 of the seedBased uris and expect that they update but not the rest
+      await paperPot.setShrubSeedUris([67, 1500, 6667], [
+        'http://test.xyz/seed67',
+        'http://test.xyz/seed1500',
+        'http://test.xyz/seed6667'
+      ]);
+      uris[0] = await paperPot.uri(2e6 + 1);
+      uris[1] = await paperPot.uri(2e6 + 2);
+      uris[2] = await paperPot.uri(2e6 + 3);
+      uris[3] = await paperPot.uri(2e6 + 4);
+      uris[4] = await paperPot.uri(2e6 + 5);
+      expect(uris[0]).to.equal('http://test.xyz/power');
+      expect(uris[1]).to.equal('http://test.xyz/seed67');
+      expect(uris[2]).to.equal('http://test.xyz/passion');
+      expect(uris[3]).to.equal('http://test.xyz/seed1500');
+      expect(uris[4]).to.equal('http://test.xyz/seed6667');
+
+      // Revert 1 back
+      await paperPot.setShrubSeedUris([1500], ['']);
+      uris[0] = await paperPot.uri(2e6 + 1);
+      uris[1] = await paperPot.uri(2e6 + 2);
+      uris[2] = await paperPot.uri(2e6 + 3);
+      uris[3] = await paperPot.uri(2e6 + 4);
+      uris[4] = await paperPot.uri(2e6 + 5);
+      expect(uris[0]).to.equal('http://test.xyz/power');
+      expect(uris[1]).to.equal('http://test.xyz/seed67');
+      expect(uris[2]).to.equal('http://test.xyz/passion');
+      expect(uris[3]).to.equal('http://test.xyz/wonder');
+      expect(uris[4]).to.equal('http://test.xyz/seed6667');
+
+
       // Update 2 of the uris and expect that they update but not the rest
       await paperPot.setURI(2e6 + 2, "http://test.xyz/67")
       await paperPot.setURI(2e6 + 4, "http://test.xyz/1500")
@@ -1484,7 +1558,7 @@ describe("PaperPot", () => {
       expect(uris[1]).to.equal('http://test.xyz/67');
       expect(uris[2]).to.equal('http://test.xyz/passion');
       expect(uris[3]).to.equal('http://test.xyz/1500');
-      expect(uris[4]).to.equal('http://test.xyz/wonder');
+      expect(uris[4]).to.equal('http://test.xyz/seed6667');
 
       // Change the rest and revert the other two
       await paperPot.setURI(2e6 + 1, "http://test.xyz/3")
@@ -1498,7 +1572,7 @@ describe("PaperPot", () => {
       uris[3] = await paperPot.uri(2e6 + 4);
       uris[4] = await paperPot.uri(2e6 + 5);
       expect(uris[0]).to.equal('http://test.xyz/3');
-      expect(uris[1]).to.equal('http://test.xyz/hope');
+      expect(uris[1]).to.equal('http://test.xyz/seed67');
       expect(uris[2]).to.equal('http://test.xyz/667');
       expect(uris[3]).to.equal('http://test.xyz/wonder');
       expect(uris[4]).to.equal('http://test.xyz/6667');

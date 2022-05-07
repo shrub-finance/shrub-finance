@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "./JsonBuilder.sol";
 import "hardhat/console.sol";
-//import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 
 import {IPaperPotMetadata} from "./PaperPotMetadata.sol";
 import "./PaperPotEnum.sol";
@@ -64,6 +63,9 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
 
     // default uri for shrubs based on class
     mapping(NftClass => string) private _shrubDefaultUris;
+
+    // uri for shrubs based on seedTokenId
+    mapping(uint => string) private _shrubSeedUris;
 
     // indicates number of each class of potted plant
     // uint8 class => uint count of potted plants minted of that class (only increases)
@@ -232,6 +234,14 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         _setURI(tokenId_, tokenURI_);
     }
 
+    function setShrubSeedUris(uint[] calldata seedTokenIds_, string[] calldata uris_) external adminOnly {
+        require(seedTokenIds_.length == uris_.length, "PaperPot: seedTokenIds and uris must be same length");
+        for (uint i = 0; i < seedTokenIds_.length; i++) {
+            require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPot: invalid seedTokenId");
+            _shrubSeedUris[seedTokenIds_[i]] = uris_[i];
+        }
+    }
+
     function setMetadataGenerator(address metadataGenerator_) external adminOnly {
         require(ERC165Checker.supportsInterface(metadataGenerator_, type(IPaperPotMetadata).interfaceId), "PaperPot: not a valid IPaperPotMetadata implementation");
         _metadataGenerator = IPaperPotMetadata(metadataGenerator_);
@@ -319,6 +329,14 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         string memory storageUri = super.uri(_tokenId);
         if (bytes(storageUri).length > 0) {
             return storageUri;
+        }
+        // Check if there is a shrub uri based on seedTokenId
+        uint seedTokenId = _shrubBaseSeed[_tokenId];
+        if (seedTokenId != 0) {
+            string memory shrubSeedUri = _shrubSeedUris[seedTokenId];
+            if (bytes(shrubSeedUri).length > 0) {
+                return shrubSeedUri;
+            }
         }
         if (_tokenId < SHRUB_BASE_TOKENID) {
             //            string memory shrubClass = getClassFromSeedId(_plantedSeed[_tokenId]);

@@ -1,11 +1,19 @@
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/utils/Context.sol";
 
-contract AdminControl {
+contract AdminControl is Context {
     // Contract admins.
     mapping(address => bool) private _admins;
 
-    function setAdmin(address addr, bool add) external adminOnly {
+    /**
+ * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor() {
+        _admins[_msgSender()] = true;
+    }
+
+    function setAdmin(address addr, bool add) public adminOnly {
         if (add) {
             _admins[addr] = true;
         } else {
@@ -18,7 +26,7 @@ contract AdminControl {
     }
 
     modifier adminOnly() {
-        require(isAdmin(msg.sender), "caller is not an admin");
+        require(isAdmin(msg.sender), "AdminControl: caller is not an admin");
         _;
     }
 }
