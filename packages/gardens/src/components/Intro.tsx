@@ -464,68 +464,6 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
-      {/*section 6*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
-          <Box mt={{ base: "0", md: "0", lg: "40" }}>
-            <Heading
-              fontSize={{ base: "30px", md: "70px" }}
-              letterSpacing={"tight"}
-              maxW="40rem"
-            >
-              Shrub is a{" "}
-              <Text
-                as="span"
-                bgGradient={gold}
-                bgClip="text"
-                sx={{
-                  "-webkit-text-stroke":
-                    colorMode === "light"
-                      ? { base: "1px #7e5807", md: "2px #7e5807" }
-                      : "transparent",
-                }}
-              >
-                movement
-              </Text>
-            </Heading>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              It takes a special sort of person to hold a Shrub. Shrubs
-              represent those who believe in the decentralized world and are
-              willing to put in the effort to make it a reality.
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Shrub holders are dreamers, builders, innovators, thinkers, and
-              freedom-lovers. They think outside the box and bring positive
-              change to the world.
-            </Text>
-          </Box>
-          <Box mt={{ base: 0, md: 64 }}>
-            <Image
-              width={"72rem"}
-              src="https://shrub.finance/rock-power-shrub.webp"
-              fallbackSrc="https://shrub.finance/rock-power-shrub.png"
-              alt="Rock"
-            />
-          </Box>
-        </Flex>
-      </Container>
-
       {/*section 7*/}
       <Container
         mt={{ base: 0, md: 50 }}
@@ -889,6 +827,68 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
+      {/*section 6*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }}>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW="40rem"
+            >
+              Join the{" "}
+              <Text
+                as="span"
+                bgGradient={gold}
+                bgClip="text"
+                sx={{
+                  "-webkit-text-stroke":
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
+                }}
+              >
+                movement
+              </Text>
+            </Heading>
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              It takes a special sort of person to hold a Shrub. Shrubs
+              represent those who believe in the decentralized world and are
+              willing to put in the effort to make it a reality.
+            </Text>{" "}
+            <Text
+              mt="3"
+              fontSize={{ base: "20px", md: "28px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "medium" }}
+            >
+              Shrub holders are dreamers, builders, innovators, thinkers, and
+              freedom-lovers. They think outside the box and bring positive
+              change to the world.
+            </Text>
+          </Box>
+          <Box mt={{ base: 0, md: 64 }}>
+            <Image
+              width={"72rem"}
+              src="https://shrub.finance/rock-power-shrub.webp"
+              fallbackSrc="https://shrub.finance/rock-power-shrub.png"
+              alt="Rock"
+            />
+          </Box>
+        </Flex>
+      </Container>
+
       {/*ending*/}
       <Container
         mt={{ base: 0, md: 50 }}
@@ -938,7 +938,7 @@ function Intro(props: RouteComponentProps) {
                 </Link>
                 <Center>
                   <Text mt={8} maxW={"19rem"}>
-                    To grow a Shrub you want a seed, available on secondary
+                    To grow a Shrub you need a seed, available on secondary
                   </Text>
                 </Center>
               </Box>
@@ -958,7 +958,7 @@ function Intro(props: RouteComponentProps) {
                   bgGradient={gold}
                   color={"black"}
                 >
-                  Join our Discord{" "}
+                  Join Discord{" "}
                   <ExternalLinkIcon
                     mx="2px"
                     display={{ base: "none", md: "inline" }}
@@ -993,7 +993,7 @@ function Intro(props: RouteComponentProps) {
                   />
                 </Link>
                 <Center>
-                  <Text mt={8}>Follow for all official announcements</Text>
+                  <Text mt={8}>For all the official announcements</Text>
                 </Center>
               </Box>
             </Flex>
