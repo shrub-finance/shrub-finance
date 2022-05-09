@@ -1,5 +1,5 @@
 import TopNav from "./components/TopNav";
-import { Router } from "@reach/router";
+import { Router, createHistory, LocationProvider } from "@reach/router";
 import { Web3ReactProvider } from "@web3-react/core";
 import { getLibrary } from "./components/ConnectWallet";
 import React, { useEffect } from "react";
@@ -24,6 +24,10 @@ function trackPage(page: string) {
   ReactGA.set({ page });
   ReactGA.pageview(page);
 }
+
+const windowContext: any = window;
+const history = createHistory(windowContext);
+
 function App() {
   useEffect(() => {
     const page = location.pathname;
@@ -32,12 +36,14 @@ function App() {
 
   return (
     <div className="App">
-      <Web3ReactProvider getLibrary={getLibrary}>
-        <TopNav />
-        <Router>
-          <HomeView path="/" />
-        </Router>
-      </Web3ReactProvider>
+      <LocationProvider history={history}>
+        <Web3ReactProvider getLibrary={getLibrary}>
+          <TopNav />
+          <Router>
+            <HomeView path="/" />
+          </Router>
+        </Web3ReactProvider>
+      </LocationProvider>
     </div>
   );
 }

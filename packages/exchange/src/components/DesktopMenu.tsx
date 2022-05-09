@@ -24,11 +24,16 @@ function DesktopMenu() {
     onClose: onMenuClose,
   } = useDisclosure();
 
-  function handleGA(event: any) {
+  function handleGA(event: React.BaseSyntheticEvent) {
     trackEvent({
       action: event.type,
       label: event.target.innerText,
     });
+  }
+
+  function handleMenuClose(event: React.BaseSyntheticEvent) {
+    onMenuClose();
+    handleGA(event);
   }
 
   return (
@@ -50,7 +55,7 @@ function DesktopMenu() {
           py={{ base: "3", md: "1", lg: "1" }}
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={onMenuClose}
+          onClick={handleMenuClose}
           display={{ base: "none", md: "inline" }}
         >
           Shrub Main
@@ -65,7 +70,7 @@ function DesktopMenu() {
           rounded={"lg"}
           _hover={{ textDecoration: "none", bgGradient: gradient }}
           display={{ base: "none", md: "inline" }}
-          onClick={onMenuClose}
+          onClick={handleMenuClose}
         >
           Paper Gardens
         </Link>

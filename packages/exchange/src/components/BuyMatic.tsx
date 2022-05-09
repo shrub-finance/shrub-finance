@@ -1,11 +1,13 @@
 import axios from "axios";
 import { Button } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
+import { trackEvent } from "../utils/handleGATracking";
 
 function BuyMatic() {
   const { account } = useWeb3React();
 
-  async function wyreCheckout() {
+  async function wyreCheckout(event: React.BaseSyntheticEvent) {
+    handleGA(event);
     type WyreCheckoutParams = {
       redirectUrl?: string;
       failureRedirectUrl?: string;
@@ -81,6 +83,12 @@ function BuyMatic() {
     }
   }
 
+  function handleGA(event: React.BaseSyntheticEvent) {
+    trackEvent({
+      action: event.type,
+      label: event.target.innerText,
+    });
+  }
   return (
     <>
       <Button
