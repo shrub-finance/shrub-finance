@@ -11,7 +11,6 @@ import {
   Flex,
   useColorModeValue,
   useColorMode,
-  OrderedList,
   ListItem,
   HStack,
   VStack,
@@ -33,8 +32,11 @@ import {
   Ticket1,
   WonderPot,
 } from "../assets/Icons";
-import { FaLongArrowAltRight, FaPlus } from "react-icons/all";
-import Stage1 from "./animations/Stage1";
+import {
+  FaLongArrowAltRight,
+  FaPlus,
+  IoEllipsisVertical,
+} from "react-icons/all";
 
 function Intro(props: RouteComponentProps) {
   const gold =
@@ -484,7 +486,7 @@ function Intro(props: RouteComponentProps) {
             }}
           >
             <Image
-              width={"72rem"}
+              width={"50rem"}
               src="https://shrub.finance/funky-pineapple-shrub.webp"
               fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
               alt="pineapple"
@@ -558,7 +560,9 @@ function Intro(props: RouteComponentProps) {
                     textAlign={"left"}
                   >
                     {" "}
-                    There will be a supply of 250 pots.
+                    There will be a supply of 250 pots. The interesting
+                    ticketing mechanism it uses though, will allow the supply to
+                    flex upto a 1000 based on demand.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -639,7 +643,7 @@ function Intro(props: RouteComponentProps) {
                   </Text>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "15px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -808,17 +812,50 @@ function Intro(props: RouteComponentProps) {
               Roadmap
             </Heading>
             <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "35px" }}
+              mt="10"
+              fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
+              fontWeight={{ base: "semibold", md: "semibold" }}
+              bgGradient="linear(to-l, #7db5ff, #de00ff)"
+              bgClip="text"
             >
-              Coming soon...
+              Shrub Paper [LIVE]
+            </Text>{" "}
+            <Icon as={IoEllipsisVertical} boxSize={"90"} />
+            <Text
+              fontSize={{ base: "25px", md: "35px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "semibold" }}
+              bgGradient="linear(to-l, #f5f2f2, #3300ff)"
+              bgClip="text"
+            >
+              Shrub Exchange [LIVE]
+            </Text>{" "}
+            <Icon as={IoEllipsisVertical} boxSize={"90"} />
+            <Text
+              fontSize={{ base: "25px", md: "35px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "semibold" }}
+              bgGradient="linear(to-l, #ff6729, #73ff00)"
+              bgClip="text"
+            >
+              Paper Gardens [Q1-Q2]
+            </Text>{" "}
+            <Icon as={IoEllipsisVertical} boxSize={"90"} />
+            <Text
+              fontSize={{ base: "15px", md: "35px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight={{ base: "semibold", md: "semibold" }}
+              bgGradient="linear(to-l, #c9ff04, #51eae6)"
+              bgClip="text"
+            >
+              Options Mainnet [Q3-Q4]
             </Text>{" "}
           </Box>
+          <Spacer />
           <Box mt={{ base: 0, md: 64 }}>
             <Image
-              width={"72rem"}
+              width={"50rem"}
               src="https://shrub.finance/beany-hope.webp"
               fallbackSrc="https://shrub.finance/beany-hope.png"
               alt="Beany"
@@ -986,7 +1023,7 @@ function Intro(props: RouteComponentProps) {
                   bgGradient={gold}
                   color={"black"}
                 >
-                  Follow on Twitter{" "}
+                  Follow Twitter{" "}
                   <ExternalLinkIcon
                     mx="2px"
                     display={{ base: "none", md: "inline" }}
