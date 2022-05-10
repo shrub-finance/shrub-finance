@@ -843,7 +843,7 @@ function Intro(props: RouteComponentProps) {
             </Text>{" "}
             <Icon as={IoEllipsisVertical} boxSize={"90"} />
             <Text
-              fontSize={{ base: "15px", md: "35px" }}
+              fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "semibold" }}
               bgGradient="linear(to-l, #c9ff04, #51eae6)"
