@@ -1,5 +1,16 @@
-const { expect } = require("chai");
-const { ethers } = require("hardhat");
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import {
+  ERC20, ERC20Token, ERC20Token__factory, NFTTicket, NFTTicket__factory,
+  PaperPot,
+  PaperPot__factory,
+  PaperPotMetadata,
+  PaperPotMetadata__factory,
+  PaperSeed,
+  PaperSeed__factory,
+} from '../types'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+
 const { BigNumber } = ethers;
 const { Zero, One } = ethers.constants;
 
@@ -13,23 +24,27 @@ function fromEthDate(ethDate) {
 }
 
 describe("NFTTicket", () => {
-  let owner, signer1, signer2, signer3, signer4;
-  let weth, nftTicket;
-  let signer1NftTicket, signer1Weth;
-  let signer2NftTicket, signer2Weth;
-  let signer3NftTicket, signer3Weth;
-  let signer4NftTicket, signer4Weth;
+  let owner: SignerWithAddress;
+  let signer1: SignerWithAddress;
+  let signer2: SignerWithAddress;
+  let signer3: SignerWithAddress;
+  let signer4: SignerWithAddress;
+  let weth: ERC20Token;
+  let nftTicket: NFTTicket;
+  let signer1NftTicket: NFTTicket;
+  let signer2NftTicket: NFTTicket;
+  let signer3NftTicket: NFTTicket;
+  let signer4NftTicket: NFTTicket;
+  let signer1Weth: ERC20Token;
+  let signer2Weth: ERC20Token;
+  let signer3Weth: ERC20Token;
+  let signer4Weth: ERC20Token;
   let now = new Date();
   let baseTicketData;
   let oneDayAgo = new Date(new Date().setUTCDate(now.getUTCDate() - 1));
   let oneDayFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 1));
   let twoDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 2));
   let threeDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 3));
-  // let signer1PaperSeed, signer2PaperSeed;
-  // let signer1PaperPot, signer2PaperPot, signer3PaperPot, signer4PaperPot;
-  // let paperSeed;
-  // let paperPot;
-  // let paperPotMetadata;
   const ADDRESS_ONE = "0x0000000000000000000000000000000000000001";
   const DEAD_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 
@@ -55,8 +70,8 @@ describe("NFTTicket", () => {
       active: false,
       paused: false,
     };
-    const NFTTicket = await ethers.getContractFactory("NFTTicket");
-    const WETH = await ethers.getContractFactory("ERC20Token");
+    const NFTTicket = await ethers.getContractFactory("NFTTicket") as NFTTicket__factory;
+    const WETH = await ethers.getContractFactory("ERC20Token") as ERC20Token__factory;
     weth = await WETH.deploy(
       "Wrapped Ether",
       "WETH",
@@ -87,6 +102,7 @@ describe("NFTTicket", () => {
 
   describe("initializeTicket", async () => {
     let ticketData_;
+    let ticketDataNew;
 
     beforeEach(() => {
       ticketData_ = baseTicketData;
@@ -499,4 +515,169 @@ describe("NFTTicket", () => {
     it("should be able to mint for many users", async () => {});
     it("should reject if minting would exceed maxSupply after multiple successful mints", async () => {});
   });
+
+  describe.only("integration tests", async () => {
+    let paperPotMetadata: PaperPotMetadata;
+    let paperPot: PaperPot;
+    let paperSeed: PaperSeed;
+    describe("redeem", async () => {
+      beforeEach(async () => {
+        // Deploy PaperPot contract and configure it for NFTTickets
+        const imageBaseUri = "ipfs://abcdefg/";
+        const maxIndex = 10000;
+        const merkleRoot =
+          "0x618ddd3b36d40f8d9b942cf72c5e92615e6594b3e8b537082310ae48e51cd059";
+        const baseUri = "https://shrub.finance/";
+        const PaperSeed = await ethers.getContractFactory("PaperSeed") as PaperSeed__factory;
+        paperSeed = await PaperSeed.deploy(maxIndex, merkleRoot, baseUri);
+        const PaperPotMetadata = await ethers.getContractFactory("PaperPotMetadata") as PaperPotMetadata__factory;
+        paperPotMetadata = await PaperPotMetadata.deploy(imageBaseUri);
+        const PaperPot = await ethers.getContractFactory("PaperPot") as PaperPot__factory;
+        const SAD_SEEDS = [11, 13, 15, 17, 19];
+        const RESOURCE_URIS = [
+          'http://test.xyz/1',
+          'http://test.xyz/2',
+          'http://test.xyz/3'
+        ];
+        const SHRUB_DEFAULT_URIS = [
+          'http://test.xyz/wonder',
+          'http://test.xyz/passion',
+          'http://test.xyz/hope',
+          'http://test.xyz/power'
+        ];
+        paperPot = await PaperPot.deploy(
+          [paperSeed.address],
+          SAD_SEEDS,
+          RESOURCE_URIS,
+          SHRUB_DEFAULT_URIS,
+          paperPotMetadata.address
+        );
+        const ticketData = {
+          controller: signer1.address,
+          recipient: signer2.address,
+          contractAddress: paperPot.address,
+          startDate: toEthDate(now),
+          endDate: toEthDate(oneDayFromNow),
+          mintStartDate: toEthDate(twoDaysFromNow),
+          mintEndDate: toEthDate(threeDaysFromNow),
+          mintPrice: ethers.constants.WeiPerEther.mul(10).div(1000),
+          maxMintAmountPlusOne: 11,
+          redeemPrice: ethers.constants.WeiPerEther.mul(15).div(1000),
+          maxSupply: 1000,
+          active: true,
+          paused: false,
+        };
+        await nftTicket.initializeTicket(ticketData)
+      });
+      it("rejects if no ticket balance", async () => {
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("NFTTicket: Insufficient ticket balance to redeem");
+      });
+      it("rejects if insufficient ticket balance", async () => {
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await expect(
+          signer4NftTicket.redeem(1, 2)
+        ).to.be.revertedWith("NFTTicket: Insufficient ticket balance to redeem");
+      });
+      it("rejects if insufficient WETH allowance", async () => {
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("NFTTicket: Insufficient WETH allowance");
+      });
+      it("rejects if no WETH balance", async () => {
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("NFTTicket: Insufficient WETH balance");
+      });
+      it("rejects if insufficient WETH balance", async () => {
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await weth.transfer(signer4.address, ethers.constants.WeiPerEther.mul(14).div(1000));
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("NFTTicket: Insufficient WETH balance");
+      });
+      it("rejects if mintFromTicket fails - paused", async () => {
+        // Minting is paused on the PaperPot side.
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await weth.transfer(signer4.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("PaperPot: minting paused");
+      });
+      it("rejects if mintFromTicket fails - ticketTokenId is not set", async () => {
+        await paperPot.unpauseMinting();
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await weth.transfer(signer4.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("PaperPot: invalid ticket tokenId");
+      });
+      it("rejects if mintFromTicket fails - ticketContractAddress is not set", async () => {
+        await paperPot.unpauseMinting();
+        await paperPot.setNftTicketInfo(1, signer4.address);
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await weth.transfer(signer4.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("PaperPot: invalid sender");
+      });
+      it("succeeds in minting one", async () => {
+        await paperPot.unpauseMinting();
+        await paperPot.setNftTicketInfo(1, nftTicket.address);
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await weth.transfer(signer4.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        const wethBefore = await weth.balanceOf(signer4.address);
+        const recipientWethBefore = await weth.balanceOf(signer2.address);
+        const potsBefore = await paperPot.balanceOf(signer4.address, 1);
+        const ticketsBefore = await nftTicket.balanceOf(signer4.address, 1);
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await signer4NftTicket.redeem(1, 1);
+        const wethAfter = await weth.balanceOf(signer4.address);
+        const recipientWethAfter = await weth.balanceOf(signer2.address);
+        const potsAfter = await paperPot.balanceOf(signer4.address, 1);
+        const ticketsAfter = await nftTicket.balanceOf(signer4.address, 1);
+        expect(wethBefore).to.equal(ethers.constants.WeiPerEther.mul(15).div(1000));  // 0.015 ETH
+        expect(recipientWethBefore).to.equal(0);
+        expect(potsBefore).to.equal(0);
+        expect(ticketsBefore).to.equal(1);
+        expect(wethAfter).to.equal(0);
+        expect(recipientWethAfter).to.equal(ethers.constants.WeiPerEther.mul(15).div(1000));
+        expect(potsAfter).to.equal(1);
+        expect(ticketsAfter).to.equal(0);
+      });
+      it("succeeds in minting many", async () => {
+        await paperPot.unpauseMinting();
+        await paperPot.setNftTicketInfo(1, nftTicket.address);
+        await signer1NftTicket.controllerMint(1, [signer4.address], [10]);
+        await weth.transfer(signer4.address, ethers.constants.WeiPerEther);
+        const wethBefore = await weth.balanceOf(signer4.address);
+        const recipientWethBefore = await weth.balanceOf(signer2.address);
+        const potsBefore = await paperPot.balanceOf(signer4.address, 1);
+        const ticketsBefore = await nftTicket.balanceOf(signer4.address, 1);
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(1));
+        await signer4NftTicket.redeem(1, 8);
+        const wethAfter = await weth.balanceOf(signer4.address);
+        const recipientWethAfter = await weth.balanceOf(signer2.address);
+        const potsAfter = await paperPot.balanceOf(signer4.address, 1);
+        const ticketsAfter = await nftTicket.balanceOf(signer4.address, 1);
+        expect(wethBefore).to.equal(ethers.constants.WeiPerEther);
+        expect(recipientWethBefore).to.equal(0);
+        expect(potsBefore).to.equal(0);
+        expect(ticketsBefore).to.equal(10);
+        expect(wethAfter).to.equal(ethers.constants.WeiPerEther.mul(88).div(100));  // 0.88 ETH
+        expect(recipientWethAfter).to.equal(ethers.constants.WeiPerEther.mul(12).div(100)); // 0.12 ETH
+        expect(potsAfter).to.equal(8);
+        expect(ticketsAfter).to.equal(2);
+      });
+    });
+  });
+
 });

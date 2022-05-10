@@ -30,6 +30,8 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     bytes4 constant ERC1155ID = 0xd9b67a26;
 
     bool public mintingPaused = true;
+    uint private NFTTicketTokenId;
+    address private NFTTicketAddress;
 
     uint public pottedPlantCurrentIndex = 0;
     uint public shrubCurrentIndex = 0;
@@ -112,7 +114,6 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
 
     // External Functions
 
-
     function plantAndMakeHappy(address _seedContractAddress, uint _seedTokenId) payable public {
         // User must pay 1 MATIC to make the seed happy
         require(msg.value == 1 ether, "PaperPot: Incorrect payment amount");
@@ -191,7 +192,12 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     function receiveWaterFromFaucet(address _receiver) external {}
 
     // Owner Write Functions
-    function addSeedContractAddress(address _seedContractAddress) external adminOnly {
+    function setNftTicketInfo(uint NFTTicketTokenId_, address NFTTicketAddress_) external adminOnly {
+        NFTTicketTokenId = NFTTicketTokenId_;
+        NFTTicketAddress = NFTTicketAddress_;
+    }
+
+function addSeedContractAddress(address _seedContractAddress) external adminOnly {
         // TODO: Add a sanity check that this address has an ERC721 contract
         require(_seedContractAddresses[_seedContractAddress] == false, "address already on seedContractAddresses");
         require(ERC165Checker.supportsInterface(_seedContractAddress, type(IERC721).interfaceId), "not a valid ERC-721 implementation");
@@ -213,6 +219,18 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
 
     function adminMintPot(address _to, uint _amount) external adminOnly {
         _mint(_to, POT_TOKENID, _amount, new bytes(0));
+    }
+
+    function unpauseMinting() external adminOnly {
+        mintingPaused = false;
+    }
+
+    function mintFromTicket(address _to, uint _amount, uint ticketTokenId) external returns (bool) {
+        require(mintingPaused == false, "PaperPot: minting paused");
+        require(ticketTokenId == NFTTicketTokenId, "PaperPot: invalid ticket tokenId");
+        require(_msgSender() == NFTTicketAddress, "PaperPot: invalid sender");
+        _mint(_to, POT_TOKENID, _amount, new bytes(0));
+        return true;
     }
 
     function adminDistributeWater(address _to, uint _amount) external adminOnly {

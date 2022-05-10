@@ -1593,16 +1593,4 @@ describe("PaperPot", () => {
 
     });
   });
-
-  describe("uri", async () => {
-    // Default uri for 1-3
-    // set the uri for 1-3 and see that they change
-    // see that potted plant uri is generated
-    // override the potted plant uri
-    // harvest a shrub
-    // uri for harvested should be default (test for all four types)
-    // override the uri for the harvested shrubs and ensure that they look correct
-
-  });
-
 });

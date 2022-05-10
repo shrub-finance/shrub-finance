@@ -6,6 +6,14 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
+interface INftTicketRedeemable {
+    function mintFromTicket(
+        address _to,
+        uint _amount,
+        uint ticketTokenId
+    ) external returns (bool);
+}
+
 contract NFTTicket is ERC1155, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenCounter;
@@ -85,10 +93,19 @@ contract NFTTicket is ERC1155, Ownable {
     }
 
     function redeem(uint tokenId_, uint amount_) public {
-        // ensure that the sender owns the ticket
+        // ensure that the sender owns at least the amount of tickets
+        require(balanceOf(_msgSender(), tokenId_) >= amount_, "NFTTicket: Insufficient ticket balance to redeem");
+        uint redeemWeth = amount_ * ticketDatas[tokenId_].redeemPrice;
+        require(_WETH.allowance(_msgSender(), address(this)) >= redeemWeth, "NFTTicket: Insufficient WETH allowance");
+        require(_WETH.balanceOf(_msgSender()) >= redeemWeth, "NFTTicket: Insufficient WETH balance");
         // transfer the redeemPrice to the recipient
+        // Assumption that this will take care of checking if the approve and sufficient balance are there
+        bool paymentSuccess = _WETH.transferFrom(_msgSender(), ticketDatas[tokenId_].recipient, redeemWeth);
+        require(paymentSuccess, "NFTTicket: redeem payment not successful");
         // burn the ticket
+        _burn(_msgSender(), tokenId_, amount_);
         // mint the NFT that the ticket is tied to
+        INftTicketRedeemable(ticketDatas[tokenId_].contractAddress).mintFromTicket(_msgSender(), amount_, tokenId_);
     }
 
     function updateMaxSupply(uint tokenId_, uint16 maxSupply_) public onlyController(tokenId_) {
