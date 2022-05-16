@@ -74,14 +74,14 @@ function TopNav() {
     displayStatus(false);
   }
 
-  function handleGA(event: any) {
+  function handleGA(event: React.BaseSyntheticEvent) {
     trackEvent({
       action: event.type,
       label: event.target.innerText,
     });
   }
 
-  function handleToggleColorMode(event: any) {
+  function handleToggleColorMode(event: React.BaseSyntheticEvent) {
     toggleColorMode();
     handleGA(event);
   }

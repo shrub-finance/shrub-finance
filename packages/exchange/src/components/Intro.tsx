@@ -5,10 +5,12 @@ import { Link as ReachLink, RouteComponentProps } from "@reach/router";
 import { ExchangeLogo } from "../assets/Icons";
 import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
+import { trackEvent } from "../utils/handleGATracking";
 
 function Intro1(props: RouteComponentProps) {
   const { account } = useWeb3React();
-  async function wyreCheckout() {
+  async function wyreCheckout(event: React.BaseSyntheticEvent) {
+    handleGA(event);
     type WyreCheckoutParams = {
       redirectUrl?: string;
       failureRedirectUrl?: string;
@@ -83,6 +85,13 @@ function Intro1(props: RouteComponentProps) {
       console.error(err);
     }
   }
+  function handleGA(event: React.BaseSyntheticEvent) {
+    trackEvent({
+      action: event.type,
+      label: event.target.innerText,
+    });
+  }
+
   return (
     <Container
       mt={isMobile ? 30 : 50}
