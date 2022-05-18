@@ -26,7 +26,7 @@ contract NFTTicket is ERC1155, Ownable {
         uint32 mintStartDate;        // 4 bytes
         uint32 mintEndDate;          // 4 bytes
         uint96 mintPrice;            // 12 bytes
-        uint16 maxMintAmountPlusOne; // 2 bytes
+        uint16 maxMintAmountPlusOne; // 2 bytes - How many can be minted at a time
         uint96 redeemPrice;          // 12 bytes (supports 7.92e+28 max)
         uint16 maxSupply;            // 2 bytes (supports 65536 tickets max)
         bool active;                 // 1 bytes
