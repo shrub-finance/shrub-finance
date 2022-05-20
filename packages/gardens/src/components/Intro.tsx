@@ -534,7 +534,7 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    May 2022.
+                    June 2022.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
