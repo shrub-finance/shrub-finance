@@ -6,7 +6,7 @@ import {
   TokenFaucet__factory,
   ShrubExchange__factory,
   HashUtil__factory,
-} from "@shrub/contracts/types/ethers-v5";
+} from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import {
   ApiOrder,

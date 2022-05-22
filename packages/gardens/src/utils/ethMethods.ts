@@ -4,7 +4,7 @@ import {
   PaperSeed__factory,
   ShrubExchange__factory,
   SeedOrphanage__factory,
-} from "@shrub/contracts/types/ethers-v5";
+} from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import { OrderCommon, UnsignedOrder } from "../types";
 import { useWeb3React } from "@web3-react/core";
