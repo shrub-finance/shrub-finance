@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
-interface INftTicketRedeemableClassic {
+interface INftTicketRedeemable {
     function mintFromTicket(
         address _to,
         uint _amount,
@@ -14,7 +14,7 @@ interface INftTicketRedeemableClassic {
     ) external returns (bool);
 }
 
-contract NFTTicket is ERC1155, Ownable {
+contract PotNFTTicket is ERC1155, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenCounter;
     struct Ticket {
@@ -26,6 +26,9 @@ contract NFTTicket is ERC1155, Ownable {
         uint32 mintStartDate;        // 4 bytes
         uint32 mintEndDate;          // 4 bytes
         uint96 mintPrice;            // 12 bytes
+        uint32 wlMintStartDate;        // 4 bytes
+        uint32 wlMintEndDate;          // 4 bytes
+        uint96 wlMintPrice;          // 12 bytes
         uint16 maxMintAmountPlusOne; // 2 bytes - How many can be minted at a time
         uint96 redeemPrice;          // 12 bytes (supports 7.92e+28 max)
         uint16 maxSupply;            // 2 bytes (supports 65536 tickets max)
@@ -35,6 +38,7 @@ contract NFTTicket is ERC1155, Ownable {
 
     mapping(uint => Ticket) ticketDatas;
     mapping(uint256 => uint256) totalSupply;
+    mapping(uint256 => mapping(address => uint256)) private _wlSpots; // tokenId => address => WL Spots available
 
     IERC20 private _WETH;
 
@@ -47,7 +51,7 @@ contract NFTTicket is ERC1155, Ownable {
         ticketDatas[tokenId] = ticketData_;
     }
 
-    function getTicketData(uint tokenId_) external view returns (Ticket memory) {
+    function getTicketData(uint tokenId_) public view returns (Ticket memory) {
         require(_exists(tokenId_), "NFTTicket: tokenId does not exist");
         return ticketDatas[tokenId_];
     }
@@ -105,7 +109,7 @@ contract NFTTicket is ERC1155, Ownable {
         // burn the ticket
         _burn(_msgSender(), tokenId_, amount_);
         // mint the NFT that the ticket is tied to
-        INftTicketRedeemableClassic(ticketDatas[tokenId_].contractAddress).mintFromTicket(_msgSender(), amount_, tokenId_);
+        INftTicketRedeemable(ticketDatas[tokenId_].contractAddress).mintFromTicket(_msgSender(), amount_, tokenId_);
     }
 
     function updateMaxSupply(uint tokenId_, uint16 maxSupply_) public onlyController(tokenId_) {
@@ -122,6 +126,15 @@ contract NFTTicket is ERC1155, Ownable {
     function updateActive(uint tokenId_, bool active_) public onlyController(tokenId_) {
         Ticket storage ticketData = ticketDatas[tokenId_];
         ticketData.active = active_;
+    }
+
+
+//    mapping(uint256 => mapping(address => uint256)) wlSpots; // tokenId => address => WL Spots available
+    function updateWL(uint tokenId_, address[] calldata accounts_, uint[] calldata wlSpots_) public onlyController(tokenId_) {
+        require(accounts_.length == wlSpots_.length, "NFTTicket: accounts and wlSpots must be same length");
+        for (uint i = 0; i < accounts_.length; i++) {
+            _wlSpots[tokenId_][accounts_[i]] = wlSpots_[i];
+        }
     }
 
     /**
@@ -141,6 +154,22 @@ contract NFTTicket is ERC1155, Ownable {
 
     function exists(uint tokenId_) external view returns (bool) {
         return _exists(tokenId_);
+    }
+
+    function accountWl(uint tokenId_, address account_) external view returns (uint) {
+        return _wlSpots[tokenId_][account_];
+    }
+
+    function wlMintPrice(uint tokenId_) external view returns (uint) {
+        return getTicketData(tokenId_).wlMintPrice;
+    }
+
+    function mintPrice(uint tokenId_) external view returns (uint) {
+        return getTicketData(tokenId_).mintPrice;
+    }
+
+    function totalMinted(uint tokenId_) external view returns (uint) {
+        return totalSupply[tokenId_];
     }
 
     function uri(uint256 tokenId_) public view override returns (string memory) {
@@ -172,6 +201,27 @@ contract NFTTicket is ERC1155, Ownable {
         }
     }
 
+    function mintWL(uint tokenId_, uint amount) external {
+        require(_exists(tokenId_), "NFTTicket: tokenId does not exist");
+        Ticket memory ticketData = ticketDatas[tokenId_];
+        require(amount <= _wlSpots[tokenId_][_msgSender()], "NFTTicket: amount exceeds allocated whitelist amount");
+        require(totalSupply[tokenId_] + amount <= ticketData.maxSupply, "NFTTicket: exceeds maxSupply");
+        require(block.timestamp > ticketData.wlMintStartDate, "NFTTicket: minting has not begun");
+        require(block.timestamp < ticketData.wlMintEndDate, "NFTTicket: minting has ended");
+        require(ticketData.active && !ticketData.paused, "NFTTicket: minting is not active");
+        // mint efficiently
+        require(
+            _WETH.transferFrom(
+                _msgSender(),
+                ticketData.recipient,
+                amount * ticketData.wlMintPrice
+            ),
+            'NFTTicket: payment failed'
+        );
+        totalSupply[tokenId_] += amount;
+        _wlSpots[tokenId_][_msgSender()] -= amount;
+        _mint(_msgSender(), tokenId_, amount, "");
+    }
 
     function mint(uint tokenId_, uint amount) external {
         // TODO: Check if whitelist
