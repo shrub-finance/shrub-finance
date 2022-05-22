@@ -6,15 +6,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
 
   const { deployer } = await getNamedAccounts();
-  const wethDeployment = await deployments.get("WETH");
-  const wethAddress = wethDeployment.address;
 
-  await deploy("PotNFTTicket", {
+  // constructor(string memory imageBaseUri_) {
+  //   _imageBaseUri = imageBaseUri_;
+  // }
+
+  const imageBaseUri = 'https://imageBaseUri';
+
+  await deploy("PaperPotMetadata", {
     from: deployer,
-    args: [wethAddress],
+    args: [imageBaseUri],
     log: true,
   });
 };
 export default func;
-func.id = "deploy_pot_nft_ticket"; // id to prevent re-execution
-func.tags = ["PotNFTTicket"];
+func.id = "deploy_paper_pot_metadata"; // id to prevent re-execution
+func.tags = ["PaperPotMetadata"];
