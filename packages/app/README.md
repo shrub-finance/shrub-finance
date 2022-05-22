@@ -1,7 +1,3 @@
-# Shrub App
-
-Shrub app auto deploys to:
-https://shrub-app.vercel.app/
 
 Shrub app uses:
 

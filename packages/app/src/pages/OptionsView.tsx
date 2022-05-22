@@ -805,7 +805,7 @@ function OptionsView(props: RouteComponentProps) {
             </Center>
             <Center pt={6}>
               <Box as="span" fontWeight="medium" fontSize="md" color="gray.500">
-                No options available yet, check back again.
+                No options available yet, let the Shrub Team know in Discord.
               </Box>
             </Center>
           </Flex>
