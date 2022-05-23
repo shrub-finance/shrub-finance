@@ -1,6 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
 import {
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogCloseButton,
+  AlertDialogBody,
+  AlertDialogFooter,
   Button,
   Table,
   Thead,
@@ -22,6 +29,7 @@ import {
   ModalCloseButton,
   ModalBody,
   HStack,
+  VStack,
   useColorModeValue,
   Container,
   Center,
@@ -91,11 +99,13 @@ import { SHRUBFOLIO_QUERY } from "../constants/queries";
 import { isMobile } from "react-device-detect";
 import usePriceFeed from "../hooks/usePriceFeed";
 import { CHAINLINK_MATIC } from "../constants/chainLinkPrices";
+import ProfitLossChart from "./ProfitLossChart";
 
 const POLL_INTERVAL = 1000; // 1 second polling interval
 
 function Positions() {
   const { pendingTxs } = useContext(TxContext);
+  const [chartDisplay,setChartDisplay]=useState(false);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {
     active,
@@ -125,11 +135,22 @@ function Positions() {
     available: { MATIC: 0, SMATIC: 0, SUSD: 0 },
   } as ShrubBalance);
   const hasOptions = useRef(false);
+  const cancelRef = useRef();
   const toast = useToast();
   const {
     isOpen: isOpenModal,
     onOpen: onOpenModal,
     onClose: onCloseModal,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenChartModal,
+    onOpen: onOpenChartModal,
+    onClose: onCloseChartModal,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenChart,
+    onOpen: onOpenChart,
+    onClose: onCloseChart,
   } = useDisclosure();
   const {
     isOpen: isOpenConnectWalletModal,
@@ -151,6 +172,10 @@ function Positions() {
   const [showDepositButton, setShowDepositButton] = useState(false);
   const SHRUB_CURRENCIES = ["SMATIC", "SUSD"];
   const btnBg = useColorModeValue("sprout", "teal");
+  //chart variable
+  const [strickPrice,setStrikePrices]=useState();
+  const [optionTypeValue,setOptionTypeValue] = useState("");
+  const [quantity,setQuantity]=useState();
 
   const connectWalletTimeout = useRef<NodeJS.Timeout>();
 
@@ -240,6 +265,7 @@ function Positions() {
       shrubfolioStopPolling();
       setPolling(false);
     }
+    console.log("shrubfolioData",shrubfolioData)
   }, [shrubfolioData, pendingTxsState]);
 
   // shrub balance display
@@ -415,6 +441,17 @@ function Positions() {
                 </Box>
               )}
             </Td>
+            <Td>
+            <Button
+                    colorScheme={btnBg}
+                    variant={"link"}
+                    size="sm"
+                   onClick={()=> handleChart(optionType,strike,amount,common)}
+                //  onClick={()=> onOpenChartModal()}
+                  >
+                    Chart
+                  </Button>
+            </Td>
           </Tr>
         );
       } else {
@@ -474,6 +511,7 @@ function Positions() {
     }
     setOptionsRows(optionRow);
     setExpiredOptionsRows(expiredOptionRow);
+    console.log("expiredOptionRow",shrubfolioData)
   }, [shrubfolioData]);
 
   // determine if approved
@@ -618,6 +656,23 @@ function Positions() {
     }
     setShrubfolioRows(tempShrubfolioRows);
   }, [shrubBalance]);
+
+  // handle chart data display
+  function handleChart(optionType:string,strickPrice:any,amount:any,common:any){
+  console.log(optionType,strickPrice);
+  console.log("amount",amount);
+  console.log("common",common);
+  
+  
+  setStrikePrices(strickPrice);
+  setQuantity(amount)
+  setOptionTypeValue(optionType);
+  //onOpenChart();
+  onOpenChartModal();
+  console.log(optionTypeValue);
+  console.log(shrubfolioData);
+}
+
 
   function handleWithdrawDepositModalClose() {
     setApproving(false);
@@ -913,6 +968,7 @@ function Positions() {
                       <Th color={"gray.400"}>Qty</Th>
                       {!isMobile && <Th color={"gray.400"}>Price</Th>}
                       <Th color={"gray.400"}>Gain/Loss</Th>
+                      <Th color={"gray.400"}>Chart</Th>
                     </Tr>
                   </Thead>
                   <Tbody bg={optionRowTableBg}>
@@ -1138,6 +1194,79 @@ function Positions() {
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      {/* chart model */}
+      <Modal
+        motionPreset="slideInBottom"
+        onClose={onCloseChartModal}
+        isOpen={isOpenChartModal}
+        size={isMobile ? "full" : "xs"}
+        scrollBehavior={isMobile ? "inside" : "outside"}
+        
+      >
+        <ModalOverlay />
+        <ModalContent borderRadius={isMobile ? "none" : "2xl"}>
+          <ModalHeader>{optionTypeValue}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box>
+            <Flex minWidth='max-content' align='right' >
+            
+            <Box borderBottom={1}>
+              <VStack spacing={0}>
+              <Text fontWeight={"small"} fontSize={"sm"} letterSpacing={.1} > 
+            {optionTypeValue=='CALL' ? `BUY $${strickPrice}CALL` : `SELL $${strickPrice}PUT`}</Text>
+            <Text fontSize={"xs"} color="grey">x100 shares</Text>
+              </VStack> 
+           </Box>
+            <Spacer />
+            <Box>
+            <Text fontWeight={"small"} fontSize={"sm"} color="grey">{quantity}</Text>
+            </Box>
+          </Flex>
+          <Flex pt={5}  >
+          <Box borderBottom={1} >
+              <VStack spacing={0} >
+              <Text fontWeight={"small"} fontSize={"sm"} letterSpacing={.1} > 
+              Limit Cost</Text>
+            <Text fontSize={"xs"} color="green.600">Bid $1.00-Ask$1.5</Text>
+              </VStack> 
+           </Box>
+            <Spacer />
+            <Box>
+            <Text fontWeight={"small"} fontSize={"sm"} color="grey">1.2</Text>
+            </Box>
+          </Flex>
+          <Flex pt={5}  >
+          <Box borderBottom={1} >
+              <Text fontWeight={"small"} fontSize={"sm"} letterSpacing={.1} > 
+              Premimum Paid</Text>
+           </Box>
+            <Spacer />
+            <Box>
+            <Text fontWeight={"small"} fontSize={"sm"} color="grey">120</Text>
+            </Box>
+          </Flex>
+          <Box
+                fontSize={"sm"}
+                bgColor="gray.700"
+                mt={6}
+                p={"3"}
+                rounded={"lg"}
+                color={useColorModeValue("gray.600", "gray.400")}
+                lineHeight={2.1}
+                letterSpacing={".02rem"}
+                width="100%"
+              >
+             <ProfitLossChart strickRate={strickPrice} premimum={1.2} optionType={optionTypeValue}/>
+              </Box>
+            </Box>
+         
+            
+          </ModalBody>
+          
+        </ModalContent>
+      </Modal>      
     </>
   );
 }

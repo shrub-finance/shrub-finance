@@ -959,76 +959,9 @@ function OptionsView(props: RouteComponentProps) {
           </Flex>
         )}
 
-        {/* {Chart Model} */}
-        <AlertDialog
-          motionPreset="slideInBottom"
-          // @ts-ignore
-          leastDestructiveRef={cancelRef}
-          onClose={onCloseConfirmDialog}
-          isOpen={isOpenConfirmDialog}
-          isCentered
-        >
-          <AlertDialogOverlay />
-          <AlertDialogContent>
-            <AlertDialogHeader>Long Call</AlertDialogHeader>
-            <AlertDialogCloseButton />
-            <Divider />
-            <AlertDialogBody>
-              <Box fontSize="sm" pt={6}>
-                <HStack spacing={8} fontSize={"sm"}>
-                  <VStack spacing={1.5} alignItems={"flex-start"}>
-                    <Text>Strick Price</Text>
-                    <Text>Premium</Text>
-                    <Text>Total cost</Text>
-                  </VStack>
-                  <VStack
-                    spacing={1.5}
-                    alignItems={"flex-start"}
-                    fontWeight={"600"}
-                  >
-                    <Text>$350</Text>
-                    <Text>$2</Text>
-                    <Text>$200</Text>
-                  </VStack>
-                </HStack>
-              </Box>
-              <Divider />
-              <Box
-                fontSize={"sm"}
-                bgColor={useColorModeValue("gray.100", "dark.300")}
-                mt={6}
-                p={"3"}
-                rounded={"lg"}
-                color={useColorModeValue("gray.600", "gray.400")}
-                lineHeight={2.1}
-                letterSpacing={".02rem"}
-              >
-                <ProfitLossChart />
-              </Box>
-            </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button
-                // @ts-ignore
-                ref={cancelRef}
-                onClick={onCloseConfirmDialog}
-              >
-                Ok
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+       
       </Container>
-      <Button
-        size={"sm"}
-        borderRadius="full"
-        cursor="pointer"
-        variant="outline"
-        colorScheme={bg}
-        onClick={onOpenConfirmDialog}
-      >
-        Chart
-      </Button>
-      {/* <ProfitLossChart></ProfitLossChart> */}
+    
     </>
   );
 }
