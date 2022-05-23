@@ -24,16 +24,18 @@ import {
   SMATICToken__factory,
   PaperSeed__factory,
   SeedOrphanageV2__factory,
-} from "./types";
+  PotNFTTicket__factory,
+} from './types'
 import { OrderCommon, SmallOrder } from "@shrub/app/src/types";
 import chainlinkAggregatorV3Interface from "./external-contracts/chainlinkAggregatorV3InterfaceABI.json";
-import env from "hardhat";
-import { toEthDate } from "@shrub/app/src/utils/ethMethods";
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 import dotenv from "dotenv";
-import { address } from "hardhat/internal/core/config/config-validation";
 dotenv.config();
+
+function toEthDate(date: Date) {
+  return Math.round(Number(date) / 1000);
+}
 
 const CHAINLINK_MATIC = "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada"; // Mumbai
 const CHAINLINK_ETH = "0x0715A7794a1dc8e42615F059dD6e406A6594651A"; // Mumbai
@@ -136,6 +138,37 @@ task("sendSeed", "send a seed from the owner contract to an address")
       id
     );
     console.log(tx.hash);
+  });
+
+task("initializeNFTTicket", "initialize a ticket for the pot sale - testing only")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner, signer1] = await ethers.getSigners();
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+    let now = new Date();
+    let oneDayFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 1));
+    let twoDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 2));
+    const ticketData = {
+      controller: signer1.address,
+      recipient: signer1.address,
+      contractAddress: paperPotDeployment.address,
+      startDate: toEthDate(now),
+      endDate: toEthDate(oneDayFromNow),
+      mintStartDate: toEthDate(oneDayFromNow),
+      mintEndDate: toEthDate(twoDaysFromNow),
+      mintPrice: ethers.constants.WeiPerEther.mul(35).div(1000),
+      wlMintStartDate: toEthDate(now),
+      wlMintEndDate: toEthDate(oneDayFromNow),
+      wlMintPrice: ethers.constants.WeiPerEther.mul(15).div(1000),
+      maxMintAmountPlusOne: 11,
+      redeemPrice: ethers.constants.WeiPerEther.mul(15).div(1000),
+      maxSupply: 1000,
+      active: true,
+      paused: false,
+    };
+    await PotNFTTicket.initializeTicket(ticketData);
   });
 
 task(
