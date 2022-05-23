@@ -486,7 +486,8 @@ function Intro(props: RouteComponentProps) {
             }}
           >
             <Image
-              width={"50rem"}
+              maxW="50rem"
+              maxH="48rem"
               src="https://shrub.finance/funky-pineapple-shrub.webp"
               fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
               alt="pineapple"
