@@ -74,6 +74,20 @@ function DesktopMenu() {
         >
           Paper Gardens
         </Link>
+        <Link
+          isExternal
+          href="https://discord.gg/ntU4GhfEFP"
+          variant="ghost"
+          cursor="pointer"
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
+          _hover={{ textDecoration: "none", bgGradient: gradient }}
+          display={{ base: "none", md: "inline" }}
+          onClick={handleMenuClose}
+        >
+          Help
+        </Link>
       </HStack>
     </HStack>
   );

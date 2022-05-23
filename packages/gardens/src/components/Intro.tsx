@@ -649,7 +649,7 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    *Note: Tickets are tradable NFTs and can be purchased on
+                    *Note: Tickets are tradable NFTs and can be sold on
                     secondary markets.
                   </Text>
                 </AccordionPanel>
