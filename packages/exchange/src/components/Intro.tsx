@@ -140,8 +140,19 @@ function Intro1(props: RouteComponentProps) {
           >
             Buy MATIC
           </Link>
-
-          <Center mt={10}>
+          <Box pt="46">
+            <Link
+              href="https://discord.gg/ntU4GhfEFP"
+              isExternal
+              cursor="pointer"
+              fontSize="13px"
+              fontWeight="medium"
+              textDecoration="underline"
+            >
+              Trouble buying? Report in Shrub Discord
+            </Link>
+          </Box>
+          <Center>
             <ExchangeLogo boxSize={{ base: "xs", md: "xl" }} />
           </Center>
         </Box>
