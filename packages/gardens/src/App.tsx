@@ -13,6 +13,7 @@ import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ChaptersView from "./pages/ChaptersView";
 import IntroView from "./pages/IntroView";
 import ReactGA from "react-ga";
+import NFTTicketView from "./pages/NFTTicketView";
 const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
   ReactGA.initialize(trackingID, {
@@ -51,6 +52,7 @@ function App() {
             <TopNav />
             <Router>
               <HomeView path="/" />
+              <NFTTicketView path="/ticket" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />

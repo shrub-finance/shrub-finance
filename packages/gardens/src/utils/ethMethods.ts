@@ -1,9 +1,10 @@
-import { ethers } from "ethers";
+import { BytesLike, ethers } from "ethers";
 import {
   SUSDToken__factory,
   PaperSeed__factory,
   ShrubExchange__factory,
   SeedOrphanage__factory,
+  PotNFTTicket__factory,
 } from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import { OrderCommon, UnsignedOrder } from "../types";
@@ -15,6 +16,8 @@ const PAPERSEED_CONTRACT_ADDRESS =
   process.env.REACT_APP_PAPERSEED_ADDRESS || "";
 const ORPHANAGE_CONTRACT_ADDRESS =
   process.env.REACT_APP_ORPHANAGE_ADDRESS || "";
+const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
+
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id(
   "OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)"
@@ -113,24 +116,25 @@ export async function getWalletBalance(
   return ethers.utils.formatUnits(bigBalance, decimals);
 }
 
-// export async function claimNFT(
-//   index: ethers.BigNumberish,
-//   tokenID: ethers.BigNumberish,
-//   proof: BytesLike[],
-//   provider: JsonRpcProvider
-// ) {
-//   const signer = provider.getSigner();
-//   const paperseedContract = PaperSeed__factory.connect(
-//     PAPERSEED_CONTRACT_ADDRESS,
-//     signer
-//   );
-//   const tx = await paperseedContract["claim(uint256,uint256,bytes32[])"](
-//     index,
-//     tokenID,
-//     proof
-//   );
-//   return tx;
-// }
+export async function claimNFT(
+  index: ethers.BigNumberish,
+  tokenID: ethers.BigNumberish,
+  proof: BytesLike[],
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperseedContract = PaperSeed__factory.connect(
+    PAPERSEED_CONTRACT_ADDRESS,
+    signer
+  );
+  // @ts-ignore
+  const tx = await paperseedContract["claim(uint256,uint256,bytes32[])"](
+    index,
+    tokenID,
+    proof
+  );
+  return tx;
+}
 
 export async function registerForAdoption(provider: JsonRpcProvider) {
   const signer = provider.getSigner();
@@ -182,6 +186,22 @@ export async function getTokenUri(
   );
   const uri = await paperseedContract.tokenURI(tokenID);
   return uri;
+}
+
+export async function accountWL(
+  tokenID: ethers.BigNumberish,
+  address: string,
+  provider: JsonRpcProvider
+) {
+  console.log(tokenID);
+  console.log(address);
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    provider
+  );
+  console.log(potTicketContract.address);
+
+  return await potTicketContract.accountWl(tokenID, address);
 }
 
 export async function getUserNonce(
