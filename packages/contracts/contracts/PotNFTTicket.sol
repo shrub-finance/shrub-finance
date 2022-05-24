@@ -14,6 +14,9 @@ interface INftTicketRedeemable {
     ) external returns (bool);
 }
 
+// TODO: startDate is not being used currently
+// TODO: endDate is not being used currently
+
 contract PotNFTTicket is ERC1155, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenCounter;
