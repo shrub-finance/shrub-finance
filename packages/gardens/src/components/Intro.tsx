@@ -700,9 +700,19 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    The guaranteed way to get a whitelist spot is to hold 15
-                    seeds. Every 15 seeds that you hold give you a whitelist for
-                    1 pre-sale ticket.
+                    The <b>guaranteed way</b> to get a whitelist spot is to hold
+                    15 seeds.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    {" "}
+                    Every <b>15 seeds</b> that you hold give you a whitelist for{" "}
+                    <b>1 pre-sale</b> ticket.
                   </Text>
                   <Text
                     mt="3"
@@ -721,8 +731,17 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    Follow us on twitter and join the discord. There will be
-                    contests on both to win additional whitelist spots.
+                    Additionally, there will be contests to win discounted
+                    whitelist spots.
+                  </Text>{" "}
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Join our Discord and follow us on Twitter to participate.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -735,7 +754,7 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    Do I need a seed to buy a pot?
+                    What would it mean to have a fully grown Shrub?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
@@ -747,10 +766,34 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    Yes, this is the first on-chain growth NFT. You will see an
-                    NFT grow dynamically on-chain. When you buy a pot, you will
-                    need a seed to turn it into a potted plant NFT. Owning a
-                    seed is also a pre-requisite to participate in the pre-sale.
+                    Shrub NFTs are Shrub Finance’s genesis NFT.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    {" "}
+                    They will grant holders the highest status in the Shrub
+                    ecosystem, access to future drops, special airdrops, and
+                    early access to new products.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    <Link
+                      isExternal
+                      textDecoration={"underline"}
+                      href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
+                    >
+                      Read Shrub roadmap for details.
+                    </Link>
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
