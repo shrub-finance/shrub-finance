@@ -10,10 +10,12 @@ import "hardhat-abi-exporter";
 import "hardhat-gas-reporter";
 import "@nomiclabs/hardhat-etherscan";
 
+// All of the tasks are in a separate file
 import "./hardhat-tasks";
 
 import dotenv from "dotenv";
 dotenv.config();
+
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more

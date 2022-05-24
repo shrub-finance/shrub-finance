@@ -11,6 +11,7 @@ import {
 import { readFileSync } from 'fs'
 import { OrderCommon, SmallOrder } from '@shrub/app/src/types'
 import { ACTIVE_ORDERS_QUERY } from './queries'
+import assert from 'node:assert/strict';
 
 
 import { ApolloClient, gql, InMemoryCache, HttpLink } from "@apollo/client";
@@ -18,6 +19,7 @@ import fetch from "cross-fetch";
 import promptly from "promptly";
 // import optionContracts from "./option-contracts.json";
 import chainlinkAggregatorV3Interface from "./external-contracts/chainlinkAggregatorV3InterfaceABI.json";
+import { address } from 'hardhat/internal/core/config/config-validation'
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 
@@ -181,6 +183,34 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
   });
 
 task("updateNFTTicketWL")
+  .addParam("tokenId", "tokenId to update the whitelist for")
+  .addParam("wls", "object of acccount/wlSpot pairs ex: {account1: 2, account2: 1}", {}, types.json)
+  .addOptionalParam("controller", "address of the controller of the ticket")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const [owner, account1, account2, account3, account4 ] = await ethers.getSigners();
+    const wls: {[account: string] : number} = taskArgs.wls;
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    if (Object.keys(wls).length === 0) {
+      wls[owner.address] = 1;
+      wls[account1.address] = 2;
+      wls[account2.address] = 3;
+      wls[account3.address] = 4;
+    }
+    const accounts = [];
+    const wlSpots = [];
+    for (const [account, wlSpot] of Object.entries(wls)) {
+      accounts.push(ethers.utils.getAddress(account));
+      assert.equal(Math.floor(wlSpot), wlSpot, "wlSpot must be an integer");
+      assert.equal(wlSpot >= 0, true, "wlSpot must not be negative");
+      wlSpots.push(wlSpot);
+    }
+    assert.equal(accounts.length > 0, true, "some wls must be specified");
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateWL(tokenId, accounts, wlSpots);
+  })
 
 task(
   "getOrphanageRegistered",
