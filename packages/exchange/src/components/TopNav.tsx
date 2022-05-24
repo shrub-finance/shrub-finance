@@ -16,6 +16,7 @@ import {
   ModalCloseButton,
   Spinner,
   useBreakpointValue,
+  Link,
 } from "@chakra-ui/react";
 import {
   HamburgerIcon,
@@ -87,107 +88,125 @@ function TopNav() {
   }
 
   return (
-    <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
-      <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
-        <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
-          <Suspense fallback={<Box>…</Box>}>
-            <DesktopMenu />
-          </Suspense>
+    <>
+      <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
+        <Box layerStyle={"bannerBg"} textStyle={"bannerText"}>
+          Shrub's Genesis NFT series
+          <Link
+            href="https://discord.gg/ntU4GhfEFP"
+            isExternal
+            cursor="pointer"
+            textDecoration="underline"
+            pl={2}
+            // @ts-ignore
+            onClick={handleGA}
+          >
+            Paper Gardens
+          </Link>
+        </Box>
+        <Box shadow={topNavShadow} bg={topNavBgColor} px={4} m={"-11px"}>
+          <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+            <Suspense fallback={<Box>…</Box>}>
+              <DesktopMenu />
+            </Suspense>
 
-          <Flex alignItems={"center"}>
-            <>
-              <BuyMatic />
-              <Box
-                pr={5}
-                display={{ base: "none", sm: "flex" }}
-                size={buttonSize}
-              >
-                <Balance />
+            <Flex alignItems={"center"}>
+              <>
+                <BuyMatic />
+                <Box
+                  pr={5}
+                  display={{ base: "none", sm: "flex" }}
+                  size={buttonSize}
+                >
+                  <Balance />
+                </Box>
+              </>
+
+              <Box onClick={onOpen}>
+                {/*connect wallet button*/}
+                <Button
+                  variant={isMobile ? "outline" : "solid"}
+                  colorScheme={web3Error ? "red" : "yellow"}
+                  size={buttonSize}
+                  mr={4}
+                  borderRadius="xl"
+                  leftIcon={
+                    web3Error ? (
+                      <InfoOutlineIcon colorScheme="red" />
+                    ) : undefined
+                  }
+                >
+                  {" "}
+                  {!!web3Error && !active ? (
+                    getErrorMessage(web3Error).title
+                  ) : (
+                    <Account />
+                  )}
+                </Button>
               </Box>
-            </>
-
-            <Box onClick={onOpen}>
-              {/*connect wallet button*/}
-              <Button
-                variant={isMobile ? "outline" : "solid"}
-                colorScheme={web3Error ? "red" : "yellow"}
-                size={buttonSize}
-                mr={4}
-                borderRadius="xl"
-                leftIcon={
-                  web3Error ? <InfoOutlineIcon colorScheme="red" /> : undefined
-                }
-              >
-                {" "}
-                {!!web3Error && !active ? (
-                  getErrorMessage(web3Error).title
-                ) : (
-                  <Account />
-                )}
-              </Button>
-            </Box>
-            <IconButton
-              variant="unstyled"
-              icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
-              aria-label={"Open Menu"}
-              display={{ md: "none" }}
-              onClick={isMenuOpen ? onMenuClose : onMenuOpen}
-            />
-            {!isMobile && (
-              <Button
-                onClick={handleToggleColorMode}
-                variant="ghost"
-                display={{ base: "none", md: "block" }}
-              >
-                {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-              </Button>
-            )}
+              <IconButton
+                variant="unstyled"
+                icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
+                aria-label={"Open Menu"}
+                display={{ md: "none" }}
+                onClick={isMenuOpen ? onMenuClose : onMenuOpen}
+              />
+              {!isMobile && (
+                <Button
+                  onClick={handleToggleColorMode}
+                  variant="ghost"
+                  display={{ base: "none", md: "block" }}
+                >
+                  {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
+                </Button>
+              )}
+            </Flex>
           </Flex>
-        </Flex>
 
-        {isMenuOpen ? (
-          <Suspense fallback={<Box>…</Box>}>
-            <MobileMenu onMenuClose={onMenuClose} />
-          </Suspense>
-        ) : null}
+          {isMenuOpen ? (
+            <Suspense fallback={<Box>…</Box>}>
+              <MobileMenu onMenuClose={onMenuClose} />
+            </Suspense>
+          ) : null}
+        </Box>
+
+        <Modal
+          isOpen={isOpen}
+          onClose={handleModalClose}
+          motionPreset="slideInBottom"
+          scrollBehavior={isMobile ? "inside" : "outside"}
+        >
+          <ModalOverlay />
+          <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
+            <ModalHeader>
+              {!active ? (
+                "Connect Wallet"
+              ) : !isHidden ? (
+                <Text fontSize={16}>Account Details</Text>
+              ) : (
+                <Button variant="ghost" onClick={() => displayStatus(false)}>
+                  Back
+                </Button>
+              )}{" "}
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              {!active || isHidden ? (
+                <ConnectWalletModal />
+              ) : (
+                !isHidden && <ConnectionStatus displayStatus={displayStatus} />
+              )}
+              {
+                !(
+                  web3Error &&
+                  getErrorMessage(web3Error).title === "Wrong Network"
+                )
+              }
+            </ModalBody>
+          </ModalContent>
+        </Modal>
       </Box>
-
-      <Modal
-        isOpen={isOpen}
-        onClose={handleModalClose}
-        motionPreset="slideInBottom"
-        scrollBehavior={isMobile ? "inside" : "outside"}
-      >
-        <ModalOverlay />
-        <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
-          <ModalHeader>
-            {!active ? (
-              "Connect Wallet"
-            ) : !isHidden ? (
-              <Text fontSize={16}>Account Details</Text>
-            ) : (
-              <Button variant="ghost" onClick={() => displayStatus(false)}>
-                Back
-              </Button>
-            )}{" "}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {!active || isHidden ? (
-              <ConnectWalletModal />
-            ) : (
-              !isHidden && <ConnectionStatus displayStatus={displayStatus} />
-            )}
-            {
-              !(
-                web3Error &&
-                getErrorMessage(web3Error).title === "Wrong Network"
-              )
-            }
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </Box>
+    </>
   );
 }
 

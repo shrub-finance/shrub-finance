@@ -1,13 +1,13 @@
 import { isMobile } from "react-device-detect";
 import { Box, Center, Container, Heading, Link, Text } from "@chakra-ui/react";
 import React from "react";
-import { Link as ReachLink, RouteComponentProps } from "@reach/router";
+import { RouteComponentProps } from "@reach/router";
 import { ExchangeLogo } from "../assets/Icons";
 import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
 import { trackEvent } from "../utils/handleGATracking";
 
-function Intro1(props: RouteComponentProps) {
+function Intro(props: RouteComponentProps) {
   const { account } = useWeb3React();
   async function wyreCheckout(event: React.BaseSyntheticEvent) {
     handleGA(event);
@@ -161,4 +161,4 @@ function Intro1(props: RouteComponentProps) {
   );
 }
 
-export default Intro1;
+export default Intro;
