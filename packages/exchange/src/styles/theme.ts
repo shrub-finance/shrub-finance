@@ -106,12 +106,26 @@ const textStyles = {
     fontWeight: "medium",
     textAlign: "left",
   },
+  bannerText: {
+    textAlign: "center",
+    justifyContent: "center",
+    fontSize: "14px",
+    fontWeight: 600,
+  },
 };
 
 const layerStyles = {
   shrubBg: {
     bg: "white",
     ".chakra-ui-dark &": { bg: "dark.100" },
+  },
+  bannerBg: {
+    backgroundColor: "#f8ac2a",
+    padding: "10px",
+    display: "flex",
+    marginBottom: "10px",
+    alignItems: "center",
+    color: "black",
   },
 };
 
