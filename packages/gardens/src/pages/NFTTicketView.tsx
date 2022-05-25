@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import { Image } from "@chakra-ui/react";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import useAddNetwork from "../hooks/useAddNetwork";
 import { isMobile } from "react-device-detect";
@@ -46,6 +46,8 @@ import {
   claimNFT,
   getChecksumAddress,
   getTokenUri,
+  getWLMintPrice,
+  getWalletBalance,
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
@@ -59,6 +61,7 @@ import { OpenSeaIcon } from "../assets/Icons";
 import { ethers } from "ethers";
 
 function NFTTicketView(props: RouteComponentProps) {
+  const WETHAddress = process.env.REACT_APP_WETH_TOKEN_ADDRESS || "";
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const { pendingTxs } = useContext(TxContext);
@@ -82,6 +85,9 @@ function NFTTicketView(props: RouteComponentProps) {
   const [nftImageId, setNftImageId] = useState("");
   const [nftTitle, setNftTitle] = useState("");
   const [tokenId, setTokenId] = useState(0);
+  const [walletTokenBalance, setWalletTokenBalance] = useState("");
+  const [approving, setApproving] = useState(false);
+  const [isApproved, setIsApproved] = useState(false);
 
   const {
     active,
@@ -121,7 +127,10 @@ function NFTTicketView(props: RouteComponentProps) {
             account,
             library
           );
-          console.log(whitelists);
+
+          // if (whitelists) {
+          // } else {
+          // }
         } catch (e: any) {
           setIsLoading(false);
           handleErrorMessages({ err: e });
@@ -133,6 +142,42 @@ function NFTTicketView(props: RouteComponentProps) {
       console.error(e);
     }
   }
+
+  // determine if approved
+  useEffect(() => {
+    if (!library) {
+      return;
+    }
+    async function handleApprove() {
+      await setTimeout(() => Promise.resolve(), 50);
+      setWalletTokenBalance("-");
+
+      try {
+        const allowance = await getWLMintPrice(
+          ethers.BigNumber.from(NFT_TICKET_TOKEN_ID),
+          library
+        );
+        console.log(allowance);
+        if (allowance.gt(ethers.BigNumber.from(0))) {
+          setIsApproved(true);
+        } else {
+          setIsApproved(false);
+        }
+      } catch (e: any) {
+        handleErrorMessages(e);
+        console.error(e);
+      }
+      try {
+        const balance = await getWalletBalance(account, library);
+        setWalletTokenBalance(balance);
+      } catch (e: any) {
+        handleErrorMessages(e);
+        console.error(e);
+      }
+    }
+
+    handleApprove();
+  }, [account]);
 
   return (
     <>

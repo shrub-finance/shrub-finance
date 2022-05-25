@@ -199,9 +199,18 @@ export async function accountWL(
     NFT_TICKET_ADDRESS,
     provider
   );
-  console.log(potTicketContract.address);
+  return potTicketContract.accountWl(tokenID, address);
+}
 
-  return await potTicketContract.accountWl(tokenID, address);
+export async function getWLMintPrice(
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    provider
+  );
+  return potTicketContract.wlMintPrice(tokenID);
 }
 
 export async function getUserNonce(
