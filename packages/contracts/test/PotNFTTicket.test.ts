@@ -1,3 +1,5 @@
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import {
@@ -8,6 +10,7 @@ import {
   PaperPotMetadata__factory,
   PaperSeed,
   PaperSeed__factory,
+  PotNFTTicket, PotNFTTicket__factory,
 } from '../types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
@@ -23,18 +26,18 @@ function fromEthDate(ethDate) {
   return new Date(ethDate * 1000);
 }
 
-describe("NFTTicket", () => {
+describe("PotNFTTicket", () => {
   let owner: SignerWithAddress;
   let signer1: SignerWithAddress;
   let signer2: SignerWithAddress;
   let signer3: SignerWithAddress;
   let signer4: SignerWithAddress;
   let weth: ERC20Token;
-  let nftTicket: NFTTicket;
-  let signer1NftTicket: NFTTicket;
-  let signer2NftTicket: NFTTicket;
-  let signer3NftTicket: NFTTicket;
-  let signer4NftTicket: NFTTicket;
+  let nftTicket: PotNFTTicket;
+  let signer1NftTicket: PotNFTTicket;
+  let signer2NftTicket: PotNFTTicket;
+  let signer3NftTicket: PotNFTTicket;
+  let signer4NftTicket: PotNFTTicket;
   let signer1Weth: ERC20Token;
   let signer2Weth: ERC20Token;
   let signer3Weth: ERC20Token;
@@ -64,13 +67,16 @@ describe("NFTTicket", () => {
       mintStartDate: toEthDate(twoDaysFromNow),
       mintEndDate: toEthDate(threeDaysFromNow),
       mintPrice: ethers.constants.WeiPerEther.mul(10).div(1000),
+      wlMintStartDate: toEthDate(oneDayFromNow),
+      wlMintEndDate: toEthDate(twoDaysFromNow),
+      wlMintPrice: ethers.constants.WeiPerEther.mul(8).div(1000),
       maxMintAmountPlusOne: 11,
       redeemPrice: ethers.constants.WeiPerEther.mul(15).div(1000),
       maxSupply: 1000,
       active: false,
       paused: false,
     };
-    const NFTTicket = await ethers.getContractFactory("NFTTicket") as NFTTicket__factory;
+    const NFTTicket = await ethers.getContractFactory("PotNFTTicket") as PotNFTTicket__factory;
     const WETH = await ethers.getContractFactory("ERC20Token") as ERC20Token__factory;
     weth = await WETH.deploy(
       "Wrapped Ether",
@@ -516,6 +522,15 @@ describe("NFTTicket", () => {
     it("should reject if minting would exceed maxSupply after multiple successful mints", async () => {});
   });
 
+  describe("whitelist", async () => {
+    describe("updateWl", async () => {});
+    describe("accountWl", async () => {});
+    describe("wlMintPrice", async () => {});
+    describe("mintPrice", async () => {});
+    describe("totalMinted", async () => {});
+    describe("mintWl", async () => {});
+  });
+
   describe("integration tests", async () => {
     let paperPotMetadata: PaperPotMetadata;
     let paperPot: PaperPot;
@@ -561,6 +576,9 @@ describe("NFTTicket", () => {
           mintStartDate: toEthDate(twoDaysFromNow),
           mintEndDate: toEthDate(threeDaysFromNow),
           mintPrice: ethers.constants.WeiPerEther.mul(10).div(1000),
+          wlMintStartDate: toEthDate(oneDayFromNow),
+          wlMintEndDate: toEthDate(twoDaysFromNow),
+          wlMintPrice: ethers.constants.WeiPerEther.mul(8).div(1000),
           maxMintAmountPlusOne: 11,
           redeemPrice: ethers.constants.WeiPerEther.mul(15).div(1000),
           maxSupply: 1000,
