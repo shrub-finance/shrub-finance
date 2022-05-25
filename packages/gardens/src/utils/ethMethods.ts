@@ -209,6 +209,17 @@ export async function getWLMintPrice(
   return potTicketContract.wlMintPrice(tokenID);
 }
 
+export async function getTicketData(
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    provider
+  );
+  return potTicketContract.getTicketData(tokenID);
+}
+
 export async function mintWL(
   tokenID: ethers.BigNumberish,
   amount: ethers.BigNumberish,

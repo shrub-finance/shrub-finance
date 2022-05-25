@@ -53,6 +53,9 @@ import {
   getAllowance,
   approveToken,
   mintWL,
+  getTicketData,
+  toEthDate,
+  fromEthDate,
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
@@ -64,6 +67,17 @@ const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
 import { BsArrowDownShort, FaTwitter } from "react-icons/all";
 import { OpenSeaIcon, PolygonIcon } from "../assets/Icons";
 import { BigNumber, ethers } from "ethers";
+import CountdownTimer from "../components/CountdownTimer";
+
+type Phase = "before" | "wlMint" | "break" | "mint" | "done";
+
+// Should show
+// TODO: How many tickets account owns (You have 2 tickets)
+// TODO: The contract addresses of WETH, NFTTicket, Pot
+// TODO: A timer for how long is left in the sale
+
+// Need to add
+// TODO: Should get the sale dates from the ticket and update state automatically based on them.
 
 function NFTTicketView(props: RouteComponentProps) {
   const { Zero } = ethers.constants;
@@ -76,6 +90,9 @@ function NFTTicketView(props: RouteComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isMinted, setIsMinted] = useState(false);
   const [wethAllowance, setWethAllowance] = useState(Zero);
+  const [ticketData, setTicketData] = useState<any>();
+  const [phase, setPhase] = useState<Phase>();
+  const [timerDate, setTimerDate] = useState<Date>();
   const [mintPrice, setMintPrice] = useState<BigNumber>();
   const [accountWlSlots, setAccountWlSlots] = useState(Zero);
   const toast = useToast();
@@ -236,11 +253,90 @@ function NFTTicketView(props: RouteComponentProps) {
     }
   }
 
-  // determine if approved
+  // run on init
   useEffect(() => {
-    if (!library || !account) {
+    if (!library) {
       return;
     }
+    async function init() {
+      console.log("getting ticketData");
+      const td = await getTicketData(NFT_TICKET_TOKEN_ID, library);
+      const {
+        contractAddress,
+        startDate,
+        endDate,
+        mintStartDate,
+        mintEndDate,
+        mintPrice,
+        wlMintStartDate,
+        wlMintEndDate,
+        wlMintPrice,
+        maxMintAmountPlusOne,
+        redeemPrice,
+        maxSupply,
+        active,
+        paused,
+      } = td;
+      setTicketData({
+        contractAddress,
+        startDate,
+        endDate,
+        mintStartDate,
+        mintEndDate,
+        mintPrice,
+        wlMintStartDate,
+        wlMintEndDate,
+        wlMintPrice,
+        maxMintAmountPlusOne,
+        redeemPrice,
+        maxSupply,
+        active,
+        paused,
+      });
+      console.log(td);
+    }
+    init().catch((err) => console.error(err));
+  }, [library]);
+
+  // useEffect to set the phase
+  useEffect(() => {
+    if (!ticketData) {
+      return;
+    }
+    const { mintStartDate, mintEndDate, wlMintStartDate, wlMintEndDate } =
+      ticketData;
+    const now = toEthDate(new Date());
+    const phase =
+      now < wlMintStartDate
+        ? "before"
+        : now < wlMintEndDate
+        ? "wlMint"
+        : now < mintStartDate
+        ? "break"
+        : now < mintEndDate
+        ? "mint"
+        : "done";
+    setPhase(phase);
+    setTimerDate(
+      phase === "before"
+        ? fromEthDate(wlMintStartDate)
+        : phase === "wlMint"
+        ? fromEthDate(wlMintEndDate)
+        : phase === "break"
+        ? fromEthDate(mintStartDate)
+        : phase === "mint"
+        ? fromEthDate(mintEndDate)
+        : undefined
+    );
+  }, [ticketData]);
+
+  // useEffect for account
+  useEffect(() => {
+    console.log(ticketData);
+    if (!library || !account || !ticketData) {
+      return;
+    }
+    console.log("running useEffect-account");
 
     async function accountAsync() {
       if (!account) {
@@ -319,7 +415,7 @@ function NFTTicketView(props: RouteComponentProps) {
     }
 
     accountAsync();
-  }, [account]);
+  }, [account, ticketData]);
 
   const noWlSpots = ethers.BigNumber.from(amountValue).gt(accountWlSlots);
   const noFunds =
@@ -544,6 +640,15 @@ function NFTTicketView(props: RouteComponentProps) {
           </Box>
         </Center>
       </Container>
+
+      {timerDate && (
+        <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 10, md: 20 }}>
+          <Text>{phase}</Text>
+          <Text fontSize={{ base: "20px", md: "30px" }} fontWeight="semibold">
+            <CountdownTimer targetDate={timerDate} />
+          </Text>
+        </Box>
+      )}
 
       {isMinted && nftImageId && (
         <Container
