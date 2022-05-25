@@ -2,7 +2,6 @@ import { BytesLike, ethers } from "ethers";
 import {
   SUSDToken__factory,
   PaperSeed__factory,
-  ShrubExchange__factory,
   SeedOrphanage__factory,
   PotNFTTicket__factory,
 } from "@shrub/contracts/types";
@@ -11,7 +10,6 @@ import { OrderCommon, UnsignedOrder } from "../types";
 import { useWeb3React } from "@web3-react/core";
 import { JsonRpcProvider } from "@ethersproject/providers";
 
-const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const PAPERSEED_CONTRACT_ADDRESS =
   process.env.REACT_APP_PAPERSEED_ADDRESS || "";
 const ORPHANAGE_CONTRACT_ADDRESS =
@@ -193,8 +191,6 @@ export async function accountWL(
   address: string,
   provider: JsonRpcProvider
 ) {
-  console.log(tokenID);
-  console.log(address);
   const potTicketContract = PotNFTTicket__factory.connect(
     NFT_TICKET_ADDRESS,
     provider
@@ -211,19 +207,6 @@ export async function getWLMintPrice(
     provider
   );
   return potTicketContract.wlMintPrice(tokenID);
-}
-
-export async function getUserNonce(
-  address: string,
-  common: OrderCommon,
-  provider: JsonRpcProvider
-) {
-  const shrubContract = ShrubExchange__factory.connect(
-    SHRUB_CONTRACT_ADDRESS,
-    provider
-  );
-  const bigNonce = await shrubContract.getCurrentNonce(address, common);
-  return bigNonce.toNumber();
 }
 
 export function addressToLabel(address: string) {
@@ -277,4 +260,51 @@ export function formatTime(date: number | Date) {
 
 export function getBlockNumber(provider: JsonRpcProvider) {
   return provider.getBlockNumber();
+}
+
+export async function getAllowance(
+  tokenContractAddress: string,
+  spenderAddress: string,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const erc20Contract = SUSDToken__factory.connect(
+    tokenContractAddress,
+    signer
+  );
+  const signerAddress = await signer.getAddress();
+  return await erc20Contract.allowance(signerAddress, spenderAddress);
+}
+export async function approveToken(
+  tokenContractAddress: string,
+  amount: ethers.BigNumber,
+  spenderAddress: string,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const bigAmount = amount;
+  const erc20Contract = SUSDToken__factory.connect(
+    tokenContractAddress,
+    signer
+  );
+  const allowance = await getAllowance(
+    tokenContractAddress,
+    spenderAddress,
+    provider
+  );
+  const { bigBalance: ethBalance } = await getBigWalletBalance(
+    ethers.constants.AddressZero,
+    provider
+  );
+  if (ethBalance.eq(ethers.constants.Zero)) {
+    throw new Error("No test MATIC found. Get some from Polygon faucet.");
+  }
+
+  if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
+    throw new Error("Allowance is sufficient. You don't need to approve.");
+  }
+  return erc20Contract.approve(
+    spenderAddress,
+    ethers.constants.WeiPerEther.mul(1000000000)
+  );
 }

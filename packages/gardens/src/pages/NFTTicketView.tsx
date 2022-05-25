@@ -23,6 +23,11 @@ import {
   Spacer,
   Flex,
   useColorMode,
+  FormLabel,
+  NumberInput,
+  NumberInputField,
+  InputRightElement,
+  VStack,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import { Image } from "@chakra-ui/react";
@@ -43,24 +48,23 @@ import {
 } from "../components/TxMonitoring";
 import {
   accountWL,
-  claimNFT,
-  getChecksumAddress,
-  getTokenUri,
   getWLMintPrice,
-  getWalletBalance,
+  getBigWalletBalance,
+  getAllowance,
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
-import axios from "axios";
 const PAPERSEED_CONTRACT_ADDRESS =
   process.env.REACT_APP_PAPERSEED_ADDRESS || "";
 const NFT_TICKET_TOKEN_ID = process.env.REACT_APP_TICKET_TOKEN_ID || "";
+const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
 
-import { FaTwitter } from "react-icons/all";
-import { OpenSeaIcon } from "../assets/Icons";
-import { ethers } from "ethers";
+import { BsArrowDownShort, FaTwitter } from "react-icons/all";
+import { OpenSeaIcon, PolygonIcon } from "../assets/Icons";
+import { BigNumber, ethers } from "ethers";
 
 function NFTTicketView(props: RouteComponentProps) {
+  const { Zero } = ethers.constants;
   const WETHAddress = process.env.REACT_APP_WETH_TOKEN_ADDRESS || "";
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
@@ -69,6 +73,9 @@ function NFTTicketView(props: RouteComponentProps) {
   const [activeHash, setActiveHash] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [isMinted, setIsMinted] = useState(false);
+  const [wethAllowance, setWethAllowance] = useState(Zero);
+  const [mintPrice, setMintPrice] = useState<BigNumber>();
+  const [accountWlSlots, setAccountWlSlots] = useState(Zero);
   const toast = useToast();
   const tradingBtnColor = useColorModeValue("sprout", "teal");
   const { colorMode } = useColorMode();
@@ -85,7 +92,7 @@ function NFTTicketView(props: RouteComponentProps) {
   const [nftImageId, setNftImageId] = useState("");
   const [nftTitle, setNftTitle] = useState("");
   const [tokenId, setTokenId] = useState(0);
-  const [walletTokenBalance, setWalletTokenBalance] = useState("");
+  const [walletTokenBalance, setWalletTokenBalance] = useState<BigNumber>();
   const [approving, setApproving] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
 
@@ -99,6 +106,11 @@ function NFTTicketView(props: RouteComponentProps) {
 
   const nftImageLink = `https://ipfs.io/ipfs/${nftImageId}`;
   const openSeaLink = `https://opensea.io/assets/matic/${PAPERSEED_CONTRACT_ADDRESS}/${tokenId}`;
+
+  const bgColor = useColorModeValue("gray.100", "blackAlpha.400");
+  const format = (val: string) => val;
+  const [amountValue, setAmountValue] = useState("1");
+  const invalidEntry = Number(amountValue) < 0 || isNaN(Number(amountValue));
 
   async function handleMintNFT() {
     setLocalError("");
@@ -145,39 +157,95 @@ function NFTTicketView(props: RouteComponentProps) {
 
   // determine if approved
   useEffect(() => {
-    if (!library) {
+    if (!library || !account) {
       return;
     }
-    async function handleApprove() {
-      await setTimeout(() => Promise.resolve(), 50);
-      setWalletTokenBalance("-");
 
+    async function accountAsync() {
+      if (!account) {
+        return;
+      }
+
+      // Check if account has whitelists
+      console.log("checking whitelist");
       try {
-        const allowance = await getWLMintPrice(
+        const aWlSlots = await accountWL(
+          ethers.BigNumber.from(NFT_TICKET_TOKEN_ID),
+          account,
+          library
+        );
+        console.log(aWlSlots);
+        console.log(aWlSlots.toNumber());
+        setAccountWlSlots(aWlSlots);
+        if (aWlSlots.eq(Zero)) {
+          return;
+        }
+      } catch (e: any) {
+        setIsLoading(false);
+        handleErrorMessages({ err: e });
+      }
+
+      // Check the minting price
+      console.log("checking mint price");
+      let wlMintPrice;
+      try {
+        wlMintPrice = await getWLMintPrice(
           ethers.BigNumber.from(NFT_TICKET_TOKEN_ID),
           library
         );
-        console.log(allowance);
-        if (allowance.gt(ethers.BigNumber.from(0))) {
-          setIsApproved(true);
-        } else {
-          setIsApproved(false);
+        setMintPrice(wlMintPrice);
+        // if (allowance.gt(ethers.BigNumber.from(0))) {
+        //   setIsApproved(true);
+        // } else {
+        //   setIsApproved(false);
+        // }
+      } catch (e: any) {
+        handleErrorMessages(e);
+        console.error(e);
+        return;
+      }
+
+      // Check the wallet balance
+      console.log("checking balance");
+      try {
+        const balanceObj = await getBigWalletBalance(WETHAddress, library);
+        const { bigBalance } = balanceObj;
+        // const balance = await getWalletBalance(account, library);
+        setWalletTokenBalance(bigBalance);
+        if (bigBalance.lt(wlMintPrice)) {
+          // TODO: Show user that balance is insufficient
         }
       } catch (e: any) {
         handleErrorMessages(e);
         console.error(e);
+        return;
       }
+
+      // Check if approved for the balance amount
+      console.log("checking approved");
       try {
-        const balance = await getWalletBalance(account, library);
-        setWalletTokenBalance(balance);
+        const allowance = await getAllowance(
+          WETHAddress,
+          NFT_TICKET_ADDRESS,
+          library
+        );
+        setWethAllowance(allowance);
       } catch (e: any) {
         handleErrorMessages(e);
         console.error(e);
+        return;
       }
     }
 
-    handleApprove();
+    accountAsync();
   }, [account]);
+
+  const noWlSpots = ethers.BigNumber.from(amountValue).gt(accountWlSlots);
+  const noFunds =
+    walletTokenBalance &&
+    mintPrice &&
+    walletTokenBalance.lt(mintPrice.mul(amountValue));
+  const noAllowance = mintPrice && wethAllowance.lt(mintPrice.mul(amountValue));
 
   return (
     <>
@@ -202,6 +270,7 @@ function NFTTicketView(props: RouteComponentProps) {
         <Center mt={10}>
           <Box mb={{ base: 6, md: 10 }}>
             <Heading
+              textAlign={"center"}
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
               bgGradient="gold.100"
@@ -233,6 +302,109 @@ function NFTTicketView(props: RouteComponentProps) {
             <Text textStyle={"description"} textAlign="center">
               Tickets are tradble NFTs and can be sold on secondary markets.
             </Text>
+            <Text textStyle={"description"} textAlign="center">
+              You are eligible to mint {accountWlSlots.toNumber()} tickets.
+            </Text>
+            <Text textStyle={"description"} textAlign="center">
+              Mint price per ticket:{" "}
+              {mintPrice ? ethers.utils.formatEther(mintPrice) : "-"} WETH
+            </Text>
+            <VStack>
+              <Box>
+                <Center>
+                  <FormLabel
+                    fontSize={"sm"}
+                    color={"gray.500"}
+                    fontWeight={"medium"}
+                  >
+                    Quantity
+                  </FormLabel>
+                </Center>
+                <NumberInput
+                  isInvalid={invalidEntry}
+                  onChange={(valueString) => {
+                    const [integerPart, decimalPart] = valueString.split(".");
+                    if (valueString === ".") {
+                      setAmountValue("0.");
+                      return;
+                    }
+                    if (decimalPart && decimalPart.length > 6) {
+                      return;
+                    }
+                    if (integerPart && integerPart.length > 6) {
+                      return;
+                    }
+                    if (valueString === "00") {
+                      return;
+                    }
+                    if (isNaN(Number(valueString))) {
+                      return;
+                    }
+                    if (
+                      Number(valueString) !==
+                      Math.round(Number(valueString) * 1e6) / 1e6
+                    ) {
+                      setAmountValue(Number(valueString).toFixed(6));
+                      return;
+                    }
+                    setAmountValue(valueString);
+                  }}
+                  value={format(amountValue)}
+                  size="lg"
+                >
+                  <NumberInputField
+                    h="6rem"
+                    borderRadius="3xl"
+                    shadow="sm"
+                    fontWeight="medium"
+                    fontSize="2xl"
+                  />
+                  <InputRightElement
+                    pointerEvents="none"
+                    p={14}
+                    children={
+                      <FormLabel
+                        htmlFor="amount"
+                        color="gray.500"
+                        fontWeight="medium"
+                        minW={"100"}
+                      >
+                        tickets
+                      </FormLabel>
+                    }
+                  />
+                </NumberInput>
+              </Box>
+              <Box>
+                <Center>
+                  <FormLabel
+                    fontSize={"sm"}
+                    color={"gray.500"}
+                    fontWeight={"medium"}
+                  >
+                    Total
+                  </FormLabel>
+                </Center>
+                <Box
+                  bg={bgColor}
+                  borderRadius="3xl"
+                  fontWeight="medium"
+                  fontSize="2xl"
+                  p={"1.813rem"}
+                >
+                  {invalidEntry
+                    ? "?"
+                    : format(
+                        mintPrice
+                          ? ethers.utils.formatEther(
+                              mintPrice.mul(Number(amountValue))
+                            )
+                          : "-"
+                      )}{" "}
+                  WETH
+                </Box>
+              </Box>
+            </VStack>
             {!isMinted && !activeHash && (
               <Text
                 mt="3"
@@ -260,6 +432,7 @@ function NFTTicketView(props: RouteComponentProps) {
                   variant="solid"
                   rounded="2xl"
                   isLoading={isLoading}
+                  isDisabled={Number(amountValue) <= 0 || noWlSpots || noFunds}
                   size="lg"
                   px={["50", "70", "90", "90"]}
                   fontSize="25px"
@@ -267,14 +440,23 @@ function NFTTicketView(props: RouteComponentProps) {
                   borderRadius="full"
                   _hover={{ transform: "translateY(-2px)" }}
                   bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                  loadingText="Minting..."
+                  loadingText={noAllowance ? "Approving..." : "Minting..."}
                 >
-                  {account
-                    ? "Mint Ticket"
-                    : !!web3Error &&
-                      getErrorMessage(web3Error).title === "Wrong Network"
-                    ? "Connect to Polygon"
-                    : "Connect Wallet"}
+                  {
+                    // If no account then Wrong Network and Connect Wallet
+                    !account
+                      ? !!web3Error &&
+                        getErrorMessage(web3Error).title === "Wrong Network"
+                        ? "Connect to Polygon"
+                        : "Connect Wallet"
+                      : noWlSpots
+                      ? `Quantity above allowed (max ${accountWlSlots.toString()})`
+                      : noFunds
+                      ? "Insufficient funds"
+                      : noAllowance
+                      ? "Needs Approval"
+                      : "Mint Ticket"
+                  }
                 </Button>
               )}
             </Center>
