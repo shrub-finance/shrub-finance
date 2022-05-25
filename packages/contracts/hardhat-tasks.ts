@@ -130,8 +130,47 @@ task("sendSeed", "send a seed from the owner contract to an address")
     console.log(tx.hash);
   });
 
-// task("activateNFTTicket", "set the active state of an NFTTicket")
-//   .addParam()
+task("getTicketData", "gets the settings for a NFTTicket")
+  .addParam("tokenId", "tokenId to change active state for")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const [owner] = await ethers.getSigners();
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+    const ticketData = await PotNFTTicket.getTicketData(tokenId);
+    console.log(ticketData);
+  });
+
+task("activateNFTTicket", "set the active state of an NFTTicket")
+  .addParam("tokenId", "tokenId to change active state for")
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .addParam("active", "whether to set active or not", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const active: boolean = taskArgs.active;
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateActive(tokenId, active);
+  })
+
+task("setPauseNFTTicket", "set the paused state of an NFTTicket")
+  .addParam("tokenId", "tokenId to change paused state for")
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .addParam("paused", "whether to set paused or not", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const paused: boolean = taskArgs.paused;
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updatePaused(tokenId, paused);
+  })
 
 task("initializeNFTTicket", "initialize a ticket for the pot sale")
   .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
@@ -149,7 +188,7 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
   .addParam('redeemPrice', 'redeem price for ticket in ETH / 1000')
   .addParam('maxSupply', 'max number of tickets to be minted during main mint')
   .addOptionalParam('active', 'state of active at initilization', false, types.boolean)
-  .addOptionalParam('paused', 'state of paused at initilization', true, types.boolean)
+  .addOptionalParam('paused', 'state of paused at initilization', false, types.boolean)
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
     const [owner, signer1] = await ethers.getSigners();

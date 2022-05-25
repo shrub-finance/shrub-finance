@@ -51,6 +51,8 @@ import {
   getWLMintPrice,
   getBigWalletBalance,
   getAllowance,
+  approveToken,
+  mintWL,
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
@@ -94,7 +96,6 @@ function NFTTicketView(props: RouteComponentProps) {
   const [tokenId, setTokenId] = useState(0);
   const [walletTokenBalance, setWalletTokenBalance] = useState<BigNumber>();
   const [approving, setApproving] = useState(false);
-  const [isApproved, setIsApproved] = useState(false);
 
   const {
     active,
@@ -112,6 +113,66 @@ function NFTTicketView(props: RouteComponentProps) {
   const [amountValue, setAmountValue] = useState("1");
   const invalidEntry = Number(amountValue) < 0 || isNaN(Number(amountValue));
 
+  async function handleApprove() {
+    const description = "Approving WETH";
+    try {
+      if (!mintPrice) {
+        throw new Error("mintPrice not found");
+      }
+      const tx = await approveToken(
+        WETHAddress,
+        ethers.BigNumber.from(amountValue).mul(mintPrice),
+        NFT_TICKET_ADDRESS,
+        library
+      );
+      pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+      setActiveHash(tx.hash);
+      try {
+        const receipt = await tx.wait();
+        const toastDescription = ToastDescription(
+          description,
+          receipt.transactionHash,
+          chainId
+        );
+        toast({
+          title: "Transaction Confirmed",
+          description: toastDescription,
+          status: "success",
+          isClosable: true,
+          variant: "solid",
+          position: "top-right",
+        });
+        pendingTxsDispatch({
+          type: "update",
+          txHash: receipt.transactionHash,
+          status: "confirmed",
+        });
+      } catch (e: any) {
+        const toastDescription = ToastDescription(
+          description,
+          e.transactionHash,
+          chainId
+        );
+        pendingTxsDispatch({
+          type: "update",
+          txHash: e.transactionHash || e.hash,
+          status: "failed",
+        });
+        toast({
+          title: "Transaction Failed",
+          description: toastDescription,
+          status: "error",
+          isClosable: true,
+          variant: "solid",
+          position: "top-right",
+        });
+      }
+    } catch (e: any) {
+      setApproving(false);
+      handleErrorMessages({ err: e });
+    }
+  }
+
   async function handleMintNFT() {
     setLocalError("");
     setIsMinted(false);
@@ -119,39 +180,59 @@ function NFTTicketView(props: RouteComponentProps) {
     setTokenId(0);
     setNftTitle("");
     setIsLoading(true);
-
+    const description = "Mint NFT Tickets";
     try {
-      if (!account) {
-        setIsLoading(false);
-        if (
-          !!web3Error &&
-          getErrorMessage(web3Error).title === "Wrong Network"
-        ) {
-          return addNetwork();
-        } else {
-          return onConnectWalletOpen();
-        }
+      if (!mintPrice) {
+        throw new Error("mintPrice not found");
       }
-      if (account) {
-        try {
-          const whitelists = await accountWL(
-            ethers.BigNumber.from(NFT_TICKET_TOKEN_ID),
-            account,
-            library
-          );
-
-          // if (whitelists) {
-          // } else {
-          // }
-        } catch (e: any) {
-          setIsLoading(false);
-          handleErrorMessages({ err: e });
-        }
-        return addNetwork();
+      console.log(NFT_TICKET_TOKEN_ID);
+      const tx = await mintWL(NFT_TICKET_TOKEN_ID, amountValue, library);
+      pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+      setActiveHash(tx.hash);
+      try {
+        const receipt = await tx.wait();
+        setIsMinted(true);
+        const toastDescription = ToastDescription(
+          description,
+          receipt.transactionHash,
+          chainId
+        );
+        toast({
+          title: "Transaction Confirmed",
+          description: toastDescription,
+          status: "success",
+          isClosable: true,
+          variant: "solid",
+          position: "top-right",
+        });
+        pendingTxsDispatch({
+          type: "update",
+          txHash: receipt.transactionHash,
+          status: "confirmed",
+        });
+      } catch (e: any) {
+        const toastDescription = ToastDescription(
+          description,
+          e.transactionHash,
+          chainId
+        );
+        pendingTxsDispatch({
+          type: "update",
+          txHash: e.transactionHash || e.hash,
+          status: "failed",
+        });
+        toast({
+          title: "Transaction Failed",
+          description: toastDescription,
+          status: "error",
+          isClosable: true,
+          variant: "solid",
+          position: "top-right",
+        });
       }
     } catch (e: any) {
+      setApproving(false);
       handleErrorMessages({ err: e });
-      console.error(e);
     }
   }
 
@@ -427,7 +508,7 @@ function NFTTicketView(props: RouteComponentProps) {
             <Center>
               {!isMinted && !activeHash && (
                 <Button
-                  onClick={handleMintNFT}
+                  onClick={noAllowance ? handleApprove : handleMintNFT}
                   colorScheme={tradingBtnColor}
                   variant="solid"
                   rounded="2xl"

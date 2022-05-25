@@ -209,6 +209,20 @@ export async function getWLMintPrice(
   return potTicketContract.wlMintPrice(tokenID);
 }
 
+export async function mintWL(
+  tokenID: ethers.BigNumberish,
+  amount: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    signer
+  );
+  return potTicketContract.mintWL(tokenID, amount);
+}
+
 export function addressToLabel(address: string) {
   if (address === ZERO_ADDRESS) {
     return "MATIC";
@@ -297,14 +311,11 @@ export async function approveToken(
     provider
   );
   if (ethBalance.eq(ethers.constants.Zero)) {
-    throw new Error("No test MATIC found. Get some from Polygon faucet.");
+    throw new Error("Insufficient MATIC balance");
   }
 
   if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
     throw new Error("Allowance is sufficient. You don't need to approve.");
   }
-  return erc20Contract.approve(
-    spenderAddress,
-    ethers.constants.WeiPerEther.mul(1000000000)
-  );
+  return erc20Contract.approve(spenderAddress, bigAmount);
 }
