@@ -146,7 +146,19 @@ function TopNav() {
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
               >
-                Docs <ExternalLinkIcon mx="2px" />
+                Docs
+              </Link>
+              <Link
+                href="https://discord.gg/KQ88Pc7q"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Report Issues
               </Link>
             </HStack>
           </HStack>
@@ -265,8 +277,21 @@ function TopNav() {
                 }}
               >
                 <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />
-                Docs <ExternalLinkIcon mx="2px" />
+                Docs
               </Link>
+              <Link
+                href="https://discord.gg/KQ88Pc7q"
+                isExternal
+                variant="ghost"
+                cursor="pointer"
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                _hover={{ textDecoration: "none", bgGradient: gradient }}
+              >
+                Report Issues
+              </Link>
+              s
               <Box
                 pr={5}
                 onClick={handleTestFaucetModalOpen}
