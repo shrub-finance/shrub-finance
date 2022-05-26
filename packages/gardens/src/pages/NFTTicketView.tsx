@@ -90,7 +90,7 @@ function NFTTicketView(props: RouteComponentProps) {
   const [isMinted, setIsMinted] = useState(false);
   const [wethAllowance, setWethAllowance] = useState(Zero);
   const [ticketData, setTicketData] = useState<any>();
-  const [phase, setPhase] = useState<Phase>("wlMint");
+  const [phase, setPhase] = useState<Phase>();
   const [timerDate, setTimerDate] = useState<Date>();
   const [mintPrice, setMintPrice] = useState<BigNumber>();
   const [accountTicketCount, setAccountTicketCount] = useState(Zero);
@@ -309,18 +309,17 @@ function NFTTicketView(props: RouteComponentProps) {
     const { mintStartDate, mintEndDate, wlMintStartDate, wlMintEndDate } =
       ticketData;
     const now = toEthDate(new Date());
-    // TODO: Uncomment - just for testing
-    // const phase =
-    //   now < wlMintStartDate
-    //     ? "before"
-    //     : now < wlMintEndDate
-    //     ? "wlMint"
-    //     : now < mintStartDate
-    //     ? "break"
-    //     : now < mintEndDate
-    //     ? "mint"
-    //     : "done";
-    // setPhase(phase);
+    const phase =
+      now < wlMintStartDate
+        ? "before"
+        : now < wlMintEndDate
+        ? "wlMint"
+        : now < mintStartDate
+        ? "break"
+        : now < mintEndDate
+        ? "mint"
+        : "done";
+    setPhase(phase);
     console.log(phase);
     const timerD =
       phase === "before"
@@ -403,11 +402,7 @@ function NFTTicketView(props: RouteComponentProps) {
       try {
         const balanceObj = await getBigWalletBalance(WETHAddress, library);
         const { bigBalance } = balanceObj;
-        // const balance = await getWalletBalance(account, library);
         setWalletTokenBalance(bigBalance);
-        if (bigBalance.lt(wlMintPrice)) {
-          // TODO: Show user that balance is insufficient
-        }
       } catch (e: any) {
         handleErrorMessages(e);
         console.error(e);
