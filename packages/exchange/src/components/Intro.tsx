@@ -93,14 +93,8 @@ function Intro(props: RouteComponentProps) {
   }
 
   return (
-    <Container
-      mt={isMobile ? 30 : 50}
-      p={5}
-      flex="1"
-      borderRadius="2xl"
-      maxW="container.lg"
-    >
-      <Center mt={10}>
+    <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+      <Center mt={isMobile ? 28 : 24}>
         <Box maxW="60rem" mb={8} textAlign={"center"}>
           <Heading
             fontSize={{ base: "30px", md: "50px" }}
@@ -140,7 +134,23 @@ function Intro(props: RouteComponentProps) {
           >
             Buy MATIC
           </Link>
-          <Box pt="46">
+          <Box pt="20" fontSize="14px" fontWeight="medium">
+            Trouble Buying?
+          </Box>
+
+          <Box pt="4">
+            <Link
+              href="https://support.sendwyre.com/hc/en-us/requests/new?ticket_form_id=1500000865321"
+              isExternal
+              cursor="pointer"
+              fontSize="13px"
+              fontWeight="medium"
+              textDecoration="underline"
+            >
+              Report to Wyre
+            </Link>
+          </Box>
+          <Box pt="6">
             <Link
               href="https://discord.gg/ntU4GhfEFP"
               isExternal
@@ -149,12 +159,14 @@ function Intro(props: RouteComponentProps) {
               fontWeight="medium"
               textDecoration="underline"
             >
-              Trouble buying? Report in Shrub Discord
+              Let us know
             </Link>
           </Box>
-          <Center>
-            <ExchangeLogo boxSize={{ base: "xs", md: "xl" }} />
-          </Center>
+          {!isMobile && (
+            <Center>
+              <ExchangeLogo boxSize={{ base: "xs", md: "xl" }} />
+            </Center>
+          )}
         </Box>
       </Center>
     </Container>
