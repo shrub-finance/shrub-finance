@@ -26,6 +26,9 @@ const { Shrub712 } = require("./utils/EIP712");
 function toEthDate(date: Date) {
   return Math.round(Number(date) / 1000);
 }
+function fromEthDate(ethDate: number) {
+  return new Date(ethDate * 1000);
+}
 
 const CHAINLINK_MATIC = "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada"; // Mumbai
 const CHAINLINK_ETH = "0x0715A7794a1dc8e42615F059dD6e406A6594651A"; // Mumbai
@@ -219,6 +222,26 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
       paused: paused,
     };
     await PotNFTTicket.initializeTicket(ticketData);
+  });
+
+task("updateNFTTicketMintStartData")
+  .addParam("tokenId", "tokenId of ticket to update")
+  .addParam("startDate", "new startDate")
+  .addOptionalParam("controller", "address of the controller of the ticket")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const [owner] = await ethers.getSigners();
+    const startDate = new Date(taskArgs.startDate);
+    if (startDate.toString() === 'Invalid Date') {
+      console.log('invalid date');
+      return;
+    }
+    const ethStartDate = toEthDate(startDate);
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateMintStartDate(tokenId, ethStartDate);
   });
 
 task("updateNFTTicketWL")

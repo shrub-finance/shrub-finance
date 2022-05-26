@@ -56,6 +56,8 @@ import {
   getTicketData,
   toEthDate,
   fromEthDate,
+  mint,
+  balanceOfErc1155,
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
@@ -71,13 +73,10 @@ import CountdownTimer from "../components/CountdownTimer";
 
 type Phase = "before" | "wlMint" | "break" | "mint" | "done";
 
-// Should show
-// TODO: How many tickets account owns (You have 2 tickets)
-// TODO: The contract addresses of WETH, NFTTicket, Pot
-// TODO: A timer for how long is left in the sale
-
-// Need to add
-// TODO: Should get the sale dates from the ticket and update state automatically based on them.
+function sIfMany(n: ethers.BigNumberish) {
+  const bigN = ethers.BigNumber.from(n);
+  return bigN.eq(1) ? "" : "s";
+}
 
 function NFTTicketView(props: RouteComponentProps) {
   const { Zero } = ethers.constants;
@@ -91,9 +90,10 @@ function NFTTicketView(props: RouteComponentProps) {
   const [isMinted, setIsMinted] = useState(false);
   const [wethAllowance, setWethAllowance] = useState(Zero);
   const [ticketData, setTicketData] = useState<any>();
-  const [phase, setPhase] = useState<Phase>();
+  const [phase, setPhase] = useState<Phase>("wlMint");
   const [timerDate, setTimerDate] = useState<Date>();
   const [mintPrice, setMintPrice] = useState<BigNumber>();
+  const [accountTicketCount, setAccountTicketCount] = useState(Zero);
   const [accountWlSlots, setAccountWlSlots] = useState(Zero);
   const toast = useToast();
   const tradingBtnColor = useColorModeValue("sprout", "teal");
@@ -203,7 +203,10 @@ function NFTTicketView(props: RouteComponentProps) {
         throw new Error("mintPrice not found");
       }
       console.log(NFT_TICKET_TOKEN_ID);
-      const tx = await mintWL(NFT_TICKET_TOKEN_ID, amountValue, library);
+      const tx =
+        phase === "wlMint"
+          ? await mintWL(NFT_TICKET_TOKEN_ID, amountValue, library)
+          : await mint(NFT_TICKET_TOKEN_ID, amountValue, library);
       pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
       setActiveHash(tx.hash);
       try {
@@ -306,18 +309,20 @@ function NFTTicketView(props: RouteComponentProps) {
     const { mintStartDate, mintEndDate, wlMintStartDate, wlMintEndDate } =
       ticketData;
     const now = toEthDate(new Date());
-    const phase =
-      now < wlMintStartDate
-        ? "before"
-        : now < wlMintEndDate
-        ? "wlMint"
-        : now < mintStartDate
-        ? "break"
-        : now < mintEndDate
-        ? "mint"
-        : "done";
-    setPhase(phase);
-    setTimerDate(
+    // TODO: Uncomment - just for testing
+    // const phase =
+    //   now < wlMintStartDate
+    //     ? "before"
+    //     : now < wlMintEndDate
+    //     ? "wlMint"
+    //     : now < mintStartDate
+    //     ? "break"
+    //     : now < mintEndDate
+    //     ? "mint"
+    //     : "done";
+    // setPhase(phase);
+    console.log(phase);
+    const timerD =
       phase === "before"
         ? fromEthDate(wlMintStartDate)
         : phase === "wlMint"
@@ -326,8 +331,9 @@ function NFTTicketView(props: RouteComponentProps) {
         ? fromEthDate(mintStartDate)
         : phase === "mint"
         ? fromEthDate(mintEndDate)
-        : undefined
-    );
+        : undefined;
+    setTimerDate(timerD);
+    console.log(toEthDate(timerD || new Date()));
   }, [ticketData]);
 
   // useEffect for account
@@ -341,6 +347,19 @@ function NFTTicketView(props: RouteComponentProps) {
     async function accountAsync() {
       if (!account) {
         return;
+      }
+      // Check if account has tickets
+      console.log("checking ticket count");
+      try {
+        const ticketCount = await balanceOfErc1155(
+          NFT_TICKET_ADDRESS,
+          NFT_TICKET_TOKEN_ID,
+          library
+        );
+        setAccountTicketCount(ticketCount);
+      } catch (e) {
+        console.error(e);
+        // Continue along if this fails - it does not affect the rest of the chain
       }
 
       // Check if account has whitelists
@@ -370,12 +389,9 @@ function NFTTicketView(props: RouteComponentProps) {
           ethers.BigNumber.from(NFT_TICKET_TOKEN_ID),
           library
         );
-        setMintPrice(wlMintPrice);
-        // if (allowance.gt(ethers.BigNumber.from(0))) {
-        //   setIsApproved(true);
-        // } else {
-        //   setIsApproved(false);
-        // }
+        setMintPrice(
+          phase === "wlMint" ? ticketData.wlMintPrice : ticketData.mintPrice
+        );
       } catch (e: any) {
         handleErrorMessages(e);
         console.error(e);
@@ -417,12 +433,21 @@ function NFTTicketView(props: RouteComponentProps) {
     accountAsync();
   }, [account, ticketData]);
 
-  const noWlSpots = ethers.BigNumber.from(amountValue).gt(accountWlSlots);
+  const noWlSpots =
+    phase === "wlMint" &&
+    ethers.BigNumber.from(amountValue || 0).gt(accountWlSlots);
+  const tooLarge =
+    phase === "mint" &&
+    ticketData &&
+    ethers.BigNumber.from(amountValue || 0).gt(
+      ticketData.maxMintAmountPlusOne - 1
+    );
   const noFunds =
     walletTokenBalance &&
     mintPrice &&
-    walletTokenBalance.lt(mintPrice.mul(amountValue));
-  const noAllowance = mintPrice && wethAllowance.lt(mintPrice.mul(amountValue));
+    walletTokenBalance.lt(mintPrice.mul(amountValue || 0));
+  const noAllowance =
+    mintPrice && wethAllowance.lt(mintPrice.mul(amountValue || 0));
 
   return (
     <>
@@ -470,8 +495,8 @@ function NFTTicketView(props: RouteComponentProps) {
               Sale
             </Heading>
             <Text textStyle={"description"} textAlign="center">
-              All tickets will be redeemable for a pot for up to a week after
-              the public sale.
+              All tickets will be redeemable for a Paper Gardens pot for up to a
+              week after the public sale.
             </Text>
             <Text textStyle={"description"} textAlign="center">
               Redemption price for the tickets will be 0.015 ETH.{" "}
@@ -480,109 +505,133 @@ function NFTTicketView(props: RouteComponentProps) {
               Tickets are tradble NFTs and can be sold on secondary markets.
             </Text>
             <Text textStyle={"description"} textAlign="center">
-              You are eligible to mint {accountWlSlots.toNumber()} tickets.
+              You currently have {accountTicketCount.toString()} ticket
+              {sIfMany(accountTicketCount)}.
             </Text>
-            <Text textStyle={"description"} textAlign="center">
-              Mint price per ticket:{" "}
-              {mintPrice ? ethers.utils.formatEther(mintPrice) : "-"} WETH
-            </Text>
-            <VStack>
-              <Box>
-                <Center>
-                  <FormLabel
-                    fontSize={"sm"}
-                    color={"gray.500"}
-                    fontWeight={"medium"}
+            {["before", "wlMint"].includes(phase || "") && (
+              <Text textStyle={"description"} textAlign="center">
+                You are eligible to mint {accountWlSlots.toNumber()} ticket
+                {sIfMany(accountWlSlots)}.
+              </Text>
+            )}
+            {["before", "wlMint"].includes(phase || "") && (
+              <Text textStyle={"description"} textAlign="center">
+                Mint price per ticket:{" "}
+                {ticketData
+                  ? ethers.utils.formatEther(ticketData.wlMintPrice)
+                  : "-"}{" "}
+                WETH (WL discount presale)
+              </Text>
+            )}
+            {["before", "break", "mint", "done"].includes(phase || "") && (
+              <Text textStyle={"description"} textAlign="center">
+                Mint price per ticket:{" "}
+                {ticketData
+                  ? ethers.utils.formatEther(ticketData.mintPrice)
+                  : "-"}{" "}
+                WETH (public presale)
+              </Text>
+            )}
+            {/*Input boxes*/}
+            {["wlMint", "mint"].includes(phase || "") && (
+              <VStack>
+                <Box>
+                  <Center>
+                    <FormLabel
+                      fontSize={"sm"}
+                      color={"gray.500"}
+                      fontWeight={"medium"}
+                    >
+                      Quantity
+                    </FormLabel>
+                  </Center>
+                  <NumberInput
+                    isInvalid={invalidEntry}
+                    min={0}
+                    max={10}
+                    precision={0}
+                    onChange={(valueString) => {
+                      const [integerPart, decimalPart] = valueString.split(".");
+                      if (valueString.includes(".")) {
+                        setAmountValue(integerPart || "0");
+                        return;
+                      }
+                      if (integerPart && integerPart.length > 2) {
+                        return;
+                      }
+                      if (valueString === "00") {
+                        return;
+                      }
+                      if (isNaN(Number(valueString))) {
+                        return;
+                      }
+                      if (
+                        Number(valueString) !==
+                        Math.round(Number(valueString) * 1e6) / 1e6
+                      ) {
+                        setAmountValue(Number(valueString).toFixed(6));
+                        return;
+                      }
+                      setAmountValue(valueString);
+                    }}
+                    value={format(amountValue)}
+                    size="lg"
                   >
-                    Quantity
-                  </FormLabel>
-                </Center>
-                <NumberInput
-                  isInvalid={invalidEntry}
-                  onChange={(valueString) => {
-                    const [integerPart, decimalPart] = valueString.split(".");
-                    if (valueString === ".") {
-                      setAmountValue("0.");
-                      return;
-                    }
-                    if (decimalPart && decimalPart.length > 6) {
-                      return;
-                    }
-                    if (integerPart && integerPart.length > 6) {
-                      return;
-                    }
-                    if (valueString === "00") {
-                      return;
-                    }
-                    if (isNaN(Number(valueString))) {
-                      return;
-                    }
-                    if (
-                      Number(valueString) !==
-                      Math.round(Number(valueString) * 1e6) / 1e6
-                    ) {
-                      setAmountValue(Number(valueString).toFixed(6));
-                      return;
-                    }
-                    setAmountValue(valueString);
-                  }}
-                  value={format(amountValue)}
-                  size="lg"
-                >
-                  <NumberInputField
-                    h="6rem"
+                    <NumberInputField
+                      h="6rem"
+                      borderRadius="3xl"
+                      shadow="sm"
+                      fontWeight="medium"
+                      fontSize="2xl"
+                    />
+                    <InputRightElement
+                      pointerEvents="none"
+                      p={14}
+                      children={
+                        <FormLabel
+                          htmlFor="amount"
+                          color="gray.500"
+                          fontWeight="medium"
+                          minW={"100"}
+                        >
+                          tickets
+                        </FormLabel>
+                      }
+                    />
+                  </NumberInput>
+                </Box>
+                <Box>
+                  <Center>
+                    <FormLabel
+                      fontSize={"sm"}
+                      color={"gray.500"}
+                      fontWeight={"medium"}
+                    >
+                      Total
+                    </FormLabel>
+                  </Center>
+                  <Box
+                    bg={bgColor}
                     borderRadius="3xl"
-                    shadow="sm"
                     fontWeight="medium"
                     fontSize="2xl"
-                  />
-                  <InputRightElement
-                    pointerEvents="none"
-                    p={14}
-                    children={
-                      <FormLabel
-                        htmlFor="amount"
-                        color="gray.500"
-                        fontWeight="medium"
-                        minW={"100"}
-                      >
-                        tickets
-                      </FormLabel>
-                    }
-                  />
-                </NumberInput>
-              </Box>
-              <Box>
-                <Center>
-                  <FormLabel
-                    fontSize={"sm"}
-                    color={"gray.500"}
-                    fontWeight={"medium"}
+                    p={"1.813rem"}
                   >
-                    Total
-                  </FormLabel>
-                </Center>
-                <Box
-                  bg={bgColor}
-                  borderRadius="3xl"
-                  fontWeight="medium"
-                  fontSize="2xl"
-                  p={"1.813rem"}
-                >
-                  {invalidEntry
-                    ? "?"
-                    : format(
-                        mintPrice
-                          ? ethers.utils.formatEther(
-                              mintPrice.mul(Number(amountValue))
-                            )
-                          : "-"
-                      )}{" "}
-                  WETH
+                    {invalidEntry
+                      ? "?"
+                      : format(
+                          mintPrice
+                            ? ethers.utils.formatEther(
+                                mintPrice.mul(Number(amountValue))
+                              )
+                            : "-"
+                        )}{" "}
+                    WETH
+                  </Box>
                 </Box>
-              </Box>
-            </VStack>
-            {!isMinted && !activeHash && (
+              </VStack>
+            )}
+            {!activeHash && ["wlMint", "mint"].includes(phase || "") && (
               <Text
                 mt="3"
                 mb={{ base: "16px", md: "10", lg: "10" }}
@@ -601,42 +650,50 @@ function NFTTicketView(props: RouteComponentProps) {
                   : "Time to get your Shrub ticket. Let's go!"}
               </Text>
             )}
-            <Center>
-              {!isMinted && !activeHash && (
-                <Button
-                  onClick={noAllowance ? handleApprove : handleMintNFT}
-                  colorScheme={tradingBtnColor}
-                  variant="solid"
-                  rounded="2xl"
-                  isLoading={isLoading}
-                  isDisabled={Number(amountValue) <= 0 || noWlSpots || noFunds}
-                  size="lg"
-                  px={["50", "70", "90", "90"]}
-                  fontSize="25px"
-                  py={10}
-                  borderRadius="full"
-                  _hover={{ transform: "translateY(-2px)" }}
-                  bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                  loadingText={noAllowance ? "Approving..." : "Minting..."}
-                >
-                  {
-                    // If no account then Wrong Network and Connect Wallet
-                    !account
-                      ? !!web3Error &&
-                        getErrorMessage(web3Error).title === "Wrong Network"
-                        ? "Connect to Polygon"
-                        : "Connect Wallet"
-                      : noWlSpots
-                      ? `Quantity above allowed (max ${accountWlSlots.toString()})`
-                      : noFunds
-                      ? "Insufficient funds"
-                      : noAllowance
-                      ? "Needs Approval"
-                      : "Mint Ticket"
-                  }
-                </Button>
-              )}
-            </Center>
+            {["wlMint", "mint"].includes(phase || "") && (
+              <Center>
+                {!activeHash && (
+                  <Button
+                    onClick={noAllowance ? handleApprove : handleMintNFT}
+                    colorScheme={tradingBtnColor}
+                    variant="solid"
+                    rounded="2xl"
+                    isLoading={isLoading}
+                    isDisabled={
+                      Number(amountValue) <= 0 || noWlSpots || noFunds
+                    }
+                    size="lg"
+                    px={["50", "70", "90", "90"]}
+                    fontSize="25px"
+                    py={10}
+                    borderRadius="full"
+                    _hover={{ transform: "translateY(-2px)" }}
+                    bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                    loadingText={noAllowance ? "Approving..." : "Minting..."}
+                  >
+                    {
+                      // If no account then Wrong Network and Connect Wallet
+                      !account
+                        ? !!web3Error &&
+                          getErrorMessage(web3Error).title === "Wrong Network"
+                          ? "Connect to Polygon"
+                          : "Connect Wallet"
+                        : noWlSpots
+                        ? `Quantity above allowed (max ${accountWlSlots.toString()})`
+                        : tooLarge
+                        ? `Quantity above allowed (max ${(
+                            ticketData.maxMintAmountPlusOne - 1
+                          ).toString()})`
+                        : noFunds
+                        ? "Insufficient funds"
+                        : noAllowance
+                        ? "Needs Approval"
+                        : "Mint Ticket"
+                    }
+                  </Button>
+                )}
+              </Center>
+            )}
           </Box>
         </Center>
       </Container>
@@ -649,6 +706,13 @@ function NFTTicketView(props: RouteComponentProps) {
           </Text>
         </Box>
       )}
+      <Box>
+        <Text>NFT Ticket Address: {NFT_TICKET_ADDRESS}</Text>
+        <Text>
+          Paper Gardens Pot Address: {ticketData && ticketData.contractAddress}
+        </Text>
+        <Text>WETH Address: {WETHAddress}</Text>
+      </Box>
 
       {isMinted && nftImageId && (
         <Container

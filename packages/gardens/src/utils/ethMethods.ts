@@ -4,6 +4,7 @@ import {
   PaperSeed__factory,
   SeedOrphanage__factory,
   PotNFTTicket__factory,
+  ERC1155__factory,
 } from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import { OrderCommon, UnsignedOrder } from "../types";
@@ -226,12 +227,34 @@ export async function mintWL(
   provider: JsonRpcProvider
 ) {
   const signer = provider.getSigner();
-
   const potTicketContract = PotNFTTicket__factory.connect(
     NFT_TICKET_ADDRESS,
     signer
   );
   return potTicketContract.mintWL(tokenID, amount);
+}
+
+export async function mint(
+  tokenID: ethers.BigNumberish,
+  amount: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    signer
+  );
+  return potTicketContract.mint(tokenID, amount);
+}
+
+export async function balanceOfErc1155(
+  tokenContractAddress: string,
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const NFTContract = ERC1155__factory.connect(tokenContractAddress, provider);
+  const account = await getAddress(provider);
+  return NFTContract.balanceOf(account, tokenID);
 }
 
 export function addressToLabel(address: string) {
