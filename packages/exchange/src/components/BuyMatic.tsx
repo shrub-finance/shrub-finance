@@ -94,10 +94,12 @@ function BuyMatic() {
       <Button
         pr={5}
         fontSize={"md"}
-        variant={"link"}
+        variant={"solid"}
         fontWeight={"bold"}
         colorScheme={"green"}
+        rounded={"2xl"}
         onClick={wyreCheckout}
+        mr={"4"}
       >
         Buy MATIC
       </Button>
