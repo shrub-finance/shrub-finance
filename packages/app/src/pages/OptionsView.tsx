@@ -1,9 +1,18 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
+  Alert,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box,
   Button,
   Center,
   Container,
+  Divider,
   Flex,
   Heading,
   HStack,
@@ -18,6 +27,7 @@ import {
   Thead,
   Tr,
   useColorModeValue,
+  useDisclosure,
   useRadioGroup,
   useToast,
   Link,
@@ -31,8 +41,10 @@ import {
   Tab,
   TabList,
   Tabs,
+  VStack,
 } from "@chakra-ui/react";
 import OptionRow from "../components/OptionRow";
+import ProfitLossChart from "../components/ProfitLossChart";
 import {
   AppCommon,
   IndexedAppOrderSigned,
@@ -99,7 +111,9 @@ function OptionsView(props: RouteComponentProps) {
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const [localError, setLocalError] = useState("");
   const toast = useToast();
+  const ctaColor = useColorModeValue("sprout", "teal");
   const boxShadow = useColorModeValue("2xl", "2xl");
+  const bg = useColorModeValue("sprout", "teal");
   const backgroundColor = useColorModeValue("white", "dark.100");
   const [localOrderHistoryRows, setLocalOrderHistoryRows] = useState<
     JSX.Element[]
@@ -110,6 +124,12 @@ function OptionsView(props: RouteComponentProps) {
   const livePriceColor = useColorModeValue("green.500", "green.200");
   const selectorBg = useColorModeValue("white", "dark.100");
   const orderHistoryColor = useColorModeValue("gray.700", "gray.300");
+  const {
+    isOpen: isOpenConfirmDialog,
+    onOpen: onOpenConfirmDialog,
+    onClose: onCloseConfirmDialog,
+  } = useDisclosure();
+  const cancelRef = useRef();
 
   // TODO un-hardcode this
   const quoteAsset = process.env.REACT_APP_SMATIC_TOKEN_ADDRESS;
@@ -938,7 +958,10 @@ function OptionsView(props: RouteComponentProps) {
             </Center>
           </Flex>
         )}
+
+       
       </Container>
+    
     </>
   );
 }
