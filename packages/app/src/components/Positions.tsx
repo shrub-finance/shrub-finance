@@ -105,7 +105,7 @@ const POLL_INTERVAL = 1000; // 1 second polling interval
 
 function Positions() {
   const { pendingTxs } = useContext(TxContext);
-  const [chartDisplay,setChartDisplay]=useState(false);
+  const [chartDisplay, setChartDisplay] = useState(false);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const {
     active,
@@ -173,9 +173,9 @@ function Positions() {
   const SHRUB_CURRENCIES = ["SMATIC", "SUSD"];
   const btnBg = useColorModeValue("sprout", "teal");
   //chart variable
-  const [strickPrice,setStrikePrices]=useState();
-  const [optionTypeValue,setOptionTypeValue] = useState("");
-  const [quantity,setQuantity]=useState();
+  const [strickPrice, setStrikePrices] = useState();
+  const [optionTypeValue, setOptionTypeValue] = useState("");
+  const [quantity, setQuantity] = useState();
 
   const connectWalletTimeout = useRef<NodeJS.Timeout>();
 
@@ -265,7 +265,7 @@ function Positions() {
       shrubfolioStopPolling();
       setPolling(false);
     }
-    console.log("shrubfolioData",shrubfolioData)
+    console.log("shrubfolioData", shrubfolioData);
   }, [shrubfolioData, pendingTxsState]);
 
   // shrub balance display
@@ -331,6 +331,10 @@ function Positions() {
       return common;
     }
     for (const userOption of shrubfolioData.user.activeUserOptions) {
+      console.log(
+        "shrubfoliodtaa",
+        shrubfolioData.user.activeUserOptions[0].buyorders
+      );
       const orderStack = getOrderStack(userOption);
       const { balance, option, buyOrders, sellOrders } = userOption;
       const {
@@ -342,12 +346,13 @@ function Positions() {
         lastPrice,
         id: optionId,
       } = option;
+      const { pricePerContract } = buyOrders[0];
+      console.log("pricePerContract", buyOrders);
       const isExpired = expiryRaw < toEthDate(now);
       if (isExpired) {
         continue;
       }
-
-      const { symbol: baseAssetSymbol } = baseAsset;
+      const { symbol: baseAssetSymbol, id } = baseAsset;
       const { symbol: quoteAssetSymbol } = quoteAsset;
 
       const expiry = formatDate(expiryRaw);
@@ -442,15 +447,23 @@ function Positions() {
               )}
             </Td>
             <Td>
-            <Button
-                    colorScheme={btnBg}
-                    variant={"link"}
-                    size="sm"
-                   onClick={()=> handleChart(optionType,strike,amount,common)}
+              <Button
+                colorScheme={btnBg}
+                variant={"link"}
+                size="sm"
+                onClick={() =>
+                  handleChart(
+                    optionType,
+                    strike,
+                    amount,
+                    common,
+                    pricePerContract
+                  )
+                }
                 //  onClick={()=> onOpenChartModal()}
-                  >
-                    Chart
-                  </Button>
+              >
+                Chart
+              </Button>
             </Td>
           </Tr>
         );
@@ -511,7 +524,7 @@ function Positions() {
     }
     setOptionsRows(optionRow);
     setExpiredOptionsRows(expiredOptionRow);
-    console.log("expiredOptionRow",shrubfolioData)
+    console.log("expiredOptionRow", shrubfolioData);
   }, [shrubfolioData]);
 
   // determine if approved
@@ -658,21 +671,26 @@ function Positions() {
   }, [shrubBalance]);
 
   // handle chart data display
-  function handleChart(optionType:string,strickPrice:any,amount:any,common:any){
-  console.log(optionType,strickPrice);
-  console.log("amount",amount);
-  console.log("common",common);
-  
-  
-  setStrikePrices(strickPrice);
-  setQuantity(amount)
-  setOptionTypeValue(optionType);
-  //onOpenChart();
-  onOpenChartModal();
-  console.log(optionTypeValue);
-  console.log(shrubfolioData);
-}
+  function handleChart(
+    optionType: string,
+    strickPrice: any,
+    amount: any,
+    common: any,
+    pricePerContract: any
+  ) {
+    console.log(optionType, strickPrice);
+    console.log("amount", amount);
+    console.log("common", common);
+    console.log("pricePerContract", pricePerContract);
 
+    setStrikePrices(strickPrice);
+    setQuantity(amount);
+    setOptionTypeValue(optionType);
+    //onOpenChart();
+    onOpenChartModal();
+    console.log(optionTypeValue);
+    console.log(shrubfolioData);
+  }
 
   function handleWithdrawDepositModalClose() {
     setApproving(false);
@@ -1202,7 +1220,6 @@ function Positions() {
         isOpen={isOpenChartModal}
         size={isMobile ? "full" : "xs"}
         scrollBehavior={isMobile ? "inside" : "outside"}
-        
       >
         <ModalOverlay />
         <ModalContent borderRadius={isMobile ? "none" : "2xl"}>
@@ -1210,46 +1227,72 @@ function Positions() {
           <ModalCloseButton />
           <ModalBody>
             <Box>
-            <Flex minWidth='max-content' align='right' >
-            
-            <Box borderBottom={1}>
-              <VStack spacing={0}>
-              <Text fontWeight={"small"} fontSize={"sm"} letterSpacing={.1} > 
-            {optionTypeValue=='CALL' ? `BUY $${strickPrice}CALL` : `SELL $${strickPrice}PUT`}</Text>
-            <Text fontSize={"xs"} color="grey">x100 shares</Text>
-              </VStack> 
-           </Box>
-            <Spacer />
-            <Box>
-            <Text fontWeight={"small"} fontSize={"sm"} color="grey">{quantity}</Text>
-            </Box>
-          </Flex>
-          <Flex pt={5}  >
-          <Box borderBottom={1} >
-              <VStack spacing={0} >
-              <Text fontWeight={"small"} fontSize={"sm"} letterSpacing={.1} > 
-              Limit Cost</Text>
-            <Text fontSize={"xs"} color="green.600">Bid $1.00-Ask$1.5</Text>
-              </VStack> 
-           </Box>
-            <Spacer />
-            <Box>
-            <Text fontWeight={"small"} fontSize={"sm"} color="grey">1.2</Text>
-            </Box>
-          </Flex>
-          <Flex pt={5}  >
-          <Box borderBottom={1} >
-              <Text fontWeight={"small"} fontSize={"sm"} letterSpacing={.1} > 
-              Premimum Paid</Text>
-           </Box>
-            <Spacer />
-            <Box>
-            <Text fontWeight={"small"} fontSize={"sm"} color="grey">120</Text>
-            </Box>
-          </Flex>
-          <Box
+              <Flex minWidth="max-content" align="right">
+                <Box borderBottom={1}>
+                  <VStack spacing={0}>
+                    <Text
+                      fontWeight={"small"}
+                      fontSize={"sm"}
+                      letterSpacing={0.1}
+                    >
+                      {optionTypeValue == "CALL"
+                        ? `BUY $${strickPrice}CALL`
+                        : `SELL $${strickPrice}PUT`}
+                    </Text>
+                    <Text fontSize={"xs"} color="grey">
+                      x100 shares
+                    </Text>
+                  </VStack>
+                </Box>
+                <Spacer />
+                <Box>
+                  <Text fontWeight={"small"} fontSize={"sm"} color="grey">
+                    {quantity}
+                  </Text>
+                </Box>
+              </Flex>
+              <Flex pt={5}>
+                <Box borderBottom={1}>
+                  <VStack spacing={0}>
+                    <Text
+                      fontWeight={"small"}
+                      fontSize={"sm"}
+                      letterSpacing={0.1}
+                    >
+                      Limit Cost
+                    </Text>
+                    <Text fontSize={"xs"} color="green.600">
+                      Bid $1.00-Ask$1.5
+                    </Text>
+                  </VStack>
+                </Box>
+                <Spacer />
+                <Box>
+                  <Text fontWeight={"small"} fontSize={"sm"} color="grey">
+                    1.2
+                  </Text>
+                </Box>
+              </Flex>
+              <Flex pt={5}>
+                <Box borderBottom={1}>
+                  <Text
+                    fontWeight={"small"}
+                    fontSize={"sm"}
+                    letterSpacing={0.1}
+                  >
+                    Premimum Paid
+                  </Text>
+                </Box>
+                <Spacer />
+                <Box>
+                  <Text fontWeight={"small"} fontSize={"sm"} color="grey">
+                    120
+                  </Text>
+                </Box>
+              </Flex>
+              <Box
                 fontSize={"sm"}
-                bgColor="gray.700"
+                bgColor="dark.100"
                 mt={6}
                 p={"3"}
                 rounded={"lg"}
@@ -1258,15 +1301,16 @@ function Positions() {
                 letterSpacing={".02rem"}
                 width="100%"
               >
-             <ProfitLossChart strickRate={strickPrice} premimum={1.2} optionType={optionTypeValue}/>
+                <ProfitLossChart
+                  strickRate={strickPrice}
+                  premimum={1.2}
+                  optionType={optionTypeValue}
+                />
               </Box>
             </Box>
-         
-            
           </ModalBody>
-          
         </ModalContent>
-      </Modal>      
+      </Modal>
     </>
   );
 }

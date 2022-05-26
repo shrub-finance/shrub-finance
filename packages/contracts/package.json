@@ -46,8 +46,10 @@
     "base-64": "^1.0.0",
     "chai": "^4.3.6",
     "ethereum-waffle": "3.3.0",
+
     "ethers": "5.6.8",
     "hardhat": "2.8.0",
+
     "hardhat-abi-exporter": "2.6.1",
     "hardhat-deploy": "0.9.24",
     "hardhat-gas-reporter": "1.0.6",
