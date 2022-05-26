@@ -122,6 +122,7 @@ function Positions() {
   const [approving, setApproving] = useState(false);
   const { price: maticPrice } = usePriceFeed(CHAINLINK_MATIC);
   const [polling, setPolling] = useState(false);
+  const [contractPrice, setContractPrice] = useState();
   const [activeHash, setActiveHash] = useState<string>();
   const [optionsRows, setOptionsRows] = useState<JSX.Element[]>([
     <Tr key={"defaultOptionRow"} />,
@@ -265,7 +266,7 @@ function Positions() {
       shrubfolioStopPolling();
       setPolling(false);
     }
-    console.log("shrubfolioData", shrubfolioData);
+
   }, [shrubfolioData, pendingTxsState]);
 
   // shrub balance display
@@ -347,7 +348,7 @@ function Positions() {
         id: optionId,
       } = option;
       const { pricePerContract } = buyOrders[0];
-      console.log("pricePerContract", buyOrders);
+
       const isExpired = expiryRaw < toEthDate(now);
       if (isExpired) {
         continue;
@@ -452,13 +453,9 @@ function Positions() {
                 variant={"link"}
                 size="sm"
                 onClick={() =>
-                  handleChart(
-                    optionType,
-                    strike,
-                    amount,
-                    common,
-                    pricePerContract
-                  )
+
+                  handleChart(optionType, strike, amount, pricePerContract)
+
                 }
                 //  onClick={()=> onOpenChartModal()}
               >
@@ -524,7 +521,6 @@ function Positions() {
     }
     setOptionsRows(optionRow);
     setExpiredOptionsRows(expiredOptionRow);
-    console.log("expiredOptionRow", shrubfolioData);
   }, [shrubfolioData]);
 
   // determine if approved
@@ -675,21 +671,15 @@ function Positions() {
     optionType: string,
     strickPrice: any,
     amount: any,
-    common: any,
+
     pricePerContract: any
   ) {
-    console.log(optionType, strickPrice);
-    console.log("amount", amount);
-    console.log("common", common);
-    console.log("pricePerContract", pricePerContract);
-
+    setContractPrice(pricePerContract);
     setStrikePrices(strickPrice);
     setQuantity(amount);
     setOptionTypeValue(optionType);
-    //onOpenChart();
     onOpenChartModal();
-    console.log(optionTypeValue);
-    console.log(shrubfolioData);
+
   }
 
   function handleWithdrawDepositModalClose() {
@@ -1269,7 +1259,9 @@ function Positions() {
                 <Spacer />
                 <Box>
                   <Text fontWeight={"small"} fontSize={"sm"} color="grey">
-                    1.2
+
+                    {contractPrice}
+
                   </Text>
                 </Box>
               </Flex>
@@ -1286,13 +1278,17 @@ function Positions() {
                 <Spacer />
                 <Box>
                   <Text fontWeight={"small"} fontSize={"sm"} color="grey">
-                    120
+
+                    {0.0002 * 100}
+
                   </Text>
                 </Box>
               </Flex>
               <Box
                 fontSize={"sm"}
-                bgColor="dark.100"
+
+                bgColor="gray.800"
+
                 mt={6}
                 p={"3"}
                 rounded={"lg"}
@@ -1303,7 +1299,9 @@ function Positions() {
               >
                 <ProfitLossChart
                   strickRate={strickPrice}
-                  premimum={1.2}
+
+                  premium={contractPrice}
+
                   optionType={optionTypeValue}
                 />
               </Box>

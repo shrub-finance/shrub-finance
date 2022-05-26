@@ -22,12 +22,14 @@ import {
 
 function ProfitLossChart(props: any) {
   const strickValue = props.strickRate;
-  const premimu = props.premimum;
+  const premium = props.premium;
   const cancelRef = useRef();
-  const LimitPrice = 1.54;
-  const maxProfit = (strickValue - premimu) * 100;
-  const loss = premimu * 100;
+  const intervalRef = useRef(0);
+  const maxProfit = Number(((strickValue - premium) * 100).toFixed(2));
+  const loss = Number((premium * 100).toFixed(2));
   const [buttonDisable, setButtonDisable] = useState(false);
+  const [showChart, setShowChart] = useState(false);
+
   const {
     isOpen: isOpenChart,
     onOpen: onOpenChart,
@@ -36,81 +38,93 @@ function ProfitLossChart(props: any) {
   const btnBg = useColorModeValue("sprout", "teal");
   const divider = props.optionType === "CALL" ? 10 : 30;
   const maxCost = props.optionType === "CALL" ? loss : maxProfit;
-  const scaleForlosstoZero = Number((maxCost / divider).toFixed(0));
-  const [showChart, setshowChart] = useState(false);
-  const valueXscale = Number((premimu / 10).toFixed(2));
+  const scaleForlosstoZero = Number((maxCost / divider).toFixed(4));
+  const valueXscale = Number((premium / 10).toFixed(2));
   const [statusOption, setStatusOption] = useState(maxCost);
   const lineupdate = useRef(0);
-  let breakEven;
+  let breakEven: number;
   let yScale = [6, 4, 2, 0, -2, -2, -2];
-  breakEven = Number(strickValue) - Number(premimu);
-  const scaleForLoss = Number((loss / 10).toFixed(0));
+  breakEven = Number(strickValue) - Number(premium);
+  const scaleForLoss = Number((loss / 10).toFixed(4));
   const counterInitial = props.optionType === "CALL" ? loss : maxProfit;
   const [counter, setCounter] = useState(counterInitial);
   if (props.optionType === "CALL") {
-    breakEven = Number(strickValue) + Number(premimu);
+    breakEven = Number(strickValue) + Number(premium);
     yScale = [-2, -2, -2, 0, 2, 4, 6];
   }
   const xScale: number[] = [
-    breakEven - 3,
-    breakEven - 2,
-    breakEven - 1,
-    breakEven,
-    breakEven + 1,
-    breakEven + 2,
-    breakEven + 3,
+    Number((breakEven - 3).toFixed(4)),
+    Number((breakEven - 2).toFixed(4)),
+    Number((breakEven - 1).toFixed(4)),
+    Number(breakEven.toFixed(4)),
+    Number((breakEven + 1).toFixed(4)),
+    Number((breakEven + 2).toFixed(4)),
+    Number((breakEven + 3).toFixed(4)),
   ];
-  const initRef = props.optionType === "CALL" ? xScale[1] : xScale[0];
+  const initRef =
+    props.optionType === "CALL"
+      ? Number(xScale[1].toFixed(4))
+      : Number(xScale[0].toFixed(4));
   const [referenceLine, setReferenceLine] = useState(initRef);
+  console.log("initRef", initRef);
   const onClickHandle = () => {
-    setshowChart(true);
+    setShowChart(true);
     setButtonDisable(true);
     const setIntervalTime = window.setInterval(() => {
       intervalRef.current = setIntervalTime;
       setReferenceLine((preValue) => preValue + 0.1);
-
       if (props.optionType === "CALL") {
-        console.log("CALL");
         if (
-          Number(lineupdate.current.toFixed(1)) >= xScale[2] &&
-          Number(lineupdate.current.toFixed(1)) <= xScale[3]
+          Number(lineupdate.current.toFixed(4)) >= xScale[2] &&
+          Number(lineupdate.current.toFixed(4)) <= xScale[3] &&
+          counter >= 0
         ) {
           setCounter((preValue) => preValue - scaleForlosstoZero);
         }
-        if (Number(lineupdate.current.toFixed(1)) > xScale[3]) {
-          setCounter((preValue) => preValue + scaleForlosstoZero);
+        if (Number(lineupdate.current.toFixed(4)) > xScale[3]) {
+          setCounter((preValue) => {
+            let valueDucate = Number(scaleForlosstoZero.toFixed(2));
+            if (valueDucate === 0) {
+              valueDucate = 1;
+            }
+
+            return Number(preValue + valueDucate);
+          });
         }
       } else {
-        if (Number(lineupdate.current.toFixed(1)) <= xScale[3]) {
-          console.log("put");
+        if (Number(lineupdate.current.toFixed(4)) <= xScale[3]) {
+          if (Number(lineupdate.current.toFixed(4)) === xScale[3]) {
+            setCounter((preValue) => 0);
+          }
           setCounter((preValue) => preValue - scaleForlosstoZero);
         }
-        if (
-          Number(lineupdate.current.toFixed(1)) >= xScale[3] &&
-          counter <= loss
-        ) {
-          console.log("loss", loss);
+        if (Number(lineupdate.current.toFixed(4)) > xScale[3]) {
           setCounter((preValue) => preValue + scaleForLoss);
         }
       }
 
-      if (lineupdate.current >= xScale[5]) {
-        setshowChart(false);
-        clearInterval(intervalRef.current);
-        setButtonDisable(false);
-        setReferenceLine(initRef);
-        lineupdate.current = initRef;
-        setCounter(counterInitial);
-        console.log("lineupdate", lineupdate.current);
+      if (props.optionType === "CALL") {
+        if (lineupdate.current >= xScale[5]) {
+          clearInterval(intervalRef.current);
+          setShowChart(false);
+          setButtonDisable(false);
+          setReferenceLine(initRef);
+          lineupdate.current = initRef;
+          setCounter(counterInitial);
+        }
+      } else {
+        if (lineupdate.current >= xScale[4]) {
+          clearInterval(intervalRef.current);
+          setShowChart(false);
+          setButtonDisable(false);
+          setReferenceLine(initRef);
+          lineupdate.current = initRef;
+          setCounter(counterInitial);
+        }
       }
     }, 100);
   };
-  const intervalRef = useRef(0);
 
-  useEffect(() => {
-    lineupdate.current = referenceLine;
-    console.log(lineupdate.current, initRef);
-  }, [referenceLine]);
 
   const data = [
     {
@@ -158,6 +172,11 @@ function ProfitLossChart(props: any) {
   };
 
   const off = gradientOffset();
+
+  useEffect(() => {
+    lineupdate.current = referenceLine;
+  }, [referenceLine]);
+
   return (
     <>
       <Box>
@@ -170,7 +189,9 @@ function ProfitLossChart(props: any) {
                     Max Profit
                   </Text>
                   <Text color="white" fontSize={10} letterSpacing={0.1}>
-                    BreackEven
+
+                    BreakEven
+
                   </Text>
                   <Text color="white" fontSize={10} letterSpacing={0.1}>
                     Max Loss
@@ -178,10 +199,12 @@ function ProfitLossChart(props: any) {
                 </HStack>
                 <HStack spacing="14" alignItems="Center">
                   <Text color="white" fontSize={10} letterSpacing={0.01}>
-                    UNLIMITED
+
+                    UNLimited
                   </Text>
                   <Text color="white" fontSize={10} letterSpacing={0.01}>
-                    ${breakEven}
+                    {breakEven}
+
                   </Text>
                   <Text color="white" fontSize={10} letterSpacing={0.01}>
                     ${loss}
@@ -191,19 +214,28 @@ function ProfitLossChart(props: any) {
             ) : (
               <VStack>
                 <Text color="white">Excepted Profit and Loss</Text>
-                <Text color={lineupdate.current > 3 ? "green" : "red"}>
-                  ${counter}
+
+                <Text
+                  color={
+                    Number(lineupdate.current.toFixed(4)) > xScale[3]
+                      ? "green"
+                      : "red"
+                  }
+                >
+                  ${counter.toFixed(2)}
                 </Text>
               </VStack>
             )
-          ) : lineupdate.current === initRef ? (
+          ) : lineupdate.current <= xScale[0] ? (
+
             <VStack spacing={1} fontSize={"sm"}>
               <HStack spacing={10} alignItems={"flex-start"}>
                 <Text color="white" fontSize={10} letterSpacing={0.01}>
                   Max Profit
                 </Text>
                 <Text color="white" fontSize={10} letterSpacing={0.1}>
-                  BreackEven
+                  BreakEven
+
                 </Text>
                 <Text color="white" fontSize={10} letterSpacing={0.1}>
                   Max Loss
@@ -214,7 +246,8 @@ function ProfitLossChart(props: any) {
                   {maxProfit}
                 </Text>
                 <Text color="white" fontSize={10} letterSpacing={0.01}>
-                  ${breakEven}
+                  {breakEven}
+
                 </Text>
                 <Text color="white" fontSize={10} letterSpacing={0.01}>
                   ${loss}
@@ -225,11 +258,10 @@ function ProfitLossChart(props: any) {
             <VStack>
               <Text color="white">Excepted Profit and Loss</Text>
               <Text color={lineupdate.current < xScale[3] ? "green" : "red"}>
-                ${counter}
+                ${counter.toFixed(2)}
               </Text>
             </VStack>
           )}
-
           {showChart && (
             <AreaChart
               width={300}
@@ -272,6 +304,7 @@ function ProfitLossChart(props: any) {
               />
               <Dot cx={151} cy={0} r={5} color="yellow" />
               <CartesianGrid vertical={false} horizontal={false} />
+
 
               <defs>
                 <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
