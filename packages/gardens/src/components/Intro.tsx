@@ -534,12 +534,19 @@ function Intro(props: RouteComponentProps) {
                 <AccordionPanel pb={4}>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    June 2022.
+                    NFT Ticket Whitelist Pre-Sale <br />
+                    Wednesday, <b>June 8</b> <br />
+                    <br />
+                    NFT Ticket Public Pre-Sale <br />
+                    Thursday, <b>June 9</b> <br />
+                    <br />
+                    Public Pot Sale <br />
+                    Thursday, <b>June 16</b>
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -559,15 +566,14 @@ function Intro(props: RouteComponentProps) {
                 <AccordionPanel pb={4}>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
                     {" "}
-                    There will be a supply of 250 pots. The interesting
-                    ticketing mechanism it uses though, will allow the supply to
-                    flex upto a 1000 based on demand.
+                    There will be a supply of 250 pots that can flex up to a
+                    1000 (max) during the Ticket PreSale.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -587,7 +593,7 @@ function Intro(props: RouteComponentProps) {
                 <AccordionPanel pb={4}>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -621,7 +627,7 @@ function Intro(props: RouteComponentProps) {
                 <AccordionPanel pb={4}>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -630,14 +636,18 @@ function Intro(props: RouteComponentProps) {
                     whitelist holders. Pricing will be:
                     <Box ml={10}>
                       <UnorderedList>
-                        <ListItem>0.015 ETH - Whitelist</ListItem>
-                        <ListItem>0.035 ETH - Public</ListItem>
+                        <ListItem>
+                          <b>0.015 ETH</b> - Whitelist
+                        </ListItem>
+                        <ListItem>
+                          <b>0.035 ETH</b> - Public
+                        </ListItem>
                       </UnorderedList>
                     </Box>
                   </Text>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -667,19 +677,19 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    What's the mint price for the Pot sale?
+                    What's the mint price for the Public Pot Sale?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    0.05 ETH for the Pot public sale.
+                    <b>0.05 ETH</b> for the Public Pot Sale.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -699,7 +709,7 @@ function Intro(props: RouteComponentProps) {
                 <AccordionPanel pb={4}>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -709,7 +719,7 @@ function Intro(props: RouteComponentProps) {
                   </Text>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -720,7 +730,7 @@ function Intro(props: RouteComponentProps) {
                   </Text>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -730,17 +740,17 @@ function Intro(props: RouteComponentProps) {
                   </Text>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    Additionally, there will be contests to win discounted
-                    whitelist spots.
+                    Additionally, there are contests to win discounted whitelist
+                    spots.
                   </Text>{" "}
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -765,7 +775,7 @@ function Intro(props: RouteComponentProps) {
                 <AccordionPanel pb={4}>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -774,7 +784,7 @@ function Intro(props: RouteComponentProps) {
                   </Text>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -786,7 +796,7 @@ function Intro(props: RouteComponentProps) {
                   </Text>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -817,7 +827,7 @@ function Intro(props: RouteComponentProps) {
                 <AccordionPanel pb={4}>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
@@ -827,13 +837,40 @@ function Intro(props: RouteComponentProps) {
                   </Text>
                   <Text
                     mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
+                    fontSize={{ base: "20px", md: "20px" }}
                     maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
                     All art is stored on a redundant Inter-Planetary File System
                     (IPFS) setup. It's not going anywhere.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    What will the funds be used for?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    {" "}
+                    The funds will be used for the development of the Shrub
+                    ecosystem.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -864,7 +901,10 @@ function Intro(props: RouteComponentProps) {
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "semibold" }}
-              bgGradient="linear(to-l, #7db5ff, #de00ff)"
+              bgGradient={useColorModeValue(
+                "linear(to-l, black, black)",
+                "linear(to-l, #7db5ff, #de00ff)"
+              )}
               bgClip="text"
             >
               Shrub Paper [LIVE]
@@ -874,7 +914,10 @@ function Intro(props: RouteComponentProps) {
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight="semibold"
-              bgGradient="linear(to-l, #f5f2f2, #3300ff)"
+              bgGradient={useColorModeValue(
+                "linear(to-l, black, black)",
+                "linear(to-l, #f5f2f2, #3300ff)"
+              )}
               bgClip="text"
             >
               Shrub Exchange [LIVE]
@@ -884,7 +927,10 @@ function Intro(props: RouteComponentProps) {
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight="semibold"
-              bgGradient="linear(to-l, #ff6729, #73ff00)"
+              bgGradient={useColorModeValue(
+                "linear(to-l, black, black)",
+                "linear(to-l, #ff6729, #73ff00)"
+              )}
               bgClip="text"
             >
               Paper Gardens [Q1-Q2]
@@ -894,10 +940,13 @@ function Intro(props: RouteComponentProps) {
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight="semibold"
-              bgGradient="linear(to-l, #c9ff04, #51eae6)"
+              bgGradient={useColorModeValue(
+                "linear(to-l, black, black)",
+                "linear(to-l, #c9ff04, #51eae6)"
+              )}
               bgClip="text"
             >
-              Options Mainnet [Q3-Q4]
+              Options Main [Q3-Q4]
             </Text>{" "}
           </Box>
           <Spacer />

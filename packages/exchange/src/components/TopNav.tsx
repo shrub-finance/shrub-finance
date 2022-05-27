@@ -91,9 +91,9 @@ function TopNav() {
     <>
       <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
         <Box layerStyle={"bannerBg"} textStyle={"bannerText"}>
-          ❤️ {!isMobile ? "Participate in Shrub's Genesis NFT series" : ""}
+          🎉 {!isMobile ? "Paper Gardens NFT Sale Dates Announced!" : ""}
           <Link
-            href="https://gardens.shrub.finance/"
+            href="https://medium.com/@shrubfinance/paper-gardens-sale-date-announcement-265ceaa9e21e"
             isExternal
             cursor="pointer"
             textDecoration="underline"
@@ -102,8 +102,8 @@ function TopNav() {
             onClick={handleGA}
           >
             {!isMobile
-              ? "Paper Gardens"
-              : "Participate in Shrub's Genesis NFT series"}
+              ? "Learn More"
+              : "Paper Gardens NFT Sale Dates Announced!"}
           </Link>
         </Box>
         <Box shadow={topNavShadow} bg={topNavBgColor} px={4} m={"-11px"}>
