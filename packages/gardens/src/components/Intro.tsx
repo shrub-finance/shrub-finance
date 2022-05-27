@@ -37,6 +37,7 @@ import {
   FaPlus,
   IoEllipsisVertical,
 } from "react-icons/all";
+import PotSaleCountdown from "./PotSaleCountdown";
 
 function Intro(props: RouteComponentProps) {
   const gold =
@@ -56,17 +57,20 @@ function Intro(props: RouteComponentProps) {
         <Box
           maxW="80rem"
           mb={8}
-          mt={{ base: 20, md: 100 }}
+          // mt={{ base: 20, md: 100 }}
           textAlign={{ base: "center", md: "center" }}
         >
-          <Box mt={16}>
-            <AspectRatio ratio={16 / 9}>
-              <iframe
-                title="Shrub Paper Gardens trailer"
-                src="https://www.youtube.com/embed/9JBKPdFuBGE"
-                allowFullScreen
-              />
-            </AspectRatio>
+          <Box
+          // mt={16}
+          >
+            <PotSaleCountdown />
+            {/*<AspectRatio ratio={16 / 9}>*/}
+            {/*  <iframe*/}
+            {/*    title="Shrub Paper Gardens trailer"*/}
+            {/*    src="https://www.youtube.com/embed/9JBKPdFuBGE"*/}
+            {/*    allowFullScreen*/}
+            {/*  />*/}
+            {/*</AspectRatio>*/}
           </Box>
         </Box>
       </Container>
@@ -312,6 +316,7 @@ function Intro(props: RouteComponentProps) {
         flex="1"
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
+        id="story"
       >
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
           {/*visible for large screens*/}
@@ -869,7 +874,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "semibold" }}
+              fontWeight="semibold"
               bgGradient="linear(to-l, #f5f2f2, #3300ff)"
               bgClip="text"
             >
@@ -879,7 +884,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "semibold" }}
+              fontWeight="semibold"
               bgGradient="linear(to-l, #ff6729, #73ff00)"
               bgClip="text"
             >
@@ -889,7 +894,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "semibold" }}
+              fontWeight="semibold"
               bgGradient="linear(to-l, #c9ff04, #51eae6)"
               bgClip="text"
             >
