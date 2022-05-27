@@ -37,6 +37,7 @@ import {
   FaPlus,
   IoEllipsisVertical,
 } from "react-icons/all";
+import PotSaleCountdown from "./PotSaleCountdown";
 
 function Intro(props: RouteComponentProps) {
   const gold =
@@ -56,17 +57,20 @@ function Intro(props: RouteComponentProps) {
         <Box
           maxW="80rem"
           mb={8}
-          mt={{ base: 20, md: 100 }}
+          // mt={{ base: 20, md: 100 }}
           textAlign={{ base: "center", md: "center" }}
         >
-          <Box mt={16}>
-            <AspectRatio ratio={16 / 9}>
-              <iframe
-                title="Shrub Paper Gardens trailer"
-                src="https://www.youtube.com/embed/9JBKPdFuBGE"
-                allowFullScreen
-              />
-            </AspectRatio>
+          <Box
+          // mt={16}
+          >
+            <PotSaleCountdown />
+            {/*<AspectRatio ratio={16 / 9}>*/}
+            {/*  <iframe*/}
+            {/*    title="Shrub Paper Gardens trailer"*/}
+            {/*    src="https://www.youtube.com/embed/9JBKPdFuBGE"*/}
+            {/*    allowFullScreen*/}
+            {/*  />*/}
+            {/*</AspectRatio>*/}
           </Box>
         </Box>
       </Container>
@@ -86,7 +90,7 @@ function Intro(props: RouteComponentProps) {
             xl: "column",
           }}
         >
-          <Box mt={{ base: 0, md: 20 }}>
+          <Box mt={{ base: 0, md: 18 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -322,7 +326,7 @@ function Intro(props: RouteComponentProps) {
             />
           </Box>
           <Spacer display={{ base: "none", md: "none", lg: "flex" }} />
-          <Box mt={8} ml={{ base: 0, md: 0, lg: 20, xl: 40 }}>
+          <Box mt={8} ml={{ base: 0, md: 0, lg: 20, xl: 40 }} id="story">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -398,7 +402,7 @@ function Intro(props: RouteComponentProps) {
         maxW={{ base: "container.sm", md: "1400px" }}
       >
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
-          <Box mt={{ base: 0, md: 8 }}>
+          <Box mt={{ base: 0, md: 8 }} id="tickets">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -502,7 +506,7 @@ function Intro(props: RouteComponentProps) {
               "2xl": "flex",
             }}
           />
-          <Box mt={{ base: 0, md: 8 }}>
+          <Box mt={{ base: 0, md: 8 }} id="faqs">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -847,7 +851,7 @@ function Intro(props: RouteComponentProps) {
         maxW={{ base: "container.sm", md: "1400px" }}
       >
         <Flex direction={{ base: "column", md: "row", lg: "row" }}>
-          <Box mt={{ base: "0", md: "0", lg: "40" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }} id="roadmap">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -869,7 +873,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "semibold" }}
+              fontWeight="semibold"
               bgGradient="linear(to-l, #f5f2f2, #3300ff)"
               bgClip="text"
             >
@@ -879,7 +883,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "semibold" }}
+              fontWeight="semibold"
               bgGradient="linear(to-l, #ff6729, #73ff00)"
               bgClip="text"
             >
@@ -889,7 +893,7 @@ function Intro(props: RouteComponentProps) {
             <Text
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "semibold" }}
+              fontWeight="semibold"
               bgGradient="linear(to-l, #c9ff04, #51eae6)"
               bgClip="text"
             >
