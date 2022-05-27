@@ -316,7 +316,6 @@ function Intro(props: RouteComponentProps) {
         flex="1"
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
-        id="story"
       >
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
           {/*visible for large screens*/}
@@ -327,7 +326,7 @@ function Intro(props: RouteComponentProps) {
             />
           </Box>
           <Spacer display={{ base: "none", md: "none", lg: "flex" }} />
-          <Box mt={8} ml={{ base: 0, md: 0, lg: 20, xl: 40 }}>
+          <Box mt={8} ml={{ base: 0, md: 0, lg: 20, xl: 40 }} id="story">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -403,7 +402,7 @@ function Intro(props: RouteComponentProps) {
         maxW={{ base: "container.sm", md: "1400px" }}
       >
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
-          <Box mt={{ base: 0, md: 8 }}>
+          <Box mt={{ base: 0, md: 8 }} id="tickets">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -507,7 +506,7 @@ function Intro(props: RouteComponentProps) {
               "2xl": "flex",
             }}
           />
-          <Box mt={{ base: 0, md: 8 }}>
+          <Box mt={{ base: 0, md: 8 }} id="faqs">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -852,7 +851,7 @@ function Intro(props: RouteComponentProps) {
         maxW={{ base: "container.sm", md: "1400px" }}
       >
         <Flex direction={{ base: "column", md: "row", lg: "row" }}>
-          <Box mt={{ base: "0", md: "0", lg: "40" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }} id="roadmap">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
