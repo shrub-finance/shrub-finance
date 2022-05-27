@@ -29,6 +29,7 @@ function PotSaleCountdown() {
           <Heading
             fontSize={{ base: "30px", md: "72px" }}
             letterSpacing={"tight"}
+            mt={{ base: 8 }}
           >
             Paper Gardens Sale
           </Heading>
@@ -45,7 +46,7 @@ function PotSaleCountdown() {
       </Center>
       <Center>
         <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 5, md: 10 }}>
-          <Text fontSize={{ base: "20px", md: "30px" }} fontWeight="semibold">
+          <Text fontSize={{ base: "30px", md: "30px" }} fontWeight="semibold">
             <CountdownTimer targetDate={saleDay} />
           </Text>
         </Box>
@@ -53,31 +54,34 @@ function PotSaleCountdown() {
       <Center mt={{ base: 5, md: 10 }}>
         <Box>
           <Text
-            fontSize={{ base: "15px", md: "20px" }}
+            fontSize={{ base: "18px", md: "20px" }}
             mt={4}
             fontWeight="semibold"
             bgGradient="linear(to-l, #fbb8ff, #e55b5b)"
             bgClip="text"
           >
-            NFT Ticket Discount Pre-Sale - Wednesday, June 8
+            NFT Ticket Discount Pre-Sale - <br />
+            Wednesday, June 8
           </Text>
           <Text
-            fontSize={{ base: "15px", md: "20px" }}
+            fontSize={{ base: "18px", md: "20px" }}
             mt={8}
             fontWeight="semibold"
             bgGradient="linear(to-l, #ff6729, #73ff00)"
             bgClip="text"
           >
-            NFT Ticket Public Pre-Sale - Thursday, June 9
+            NFT Ticket Public Pre-Sale - <br />
+            Thursday, June 9
           </Text>
           <Text
-            fontSize={{ base: "15px", md: "20px" }}
+            fontSize={{ base: "18px", md: "20px" }}
             mt={8}
             fontWeight="semibold"
             bgGradient="linear(to-l, #c9ff04, #51eae6)"
             bgClip="text"
           >
-            Public Pot Sale - Thursday, June 16
+            Public Pot Sale - <br />
+            Thursday, June 16
           </Text>
         </Box>
       </Center>

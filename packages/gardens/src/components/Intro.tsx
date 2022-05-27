@@ -90,7 +90,7 @@ function Intro(props: RouteComponentProps) {
             xl: "column",
           }}
         >
-          <Box mt={{ base: 0, md: 20 }}>
+          <Box mt={{ base: 0, md: 18 }}>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
