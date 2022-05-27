@@ -57,30 +57,42 @@ function PotSaleCountdown() {
             fontSize={{ base: "18px", md: "20px" }}
             mt={4}
             fontWeight="semibold"
-            bgGradient="linear(to-l, #fbb8ff, #e55b5b)"
+            bgGradient={useColorModeValue(
+              "linear(to-l, black, black)",
+              "linear(to-l, #fbb8ff, #e55b5b)"
+            )}
             bgClip="text"
           >
-            NFT Ticket Discount Pre-Sale - <br />
+            NFT Ticket Discount Pre-Sale
+            <br />
             Wednesday, June 8
           </Text>
           <Text
             fontSize={{ base: "18px", md: "20px" }}
             mt={8}
             fontWeight="semibold"
-            bgGradient="linear(to-l, #ff6729, #73ff00)"
             bgClip="text"
+            bgGradient={useColorModeValue(
+              "linear(to-l, black, black)",
+              "linear(to-l, #ff6729, #73ff00)"
+            )}
           >
-            NFT Ticket Public Pre-Sale - <br />
+            NFT Ticket Public Pre-Sale
+            <br />
             Thursday, June 9
           </Text>
           <Text
             fontSize={{ base: "18px", md: "20px" }}
             mt={8}
             fontWeight="semibold"
-            bgGradient="linear(to-l, #c9ff04, #51eae6)"
+            bgGradient={useColorModeValue(
+              "linear(to-l, black, black)",
+              "linear(to-l, #c9ff04, #51eae6)"
+            )}
             bgClip="text"
           >
-            Public Pot Sale - <br />
+            Public Pot Sale
+            <br />
             Thursday, June 16
           </Text>
         </Box>
