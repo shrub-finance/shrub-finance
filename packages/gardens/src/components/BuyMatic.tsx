@@ -19,10 +19,8 @@ function BuyMatic() {
     const redirectPrefix =  `${currentURL.protocol}//${currentURL.host}${currentURL.pathname}?`;
     currentURLParams.set('wyreCheckoutStatus', 'failure');
     const failureRedirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
-    currentURLParams.set('wyreCheckoutStatus', 'success');
-    const redirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
     const params: WyreCheckoutParams = {
-      redirectUrl,
+      redirectUrl: window.location.href,
       failureRedirectUrl,
     };
     let dest;

@@ -16,14 +16,8 @@ function WyreCheckoutStatus() {
     const wyreCheckoutStatus = currentURLParams.get('wyreCheckoutStatus');
     // create alert params based on wyreCheckoutStatus
     let description;
-    let status: "success" | "error" | undefined;
+    let status: "error" | undefined;
     switch (wyreCheckoutStatus) {
-        case 'success':
-            status = 'success';
-            description = <>
-                Your transaction was successful. Please check your wallet to confirm reciept
-            </>;
-            break;
         case 'failure':
             status = 'error';
             description = <>
