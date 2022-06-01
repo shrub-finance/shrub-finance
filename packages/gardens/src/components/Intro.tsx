@@ -1096,6 +1096,7 @@ function Intro(props: RouteComponentProps) {
                 cursor="pointer"
               >
                 <PolygonStudiosIcon
+                  color={useColorModeValue("black", "white")}
                   w={{ base: 300, md: 500 }}
                   h={{ base: 100, md: 200 }}
                 />
