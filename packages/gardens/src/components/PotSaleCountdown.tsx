@@ -52,50 +52,69 @@ function PotSaleCountdown() {
         </Box>
       </Center>
       <Center mt={{ base: 5, md: 10 }}>
-        <Box>
+        <Box
+          bgColor={useColorModeValue("gray.200", "gray.700")}
+          p={10}
+          rounded="3xl"
+        >
           <Text
             fontSize={{ base: "18px", md: "20px" }}
             mt={4}
             fontWeight="semibold"
-            bgGradient={useColorModeValue(
-              "linear(to-l, black, black)",
-              "linear(to-l, #fbb8ff, #e55b5b)"
-            )}
-            bgClip="text"
           >
-            NFT Ticket Discount Pre-Sale
-            <br />
-            Wednesday, June 8
+            <Text
+              fontSize="sm"
+              color={useColorModeValue("gray.600", "gray.400")}
+            >
+              NFT Ticket Discount Pre-Sale
+            </Text>
+            <Text>Wednesday, June 8</Text>
           </Text>
           <Text
             fontSize={{ base: "18px", md: "20px" }}
             mt={8}
             fontWeight="semibold"
-            bgClip="text"
-            bgGradient={useColorModeValue(
-              "linear(to-l, black, black)",
-              "linear(to-l, #ff6729, #73ff00)"
-            )}
           >
-            NFT Ticket Public Pre-Sale
-            <br />
-            Thursday, June 9
+            <Text
+              fontSize="sm"
+              color={useColorModeValue("gray.600", "gray.400")}
+            >
+              NFT Ticket Public Pre-Sale
+            </Text>
+            <Text>Thursday, June 9</Text>
           </Text>
           <Text
             fontSize={{ base: "18px", md: "20px" }}
             mt={8}
             fontWeight="semibold"
-            bgGradient={useColorModeValue(
-              "linear(to-l, black, black)",
-              "linear(to-l, #c9ff04, #51eae6)"
-            )}
-            bgClip="text"
           >
-            Public Pot Sale
-            <br />
-            Thursday, June 16
+            <Text
+              fontSize="sm"
+              color={useColorModeValue("gray.600", "gray.400")}
+            >
+              Public Pot Sale
+            </Text>
+            <Text>Thursday, June 16</Text>
           </Text>
         </Box>
+      </Center>
+      <Center>
+        <Link
+          href="#faqs"
+          cursor="pointer"
+          rounded="3xl"
+          fontSize="lg"
+          px="9"
+          fontWeight="semibold"
+          py="5"
+          bgGradient={useColorModeValue(
+            "linear(to-l, black, black)",
+            "linear(to-l, #fbb8ff, #e55b5b)"
+          )}
+          bgClip="text"
+        >
+          Sale Details
+        </Link>
       </Center>
       {/*<Center>*/}
       {/*  {Fade(*/}

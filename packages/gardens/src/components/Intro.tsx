@@ -20,13 +20,16 @@ import {
   AccordionPanel,
   Accordion,
   AccordionButton,
+  Img,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import {
   GoofyWonder,
+  NftJetIcon,
   Night,
+  PolygonStudiosIcon,
   Pot,
   Ticket,
   Ticket1,
@@ -1023,7 +1026,7 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
-      {/*ending*/}
+      {/*as seen on*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -1033,7 +1036,86 @@ function Intro(props: RouteComponentProps) {
       >
         <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
           <Heading
-            fontSize={{ base: "30px", md: "90px" }}
+            fontSize={{ base: "30px", md: "50px" }}
+            letterSpacing={"tight"}
+            mb={16}
+          >
+            As seen on
+          </Heading>
+          <Center>
+            <Flex direction="row" gap={8}>
+              <Box>
+                <Link
+                  href="https://nftcalendar.io/"
+                  cursor="pointer"
+                  isExternal
+                >
+                  <Img
+                    src="/extra/nft-calendar.webp"
+                    alt="nft calendar"
+                    width={100}
+                  />
+                </Link>
+              </Box>
+              <Spacer />
+              <Box>
+                <Link
+                  href="https://www.nftjet.com/"
+                  cursor="pointer"
+                  isExternal
+                >
+                  <NftJetIcon boxSize={"66"} />
+                </Link>
+              </Box>
+            </Flex>
+          </Center>
+        </Box>
+      </Container>
+
+      {/*partnerships*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
+          <Heading
+            fontSize={{ base: "30px", md: "50px" }}
+            letterSpacing={"tight"}
+            mb={16}
+          >
+            Official Partners
+          </Heading>
+          <Center>
+            <Flex direction="row" gap={8}>
+              <Link
+                href="https://polygonstudios.com/"
+                isExternal
+                cursor="pointer"
+              >
+                <PolygonStudiosIcon
+                  w={{ base: 300, md: 500 }}
+                  h={{ base: 100, md: 200 }}
+                />
+              </Link>
+            </Flex>
+          </Center>
+        </Box>
+      </Container>
+
+      {/*cta*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
+          <Heading
+            fontSize={{ base: "30px", md: "40px" }}
             letterSpacing={"tight"}
             mb={16}
           >
@@ -1072,11 +1154,41 @@ function Intro(props: RouteComponentProps) {
                 </Link>
                 <Center>
                   <Text mt={8} maxW={"19rem"}>
-                    To grow a Shrub you need a seed, available on secondary
+                    To grow a Shrub you need a seed
                   </Text>
                 </Center>
               </Box>
-              <Spacer />
+            </Flex>
+          </Center>
+        </Box>
+      </Container>
+
+      {/*ending*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
+          <Heading
+            fontSize={{ base: "30px", md: "40px" }}
+            letterSpacing={"tight"}
+            mb={16}
+          >
+            Join Us
+          </Heading>
+          <Center>
+            <Flex
+              direction={{
+                base: "column",
+                md: "row",
+                lg: "row",
+                xl: "row",
+              }}
+              gap={8}
+            >
               <Box>
                 <Link
                   href="https://discord.gg/csusZhYgTg"
@@ -1084,8 +1196,8 @@ function Intro(props: RouteComponentProps) {
                   cursor="pointer"
                   rounded="3xl"
                   size="sm"
-                  px="6"
-                  fontSize="25px"
+                  px="9"
+                  fontSize="22px"
                   fontWeight="semibold"
                   py="5"
                   _hover={{ transform: "translateY(-2px)" }}
@@ -1099,9 +1211,7 @@ function Intro(props: RouteComponentProps) {
                   />
                 </Link>
                 <Center>
-                  <Text mt={8}>
-                    Whitelist contests, games, talk to the creators
-                  </Text>
+                  <Text mt={8}>Whitelist contests, games, updates</Text>
                 </Center>
               </Box>
               <Spacer />
@@ -1113,7 +1223,7 @@ function Intro(props: RouteComponentProps) {
                   rounded="3xl"
                   size="sm"
                   px="6"
-                  fontSize="25px"
+                  fontSize="22px"
                   fontWeight="semibold"
                   py="5"
                   _hover={{ transform: "translateY(-2px)" }}
@@ -1127,7 +1237,7 @@ function Intro(props: RouteComponentProps) {
                   />
                 </Link>
                 <Center>
-                  <Text mt={8}>For all the official announcements</Text>
+                  <Text mt={8}>Official announcements, contests</Text>
                 </Center>
               </Box>
             </Flex>

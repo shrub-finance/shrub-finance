@@ -52,7 +52,7 @@ function App() {
             <TopNav />
             <Router>
               <HomeView path="/" />
-              <MysteryBoxView path="/mystery-box" />
+              {/*<MysteryBoxView path="/mystery-box" />*/}
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
