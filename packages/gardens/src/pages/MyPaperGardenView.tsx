@@ -63,6 +63,7 @@ import {
   getTicketData,
   redeemNFTTicket,
 } from "../utils/ethMethods";
+import CountdownTimer from "../components/CountdownTimer";
 
 function MyPaperGardenView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -522,17 +523,75 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <Center>
             <HStack>
               {/*Ticket info*/}
-              <Box>
-                <Text
-                  textAlign="center"
-                  px={"5"}
-                  fontSize={{ base: "15px", md: "15px", lg: "18px" }}
+              <Center mt={{ base: 5, md: 10 }}>
+                <Box
+                  bgColor={useColorModeValue("gray.200", "gray.700")}
+                  p={10}
+                  rounded="3xl"
                 >
-                  NFT Tickets
-                </Text>
-              </Box>
+                  <Text
+                    fontSize={{ base: "18px", md: "20px" }}
+                    mt={4}
+                    fontWeight="semibold"
+                  >
+                    <Text
+                      fontSize="sm"
+                      color={useColorModeValue("gray.600", "gray.400")}
+                    >
+                      Redemption Date
+                    </Text>
+                    <Text>Thursday, June 16</Text>
+                  </Text>
+                  <Text
+                    fontSize={{ base: "18px", md: "20px" }}
+                    mt={8}
+                    fontWeight="semibold"
+                  >
+                    <Text
+                      fontSize="sm"
+                      color={useColorModeValue("gray.600", "gray.400")}
+                    >
+                      Redemption End Date
+                    </Text>
+                    <Text>Thursday, June 23</Text>
+                  </Text>
+                  <Text
+                    fontSize={{ base: "18px", md: "20px" }}
+                    mt={8}
+                    fontWeight="semibold"
+                  >
+                    <Text
+                      fontSize="sm"
+                      color={useColorModeValue("gray.600", "gray.400")}
+                    >
+                      Redemption Price
+                    </Text>
+                    <Text>0.015 WETH</Text>
+                  </Text>
+                  <Text
+                    fontSize={{ base: "18px", md: "20px" }}
+                    mt={8}
+                    fontWeight="semibold"
+                  >
+                    <Text
+                      fontSize="sm"
+                      color={useColorModeValue("gray.600", "gray.400")}
+                    >
+                      Time until redemption
+                    </Text>
+                    <CountdownTimer
+                      targetDate={new Date("2022-06-17T22:00:00Z")}
+                    ></CountdownTimer>
+                    {/*<Text>0.015 WETH</Text>*/}
+                  </Text>
+                </Box>
+              </Center>
+
               {/*Redemption logic*/}
               <Box>
+                <Heading>
+                  You have {accountTicketCount.toString()} Tickets
+                </Heading>
                 <VStack>
                   {/*Quantity*/}
                   <Box>
