@@ -91,9 +91,10 @@ function TopNav() {
     <>
       <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
         <Box layerStyle={"bannerBg"} textStyle={"bannerText"}>
-          Shrub's Genesis NFT series
+          🎉{" "}
+          {!isMobile ? "Shrub's Genesis NFT Series goes on sale June 8!" : ""}
           <Link
-            href="https://discord.gg/ntU4GhfEFP"
+            href="https://medium.com/@shrubfinance/paper-gardens-sale-date-announcement-265ceaa9e21e"
             isExternal
             cursor="pointer"
             textDecoration="underline"
@@ -101,7 +102,9 @@ function TopNav() {
             // @ts-ignore
             onClick={handleGA}
           >
-            Paper Gardens
+            {!isMobile
+              ? "Learn More"
+              : "Shrub's Genesis NFT Series sale on June 8!  "}
           </Link>
         </Box>
         <Box shadow={topNavShadow} bg={topNavBgColor} px={4} m={"-11px"}>
@@ -113,37 +116,37 @@ function TopNav() {
             <Flex alignItems={"center"}>
               <>
                 <BuyMatic />
-                <Box
-                  pr={5}
-                  display={{ base: "none", sm: "flex" }}
-                  size={buttonSize}
-                >
-                  <Balance />
-                </Box>
+                {/*<Box*/}
+                {/*  pr={5}*/}
+                {/*  display={{ base: "none", sm: "flex" }}*/}
+                {/*  size={buttonSize}*/}
+                {/*>*/}
+                {/*  <Balance />*/}
+                {/*</Box>*/}
               </>
 
-              <Box onClick={onOpen}>
-                {/*connect wallet button*/}
-                <Button
-                  variant={isMobile ? "outline" : "solid"}
-                  colorScheme={web3Error ? "red" : "yellow"}
-                  size={buttonSize}
-                  mr={4}
-                  borderRadius="xl"
-                  leftIcon={
-                    web3Error ? (
-                      <InfoOutlineIcon colorScheme="red" />
-                    ) : undefined
-                  }
-                >
-                  {" "}
-                  {!!web3Error && !active ? (
-                    getErrorMessage(web3Error).title
-                  ) : (
-                    <Account />
-                  )}
-                </Button>
-              </Box>
+              {/*<Box onClick={onOpen}>*/}
+              {/*  /!*connect wallet button*!/*/}
+              {/*  <Button*/}
+              {/*    variant={isMobile ? "outline" : "solid"}*/}
+              {/*    colorScheme={web3Error ? "red" : "yellow"}*/}
+              {/*    size={buttonSize}*/}
+              {/*    mr={4}*/}
+              {/*    borderRadius="xl"*/}
+              {/*    leftIcon={*/}
+              {/*      web3Error ? (*/}
+              {/*        <InfoOutlineIcon colorScheme="red" />*/}
+              {/*      ) : undefined*/}
+              {/*    }*/}
+              {/*  >*/}
+              {/*    {" "}*/}
+              {/*    {!!web3Error && !active ? (*/}
+              {/*      getErrorMessage(web3Error).title*/}
+              {/*    ) : (*/}
+              {/*      <Account />*/}
+              {/*    )}*/}
+              {/*  </Button>*/}
+              {/*</Box>*/}
               <IconButton
                 variant="unstyled"
                 icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -170,41 +173,41 @@ function TopNav() {
           ) : null}
         </Box>
 
-        <Modal
-          isOpen={isOpen}
-          onClose={handleModalClose}
-          motionPreset="slideInBottom"
-          scrollBehavior={isMobile ? "inside" : "outside"}
-        >
-          <ModalOverlay />
-          <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
-            <ModalHeader>
-              {!active ? (
-                "Connect Wallet"
-              ) : !isHidden ? (
-                <Text fontSize={16}>Account Details</Text>
-              ) : (
-                <Button variant="ghost" onClick={() => displayStatus(false)}>
-                  Back
-                </Button>
-              )}{" "}
-            </ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              {!active || isHidden ? (
-                <ConnectWalletModal />
-              ) : (
-                !isHidden && <ConnectionStatus displayStatus={displayStatus} />
-              )}
-              {
-                !(
-                  web3Error &&
-                  getErrorMessage(web3Error).title === "Wrong Network"
-                )
-              }
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+        {/*<Modal*/}
+        {/*  isOpen={isOpen}*/}
+        {/*  onClose={handleModalClose}*/}
+        {/*  motionPreset="slideInBottom"*/}
+        {/*  scrollBehavior={isMobile ? "inside" : "outside"}*/}
+        {/*>*/}
+        {/*  <ModalOverlay />*/}
+        {/*  <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">*/}
+        {/*    <ModalHeader>*/}
+        {/*      {!active ? (*/}
+        {/*        "Connect Wallet"*/}
+        {/*      ) : !isHidden ? (*/}
+        {/*        <Text fontSize={16}>Account Details</Text>*/}
+        {/*      ) : (*/}
+        {/*        <Button variant="ghost" onClick={() => displayStatus(false)}>*/}
+        {/*          Back*/}
+        {/*        </Button>*/}
+        {/*      )}{" "}*/}
+        {/*    </ModalHeader>*/}
+        {/*    <ModalCloseButton />*/}
+        {/*    <ModalBody>*/}
+        {/*      {!active || isHidden ? (*/}
+        {/*        <ConnectWalletModal />*/}
+        {/*      ) : (*/}
+        {/*        !isHidden && <ConnectionStatus displayStatus={displayStatus} />*/}
+        {/*      )}*/}
+        {/*      {*/}
+        {/*        !(*/}
+        {/*          web3Error &&*/}
+        {/*          getErrorMessage(web3Error).title === "Wrong Network"*/}
+        {/*        )*/}
+        {/*      }*/}
+        {/*    </ModalBody>*/}
+        {/*  </ModalContent>*/}
+        {/*</Modal>*/}
       </Box>
     </>
   );
