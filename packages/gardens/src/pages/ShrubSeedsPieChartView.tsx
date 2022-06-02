@@ -1,15 +1,6 @@
 import { useQuery, gql } from "@apollo/client";
 import {
-  Button,
   useColorModeValue,
-  Th,
-  Tr,
-  Td,
-  Tbody,
-  Thead,
-  TableCaption,
-  Link,
-  Table,
   Text,
   Spinner,
   Box,
