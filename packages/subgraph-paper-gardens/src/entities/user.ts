@@ -7,6 +7,7 @@ let One = BigInt.fromI32(1);
 export function createUser(address: Address): User {
   let user = new User(address.toHex());
   user.seedCount = Zero;
+  user.ticketCount = Zero;
   user.save();
   return user;
 }
@@ -29,6 +30,18 @@ export function incrementCount(user: User): User {
 
 export function decrementCount(user: User): User {
   user.seedCount = user.seedCount.minus(One);
+  user.save();
+  return user;
+}
+
+export function incrementTicketCount(user: User, amount: BigInt): User {
+  user.ticketCount = user.ticketCount.plus(amount);
+  user.save();
+  return user;
+}
+
+export function decrementTicketCount(user: User, amount: BigInt): User {
+  user.ticketCount = user.ticketCount.minus(amount);
   user.save();
   return user;
 }

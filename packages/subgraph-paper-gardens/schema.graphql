@@ -3,6 +3,7 @@ type User @entity {
   id: ID!
   seeds: [Seed!]! @derivedFrom(field: "owner")
   seedCount: BigInt!
+  ticketCount: BigInt!
 #  activeUserOptions: [UserOption!]!
 #  tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
 #  userMatches: [UserMatch!]! @derivedFrom(field: "user")
