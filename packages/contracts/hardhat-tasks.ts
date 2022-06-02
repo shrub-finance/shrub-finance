@@ -1,7 +1,7 @@
 import { task, types } from 'hardhat/config'
 import "@nomiclabs/hardhat-ethers";
 import {
-  HashUtil__factory,
+  HashUtil__factory, PaperPot__factory,
   PaperSeed__factory,
   PotNFTTicket__factory,
   SeedOrphanageV2__factory,
@@ -272,6 +272,28 @@ task("updateNFTTicketWL")
     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
     await PotNFTTicket.updateWL(tokenId, accounts, wlSpots);
+  })
+
+task("unpausePot", "unpause minting for paper Pot")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const PaperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
+    await paperPot.unpauseMinting();
+  })
+
+task("setNftTicketInfo", "set the address and tokenId for the NFTTicket")
+  .addParam("tokenId", "tokenId to change paused state for")
+  .addParam("address", "address of the NFTTicket contract")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const address: string = taskArgs.address;
+    const [owner] = await ethers.getSigners();
+    const PaperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
+    await paperPot.setNftTicketInfo(tokenId, address);
   })
 
 task(

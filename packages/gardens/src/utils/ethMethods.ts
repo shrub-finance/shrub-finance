@@ -221,6 +221,19 @@ export async function getTicketData(
   return potTicketContract.getTicketData(tokenID);
 }
 
+export async function redeemNFTTicket(
+  tokenID: ethers.BigNumberish,
+  amount: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    signer
+  );
+  return potTicketContract.redeem(tokenID, amount);
+}
+
 export async function mintWL(
   tokenID: ethers.BigNumberish,
   amount: ethers.BigNumberish,

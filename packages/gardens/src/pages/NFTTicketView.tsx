@@ -682,7 +682,7 @@ function NFTTicketView(props: RouteComponentProps) {
                         : noFunds
                         ? "Insufficient funds"
                         : noAllowance
-                        ? "Needs Approval"
+                        ? "Approve WETH"
                         : "Mint Ticket"
                     }
                   </Button>

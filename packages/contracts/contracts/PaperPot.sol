@@ -225,6 +225,10 @@ function addSeedContractAddress(address _seedContractAddress) external adminOnly
         mintingPaused = false;
     }
 
+    function pauseMinting() external adminOnly {
+        mintingPaused = true;
+    }
+
     function mintFromTicket(address _to, uint _amount, uint ticketTokenId) external returns (bool) {
         require(mintingPaused == false, "PaperPot: minting paused");
         require(ticketTokenId == NFTTicketTokenId, "PaperPot: invalid ticket tokenId");
