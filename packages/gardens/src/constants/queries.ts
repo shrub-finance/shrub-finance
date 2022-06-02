@@ -84,3 +84,28 @@ export const SEED_OWNERSHIP_QUERY = gql`
     }
   }
 `;
+export const TotalSeedsInTreasury = gql`
+  query SeedsInTreasury {
+    users(where: { id: "0xbcfe78a91b6968322ed1b08fbe3a081353487910" }) {
+      seedCount
+    }
+  }
+`;
+export const SeedsTypeTreasury = gql`
+  query SeedsTypeTreasury($id: String, $value: String) {
+    users(where: { id: $id }) {
+      seeds(where: { type: $value }, first: 1000) {
+        type
+      }
+    }
+  }
+`;
+
+export const SeedsClaim = gql`
+  query seedsClaim {
+    typeStats {
+      id
+      claimed
+    }
+  }
+`;
