@@ -70,7 +70,7 @@ export function getErrorMessage(error: Error) {
   } else if (error instanceof UnsupportedChainIdError) {
     return {
       title: "Wrong Network",
-      message: "You are connected, but not to Polygon Mumbai Testnet.",
+      message: "Hmmm...you are connected, but not to Polygon Mainnet.",
     };
   } else if (
     error instanceof UserRejectedRequestErrorInjected ||
