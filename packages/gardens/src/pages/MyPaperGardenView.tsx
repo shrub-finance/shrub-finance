@@ -269,6 +269,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   }, []);
 
   useEffect(() => {
+    console.log(mySeedData);
     if (holdsSeed) {
       const tempMySeedDataRows: JSX.Element[] = [];
       const mySeeds = [...mySeedData.seeds].sort(

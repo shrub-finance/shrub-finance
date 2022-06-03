@@ -61,6 +61,9 @@ export const MY_GARDENS_QUERY = gql`
   query MyGardens($user: String) {
     user(id: $user) {
       ticketCount
+      waterCount
+      fertilizerCount
+      potCount
     }
     seeds(where: { owner: $user }) {
       id
