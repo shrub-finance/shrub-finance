@@ -4,10 +4,34 @@ type User @entity {
   seeds: [Seed!]! @derivedFrom(field: "owner")
   seedCount: BigInt!
   ticketCount: BigInt!
+  potCount: BigInt!
+  waterCount: BigInt!
+  fertilizerCount: BigInt!
 #  activeUserOptions: [UserOption!]!
 #  tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
 #  userMatches: [UserMatch!]! @derivedFrom(field: "user")
 #  userOptions: [UserOption!]! @derivedFrom(field: "user")
+}
+
+type PottedPlant @entity {
+  "tokenId"
+  id: ID!
+  owner: User!
+  dna: Int!
+  emotion: String!
+  born: Int!
+  bornBlock: Int!
+}
+
+type ShrubNFT @entity {
+  "tokenId"
+  id: ID!
+  owner: User!
+  name: String!
+  dna: Int!
+  emotion: String!
+  born: Int!
+  bornBlock: Int!
 }
 
 type Seed @entity {
