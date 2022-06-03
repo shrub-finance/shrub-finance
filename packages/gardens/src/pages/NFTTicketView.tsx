@@ -197,7 +197,7 @@ function NFTTicketView(props: RouteComponentProps) {
     setTokenId(0);
     setNftTitle("");
     setIsLoading(true);
-    const description = "Mint NFT Tickets";
+    const description = "NFT Ticket Minted Successful!";
     try {
       if (!mintPrice) {
         throw new Error("mintPrice not found");
@@ -338,7 +338,7 @@ function NFTTicketView(props: RouteComponentProps) {
   // useEffect for account
   useEffect(() => {
     console.log(ticketData);
-    if (!library || !account || !ticketData) {
+    if (!library || !account || !ticketData || !phase) {
       return;
     }
     console.log("running useEffect-account");
@@ -382,12 +382,8 @@ function NFTTicketView(props: RouteComponentProps) {
 
       // Check the minting price
       console.log("checking mint price");
-      let wlMintPrice;
       try {
-        wlMintPrice = await getWLMintPrice(
-          ethers.BigNumber.from(NFT_TICKET_TOKEN_ID),
-          library
-        );
+        console.log(phase);
         setMintPrice(
           phase === "wlMint" ? ticketData.wlMintPrice : ticketData.mintPrice
         );
@@ -426,7 +422,7 @@ function NFTTicketView(props: RouteComponentProps) {
     }
 
     accountAsync();
-  }, [account, ticketData]);
+  }, [account, phase, ticketData]);
 
   const noWlSpots =
     phase === "wlMint" &&
