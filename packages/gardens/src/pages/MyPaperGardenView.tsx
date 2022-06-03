@@ -35,6 +35,7 @@ import {
   NumberInputField,
   InputRightElement,
   useToast,
+  GridItem,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -64,6 +65,7 @@ import {
   redeemNFTTicket,
 } from "../utils/ethMethods";
 import CountdownTimer from "../components/CountdownTimer";
+import GardenGrid from "../components/GardenGrid";
 
 function MyPaperGardenView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -280,57 +282,83 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   useEffect(() => {
     console.log(mySeedData);
+    const tempMySeedDataRows: JSX.Element[] = [];
+
+    // if (holdsFungibleAsset) {
+    //   // handle pots
+    //   if (fungibleAssets.pots) {
+    //
+    //   }
+    //   // handle water
+    //   // handle fertilizer
+    // }
+
     if (holdsSeed) {
-      const tempMySeedDataRows: JSX.Element[] = [];
-      const mySeeds = [...mySeedData.seeds].sort(
-        (a, b) => Number(a.id) - Number(b.id)
-      );
+      const mySeeds: {
+        dna: number;
+        type: string;
+        name: string;
+        emotion: string;
+      }[] = [...mySeedData.seeds].sort((a, b) => Number(a.id) - Number(b.id));
 
       for (const item of mySeeds) {
         const { dna, type, name, emotion } = item;
         const seedNumber = name.split("#")[1];
         tempMySeedDataRows.push(
-          <Box
-            as="button"
-            key={name}
-            // shadow={btnShadow}
-            shadow={"dark-lg"}
-            borderRadius="md"
-            minW={20}
-            h={32}
-            p={2}
-            cursor="pointer"
-            _hover={{
-              transform: "translateY(-2px)",
-              boxShadow: "lg",
-            }}
-            _focus={{
-              borderWidth: "2px",
-              borderColor: "seed.600",
-            }}
+          <GardenGrid
+            id={name}
+            name={`#${seedNumber}`}
             onClick={() => {
               setSelectedItem({ name, emotion, type, dna });
               onOpen();
             }}
-          >
-            <VStack>
-              <Box>
-                <Image
-                  w={20}
-                  h={20}
-                  src={
-                    emotion === "sad"
-                      ? `https://shrub.finance/${type.toLowerCase()}-sad.svg`
-                      : `https://shrub.finance/${type.toLowerCase()}.svg`
-                  }
-                  alt="Seed"
-                />
-              </Box>
-              <Text fontWeight={600} color="gray.500" fontSize="sm">
-                #{seedNumber}
-              </Text>
-            </VStack>
-          </Box>
+            imgCallback={() => {
+              return emotion === "sad"
+                ? `https://shrub.finance/${type.toLowerCase()}-sad.svg`
+                : `https://shrub.finance/${type.toLowerCase()}.svg`;
+            }}
+          ></GardenGrid>
+          // <Box
+          //   as="button"
+          //   key={name}
+          //   // shadow={btnShadow}
+          //   shadow={"dark-lg"}
+          //   borderRadius="md"
+          //   minW={20}
+          //   h={32}
+          //   p={2}
+          //   cursor="pointer"
+          //   _hover={{
+          //     transform: "translateY(-2px)",
+          //     boxShadow: "lg",
+          //   }}
+          //   _focus={{
+          //     borderWidth: "2px",
+          //     borderColor: "seed.600",
+          //   }}
+          //   onClick={() => {
+          //     setSelectedItem({ name, emotion, type, dna });
+          //     onOpen();
+          //   }}
+          // >
+          //   <VStack>
+          //     <Box>
+          //       <Image
+          //         w={20}
+          //         h={20}
+          //         src={
+          //           emotion === "sad"
+          //             ? `https://shrub.finance/${type.toLowerCase()}-sad.svg`
+          //             : `https://shrub.finance/${type.toLowerCase()}.svg`
+          //         }
+          //         alt="Seed"
+          //       />
+          //     </Box>
+          //     <Text fontWeight={600} color="gray.500" fontSize="sm">
+          //       #{seedNumber}
+          //     </Text>
+          //   </VStack>
+          // </Box>
         );
       }
       setMySeedRows(tempMySeedDataRows);
@@ -341,6 +369,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
         dna: mySeeds[0].dna,
       });
     }
+
+    // TODO: handle potted plants
+    // TODO: handle shrubs
 
     if (mySeedData && mySeedData.seeds) {
       setIsInitialized(true);
