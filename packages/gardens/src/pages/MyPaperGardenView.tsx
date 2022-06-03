@@ -151,6 +151,16 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const holdsSeed = mySeedData && mySeedData.seeds && mySeedData.seeds.length;
   const tickets =
     mySeedData && mySeedData.user && Number(mySeedData.user.ticketCount);
+  const fungibleAssets: { [asset: string]: number } = mySeedData &&
+    mySeedData.user && {
+      pots: Number(mySeedData.user.potCount),
+      water: Number(mySeedData.user.waterCount),
+      fertilizer: Number(mySeedData.user.fertilizerCount),
+    };
+  const holdsFungibleAsset =
+    fungibleAssets && Object.values(fungibleAssets).some((val) => val > 0);
+  console.log(fungibleAssets);
+  console.log(holdsFungibleAsset);
 
   const tooLarge =
     tickets && ethers.BigNumber.from(redeemAmount || 0).gt(tickets);
@@ -530,7 +540,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   p={10}
                   rounded="3xl"
                 >
-                  <Text
+                  <Box
                     fontSize={{ base: "18px", md: "20px" }}
                     mt={4}
                     fontWeight="semibold"
@@ -542,8 +552,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       Redemption Date
                     </Text>
                     <Text>Thursday, June 16</Text>
-                  </Text>
-                  <Text
+                  </Box>
+                  <Box
                     fontSize={{ base: "18px", md: "20px" }}
                     mt={8}
                     fontWeight="semibold"
@@ -555,8 +565,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       Redemption End Date
                     </Text>
                     <Text>Thursday, June 23</Text>
-                  </Text>
-                  <Text
+                  </Box>
+                  <Box
                     fontSize={{ base: "18px", md: "20px" }}
                     mt={8}
                     fontWeight="semibold"
@@ -568,8 +578,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       Redemption Price
                     </Text>
                     <Text>0.015 WETH</Text>
-                  </Text>
-                  <Text
+                  </Box>
+                  <Box
                     fontSize={{ base: "18px", md: "20px" }}
                     mt={8}
                     fontWeight="semibold"
@@ -584,7 +594,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       targetDate={new Date("2022-06-17T22:00:00Z")}
                     ></CountdownTimer>
                     {/*<Text>0.015 WETH</Text>*/}
-                  </Text>
+                  </Box>
                 </Box>
               </Center>
 
@@ -742,7 +752,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <Center p={10}>
             <Spinner size="xl" />
           </Center>
-        ) : (!holdsSeed && !tickets) || !account ? (
+        ) : (!holdsSeed && !tickets && !holdsFungibleAsset) || !account ? (
           <Grid templateColumns="repeat(1, 1fr)">
             <Center>
               <SeedBasketImg boxSize={220} />
@@ -779,7 +789,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
               )}
             </Center>
           </Grid>
-        ) : holdsSeed ? (
+        ) : holdsSeed || holdsFungibleAsset ? (
           // Only show the grid view if the user has items that will show in the grid
           // TODO: update to not just be based on seeds
           <Grid
