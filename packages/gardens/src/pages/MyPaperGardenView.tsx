@@ -103,6 +103,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
     dna: number;
     imageUrl: string;
     category: string;
+    quantity?: number;
   }>({
     name: "",
     emotion: "",
@@ -308,6 +309,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 dna: 0,
                 imageUrl: IMAGE_ASSETS.emptyPot,
                 category: "pot",
+                quantity: fungibleAssets.pots,
               });
               onOpen();
             }}
@@ -329,6 +331,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 dna: 0,
                 imageUrl: IMAGE_ASSETS.waterCan,
                 category: "water",
+                quantity: fungibleAssets.water,
               });
               onOpen();
             }}
@@ -350,6 +353,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 dna: 0,
                 imageUrl: IMAGE_ASSETS.fertilizer,
                 category: "fertilizer",
+                quantity: fungibleAssets.fertilizer,
               });
               onOpen();
             }}

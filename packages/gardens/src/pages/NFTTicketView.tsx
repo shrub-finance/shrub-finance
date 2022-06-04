@@ -485,28 +485,28 @@ function NFTTicketView(props: RouteComponentProps) {
               </Text>
               Sale
             </Heading>
-            <Text textStyle={"description"} textAlign="center">
+            <Text textStyle={"reading"} textAlign="center">
               All tickets will be redeemable for a Paper Gardens pot for up to a
               week after the public sale.
             </Text>
-            <Text textStyle={"description"} textAlign="center">
+            <Text textStyle={"reading"} textAlign="center">
               Redemption price for the tickets will be 0.015 ETH.{" "}
             </Text>
-            <Text textStyle={"description"} textAlign="center">
+            <Text textStyle={"reading"} textAlign="center">
               Tickets are tradble NFTs and can be sold on secondary markets.
             </Text>
-            <Text textStyle={"description"} textAlign="center">
+            <Text textStyle={"reading"} textAlign="center">
               You currently have {accountTicketCount.toString()} ticket
               {sIfMany(accountTicketCount)}.
             </Text>
             {["before", "wlMint"].includes(phase || "") && (
-              <Text textStyle={"description"} textAlign="center">
+              <Text textStyle={"reading"} textAlign="center">
                 You are eligible to mint {accountWlSlots.toNumber()} ticket
                 {sIfMany(accountWlSlots)}.
               </Text>
             )}
             {["before", "wlMint"].includes(phase || "") && (
-              <Text textStyle={"description"} textAlign="center">
+              <Text textStyle={"reading"} textAlign="center">
                 Mint price per ticket:{" "}
                 {ticketData
                   ? ethers.utils.formatEther(ticketData.wlMintPrice)
@@ -515,7 +515,7 @@ function NFTTicketView(props: RouteComponentProps) {
               </Text>
             )}
             {["before", "break", "mint", "done"].includes(phase || "") && (
-              <Text textStyle={"description"} textAlign="center">
+              <Text textStyle={"reading"} textAlign="center">
                 Mint price per ticket:{" "}
                 {ticketData
                   ? ethers.utils.formatEther(ticketData.mintPrice)

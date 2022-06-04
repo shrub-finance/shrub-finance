@@ -5,6 +5,7 @@ import {
   SeedOrphanage__factory,
   PotNFTTicket__factory,
   ERC1155__factory,
+  ERC721__factory,
 } from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import { OrderCommon, UnsignedOrder } from "../types";
@@ -268,6 +269,25 @@ export async function balanceOfErc1155(
   const NFTContract = ERC1155__factory.connect(tokenContractAddress, provider);
   const account = await getAddress(provider);
   return NFTContract.balanceOf(account, tokenID);
+}
+
+export async function approvalOfErc721(
+  tokenContractAddress: string,
+  owner: string,
+  tokenId: ethers.BigNumberish,
+  spender: string,
+  provider: JsonRpcProvider
+) {
+  // return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
+  const erc721 = ERC721__factory.connect(tokenContractAddress, provider);
+  const isApprovedForAll = await erc721.isApprovedForAll(owner, spender);
+  if (isApprovedForAll) {
+    return true;
+  }
+  const getApproved = await erc721.getApproved(tokenId);
+  return (
+    ethers.utils.getAddress(spender) === ethers.utils.getAddress(getApproved)
+  );
 }
 
 export function addressToLabel(address: string) {

@@ -14,10 +14,11 @@ import {
   ModalOverlay,
   Spinner,
   Stack,
+  Text,
   useColorMode,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { FlyingSeed, PlantingPot, WonderPot } from "../assets/Icons";
 import { TransformScale } from "./animations/TransformScale";
@@ -38,7 +39,18 @@ function SeedDetails({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
   const { colorMode } = useColorMode();
+  const [plantingApproved, setPlantingApproved] = useState(false);
 
+  // On selection changing
+  useEffect(() => {
+    if (selectedItem.category !== "paperSeed") {
+      setPlantingApproved(false);
+      return;
+    }
+    // Check the approvalStatus
+  }, [selectedItem]);
+
+  // For Modal
   useEffect(() => {
     if (!isOpen) {
       return;
@@ -50,6 +62,7 @@ function SeedDetails({
   }, [isOpen]);
 
   const MotionModalContent = motion<ModalContentProps>(ModalContent);
+  console.log(selectedItem);
 
   return (
     <>
@@ -82,6 +95,36 @@ function SeedDetails({
               </Heading>
             </Center>
             {/*Traits*/}
+            {["pot", "water", "fertilizer"].includes(selectedItem.category) && (
+              <>
+                <Stack
+                  align={"center"}
+                  justify={"center"}
+                  direction={"row"}
+                  mt={6}
+                >
+                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    {`You have: ${selectedItem.quantity}`}
+                  </Badge>
+                  {/*<Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
+                  {/*  Emotion: {selectedItem.emotion}*/}
+                  {/*</Badge>*/}
+                </Stack>
+                {/*<Stack*/}
+                {/*  align={"center"}*/}
+                {/*  justify={"center"}*/}
+                {/*  direction={"row"}*/}
+                {/*  mt={2}*/}
+                {/*>*/}
+                {/*  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
+                {/*    Class: {selectedItem.type}*/}
+                {/*  </Badge>*/}
+                {/*  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
+                {/*    DNA: {selectedItem.dna}*/}
+                {/*  </Badge>*/}
+                {/*</Stack>*/}
+              </>
+            )}
             {selectedItem.category === "paperSeed" && (
               <>
                 <Stack
@@ -213,12 +256,49 @@ function SeedDetails({
           <ModalCloseButton />
           <ModalBody pt={40}>
             <Center>
-              {TransformScale(<FlyingSeed boxSize={20} />, controls)}
+              <Box textStyle={"reading"}>
+                <Text>Planting will result in</Text>
+                <Text>{selectedItem.name}</Text>
+                <Text>and</Text>
+                <Text>1 Empty Pot</Text>
+                <Text>
+                  converting into a potted plant that you can grow into a Shrub
+                </Text>
+                <Text>This is irrevesible.</Text>
+                {!plantingApproved && (
+                  <Text>
+                    You must also first approve your seed for planting
+                  </Text>
+                )}
+              </Box>
             </Center>
             <Center>
-              {Disappear(<PlantingPot boxSize={40} />, controls)}
-              {Appear(<WonderPot boxSize={40} />, controls)}
+              <Button
+                onClick={onOpen}
+                flex={1}
+                fontSize={"sm"}
+                rounded={"full"}
+                bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                color={"black"}
+                boxShadow={"xl"}
+                _hover={{
+                  bg: "shrub.200",
+                }}
+                _focus={{
+                  bg: "shrub.100",
+                }}
+              >
+                {plantingApproved ? "Plant" : "Approve Seed for Planting"}
+              </Button>
             </Center>
+            {/*Animation once planting occurs*/}
+            {/*<Center>*/}
+            {/*  {TransformScale(<FlyingSeed boxSize={20} />, controls)}*/}
+            {/*</Center>*/}
+            {/*<Center>*/}
+            {/*  {Disappear(<PlantingPot boxSize={40} />, controls)}*/}
+            {/*  {Appear(<WonderPot boxSize={40} />, controls)}*/}
+            {/*</Center>*/}
           </ModalBody>
         </MotionModalContent>
       </Modal>

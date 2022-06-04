@@ -133,6 +133,56 @@ task("sendSeed", "send a seed from the owner contract to an address")
     console.log(tx.hash);
   });
 
+// task("distributeWater", "distribute water to accounts")
+//   .addParam("receivers", "object of acccount/wlSpot pairs ex: {account1: 2, account2: 1}", {}, types.json)
+//   .setAction(async (taskArgs, env) => {
+//     const { ethers, deployments } = env;
+//     const [owner] = await ethers.getSigners();
+//     const receivers: {[account: string] : number} = taskArgs.receivers;
+//     const accounts = [];
+//     const wlSpots = [];
+//     for (const [account, receiver] of Object.entries(receivers)) {
+//       accounts.push(ethers.utils.getAddress(account));
+//       assert.equal(Math.floor(receiver), receiver, "wlSpot must be an integer");
+//       assert.equal(receiver >= 0, true, "wlSpot must not be negative");
+//       wlSpots.push(receiver);
+//     }
+//     assert.equal(accounts.length > 0, true, "some wls must be specified");
+//     const paperPotDeployment = await deployments.get("PaperPot");
+//     const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+//     // await paperPot.adminDistributeWater(owner, amount);
+//
+//     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+//     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+//     await PotNFTTicket.updateWL(tokenId, accounts, wlSpots);
+//   })
+
+task("mintWater", "mint new water to an account")
+  .addParam("to", "account to mint water to")
+  .addParam("amount", "amount of water to mint")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const to = taskArgs.to;
+    const amount = taskArgs.amount;
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+    await paperPot.adminDistributeWater(to, amount);
+  })
+
+task("mintFertilizer", "mint new fertilizer to an account")
+  .addParam("to", "account to mint fertilizer to")
+  .addParam("amount", "amount of fertilizer to mint")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const to = taskArgs.to;
+    const amount = taskArgs.amount;
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+    await paperPot.adminDistributeFertilizer(to, amount);
+  })
+
 task("getTicketData", "gets the settings for a NFTTicket")
   .addParam("tokenId", "tokenId to change active state for")
   .setAction(async (taskArgs, env) => {
