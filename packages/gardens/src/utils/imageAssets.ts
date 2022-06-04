@@ -1,0 +1,43 @@
+export const IMAGE_ASSETS = {
+  emptyPot: "https://shrub.finance/assets/pot.svg",
+  fertilizer: "https://shrub.finance/assets/fertilizer.svg",
+  waterCan: "https://shrub.finance/assets/water-can.svg",
+  seeds: {
+    Wonder: {
+      happy: "https://shrub.finance/assets/wonder.svg",
+      sad: "https://shrub.finance/assets/wonder-sad.svg",
+    },
+    Passion: {
+      happy: "https://shrub.finance/assets/passion.svg",
+      sad: "https://shrub.finance/assets/passion-sad.svg",
+    },
+    Hope: {
+      happy: "https://shrub.finance/assets/hope.svg",
+      sad: "https://shrub.finance/assets/hope-sad.svg",
+    },
+    Power: {
+      happy: "https://shrub.finance/assets/power.svg",
+      sad: "https://shrub.finance/assets/power.svg",
+    },
+  },
+  pottedPlantWonder0: "",
+  pottedPlantWonder1: "",
+  pottedPlantWonder2: "",
+  pottedPlantWonder3: "",
+  pottedPlantWonder4: "",
+  pottedPlantPassion0: "",
+  pottedPlantPassion1: "",
+  pottedPlantPassion2: "",
+  pottedPlantPassion3: "",
+  pottedPlantPassion4: "",
+  pottedPlantHope0: "",
+  pottedPlantHope1: "",
+  pottedPlantHope2: "",
+  pottedPlantHope3: "",
+  pottedPlantHope4: "",
+  pottedPlantPower0: "",
+  pottedPlantPower1: "",
+  pottedPlantPower2: "",
+  pottedPlantPower3: "",
+  pottedPlantPower4: "",
+};

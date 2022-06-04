@@ -66,6 +66,7 @@ import {
 } from "../utils/ethMethods";
 import CountdownTimer from "../components/CountdownTimer";
 import GardenGrid from "../components/GardenGrid";
+import { IMAGE_ASSETS } from "../utils/imageAssets";
 
 function MyPaperGardenView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -100,11 +101,15 @@ function MyPaperGardenView(props: RouteComponentProps) {
     emotion: string;
     type: string;
     dna: number;
+    imageUrl: string;
+    category: string;
   }>({
     name: "",
     emotion: "",
     type: "",
     dna: 0,
+    imageUrl: "",
+    category: "",
   });
   const [redeemAmount, setRedeemAmount] = useState("1");
 
@@ -284,40 +289,104 @@ function MyPaperGardenView(props: RouteComponentProps) {
     console.log(mySeedData);
     const tempMySeedDataRows: JSX.Element[] = [];
 
-    // if (holdsFungibleAsset) {
-    //   // handle pots
-    //   if (fungibleAssets.pots) {
-    //
-    //   }
-    //   // handle water
-    //   // handle fertilizer
-    // }
+    if (holdsFungibleAsset) {
+      // handle pots
+      if (fungibleAssets.pots) {
+        tempMySeedDataRows.push(
+          <GardenGrid
+            id={"pot"}
+            name={`Pot x ${fungibleAssets.pots}`}
+            onClick={() => {
+              setSelectedItem({
+                name: "Empty Pot",
+                emotion: "empty",
+                type: "pot",
+                dna: 0,
+                imageUrl: IMAGE_ASSETS.emptyPot,
+                category: "pot",
+              });
+              onOpen();
+            }}
+            imgCallback={() => IMAGE_ASSETS.emptyPot}
+          />
+        );
+      }
+      // handle water
+      if (fungibleAssets.water) {
+        tempMySeedDataRows.push(
+          <GardenGrid
+            id={"water"}
+            name={`Water x ${fungibleAssets.water}`}
+            onClick={() => {
+              setSelectedItem({
+                name: "Water",
+                emotion: "empty",
+                type: "water",
+                dna: 0,
+                imageUrl: IMAGE_ASSETS.waterCan,
+                category: "water",
+              });
+              onOpen();
+            }}
+            imgCallback={() => IMAGE_ASSETS.waterCan}
+          />
+        );
+      }
+      // handle fertilizer
+      if (fungibleAssets.fertilizer) {
+        tempMySeedDataRows.push(
+          <GardenGrid
+            id={"fertilizer"}
+            name={`Fertilizer x ${fungibleAssets.fertilizer}`}
+            onClick={() => {
+              setSelectedItem({
+                name: "Fertilizer",
+                emotion: "empty",
+                type: "water",
+                dna: 0,
+                imageUrl: IMAGE_ASSETS.fertilizer,
+                category: "fertilizer",
+              });
+              onOpen();
+            }}
+            imgCallback={() => IMAGE_ASSETS.fertilizer}
+          />
+        );
+      }
+    }
 
     if (holdsSeed) {
       const mySeeds: {
         dna: number;
-        type: string;
+        type: "Wonder" | "Passion" | "Hope" | "Power";
         name: string;
-        emotion: string;
+        emotion: "happy" | "sad";
       }[] = [...mySeedData.seeds].sort((a, b) => Number(a.id) - Number(b.id));
 
       for (const item of mySeeds) {
         const { dna, type, name, emotion } = item;
+        // let type: 'wonder' | 'passion' | 'hope' | 'power'
+        // type = uppercaseType.toLowerCase()
         const seedNumber = name.split("#")[1];
+        console.log(type, emotion);
+        const imageUrl = IMAGE_ASSETS.seeds[type][emotion];
         tempMySeedDataRows.push(
           <GardenGrid
             id={name}
             name={`#${seedNumber}`}
             onClick={() => {
-              setSelectedItem({ name, emotion, type, dna });
+              setSelectedItem({
+                name,
+                emotion,
+                type,
+                dna,
+                imageUrl,
+                category: "paperSeed",
+              });
               onOpen();
             }}
-            imgCallback={() => {
-              return emotion === "sad"
-                ? `https://shrub.finance/${type.toLowerCase()}-sad.svg`
-                : `https://shrub.finance/${type.toLowerCase()}.svg`;
-            }}
-          ></GardenGrid>
+            imgCallback={() => imageUrl}
+          />
           // <Box
           //   as="button"
           //   key={name}
@@ -367,6 +436,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
         emotion: mySeeds[0].emotion,
         type: mySeeds[0].type,
         dna: mySeeds[0].dna,
+        imageUrl: IMAGE_ASSETS.seeds[mySeeds[0].type][mySeeds[0].emotion],
+        category: "paperSeed",
       });
     }
 

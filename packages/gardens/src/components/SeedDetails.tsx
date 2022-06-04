@@ -71,12 +71,8 @@ function SeedDetails({
               <Image
                 objectFit={"cover"}
                 maxH={{ base: "250px", md: "250px", lg: "250" }}
-                src={
-                  selectedItem.emotion === "sad"
-                    ? `https://shrub.finance/${selectedItem.type.toLowerCase()}-sad.svg`
-                    : `https://shrub.finance/${selectedItem.type.toLowerCase()}.svg`
-                }
-                alt="Seed"
+                src={selectedItem.imageUrl}
+                alt={selectedItem.name}
               />
             </Center>
             {/*title*/}
@@ -85,82 +81,105 @@ function SeedDetails({
                 {selectedItem.name}
               </Heading>
             </Center>
-            <Stack align={"center"} justify={"center"} direction={"row"} mt={6}>
-              <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                Rarity:{" "}
-                {selectedItem.type === "Hope"
-                  ? "Rare"
-                  : selectedItem.type === "Power"
-                  ? "Legendary"
-                  : selectedItem.type === "Passion"
-                  ? "Uncommon"
-                  : "Common"}
-              </Badge>
-              <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                Emotion: {selectedItem.emotion}
-              </Badge>
-            </Stack>
-            <Stack align={"center"} justify={"center"} direction={"row"} mt={2}>
-              <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                Class: {selectedItem.type}
-              </Badge>
-              <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                DNA: {selectedItem.dna}
-              </Badge>
-            </Stack>
-
+            {/*Traits*/}
+            {selectedItem.category === "paperSeed" && (
+              <>
+                <Stack
+                  align={"center"}
+                  justify={"center"}
+                  direction={"row"}
+                  mt={6}
+                >
+                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    Rarity:{" "}
+                    {selectedItem.type === "Hope"
+                      ? "Rare"
+                      : selectedItem.type === "Power"
+                      ? "Legendary"
+                      : selectedItem.type === "Passion"
+                      ? "Uncommon"
+                      : "Common"}
+                  </Badge>
+                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    Emotion: {selectedItem.emotion}
+                  </Badge>
+                </Stack>
+                <Stack
+                  align={"center"}
+                  justify={"center"}
+                  direction={"row"}
+                  mt={2}
+                >
+                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    Class: {selectedItem.type}
+                  </Badge>
+                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    DNA: {selectedItem.dna}
+                  </Badge>
+                </Stack>
+              </>
+            )}
+            {/*Buttons*/}
             <Stack mt={8} direction={"row"} spacing={4}>
-              <Button
-                flex={1}
-                fontSize={"sm"}
-                rounded={"full"}
-                _focus={{
-                  bg: "gray.200",
-                }}
-              >
-                Water
-              </Button>
-              <Button
-                onClick={onOpen}
-                flex={1}
-                fontSize={"sm"}
-                rounded={"full"}
-                bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
-                color={"black"}
-                boxShadow={"xl"}
-                _hover={{
-                  bg: "shrub.200",
-                }}
-                _focus={{
-                  bg: "shrub.100",
-                }}
-              >
-                Plant
-              </Button>
+              {/*Water Button*/}
+              {selectedItem.category === "pottedPlant" && (
+                <Button
+                  flex={1}
+                  fontSize={"sm"}
+                  rounded={"full"}
+                  _focus={{
+                    bg: "gray.200",
+                  }}
+                >
+                  Water
+                </Button>
+              )}
+              {/*Plant Button*/}
+              {selectedItem.category === "paperSeed" && (
+                <Button
+                  onClick={onOpen}
+                  flex={1}
+                  fontSize={"sm"}
+                  rounded={"full"}
+                  bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                  color={"black"}
+                  boxShadow={"xl"}
+                  _hover={{
+                    bg: "shrub.200",
+                  }}
+                  _focus={{
+                    bg: "shrub.100",
+                  }}
+                >
+                  Plant
+                </Button>
+              )}
             </Stack>
-            <Stack mt={8} direction={"row"} spacing={4}>
-              <Button
-                flex={1}
-                fontSize={"sm"}
-                rounded={"full"}
-                _focus={{
-                  bg: "gray.200",
-                }}
-              >
-                Fertilize
-              </Button>
-              <Button
-                onClick={onOpen}
-                flex={1}
-                fontSize={"sm"}
-                rounded={"full"}
-                _focus={{
-                  bg: "gray.200",
-                }}
-              >
-                Harvest
-              </Button>
-            </Stack>
+            {selectedItem.category === "pottedPlant" && (
+              <Stack mt={8} direction={"row"} spacing={4}>
+                <Button
+                  flex={1}
+                  fontSize={"sm"}
+                  rounded={"full"}
+                  _focus={{
+                    bg: "gray.200",
+                  }}
+                >
+                  Fertilize
+                </Button>
+                <Button
+                  onClick={onOpen}
+                  flex={1}
+                  fontSize={"sm"}
+                  rounded={"full"}
+                  _focus={{
+                    bg: "gray.200",
+                  }}
+                >
+                  Harvest
+                </Button>
+              </Stack>
+            )}
           </Box>
         )}
       </Box>

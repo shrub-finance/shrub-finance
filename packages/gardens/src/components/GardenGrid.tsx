@@ -9,7 +9,7 @@ function GardenGrid({
 }: {
   id: string;
   name: string;
-  onClick: () => any;
+  onClick: () => void;
   imgCallback: () => string;
 }) {
   console.log(id, name);
