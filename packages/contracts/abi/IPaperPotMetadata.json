@@ -1,0 +1,36 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "seedTokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "growth",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isSad",
+        "type": "bool"
+      }
+    ],
+    "name": "tokenMetadata",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
