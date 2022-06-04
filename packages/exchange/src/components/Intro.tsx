@@ -6,6 +6,7 @@ import { ExchangeLogo } from "../assets/Icons";
 import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
 import { trackEvent } from "../utils/handleGATracking";
+import WyreCheckoutStatus from "./WyreCheckoutStatus";
 
 function Intro(props: RouteComponentProps) {
   const { account } = useWeb3React();
@@ -94,6 +95,7 @@ function Intro(props: RouteComponentProps) {
 
   return (
     <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+      <WyreCheckoutStatus />
       <Center mt={isMobile ? 28 : 24}>
         <Box maxW="60rem" mb={8} textAlign={"center"}>
           <Heading
