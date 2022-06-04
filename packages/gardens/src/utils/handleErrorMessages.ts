@@ -8,7 +8,7 @@ export function handleErrorMessagesFactory(
     const { err, customMessage } = errorOptions;
     if (err) {
       // @ts-ignore
-      if (err.data) {
+      if (err.data && err.data.message) {
         if (
           // @ts-ignore
           err.data.message.includes("execution reverted:")

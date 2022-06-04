@@ -6,6 +6,7 @@ import {
   PotNFTTicket__factory,
   ERC1155__factory,
   ERC721__factory,
+  PaperPot__factory,
 } from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import { OrderCommon, UnsignedOrder } from "../types";
@@ -17,6 +18,7 @@ const PAPERSEED_CONTRACT_ADDRESS =
 const ORPHANAGE_CONTRACT_ADDRESS =
   process.env.REACT_APP_ORPHANAGE_ADDRESS || "";
 const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
+const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id(
@@ -271,7 +273,7 @@ export async function balanceOfErc1155(
   return NFTContract.balanceOf(account, tokenID);
 }
 
-export async function approvalOfErc721(
+export async function isApprovedErc721(
   tokenContractAddress: string,
   owner: string,
   tokenId: ethers.BigNumberish,
@@ -279,15 +281,52 @@ export async function approvalOfErc721(
   provider: JsonRpcProvider
 ) {
   // return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
-  const erc721 = ERC721__factory.connect(tokenContractAddress, provider);
-  const isApprovedForAll = await erc721.isApprovedForAll(owner, spender);
+  const isApprovedForAll = await isApprovedForAllErc721(
+    tokenContractAddress,
+    owner,
+    spender,
+    provider
+  );
   if (isApprovedForAll) {
     return true;
   }
+  const erc721 = ERC721__factory.connect(tokenContractAddress, provider);
   const getApproved = await erc721.getApproved(tokenId);
   return (
     ethers.utils.getAddress(spender) === ethers.utils.getAddress(getApproved)
   );
+}
+
+export async function isApprovedForAllErc721(
+  tokenContractAddress: string,
+  owner: string,
+  spender: string,
+  provider: JsonRpcProvider
+) {
+  console.log(tokenContractAddress);
+  const erc721 = ERC721__factory.connect(tokenContractAddress, provider);
+  console.log(owner, spender);
+  return await erc721.isApprovedForAll(owner, spender);
+}
+
+export async function approveAllErc721(
+  tokenContractAddress: string,
+  spender: string,
+  approved: boolean,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const erc721 = ERC721__factory.connect(tokenContractAddress, signer);
+  return erc721.setApprovalForAll(spender, approved);
+}
+
+export async function plant(
+  seedTokenId: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.plant(PAPERSEED_CONTRACT_ADDRESS, seedTokenId);
 }
 
 export function addressToLabel(address: string) {

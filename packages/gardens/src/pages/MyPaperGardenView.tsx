@@ -97,6 +97,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [mySeedRows, setMySeedRows] = useState<JSX.Element[]>([]);
   const [selectedItem, setSelectedItem] = useState<{
+    tokenId: string;
     name: string;
     emotion: string;
     type: string;
@@ -105,6 +106,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
     category: string;
     quantity?: number;
   }>({
+    tokenId: "",
     name: "",
     emotion: "",
     type: "",
@@ -303,6 +305,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
             name={`Pot x ${fungibleAssets.pots}`}
             onClick={() => {
               setSelectedItem({
+                tokenId: "1",
                 name: "Empty Pot",
                 emotion: "empty",
                 type: "pot",
@@ -325,6 +328,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
             name={`Water x ${fungibleAssets.water}`}
             onClick={() => {
               setSelectedItem({
+                tokenId: "3",
                 name: "Water",
                 emotion: "empty",
                 type: "water",
@@ -347,6 +351,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
             name={`Fertilizer x ${fungibleAssets.fertilizer}`}
             onClick={() => {
               setSelectedItem({
+                tokenId: "2",
                 name: "Fertilizer",
                 emotion: "empty",
                 type: "water",
@@ -365,6 +370,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
     if (holdsSeed) {
       const mySeeds: {
+        id: string;
         dna: number;
         type: "Wonder" | "Passion" | "Hope" | "Power";
         name: string;
@@ -372,7 +378,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }[] = [...mySeedData.seeds].sort((a, b) => Number(a.id) - Number(b.id));
 
       for (const item of mySeeds) {
-        const { dna, type, name, emotion } = item;
+        const { id, dna, type, name, emotion } = item;
         // let type: 'wonder' | 'passion' | 'hope' | 'power'
         // type = uppercaseType.toLowerCase()
         const seedNumber = name.split("#")[1];
@@ -384,6 +390,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
             name={`#${seedNumber}`}
             onClick={() => {
               setSelectedItem({
+                tokenId: id,
                 name,
                 emotion,
                 type,
@@ -440,6 +447,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
       setMySeedRows(tempMySeedDataRows);
       setSelectedItem({
+        tokenId: mySeeds[0].id,
         name: mySeeds[0].name,
         emotion: mySeeds[0].emotion,
         type: mySeeds[0].type,
