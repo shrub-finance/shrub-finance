@@ -286,6 +286,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
   }, []);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [localError, web3Error]);
+
+  useEffect(() => {
     console.log(mySeedData);
     const tempMySeedDataRows: JSX.Element[] = [];
 
@@ -581,10 +585,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
     } catch (e: any) {
       setApproving(false);
+      setIsLoading(false);
       handleErrorMessages({ err: e });
     }
   }
-
   return (
     <>
       <Container
@@ -805,43 +809,44 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   </Box>
                   {/*Approve/Redeem button*/}
                   <Box>
-                    {!activeHash && (
-                      <Button
-                        onClick={noAllowance ? handleApprove : handleRedeemNFT}
-                        colorScheme={tradingBtnColor}
-                        variant="solid"
-                        rounded="2xl"
-                        isLoading={isLoading}
-                        isDisabled={Number(redeemAmount) <= 0 || noFunds}
-                        size="lg"
-                        px={["50", "70", "90", "90"]}
-                        fontSize="25px"
-                        py={10}
-                        borderRadius="full"
-                        _hover={{ transform: "translateY(-2px)" }}
-                        bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                        loadingText={
-                          noAllowance ? "Approving..." : "Redeeming..."
-                        }
-                      >
-                        {
-                          // If no account then Wrong Network and Connect Wallet
-                          !account
-                            ? !!web3Error &&
-                              getErrorMessage(web3Error).title ===
-                                "Wrong Network"
-                              ? "Connect to Polygon"
-                              : "Connect Wallet"
-                            : tooLarge
-                            ? "Quantity above number of tickets"
-                            : noFunds
-                            ? "Insufficient funds"
-                            : noAllowance
-                            ? "Approve WETH"
-                            : "Redeem Ticket"
-                        }
-                      </Button>
-                    )}
+                    <Button
+                      onClick={noAllowance ? handleApprove : handleRedeemNFT}
+                      colorScheme={tradingBtnColor}
+                      variant="solid"
+                      rounded="2xl"
+                      isLoading={isLoading}
+                      isDisabled={Number(redeemAmount) <= 0 || noFunds}
+                      size="lg"
+                      px={["50", "70", "90", "90"]}
+                      fontSize="25px"
+                      py={10}
+                      borderRadius="full"
+                      _hover={{ transform: "translateY(-2px)" }}
+                      bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                      loadingText={
+                        noAllowance
+                          ? "Approving..."
+                          : !localError
+                          ? "Redeeming..."
+                          : "Redeem Ticket"
+                      }
+                    >
+                      {
+                        // If no account then Wrong Network and Connect Wallet
+                        !account
+                          ? !!web3Error &&
+                            getErrorMessage(web3Error).title === "Wrong Network"
+                            ? "Connect to Polygon"
+                            : "Connect Wallet"
+                          : tooLarge
+                          ? "Quantity above number of tickets"
+                          : noFunds
+                          ? "Insufficient funds"
+                          : noAllowance
+                          ? "Approve WETH"
+                          : "Redeem Ticket"
+                      }
+                    </Button>
                   </Box>
                 </VStack>
               </Box>
@@ -893,7 +898,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
           </Grid>
         ) : holdsSeed || holdsFungibleAsset ? (
           // Only show the grid view if the user has items that will show in the grid
-          // TODO: update to not just be based on seeds
           <Grid
             templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
             gap="20"
