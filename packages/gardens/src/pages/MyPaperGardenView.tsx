@@ -860,43 +860,44 @@ function MyPaperGardenView(props: RouteComponentProps) {
             <Spinner size="xl" />
           </Center>
         ) : (!holdsSeed && !tickets && !holdsFungibleAsset) || !account ? (
-          <Grid templateColumns="repeat(1, 1fr)">
-            <Center>
-              <SeedBasketImg boxSize={220} />
-            </Center>
-            <Center>
-              <Box maxW="30rem" mb={8} fontSize="20px" textStyle={"reading"}>
-                <Text pt="8">
-                  {!account
-                    ? "Please connect your wallet"
-                    : !holdsSeed
-                    ? "Your garden has no seeds"
-                    : ""}
-                </Text>
-              </Box>
-            </Center>
-            <Center>
-              {!holdsSeed && !tickets && account && (
-                <Link
-                  href="https://opensea.io/collection/shrub-paper-gardens"
-                  isExternal
-                  cursor="pointer"
-                  rounded="3xl"
-                  size="sm"
-                  px="6"
-                  fontSize="25px"
-                  fontWeight="semibold"
-                  py="5"
-                  _hover={{ transform: "translateY(-2px)" }}
-                  bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
-                  color={useColorModeValue("white", "black")}
-                >
-                  Get a Seed <ExternalLinkIcon mx="2px" />
-                </Link>
-              )}
-            </Center>
-          </Grid>
-        ) : holdsSeed || holdsFungibleAsset ? (
+          <></>
+        ) : // <Grid templateColumns="repeat(1, 1fr)">
+        //   <Center>
+        //     <SeedBasketImg boxSize={220} />
+        //   </Center>
+        //   <Center>
+        //     <Box maxW="30rem" mb={8} fontSize="20px" textStyle={"reading"}>
+        //       <Text pt="8">
+        //         {!account
+        //           ? "Please connect your wallet"
+        //           : !holdsSeed
+        //           ? "Your garden has no seeds"
+        //           : ""}
+        //       </Text>
+        //     </Box>
+        //   </Center>
+        //   <Center>
+        //     {!holdsSeed && !tickets && account && (
+        //       <Link
+        //         href="https://opensea.io/collection/shrub-paper-gardens"
+        //         isExternal
+        //         cursor="pointer"
+        //         rounded="3xl"
+        //         size="sm"
+        //         px="6"
+        //         fontSize="25px"
+        //         fontWeight="semibold"
+        //         py="5"
+        //         _hover={{ transform: "translateY(-2px)" }}
+        //         bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
+        //         color={useColorModeValue("white", "black")}
+        //       >
+        //         Get a Seed <ExternalLinkIcon mx="2px" />
+        //       </Link>
+        //     )}
+        //   </Center>
+        // </Grid>
+        holdsSeed || holdsFungibleAsset ? (
           // Only show the grid view if the user has items that will show in the grid
           <Grid
             templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
