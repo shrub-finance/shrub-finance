@@ -380,8 +380,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
       for (const pottedPlant of mySeedData.user.pottedPlants) {
         const { id, growth, seed } = pottedPlant;
         const { name, dna, emotion, type } = seed;
-        // @ts-ignore
         const imageUrl =
+          // @ts-ignore
           IMAGE_ASSETS[`pottedPlant${type}${Math.floor(growth / 1000)}`];
         console.log(`pottedPlant${type}${Math.floor(growth / 1000)}`);
         console.log(imageUrl);
