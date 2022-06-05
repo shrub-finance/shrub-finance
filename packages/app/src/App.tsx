@@ -12,9 +12,8 @@ import { useEffect } from "react";
 
 const windowContext: any = window;
 const history = createHistory(windowContext);
-console.log("history", history);
-const trackingID = "UA-230658811-1";
-//const trackingID = process.env.REACT_APP_TRACKING_ID;
+
+const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
   ReactGA.initialize(trackingID, {
     gaOptions: {
