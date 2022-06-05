@@ -13,7 +13,6 @@ export default function Confetti() {
   };
 
   return (
-    // @ts-ignore
     <Particles
       id="tsparticles"
       // @ts-ignore

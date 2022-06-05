@@ -67,20 +67,20 @@ function DesktopMenu() {
         >
           Chapters
         </Link>
-        <Link
-          as={ReachLink}
-          to="/adoption"
-          variant="ghost"
-          cursor="pointer"
-          px={2}
-          py={{ base: "3", md: "1", lg: "1" }}
-          rounded={"lg"}
-          _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={handleGA}
-          display={{ md: "none", lg: "none", xl: "inline" }}
-        >
-          Adoption
-        </Link>
+        {/*<Link*/}
+        {/*  as={ReachLink}*/}
+        {/*  to="/adoption"*/}
+        {/*  variant="ghost"*/}
+        {/*  cursor="pointer"*/}
+        {/*  px={2}*/}
+        {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
+        {/*  rounded={"lg"}*/}
+        {/*  _hover={{ textDecoration: "none", bgGradient: gradient }}*/}
+        {/*  onClick={handleGA}*/}
+        {/*  display={{ md: "none", lg: "none", xl: "inline" }}*/}
+        {/*>*/}
+        {/*  Adoption*/}
+        {/*</Link>*/}
         <Link
           as={ReachLink}
           to="/leaderboard"
