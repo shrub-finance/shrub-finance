@@ -12,6 +12,7 @@ import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ChaptersView from "./pages/ChaptersView";
 import IntroView from "./pages/IntroView";
+import OpenSeaView from "./pages/OpenSeaView";
 import ReactGA from "react-ga";
 import MysteryBoxView from "./pages/MysteryBoxView";
 const trackingID = process.env.REACT_APP_TRACKING_ID;
@@ -59,6 +60,7 @@ function App() {
               <NFTView path="/nft/paper-seed/:tokenId" />
               <AdoptionCenterView path="/adoption" />
               <MyPaperGardenView path="/my-garden" />
+              <OpenSeaView path="/openSea" />
             </Router>
           </Store>
         </ApolloProvider>
