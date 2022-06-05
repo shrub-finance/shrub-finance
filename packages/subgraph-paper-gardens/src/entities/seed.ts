@@ -1,4 +1,4 @@
-import { Seed } from '../../generated/schema'
+import { PottedPlant, Seed } from '../../generated/schema'
 import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
 import { getUser } from './user'
 import { getTypeStat, recordClaim } from './typestats'
@@ -83,5 +83,11 @@ export function getSeed(tokenId: BigInt): Seed {
   if (seed === null) {
     throw new Error(`Seed with tokenId ${tokenId.toString()} not found`);
   }
+  return seed as Seed;
+}
+
+export function addPottedPlant(seed: Seed, pottedPlant: PottedPlant): Seed {
+  seed.pottedPlant = pottedPlant.id;
+  seed.save();
   return seed as Seed;
 }

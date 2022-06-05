@@ -9,6 +9,8 @@ export function handleErrorMessagesFactory(
     if (err) {
       // @ts-ignore
       if (err.data && err.data.message) {
+        // @ts-ignore
+        console.log(err.data.message);
         if (
           // @ts-ignore
           err.data.message.includes("execution reverted:")
@@ -29,7 +31,14 @@ export function handleErrorMessagesFactory(
           setter(err.data.message);
         }
       } else {
-        setter(err.message);
+        if (
+          // @ts-ignore
+          err.message.includes("Must own a pot token to plant")
+        ) {
+          setter("Must own an Empty Pot to Plant");
+        } else {
+          setter(err.message);
+        }
       }
       console.log(err);
     } else if (customMessage) {

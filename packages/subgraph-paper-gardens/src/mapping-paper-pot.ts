@@ -11,6 +11,7 @@ import {
 } from './entities/user'
 import { Plant, Grow, TransferBatch, TransferSingle } from '../generated/PaperPot/PaperPot'
 import { User } from '../generated/schema'
+import { createPottedPlant, growPottedPlant } from './entities/potted-plant'
 let One = BigInt.fromI32(1);
 let Two = BigInt.fromI32(2);
 let Three = BigInt.fromI32(3);
@@ -73,6 +74,12 @@ export function handleTransferSingle(event: TransferSingle): void {
     }
   } else if (tokenId >= OneMillion) {
     // Case: Potted Plant
+    if (from.toHexString() == ZERO_ADDRESS) {
+      // This is the minting case and will be handled by the Plant event
+    }
+    if (to.toHexString() == ZERO_ADDRESS) {
+      // TODO: This is the burning case, and we need to figure out how to deal with harvesting - likely needs another special
+    }
   } else if (tokenId >= TwoMillion && tokenId < ThreeMillion) {
     // Case: Shrub
   } else {
@@ -117,9 +124,16 @@ export function handleTransferBatch(event: TransferBatch): void {
 }
 
 export function handleGrow(event: Grow): void {
-
+  let tokenId = event.params.tokenId
+  let growthBps = event.params.growthBps;
+  let growthAmount = event.params.growthAmount;
+  growPottedPlant(tokenId, growthBps);
 }
 
 export function handlePlant(event: Plant): void {
-
+  let seedTokenId = event.params.seedTokenId;
+  let tokenId = event.params.tokenId;
+  let account = event.params.account;
+  let block = event.block;
+  createPottedPlant(tokenId, seedTokenId, account, block);
 }

@@ -105,6 +105,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
     imageUrl: string;
     category: string;
     quantity?: number;
+    growth?: number;
   }>({
     tokenId: "",
     name: "",
@@ -158,6 +159,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   });
   const invalidEntry = Number(redeemAmount) < 0 || isNaN(Number(redeemAmount));
 
+  // console.log(mySeedData);
   const holdsSeed = mySeedData && mySeedData.seeds && mySeedData.seeds.length;
   const tickets =
     mySeedData && mySeedData.user && Number(mySeedData.user.ticketCount);
@@ -169,8 +171,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
     };
   const holdsFungibleAsset =
     fungibleAssets && Object.values(fungibleAssets).some((val) => val > 0);
-  console.log(fungibleAssets);
-  console.log(holdsFungibleAsset);
+  const holdsPottedPlant =
+    mySeedData &&
+    mySeedData.user &&
+    mySeedData.user.pottedPlants &&
+    mySeedData.user.pottedPlants.length;
+  // console.log(fungibleAssets);
+  // console.log(holdsFungibleAsset);
 
   const tooLarge =
     tickets && ethers.BigNumber.from(redeemAmount || 0).gt(tickets);
@@ -363,6 +370,39 @@ function MyPaperGardenView(props: RouteComponentProps) {
               onOpen();
             }}
             imgCallback={() => IMAGE_ASSETS.fertilizer}
+          />
+        );
+      }
+    }
+
+    if (holdsPottedPlant) {
+      // id, name, image
+      for (const pottedPlant of mySeedData.user.pottedPlants) {
+        const { id, growth, seed } = pottedPlant;
+        const { name, dna, emotion, type } = seed;
+        // @ts-ignore
+        const imageUrl =
+          IMAGE_ASSETS[`pottedPlant${type}${Math.floor(growth / 1000)}`];
+        console.log(`pottedPlant${type}${Math.floor(growth / 1000)}`);
+        console.log(imageUrl);
+        tempMySeedDataRows.push(
+          <GardenGrid
+            id={id}
+            name={`#${id}`}
+            onClick={() => {
+              setSelectedItem({
+                tokenId: id,
+                name: "Potted Plant",
+                emotion: emotion,
+                type: type,
+                dna: dna,
+                imageUrl: imageUrl,
+                growth: growth,
+                category: "pottedPlant",
+              });
+              onOpen();
+            }}
+            imgCallback={() => imageUrl}
           />
         );
       }
@@ -949,6 +989,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   mySeedDataError,
                   selectedItem,
                 }}
+                handleErrorMessages={handleErrorMessages}
               />
             </Box>
             <Drawer
@@ -968,6 +1009,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       mySeedDataError,
                       selectedItem,
                     }}
+                    handleErrorMessages={handleErrorMessages}
                   />
                 </DrawerBody>
                 {/*<DrawerFooter>*/}

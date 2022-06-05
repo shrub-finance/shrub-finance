@@ -31,10 +31,13 @@ import { motion, useAnimation } from "framer-motion";
 import {
   approveAllErc721,
   approveToken,
+  harvestShrub,
   isApprovedErc721,
   mint,
   mintWL,
   plant,
+  water,
+  waterWithFertilizer,
 } from "../utils/ethMethods";
 import { useWeb3React } from "@web3-react/core";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
@@ -44,12 +47,17 @@ import { TxContext } from "./Store";
 
 function SeedDetails({
   hooks,
+  handleErrorMessages,
 }: {
   hooks: {
     mySeedDataLoading: any;
     mySeedDataError: any;
     selectedItem: any;
   };
+  handleErrorMessages: (errorOptions: {
+    err?: Error | undefined;
+    customMessage?: string | undefined;
+  }) => void;
 }) {
   const { mySeedDataLoading, mySeedDataError, selectedItem } = hooks;
 
@@ -60,8 +68,11 @@ function SeedDetails({
   const { pendingTxs } = useContext(TxContext);
   const [plantingApproved, setPlantingApproved] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [modalState, setModalState] = useState<
+    "plant" | "water" | "fertilize" | "harvest" | "planting"
+  >("plant");
   const [activeHash, setActiveHash] = useState<string>();
-  const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
+  // const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
   const {
     active,
@@ -118,76 +129,136 @@ function SeedDetails({
     }, 1);
   }, [isOpen]);
 
+  // Scroll to top on error
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [localError, web3Error]);
+
   const MotionModalContent = motion<ModalContentProps>(ModalContent);
-  console.log(selectedItem);
+  // console.log(selectedItem);
 
-  async function handleApprove() {
-    const description = "Approving Paper Seeds for planting";
-    try {
-      console.log(PAPERSEED_ADDRESS, PAPER_POT_ADDRESS);
-      const tx = await approveAllErc721(
-        PAPERSEED_ADDRESS,
-        PAPER_POT_ADDRESS,
-        true,
-        library
-      );
-      pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
-      setActiveHash(tx.hash);
-      try {
-        const receipt = await tx.wait();
-        const toastDescription = ToastDescription(
-          description,
-          receipt.transactionHash,
-          chainId
-        );
-        toast({
-          title: "Transaction Confirmed",
-          description: toastDescription,
-          status: "success",
-          isClosable: true,
-          variant: "solid",
-          position: "top-right",
-        });
-        pendingTxsDispatch({
-          type: "update",
-          txHash: receipt.transactionHash,
-          status: "confirmed",
-        });
-      } catch (e: any) {
-        const toastDescription = ToastDescription(
-          description,
-          e.transactionHash,
-          chainId
-        );
-        pendingTxsDispatch({
-          type: "update",
-          txHash: e.transactionHash || e.hash,
-          status: "failed",
-        });
-        toast({
-          title: "Transaction Failed",
-          description: toastDescription,
-          status: "error",
-          isClosable: true,
-          variant: "solid",
-          position: "top-right",
-        });
-      }
-    } catch (e: any) {
-      handleErrorMessages({ err: e });
-    }
-  }
+  // async function handleApprove() {
+  //   const description = "Approving Paper Seeds for planting";
+  //   try {
+  //     console.log(PAPERSEED_ADDRESS, PAPER_POT_ADDRESS);
+  //     const tx = await approveAllErc721(
+  //       PAPERSEED_ADDRESS,
+  //       PAPER_POT_ADDRESS,
+  //       true,
+  //       library
+  //     );
+  //     pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+  //     setActiveHash(tx.hash);
+  //     try {
+  //       const receipt = await tx.wait();
+  //       const toastDescription = ToastDescription(
+  //         description,
+  //         receipt.transactionHash,
+  //         chainId
+  //       );
+  //       toast({
+  //         title: "Transaction Confirmed",
+  //         description: toastDescription,
+  //         status: "success",
+  //         isClosable: true,
+  //         variant: "solid",
+  //         position: "top-right",
+  //       });
+  //       pendingTxsDispatch({
+  //         type: "update",
+  //         txHash: receipt.transactionHash,
+  //         status: "confirmed",
+  //       });
+  //     } catch (e: any) {
+  //       const toastDescription = ToastDescription(
+  //         description,
+  //         e.transactionHash,
+  //         chainId
+  //       );
+  //       pendingTxsDispatch({
+  //         type: "update",
+  //         txHash: e.transactionHash || e.hash,
+  //         status: "failed",
+  //       });
+  //       toast({
+  //         title: "Transaction Failed",
+  //         description: toastDescription,
+  //         status: "error",
+  //         isClosable: true,
+  //         variant: "solid",
+  //         position: "top-right",
+  //       });
+  //     }
+  //   } catch (e: any) {
+  //     handleErrorMessages({ err: e });
+  //   }
+  // }
+  //
+  // async function handlePlanting() {
+  //   setLocalError("");
+  //   // setIsMinted(false);
+  //   // setNftImageId("");
+  //   // setTokenId(0);
+  //   // setNftTitle("");
+  //   // setIsLoading(true);
+  //   const description = "Planting";
+  //   try {
+  //     const tx = await plant(selectedItem.tokenId, library);
+  //     pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+  //     setActiveHash(tx.hash);
+  //     try {
+  //       const receipt = await tx.wait();
+  //       // setIsMinted(true);
+  //       const toastDescription = ToastDescription(
+  //         description,
+  //         receipt.transactionHash,
+  //         chainId
+  //       );
+  //       toast({
+  //         title: "Transaction Confirmed",
+  //         description: toastDescription,
+  //         status: "success",
+  //         isClosable: true,
+  //         variant: "solid",
+  //         position: "top-right",
+  //       });
+  //       pendingTxsDispatch({
+  //         type: "update",
+  //         txHash: receipt.transactionHash,
+  //         status: "confirmed",
+  //       });
+  //     } catch (e: any) {
+  //       const toastDescription = ToastDescription(
+  //         description,
+  //         e.transactionHash,
+  //         chainId
+  //       );
+  //       pendingTxsDispatch({
+  //         type: "update",
+  //         txHash: e.transactionHash || e.hash,
+  //         status: "failed",
+  //       });
+  //       toast({
+  //         title: "Transaction Failed",
+  //         description: toastDescription,
+  //         status: "error",
+  //         isClosable: true,
+  //         variant: "solid",
+  //         position: "top-right",
+  //       });
+  //     }
+  //   } catch (e: any) {
+  //     handleErrorMessages({ err: e });
+  //   }
+  // }
 
-  async function handlePlanting() {
+  async function handleBlockchainTx(
+    description: string,
+    callbackTx: () => Promise<ethers.ContractTransaction>
+  ) {
     setLocalError("");
-    // setIsMinted(false);
-    // setNftImageId("");
-    // setTokenId(0);
-    // setNftTitle("");
-    // setIsLoading(true);
-    const description = "Planting";
     try {
-      const tx = await plant(selectedItem.tokenId, library);
+      const tx = await callbackTx();
       pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
       setActiveHash(tx.hash);
       try {
@@ -234,6 +305,36 @@ function SeedDetails({
     } catch (e: any) {
       handleErrorMessages({ err: e });
     }
+  }
+
+  function handlePlanting() {
+    return handleBlockchainTx("Planting", () =>
+      plant(selectedItem.tokenId, library)
+    );
+  }
+
+  function handleApprove() {
+    return handleBlockchainTx("Approving Paper Seeds for planting", () =>
+      approveAllErc721(PAPERSEED_ADDRESS, PAPER_POT_ADDRESS, true, library)
+    );
+  }
+
+  function handleWatering() {
+    return handleBlockchainTx("Watering", () =>
+      water([selectedItem.tokenId], library)
+    );
+  }
+
+  function handleFertilizing() {
+    return handleBlockchainTx("Fertilizing", () =>
+      waterWithFertilizer([selectedItem.tokenId], library)
+    );
+  }
+
+  function handleHarvesting() {
+    return handleBlockchainTx("Harvesting Shrub", () =>
+      harvestShrub(selectedItem.tokenId, library)
+    );
   }
 
   return (
@@ -307,7 +408,7 @@ function SeedDetails({
                 {/*</Stack>*/}
               </>
             )}
-            {selectedItem.category === "paperSeed" && (
+            {["paperSeed", "pottedPlant"].includes(selectedItem.category) && (
               <>
                 <Stack
                   align={"center"}
@@ -316,14 +417,17 @@ function SeedDetails({
                   mt={6}
                 >
                   <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                    Rarity:{" "}
-                    {selectedItem.type === "Hope"
-                      ? "Rare"
-                      : selectedItem.type === "Power"
-                      ? "Legendary"
-                      : selectedItem.type === "Passion"
-                      ? "Uncommon"
-                      : "Common"}
+                    {selectedItem.category === "paperSeed"
+                      ? `Rarity: ${
+                          selectedItem.type === "Hope"
+                            ? "Rare"
+                            : selectedItem.type === "Power"
+                            ? "Legendary"
+                            : selectedItem.type === "Passion"
+                            ? "Uncommon"
+                            : "Common"
+                        }`
+                      : `Growth: ${Math.floor(selectedItem.growth / 10) / 10}%`}
                   </Badge>
                   <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
                     Emotion: {selectedItem.emotion}
@@ -349,6 +453,10 @@ function SeedDetails({
               {/*Water Button*/}
               {selectedItem.category === "pottedPlant" && (
                 <Button
+                  onClick={() => {
+                    setModalState("water");
+                    onOpen();
+                  }}
                   flex={1}
                   fontSize={"sm"}
                   rounded={"full"}
@@ -362,7 +470,10 @@ function SeedDetails({
               {/*Plant Button*/}
               {selectedItem.category === "paperSeed" && (
                 <Button
-                  onClick={onOpen}
+                  onClick={() => {
+                    setModalState("plant");
+                    onOpen();
+                  }}
                   flex={1}
                   fontSize={"sm"}
                   rounded={"full"}
@@ -383,6 +494,10 @@ function SeedDetails({
             {selectedItem.category === "pottedPlant" && (
               <Stack mt={8} direction={"row"} spacing={4}>
                 <Button
+                  onClick={() => {
+                    setModalState("fertilize");
+                    onOpen();
+                  }}
                   flex={1}
                   fontSize={"sm"}
                   rounded={"full"}
@@ -393,7 +508,10 @@ function SeedDetails({
                   Fertilize
                 </Button>
                 <Button
-                  onClick={onOpen}
+                  onClick={() => {
+                    setModalState("harvest");
+                    onOpen();
+                  }}
                   flex={1}
                   fontSize={"sm"}
                   rounded={"full"}
@@ -434,30 +552,103 @@ function SeedDetails({
             delay: 1.97,
           }}
         >
-          <ModalHeader>Plant your seed</ModalHeader>
+          <ModalHeader>
+            {modalState === "plant"
+              ? "Plant Your Seed"
+              : modalState === "water"
+              ? "Water Your Potted Plant"
+              : modalState === "fertilize"
+              ? "Fertilize Your Potted Plant"
+              : modalState === "harvest"
+              ? "Harvest your Shrub"
+              : "Unhandled State"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody pt={40}>
-            <Center>
-              <Box textStyle={"reading"}>
-                <Text>Planting will result in</Text>
-                <Text>{selectedItem.name}</Text>
-                <Text>and</Text>
-                <Text>1 Empty Pot</Text>
-                <Text>
-                  converting into a potted plant that you can grow into a Shrub
-                </Text>
-                <Text>This is irrevesible.</Text>
-                {!plantingApproved && (
+            {modalState === "plant" ? (
+              <Center>
+                <Box textStyle={"reading"}>
+                  <Text>Planting will result in</Text>
+                  <Text>{selectedItem.name}</Text>
+                  <Text>and</Text>
+                  <Text>1 Empty Pot</Text>
                   <Text>
-                    You must also first approve your seed for planting
+                    converting into a potted plant that you can grow into a
+                    Shrub
                   </Text>
-                )}
-              </Box>
-            </Center>
+                  <Text>This is irrevesible.</Text>
+                  {!plantingApproved && (
+                    <Text>
+                      You must also first approve your seed for planting
+                    </Text>
+                  )}
+                </Box>
+              </Center>
+            ) : modalState === "water" ? (
+              <Center>
+                <Box textStyle={"reading"}>
+                  <Text>Watering will result in</Text>
+                  <Text>1 Water being consumed</Text>
+                  <Text>
+                    And in turn increasing the growth number of your potted
+                    plant.
+                  </Text>
+                  <Text>
+                    This can only be done once per day for each potted plant.
+                  </Text>
+                </Box>
+              </Center>
+            ) : modalState === "fertilize" ? (
+              <Center>
+                <Box textStyle={"reading"}>
+                  <Text>Fertilizing will result in</Text>
+                  <Text>1 Fertilizer</Text>
+                  <Text>plus</Text>
+                  <Text>1 Water being consumed</Text>
+                  <Text>This is done in place of a normal daily watering</Text>
+                  <Text>
+                    Your potted plant will grow more compared to when simply
+                    watered
+                  </Text>
+                  <Text>
+                    This is a one-time effect, it will not affect future
+                    waterings
+                  </Text>
+                  <Text>
+                    This can only be done once per day for each potted plant.
+                  </Text>
+                </Box>
+              </Center>
+            ) : modalState === "harvest" ? (
+              <Center>
+                <Box textStyle={"reading"}>
+                  <Text>Harvesting will result in</Text>
+                  <Text>your potted plant</Text>
+                  <Text>and</Text>
+                  <Text>1 Empty Pot</Text>
+                  <Text>converting into a fully-grown Shrub.</Text>
+                  <Text>This is irrevesible.</Text>
+                </Box>
+              </Center>
+            ) : (
+              <></>
+            )}
             <Center>
               <Button
                 // onClick={onOpen}
-                onClick={plantingApproved ? handlePlanting : handleApprove}
+                onClick={
+                  modalState === "plant"
+                    ? plantingApproved
+                      ? handlePlanting
+                      : handleApprove
+                    : modalState === "water"
+                    ? handleWatering
+                    : modalState === "fertilize"
+                    ? handleFertilizing
+                    : modalState === "harvest"
+                    ? handleHarvesting
+                    : () => console.log("unexpected state")
+                }
                 flex={1}
                 fontSize={"sm"}
                 rounded={"full"}
@@ -471,7 +662,17 @@ function SeedDetails({
                   bg: "shrub.100",
                 }}
               >
-                {plantingApproved ? "Plant" : "Approve Seed for Planting"}
+                {modalState === "plant"
+                  ? plantingApproved
+                    ? "Plant"
+                    : "Approve Seed for Planting"
+                  : modalState === "water"
+                  ? "Water"
+                  : modalState === "fertilize"
+                  ? "Fertilize"
+                  : modalState === "harvest"
+                  ? "Harvest"
+                  : "Unexpected State"}
               </Button>
             </Center>
             {/*Animation once planting occurs*/}

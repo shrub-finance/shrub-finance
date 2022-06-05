@@ -64,6 +64,16 @@ export const MY_GARDENS_QUERY = gql`
       waterCount
       fertilizerCount
       potCount
+      pottedPlants {
+        id
+        growth
+        seed {
+          name
+          dna
+          emotion
+          type
+        }
+      }
     }
     seeds(where: { owner: $user }) {
       id

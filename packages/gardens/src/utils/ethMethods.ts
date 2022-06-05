@@ -320,6 +320,33 @@ export async function approveAllErc721(
   return erc721.setApprovalForAll(spender, approved);
 }
 
+export async function water(
+  tokenIds: ethers.BigNumberish[],
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.water(tokenIds);
+}
+
+export async function waterWithFertilizer(
+  tokenIds: ethers.BigNumberish[],
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.waterWithFertilizer(tokenIds);
+}
+
+export async function harvestShrub(
+  tokenId: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.harvest(tokenId);
+}
+
 export async function plant(
   seedTokenId: ethers.BigNumberish,
   provider: JsonRpcProvider
