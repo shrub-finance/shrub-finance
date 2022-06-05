@@ -114,6 +114,10 @@ function TopNav() {
     sendEvent(event.type, event.target.innerText);
   }
 
+  function handleReportIssue(event: React.BaseSyntheticEvent) {
+    sendEvent(event.type, event.target.innerText);
+  }
+
   const NavRoutes = [
     { item: "Shrubfolio", itemIcon: GiCoins },
     { item: "Options", itemIcon: FaFileContract },
@@ -185,6 +189,7 @@ function TopNav() {
                 py={{ base: "3", md: "1", lg: "1" }}
                 rounded={"lg"}
                 _hover={{ textDecoration: "none", bgGradient: gradient }}
+                onClick={handleReportIssue}
               >
                 Report Issues
               </Link>

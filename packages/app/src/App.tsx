@@ -1,7 +1,7 @@
 import OptionsView from "./pages/OptionsView";
 import PositionsView from "./pages/PositionsView";
 import TopNav from "./components/TopNav";
-import { Router } from "@reach/router";
+import { Router, createHistory, LocationProvider } from "@reach/router";
 import { Web3ReactProvider } from "@web3-react/core";
 import { getLibrary } from "./components/ConnectWallet";
 import Store from "./components/Store";
@@ -10,7 +10,11 @@ import HomeView from "./pages/HomeView";
 import ReactGA from "react-ga";
 import { useEffect } from "react";
 
-const trackingID = process.env.REACT_APP_TRACKING_ID;
+const windowContext: any = window;
+const history = createHistory(windowContext);
+console.log("history", history);
+const trackingID = "UA-230658811-1";
+//const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
   ReactGA.initialize(trackingID, {
     gaOptions: {
@@ -40,18 +44,20 @@ function App() {
 
   return (
     <div className="App">
-      <Web3ReactProvider getLibrary={getLibrary}>
-        <ApolloProvider client={client}>
-          <Store>
-            <TopNav />
-            <Router>
-              <HomeView path="/" />
-              <PositionsView path="shrubfolio" />
-              <OptionsView path="options" />
-            </Router>
-          </Store>
-        </ApolloProvider>
-      </Web3ReactProvider>
+      <LocationProvider history={history}>
+        <Web3ReactProvider getLibrary={getLibrary}>
+          <ApolloProvider client={client}>
+            <Store>
+              <TopNav />
+              <Router>
+                <HomeView path="/" />
+                <PositionsView path="shrubfolio" />
+                <OptionsView path="options" />
+              </Router>
+            </Store>
+          </ApolloProvider>
+        </Web3ReactProvider>
+      </LocationProvider>
     </div>
   );
 }
