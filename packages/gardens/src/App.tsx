@@ -12,6 +12,7 @@ import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ChaptersView from "./pages/ChaptersView";
 import IntroView from "./pages/IntroView";
+import OpenSeaView from "./pages/OpenSeaView";
 import ReactGA from "react-ga";
 import ShrubSeedsPieChartView from "./pages/ShrubSeedsPieChartView";
 
@@ -61,6 +62,7 @@ function App() {
               <AdoptionCenterView path="/adoption" />
               <MyPaperGardenView path="/my-garden" />
               <ShrubSeedsPieChartView path="/shrubSeedPie" />
+              <OpenSeaView path="/openSea" />
             </Router>
           </Store>
         </ApolloProvider>
