@@ -13,6 +13,13 @@ import {
   Spacer,
   SlideFade,
   Alert,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   AlertIcon,
   Modal,
   ModalOverlay,
@@ -47,6 +54,7 @@ import {
   Tag,
   TagLabel,
   Tooltip,
+  VStack,
 } from "@chakra-ui/react";
 import {
   depositEth,
@@ -91,12 +99,15 @@ import { SHRUBFOLIO_QUERY } from "../constants/queries";
 import { isMobile } from "react-device-detect";
 import usePriceFeed from "../hooks/usePriceFeed";
 import { CHAINLINK_MATIC } from "../constants/chainLinkPrices";
+import ExcerciseConfirmationAlert from "./ExerciseConfirmationAlert";
 
 const POLL_INTERVAL = 1000; // 1 second polling interval
-
+let exerciseComponent: JSX.Element;
 function Positions() {
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+  const [exerciseConfirmationFlag, setExerciseConfirmationFlag] =
+    useState(false);
   const {
     active,
     library,
@@ -283,6 +294,8 @@ function Positions() {
 
   // options display
   useEffect(() => {
+    console.log("execise the value");
+
     const now = new Date();
     const optionRow: JSX.Element[] = [];
     const expiredOptionRow: JSX.Element[] = [];
@@ -399,7 +412,14 @@ function Positions() {
                     colorScheme={btnBg}
                     variant={"link"}
                     size="sm"
-                    onClick={() => handleClickExercise(pair, common, amount)}
+                    onClick={() =>
+                      handleClickExercise(
+                        pair,
+                        common,
+                        amount,
+                        orderStack.totalUnrealizedGain
+                      )
+                    }
                   >
                     Exercise
                     {/*  Old Exercised logic */}
@@ -472,6 +492,7 @@ function Positions() {
         );
       }
     }
+
     setOptionsRows(optionRow);
     setExpiredOptionsRows(expiredOptionRow);
   }, [shrubfolioData]);
@@ -648,42 +669,22 @@ function Positions() {
   async function handleClickExercise(
     pair: string,
     common: OrderCommon,
-    amount: string
+    amount: string,
+    totalProfitOrLoss: any
   ) {
-    try {
-      const bigAmount = ethers.utils.parseUnits(amount, 18);
-      const tx = await exerciseLight(common, bigAmount, library);
-      const { optionType, strike } = common;
-      const formattedStrike = ethers.utils.formatUnits(strike, 6);
-      const description = `Exercise ${pair} option for $${
-        Number(amount) * Number(formattedStrike)
-      } at strike $${formattedStrike}`;
-      pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
-      const receipt = await tx.wait();
-      const toastDescription = ToastDescription(
-        description,
-        receipt.transactionHash,
-        chainId
-      );
-      toast({
-        title: "Transaction Confirmed",
-        description: toastDescription,
-        status: "success",
-        isClosable: true,
-        variant: "solid",
-        position: "top-right",
-      });
-      pendingTxsDispatch({
-        type: "update",
-        txHash: receipt.transactionHash,
-        status: "confirmed",
-        data: { blockNumber: receipt.blockNumber },
-      });
-      return tx;
-    } catch (e: any) {
-      console.error(e);
-      handleErrorMessages({ err: e });
-    }
+    setExerciseConfirmationFlag(true);
+    const handleExcerciseConfirmation = (val = "NO") => {
+      setExerciseConfirmationFlag(val === "YES");
+    };
+    exerciseComponent = (
+      <ExcerciseConfirmationAlert
+        onCustomClose={handleExcerciseConfirmation}
+        pair={pair}
+        common={common}
+        amount={amount}
+        orderStack={totalProfitOrLoss}
+      />
+    );
   }
 
   function totalUserBalance(currency: string) {
@@ -801,6 +802,7 @@ function Positions() {
     expiredOptionsRows.length ? "green.50" : undefined,
     expiredOptionsRows.length ? "#000809" : undefined
   );
+
   return (
     <>
       {/*web3 errors*/}
@@ -1138,6 +1140,7 @@ function Positions() {
           </ModalBody>
         </ModalContent>
       </Modal>
+      {exerciseConfirmationFlag && exerciseComponent}
     </>
   );
 }
