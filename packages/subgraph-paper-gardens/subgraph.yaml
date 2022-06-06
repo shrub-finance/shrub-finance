@@ -160,6 +160,8 @@ dataSources:
           handler: handleGrow
         - event: Plant(uint256,uint256,address)
           handler: handlePlant
+        - event: Harvest(uint256,uint256,address)
+          handler: handleHarvest
       file: ./src/mapping-paper-pot.ts
 
 #  - ApprovalForAll(indexed address,indexed address,bool)

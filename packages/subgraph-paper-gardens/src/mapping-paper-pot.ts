@@ -1,4 +1,4 @@
-import { BigInt, log } from '@graphprotocol/graph-ts'
+import { Address, BigInt, log } from '@graphprotocol/graph-ts'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 
 import {
@@ -9,9 +9,10 @@ import {
   incrementPotCount,
   incrementTicketCount, incrementWaterCount,
 } from './entities/user'
-import { Plant, Grow, TransferBatch, TransferSingle } from '../generated/PaperPot/PaperPot'
+import { Plant, Grow, TransferBatch, TransferSingle, Harvest } from '../generated/PaperPot/PaperPot'
 import { User } from '../generated/schema'
-import { createPottedPlant, growPottedPlant } from './entities/potted-plant'
+import { changePottedPlantOwner, createPottedPlant, growPottedPlant } from './entities/potted-plant'
+import { createShrub } from './entities/shrub'
 let One = BigInt.fromI32(1);
 let Two = BigInt.fromI32(2);
 let Three = BigInt.fromI32(3);
@@ -19,23 +20,9 @@ let OneMillion = BigInt.fromI32(1000000);
 let TwoMillion = BigInt.fromI32(2000000);
 let ThreeMillion = BigInt.fromI32(3000000);
 
-// - ApprovalForAll(indexed address,indexed address,bool)
-// - Grow(uint256,uint16,uint16)
-// - Plant(uint256,uint256,address)
-// - TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
-// - TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
-// - URI(string,indexed uint256)
-
-export function handleTransferSingle(event: TransferSingle): void {
-  let operator = event.params.operator
-  let tokenId = event.params.id
-  let from = event.params.from
-  let to = event.params.to
-  let value = event.params.value
+function transfer(tokenId: BigInt, from: Address, to: Address, value: BigInt): void {
   let fromUser: User
   let toUser: User
-  // 3 Cases
-  // Mint, Burn, Transfer
   if (from.toHexString() != ZERO_ADDRESS) {
     fromUser = getUser(from)
   }
@@ -74,30 +61,28 @@ export function handleTransferSingle(event: TransferSingle): void {
     }
   } else if (tokenId >= OneMillion) {
     // Case: Potted Plant
-    if (from.toHexString() == ZERO_ADDRESS) {
-      // This is the minting case and will be handled by the Plant event
+    if (from.toHexString() != ZERO_ADDRESS) {
+      // skip the minting case and will be handled by the Plant event
+      changePottedPlantOwner(tokenId, to)
     }
-    if (to.toHexString() == ZERO_ADDRESS) {
-      // TODO: This is the burning case, and we need to figure out how to deal with harvesting - likely needs another special
-    }
+    // if (to.toHexString() == ZERO_ADDRESS) {
+    //   // TODO: This is the burning case, and we need to figure out how to deal with harvesting - likely needs another special
+    // }
   } else if (tokenId >= TwoMillion && tokenId < ThreeMillion) {
     // Case: Shrub
   } else {
     // This shouldn't happen
     log.error('unexpected tokenId: {}', [tokenId.toString()]);
   }
-// if (tokenId != One) {
-  //   log.info('unexpected tokenId: {}', [tokenId.toString()]);
-  //   return;
-  // }
-  // if (from.toHexString() != ZERO_ADDRESS) {
-  //   let fromUser = getUser(from)
-  //   decrementTicketCount(fromUser, value)
-  // }
-  // if (to.toHexString() != ZERO_ADDRESS) {
-  //   let toUser = getUser(to)
-  //   incrementTicketCount(toUser, value)
-  // }
+}
+
+export function handleTransferSingle(event: TransferSingle): void {
+  let operator = event.params.operator
+  let tokenId = event.params.id
+  let from = event.params.from
+  let to = event.params.to
+  let value = event.params.value
+  transfer(tokenId, from, to, value)
 }
 export function handleTransferBatch(event: TransferBatch): void {
   let operator = event.params.operator
@@ -107,19 +92,9 @@ export function handleTransferBatch(event: TransferBatch): void {
   let values = event.params.values
 
   for (let i = 0; i < values.length; i++) {
-    // let tokenId = tokenIds[i];
-    // let value = values[i];
-    // if (tokenId == One) {
-    //   // Only count for the first tokenId
-    //   if (from.toHexString() != ZERO_ADDRESS) {
-    //     let fromUser = getUser(from)
-    //     decrementTicketCount(fromUser, value)
-    //   }
-    //   if (to.toHexString() != ZERO_ADDRESS) {
-    //     let toUser = getUser(to)
-    //     incrementTicketCount(toUser, value)
-    //   }
-    // }
+    let tokenId = tokenIds[i]
+    let value = values[i]
+    transfer(tokenId, from, to, value)
   }
 }
 
@@ -137,4 +112,12 @@ export function handlePlant(event: Plant): void {
   let account = event.params.account;
   let block = event.block;
   createPottedPlant(tokenId, seedTokenId, account, block);
+}
+
+export function handleHarvest(event: Harvest): void {
+  let account = event.params.account
+  let pottedPlantTokenId = event.params.pottedPlantTokenId
+  let shrubTokenId = event.params.shrubTokenId
+  let block = event.block;
+  createShrub(shrubTokenId, pottedPlantTokenId, account, block);
 }

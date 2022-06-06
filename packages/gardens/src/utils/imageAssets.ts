@@ -21,10 +21,14 @@ export const IMAGE_ASSETS = {
     },
   },
   pottedPlantWonder0: "https://shrub.finance/assets/potted-plant-wonder.svg",
-  pottedPlantWonder1: "",
-  pottedPlantWonder2: "",
-  pottedPlantWonder3: "",
-  pottedPlantWonder4: "",
+  pottedPlantWonder1:
+    "https://gateway.pinata.cloud/ipfs/QmXTQ7Wgk5GQ8guUYverajH4AU2CXqXSK2uFmTmEFzMjYo/pottedplant-Wonder-1-happy.svg",
+  pottedPlantWonder2:
+    "https://gateway.pinata.cloud/ipfs/QmXTQ7Wgk5GQ8guUYverajH4AU2CXqXSK2uFmTmEFzMjYo/pottedplant-Wonder-2-happy.svg",
+  pottedPlantWonder3:
+    "https://gateway.pinata.cloud/ipfs/QmXTQ7Wgk5GQ8guUYverajH4AU2CXqXSK2uFmTmEFzMjYo/pottedplant-Wonder-3-happy.svg",
+  pottedPlantWonder4:
+    "https://gateway.pinata.cloud/ipfs/QmXTQ7Wgk5GQ8guUYverajH4AU2CXqXSK2uFmTmEFzMjYo/pottedplant-Wonder-4-happy.svg",
   pottedPlantPassion0: "https://shrub.finance/assets/potted-plant-passion.svg",
   pottedPlantPassion1: "",
   pottedPlantPassion2: "",

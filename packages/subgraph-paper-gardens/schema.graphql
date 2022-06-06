@@ -3,6 +3,7 @@ type User @entity {
   id: ID!
   seeds: [Seed!]! @derivedFrom(field: "owner")
   pottedPlants: [PottedPlant!]! @derivedFrom(field: "owner")
+  shrubNfts: [ShrubNFT!]! @derivedFrom(field: "owner")
   seedCount: BigInt!
   ticketCount: BigInt!
   potCount: BigInt!
@@ -23,6 +24,7 @@ type PottedPlant @entity {
   bornBlock: Int!
   growth: Int!
   lastWatering: Int!
+  shrubNft: ShrubNFT
 }
 
 type ShrubNFT @entity {
@@ -30,8 +32,7 @@ type ShrubNFT @entity {
   id: ID!
   owner: User!
   name: String!
-  dna: Int!
-  emotion: String!
+  pottedPlant: PottedPlant!
   born: Int!
   bornBlock: Int!
 }

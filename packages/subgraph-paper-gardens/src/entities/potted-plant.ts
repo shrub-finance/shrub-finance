@@ -1,4 +1,4 @@
-import { PottedPlant, Seed } from '../../generated/schema'
+import { PottedPlant, Seed, ShrubNFT } from '../../generated/schema'
 import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
 import { addPottedPlant, getSeed } from './seed'
 import { getUser } from './user'
@@ -121,6 +121,19 @@ export function growPottedPlant(tokenId: BigInt, growthBps: i32, block: ethereum
   let pottedPlant = getPottedPlant(tokenId);
   pottedPlant.growth = growthBps;
   pottedPlant.lastWatering = block.timestamp.toI32();
+  pottedPlant.save();
+  return pottedPlant as PottedPlant;
+}
+
+export function addShrubNft(pottedPlant: PottedPlant, shrubNft: ShrubNFT): PottedPlant {
+  pottedPlant.shrubNft = shrubNft.id;
+  pottedPlant.save();
+  return pottedPlant as PottedPlant;
+}
+
+export function changePottedPlantOwner(tokenId: BigInt, owner: Address): PottedPlant {
+  let pottedPlant = getPottedPlant(tokenId);
+  pottedPlant.owner = owner.toHex();
   pottedPlant.save();
   return pottedPlant as PottedPlant;
 }
