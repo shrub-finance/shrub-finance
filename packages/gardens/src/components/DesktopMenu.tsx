@@ -67,20 +67,20 @@ function DesktopMenu() {
         >
           Chapters
         </Link>
-        <Link
-          as={ReachLink}
-          to="/adoption"
-          variant="ghost"
-          cursor="pointer"
-          px={2}
-          py={{ base: "3", md: "1", lg: "1" }}
-          rounded={"lg"}
-          _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={handleGA}
-          display={{ md: "none", lg: "none", xl: "inline" }}
-        >
-          Adoption
-        </Link>
+        {/*<Link*/}
+        {/*  as={ReachLink}*/}
+        {/*  to="/adoption"*/}
+        {/*  variant="ghost"*/}
+        {/*  cursor="pointer"*/}
+        {/*  px={2}*/}
+        {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
+        {/*  rounded={"lg"}*/}
+        {/*  _hover={{ textDecoration: "none", bgGradient: gradient }}*/}
+        {/*  onClick={handleGA}*/}
+        {/*  display={{ md: "none", lg: "none", xl: "inline" }}*/}
+        {/*>*/}
+        {/*  Adoption*/}
+        {/*</Link>*/}
         <Link
           as={ReachLink}
           to="/leaderboard"
@@ -96,6 +96,19 @@ function DesktopMenu() {
         </Link>
         <Link
           as={ReachLink}
+          to="/openSea"
+          variant="ghost"
+          cursor="pointer"
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
+          _hover={{ textDecoration: "none", bgGradient: gradient }}
+          onClick={handleGA}
+        >
+          OpenSea
+        </Link>
+        <Link
+          as={ReachLink}
           to="/shrubSeeds"
           variant="ghost"
           cursor="pointer"
@@ -108,6 +121,7 @@ function DesktopMenu() {
           SeedsStats
         </Link>
         <Link
+        {/* <Link
           href="https://opensea.io/collection/shrub-paper-gardens"
           isExternal
           variant="ghost"
@@ -121,7 +135,7 @@ function DesktopMenu() {
           <Box as={"span"} whiteSpace={"nowrap"}>
             OpenSea
           </Box>
-        </Link>
+        </Link> */}
         <Link
           isExternal
           href="https://medium.com/@shrubfinance"

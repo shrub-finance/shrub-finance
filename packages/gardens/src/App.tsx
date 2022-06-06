@@ -12,6 +12,7 @@ import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ChaptersView from "./pages/ChaptersView";
 import IntroView from "./pages/IntroView";
+import OpenSeaView from "./pages/OpenSeaView";
 import ReactGA from "react-ga";
 import ShrubSeedsView from "./pages/ShrubSeedsView";
 
@@ -53,7 +54,7 @@ function App() {
             <TopNav />
             <Router>
               <HomeView path="/" />
-              <MysteryBoxView path="/mystery-box" />
+              {/*<MysteryBoxView path="/mystery-box" />*/}
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
@@ -61,6 +62,7 @@ function App() {
               <AdoptionCenterView path="/adoption" />
               <MyPaperGardenView path="/my-garden" />
               <ShrubSeedsView path="/shrubSeeds" />
+              <OpenSeaView path="/openSea" />
             </Router>
           </Store>
         </ApolloProvider>

@@ -83,7 +83,7 @@ function MysteryBoxView(props: RouteComponentProps) {
   }
 
   function boxClick() {
-    setBoxImg("/dud.svg");
+    setBoxImg("/dud.webp");
   }
 
   return (

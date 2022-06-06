@@ -19,8 +19,6 @@ function MobileMenu({ onMenuClose }) {
     "linear(to-l, gray.700, gray.700)"
   );
 
-  // const { onClose: onMenuClose } = useDisclosure();
-
   const { colorMode, toggleColorMode } = useColorMode();
 
   function handleGA(event: any) {
@@ -70,19 +68,19 @@ function MobileMenu({ onMenuClose }) {
           {" "}
           Chapters
         </Link>
-        <Link
-          as={ReachLink}
-          to="/adoption"
-          variant="ghost"
-          cursor="pointer"
-          px={2}
-          py={{ base: "3", md: "1", lg: "1" }}
-          rounded={"lg"}
-          _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={handleClick}
-        >
-          Adoption
-        </Link>
+        {/*<Link*/}
+        {/*  as={ReachLink}*/}
+        {/*  to="/adoption"*/}
+        {/*  variant="ghost"*/}
+        {/*  cursor="pointer"*/}
+        {/*  px={2}*/}
+        {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
+        {/*  rounded={"lg"}*/}
+        {/*  _hover={{ textDecoration: "none", bgGradient: gradient }}*/}
+        {/*  onClick={handleClick}*/}
+        {/*>*/}
+        {/*  Adoption*/}
+        {/*</Link>*/}
         <Link
           as={ReachLink}
           to="/leaderboard"
@@ -97,20 +95,17 @@ function MobileMenu({ onMenuClose }) {
           Leaderboard
         </Link>
         <Link
-          href="https://opensea.io/collection/shrub-paper-gardens"
-          isExternal
+          as={ReachLink}
+          to="/openSea"
           variant="ghost"
           cursor="pointer"
-          rounded="lg"
-          py={"3"}
-          px={"2"}
-          _hover={{
-            textDecoration: "none",
-            bgGradient: gradient,
-          }}
-          onClick={handleGA}
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
+          _hover={{ textDecoration: "none", bgGradient: gradient }}
+          onClick={handleClick}
         >
-          OpenSea <ExternalLinkIcon mx="2px" />
+          OpenSea
         </Link>
         <Link
           isExternal

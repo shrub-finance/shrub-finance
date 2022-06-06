@@ -37,6 +37,7 @@ import { TxContext } from "./Store";
 import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
 import { trackEvent } from "../utils/handleGATracking";
+import { Match } from "@reach/router";
 
 function TopNav() {
   const DesktopMenu = React.lazy(() => import("./DesktopMenu"));
@@ -102,46 +103,63 @@ function TopNav() {
           <Flex alignItems={"center"}>
             <>
               <BuyMatic />
-              <Box
-                pr={5}
-                display={{ base: "none", sm: "flex" }}
-                size={buttonSize}
-              >
-                <Balance />
-              </Box>
-            </>
-
-            <Box onClick={onOpen}>
-              {/*connect wallet button*/}
-              <Button
-                variant={isMobile ? "outline" : "solid"}
-                colorScheme={web3Error ? "red" : "yellow"}
-                size={buttonSize}
-                mr={4}
-                borderRadius="xl"
-                leftIcon={
-                  web3Error ? <InfoOutlineIcon colorScheme="red" /> : undefined
+              <Match path="/">
+                {(props) =>
+                  props.match ? (
+                    <></>
+                  ) : (
+                    <Box
+                      pr={5}
+                      display={{ base: "none", sm: "flex" }}
+                      size={buttonSize}
+                    >
+                      <Balance />
+                    </Box>
+                  )
                 }
-              >
-                {" "}
-                {!!web3Error && !active ? (
-                  getErrorMessage(web3Error).title
-                ) : confirmingCountNumber > 0 ? (
-                  <>
-                    <Spinner
-                      thickness="1px"
-                      speed="0.65s"
-                      color={spinnerBg}
-                      size="xs"
-                      mr={2}
-                    />
-                    {confirmingCountNumber} Pending...
-                  </>
+              </Match>
+            </>
+            <Match path="/">
+              {(props) =>
+                props.match ? (
+                  <></>
                 ) : (
-                  <Account />
-                )}
-              </Button>
-            </Box>
+                  <Box onClick={onOpen}>
+                    {/*connect wallet button*/}
+                    <Button
+                      variant={isMobile ? "outline" : "solid"}
+                      colorScheme={web3Error ? "red" : "yellow"}
+                      size={buttonSize}
+                      mr={4}
+                      borderRadius="xl"
+                      leftIcon={
+                        web3Error ? (
+                          <InfoOutlineIcon colorScheme="red" />
+                        ) : undefined
+                      }
+                    >
+                      {" "}
+                      {!!web3Error && !active ? (
+                        getErrorMessage(web3Error).title
+                      ) : confirmingCountNumber > 0 ? (
+                        <>
+                          <Spinner
+                            thickness="1px"
+                            speed="0.65s"
+                            color={spinnerBg}
+                            size="xs"
+                            mr={2}
+                          />
+                          {confirmingCountNumber} Pending...
+                        </>
+                      ) : (
+                        <Account />
+                      )}
+                    </Button>
+                  </Box>
+                )
+              }
+            </Match>
             <IconButton
               variant="unstyled"
               icon={isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
