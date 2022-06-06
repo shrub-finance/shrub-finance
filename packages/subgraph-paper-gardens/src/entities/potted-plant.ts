@@ -100,6 +100,7 @@ export function createPottedPlant(tokenId: BigInt, seedTokenId: BigInt, owner: A
   pottedPlant.born = block.timestamp.toI32();
   pottedPlant.bornBlock = block.number.toI32();
   pottedPlant.growth = 0;
+  pottedPlant.lastWatering = 1;
 
   // Assign the pottedPlant to the seed to establish the 1:1 connection
   addPottedPlant(seed, pottedPlant as PottedPlant);
@@ -116,9 +117,10 @@ export function getPottedPlant(tokenId: BigInt): PottedPlant {
   return pottedPlant as PottedPlant;
 }
 
-export function growPottedPlant(tokenId: BigInt, growthBps: i32): PottedPlant {
+export function growPottedPlant(tokenId: BigInt, growthBps: i32, block: ethereum.Block): PottedPlant {
   let pottedPlant = getPottedPlant(tokenId);
   pottedPlant.growth = growthBps;
+  pottedPlant.lastWatering = block.timestamp.toI32();
   pottedPlant.save();
   return pottedPlant as PottedPlant;
 }

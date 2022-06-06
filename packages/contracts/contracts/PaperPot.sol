@@ -124,7 +124,7 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         // run plant
         uint pottedPlantTokenId = plant(_seedContractAddress, _seedTokenId);
         // emit happy event
-        happy(pottedPlantTokenId);
+        emit Happy(pottedPlantTokenId);
         // Update the sad metadata for _seedTokenId
         _sadSeeds[_seedTokenId] = false;
     }
@@ -149,7 +149,8 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         // Loop through and water each plant
 //        console.log("here");
         for (uint i = 0; i < _tokenIds.length; i++) {
-            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
+            // TODO: JUST FOR TESTING UNCOMMENT THIS
+//            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
             require(balanceOf(_msgSender(), _tokenIds[i]) > 0, "PaperPot: Potted plant not owned by sender");
             waterNonce++;
 //            console.log("here2");

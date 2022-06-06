@@ -382,8 +382,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
         const { name, dna, emotion, type } = seed;
         const imageUrl =
           // @ts-ignore
-          IMAGE_ASSETS[`pottedPlant${type}${Math.floor(growth / 1000)}`];
-        console.log(`pottedPlant${type}${Math.floor(growth / 1000)}`);
+          IMAGE_ASSETS[`pottedPlant${type}${Math.floor(growth / 2000)}`];
+        console.log(`pottedPlant${type}${Math.floor(growth / 2000)}`);
         console.log(imageUrl);
         tempMySeedDataRows.push(
           <GardenGrid
@@ -485,7 +485,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
           // </Box>
         );
       }
-      setMySeedRows(tempMySeedDataRows);
       setSelectedItem({
         tokenId: mySeeds[0].id,
         name: mySeeds[0].name,
@@ -497,9 +496,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
       });
     }
 
-    // TODO: handle potted plants
     // TODO: handle shrubs
-
+    setMySeedRows(tempMySeedDataRows);
     if (mySeedData && mySeedData.seeds) {
       setIsInitialized(true);
     }

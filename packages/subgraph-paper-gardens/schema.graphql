@@ -22,6 +22,7 @@ type PottedPlant @entity {
   born: Int!
   bornBlock: Int!
   growth: Int!
+  lastWatering: Int!
 }
 
 type ShrubNFT @entity {

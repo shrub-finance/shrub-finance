@@ -127,7 +127,8 @@ export function handleGrow(event: Grow): void {
   let tokenId = event.params.tokenId
   let growthBps = event.params.growthBps;
   let growthAmount = event.params.growthAmount;
-  growPottedPlant(tokenId, growthBps);
+  let block = event.block;
+  growPottedPlant(tokenId, growthBps, block);
 }
 
 export function handlePlant(event: Plant): void {

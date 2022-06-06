@@ -58,6 +58,7 @@ import {
   fromEthDate,
   mint,
   balanceOfErc1155,
+  approveAllErc721,
 } from "../utils/ethMethods";
 import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
@@ -130,87 +131,26 @@ function NFTTicketView(props: RouteComponentProps) {
   const [amountValue, setAmountValue] = useState("1");
   const invalidEntry = Number(amountValue) < 0 || isNaN(Number(amountValue));
 
-  async function handleApprove() {
-    const description = "Approving WETH";
-    try {
-      if (!mintPrice) {
-        throw new Error("mintPrice not found");
-      }
-      const tx = await approveToken(
-        WETHAddress,
-        ethers.BigNumber.from(amountValue).mul(mintPrice),
-        NFT_TICKET_ADDRESS,
-        library
-      );
-      pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
-      setActiveHash(tx.hash);
-      try {
-        const receipt = await tx.wait();
-        const toastDescription = ToastDescription(
-          description,
-          receipt.transactionHash,
-          chainId
-        );
-        toast({
-          title: "Transaction Confirmed",
-          description: toastDescription,
-          status: "success",
-          isClosable: true,
-          variant: "solid",
-          position: "top-right",
-        });
-        pendingTxsDispatch({
-          type: "update",
-          txHash: receipt.transactionHash,
-          status: "confirmed",
-        });
-      } catch (e: any) {
-        const toastDescription = ToastDescription(
-          description,
-          e.transactionHash,
-          chainId
-        );
-        pendingTxsDispatch({
-          type: "update",
-          txHash: e.transactionHash || e.hash,
-          status: "failed",
-        });
-        toast({
-          title: "Transaction Failed",
-          description: toastDescription,
-          status: "error",
-          isClosable: true,
-          variant: "solid",
-          position: "top-right",
-        });
-      }
-    } catch (e: any) {
-      setApproving(false);
-      handleErrorMessages({ err: e });
-    }
-  }
-
-  async function handleMintNFT() {
+  async function handleBlockchainTx(
+    description: string,
+    callbackTx: () => Promise<ethers.ContractTransaction>
+  ) {
     setLocalError("");
     setIsMinted(false);
     setNftImageId("");
     setTokenId(0);
     setNftTitle("");
     setIsLoading(true);
-    const description = "NFT Ticket Minted Successful!";
     try {
       if (!mintPrice) {
         throw new Error("mintPrice not found");
       }
-      console.log(NFT_TICKET_TOKEN_ID);
-      const tx =
-        phase === "wlMint"
-          ? await mintWL(NFT_TICKET_TOKEN_ID, amountValue, library)
-          : await mint(NFT_TICKET_TOKEN_ID, amountValue, library);
+      const tx = await callbackTx();
       pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
       setActiveHash(tx.hash);
       try {
         const receipt = await tx.wait();
+        setIsLoading(false);
         setIsMinted(true);
         const toastDescription = ToastDescription(
           description,
@@ -231,6 +171,7 @@ function NFTTicketView(props: RouteComponentProps) {
           status: "confirmed",
         });
       } catch (e: any) {
+        setIsLoading(false);
         const toastDescription = ToastDescription(
           description,
           e.transactionHash,
@@ -252,9 +193,163 @@ function NFTTicketView(props: RouteComponentProps) {
       }
     } catch (e: any) {
       setApproving(false);
+      setIsLoading(false);
       handleErrorMessages({ err: e });
     }
   }
+
+  function handleApprove() {
+    return handleBlockchainTx("Approving WETH", () => {
+      return approveToken(
+        WETHAddress,
+        ethers.BigNumber.from(amountValue).mul(mintPrice || 0),
+        NFT_TICKET_ADDRESS,
+        library
+      );
+    });
+  }
+
+  async function handleMintNFT() {
+    return handleBlockchainTx("NFT Ticket Minted Successful!", () =>
+      mint(NFT_TICKET_TOKEN_ID, amountValue, library)
+    );
+  }
+
+  async function handleMintWlNFT() {
+    return handleBlockchainTx("NFT Ticket Minted Successful!", () =>
+      mintWL(NFT_TICKET_TOKEN_ID, amountValue, library)
+    );
+  }
+
+  // async function handleApprove() {
+  //   setLocalError("");
+  //   const description = "Approving WETH";
+  //   try {
+  //     if (!mintPrice) {
+  //       throw new Error("mintPrice not found");
+  //     }
+  //     const tx = await approveToken(
+  //       WETHAddress,
+  //       ethers.BigNumber.from(amountValue).mul(mintPrice),
+  //       NFT_TICKET_ADDRESS,
+  //       library
+  //     );
+  //     pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+  //     setActiveHash(tx.hash);
+  //     try {
+  //       const receipt = await tx.wait();
+  //       const toastDescription = ToastDescription(
+  //         description,
+  //         receipt.transactionHash,
+  //         chainId
+  //       );
+  //       toast({
+  //         title: "Transaction Confirmed",
+  //         description: toastDescription,
+  //         status: "success",
+  //         isClosable: true,
+  //         variant: "solid",
+  //         position: "top-right",
+  //       });
+  //       pendingTxsDispatch({
+  //         type: "update",
+  //         txHash: receipt.transactionHash,
+  //         status: "confirmed",
+  //       });
+  //     } catch (e: any) {
+  //       const toastDescription = ToastDescription(
+  //         description,
+  //         e.transactionHash,
+  //         chainId
+  //       );
+  //       pendingTxsDispatch({
+  //         type: "update",
+  //         txHash: e.transactionHash || e.hash,
+  //         status: "failed",
+  //       });
+  //       toast({
+  //         title: "Transaction Failed",
+  //         description: toastDescription,
+  //         status: "error",
+  //         isClosable: true,
+  //         variant: "solid",
+  //         position: "top-right",
+  //       });
+  //     }
+  //   } catch (e: any) {
+  //     setApproving(false);
+  //     handleErrorMessages({ err: e });
+  //   }
+  // }
+
+  // async function handleMintNFT() {
+  //   setLocalError("");
+  //   setIsMinted(false);
+  //   setNftImageId("");
+  //   setTokenId(0);
+  //   setNftTitle("");
+  //   setIsLoading(true);
+  //   const description = "NFT Ticket Minted Successful!";
+  //   try {
+  //     if (!mintPrice) {
+  //       throw new Error("mintPrice not found");
+  //     }
+  //     console.log(NFT_TICKET_TOKEN_ID);
+  //     const tx =
+  //       phase === "wlMint"
+  //         ? await mintWL(NFT_TICKET_TOKEN_ID, amountValue, library)
+  //         : await mint(NFT_TICKET_TOKEN_ID, amountValue, library);
+  //     pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+  //     setActiveHash(tx.hash);
+  //     try {
+  //       const receipt = await tx.wait();
+  //       setIsLoading(false);
+  //       setIsMinted(true);
+  //       const toastDescription = ToastDescription(
+  //         description,
+  //         receipt.transactionHash,
+  //         chainId
+  //       );
+  //       toast({
+  //         title: "Transaction Confirmed",
+  //         description: toastDescription,
+  //         status: "success",
+  //         isClosable: true,
+  //         variant: "solid",
+  //         position: "top-right",
+  //       });
+  //       pendingTxsDispatch({
+  //         type: "update",
+  //         txHash: receipt.transactionHash,
+  //         status: "confirmed",
+  //       });
+  //     } catch (e: any) {
+  //       setIsLoading(false);
+  //       const toastDescription = ToastDescription(
+  //         description,
+  //         e.transactionHash,
+  //         chainId
+  //       );
+  //       pendingTxsDispatch({
+  //         type: "update",
+  //         txHash: e.transactionHash || e.hash,
+  //         status: "failed",
+  //       });
+  //       toast({
+  //         title: "Transaction Failed",
+  //         description: toastDescription,
+  //         status: "error",
+  //         isClosable: true,
+  //         variant: "solid",
+  //         position: "top-right",
+  //       });
+  //     }
+  //   } catch (e: any) {
+  //     setApproving(false);
+  //     setIsLoading(false);
+  //     handleErrorMessages({ err: e });
+  //   }
+  // }
 
   // run on init
   useEffect(() => {
@@ -422,7 +517,7 @@ function NFTTicketView(props: RouteComponentProps) {
     }
 
     accountAsync();
-  }, [account, phase, ticketData]);
+  }, [account, phase, ticketData, pendingTxsState]);
 
   const noWlSpots =
     phase === "wlMint" &&
@@ -449,7 +544,7 @@ function NFTTicketView(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW="container.sm"
       >
-        {isMinted && activeHash && <Confetti />}
+        {isMinted && <Confetti />}
         <Center mt={10}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
@@ -622,7 +717,7 @@ function NFTTicketView(props: RouteComponentProps) {
                 </Box>
               </VStack>
             )}
-            {!activeHash && ["wlMint", "mint"].includes(phase || "") && (
+            {["wlMint", "mint"].includes(phase || "") && (
               <Text
                 mt="3"
                 mb={{ base: "16px", md: "10", lg: "10" }}
@@ -643,9 +738,15 @@ function NFTTicketView(props: RouteComponentProps) {
             )}
             {["wlMint", "mint"].includes(phase || "") && (
               <Center>
-                {!activeHash && (
+                {
                   <Button
-                    onClick={noAllowance ? handleApprove : handleMintNFT}
+                    onClick={
+                      noAllowance
+                        ? handleApprove
+                        : phase === "wlMint"
+                        ? handleMintWlNFT
+                        : handleMintNFT
+                    }
                     colorScheme={tradingBtnColor}
                     variant="solid"
                     rounded="2xl"
@@ -682,7 +783,7 @@ function NFTTicketView(props: RouteComponentProps) {
                         : "Mint Ticket"
                     }
                   </Button>
-                )}
+                }
               </Center>
             )}
           </Box>
