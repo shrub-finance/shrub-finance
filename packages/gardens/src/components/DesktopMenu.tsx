@@ -107,6 +107,20 @@ function DesktopMenu() {
         >
           OpenSea
         </Link>
+        <Link
+          as={ReachLink}
+          to="/shrubSeeds"
+          variant="ghost"
+          cursor="pointer"
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
+          _hover={{ textDecoration: "none", bgGradient: gradient }}
+          display={{ md: "none", lg: "none", xl: "inline" }}
+        >
+          SeedsStats
+        </Link>
+        <Link
         {/* <Link
           href="https://opensea.io/collection/shrub-paper-gardens"
           isExternal

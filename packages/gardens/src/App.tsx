@@ -14,7 +14,8 @@ import ChaptersView from "./pages/ChaptersView";
 import IntroView from "./pages/IntroView";
 import OpenSeaView from "./pages/OpenSeaView";
 import ReactGA from "react-ga";
-import MysteryBoxView from "./pages/MysteryBoxView";
+import ShrubSeedsView from "./pages/ShrubSeedsView";
+
 const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
   ReactGA.initialize(trackingID, {
@@ -60,6 +61,7 @@ function App() {
               <NFTView path="/nft/paper-seed/:tokenId" />
               <AdoptionCenterView path="/adoption" />
               <MyPaperGardenView path="/my-garden" />
+              <ShrubSeedsView path="/shrubSeeds" />
               <OpenSeaView path="/openSea" />
             </Router>
           </Store>
