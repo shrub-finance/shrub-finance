@@ -578,7 +578,7 @@ function NFTTicketView(props: RouteComponentProps) {
               >
                 Ticket{" "}
               </Text>
-              Sale
+              Presale
             </Heading>
             <Text textStyle={"reading"} textAlign="center">
               All tickets will be redeemable for a Paper Gardens pot for up to a

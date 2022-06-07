@@ -333,6 +333,15 @@ task("unpausePot", "unpause minting for paper Pot")
     await paperPot.unpauseMinting();
   })
 
+task("pausePot", "pause minting for paper Pot")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const PaperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
+    await paperPot.pauseMinting();
+  })
+
 task("setNftTicketInfo", "set the address and tokenId for the NFTTicket")
   .addParam("tokenId", "tokenId to change paused state for")
   .addParam("address", "address of the NFTTicket contract")

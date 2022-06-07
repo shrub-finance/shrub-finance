@@ -54,7 +54,7 @@ function App() {
             <Router>
               <HomeView path="/" />
               {/*<MysteryBoxView path="/mystery-box" />*/}
-              <NFTTicketView path="/ticket" />
+              <NFTTicketView path="/presale" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
