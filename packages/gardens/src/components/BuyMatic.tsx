@@ -16,11 +16,13 @@ function BuyMatic() {
     // add query params to the success and failure redirect urls so that any route can realize status
     const currentURL = new URL(window.location.href);
     const currentURLParams = new URLSearchParams(currentURL.search);
-    const redirectPrefix =  `${currentURL.protocol}//${currentURL.host}${currentURL.pathname}?`;
+    const redirectPrefix = `${currentURL.protocol}//${currentURL.host}${currentURL.pathname}?`;
     currentURLParams.set('wyreCheckoutStatus', 'failure');
     const failureRedirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
+    currentURLParams.set('wyreCheckoutStatus', 'success');
+    const redirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
     const params: WyreCheckoutParams = {
-      redirectUrl: window.location.href,
+      redirectUrl,
       failureRedirectUrl,
     };
     let dest;
@@ -52,11 +54,9 @@ function BuyMatic() {
           parsePrevReservationUrl.search
         );
         prevReservationUrlParams.set("dest", dest);
-        prevReservationUrl = `${parsePrevReservationUrl.origin}${
-          parsePrevReservationUrl.port
-        }${
-          parsePrevReservationUrl.pathname
-        }?${prevReservationUrlParams.toString()}`;
+        prevReservationUrl = `${parsePrevReservationUrl.origin}${parsePrevReservationUrl.port
+          }${parsePrevReservationUrl.pathname
+          }?${prevReservationUrlParams.toString()}`;
         // reset the updated url in storage
         localStorage.setItem(
           "shrub:buyMatic:reservationUrl",

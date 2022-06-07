@@ -14,7 +14,7 @@ function WyreCheckoutStatus() {
     const currentURL = new URL(window.location.href);
     const currentURLParams = new URLSearchParams(currentURL.search);
     const wyreCheckoutStatus = currentURLParams.get('wyreCheckoutStatus');
-    // create alert params based on wyreCheckoutStatus
+    // do things based on wyreCheckoutStatus
     let description;
     let status: "error" | undefined;
     switch (wyreCheckoutStatus) {
@@ -24,6 +24,10 @@ function WyreCheckoutStatus() {
                 There was an error while attempting to complete your transaction.<br />
                 Contact Wyre support for more information at support@sendwyre.com
             </>
+            break;
+        case 'success':
+            localStorage.removeItem('shrub:buyMatic:reservationUrl');
+            localStorage.removeItem('shrub:buyMatic:reservationDate');
             break;
         default:
             break;
