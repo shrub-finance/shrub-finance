@@ -96,6 +96,19 @@ function DesktopMenu() {
         </Link>
         <Link
           as={ReachLink}
+          to="/shrubSeedPie"
+          variant="ghost"
+          cursor="pointer"
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
+          _hover={{ textDecoration: "none", bgGradient: gradient }}
+        >
+          ShrubSeeds
+        </Link>
+        <Link
+          as={ReachLink}
+          to="/leaderboard"
           to="/openSea"
           variant="ghost"
           cursor="pointer"
