@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Button } from "@chakra-ui/react";
+import { Button, Link, useColorModeValue } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 
 // TODO: could update source currency automatically based on locale
@@ -95,6 +95,17 @@ function BuyMatic() {
       >
         Buy MATIC
       </Button>
+
+      <Link
+        pr={5}
+        fontSize={"sm"}
+        fontWeight={"bold"}
+        color={useColorModeValue("blue", "yellow")}
+        href={"https://discord.gg/BpHuVCYtdB"}
+        isExternal
+      >
+        Join Discord
+      </Link>
     </>
   );
 }
