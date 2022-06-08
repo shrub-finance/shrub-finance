@@ -457,22 +457,24 @@ function NFTTicketView(props: RouteComponentProps) {
       }
 
       // Check if account has whitelists
-      console.log("checking whitelist");
-      try {
-        const aWlSlots = await accountWL(
-          ethers.BigNumber.from(NFT_TICKET_TOKEN_ID),
-          account,
-          library
-        );
-        console.log(aWlSlots);
-        console.log(aWlSlots.toNumber());
-        setAccountWlSlots(aWlSlots);
-        if (aWlSlots.eq(Zero)) {
-          return;
+      if (phase === "wlMint") {
+        console.log("checking whitelist");
+        try {
+          const aWlSlots = await accountWL(
+            ethers.BigNumber.from(NFT_TICKET_TOKEN_ID),
+            account,
+            library
+          );
+          console.log(aWlSlots);
+          console.log(aWlSlots.toNumber());
+          setAccountWlSlots(aWlSlots);
+          if (aWlSlots.eq(Zero)) {
+            return;
+          }
+        } catch (e: any) {
+          setIsLoading(false);
+          handleErrorMessages({ err: e });
         }
-      } catch (e: any) {
-        setIsLoading(false);
-        handleErrorMessages({ err: e });
       }
 
       // Check the minting price

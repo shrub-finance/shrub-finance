@@ -36,6 +36,8 @@ export function handleErrorMessagesFactory(
           err.message.includes("Must own a pot token to plant")
         ) {
           setter("Must own an Empty Pot to Plant");
+        } else if (err.message.includes("NFTTicket: minting is not active")) {
+          setter("Minting is not active");
         } else {
           setter(err.message);
         }

@@ -278,6 +278,19 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
     await PotNFTTicket.initializeTicket(ticketData);
   });
 
+task("setUriTicket")
+  .addParam("uri", "uri to set the ticket to")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const uri: string = taskArgs.uri;
+    const [owner] = await ethers.getSigners();
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+    await PotNFTTicket.setUri(uri);
+    const newUri = await PotNFTTicket.uri(1);
+    console.log(`uri set to ${newUri}`);
+  });
+
 task("updateNFTTicketMintDates")
   .addParam("tokenId", "tokenId of ticket to update")
   .addOptionalParam("startDate", "new startDate")
@@ -292,7 +305,8 @@ task("updateNFTTicketMintDates")
     const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
-    for (const param of ['startDate, endDate, wlStartDate, wlEndDate']) {
+    for (const param of ['startDate', 'endDate', 'wlStartDate', 'wlEndDate']) {
+      console.log(taskArgs[param]);
       if (!taskArgs[param]) {
         continue;
       }
@@ -308,7 +322,7 @@ task("updateNFTTicketMintDates")
         await PotNFTTicket.updateMintEndDate(tokenId, ethDate);
       }else if (param === 'wlStartDate') {
         await PotNFTTicket.updateWlMintStartDate(tokenId, ethDate);
-      }else if (param === 'endDate') {
+      }else if (param === 'wlEndDate') {
         await PotNFTTicket.updateWlMintEndDate(tokenId, ethDate);
       } else {
         throw new Error(`unexpected param - ${param}`);
