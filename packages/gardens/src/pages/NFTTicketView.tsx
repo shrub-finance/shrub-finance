@@ -665,7 +665,7 @@ function NFTTicketView(props: RouteComponentProps) {
 
             {/*Input boxes*/}
             {["wlMint", "mint"].includes(phase || "") && (
-              <VStack>
+              <VStack mt={6}>
                 <Box>
                   <Center>
                     <FormLabel
