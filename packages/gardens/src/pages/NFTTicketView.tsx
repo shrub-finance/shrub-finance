@@ -580,20 +580,59 @@ function NFTTicketView(props: RouteComponentProps) {
               </Text>
               Presale
             </Heading>
-            <Text textStyle={"reading"} textAlign="center">
-              All tickets will be redeemable for a Paper Gardens pot for up to a
-              week after the public sale.
-            </Text>
-            <Text textStyle={"reading"} textAlign="center">
-              Redemption price for the tickets will be 0.015 ETH.{" "}
-            </Text>
-            <Text textStyle={"reading"} textAlign="center">
-              Tickets are tradble NFTs and can be sold on secondary markets.
-            </Text>
-            <Text textStyle={"reading"} textAlign="center">
-              You currently have {accountTicketCount.toString()} ticket
-              {sIfMany(accountTicketCount)}.
-            </Text>
+            <Center mt={{ base: 5, md: 10 }}>
+              <Box
+                bgColor={useColorModeValue("gray.200", "gray.700")}
+                p={10}
+                rounded="3xl"
+              >
+                <Box
+                  fontSize={{ base: "18px", md: "20px" }}
+                  mt={4}
+                  fontWeight="semibold"
+                >
+                  <Text
+                    fontSize="md"
+                    color={useColorModeValue("gray.600", "gray.400")}
+                  >
+                    Tickets can be redeemed for a pot after the public sale
+                  </Text>
+                  <Text>Redemption price: 0.015 ETH</Text>
+                  <Text>Redeeming opens: June 16</Text>
+                  <Text>Deadline to redeem: June 23</Text>
+                </Box>
+                <Text
+                  fontSize={{ base: "18px", md: "20px" }}
+                  mt={8}
+                  fontWeight="semibold"
+                >
+                  <Text
+                    fontSize="md"
+                    color={useColorModeValue("gray.600", "gray.400")}
+                  >
+                    If not redeemed by the deadline{" "}
+                    <strong>ticket will expire</strong>
+                  </Text>
+                  <Text>Expires: After June 23 </Text>
+                </Text>
+                <Text
+                  fontSize={{ base: "18px", md: "20px" }}
+                  mt={8}
+                  fontWeight="semibold"
+                >
+                  <Text
+                    fontSize="md"
+                    color={useColorModeValue("gray.600", "gray.400")}
+                  >
+                    Tickets are tradable and can be sold on secondary markets.
+                  </Text>
+                  <Text>
+                    You currently have {accountTicketCount.toString()} ticket
+                    {sIfMany(accountTicketCount)}.
+                  </Text>
+                </Text>
+              </Box>
+            </Center>
             {["before", "wlMint"].includes(phase || "") && (
               <Text textStyle={"reading"} textAlign="center">
                 You are eligible to mint {accountWlSlots.toNumber()} ticket
@@ -798,70 +837,13 @@ function NFTTicketView(props: RouteComponentProps) {
           </Text>
         </Box>
       )}
-      <Box>
+      <Box fontWeight="medium" fontSize={"xs"}>
         <Text>NFT Ticket Address: {NFT_TICKET_ADDRESS}</Text>
         <Text>
           Paper Gardens Pot Address: {ticketData && ticketData.contractAddress}
         </Text>
         <Text>WETH Address: {WETHAddress}</Text>
       </Box>
-
-      {isMinted && nftImageId && (
-        <Container
-          borderRadius="2xl"
-          flex="1"
-          maxW="container.sm"
-          bg={useColorModeValue("white", "dark.100")}
-          shadow={useColorModeValue("2xl", "2xl")}
-          py={10}
-        >
-          {nftImageId && (
-            <Center>
-              <Heading pb={4} fontSize={{ base: "20px", md: "30px" }}>
-                {nftTitle}
-              </Heading>
-            </Center>
-          )}
-
-          {tokenId > 0 && (
-            <Center>
-              <Link href={openSeaLink} isExternal>
-                <Button
-                  variant="link"
-                  colorScheme="blue"
-                  leftIcon={<OpenSeaIcon />}
-                >
-                  View in Open Sea
-                </Button>
-              </Link>
-            </Center>
-          )}
-          <Center py={4}>
-            <Link
-              href={`https://twitter.com/intent/tweet?text=Check%20out%20this%20${nftTitle
-                .replace(/w/g, "%20")
-                .replace(
-                  "#",
-                  "%23"
-                )}%20I%20minted%20via%20%40shrubfinance.%0Ahttps%3A//opensea.io/assets/matic/${PAPERSEED_CONTRACT_ADDRESS}/${tokenId}/`}
-              isExternal
-            >
-              <Button
-                variant="link"
-                colorScheme="twitter"
-                leftIcon={<FaTwitter />}
-              >
-                Share in Twitter
-              </Button>
-            </Link>
-          </Center>
-          {nftImageId && (
-            <Center>
-              <Image src={nftImageLink} />
-            </Center>
-          )}
-        </Container>
-      )}
 
       <Modal
         isOpen={isConnectWalletOpen}
