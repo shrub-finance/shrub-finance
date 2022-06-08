@@ -210,6 +210,41 @@ task("activateNFTTicket", "set the active state of an NFTTicket")
     await PotNFTTicket.updateActive(tokenId, active);
   })
 
+task("setRedeemActive", "turn redeeming off or on from the NFT Ticket side")
+  .addParam("tokenId", "tokenId to set")
+  .addParam("active", "whether redemptions are active", true, types.boolean)
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const active: boolean = taskArgs.active;
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateRedeemActive(tokenId, active);
+  })
+
+task("updateRedeemEndDate", "update the redemption date for NFT Ticket")
+  .addParam("tokenId", "tokenId to set")
+  .addParam("redeemEndDate", "Date after which redemptions are not possible")
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const date = new Date(taskArgs.redeemEndDate);
+    if (date.toString() === 'Invalid Date') {
+      console.log('invalid date');
+      return;
+    }
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateRedeemEndDate(tokenId, toEthDate(date));
+  })
+
+
 task("setPauseNFTTicket", "set the paused state of an NFTTicket")
   .addParam("tokenId", "tokenId to change paused state for")
   .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)

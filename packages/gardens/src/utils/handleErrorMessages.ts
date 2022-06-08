@@ -38,6 +38,14 @@ export function handleErrorMessagesFactory(
           setter("Must own an Empty Pot to Plant");
         } else if (err.message.includes("NFTTicket: minting is not active")) {
           setter("Minting is not active");
+        } else if (err.message.includes("NFTTicket: Redeeming is not active")) {
+          setter("Redeeming is not active");
+        } else if (err.message.includes("NFTTicket: Redeem Period has ended")) {
+          setter("Redeem period has ended");
+        } else if (err.message.includes("PaperPot: minting paused")) {
+          setter("Minting has been paused");
+        } else if (err.message.includes("PaperPot: invalid ticket tokenId")) {
+          setter("Minting has been paused - #1005");
         } else {
           setter(err.message);
         }

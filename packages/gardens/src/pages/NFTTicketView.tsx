@@ -603,7 +603,7 @@ function NFTTicketView(props: RouteComponentProps) {
                   <Text>Redeeming opens: June 16</Text>
                   <Text>Deadline to redeem: June 23</Text>
                 </Box>
-                <Text
+                <Box
                   fontSize={{ base: "18px", md: "20px" }}
                   mt={8}
                   fontWeight="semibold"
@@ -616,8 +616,8 @@ function NFTTicketView(props: RouteComponentProps) {
                     <strong>ticket will expire</strong>
                   </Text>
                   <Text>Expires: After June 23 </Text>
-                </Text>
-                <Text
+                </Box>
+                <Box
                   fontSize={{ base: "18px", md: "20px" }}
                   mt={8}
                   fontWeight="semibold"
@@ -626,39 +626,43 @@ function NFTTicketView(props: RouteComponentProps) {
                     fontSize="md"
                     color={useColorModeValue("gray.600", "gray.400")}
                   >
-                    Tickets are tradable and can be sold on secondary markets.
+                    Mint Info:
                   </Text>
                   <Text>
                     You currently have {accountTicketCount.toString()} ticket
-                    {sIfMany(accountTicketCount)}.
+                    {sIfMany(accountTicketCount)}
                   </Text>
-                </Text>
+                  {["before", "wlMint"].includes(phase || "") && (
+                    <Text>
+                      You are eligible to mint {accountWlSlots.toNumber()}{" "}
+                      ticket
+                      {sIfMany(accountWlSlots)}
+                    </Text>
+                  )}
+                  {["before", "wlMint"].includes(phase || "") && (
+                    <Text>
+                      Mint price per ticket:{" "}
+                      {ticketData
+                        ? ethers.utils.formatEther(ticketData.wlMintPrice)
+                        : "-"}{" "}
+                      WETH (WL discount presale)
+                    </Text>
+                  )}
+                  {["before", "break", "mint", "done"].includes(
+                    phase || ""
+                  ) && (
+                    <Text>
+                      Mint price per ticket:{" "}
+                      {ticketData
+                        ? ethers.utils.formatEther(ticketData.mintPrice)
+                        : "-"}{" "}
+                      WETH (public presale)
+                    </Text>
+                  )}
+                </Box>
               </Box>
             </Center>
-            {["before", "wlMint"].includes(phase || "") && (
-              <Text textStyle={"reading"} textAlign="center">
-                You are eligible to mint {accountWlSlots.toNumber()} ticket
-                {sIfMany(accountWlSlots)}.
-              </Text>
-            )}
-            {["before", "wlMint"].includes(phase || "") && (
-              <Text textStyle={"reading"} textAlign="center">
-                Mint price per ticket:{" "}
-                {ticketData
-                  ? ethers.utils.formatEther(ticketData.wlMintPrice)
-                  : "-"}{" "}
-                WETH (WL discount presale)
-              </Text>
-            )}
-            {["before", "break", "mint", "done"].includes(phase || "") && (
-              <Text textStyle={"reading"} textAlign="center">
-                Mint price per ticket:{" "}
-                {ticketData
-                  ? ethers.utils.formatEther(ticketData.mintPrice)
-                  : "-"}{" "}
-                WETH (public presale)
-              </Text>
-            )}
+
             {/*Input boxes*/}
             {["wlMint", "mint"].includes(phase || "") && (
               <VStack>

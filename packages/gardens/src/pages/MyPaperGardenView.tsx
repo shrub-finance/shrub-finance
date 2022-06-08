@@ -649,7 +649,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         maxW="container.lg"
       >
         {/*error states*/}
-        <Center mt={10}>
+        <Center mt={10} mb={6}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
               <Alert variant={"shrubYellow"} status="info" borderRadius={9}>
@@ -681,12 +681,15 @@ function MyPaperGardenView(props: RouteComponentProps) {
         </Center>
         {/*NFT Ticket view*/}
         <Container
-          mt={isMobile ? 30 : 50}
+          mt={isMobile ? 30 : 30}
           p={5}
           flex="1"
           borderRadius="2xl"
           maxW="container.lg"
         >
+          <Center>
+            <Heading>You have {accountTicketCount.toString()} Tickets</Heading>
+          </Center>
           <Center>
             <HStack>
               {/*Ticket info*/}
@@ -755,151 +758,151 @@ function MyPaperGardenView(props: RouteComponentProps) {
               </Center>
 
               {/*Redemption logic*/}
-              <Box>
-                <Heading>
-                  You have {accountTicketCount.toString()} Tickets
-                </Heading>
-                <VStack>
-                  {/*Quantity*/}
-                  <Box>
-                    <Center>
-                      <FormLabel
-                        fontSize={"sm"}
-                        color={"gray.500"}
-                        fontWeight={"medium"}
-                      >
-                        Quantity
-                      </FormLabel>
-                    </Center>
-                    <NumberInput
-                      isInvalid={invalidEntry}
-                      min={0}
-                      max={10}
-                      precision={0}
-                      onChange={(valueString) => {
-                        const [integerPart, decimalPart] =
-                          valueString.split(".");
-                        if (valueString.includes(".")) {
-                          setRedeemAmount(integerPart || "0");
-                          return;
-                        }
-                        if (integerPart && integerPart.length > 2) {
-                          return;
-                        }
-                        if (valueString === "00") {
-                          return;
-                        }
-                        if (isNaN(Number(valueString))) {
-                          return;
-                        }
-                        if (
-                          Number(valueString) !==
-                          Math.round(Number(valueString) * 1e6) / 1e6
-                        ) {
-                          setRedeemAmount(Number(valueString).toFixed(6));
-                          return;
-                        }
-                        setRedeemAmount(valueString);
-                      }}
-                      value={format(redeemAmount)}
-                      size="lg"
-                    >
-                      <NumberInputField
-                        h="6rem"
-                        borderRadius="3xl"
-                        shadow="sm"
-                        fontWeight="medium"
-                        fontSize="2xl"
-                      />
-                      <InputRightElement
-                        pointerEvents="none"
-                        p={14}
-                        children={
-                          <FormLabel
-                            htmlFor="amount"
-                            color="gray.500"
-                            fontWeight="medium"
-                            minW={"100"}
-                          >
-                            tickets
-                          </FormLabel>
-                        }
-                      />
-                    </NumberInput>
-                  </Box>
-                  {/*Redeem Price*/}
-                  <Box>
-                    <Center>
-                      <FormLabel
-                        fontSize={"sm"}
-                        color={"gray.500"}
-                        fontWeight={"medium"}
-                      >
-                        Total
-                      </FormLabel>
-                    </Center>
-                    <Box
-                      bg={bgColor}
-                      borderRadius="3xl"
-                      fontWeight="medium"
-                      fontSize="2xl"
-                      p={"1.813rem"}
-                    >
-                      {invalidEntry
-                        ? "?"
-                        : format(
-                            redeemPrice
-                              ? ethers.utils.formatEther(
-                                  redeemPrice.mul(Number(redeemAmount))
-                                )
-                              : "-"
-                          )}{" "}
-                      WETH
-                    </Box>
-                  </Box>
-                  {/*Approve/Redeem button*/}
-                  <Box>
-                    <Button
-                      onClick={noAllowance ? handleApprove : handleRedeemNFT}
-                      colorScheme={tradingBtnColor}
-                      variant="solid"
-                      rounded="2xl"
-                      isLoading={isLoading}
-                      isDisabled={Number(redeemAmount) <= 0 || noFunds}
-                      size="lg"
-                      px={["50", "70", "90", "90"]}
-                      fontSize="25px"
-                      py={10}
-                      borderRadius="full"
-                      _hover={{ transform: "translateY(-2px)" }}
-                      bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                      loadingText={
-                        noAllowance
-                          ? "Approving..."
-                          : !localError
-                          ? "Redeeming..."
-                          : "Redeem Ticket"
-                      }
-                    >
-                      {
-                        // If no account then Wrong Network and Connect Wallet
-                        !account
-                          ? !!web3Error &&
-                            getErrorMessage(web3Error).title === "Wrong Network"
-                            ? "Connect to Polygon"
-                            : "Connect Wallet"
-                          : tooLarge
-                          ? "Quantity above number of tickets"
-                          : noFunds
-                          ? "Insufficient funds"
-                          : noAllowance
-                          ? "Approve WETH"
-                          : "Redeem Ticket"
-                      }
-                    </Button>
-                  </Box>
-                </VStack>
-              </Box>
+              {/*<Box>*/}
+              {/*  <Heading>*/}
+              {/*    You have {accountTicketCount.toString()} Tickets*/}
+              {/*  </Heading>*/}
+              {/*<VStack>*/}
+              {/*  /!*Quantity*!/*/}
+              {/*  <Box>*/}
+              {/*    <Center>*/}
+              {/*      <FormLabel*/}
+              {/*        fontSize={"sm"}*/}
+              {/*        color={"gray.500"}*/}
+              {/*        fontWeight={"medium"}*/}
+              {/*      >*/}
+              {/*        Quantity*/}
+              {/*      </FormLabel>*/}
+              {/*    </Center>*/}
+              {/*    <NumberInput*/}
+              {/*      isInvalid={invalidEntry}*/}
+              {/*      min={0}*/}
+              {/*      max={10}*/}
+              {/*      precision={0}*/}
+              {/*      onChange={(valueString) => {*/}
+              {/*        const [integerPart, decimalPart] =*/}
+              {/*          valueString.split(".");*/}
+              {/*        if (valueString.includes(".")) {*/}
+              {/*          setRedeemAmount(integerPart || "0");*/}
+              {/*          return;*/}
+              {/*        }*/}
+              {/*        if (integerPart && integerPart.length > 2) {*/}
+              {/*          return;*/}
+              {/*        }*/}
+              {/*        if (valueString === "00") {*/}
+              {/*          return;*/}
+              {/*        }*/}
+              {/*        if (isNaN(Number(valueString))) {*/}
+              {/*          return;*/}
+              {/*        }*/}
+              {/*        if (*/}
+              {/*          Number(valueString) !==*/}
+              {/*          Math.round(Number(valueString) * 1e6) / 1e6*/}
+              {/*        ) {*/}
+              {/*          setRedeemAmount(Number(valueString).toFixed(6));*/}
+              {/*          return;*/}
+              {/*        }*/}
+              {/*        setRedeemAmount(valueString);*/}
+              {/*      }}*/}
+              {/*      value={format(redeemAmount)}*/}
+              {/*      size="lg"*/}
+              {/*    >*/}
+              {/*      <NumberInputField*/}
+              {/*        h="6rem"*/}
+              {/*        borderRadius="3xl"*/}
+              {/*        shadow="sm"*/}
+              {/*        fontWeight="medium"*/}
+              {/*        fontSize="2xl"*/}
+              {/*      />*/}
+              {/*      <InputRightElement*/}
+              {/*        pointerEvents="none"*/}
+              {/*        p={14}*/}
+              {/*        children={*/}
+              {/*          <FormLabel*/}
+              {/*            htmlFor="amount"*/}
+              {/*            color="gray.500"*/}
+              {/*            fontWeight="medium"*/}
+              {/*            minW={"100"}*/}
+              {/*          >*/}
+              {/*            tickets*/}
+              {/*          </FormLabel>*/}
+              {/*        }*/}
+              {/*      />*/}
+              {/*    </NumberInput>*/}
+              {/*  </Box>*/}
+              {/*  /!*Redeem Price*!/*/}
+              {/*  <Box>*/}
+              {/*    <Center>*/}
+              {/*      <FormLabel*/}
+              {/*        fontSize={"sm"}*/}
+              {/*        color={"gray.500"}*/}
+              {/*        fontWeight={"medium"}*/}
+              {/*      >*/}
+              {/*        Total*/}
+              {/*      </FormLabel>*/}
+              {/*    </Center>*/}
+              {/*    <Box*/}
+              {/*      bg={bgColor}*/}
+              {/*      borderRadius="3xl"*/}
+              {/*      fontWeight="medium"*/}
+              {/*      fontSize="2xl"*/}
+              {/*      p={"1.813rem"}*/}
+              {/*    >*/}
+              {/*      {invalidEntry*/}
+              {/*        ? "?"*/}
+              {/*        : format(*/}
+              {/*            redeemPrice*/}
+              {/*              ? ethers.utils.formatEther(*/}
+              {/*                  redeemPrice.mul(Number(redeemAmount))*/}
+              {/*                )*/}
+              {/*              : "-"*/}
+              {/*          )}{" "}*/}
+              {/*      WETH*/}
+              {/*    </Box>*/}
+              {/*  </Box>*/}
+              {/*  /!*Approve/Redeem button*!/*/}
+              {/*  <Box>*/}
+              {/*    <Button*/}
+              {/*      onClick={noAllowance ? handleApprove : handleRedeemNFT}*/}
+              {/*      colorScheme={tradingBtnColor}*/}
+              {/*      variant="solid"*/}
+              {/*      rounded="2xl"*/}
+              {/*      isLoading={isLoading}*/}
+              {/*      isDisabled={Number(redeemAmount) <= 0 || noFunds}*/}
+              {/*      size="lg"*/}
+              {/*      px={["50", "70", "90", "90"]}*/}
+              {/*      fontSize="25px"*/}
+              {/*      py={10}*/}
+              {/*      borderRadius="full"*/}
+              {/*      _hover={{ transform: "translateY(-2px)" }}*/}
+              {/*      bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}*/}
+              {/*      loadingText={*/}
+              {/*        noAllowance*/}
+              {/*          ? "Approving..."*/}
+              {/*          : !localError*/}
+              {/*          ? "Redeeming..."*/}
+              {/*          : "Redeem Ticket"*/}
+              {/*      }*/}
+              {/*    >*/}
+              {/*      {*/}
+              {/*        // If no account then Wrong Network and Connect Wallet*/}
+              {/*        !account*/}
+              {/*          ? !!web3Error &&*/}
+              {/*            getErrorMessage(web3Error).title === "Wrong Network"*/}
+              {/*            ? "Connect to Polygon"*/}
+              {/*            : "Connect Wallet"*/}
+              {/*          : tooLarge*/}
+              {/*          ? "Quantity above number of tickets"*/}
+              {/*          : noFunds*/}
+              {/*          ? "Insufficient funds"*/}
+              {/*          : noAllowance*/}
+              {/*          ? "Approve WETH"*/}
+              {/*          : "Redeem Ticket"*/}
+              {/*      }*/}
+              {/*    </Button>*/}
+              {/*  </Box>*/}
+              {/*</VStack>*/}
+              {/*</Box>*/}
             </HStack>
           </Center>
         </Container>
