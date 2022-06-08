@@ -4,7 +4,6 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "hardhat/console.sol";
 
 interface INftTicketRedeemable {
     function mintFromTicket(
@@ -54,6 +53,10 @@ contract PotNFTTicket is ERC1155, Ownable {
     function initializeTicket(Ticket calldata ticketData_) public onlyOwner {
         uint tokenId = nextTokenId();
         ticketDatas[tokenId] = ticketData_;
+    }
+
+    function setUri(string calldata uri_) external onlyOwner {
+        _setURI(uri_);
     }
 
     function getTicketData(uint tokenId_) public view returns (Ticket memory) {

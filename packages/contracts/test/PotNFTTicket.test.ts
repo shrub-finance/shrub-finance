@@ -110,6 +110,23 @@ describe("PotNFTTicket", () => {
     });
   });
 
+  describe("uri", async () => {
+    it("should fallback to the specified uri", async () => {
+      const uri = await nftTicket.uri(1);
+      expect(uri).to.equal("");
+    });
+    it("should reject if a non-owner attempts to setUri", async () => {
+      await expect(
+        signer1NftTicket.setUri("https://abc123")
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+    it("should allow the owner to setUri", async () => {
+      await nftTicket.setUri("https://abc123");
+      const uri = await nftTicket.uri(1);
+      expect(uri).to.equal("https://abc123");
+    });
+  });
+
   describe("initializeTicket", async () => {
     let ticketData_;
     let ticketDataNew;
@@ -536,8 +553,280 @@ describe("PotNFTTicket", () => {
       expect(signer4WethBalanceBefore).to.equal(ethers.constants.WeiPerEther);
       expect(signer4WethBalanceAfter).to.equal(0);
     });
-    it("should be able to mint for many users", async () => {});
-    it("should reject if minting would exceed maxSupply after multiple successful mints", async () => {});
+    it("should be able to mint for many users", async () => {
+      await nftTicket.initializeTicket(ticketData_);
+      await signer3Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther.mul(200).div(1000)
+      );
+      await signer4Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther.mul(100).div(1000)
+      );
+      await weth.transfer(signer4.address, ethers.constants.WeiPerEther);
+      await weth.transfer(signer3.address, ethers.constants.WeiPerEther);
+      const signer4WethBalanceBefore = await weth.balanceOf(signer4.address);
+      const signer3WethBalanceBefore = await weth.balanceOf(signer3.address);
+      const supplyBefore = await nftTicket.getSupply(1);
+      const balance3Before = await nftTicket.balanceOf(signer3.address, 1);
+      const balance4Before = await nftTicket.balanceOf(signer4.address, 1);
+      await signer3NftTicket.mint(1, 2);
+      await signer4NftTicket.mint(1, 1);
+      const signer3WethBalanceAfter = await weth.balanceOf(signer3.address);
+      const signer4WethBalanceAfter = await weth.balanceOf(signer4.address);
+      const supplyAfter = await nftTicket.getSupply(1);
+      const balance3After = await nftTicket.balanceOf(signer3.address, 1);
+      const balance4After = await nftTicket.balanceOf(signer4.address, 1);
+      expect(supplyBefore).to.equal(0);
+      expect(balance3Before).to.equal(0);
+      expect(balance4Before).to.equal(0);
+      expect(supplyAfter).to.equal(3);
+      expect(balance4After).to.equal(1);
+      expect(signer4WethBalanceBefore).to.equal(ethers.constants.WeiPerEther);
+      expect(signer4WethBalanceAfter).to.equal(
+        ethers.constants.WeiPerEther.mul(900).div(1000)
+      );
+      expect(balance3After).to.equal(2);
+      expect(signer3WethBalanceBefore).to.equal(ethers.constants.WeiPerEther);
+      expect(signer3WethBalanceAfter).to.equal(
+        ethers.constants.WeiPerEther.mul(800).div(1000)
+      );
+    });
+    it("should reject if minting would exceed maxSupply after multiple successful mints", async () => {
+      await nftTicket.initializeTicket({ ...ticketData_, maxSupply: 5 });
+      await signer4Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther
+      );
+      await weth.transfer(signer4.address, ethers.constants.WeiPerEther);
+      await signer4NftTicket.mint(1, 4);
+      await expect(signer4NftTicket.mint(1, 2)).to.be.revertedWith(
+        "NFTTicket: exceeds maxSupply"
+      );
+    });
+  });
+
+  describe("mintWL", async () => {
+    let ticketData_, ticketData2_;
+
+    beforeEach(async () => {
+      ticketData_ = {
+        ...baseTicketData,
+        active: true,
+        paused: false,
+        maxMintAmountPlusOne: 11,
+        wlMintStartDate: toEthDate(now),
+        wlMintEndDate: toEthDate(oneDayFromNow),
+        wlMintPrice: ethers.constants.WeiPerEther.mul(50).div(1000),
+      };
+      // await nftTicket.initializeTicket(ticketData_);
+      // await nftTicket.initializeTicket(ticketData2_);
+    });
+    // require(_exists(tokenId_), "NFTTicket: tokenId does not exist");
+    // require(totalSupply[tokenId_] + amount <= ticketData.maxSupply, "NFTTicket: exceeds maxSupply");
+    // require(block.timestamp > ticketData.mintStartDate, "NFTTicket: minting has not begun");
+    // require(block.timestamp < ticketData.mintEndDate, "NFTTicket: minting has ended");
+    // require(ticketData.active && !ticketData.paused, "NFTTicket: minting is not active");
+    // require(amount < ticketData.maxMintAmountPlusOne, "NFTTicket: exceeds maxMintAmount");
+    // // mint efficiently
+    // require(
+    //   _WETH.transferFrom(
+    //     _msgSender(),
+    //     ticketData.recipient,
+    //     amount * ticketData.mintPrice
+    //   ),
+    //   'NFTTicket: payment failed'
+    // );
+    it("should reject if tokenId does not exist", async () => {
+      await expect(signer4NftTicket.mintWL(1, 1)).to.be.revertedWith(
+        "NFTTicket: tokenId does not exist"
+      );
+    });
+    it("should reject if account not on WL", async () => {
+      await nftTicket.initializeTicket({ ...ticketData_, maxSupply: 50 });
+      await expect(signer4NftTicket.mintWL(1, 6)).to.be.revertedWith(
+        "NFTTicket: amount exceeds allocated whitelist amount"
+      );
+    });
+    it("should reject if minting more than WL slots", async () => {
+      await nftTicket.initializeTicket({ ...ticketData_, maxSupply: 50 });
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await expect(signer4NftTicket.mintWL(1, 6)).to.be.revertedWith(
+        "NFTTicket: amount exceeds allocated whitelist amount"
+      );
+    });
+    it("should reject if minting would exceed maxSupply", async () => {
+      await nftTicket.initializeTicket({ ...ticketData_, maxSupply: 5 });
+      await signer1NftTicket.updateWL(1, [signer4.address], [10])
+      await expect(signer4NftTicket.mintWL(1, 6)).to.be.revertedWith(
+        "NFTTicket: exceeds maxSupply"
+      );
+    });
+    it("should reject if wlMintStartDate has not past", async () => {
+      await nftTicket.initializeTicket({
+        ...ticketData_,
+        wlMintStartDate: toEthDate(oneDayFromNow),
+      });
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await expect(signer4NftTicket.mintWL(1, 1)).to.be.revertedWith(
+        "NFTTicket: minting has not begun"
+      );
+    });
+    it("should reject if wlMintEndDate is past", async () => {
+      await nftTicket.initializeTicket({
+        ...ticketData_,
+        wlMintStartDate: toEthDate(oneDayAgo),
+        wlMintEndDate: toEthDate(now),
+      });
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await expect(signer4NftTicket.mintWL(1, 1)).to.be.revertedWith(
+        "NFTTicket: minting has ended"
+      );
+    });
+    it("should reject if ticket is not active", async () => {
+      await nftTicket.initializeTicket({ ...ticketData_, active: false });
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await expect(signer4NftTicket.mintWL(1, 1)).to.be.revertedWith(
+        "NFTTicket: minting is not active"
+      );
+    });
+    it("should reject if ticket is paused", async () => {
+      await nftTicket.initializeTicket({ ...ticketData_, paused: true });
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await expect(signer4NftTicket.mintWL(1, 1)).to.be.revertedWith(
+        "NFTTicket: minting is not active"
+      );
+    });
+    it("should reject if insufficient allowance", async () => {
+      await nftTicket.initializeTicket(ticketData_);
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await expect(signer4NftTicket.mintWL(1, 1)).to.be.revertedWith(
+        "ERC20: insufficient allowance"
+      );
+    });
+    it("should reject if insufficient funds", async () => {
+      await nftTicket.initializeTicket(ticketData_);
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await signer4Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther.mul(100).div(1000)
+      );
+      await expect(signer4NftTicket.mintWL(1, 1)).to.be.revertedWith(
+        "ERC20: transfer amount exceeds balance"
+      );
+    });
+    it("should be able to mint 1", async () => {
+      await nftTicket.initializeTicket(ticketData_);
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await signer4Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther.mul(100).div(1000)
+      );
+      await weth.transfer(signer4.address, ethers.constants.WeiPerEther);
+      const signer4WethBalanceBefore = await weth.balanceOf(signer4.address);
+      const supplyBefore = await nftTicket.getSupply(1);
+      const balance4Before = await nftTicket.balanceOf(signer4.address, 1);
+      await signer4NftTicket.mintWL(1, 1);
+      const signer4WethBalanceAfter = await weth.balanceOf(signer4.address);
+      const supplyAfter = await nftTicket.getSupply(1);
+      const balance4After = await nftTicket.balanceOf(signer4.address, 1);
+      expect(supplyBefore).to.equal(0);
+      expect(balance4Before).to.equal(0);
+      expect(supplyAfter).to.equal(1);
+      expect(balance4After).to.equal(1);
+      expect(signer4WethBalanceBefore).to.equal(ethers.constants.WeiPerEther);
+      expect(signer4WethBalanceAfter).to.equal(
+        ethers.constants.WeiPerEther.mul(950).div(1000)
+      );
+    });
+    it("should be able to mint the max", async () => {
+      await nftTicket.initializeTicket(ticketData_);
+      await signer1NftTicket.updateWL(1, [signer4.address], [12])
+      await signer4Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther.mul(2)
+      );
+      await weth.transfer(signer4.address, ethers.constants.WeiPerEther.mul(2));
+      const signer4WethBalanceBefore = await weth.balanceOf(signer4.address);
+      const supplyBefore = await nftTicket.getSupply(1);
+      const balance4Before = await nftTicket.balanceOf(signer4.address, 1);
+      await signer4NftTicket.mintWL(1, 12);
+      const signer4WethBalanceAfter = await weth.balanceOf(signer4.address);
+      const supplyAfter = await nftTicket.getSupply(1);
+      const balance4After = await nftTicket.balanceOf(signer4.address, 1);
+      expect(supplyBefore).to.equal(0);
+      expect(balance4Before).to.equal(0);
+      expect(supplyAfter).to.equal(12);
+      expect(balance4After).to.equal(12);
+      expect(signer4WethBalanceBefore).to.equal(ethers.constants.WeiPerEther.mul(2));
+      expect(signer4WethBalanceAfter).to.equal(ethers.constants.WeiPerEther.mul(1400).div(1000));
+    });
+    it("should be able to mint for many users", async () => {
+      await nftTicket.initializeTicket(ticketData_);
+      await signer1NftTicket.updateWL(1, [signer3.address, signer4.address], [2,1])
+      await signer3Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther.mul(200).div(1000)
+      );
+      await signer4Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther.mul(100).div(1000)
+      );
+      await weth.transfer(signer4.address, ethers.constants.WeiPerEther);
+      await weth.transfer(signer3.address, ethers.constants.WeiPerEther);
+      const signer4WethBalanceBefore = await weth.balanceOf(signer4.address);
+      const signer3WethBalanceBefore = await weth.balanceOf(signer3.address);
+      const supplyBefore = await nftTicket.getSupply(1);
+      const balance3Before = await nftTicket.balanceOf(signer3.address, 1);
+      const balance4Before = await nftTicket.balanceOf(signer4.address, 1);
+      await signer3NftTicket.mintWL(1, 2);
+      await signer4NftTicket.mintWL(1, 1);
+      const signer3WethBalanceAfter = await weth.balanceOf(signer3.address);
+      const signer4WethBalanceAfter = await weth.balanceOf(signer4.address);
+      const supplyAfter = await nftTicket.getSupply(1);
+      const balance3After = await nftTicket.balanceOf(signer3.address, 1);
+      const balance4After = await nftTicket.balanceOf(signer4.address, 1);
+      expect(supplyBefore).to.equal(0);
+      expect(balance3Before).to.equal(0);
+      expect(balance4Before).to.equal(0);
+      expect(supplyAfter).to.equal(3);
+      expect(balance4After).to.equal(1);
+      expect(signer4WethBalanceBefore).to.equal(ethers.constants.WeiPerEther);
+      expect(signer4WethBalanceAfter).to.equal(
+        ethers.constants.WeiPerEther.mul(950).div(1000)
+      );
+      expect(balance3After).to.equal(2);
+      expect(signer3WethBalanceBefore).to.equal(ethers.constants.WeiPerEther);
+      expect(signer3WethBalanceAfter).to.equal(
+        ethers.constants.WeiPerEther.mul(900).div(1000)
+      );
+    });
+    it("should reject if minting would exceed maxSupply after multiple successful mints", async () => {
+      await nftTicket.initializeTicket({ ...ticketData_, maxSupply: 5 });
+      await signer1NftTicket.updateWL(1, [signer4.address], [10])
+      await signer4Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther
+      );
+      await weth.transfer(signer4.address, ethers.constants.WeiPerEther);
+      await signer4NftTicket.mintWL(1, 4);
+      await expect(signer4NftTicket.mintWL(1, 2)).to.be.revertedWith(
+        "NFTTicket: exceeds maxSupply"
+      );
+    });
+    it("should reject if minting more than WL slots after multiple mints", async () => {
+      await nftTicket.initializeTicket(ticketData_);
+      await signer1NftTicket.updateWL(1, [signer4.address], [5])
+      await signer4Weth.approve(
+        nftTicket.address,
+        ethers.constants.WeiPerEther
+      );
+      await weth.transfer(signer4.address, ethers.constants.WeiPerEther);
+      await signer4NftTicket.mintWL(1, 4);
+      await expect(signer4NftTicket.mintWL(1, 2)).to.be.revertedWith(
+        "NFTTicket: amount exceeds allocated whitelist amount"
+      );
+    });
   });
 
   describe("updateTicketData", async () => {
@@ -654,15 +943,77 @@ describe("PotNFTTicket", () => {
   });
 
   describe("whitelist", async () => {
-    describe("updateWl", async () => {});
-    describe("accountWl", async () => {});
-    describe("wlMintPrice", async () => {});
-    describe("mintPrice", async () => {});
-    describe("totalMinted", async () => {});
-    describe("mintWl", async () => {});
+    let returnedTicketData;
+    beforeEach(async () => {
+      // Signer 1 is the controller
+      const ticketData_ = baseTicketData;
+      await nftTicket.initializeTicket(ticketData_);
+      returnedTicketData = await nftTicket.getTicketData(1);
+    })
+    describe("updateWl", async () => {
+      it("should reject for non-controller", async () => {
+        await expect(
+          nftTicket.updateWL(1, [signer3.address, signer4.address], [1,2])
+        ).to.be.revertedWith(
+          "NFTTicket: caller is not the controller of this ticket"
+        );
+      });
+      it("should reject for unequal length of args short => long", async () => {
+        await expect(
+          signer1NftTicket.updateWL(1, [signer3.address, signer4.address], [1,2,3])
+        ).to.be.revertedWith(
+          "NFTTicket: accounts and wlSpots must be same length"
+        );
+      });
+      it("should reject for unequal length of args long => short", async () => {
+        await expect(
+          signer1NftTicket.updateWL(1, [signer3.address, signer4.address], [1])
+        ).to.be.revertedWith(
+          "NFTTicket: accounts and wlSpots must be same length"
+        );
+      });
+      it("should succeed once", async () => {
+        const signer3before = await nftTicket.accountWl(1, signer3.address);
+        const signer4before = await nftTicket.accountWl(1, signer4.address);
+        await signer1NftTicket.updateWL(1, [signer3.address, signer4.address], [1,2])
+        const signer3after = await nftTicket.accountWl(1, signer3.address);
+        const signer4after = await nftTicket.accountWl(1, signer4.address);
+        expect(signer3before).to.equal(0);
+        expect(signer4before).to.equal(0);
+        expect(signer3after).to.equal(1);
+        expect(signer4after).to.equal(2);
+      });
+      it("should succeed multiple times", async () => {
+        const signer2before = await nftTicket.accountWl(1, signer2.address);
+        const signer3before = await nftTicket.accountWl(1, signer3.address);
+        const signer4before = await nftTicket.accountWl(1, signer4.address);
+        await signer1NftTicket.updateWL(1, [signer3.address, signer4.address], [1,2])
+        await signer1NftTicket.updateWL(1, [signer3.address, signer2.address], [4,8])
+        const signer2after = await nftTicket.accountWl(1, signer2.address);
+        const signer3after = await nftTicket.accountWl(1, signer3.address);
+        const signer4after = await nftTicket.accountWl(1, signer4.address);
+        expect(signer2before).to.equal(0);
+        expect(signer3before).to.equal(0);
+        expect(signer4before).to.equal(0);
+        expect(signer2after).to.equal(8);
+        expect(signer3after).to.equal(4);
+        expect(signer4after).to.equal(2);
+      });
+    });
+    describe("wlMintPrice", async () => {
+      it("should return wl mint price", async () => {
+        const wlMintPrice = await nftTicket.wlMintPrice(1);
+        expect(wlMintPrice).to.equal(ethers.constants.WeiPerEther.mul(8).div(1000))
+      })
+    });
+    describe("mintPrice", async () => {
+      it("should return mint price", async () => {
+        const mintPrice = await nftTicket.mintPrice(1);
+        expect(mintPrice).to.equal(ethers.constants.WeiPerEther.mul(10).div(1000))
+      })
+    });
   });
 
-  // TODO: This should not be skipped
   describe("integration tests", async () => {
     let paperPotMetadata: PaperPotMetadata;
     let paperPot: PaperPot;
@@ -830,6 +1181,8 @@ describe("PotNFTTicket", () => {
         const recipientWethAfter = await weth.balanceOf(signer2.address);
         const potsAfter = await paperPot.balanceOf(signer4.address, 1);
         const ticketsAfter = await nftTicket.balanceOf(signer4.address, 1);
+        const totalMinted = await nftTicket.totalMinted(1);
+        expect(totalMinted).to.equal(1);
         expect(wethBefore).to.equal(ethers.constants.WeiPerEther.mul(15).div(1000));  // 0.015 ETH
         expect(recipientWethBefore).to.equal(0);
         expect(potsBefore).to.equal(0);
@@ -854,6 +1207,8 @@ describe("PotNFTTicket", () => {
         const recipientWethAfter = await weth.balanceOf(signer2.address);
         const potsAfter = await paperPot.balanceOf(signer4.address, 1);
         const ticketsAfter = await nftTicket.balanceOf(signer4.address, 1);
+        const totalMinted = await nftTicket.totalMinted(1);
+        expect(totalMinted).to.equal(10);
         expect(wethBefore).to.equal(ethers.constants.WeiPerEther);
         expect(recipientWethBefore).to.equal(0);
         expect(potsBefore).to.equal(0);
