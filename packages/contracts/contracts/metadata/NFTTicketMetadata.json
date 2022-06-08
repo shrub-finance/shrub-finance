@@ -1,0 +1,15 @@
+{
+  "name": "NFT Ticket - Paper Gardens Pot",
+  "image": "ipfs://QmNVFsqtyNvnrnLoufiwmuV12KrwhE3suRrMxKiaB3cV8g",
+  "external_link": "https://gardens.shrub.finance",
+  "attributes": [
+    {
+      "trait_type": "Redeemable for",
+      "value": "1 Paper Gardens Pot"
+    },
+    {
+      "trait_type": "Redemption Price",
+      "value": "0.015 WETH"
+    }
+  ]
+}

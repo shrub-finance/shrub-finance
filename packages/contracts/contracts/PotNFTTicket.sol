@@ -13,8 +13,6 @@ interface INftTicketRedeemable {
     ) external returns (bool);
 }
 
-// TODO: startDate is not being used currently
-// TODO: endDate is not being used currently
 
 contract PotNFTTicket is ERC1155, Ownable {
     using Counters for Counters.Counter;
@@ -46,6 +44,8 @@ contract PotNFTTicket is ERC1155, Ownable {
 
     IERC20 private _WETH;
 
+    string private CONTRACT_URI;
+
     constructor(address WETH_ADDRESS_) ERC1155("") {
         _WETH = IERC20(WETH_ADDRESS_);
     }
@@ -57,6 +57,14 @@ contract PotNFTTicket is ERC1155, Ownable {
 
     function setUri(string calldata uri_) external onlyOwner {
         _setURI(uri_);
+    }
+
+    function contractURI() public view returns (string memory) {
+        return CONTRACT_URI;
+    }
+
+    function setContractURI(string memory _contractUri) public onlyOwner {
+        CONTRACT_URI = _contractUri;
     }
 
     function getTicketData(uint tokenId_) public view returns (Ticket memory) {
@@ -282,14 +290,6 @@ contract PotNFTTicket is ERC1155, Ownable {
         );
         totalSupply[tokenId_] += amount;
         _mint(_msgSender(), tokenId_, amount, "");
-    }
-
-    function burn() public {
-        // Need to decrement totalSupply upon burn
-    }
-
-    function burnBatch() public {
-        // Need to decrement totalSupply upon burn
     }
 
     modifier onlyController(uint256 tokenId_) {

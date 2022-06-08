@@ -1,0 +1,8 @@
+{
+  "name": "Shrub Paper Gardens - NFT Tickets",
+  "description": "A new mechanism for NFT drops - created by Shrub Finance",
+  "image": "https://shrub.finance/paper-gardens-logo.png",
+  "external_link": "https://gardens.shrub.finance",
+  "seller_fee_basis_points": 1000,
+  "fee_recipient": "0x4497C08e3FcC1580B13afA1ddDA10aB3aB0822ae"
+}
