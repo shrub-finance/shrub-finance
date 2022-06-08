@@ -362,6 +362,11 @@
             "type": "uint96"
           },
           {
+            "internalType": "uint32",
+            "name": "redeemEndDate",
+            "type": "uint32"
+          },
+          {
             "internalType": "uint16",
             "name": "maxMintAmountPlusOne",
             "type": "uint16"
@@ -375,6 +380,11 @@
             "internalType": "uint16",
             "name": "maxSupply",
             "type": "uint16"
+          },
+          {
+            "internalType": "bool",
+            "name": "redeemActive",
+            "type": "bool"
           },
           {
             "internalType": "bool",
@@ -455,6 +465,11 @@
             "type": "uint96"
           },
           {
+            "internalType": "uint32",
+            "name": "redeemEndDate",
+            "type": "uint32"
+          },
+          {
             "internalType": "uint16",
             "name": "maxMintAmountPlusOne",
             "type": "uint16"
@@ -468,6 +483,11 @@
             "internalType": "uint16",
             "name": "maxSupply",
             "type": "uint16"
+          },
+          {
+            "internalType": "bool",
+            "name": "redeemActive",
+            "type": "bool"
           },
           {
             "internalType": "bool",
@@ -768,6 +788,24 @@
         "type": "uint256"
       },
       {
+        "internalType": "address",
+        "name": "contractAddress_",
+        "type": "address"
+      }
+    ],
+    "name": "updateContractAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
         "internalType": "uint32",
         "name": "endDate_",
         "type": "uint32"
@@ -894,6 +932,42 @@
         "type": "uint256"
       },
       {
+        "internalType": "bool",
+        "name": "redeemActive_",
+        "type": "bool"
+      }
+    ],
+    "name": "updateRedeemActive",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "redeemEndDate_",
+        "type": "uint32"
+      }
+    ],
+    "name": "updateRedeemEndDate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
         "internalType": "uint96",
         "name": "redeemPrice_",
         "type": "uint96"
@@ -941,6 +1015,60 @@
       }
     ],
     "name": "updateWL",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "wlMintEndDate_",
+        "type": "uint32"
+      }
+    ],
+    "name": "updateWlMintEndDate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint96",
+        "name": "wlMintPrice_",
+        "type": "uint96"
+      }
+    ],
+    "name": "updateWlMintPrice",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "wlMintStartDate_",
+        "type": "uint32"
+      }
+    ],
+    "name": "updateWlMintStartDate",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -13,6 +13,7 @@ import {
   PotNFTTicket, PotNFTTicket__factory,
 } from '../types'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { beforeEach } from 'mocha'
 
 const { BigNumber } = ethers;
 const { Zero, One } = ethers.constants;
@@ -48,6 +49,7 @@ describe("PotNFTTicket", () => {
   let oneDayFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 1));
   let twoDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 2));
   let threeDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 3));
+  let fourDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 4));
   const ADDRESS_ONE = "0x0000000000000000000000000000000000000001";
   const DEAD_ADDRESS = "0x000000000000000000000000000000000000dEaD";
 
@@ -70,9 +72,11 @@ describe("PotNFTTicket", () => {
       wlMintStartDate: toEthDate(oneDayFromNow),
       wlMintEndDate: toEthDate(twoDaysFromNow),
       wlMintPrice: ethers.constants.WeiPerEther.mul(8).div(1000),
+      redeemEndDate: toEthDate(now),
       maxMintAmountPlusOne: 11,
       redeemPrice: ethers.constants.WeiPerEther.mul(15).div(1000),
       maxSupply: 1000,
+      redeemActive: false,
       active: false,
       paused: false,
     };
@@ -320,6 +324,20 @@ describe("PotNFTTicket", () => {
       expect(supplyAfter).to.equal(1);
       expect(balance1After).to.equal(1);
     });
+    it("should allow minting one to self if the controller even if paused", async () => {
+      const supplyBefore = await nftTicket.getSupply(1);
+      const balance1Before = await nftTicket.balanceOf(signer1.address, 1);
+      await signer1NftTicket.updatePaused(1, true);
+      const ticketData = await nftTicket.getTicketData(1);
+      expect(ticketData.paused).to.equal(true);
+      await signer1NftTicket.controllerMint(1, [signer1.address], [1]);
+      const supplyAfter = await nftTicket.getSupply(1);
+      const balance1After = await nftTicket.balanceOf(signer1.address, 1);
+      expect(supplyBefore).to.equal(0);
+      expect(balance1Before).to.equal(0);
+      expect(supplyAfter).to.equal(1);
+      expect(balance1After).to.equal(1);
+    });
     it("should allow minting many to self if the controller", async () => {
       const supplyBefore = await nftTicket.getSupply(1);
       const balance1Before = await nftTicket.balanceOf(signer1.address, 1);
@@ -522,6 +540,119 @@ describe("PotNFTTicket", () => {
     it("should reject if minting would exceed maxSupply after multiple successful mints", async () => {});
   });
 
+  describe("updateTicketData", async () => {
+    let returnedTicketData;
+    beforeEach(async () => {
+      // Signer 1 is the controller
+      const ticketData_ = baseTicketData;
+      await nftTicket.initializeTicket(ticketData_);
+      returnedTicketData = await nftTicket.getTicketData(1);
+    })
+    describe("updateRedeemEndDate", async () => {
+      it("should not allow if not controller", async () => {
+        await expect(
+          nftTicket.updateRedeemEndDate(1, toEthDate(oneDayFromNow))
+        ).to.be.revertedWith(
+          "NFTTicket: caller is not the controller of this ticket"
+        );
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData).to.deep.equal(returnedTicketData);
+      })
+      it("should update", async () => {
+        await signer1NftTicket.updateRedeemEndDate(1, toEthDate(oneDayFromNow));
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData.redeemEndDate).to.equal(toEthDate(oneDayFromNow));
+      })
+    });
+    describe("updateRedeemActive", async () => {
+      it("should not allow if not controller", async () => {
+        await expect(
+          nftTicket.updateRedeemActive(1, true)
+        ).to.be.revertedWith(
+          "NFTTicket: caller is not the controller of this ticket"
+        );
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData).to.deep.equal(returnedTicketData);
+      })
+      it("should update", async () => {
+        await signer1NftTicket.updateRedeemActive(1, true);
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(returnedTicketData.redeemActive).to.equal(false);
+        expect(ticketData.redeemActive).to.equal(true);
+      })
+    });
+    describe("updateContractAddress", async () => {
+      it("should not allow if not controller", async () => {
+        await expect(
+          nftTicket.updateContractAddress(1, signer4.address)
+        ).to.be.revertedWith(
+          "NFTTicket: caller is not the controller of this ticket"
+        );
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData).to.deep.equal(returnedTicketData);
+      })
+      it("should update", async () => {
+        await signer1NftTicket.updateContractAddress(1, signer4.address);
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(returnedTicketData.contractAddress).to.equal(signer3.address);
+        expect(ticketData.contractAddress).to.equal(signer4.address);
+      })
+    });
+    describe("updateWlMintStartDate", async () => {
+      it("should not allow if not controller", async () => {
+        await expect(
+          nftTicket.updateWlMintStartDate(1, toEthDate(twoDaysFromNow))
+        ).to.be.revertedWith(
+          "NFTTicket: caller is not the controller of this ticket"
+        );
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData).to.deep.equal(returnedTicketData);
+      })
+      it("should update", async () => {
+        await signer1NftTicket.updateWlMintStartDate(1, toEthDate(twoDaysFromNow));
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(returnedTicketData.wlMintStartDate).to.equal(toEthDate(oneDayFromNow));
+        expect(ticketData.wlMintStartDate).to.equal(toEthDate(twoDaysFromNow));
+      })
+    });
+    describe("updateWlMintEndDate", async () => {
+      it("should not allow if not controller", async () => {
+        await expect(
+          nftTicket.updateWlMintEndDate(1, toEthDate(fourDaysFromNow))
+        ).to.be.revertedWith(
+          "NFTTicket: caller is not the controller of this ticket"
+        );
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData).to.deep.equal(returnedTicketData);
+      })
+      it("should update", async () => {
+        await signer1NftTicket.updateWlMintEndDate(1, toEthDate(fourDaysFromNow));
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(returnedTicketData.wlMintEndDate).to.equal(toEthDate(twoDaysFromNow));
+        expect(ticketData.wlMintEndDate).to.equal(toEthDate(fourDaysFromNow));
+      })
+    });
+    describe("updateWlMintPrice", async () => {
+      const oldPrice = ethers.constants.WeiPerEther.mul(8).div(1000);
+      const newPrice = ethers.constants.WeiPerEther.mul(25).div(1000);
+      it("should not allow if not controller", async () => {
+        await expect(
+          nftTicket.updateWlMintPrice(1, newPrice)
+        ).to.be.revertedWith(
+          "NFTTicket: caller is not the controller of this ticket"
+        );
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData).to.deep.equal(returnedTicketData);
+      })
+      it("should update", async () => {
+        await signer1NftTicket.updateWlMintPrice(1, newPrice);
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(returnedTicketData.wlMintPrice).to.equal(oldPrice);
+        expect(ticketData.wlMintPrice).to.equal(newPrice);
+      })
+    });
+  });
+
   describe("whitelist", async () => {
     describe("updateWl", async () => {});
     describe("accountWl", async () => {});
@@ -531,6 +662,7 @@ describe("PotNFTTicket", () => {
     describe("mintWl", async () => {});
   });
 
+  // TODO: This should not be skipped
   describe("integration tests", async () => {
     let paperPotMetadata: PaperPotMetadata;
     let paperPot: PaperPot;
@@ -582,10 +714,46 @@ describe("PotNFTTicket", () => {
           maxMintAmountPlusOne: 11,
           redeemPrice: ethers.constants.WeiPerEther.mul(15).div(1000),
           maxSupply: 1000,
+          redeemEndDate: toEthDate(twoDaysFromNow),
+          redeemActive: true,
           active: true,
           paused: false,
         };
         await nftTicket.initializeTicket(ticketData)
+      });
+      it("rejects if redeemActive is false", async () => {
+        await paperPot.unpauseMinting();
+        await paperPot.setNftTicketInfo(1, nftTicket.address);
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await weth.transfer(signer4.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        const wethBefore = await weth.balanceOf(signer4.address);
+        const recipientWethBefore = await weth.balanceOf(signer2.address);
+        const potsBefore = await paperPot.balanceOf(signer4.address, 1);
+        const ticketsBefore = await nftTicket.balanceOf(signer4.address, 1);
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await signer1NftTicket.updateRedeemActive(1, false);
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData.redeemActive).to.equal(false);
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("NFTTicket: Redeeming is not active");
+      });
+      it("rejects if past redeemDate", async () => {
+        await paperPot.unpauseMinting();
+        await paperPot.setNftTicketInfo(1, nftTicket.address);
+        await signer1NftTicket.controllerMint(1, [signer4.address], [1]);
+        await weth.transfer(signer4.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        const wethBefore = await weth.balanceOf(signer4.address);
+        const recipientWethBefore = await weth.balanceOf(signer2.address);
+        const potsBefore = await paperPot.balanceOf(signer4.address, 1);
+        const ticketsBefore = await nftTicket.balanceOf(signer4.address, 1);
+        await signer4Weth.approve(nftTicket.address, ethers.constants.WeiPerEther.mul(15).div(1000));
+        await signer1NftTicket.updateRedeemEndDate(1, toEthDate(now));
+        const ticketData = await nftTicket.getTicketData(1);
+        expect(ticketData.redeemEndDate).to.equal(toEthDate(now));
+        await expect(
+          signer4NftTicket.redeem(1, 1)
+        ).to.be.revertedWith("NFTTicket: Redeem Period has ended");
       });
       it("rejects if no ticket balance", async () => {
         await expect(

@@ -239,9 +239,11 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
   .addParam('wlMintPrice', 'ticket price for the main mint in ETH / 1000')
   .addOptionalParam('maxPerMint', 'max amount to be minted at a time during the main mint', 10, types.int)
   .addParam('redeemPrice', 'redeem price for ticket in ETH / 1000')
+  .addParam('redeemEndDate', 'redeem endDate after which the ticket cannot be redeemed')
   .addParam('maxSupply', 'max number of tickets to be minted during main mint')
   .addOptionalParam('active', 'state of active at initilization', false, types.boolean)
   .addOptionalParam('paused', 'state of paused at initilization', false, types.boolean)
+  .addOptionalParam('redeemActive', 'state of redeemActive at initilization', false, types.boolean)
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
     const [owner, signer1] = await ethers.getSigners();
@@ -252,7 +254,7 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
     let oneDayFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 1));
     let twoDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 2));
     let { controller, recipient, contractAddress, startDate, endDate, mintStartDate, mintEndDate, mintPrice,
-      wlMintStartDate, wlMintEndDate, wlMintPrice, maxPerMint, redeemPrice, maxSupply, active, paused} = taskArgs
+      wlMintStartDate, wlMintEndDate, wlMintPrice, maxPerMint, redeemPrice, redeemEndDate, redeemActive, maxSupply, active, paused} = taskArgs
     const ticketData = {
       controller: controller || signer1.address,
       recipient: recipient || signer1.address,
@@ -267,6 +269,8 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
       wlMintPrice: ethers.constants.WeiPerEther.mul(wlMintPrice).div(1000),
       maxMintAmountPlusOne: maxPerMint + 1,
       redeemPrice: ethers.constants.WeiPerEther.mul(redeemPrice).div(1000),
+      redeemEndDate: toEthDate(new Date(redeemEndDate)) || toEthDate(now),
+      redeemActive: redeemActive,
       maxSupply: maxSupply,
       active: active,
       paused: paused,
@@ -274,24 +278,51 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
     await PotNFTTicket.initializeTicket(ticketData);
   });
 
-task("updateNFTTicketMintStartData")
+task("updateNFTTicketMintDates")
   .addParam("tokenId", "tokenId of ticket to update")
-  .addParam("startDate", "new startDate")
+  .addOptionalParam("startDate", "new startDate")
+  .addOptionalParam("endDate", "new endDate")
+  .addOptionalParam("wlStartDate", "new wlStartDate")
+  .addOptionalParam("wlEndDate", "new wlEndDate")
   .addOptionalParam("controller", "address of the controller of the ticket")
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
     const tokenId: number = taskArgs.tokenId;
     const [owner] = await ethers.getSigners();
-    const startDate = new Date(taskArgs.startDate);
-    if (startDate.toString() === 'Invalid Date') {
-      console.log('invalid date');
-      return;
-    }
-    const ethStartDate = toEthDate(startDate);
     const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
-    await PotNFTTicket.updateMintStartDate(tokenId, ethStartDate);
+    for (const param of ['startDate, endDate, wlStartDate, wlEndDate']) {
+      if (!taskArgs[param]) {
+        continue;
+      }
+      const date = new Date(taskArgs[param]);
+      if (date.toString() === 'Invalid Date') {
+        console.log(`invalid ${param}`);
+        return;
+      }
+      const ethDate = toEthDate(date);
+      if (param === 'startDate') {
+        await PotNFTTicket.updateMintStartDate(tokenId, ethDate);
+      } else if (param === 'endDate') {
+        await PotNFTTicket.updateMintEndDate(tokenId, ethDate);
+      }else if (param === 'wlStartDate') {
+        await PotNFTTicket.updateWlMintStartDate(tokenId, ethDate);
+      }else if (param === 'endDate') {
+        await PotNFTTicket.updateWlMintEndDate(tokenId, ethDate);
+      } else {
+        throw new Error(`unexpected param - ${param}`);
+      }
+      console.log(`${param} updated to ${date.toISOString()}`);
+    }
+    // const startDate = new Date(taskArgs.startDate);
+    // if (startDate.toString() === 'Invalid Date') {
+    //   console.log('invalid date');
+    //   return;
+    // }
+    // const ethStartDate = toEthDate(startDate);
+    // const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    // await PotNFTTicket.updateMintStartDate(tokenId, ethStartDate);
   });
 
 task("updateNFTTicketWL")
