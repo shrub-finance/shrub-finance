@@ -13,6 +13,8 @@ import { Fade } from "./animations/Fade";
 import CountdownTimer from "./CountdownTimer";
 import { BsQuestionLg } from "react-icons/all";
 import { Icon } from "@chakra-ui/icons";
+import { Link as ReachLink } from "@reach/router";
+import React from "react";
 
 function PotSaleCountdown() {
   const saleDay = new Date("2022-06-08T13:00:00Z");
@@ -69,6 +71,19 @@ function PotSaleCountdown() {
               NFT Ticket Discount Pre-Sale
             </Text>
             <Text>Wednesday, June 8</Text>
+            <Link
+              as={ReachLink}
+              to="/presale"
+              fontSize={"sm"}
+              variant={"link"}
+              fontWeight={"extrabold"}
+              color={"cyan"}
+              px={2}
+              py={{ base: "3", md: "1", lg: "1" }}
+              rounded={"lg"}
+            >
+              Mint NFT Now
+            </Link>
           </Text>
           <Text
             fontSize={{ base: "18px", md: "20px" }}

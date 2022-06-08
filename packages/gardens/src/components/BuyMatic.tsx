@@ -2,6 +2,8 @@ import axios from "axios";
 import { Button, Link, useColorModeValue } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import { isMobile } from "react-device-detect";
+import { Link as ReachLink } from "@reach/router";
+import React from "react";
 
 // TODO: could update source currency automatically based on locale
 
@@ -99,14 +101,17 @@ function BuyMatic() {
 
       {!isMobile && (
         <Link
-          pr={5}
+          as={ReachLink}
+          to="/presale"
           fontSize={"sm"}
-          fontWeight={"bold"}
-          color={useColorModeValue("blue", "yellow")}
-          href={"https://discord.gg/BpHuVCYtdB"}
-          isExternal
+          variant={"link"}
+          fontWeight={"extrabold"}
+          color={"cyan"}
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
         >
-          Join Discord
+          Mint NFT
         </Link>
       )}
     </>
