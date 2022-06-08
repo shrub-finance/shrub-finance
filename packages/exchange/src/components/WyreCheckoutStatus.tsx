@@ -35,6 +35,10 @@ function WyreCheckoutStatus() {
         </>
       );
       break;
+    case 'success':
+      localStorage.removeItem('shrub:buyMatic:reservationUrl');
+      localStorage.removeItem('shrub:buyMatic:reservationDate');
+      break;
     default:
       break;
   }
