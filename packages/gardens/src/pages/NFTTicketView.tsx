@@ -837,7 +837,6 @@ function NFTTicketView(props: RouteComponentProps) {
 
       {timerDate && (
         <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 10, md: 20 }}>
-          <Text>{phase}</Text>
           <Text fontSize={{ base: "20px", md: "30px" }} fontWeight="semibold">
             <CountdownTimer targetDate={timerDate} />
           </Text>
