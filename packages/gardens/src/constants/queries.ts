@@ -59,6 +59,22 @@ export const NFT_LEADERBOARD_QUERY = gql`
 
 export const MY_GARDENS_QUERY = gql`
   query MyGardens($user: String) {
+    user(id: $user) {
+      ticketCount
+      waterCount
+      fertilizerCount
+      potCount
+      pottedPlants {
+        id
+        growth
+        seed {
+          name
+          dna
+          emotion
+          type
+        }
+      }
+    }
     seeds(where: { owner: $user }) {
       id
       name

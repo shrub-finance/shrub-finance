@@ -1,20 +1,25 @@
-import { ethers } from "ethers";
+import { BytesLike, ethers } from "ethers";
 import {
   SUSDToken__factory,
   PaperSeed__factory,
-  ShrubExchange__factory,
   SeedOrphanage__factory,
+  PotNFTTicket__factory,
+  ERC1155__factory,
+  ERC721__factory,
+  PaperPot__factory,
 } from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import { OrderCommon, UnsignedOrder } from "../types";
 import { useWeb3React } from "@web3-react/core";
 import { JsonRpcProvider } from "@ethersproject/providers";
 
-const SHRUB_CONTRACT_ADDRESS = process.env.REACT_APP_SHRUB_ADDRESS || "";
 const PAPERSEED_CONTRACT_ADDRESS =
   process.env.REACT_APP_PAPERSEED_ADDRESS || "";
 const ORPHANAGE_CONTRACT_ADDRESS =
   process.env.REACT_APP_ORPHANAGE_ADDRESS || "";
+const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
+const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
+
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id(
   "OrderCommon(address baseAsset, address quoteAsset, uint expiry, uint strike, OptionType optionType)"
@@ -113,24 +118,25 @@ export async function getWalletBalance(
   return ethers.utils.formatUnits(bigBalance, decimals);
 }
 
-// export async function claimNFT(
-//   index: ethers.BigNumberish,
-//   tokenID: ethers.BigNumberish,
-//   proof: BytesLike[],
-//   provider: JsonRpcProvider
-// ) {
-//   const signer = provider.getSigner();
-//   const paperseedContract = PaperSeed__factory.connect(
-//     PAPERSEED_CONTRACT_ADDRESS,
-//     signer
-//   );
-//   const tx = await paperseedContract["claim(uint256,uint256,bytes32[])"](
-//     index,
-//     tokenID,
-//     proof
-//   );
-//   return tx;
-// }
+export async function claimNFT(
+  index: ethers.BigNumberish,
+  tokenID: ethers.BigNumberish,
+  proof: BytesLike[],
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperseedContract = PaperSeed__factory.connect(
+    PAPERSEED_CONTRACT_ADDRESS,
+    signer
+  );
+  // @ts-ignore
+  const tx = await paperseedContract["claim(uint256,uint256,bytes32[])"](
+    index,
+    tokenID,
+    proof
+  );
+  return tx;
+}
 
 export async function registerForAdoption(provider: JsonRpcProvider) {
   const signer = provider.getSigner();
@@ -184,17 +190,170 @@ export async function getTokenUri(
   return uri;
 }
 
-export async function getUserNonce(
+export async function accountWL(
+  tokenID: ethers.BigNumberish,
   address: string,
-  common: OrderCommon,
   provider: JsonRpcProvider
 ) {
-  const shrubContract = ShrubExchange__factory.connect(
-    SHRUB_CONTRACT_ADDRESS,
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
     provider
   );
-  const bigNonce = await shrubContract.getCurrentNonce(address, common);
-  return bigNonce.toNumber();
+  return potTicketContract.accountWl(tokenID, address);
+}
+
+export async function getWLMintPrice(
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    provider
+  );
+  return potTicketContract.wlMintPrice(tokenID);
+}
+
+export async function getTicketData(
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    provider
+  );
+  return potTicketContract.getTicketData(tokenID);
+}
+
+export async function redeemNFTTicket(
+  tokenID: ethers.BigNumberish,
+  amount: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    signer
+  );
+  return potTicketContract.redeem(tokenID, amount);
+}
+
+export async function mintWL(
+  tokenID: ethers.BigNumberish,
+  amount: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    signer
+  );
+  return potTicketContract.mintWL(tokenID, amount);
+}
+
+export async function mint(
+  tokenID: ethers.BigNumberish,
+  amount: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const potTicketContract = PotNFTTicket__factory.connect(
+    NFT_TICKET_ADDRESS,
+    signer
+  );
+  return potTicketContract.mint(tokenID, amount);
+}
+
+export async function balanceOfErc1155(
+  tokenContractAddress: string,
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const NFTContract = ERC1155__factory.connect(tokenContractAddress, provider);
+  const account = await getAddress(provider);
+  return NFTContract.balanceOf(account, tokenID);
+}
+
+export async function isApprovedErc721(
+  tokenContractAddress: string,
+  owner: string,
+  tokenId: ethers.BigNumberish,
+  spender: string,
+  provider: JsonRpcProvider
+) {
+  // return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
+  const isApprovedForAll = await isApprovedForAllErc721(
+    tokenContractAddress,
+    owner,
+    spender,
+    provider
+  );
+  if (isApprovedForAll) {
+    return true;
+  }
+  const erc721 = ERC721__factory.connect(tokenContractAddress, provider);
+  const getApproved = await erc721.getApproved(tokenId);
+  return (
+    ethers.utils.getAddress(spender) === ethers.utils.getAddress(getApproved)
+  );
+}
+
+export async function isApprovedForAllErc721(
+  tokenContractAddress: string,
+  owner: string,
+  spender: string,
+  provider: JsonRpcProvider
+) {
+  console.log(tokenContractAddress);
+  const erc721 = ERC721__factory.connect(tokenContractAddress, provider);
+  console.log(owner, spender);
+  return await erc721.isApprovedForAll(owner, spender);
+}
+
+export async function approveAllErc721(
+  tokenContractAddress: string,
+  spender: string,
+  approved: boolean,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const erc721 = ERC721__factory.connect(tokenContractAddress, signer);
+  return erc721.setApprovalForAll(spender, approved);
+}
+
+export async function water(
+  tokenIds: ethers.BigNumberish[],
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.water(tokenIds);
+}
+
+export async function waterWithFertilizer(
+  tokenIds: ethers.BigNumberish[],
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.waterWithFertilizer(tokenIds);
+}
+
+export async function harvestShrub(
+  tokenId: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.harvest(tokenId);
+}
+
+export async function plant(
+  seedTokenId: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.plant(PAPERSEED_CONTRACT_ADDRESS, seedTokenId);
 }
 
 export function addressToLabel(address: string) {
@@ -248,4 +407,48 @@ export function formatTime(date: number | Date) {
 
 export function getBlockNumber(provider: JsonRpcProvider) {
   return provider.getBlockNumber();
+}
+
+export async function getAllowance(
+  tokenContractAddress: string,
+  spenderAddress: string,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const erc20Contract = SUSDToken__factory.connect(
+    tokenContractAddress,
+    signer
+  );
+  const signerAddress = await signer.getAddress();
+  return await erc20Contract.allowance(signerAddress, spenderAddress);
+}
+export async function approveToken(
+  tokenContractAddress: string,
+  amount: ethers.BigNumber,
+  spenderAddress: string,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const bigAmount = amount;
+  const erc20Contract = SUSDToken__factory.connect(
+    tokenContractAddress,
+    signer
+  );
+  const allowance = await getAllowance(
+    tokenContractAddress,
+    spenderAddress,
+    provider
+  );
+  const { bigBalance: ethBalance } = await getBigWalletBalance(
+    ethers.constants.AddressZero,
+    provider
+  );
+  if (ethBalance.eq(ethers.constants.Zero)) {
+    throw new Error("Insufficient MATIC balance");
+  }
+
+  if (allowance.gte(bigAmount) && allowance.gt(ethers.constants.Zero)) {
+    throw new Error("Allowance is sufficient. You don't need to approve.");
+  }
+  return erc20Contract.approve(spenderAddress, bigAmount);
 }

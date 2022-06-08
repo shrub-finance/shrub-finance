@@ -43,8 +43,6 @@ import {
 import PotSaleCountdown from "./PotSaleCountdown";
 
 function Intro(props: RouteComponentProps) {
-  const gold =
-    "linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C)";
   const { colorMode } = useColorMode();
   const dropColor = useColorModeValue("blue.300", "blue.100");
 
@@ -102,7 +100,7 @@ function Intro(props: RouteComponentProps) {
               The first{" "}
               <Text
                 as="span"
-                bgGradient={gold}
+                background="gold.100"
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
@@ -115,21 +113,11 @@ function Intro(props: RouteComponentProps) {
               </Text>{" "}
               growth NFT
             </Heading>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               Plant your seed, grow a Shrub. Planting your seed into a pot
               creates a potted plant.
             </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               For the first time ever, grow an NFT by interacting with it
               on-chain!
             </Text>
@@ -172,7 +160,7 @@ function Intro(props: RouteComponentProps) {
             >
               <Text
                 as="span"
-                bgGradient={gold}
+                background="gold.100"
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
@@ -185,29 +173,14 @@ function Intro(props: RouteComponentProps) {
               </Text>{" "}
               your Shrub on-chain
             </Heading>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "30rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               Take care of your potted plant to help it grow.
             </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               Watering potted plants makes them grow big and strong. Fertilizing
               also gives them a boost!{" "}
             </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               Traits of your potted plant will update dynamically when you
               interact with it!
             </Text>
@@ -253,7 +226,7 @@ function Intro(props: RouteComponentProps) {
             >
               <Text
                 as="span"
-                bgGradient={gold}
+                background="gold.100"
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
@@ -266,39 +239,15 @@ function Intro(props: RouteComponentProps) {
               </Text>{" "}
               your Shrub
             </Heading>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               Once your potted plant is fully grown it is time to harvest.
             </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Out comes a shrub!
-            </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>Out comes a shrub!</Text>{" "}
+            <Text textStyle={"description"}>
               Shrub traits are based on the type of seed you planted, emotion
               and DNA. Some combinations result in rare traits!
             </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              Every Shrub is unique.
-            </Text>
+            <Text textStyle={"description"}>Every Shrub is unique.</Text>
           </Box>
           <Spacer />
           <Box mt={20}>
@@ -338,7 +287,7 @@ function Intro(props: RouteComponentProps) {
               The{" "}
               <Text
                 as="span"
-                bgGradient={gold}
+                background="gold.100"
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
@@ -351,12 +300,7 @@ function Intro(props: RouteComponentProps) {
               </Text>{" "}
               so far
             </Heading>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               It all started with a visit from the mysterious traveller the
               Paper Merchant. He came with the seeds.{" "}
               <Link
@@ -366,25 +310,12 @@ function Intro(props: RouteComponentProps) {
                 Read all the chapters here.
               </Link>
             </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               The seeds are now ready to transform and grow. The Potter has come
               to help. He has a limited supply of pots which the seeds can be
               planted in. It is the moment that everyone has been waiting for.
             </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
-              {" "}
-              It is time to grow!
-            </Text>
+            <Text textStyle={"description"}> It is time to grow!</Text>
           </Box>
           <Spacer display={{ base: "flex", md: "flex", lg: "none" }} />
           {/*visible for smaller screens*/}
@@ -414,7 +345,7 @@ function Intro(props: RouteComponentProps) {
               An{" "}
               <Text
                 as="span"
-                bgGradient={gold}
+                background="gold.100"
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
@@ -427,31 +358,16 @@ function Intro(props: RouteComponentProps) {
               </Text>{" "}
               distribution system
             </Heading>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               The distribution for the Pot sale will use a new product created
               by the Shrub engineering team that provides NFT collectors more
               flexibility than a traditional whitelist.
             </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               NFT Tickets are NFTs themselves (ERC-1155) and are gas-efficient
               to mint.
             </Text>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               When buying tickets during the pre-sale, collectors only pay a
               portion of the total price. The ticket can later be redeemed for
               the pot by paying the remainder, or can be sold on the secondary
@@ -523,13 +439,7 @@ function Intro(props: RouteComponentProps) {
             >
               <AccordionItem>
                 <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     When mint?
                   </Text>
                   <AccordionIcon />
@@ -582,25 +492,13 @@ function Intro(props: RouteComponentProps) {
               </AccordionItem>
               <AccordionItem>
                 <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     How will the mint occur?{" "}
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     The minting will take place in stages.
                     <Box ml={10}>
                       <UnorderedList>
@@ -616,25 +514,13 @@ function Intro(props: RouteComponentProps) {
               </AccordionItem>
               <AccordionItem>
                 <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     How will the NFT ticket pre-sale work?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     Pre-sale NFT tickets will be sold at a discount to Shrub
                     whitelist holders. Pricing will be:
                     <Box ml={10}>
@@ -648,24 +534,12 @@ function Intro(props: RouteComponentProps) {
                       </UnorderedList>
                     </Box>
                   </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     All tickets will be redeemable for a pot for up to a week
                     after the public sale. Redemption price for the tickets will
                     be 0.015 ETH.
                   </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "15px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     *Note: Tickets are tradable NFTs and can be sold on
                     secondary markets.
                   </Text>
@@ -673,50 +547,26 @@ function Intro(props: RouteComponentProps) {
               </AccordionItem>
               <AccordionItem>
                 <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     What's the mint price for the Public Pot Sale?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     <b>0.05 ETH</b> for the Public Pot Sale.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
               <AccordionItem>
                 <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     How do I get on the whitelist?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     The <b>guaranteed way</b> to get a whitelist spot is to hold
                     15 seeds.
                   </Text>
@@ -731,23 +581,11 @@ function Intro(props: RouteComponentProps) {
                     Every <b>15 seeds</b> that you hold give you a whitelist for{" "}
                     <b>1 pre-sale</b> ticket.
                   </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     This will be based on a snapshot taken 1 day before the
                     pre-sale.
                   </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     Additionally, there are contests to win discounted whitelist
                     spots.
                   </Text>{" "}
@@ -764,25 +602,13 @@ function Intro(props: RouteComponentProps) {
               </AccordionItem>
               <AccordionItem>
                 <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     What would it mean to have a fully grown Shrub?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     Shrub NFTs are Shrub Finance’s genesis NFT.
                   </Text>
                   <Text
@@ -816,35 +642,17 @@ function Intro(props: RouteComponentProps) {
               </AccordionItem>
               <AccordionItem>
                 <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     Will my NFTs be stored on-chain?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     The latest in NFT technology is being used to store all
                     metadata for pots and shrubs on-chain dynamically.
                   </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     All art is stored on a redundant Inter-Planetary File System
                     (IPFS) setup. It's not going anywhere.
                   </Text>
@@ -982,7 +790,7 @@ function Intro(props: RouteComponentProps) {
               Join the{" "}
               <Text
                 as="span"
-                bgGradient={gold}
+                background="gold.100"
                 bgClip="text"
                 sx={{
                   "-webkit-text-stroke":
@@ -994,22 +802,12 @@ function Intro(props: RouteComponentProps) {
                 movement
               </Text>
             </Heading>
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               It takes a special sort of person to hold a Shrub. Shrubs
               represent those who believe in the decentralized world and are
               willing to put in the effort to make it a reality.
             </Text>{" "}
-            <Text
-              mt="3"
-              fontSize={{ base: "20px", md: "28px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "medium" }}
-            >
+            <Text textStyle={"description"}>
               Shrub holders are dreamers, builders, innovators, thinkers, and
               freedom-lovers. They think outside the box and bring positive
               change to the world.
@@ -1144,7 +942,7 @@ function Intro(props: RouteComponentProps) {
                   fontWeight="semibold"
                   py="5"
                   _hover={{ transform: "translateY(-2px)" }}
-                  bgGradient={gold}
+                  background="gold.100"
                   color={"black"}
                 >
                   Get a Seed
@@ -1202,7 +1000,7 @@ function Intro(props: RouteComponentProps) {
                   fontWeight="semibold"
                   py="5"
                   _hover={{ transform: "translateY(-2px)" }}
-                  bgGradient={gold}
+                  background="gold.100"
                   color={"black"}
                 >
                   Join Discord{" "}
@@ -1228,7 +1026,7 @@ function Intro(props: RouteComponentProps) {
                   fontWeight="semibold"
                   py="5"
                   _hover={{ transform: "translateY(-2px)" }}
-                  bgGradient={gold}
+                  background="gold.100"
                   color={"black"}
                 >
                   Follow Twitter{" "}

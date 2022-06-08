@@ -14,6 +14,7 @@ import ChaptersView from "./pages/ChaptersView";
 import IntroView from "./pages/IntroView";
 import OpenSeaView from "./pages/OpenSeaView";
 import ReactGA from "react-ga";
+import NFTTicketView from "./pages/NFTTicketView";
 import MysteryBoxView from "./pages/MysteryBoxView";
 const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
@@ -54,6 +55,7 @@ function App() {
             <Router>
               <HomeView path="/" />
               {/*<MysteryBoxView path="/mystery-box" />*/}
+              <NFTTicketView path="/presale" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />

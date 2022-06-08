@@ -76,8 +76,10 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
 
     event Grow(uint tokenId, uint16 growthAmount, uint16 growthBps);
     event Plant(uint256 tokenId, uint256 seedTokenId, address account);
+    event Happy(uint256 tokenId);
+    event Harvest(uint256 pottedPlantTokenId, uint256 shrubTokenId, address account);
 
-    // Constructor
+// Constructor
     constructor(
         address[] memory seedContractAddresses,
         uint[] memory sadSeeds,
@@ -120,7 +122,9 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         // Ensure that the seed is sad
         require(_sadSeeds[_seedTokenId] == true, "PaperPot: Seed already happy");
         // run plant
-        plant(_seedContractAddress, _seedTokenId);
+        uint pottedPlantTokenId = plant(_seedContractAddress, _seedTokenId);
+        // emit happy event
+        emit Happy(pottedPlantTokenId);
         // Update the sad metadata for _seedTokenId
         _sadSeeds[_seedTokenId] = false;
     }
@@ -145,7 +149,8 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         // Loop through and water each plant
 //        console.log("here");
         for (uint i = 0; i < _tokenIds.length; i++) {
-            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
+            // TODO: JUST FOR TESTING UNCOMMENT THIS
+//            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
             require(balanceOf(_msgSender(), _tokenIds[i]) > 0, "PaperPot: Potted plant not owned by sender");
             waterNonce++;
 //            console.log("here2");
@@ -187,6 +192,7 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         _shrubBaseSeed[shrubTokenId] = _plantedSeed[_tokenId];
         // mint the shrub to the caller
         _mint(_msgSender(), shrubTokenId, 1, new bytes(0));
+        emit Harvest(_tokenId, shrubTokenId, _msgSender());
     }
 
     function receiveWaterFromFaucet(address _receiver) external {}
@@ -223,6 +229,10 @@ function addSeedContractAddress(address _seedContractAddress) external adminOnly
 
     function unpauseMinting() external adminOnly {
         mintingPaused = false;
+    }
+
+    function pauseMinting() external adminOnly {
+        mintingPaused = true;
     }
 
     function mintFromTicket(address _to, uint _amount, uint ticketTokenId) external returns (bool) {
