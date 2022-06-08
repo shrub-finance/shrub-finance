@@ -844,9 +844,6 @@ function NFTTicketView(props: RouteComponentProps) {
       )}
       <Box fontWeight="medium" fontSize={"xs"}>
         <Text>NFT Ticket Address: {NFT_TICKET_ADDRESS}</Text>
-        <Text>
-          Paper Gardens Pot Address: {ticketData && ticketData.contractAddress}
-        </Text>
         <Text>WETH Address: {WETHAddress}</Text>
       </Box>
 
