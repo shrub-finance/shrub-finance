@@ -105,3 +105,14 @@ export const SEED_OWNERSHIP_QUERY = gql`
     }
   }
 `;
+
+export const HighestSeed = gql`
+  query TypeOfSeed($id: String, $type: String) {
+    user(id: $id) {
+      seedCount
+      seeds(where: { type: $type }) {
+        type
+      }
+    }
+  }
+`;
