@@ -247,7 +247,7 @@ export async function mintWL(
     NFT_TICKET_ADDRESS,
     signer
   );
-  return potTicketContract.mintWL(tokenID, amount);
+  return potTicketContract.mintWL(tokenID, amount, { gasLimit: 200000 });
 }
 
 export async function mint(
@@ -260,7 +260,7 @@ export async function mint(
     NFT_TICKET_ADDRESS,
     signer
   );
-  return potTicketContract.mint(tokenID, amount);
+  return potTicketContract.mint(tokenID, amount, { gasLimit: 200000 });
 }
 
 export async function balanceOfErc1155(
