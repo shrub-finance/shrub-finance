@@ -485,8 +485,17 @@ function Intro(props: RouteComponentProps) {
                     textAlign={"left"}
                   >
                     {" "}
-                    There will be a supply of 250 pots that can flex up to a
-                    1000 (max) during the Ticket PreSale.
+                    There will be a supply of 250 pots.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    *Note: Tickets are tradable NFTs and can be sold on
+                    secondary markets.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -498,11 +507,17 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
                     The minting will take place in stages.
                     <Box ml={10}>
                       <UnorderedList>
-                        <ListItem>
+                        <ListItem textDecoration={"line-through"}>
                           Stage 1: NFT Ticket whitelist pre-sale
                         </ListItem>
                         <ListItem>Stage 2: NFT Ticket public pre-sale</ListItem>
@@ -520,26 +535,47 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    Pre-sale NFT tickets will be sold at a discount to Shrub
-                    whitelist holders. Pricing will be:
-                    <Box ml={10}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Pre-sale NFT tickets will guarantee a Shrub Pot. Price:
+                    <Box
+                      ml={10}
+                      mt="3"
+                      fontSize={{ base: "20px", md: "20px" }}
+                      maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                      fontWeight={{ base: "semibold", md: "medium" }}
+                      textAlign={"left"}
+                    >
                       <UnorderedList>
-                        <ListItem>
-                          <b>0.015 ETH</b> - Whitelist
-                        </ListItem>
                         <ListItem>
                           <b>0.035 ETH</b> - Public
                         </ListItem>
                       </UnorderedList>
                     </Box>
                   </Text>
-                  <Text textStyle={"description"} textAlign={"left"}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
                     All tickets will be redeemable for a pot for up to a week
                     after the public sale. Redemption price for the tickets will
                     be 0.015 ETH.
                   </Text>
-                  <Text textStyle={"description"} textAlign={"left"}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
                     *Note: Tickets are tradable NFTs and can be sold on
                     secondary markets.
                   </Text>
@@ -553,50 +589,14 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
                     <b>0.05 ETH</b> for the Public Pot Sale.
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    How do I get on the whitelist?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    The <b>guaranteed way</b> to get a whitelist spot is to hold
-                    15 seeds.
-                  </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    {" "}
-                    Every <b>15 seeds</b> that you hold give you a whitelist for{" "}
-                    <b>1 pre-sale</b> ticket.
-                  </Text>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    This will be based on a snapshot taken 1 day before the
-                    pre-sale.
-                  </Text>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    Additionally, there are contests to win discounted whitelist
-                    spots.
-                  </Text>{" "}
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    Join our Discord and follow us on Twitter to participate.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -608,7 +608,13 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
                     Shrub NFTs are Shrub Finance’s genesis NFT.
                   </Text>
                   <Text
@@ -635,7 +641,7 @@ function Intro(props: RouteComponentProps) {
                       textDecoration={"underline"}
                       href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
                     >
-                      Read Shrub roadmap for details.
+                      Read Shrub roadmap
                     </Link>
                   </Text>
                 </AccordionPanel>
@@ -648,11 +654,23 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
                     The latest in NFT technology is being used to store all
                     metadata for pots and shrubs on-chain dynamically.
                   </Text>
-                  <Text textStyle={"description"} textAlign={"left"}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
                     All art is stored on a redundant Inter-Planetary File System
                     (IPFS) setup. It's not going anywhere.
                   </Text>

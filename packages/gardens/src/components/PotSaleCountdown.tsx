@@ -47,44 +47,32 @@ function PotSaleCountdown() {
         </Box>
       </Center>
       <Center>
-        <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 5, md: 10 }}>
+        <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 5, md: 5 }}>
           <Text fontSize={{ base: "30px", md: "30px" }} fontWeight="semibold">
             <CountdownTimer targetDate={saleDay} />
           </Text>
         </Box>
       </Center>
-      <Center mt={{ base: 5, md: 10 }}>
+      <Center mt={{ base: 5, md: 5 }}>
         <Box
           bgColor={useColorModeValue("gray.200", "gray.700")}
           p={10}
           rounded="3xl"
         >
-          <Text
+          <Box
             fontSize={{ base: "18px", md: "20px" }}
             mt={4}
             fontWeight="semibold"
+            textDecoration="line-through"
           >
             <Text
               fontSize="sm"
               color={useColorModeValue("gray.600", "gray.400")}
             >
-              NFT Ticket Discount Pre-Sale
+              NFT Ticket Pre-Sale
             </Text>
             <Text>Wednesday, June 8</Text>
-            <Link
-              as={ReachLink}
-              to="/presale"
-              fontSize={"sm"}
-              variant={"link"}
-              fontWeight={"extrabold"}
-              color={"cyan"}
-              px={2}
-              py={{ base: "3", md: "1", lg: "1" }}
-              rounded={"lg"}
-            >
-              Mint NFT Now
-            </Link>
-          </Text>
+          </Box>
           <Text
             fontSize={{ base: "18px", md: "20px" }}
             mt={8}
@@ -97,6 +85,19 @@ function PotSaleCountdown() {
               NFT Ticket Public Pre-Sale
             </Text>
             <Text>Thursday, June 9</Text>
+            <Link
+              as={ReachLink}
+              to="/presale"
+              fontSize={"md"}
+              variant={"link"}
+              fontWeight={"extrabold"}
+              color={useColorModeValue("blue", "cyan")}
+              px={2}
+              py={{ base: "3", md: "1", lg: "1" }}
+              rounded={"lg"}
+            >
+              Mint NFT Now
+            </Link>
           </Text>
           <Text
             fontSize={{ base: "18px", md: "20px" }}
@@ -123,7 +124,7 @@ function PotSaleCountdown() {
           fontWeight="semibold"
           py="5"
           bgGradient={useColorModeValue(
-            "linear(to-l, black, black)",
+            "linear(to-l, green, green)",
             "linear(to-l, #fbb8ff, #e55b5b)"
           )}
           bgClip="text"

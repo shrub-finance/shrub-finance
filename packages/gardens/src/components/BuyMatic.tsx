@@ -106,7 +106,7 @@ function BuyMatic() {
           fontSize={"sm"}
           variant={"link"}
           fontWeight={"extrabold"}
-          color={"cyan"}
+          color={useColorModeValue("blue", "cyan")}
           px={2}
           py={{ base: "3", md: "1", lg: "1" }}
           rounded={"lg"}
