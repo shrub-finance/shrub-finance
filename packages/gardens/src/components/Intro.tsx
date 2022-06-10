@@ -13,7 +13,6 @@ import {
   useColorMode,
   ListItem,
   HStack,
-  VStack,
   UnorderedList,
   AccordionItem,
   AccordionIcon,
@@ -44,7 +43,6 @@ import PotSaleCountdown from "./PotSaleCountdown";
 
 function Intro(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
-  const dropColor = useColorModeValue("blue.300", "blue.100");
 
   return (
     <>
@@ -55,15 +53,8 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "container.lg" }}
       >
-        <Box
-          maxW="80rem"
-          mb={8}
-          // mt={{ base: 20, md: 100 }}
-          textAlign={{ base: "center", md: "center" }}
-        >
-          <Box
-          // mt={16}
-          >
+        <Box maxW="80rem" mb={8} textAlign={{ base: "center", md: "center" }}>
+          <Box>
             <PotSaleCountdown />
             {/*<AspectRatio ratio={16 / 9}>*/}
             {/*  <iframe*/}
@@ -75,9 +66,9 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Box>
       </Container>
+
       {/*section 1*/}
       <Container
-        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
@@ -91,7 +82,7 @@ function Intro(props: RouteComponentProps) {
             xl: "column",
           }}
         >
-          <Box mt={{ base: 0, md: 18 }}>
+          <Box>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -141,6 +132,7 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+
       {/*section 2*/}
       <Container
         mt={{ base: 0, md: 40 }}
