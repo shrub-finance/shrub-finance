@@ -53,12 +53,54 @@ function PotSaleCountdown() {
           </Text>
         </Box>
       </Center>
-      <Center mt={{ base: 5, md: 5 }}>
+      <Center>
         <Box
           bgColor={useColorModeValue("gray.200", "gray.700")}
           p={10}
           rounded="3xl"
         >
+          <Box fontSize={{ base: "18px", md: "20px" }} fontWeight="semibold">
+            <Text
+              fontSize="sm"
+              color={useColorModeValue("gray.600", "gray.400")}
+            >
+              Public Pot Sale
+            </Text>
+            <Text>Thursday, June 16</Text>
+          </Box>
+          <Box
+            fontSize={{ base: "18px", md: "20px" }}
+            mt={8}
+            fontWeight="semibold"
+          >
+            <Text
+              fontSize="sm"
+              color={useColorModeValue("gray.600", "gray.400")}
+              textDecoration="line-through"
+            >
+              NFT Ticket Public Pre-Sale
+            </Text>
+            <Text
+              textDecoration="line-through"
+              fontSize="sm"
+              color={useColorModeValue("gray.600", "gray.400")}
+            >
+              Thursday, June 9
+            </Text>
+            {/*<Link*/}
+            {/*  as={ReachLink}*/}
+            {/*  to="/presale"*/}
+            {/*  fontSize={"md"}*/}
+            {/*  variant={"link"}*/}
+            {/*  fontWeight={"extrabold"}*/}
+            {/*  color={useColorModeValue("blue", "cyan")}*/}
+            {/*  px={2}*/}
+            {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
+            {/*  rounded={"lg"}*/}
+            {/*>*/}
+            {/*  Mint NFT Now*/}
+            {/*</Link>*/}
+          </Box>
           <Box
             fontSize={{ base: "18px", md: "20px" }}
             mt={4}
@@ -71,47 +113,13 @@ function PotSaleCountdown() {
             >
               NFT Ticket Pre-Sale
             </Text>
-            <Text>Wednesday, June 8</Text>
+            <Text
+              fontSize="sm"
+              color={useColorModeValue("gray.600", "gray.400")}
+            >
+              Wednesday, June 8
+            </Text>
           </Box>
-          <Text
-            fontSize={{ base: "18px", md: "20px" }}
-            mt={8}
-            fontWeight="semibold"
-          >
-            <Text
-              fontSize="sm"
-              color={useColorModeValue("gray.600", "gray.400")}
-            >
-              NFT Ticket Public Pre-Sale
-            </Text>
-            <Text>Thursday, June 9</Text>
-            <Link
-              as={ReachLink}
-              to="/presale"
-              fontSize={"md"}
-              variant={"link"}
-              fontWeight={"extrabold"}
-              color={useColorModeValue("blue", "cyan")}
-              px={2}
-              py={{ base: "3", md: "1", lg: "1" }}
-              rounded={"lg"}
-            >
-              Mint NFT Now
-            </Link>
-          </Text>
-          <Text
-            fontSize={{ base: "18px", md: "20px" }}
-            mt={8}
-            fontWeight="semibold"
-          >
-            <Text
-              fontSize="sm"
-              color={useColorModeValue("gray.600", "gray.400")}
-            >
-              Public Pot Sale
-            </Text>
-            <Text>Thursday, June 16</Text>
-          </Text>
         </Box>
       </Center>
       <Center>
