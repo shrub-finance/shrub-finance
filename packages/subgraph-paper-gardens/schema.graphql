@@ -2,11 +2,39 @@ type User @entity {
   "address"
   id: ID!
   seeds: [Seed!]! @derivedFrom(field: "owner")
+  pottedPlants: [PottedPlant!]! @derivedFrom(field: "owner")
+  shrubNfts: [ShrubNFT!]! @derivedFrom(field: "owner")
   seedCount: BigInt!
+  ticketCount: BigInt!
+  potCount: BigInt!
+  waterCount: BigInt!
+  fertilizerCount: BigInt!
 #  activeUserOptions: [UserOption!]!
 #  tokenBalances: [TokenBalance!]! @derivedFrom(field: "user")
 #  userMatches: [UserMatch!]! @derivedFrom(field: "user")
 #  userOptions: [UserOption!]! @derivedFrom(field: "user")
+}
+
+type PottedPlant @entity {
+  "tokenId"
+  id: ID!
+  owner: User!
+  seed: Seed!
+  born: Int!
+  bornBlock: Int!
+  growth: Int!
+  lastWatering: Int!
+  shrubNft: ShrubNFT
+}
+
+type ShrubNFT @entity {
+  "tokenId"
+  id: ID!
+  owner: User!
+  name: String!
+  pottedPlant: PottedPlant!
+  born: Int!
+  bornBlock: Int!
 }
 
 type Seed @entity {
@@ -21,6 +49,8 @@ type Seed @entity {
   emotion: String!
   born: Int!
   bornBlock: Int!
+#  Having a pottedPlant means that the seed has been planted
+  pottedPlant: PottedPlant
 #  approval: Exchange!
 }
 

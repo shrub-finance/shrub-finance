@@ -1,7 +1,7 @@
 import { task, types } from 'hardhat/config'
 import "@nomiclabs/hardhat-ethers";
 import {
-  HashUtil__factory,
+  HashUtil__factory, PaperPot__factory,
   PaperSeed__factory,
   PotNFTTicket__factory,
   SeedOrphanageV2__factory,
@@ -11,6 +11,7 @@ import {
 import { readFileSync } from 'fs'
 import { OrderCommon, SmallOrder } from '@shrub/app/src/types'
 import { ACTIVE_ORDERS_QUERY } from './queries'
+import assert from 'node:assert/strict';
 
 
 import { ApolloClient, gql, InMemoryCache, HttpLink } from "@apollo/client";
@@ -18,11 +19,15 @@ import fetch from "cross-fetch";
 import promptly from "promptly";
 // import optionContracts from "./option-contracts.json";
 import chainlinkAggregatorV3Interface from "./external-contracts/chainlinkAggregatorV3InterfaceABI.json";
+import { address } from 'hardhat/internal/core/config/config-validation'
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 
 function toEthDate(date: Date) {
   return Math.round(Number(date) / 1000);
+}
+function fromEthDate(ethDate: number) {
+  return new Date(ethDate * 1000);
 }
 
 const CHAINLINK_MATIC = "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada"; // Mumbai
@@ -128,8 +133,132 @@ task("sendSeed", "send a seed from the owner contract to an address")
     console.log(tx.hash);
   });
 
-// task("activateNFTTicket", "set the active state of an NFTTicket")
-//   .addParam()
+// task("distributeWater", "distribute water to accounts")
+//   .addParam("receivers", "object of acccount/wlSpot pairs ex: {account1: 2, account2: 1}", {}, types.json)
+//   .setAction(async (taskArgs, env) => {
+//     const { ethers, deployments } = env;
+//     const [owner] = await ethers.getSigners();
+//     const receivers: {[account: string] : number} = taskArgs.receivers;
+//     const accounts = [];
+//     const wlSpots = [];
+//     for (const [account, receiver] of Object.entries(receivers)) {
+//       accounts.push(ethers.utils.getAddress(account));
+//       assert.equal(Math.floor(receiver), receiver, "wlSpot must be an integer");
+//       assert.equal(receiver >= 0, true, "wlSpot must not be negative");
+//       wlSpots.push(receiver);
+//     }
+//     assert.equal(accounts.length > 0, true, "some wls must be specified");
+//     const paperPotDeployment = await deployments.get("PaperPot");
+//     const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+//     // await paperPot.adminDistributeWater(owner, amount);
+//
+//     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+//     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+//     await PotNFTTicket.updateWL(tokenId, accounts, wlSpots);
+//   })
+
+task("mintWater", "mint new water to an account")
+  .addParam("to", "account to mint water to")
+  .addParam("amount", "amount of water to mint")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const to = taskArgs.to;
+    const amount = taskArgs.amount;
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+    await paperPot.adminDistributeWater(to, amount);
+  })
+
+task("mintFertilizer", "mint new fertilizer to an account")
+  .addParam("to", "account to mint fertilizer to")
+  .addParam("amount", "amount of fertilizer to mint")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const to = taskArgs.to;
+    const amount = taskArgs.amount;
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+    await paperPot.adminDistributeFertilizer(to, amount);
+  })
+
+task("getTicketData", "gets the settings for a NFTTicket")
+  .addParam("tokenId", "tokenId to change active state for")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const [owner] = await ethers.getSigners();
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+    const ticketData = await PotNFTTicket.getTicketData(tokenId);
+    console.log(ticketData);
+  });
+
+task("activateNFTTicket", "set the active state of an NFTTicket")
+  .addParam("tokenId", "tokenId to change active state for")
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .addParam("active", "whether to set active or not", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const active: boolean = taskArgs.active;
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateActive(tokenId, active);
+  })
+
+task("setRedeemActive", "turn redeeming off or on from the NFT Ticket side")
+  .addParam("tokenId", "tokenId to set")
+  .addParam("active", "whether redemptions are active", true, types.boolean)
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const active: boolean = taskArgs.active;
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateRedeemActive(tokenId, active);
+  })
+
+task("updateRedeemEndDate", "update the redemption date for NFT Ticket")
+  .addParam("tokenId", "tokenId to set")
+  .addParam("redeemEndDate", "Date after which redemptions are not possible")
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const date = new Date(taskArgs.redeemEndDate);
+    if (date.toString() === 'Invalid Date') {
+      console.log('invalid date');
+      return;
+    }
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateRedeemEndDate(tokenId, toEthDate(date));
+  })
+
+
+task("setPauseNFTTicket", "set the paused state of an NFTTicket")
+  .addParam("tokenId", "tokenId to change paused state for")
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .addParam("paused", "whether to set paused or not", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const paused: boolean = taskArgs.paused;
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updatePaused(tokenId, paused);
+  })
 
 task("initializeNFTTicket", "initialize a ticket for the pot sale")
   .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
@@ -145,9 +274,11 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
   .addParam('wlMintPrice', 'ticket price for the main mint in ETH / 1000')
   .addOptionalParam('maxPerMint', 'max amount to be minted at a time during the main mint', 10, types.int)
   .addParam('redeemPrice', 'redeem price for ticket in ETH / 1000')
+  .addParam('redeemEndDate', 'redeem endDate after which the ticket cannot be redeemed')
   .addParam('maxSupply', 'max number of tickets to be minted during main mint')
   .addOptionalParam('active', 'state of active at initilization', false, types.boolean)
-  .addOptionalParam('paused', 'state of paused at initilization', true, types.boolean)
+  .addOptionalParam('paused', 'state of paused at initilization', false, types.boolean)
+  .addOptionalParam('redeemActive', 'state of redeemActive at initilization', false, types.boolean)
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
     const [owner, signer1] = await ethers.getSigners();
@@ -158,7 +289,7 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
     let oneDayFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 1));
     let twoDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 2));
     let { controller, recipient, contractAddress, startDate, endDate, mintStartDate, mintEndDate, mintPrice,
-      wlMintStartDate, wlMintEndDate, wlMintPrice, maxPerMint, redeemPrice, maxSupply, active, paused} = taskArgs
+      wlMintStartDate, wlMintEndDate, wlMintPrice, maxPerMint, redeemPrice, redeemEndDate, redeemActive, maxSupply, active, paused} = taskArgs
     const ticketData = {
       controller: controller || signer1.address,
       recipient: recipient || signer1.address,
@@ -173,6 +304,8 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
       wlMintPrice: ethers.constants.WeiPerEther.mul(wlMintPrice).div(1000),
       maxMintAmountPlusOne: maxPerMint + 1,
       redeemPrice: ethers.constants.WeiPerEther.mul(redeemPrice).div(1000),
+      redeemEndDate: toEthDate(new Date(redeemEndDate)) || toEthDate(now),
+      redeemActive: redeemActive,
       maxSupply: maxSupply,
       active: active,
       paused: paused,
@@ -180,7 +313,127 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
     await PotNFTTicket.initializeTicket(ticketData);
   });
 
+task("setUriTicket")
+  .addParam("uri", "uri to set the ticket to")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const uri: string = taskArgs.uri;
+    const [owner] = await ethers.getSigners();
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+    await PotNFTTicket.setUri(uri);
+    const newUri = await PotNFTTicket.uri(1);
+    console.log(`uri set to ${newUri}`);
+  });
+
+task("updateNFTTicketMintDates")
+  .addParam("tokenId", "tokenId of ticket to update")
+  .addOptionalParam("startDate", "new startDate")
+  .addOptionalParam("endDate", "new endDate")
+  .addOptionalParam("wlStartDate", "new wlStartDate")
+  .addOptionalParam("wlEndDate", "new wlEndDate")
+  .addOptionalParam("controller", "address of the controller of the ticket")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    for (const param of ['startDate', 'endDate', 'wlStartDate', 'wlEndDate']) {
+      console.log(taskArgs[param]);
+      if (!taskArgs[param]) {
+        continue;
+      }
+      const date = new Date(taskArgs[param]);
+      if (date.toString() === 'Invalid Date') {
+        console.log(`invalid ${param}`);
+        return;
+      }
+      const ethDate = toEthDate(date);
+      if (param === 'startDate') {
+        await PotNFTTicket.updateMintStartDate(tokenId, ethDate);
+      } else if (param === 'endDate') {
+        await PotNFTTicket.updateMintEndDate(tokenId, ethDate);
+      }else if (param === 'wlStartDate') {
+        await PotNFTTicket.updateWlMintStartDate(tokenId, ethDate);
+      }else if (param === 'wlEndDate') {
+        await PotNFTTicket.updateWlMintEndDate(tokenId, ethDate);
+      } else {
+        throw new Error(`unexpected param - ${param}`);
+      }
+      console.log(`${param} updated to ${date.toISOString()}`);
+    }
+    // const startDate = new Date(taskArgs.startDate);
+    // if (startDate.toString() === 'Invalid Date') {
+    //   console.log('invalid date');
+    //   return;
+    // }
+    // const ethStartDate = toEthDate(startDate);
+    // const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    // await PotNFTTicket.updateMintStartDate(tokenId, ethStartDate);
+  });
+
 task("updateNFTTicketWL")
+  .addParam("tokenId", "tokenId to update the whitelist for")
+  .addParam("wls", "object of acccount/wlSpot pairs ex: {account1: 2, account2: 1}", {}, types.json)
+  .addOptionalParam("controller", "address of the controller of the ticket")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const [owner, account1, account2, account3, account4 ] = await ethers.getSigners();
+    const wls: {[account: string] : number} = taskArgs.wls;
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    if (Object.keys(wls).length === 0) {
+      wls[owner.address] = 1;
+      wls[account1.address] = 2;
+      wls[account2.address] = 3;
+      wls[account3.address] = 4;
+    }
+    const accounts = [];
+    const wlSpots = [];
+    for (const [account, wlSpot] of Object.entries(wls)) {
+      accounts.push(ethers.utils.getAddress(account));
+      assert.equal(Math.floor(wlSpot), wlSpot, "wlSpot must be an integer");
+      assert.equal(wlSpot >= 0, true, "wlSpot must not be negative");
+      wlSpots.push(wlSpot);
+    }
+    assert.equal(accounts.length > 0, true, "some wls must be specified");
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    await PotNFTTicket.updateWL(tokenId, accounts, wlSpots);
+  })
+
+task("unpausePot", "unpause minting for paper Pot")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const PaperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
+    await paperPot.unpauseMinting();
+  })
+
+task("pausePot", "pause minting for paper Pot")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const PaperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
+    await paperPot.pauseMinting();
+  })
+
+task("setNftTicketInfo", "set the address and tokenId for the NFTTicket")
+  .addParam("tokenId", "tokenId to change paused state for")
+  .addParam("address", "address of the NFTTicket contract")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const address: string = taskArgs.address;
+    const [owner] = await ethers.getSigners();
+    const PaperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
+    await paperPot.setNftTicketInfo(tokenId, address);
+  })
 
 task(
   "getOrphanageRegistered",

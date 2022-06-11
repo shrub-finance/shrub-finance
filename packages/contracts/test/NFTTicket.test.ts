@@ -516,7 +516,7 @@ describe("NFTTicket", () => {
     it("should reject if minting would exceed maxSupply after multiple successful mints", async () => {});
   });
 
-  describe.only("integration tests", async () => {
+  describe("integration tests", async () => {
     let paperPotMetadata: PaperPotMetadata;
     let paperPot: PaperPot;
     let paperSeed: PaperSeed;

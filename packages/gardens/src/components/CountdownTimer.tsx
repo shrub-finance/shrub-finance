@@ -15,8 +15,8 @@ const ShowCounter = ({
   seconds: number;
 }) => {
   return (
-    <HStack className="show-counter">
-      <DateTimeDisplay value={days} type={"Days"} />
+    <HStack color={"red.300"}>
+      <DateTimeDisplay value={days} type={"Day"} />
       <DateTimeDisplay value={hours} type={"Hours"} />
       <DateTimeDisplay value={minutes} type={"Mins"} />
       <DateTimeDisplay value={seconds} type={"Seconds"} />

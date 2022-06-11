@@ -56,8 +56,11 @@ const colors = {
     200: "rgb(18, 18, 38)", // base
     300: "rgb(21, 21, 38)",
   },
+  gold: {
+    100: "linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C)",
+  },
   gradient: {
-    100: "linear(to-tr,#d16ba5, #ef7388, #f7896a, #eda656, #d2c457, #bbd468, #a1e282, #82eea2, #73f2b7, #67f6cc, #5ff9df, #5ffbf1)",
+    100: "linear(to-tr, #d16ba5, #ef7388, #f7896a, #eda656, #d2c457, #bbd468, #a1e282, #82eea2, #73f2b7, #67f6cc, #5ff9df, #5ffbf1)",
   },
   // derived from #64A66A
   bud: {
@@ -105,6 +108,12 @@ const textStyles = {
     ".chakra-ui-dark &": { color: "gray.300" },
     fontWeight: "medium",
     textAlign: "left",
+  },
+  description: {
+    mt: "3",
+    fontSize: { base: "20px", md: "28px" },
+    maxW: { base: "22rem", md: "60rem", lg: "40rem" },
+    fontWeight: { base: "semibold", md: "medium" },
   },
 };
 
