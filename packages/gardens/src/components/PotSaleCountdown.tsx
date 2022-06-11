@@ -47,13 +47,6 @@ function PotSaleCountdown() {
         </Box>
       </Center>
       <Center>
-        <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 5, md: 5 }}>
-          <Text fontSize={{ base: "30px", md: "30px" }} fontWeight="semibold">
-            <CountdownTimer targetDate={saleDay} />
-          </Text>
-        </Box>
-      </Center>
-      <Center>
         <Box
           bgColor={useColorModeValue("gray.200", "gray.700")}
           p={10}
@@ -66,60 +59,68 @@ function PotSaleCountdown() {
             >
               Public Pot Sale
             </Text>
-            <Text>Thursday, June 16</Text>
+            <Text>Thursday, June 16, 2022</Text>
           </Box>
-          <Box
-            fontSize={{ base: "18px", md: "20px" }}
-            mt={8}
-            fontWeight="semibold"
-          >
-            <Text
-              fontSize="sm"
-              color={useColorModeValue("gray.600", "gray.400")}
-              textDecoration="line-through"
-            >
-              NFT Ticket Public Pre-Sale
-            </Text>
-            <Text
-              textDecoration="line-through"
-              fontSize="sm"
-              color={useColorModeValue("gray.600", "gray.400")}
-            >
-              Thursday, June 9
-            </Text>
-            {/*<Link*/}
-            {/*  as={ReachLink}*/}
-            {/*  to="/presale"*/}
-            {/*  fontSize={"md"}*/}
-            {/*  variant={"link"}*/}
-            {/*  fontWeight={"extrabold"}*/}
-            {/*  color={useColorModeValue("blue", "cyan")}*/}
-            {/*  px={2}*/}
-            {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
-            {/*  rounded={"lg"}*/}
-            {/*>*/}
-            {/*  Mint NFT Now*/}
-            {/*</Link>*/}
-          </Box>
-          <Box
-            fontSize={{ base: "18px", md: "20px" }}
-            mt={4}
-            fontWeight="semibold"
-            textDecoration="line-through"
-          >
-            <Text
-              fontSize="sm"
-              color={useColorModeValue("gray.600", "gray.400")}
-            >
-              NFT Ticket Pre-Sale
-            </Text>
-            <Text
-              fontSize="sm"
-              color={useColorModeValue("gray.600", "gray.400")}
-            >
-              Wednesday, June 8
-            </Text>
-          </Box>
+
+          {/*<Box*/}
+          {/*  fontSize={{ base: "18px", md: "20px" }}*/}
+          {/*  mt={8}*/}
+          {/*  fontWeight="semibold"*/}
+          {/*>*/}
+          {/*  <Text*/}
+          {/*    fontSize="sm"*/}
+          {/*    color={useColorModeValue("gray.600", "gray.400")}*/}
+          {/*    textDecoration="line-through"*/}
+          {/*  >*/}
+          {/*    NFT Ticket Public Pre-Sale*/}
+          {/*  </Text>*/}
+          {/*  <Text*/}
+          {/*    textDecoration="line-through"*/}
+          {/*    fontSize="sm"*/}
+          {/*    color={useColorModeValue("gray.600", "gray.400")}*/}
+          {/*  >*/}
+          {/*    Thursday, June 9*/}
+          {/*  </Text>*/}
+          {/*  /!*<Link*!/*/}
+          {/*  /!*  as={ReachLink}*!/*/}
+          {/*  /!*  to="/presale"*!/*/}
+          {/*  /!*  fontSize={"md"}*!/*/}
+          {/*  /!*  variant={"link"}*!/*/}
+          {/*  /!*  fontWeight={"extrabold"}*!/*/}
+          {/*  /!*  color={useColorModeValue("blue", "cyan")}*!/*/}
+          {/*  /!*  px={2}*!/*/}
+          {/*  /!*  py={{ base: "3", md: "1", lg: "1" }}*!/*/}
+          {/*  /!*  rounded={"lg"}*!/*/}
+          {/*  /!*>*!/*/}
+          {/*  /!*  Mint NFT Now*!/*/}
+          {/*  /!*</Link>*!/*/}
+          {/*</Box>*/}
+          {/*<Box*/}
+          {/*  fontSize={{ base: "18px", md: "20px" }}*/}
+          {/*  mt={4}*/}
+          {/*  fontWeight="semibold"*/}
+          {/*  textDecoration="line-through"*/}
+          {/*>*/}
+          {/*  <Text*/}
+          {/*    fontSize="sm"*/}
+          {/*    color={useColorModeValue("gray.600", "gray.400")}*/}
+          {/*  >*/}
+          {/*    NFT Ticket Pre-Sale*/}
+          {/*  </Text>*/}
+          {/*  <Text*/}
+          {/*    fontSize="sm"*/}
+          {/*    color={useColorModeValue("gray.600", "gray.400")}*/}
+          {/*  >*/}
+          {/*    Wednesday, June 8*/}
+          {/*  </Text>*/}
+          {/*</Box>*/}
+        </Box>
+      </Center>
+      <Center>
+        <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 5, md: 5 }}>
+          <Text fontSize={{ base: "30px", md: "30px" }} fontWeight="semibold">
+            <CountdownTimer targetDate={new Date("2022-06-16T22:00:00Z")} />
+          </Text>
         </Box>
       </Center>
       <Center>
@@ -140,24 +141,6 @@ function PotSaleCountdown() {
           Sale Details
         </Link>
       </Center>
-      {/*<Center>*/}
-      {/*  {Fade(*/}
-      {/*    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],*/}
-      {/*    <Leaf1 boxSize={40} ml={5} />*/}
-      {/*  )}*/}
-      {/*  {Fade([0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0], <Leaf2 boxSize={40} />)}*/}
-      {/*  {Fade([0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0], <Leaf3 boxSize={40} />)}*/}
-      {/*  {Fade([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0], <Leaf4 boxSize={40} />)}*/}
-      {/*  {Fade(*/}
-      {/*    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],*/}
-      {/*    <Icon as={BsQuestionLg} boxSize={40} />*/}
-      {/*  )}*/}
-      {/*  <Pot*/}
-      {/*    boxSize={60}*/}
-      {/*    position={"absolute"}*/}
-      {/*    top={{ base: "400px", md: "580px" }}*/}
-      {/*  />*/}
-      {/*</Center>*/}
     </Container>
   );
 }
