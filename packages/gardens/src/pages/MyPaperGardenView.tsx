@@ -751,8 +751,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     </Text>
                     <CountdownTimer
                       targetDate={new Date("2022-06-17T22:00:00Z")}
-                    ></CountdownTimer>
-                    {/*<Text>0.015 WETH</Text>*/}
+                    />
                   </Box>
                 </Box>
               </Center>
