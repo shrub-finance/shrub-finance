@@ -4,6 +4,7 @@ import { Web3ReactProvider } from "@web3-react/core";
 import { getLibrary } from "./components/ConnectWallet";
 import React, { useEffect } from "react";
 import Store from "./components/Store";
+import WyreCheckoutStatus from "./components/WyreCheckoutStatus";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import HomeView from "./pages/HomeView";
 import NFTView from "./pages/NFTView";
@@ -52,6 +53,7 @@ function App() {
         <ApolloProvider client={client}>
           <Store>
             <TopNav />
+            <WyreCheckoutStatus />
             <Router>
               <HomeView path="/" />
               {/*<MysteryBoxView path="/mystery-box" />*/}
