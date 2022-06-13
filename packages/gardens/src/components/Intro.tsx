@@ -499,13 +499,7 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     The minting will take place in stages.
                     <Box ml={10}>
                       <UnorderedList>
@@ -527,13 +521,7 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     Pre-sale NFT tickets will guarantee a Shrub Pot. Price:
                     <Box
                       ml={10}
@@ -550,13 +538,7 @@ function Intro(props: RouteComponentProps) {
                       </UnorderedList>
                     </Box>
                   </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     All tickets will be redeemable for a pot for up to a week
                     after the public sale. Redemption price for the tickets will
                     be 0.015 ETH.
@@ -581,13 +563,7 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     <b>0.05 ETH</b> for the Public Pot Sale.
                   </Text>
                 </AccordionPanel>
@@ -600,13 +576,7 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     Shrub NFTs are Shrub Finance’s genesis NFT.
                   </Text>
                   <Text
@@ -646,23 +616,11 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     The latest in NFT technology is being used to store all
                     metadata for pots and shrubs on-chain dynamically.
                   </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     All art is stored on a redundant Inter-Planetary File System
                     (IPFS) setup. It's not going anywhere.
                   </Text>
