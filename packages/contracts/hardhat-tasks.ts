@@ -263,7 +263,7 @@ task("setPauseNFTTicket", "set the paused state of an NFTTicket")
 task("initializeNFTTicket", "initialize a ticket for the pot sale")
   .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
   .addOptionalParam('recipient', 'account that is paid fees for this ticket', '', types.string)
-  .addOptionalParam('contractAddress', 'contract address of NFT to be minted at redemption', '', types.string)
+  .addParam('contractAddress', 'contract address of NFT to be minted at redemption', '', types.string)
   .addOptionalParam('startDate', 'not used yet', '', types.string)
   .addOptionalParam('endDate', 'not used yet', '', types.string)
   .addOptionalParam('mintStartDate', 'start date of the main mint', '', types.string)
@@ -283,7 +283,7 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
     const { ethers, deployments } = env;
     const [owner, signer1] = await ethers.getSigners();
     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
-    const paperPotDeployment = await deployments.get("PaperPot");
+    // const paperPotDeployment = await deployments.get("PaperPot");
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
     let now = new Date();
     let oneDayFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 1));
@@ -293,7 +293,7 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
     const ticketData = {
       controller: controller || signer1.address,
       recipient: recipient || signer1.address,
-      contractAddress: contractAddress || paperPotDeployment.address,
+      contractAddress: contractAddress,
       startDate: toEthDate(new Date(startDate)) || toEthDate(now),
       endDate: toEthDate(new Date(endDate)) || toEthDate(oneDayFromNow),
       mintStartDate: toEthDate(new Date(mintStartDate)) || toEthDate(oneDayFromNow),
@@ -324,6 +324,78 @@ task("setUriTicket")
     await PotNFTTicket.setUri(uri);
     const newUri = await PotNFTTicket.uri(1);
     console.log(`uri set to ${newUri}`);
+  });
+
+task("getUriTicket")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+    const newUri = await PotNFTTicket.uri(1);
+    console.log(newUri);
+  })
+
+// accountWl
+task("accountWl")
+  .addParam("tokenId", "tokenId to view WL of")
+  .addParam("account", "account to view WL of")
+  .setAction(async (taskArgs, env) => {
+    const tokenId = taskArgs.tokenId;
+    const account = taskArgs.account;
+    const { ethers, deployments } = env;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, ethers.provider);
+    const wls = await PotNFTTicket.accountWl(tokenId, account);
+    console.log(wls);
+  })
+
+task("setContractUri")
+  .addParam("uri", "uri to set the ticket to")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const uri: string = taskArgs.uri;
+    const [owner] = await ethers.getSigners();
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+    await PotNFTTicket.setContractURI(uri);
+    const newUri = await PotNFTTicket.contractURI();
+    console.log(`uri set to ${newUri}`);
+  });
+
+task("getContractUri")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, owner);
+    const newUri = await PotNFTTicket.contractURI();
+    console.log(newUri);
+  })
+
+task("controllerMintTicket")
+  .addParam("tokenId", "tokenId of ticket")
+  // .addParam("amount", "number to mint")
+  .addParam("addresses", "addresses to mint to", [], types.json)
+  .addOptionalParam("controller", "address of the controller of the ticket")
+
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: string = taskArgs.tokenId;
+    // const amount: string = taskArgs.amount;
+    const [owner] = await ethers.getSigners();
+    const validatedAddresses: string[] = [];
+    const amounts: number[] = [];
+    for (const address of taskArgs.addresses) {
+      validatedAddresses.push(ethers.utils.getAddress(address));
+      amounts.push(1);
+    }
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    console.log(validatedAddresses);
+    console.log(amounts);
+    await PotNFTTicket.controllerMint(tokenId, validatedAddresses, amounts);
   });
 
 task("updateNFTTicketMintDates")
