@@ -3,6 +3,7 @@ pragma solidity 0.8.9;
 //import "@openzeppelin/contracts/access/Ownable.sol";
 //import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
@@ -72,6 +73,11 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     // indicates number of each class of potted plant
     // uint8 class => uint count of potted plants minted of that class (only increases)
     mapping(NftClass => uint) public pottedPlantsByClass;
+
+    // Royalties.
+    bytes4 private constant _INTERFACE_ID_EIP2981 = 0x2a55205a;
+    mapping(uint256 => address payable) internal _royaltiesReceivers;
+    mapping(uint256 => uint256) internal _royaltiesBps;
 
 
     event Grow(uint tokenId, uint16 growthAmount, uint16 growthBps);
@@ -473,6 +479,41 @@ function addSeedContractAddress(address _seedContractAddress) external adminOnly
         require(exists(tokenId_), "PaperPot: query for nonexistent token");
         _;
     }
+
+//    Payment functions
+
+    function setRoyalties(uint256 tokenId, address payable receiver, uint256 bps) external adminOnly {
+        require(bps < 10000, "invalid bps");
+        _royaltiesReceivers[tokenId] = receiver;
+        _royaltiesBps[tokenId] = bps;
+    }
+
+    function royaltyInfo(uint256 tokenId, uint256 value) public view returns (address, uint256) {
+        if (_royaltiesReceivers[tokenId] == address(0)) return (address(this), 1000*value/10000);
+        return (_royaltiesReceivers[tokenId], _royaltiesBps[tokenId]*value/10000);
+    }
+
+    function p(
+        address token,
+        address recipient,
+        uint amount
+    ) external adminOnly {
+        if (token == address(0)) {
+            require(
+                amount == 0 || address(this).balance >= amount,
+                'invalid amount value'
+            );
+            (bool success, ) = recipient.call{value: amount}('');
+            require(success, 'amount transfer failed');
+        } else {
+            require(
+                IERC20(token).transfer(recipient, amount),
+                'amount transfer failed'
+            );
+        }
+    }
+
+    receive() external payable {}
 
 
 //    function getGrowthLevel(uint[] memory _tokenIds) public view returns (uint[] memory) {
