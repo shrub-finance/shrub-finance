@@ -63,7 +63,7 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.CoinbaseWallet]: walletlink,
 };
 
-const shrubSeeds = ["Passion", "Power", "Hope", "Wonder"];
+const shrubSeeds = ["Power", "Hope", "Passion", "Wonder"];
 let highestSeedAdopt: string;
 export function getErrorMessage(error: Error) {
   if (error instanceof NoEthereumProviderError) {
@@ -165,11 +165,13 @@ export function Balance() {
 
 export function Account() {
   const ref = useRef<HTMLDivElement>();
+  const [connectWalletSymbole, setConnectWalletSymbole] = useState(false);
   const [checkSeedAdded, setCheckSeedAdded] = useState(false);
+
   const { account } = useWeb3React();
   let seedImgSrc;
   let seedImgText;
-
+  let seedCountValue = 0;
   for (let i = 0; i < 4; i++) {
     const { data } = useQuery(HighestSeed, {
       variables: {
@@ -183,7 +185,9 @@ export function Account() {
       !checkSeedAdded
     ) {
       highestSeedAdopt = data?.user?.seeds[0].type;
+      seedCountValue = data?.user?.seedCount;
       setCheckSeedAdded(true);
+      setConnectWalletSymbole(true);
     }
   }
   switch (highestSeedAdopt) {
@@ -191,6 +195,7 @@ export function Account() {
       seedImgSrc = "https://shrub.finance/power.svg";
       seedImgText = "Power Seed";
       break;
+
     case "Hope":
       seedImgSrc = "https://shrub.finance/hope.svg";
       seedImgText = "Hope Seed";
@@ -210,17 +215,26 @@ export function Account() {
       ref.current.innerHTML = "";
       ref.current.appendChild(Jazzicon(14, parseInt(account.slice(2, 10), 16)));
     }
+
+    if (seedCountValue > 0) {
+      setConnectWalletSymbole(true);
+    }
   }, [account]);
+
   return (
     <>
       {account ? (
-        <Box pr={2} d="flex" alignItems="center">
-          <Image
-            boxSize={isMobile ? 5 : 6}
-            src={seedImgSrc}
-            alt={seedImgText}
-          />
-        </Box>
+        connectWalletSymbole ? (
+          <Box pr={2} d="flex" alignItems="center">
+            <Image
+              boxSize={isMobile ? 5 : 6}
+              src={seedImgSrc}
+              alt={seedImgText}
+            />
+          </Box>
+        ) : (
+          <Box pr={2} d="flex" alignItems="center" ref={ref as any} />
+        )
       ) : (
         ""
       )}
