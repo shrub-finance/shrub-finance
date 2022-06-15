@@ -107,6 +107,19 @@ function BuyMatic() {
         Buy MATIC
       </Button>
 
+      {!isMobile && (
+        <Link
+          pr={5}
+          fontSize={"sm"}
+          fontWeight={"bold"}
+          color={useColorModeValue("blue", "yellow")}
+          href={"https://discord.gg/BpHuVCYtdB"}
+          isExternal
+        >
+          Join Discord
+        </Link>
+      )}
+
       {/*{!isMobile && (*/}
       {/*  <Link*/}
       {/*    as={ReachLink}*/}
