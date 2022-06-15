@@ -96,7 +96,7 @@ function DesktopMenu() {
         </Link>
         <Link
           as={ReachLink}
-          to="/openSea"
+          to="/opensea"
           variant="ghost"
           cursor="pointer"
           px={2}

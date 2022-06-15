@@ -26,7 +26,7 @@ import {
   Link,
   Spinner,
 } from "@chakra-ui/react";
-import { RouteComponentProps } from "@reach/router";
+import { Link as ReachLink, RouteComponentProps } from "@reach/router";
 import React, { useEffect, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { isMobile } from "react-device-detect";
@@ -195,11 +195,11 @@ function LeaderBoardView(props: RouteComponentProps) {
             <TableCaption>
               <Link
                 fontSize="14px"
-                href="https://opensea.io/collection/shrub-paper-gardens"
-                isExternal
+                as={ReachLink}
+                to={"/opensea"}
                 onClick={handleGA}
               >
-                View collection in Open Sea <ExternalLinkIcon mx="2px" />
+                View in Open Sea
               </Link>
             </TableCaption>
             <Thead>
