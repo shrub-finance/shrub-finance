@@ -106,35 +106,6 @@ function BuyMatic() {
       >
         Buy MATIC
       </Button>
-
-      {!isMobile && (
-        <Link
-          pr={5}
-          fontSize={"sm"}
-          fontWeight={"bold"}
-          color={useColorModeValue("blue", "yellow")}
-          href={"https://discord.gg/BpHuVCYtdB"}
-          isExternal
-        >
-          Join Discord
-        </Link>
-      )}
-
-      {/*{!isMobile && (*/}
-      {/*  <Link*/}
-      {/*    as={ReachLink}*/}
-      {/*    to="/presale"*/}
-      {/*    fontSize={"sm"}*/}
-      {/*    variant={"link"}*/}
-      {/*    fontWeight={"extrabold"}*/}
-      {/*    color={useColorModeValue("blue", "cyan")}*/}
-      {/*    px={2}*/}
-      {/*    py={{ base: "3", md: "1", lg: "1" }}*/}
-      {/*    rounded={"lg"}*/}
-      {/*  >*/}
-      {/*    Mint NFT*/}
-      {/*  </Link>*/}
-      {/*)}*/}
     </>
   );
 }
