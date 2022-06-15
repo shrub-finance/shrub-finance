@@ -10,9 +10,9 @@ import {
   UnorderedList,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import React from "react";
 import { trackEvent } from "../utils/handleGATracking";
+import { Link as ReachLink } from "@reach/router";
 
 function Chapters() {
   function handleGA(event: any) {
@@ -174,8 +174,8 @@ function Chapters() {
               </Text>
             </Box>
             <Link
-              href="https://opensea.io/collection/shrub-paper-gardens"
-              isExternal
+              as={ReachLink}
+              to={"/opensea"}
               cursor="pointer"
               rounded="3xl"
               size="sm"
@@ -188,7 +188,7 @@ function Chapters() {
               color={"black"}
               onClick={handleGA}
             >
-              View Collection <ExternalLinkIcon mx="2px" />
+              View Collection
             </Link>
           </>
         </Box>
