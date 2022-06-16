@@ -119,11 +119,14 @@ task("sendSeed", "send a seed from the owner contract to an address")
     }
     const receiverSeeds = await PaperSeed.balanceOf(receiver);
     console.log(`${receiver} currently has ${receiverSeeds} Paper Seeds`);
-    const conf = await promptly.confirm(
-      `You are about to send tokenId ${id} to ${receiver}. Continue? (y/n)`
-    );
-    if (!conf) {
-      return;
+    console.log(env.network.name);
+    if (env.network.name !== 'localhost') {
+      const conf = await promptly.confirm(
+        `You are about to send tokenId ${id} to ${receiver}. Continue? (y/n)`
+      );
+      if (!conf) {
+        return;
+      }
     }
     const tx = await PaperSeed["safeTransferFrom(address,address,uint256)"](
       signer.address,
@@ -718,7 +721,7 @@ task("mintUnclaimed", "seedContract owner mints the unclaimed seeds")
           throw e;
         }
       }
-      await setTimeoutAsync(2000);
+      await setTimeoutAsync(500);
     }
   });
 

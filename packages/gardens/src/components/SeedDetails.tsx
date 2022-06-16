@@ -281,6 +281,7 @@ function SeedDetails({
           type: "update",
           txHash: receipt.transactionHash,
           status: "confirmed",
+          data: { blockNumber: receipt.blockNumber },
         });
       } catch (e: any) {
         const toastDescription = ToastDescription(

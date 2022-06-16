@@ -41,11 +41,7 @@ import {
   ConnectWalletModal,
   getErrorMessage,
 } from "../components/ConnectWallet";
-import {
-  ToastDescription,
-  Txmonitor,
-  TxStatusList,
-} from "../components/TxMonitoring";
+import { ToastDescription, TxStatusList } from "../components/TxMonitoring";
 import {
   accountWL,
   getWLMintPrice,

@@ -1,7 +1,10 @@
 export const IMAGE_ASSETS = {
-  emptyPot: "https://shrub.finance/assets/pot.svg",
-  fertilizer: "https://shrub.finance/assets/fertilizer.svg",
-  waterCan: "https://shrub.finance/assets/water-can.svg",
+  emptyPot:
+    "https://gateway.pinata.cloud/ipfs/QmUqvSgB7TkwU1Yf5EQcEZcoq4DcByiQG95Qom7eQpHj8g",
+  fertilizer:
+    "https://gateway.pinata.cloud/ipfs/QmRjcmBAdMTPaezG34mufeWfNiE1si269vWXyX93X3ah21",
+  waterCan:
+    "https://gateway.pinata.cloud/ipfs/QmeK7DoLGdNjZuvTsnUFzVrWvM9Fv5wBVq7r23C788RQUD",
   seeds: {
     Wonder: {
       happy: "https://shrub.finance/assets/wonder.svg",

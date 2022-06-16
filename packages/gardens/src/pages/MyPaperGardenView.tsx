@@ -42,7 +42,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { isMobile } from "react-device-detect";
 import { useWeb3React } from "@web3-react/core";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   ConnectionStatus,
   ConnectWalletModal,
@@ -67,6 +67,18 @@ import {
 import CountdownTimer from "../components/CountdownTimer";
 import GardenGrid from "../components/GardenGrid";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
+
+type itemType = {
+  tokenId: string;
+  name: string;
+  emotion: string;
+  type: string;
+  dna: number;
+  imageUrl: string;
+  category: string;
+  quantity?: number;
+  growth?: number;
+};
 
 function MyPaperGardenView(props: RouteComponentProps) {
   const [localError, setLocalError] = useState("");
@@ -96,17 +108,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const [isHidden, setIsHidden] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [mySeedRows, setMySeedRows] = useState<JSX.Element[]>([]);
-  const [selectedItem, setSelectedItem] = useState<{
-    tokenId: string;
-    name: string;
-    emotion: string;
-    type: string;
-    dna: number;
-    imageUrl: string;
-    category: string;
-    quantity?: number;
-    growth?: number;
-  }>({
+  const [selectedItem, setSelectedItem] = useState<itemType>({
     tokenId: "",
     name: "",
     emotion: "",
@@ -116,6 +118,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
     category: "",
   });
   const [redeemAmount, setRedeemAmount] = useState("1");
+  const [polling, setPolling] = useState(false);
 
   const {
     active,
@@ -149,14 +152,27 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   const bgColor = useColorModeValue("gray.100", "blackAlpha.400");
   const format = (val: string) => val;
-  const [
-    getMySeedDataQuery,
-    { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
-  ] = useLazyQuery(MY_GARDENS_QUERY, {
+  // const [
+  //   getMySeedDataQuery,
+  //   { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
+  // ] = useLazyQuery(MY_GARDENS_QUERY, {
+  //   variables: {
+  //     user: account && account.toLowerCase(),
+  //   },
+  // });
+
+  const {
+    loading: mySeedDataLoading,
+    error: mySeedDataError,
+    data: mySeedData,
+    startPolling: mySeedDataStartPolling,
+    stopPolling: mySeedDataStopPolling,
+  } = useQuery(MY_GARDENS_QUERY, {
     variables: {
       user: account && account.toLowerCase(),
     },
   });
+
   const invalidEntry = Number(redeemAmount) < 0 || isNaN(Number(redeemAmount));
 
   // console.log(mySeedData);
@@ -179,8 +195,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
   // console.log(fungibleAssets);
   // console.log(holdsFungibleAsset);
 
-  const tooLarge =
-    tickets && ethers.BigNumber.from(redeemAmount || 0).gt(tickets);
+  const POLL_INTERVAL = 1000; // 1 second
+  const tooLarge = accountTicketCount.lt(
+    ethers.BigNumber.from(redeemAmount || 0)
+  );
+  // isDisabled={Number(redeemAmount) <= 0 || noFunds || accountTicketCount.lte(Zero)}
+  // tickets && ethers.BigNumber.from(redeemAmount || 0).gt(tickets);
   const noFunds =
     walletTokenBalance &&
     redeemPrice &&
@@ -190,6 +210,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   // run on init - setTicketData
   useEffect(() => {
+    console.log("useEffect 0 - library");
     if (!library) {
       return;
     }
@@ -222,7 +243,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   // big useEffect from setTicketData to get a bunch of stuff - on account change
   // useEffect for account
   useEffect(() => {
-    console.log(ticketData);
+    console.log("useEffect 1 - account, ticketData, pendingTxsState");
     if (!library || !account || !ticketData) {
       return;
     }
@@ -285,9 +306,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
 
     accountAsync();
-  }, [account, ticketData]);
+  }, [account, ticketData, pendingTxsState]);
 
   useEffect(() => {
+    console.log("useEffect 3 - []");
     setTimeout(() => {
       if (!isInitialized) {
         setIsInitialized(true);
@@ -296,31 +318,43 @@ function MyPaperGardenView(props: RouteComponentProps) {
   }, []);
 
   useEffect(() => {
+    console.log("useEffect 4 - localError, web3Error");
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
   useEffect(() => {
-    console.log(mySeedData);
+    console.log("useEffect 5 - mySeedData");
     const tempMySeedDataRows: JSX.Element[] = [];
+    let selectedItemSet = selectedItem.tokenId !== "";
+
+    function updateSelectedItem(item: itemType) {
+      if (selectedItemSet) {
+        return;
+      }
+      setSelectedItem(item);
+      selectedItemSet = true;
+    }
 
     if (holdsFungibleAsset) {
       // handle pots
       if (fungibleAssets.pots) {
+        const potItem: itemType = {
+          tokenId: "1",
+          name: "Empty Pot",
+          emotion: "empty",
+          type: "pot",
+          dna: 0,
+          imageUrl: IMAGE_ASSETS.emptyPot,
+          category: "pot",
+          quantity: fungibleAssets.pots,
+        };
+        updateSelectedItem(potItem);
         tempMySeedDataRows.push(
           <GardenGrid
             id={"pot"}
             name={`Pot x ${fungibleAssets.pots}`}
             onClick={() => {
-              setSelectedItem({
-                tokenId: "1",
-                name: "Empty Pot",
-                emotion: "empty",
-                type: "pot",
-                dna: 0,
-                imageUrl: IMAGE_ASSETS.emptyPot,
-                category: "pot",
-                quantity: fungibleAssets.pots,
-              });
+              setSelectedItem(potItem);
               onOpen();
             }}
             imgCallback={() => IMAGE_ASSETS.emptyPot}
@@ -329,21 +363,23 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
       // handle water
       if (fungibleAssets.water) {
+        const waterItem: itemType = {
+          tokenId: "3",
+          name: "Water",
+          emotion: "empty",
+          type: "water",
+          dna: 0,
+          imageUrl: IMAGE_ASSETS.waterCan,
+          category: "water",
+          quantity: fungibleAssets.water,
+        };
+        updateSelectedItem(waterItem);
         tempMySeedDataRows.push(
           <GardenGrid
             id={"water"}
             name={`Water x ${fungibleAssets.water}`}
             onClick={() => {
-              setSelectedItem({
-                tokenId: "3",
-                name: "Water",
-                emotion: "empty",
-                type: "water",
-                dna: 0,
-                imageUrl: IMAGE_ASSETS.waterCan,
-                category: "water",
-                quantity: fungibleAssets.water,
-              });
+              setSelectedItem(waterItem);
               onOpen();
             }}
             imgCallback={() => IMAGE_ASSETS.waterCan}
@@ -352,21 +388,23 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
       // handle fertilizer
       if (fungibleAssets.fertilizer) {
+        const fertilizerItem: itemType = {
+          tokenId: "2",
+          name: "Fertilizer",
+          emotion: "empty",
+          type: "water",
+          dna: 0,
+          imageUrl: IMAGE_ASSETS.fertilizer,
+          category: "fertilizer",
+          quantity: fungibleAssets.fertilizer,
+        };
+        updateSelectedItem(fertilizerItem);
         tempMySeedDataRows.push(
           <GardenGrid
             id={"fertilizer"}
             name={`Fertilizer x ${fungibleAssets.fertilizer}`}
             onClick={() => {
-              setSelectedItem({
-                tokenId: "2",
-                name: "Fertilizer",
-                emotion: "empty",
-                type: "water",
-                dna: 0,
-                imageUrl: IMAGE_ASSETS.fertilizer,
-                category: "fertilizer",
-                quantity: fungibleAssets.fertilizer,
-              });
+              setSelectedItem(fertilizerItem);
               onOpen();
             }}
             imgCallback={() => IMAGE_ASSETS.fertilizer}
@@ -385,21 +423,25 @@ function MyPaperGardenView(props: RouteComponentProps) {
           IMAGE_ASSETS[`pottedPlant${type}${Math.floor(growth / 2000)}`];
         console.log(`pottedPlant${type}${Math.floor(growth / 2000)}`);
         console.log(imageUrl);
+        const pottedPlantItem: itemType = {
+          tokenId: id,
+          name: "Potted Plant",
+          emotion: emotion,
+          type: type,
+          dna: dna,
+          imageUrl: imageUrl,
+          growth: growth,
+          category: "pottedPlant",
+        };
+        if (pottedPlant === mySeedData.user.pottedPlants[0]) {
+          updateSelectedItem(pottedPlantItem);
+        }
         tempMySeedDataRows.push(
           <GardenGrid
             id={id}
             name={`#${id}`}
             onClick={() => {
-              setSelectedItem({
-                tokenId: id,
-                name: "Potted Plant",
-                emotion: emotion,
-                type: type,
-                dna: dna,
-                imageUrl: imageUrl,
-                growth: growth,
-                category: "pottedPlant",
-              });
+              setSelectedItem(pottedPlantItem);
               onOpen();
             }}
             imgCallback={() => imageUrl}
@@ -424,20 +466,24 @@ function MyPaperGardenView(props: RouteComponentProps) {
         const seedNumber = name.split("#")[1];
         console.log(type, emotion);
         const imageUrl = IMAGE_ASSETS.seeds[type][emotion];
+        const seedItem: itemType = {
+          tokenId: id,
+          name,
+          emotion,
+          type,
+          dna,
+          imageUrl,
+          category: "paperSeed",
+        };
+        if (item === mySeeds[0]) {
+          updateSelectedItem(seedItem);
+        }
         tempMySeedDataRows.push(
           <GardenGrid
             id={name}
             name={`#${seedNumber}`}
             onClick={() => {
-              setSelectedItem({
-                tokenId: id,
-                name,
-                emotion,
-                type,
-                dna,
-                imageUrl,
-                category: "paperSeed",
-              });
+              setSelectedItem(seedItem);
               onOpen();
             }}
             imgCallback={() => imageUrl}
@@ -485,15 +531,15 @@ function MyPaperGardenView(props: RouteComponentProps) {
           // </Box>
         );
       }
-      setSelectedItem({
-        tokenId: mySeeds[0].id,
-        name: mySeeds[0].name,
-        emotion: mySeeds[0].emotion,
-        type: mySeeds[0].type,
-        dna: mySeeds[0].dna,
-        imageUrl: IMAGE_ASSETS.seeds[mySeeds[0].type][mySeeds[0].emotion],
-        category: "paperSeed",
-      });
+      // setSelectedItem({
+      //   tokenId: mySeeds[0].id,
+      //   name: mySeeds[0].name,
+      //   emotion: mySeeds[0].emotion,
+      //   type: mySeeds[0].type,
+      //   dna: mySeeds[0].dna,
+      //   imageUrl: IMAGE_ASSETS.seeds[mySeeds[0].type][mySeeds[0].emotion],
+      //   category: "paperSeed",
+      // });
     }
 
     // TODO: handle shrubs
@@ -503,18 +549,62 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }, [mySeedData]);
 
+  // Query Handling
+  // Needs to deal with having the two sources of subgraph and txmon
+  // const {
+  //   loading: mySeedDataLoading,
+  //   error: mySeedDataError,
+  //   data: mySeedData,
+  //   startPolling: mySeedDataStartPolling,
+  //   stopPolling: mySeedDataStopPolling,
+  // } = useQuery(MY_GARDENS_QUERY, {
+  //   variables: {
+  //     user: account && account.toLowerCase(),
+  //   },
+  // });
+
   useEffect(() => {
-    async function main() {
-      if (!account) {
-        return;
+    console.log("useEffect 6 - mySeedData, pendingTxsState");
+    const queryBlock =
+      mySeedData &&
+      mySeedData._meta &&
+      mySeedData._meta.block &&
+      mySeedData._meta.block.number;
+    let txBlock = 0;
+    for (const txinfo of Object.values(pendingTxsState)) {
+      console.log(txinfo);
+      console.log(
+        txinfo.data && txinfo.data.blockNumber && txinfo.data.blockNumber
+      );
+      console.log(queryBlock);
+      if (
+        txinfo.data &&
+        txinfo.data.blockNumber &&
+        txinfo.data.blockNumber > queryBlock
+      ) {
+        mySeedDataStartPolling(POLL_INTERVAL);
+        setPolling(true);
+        txBlock = txinfo.data.blockNumber;
       }
-      getMySeedDataQuery();
     }
-    main().catch((err) => {
-      handleErrorMessages({ err });
-      console.error(err);
-    });
-  }, [account]);
+    if (queryBlock > txBlock) {
+      mySeedDataStopPolling();
+      setPolling(false);
+    }
+  }, [mySeedData, pendingTxsState]);
+
+  // useEffect(() => {
+  //   async function main() {
+  //     if (!account) {
+  //       return;
+  //     }
+  //     getMySeedDataQuery();
+  //   }
+  //   main().catch((err) => {
+  //     handleErrorMessages({ err });
+  //     console.error(err);
+  //   });
+  // }, [account]);
 
   // Fun Functions
   async function handleApprove() {
@@ -550,6 +640,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           type: "update",
           txHash: receipt.transactionHash,
           status: "confirmed",
+          data: { blockNumber: receipt.blockNumber },
         });
       } catch (e: any) {
         const toastDescription = ToastDescription(
@@ -612,7 +703,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
           type: "update",
           txHash: receipt.transactionHash,
           status: "confirmed",
+          data: { blockNumber: receipt.blockNumber },
         });
+        setIsLoading(false);
       } catch (e: any) {
         const toastDescription = ToastDescription(
           description,
@@ -688,9 +781,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
           maxW="container.lg"
         >
           <Center>
-            <Heading>You have {accountTicketCount.toString()} Tickets</Heading>
-          </Center>
-          <Center>
             <HStack>
               {/*Ticket info*/}
               <Center mt={{ base: 5, md: 10 }}>
@@ -757,151 +847,155 @@ function MyPaperGardenView(props: RouteComponentProps) {
               </Center>
 
               {/*Redemption logic*/}
-              {/*<Box>*/}
-              {/*  <Heading>*/}
-              {/*    You have {accountTicketCount.toString()} Tickets*/}
-              {/*  </Heading>*/}
-              {/*<VStack>*/}
-              {/*  /!*Quantity*!/*/}
-              {/*  <Box>*/}
-              {/*    <Center>*/}
-              {/*      <FormLabel*/}
-              {/*        fontSize={"sm"}*/}
-              {/*        color={"gray.500"}*/}
-              {/*        fontWeight={"medium"}*/}
-              {/*      >*/}
-              {/*        Quantity*/}
-              {/*      </FormLabel>*/}
-              {/*    </Center>*/}
-              {/*    <NumberInput*/}
-              {/*      isInvalid={invalidEntry}*/}
-              {/*      min={0}*/}
-              {/*      max={10}*/}
-              {/*      precision={0}*/}
-              {/*      onChange={(valueString) => {*/}
-              {/*        const [integerPart, decimalPart] =*/}
-              {/*          valueString.split(".");*/}
-              {/*        if (valueString.includes(".")) {*/}
-              {/*          setRedeemAmount(integerPart || "0");*/}
-              {/*          return;*/}
-              {/*        }*/}
-              {/*        if (integerPart && integerPart.length > 2) {*/}
-              {/*          return;*/}
-              {/*        }*/}
-              {/*        if (valueString === "00") {*/}
-              {/*          return;*/}
-              {/*        }*/}
-              {/*        if (isNaN(Number(valueString))) {*/}
-              {/*          return;*/}
-              {/*        }*/}
-              {/*        if (*/}
-              {/*          Number(valueString) !==*/}
-              {/*          Math.round(Number(valueString) * 1e6) / 1e6*/}
-              {/*        ) {*/}
-              {/*          setRedeemAmount(Number(valueString).toFixed(6));*/}
-              {/*          return;*/}
-              {/*        }*/}
-              {/*        setRedeemAmount(valueString);*/}
-              {/*      }}*/}
-              {/*      value={format(redeemAmount)}*/}
-              {/*      size="lg"*/}
-              {/*    >*/}
-              {/*      <NumberInputField*/}
-              {/*        h="6rem"*/}
-              {/*        borderRadius="3xl"*/}
-              {/*        shadow="sm"*/}
-              {/*        fontWeight="medium"*/}
-              {/*        fontSize="2xl"*/}
-              {/*      />*/}
-              {/*      <InputRightElement*/}
-              {/*        pointerEvents="none"*/}
-              {/*        p={14}*/}
-              {/*        children={*/}
-              {/*          <FormLabel*/}
-              {/*            htmlFor="amount"*/}
-              {/*            color="gray.500"*/}
-              {/*            fontWeight="medium"*/}
-              {/*            minW={"100"}*/}
-              {/*          >*/}
-              {/*            tickets*/}
-              {/*          </FormLabel>*/}
-              {/*        }*/}
-              {/*      />*/}
-              {/*    </NumberInput>*/}
-              {/*  </Box>*/}
-              {/*  /!*Redeem Price*!/*/}
-              {/*  <Box>*/}
-              {/*    <Center>*/}
-              {/*      <FormLabel*/}
-              {/*        fontSize={"sm"}*/}
-              {/*        color={"gray.500"}*/}
-              {/*        fontWeight={"medium"}*/}
-              {/*      >*/}
-              {/*        Total*/}
-              {/*      </FormLabel>*/}
-              {/*    </Center>*/}
-              {/*    <Box*/}
-              {/*      bg={bgColor}*/}
-              {/*      borderRadius="3xl"*/}
-              {/*      fontWeight="medium"*/}
-              {/*      fontSize="2xl"*/}
-              {/*      p={"1.813rem"}*/}
-              {/*    >*/}
-              {/*      {invalidEntry*/}
-              {/*        ? "?"*/}
-              {/*        : format(*/}
-              {/*            redeemPrice*/}
-              {/*              ? ethers.utils.formatEther(*/}
-              {/*                  redeemPrice.mul(Number(redeemAmount))*/}
-              {/*                )*/}
-              {/*              : "-"*/}
-              {/*          )}{" "}*/}
-              {/*      WETH*/}
-              {/*    </Box>*/}
-              {/*  </Box>*/}
-              {/*  /!*Approve/Redeem button*!/*/}
-              {/*  <Box>*/}
-              {/*    <Button*/}
-              {/*      onClick={noAllowance ? handleApprove : handleRedeemNFT}*/}
-              {/*      colorScheme={tradingBtnColor}*/}
-              {/*      variant="solid"*/}
-              {/*      rounded="2xl"*/}
-              {/*      isLoading={isLoading}*/}
-              {/*      isDisabled={Number(redeemAmount) <= 0 || noFunds}*/}
-              {/*      size="lg"*/}
-              {/*      px={["50", "70", "90", "90"]}*/}
-              {/*      fontSize="25px"*/}
-              {/*      py={10}*/}
-              {/*      borderRadius="full"*/}
-              {/*      _hover={{ transform: "translateY(-2px)" }}*/}
-              {/*      bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}*/}
-              {/*      loadingText={*/}
-              {/*        noAllowance*/}
-              {/*          ? "Approving..."*/}
-              {/*          : !localError*/}
-              {/*          ? "Redeeming..."*/}
-              {/*          : "Redeem Ticket"*/}
-              {/*      }*/}
-              {/*    >*/}
-              {/*      {*/}
-              {/*        // If no account then Wrong Network and Connect Wallet*/}
-              {/*        !account*/}
-              {/*          ? !!web3Error &&*/}
-              {/*            getErrorMessage(web3Error).title === "Wrong Network"*/}
-              {/*            ? "Connect to Polygon"*/}
-              {/*            : "Connect Wallet"*/}
-              {/*          : tooLarge*/}
-              {/*          ? "Quantity above number of tickets"*/}
-              {/*          : noFunds*/}
-              {/*          ? "Insufficient funds"*/}
-              {/*          : noAllowance*/}
-              {/*          ? "Approve WETH"*/}
-              {/*          : "Redeem Ticket"*/}
-              {/*      }*/}
-              {/*    </Button>*/}
-              {/*  </Box>*/}
-              {/*</VStack>*/}
-              {/*</Box>*/}
+              <Box>
+                <Heading>
+                  You have {accountTicketCount.toString()} Tickets
+                </Heading>
+                <VStack>
+                  {/*Quantity*/}
+                  <Box>
+                    <Center>
+                      <FormLabel
+                        fontSize={"sm"}
+                        color={"gray.500"}
+                        fontWeight={"medium"}
+                      >
+                        Quantity
+                      </FormLabel>
+                    </Center>
+                    <NumberInput
+                      isInvalid={invalidEntry}
+                      min={0}
+                      max={10}
+                      precision={0}
+                      onChange={(valueString) => {
+                        const [integerPart, decimalPart] =
+                          valueString.split(".");
+                        if (valueString.includes(".")) {
+                          setRedeemAmount(integerPart || "0");
+                          return;
+                        }
+                        if (integerPart && integerPart.length > 2) {
+                          return;
+                        }
+                        if (valueString === "00") {
+                          return;
+                        }
+                        if (isNaN(Number(valueString))) {
+                          return;
+                        }
+                        if (
+                          Number(valueString) !==
+                          Math.round(Number(valueString) * 1e6) / 1e6
+                        ) {
+                          setRedeemAmount(Number(valueString).toFixed(6));
+                          return;
+                        }
+                        setRedeemAmount(valueString);
+                      }}
+                      value={format(redeemAmount)}
+                      size="lg"
+                    >
+                      <NumberInputField
+                        h="6rem"
+                        borderRadius="3xl"
+                        shadow="sm"
+                        fontWeight="medium"
+                        fontSize="2xl"
+                      />
+                      <InputRightElement
+                        pointerEvents="none"
+                        p={14}
+                        children={
+                          <FormLabel
+                            htmlFor="amount"
+                            color="gray.500"
+                            fontWeight="medium"
+                            minW={"100"}
+                          >
+                            tickets
+                          </FormLabel>
+                        }
+                      />
+                    </NumberInput>
+                  </Box>
+                  {/*Redeem Price*/}
+                  <Box>
+                    <Center>
+                      <FormLabel
+                        fontSize={"sm"}
+                        color={"gray.500"}
+                        fontWeight={"medium"}
+                      >
+                        Total
+                      </FormLabel>
+                    </Center>
+                    <Box
+                      bg={bgColor}
+                      borderRadius="3xl"
+                      fontWeight="medium"
+                      fontSize="2xl"
+                      p={"1.813rem"}
+                    >
+                      {invalidEntry
+                        ? "?"
+                        : format(
+                            redeemPrice
+                              ? ethers.utils.formatEther(
+                                  redeemPrice.mul(Number(redeemAmount))
+                                )
+                              : "-"
+                          )}{" "}
+                      WETH
+                    </Box>
+                  </Box>
+                  {/*Approve/Redeem button*/}
+                  <Box>
+                    <Button
+                      onClick={noAllowance ? handleApprove : handleRedeemNFT}
+                      colorScheme={tradingBtnColor}
+                      variant="solid"
+                      rounded="2xl"
+                      isLoading={isLoading}
+                      isDisabled={
+                        Number(redeemAmount) <= 0 ||
+                        noFunds ||
+                        accountTicketCount.lte(Zero)
+                      }
+                      size="lg"
+                      px={["50", "70", "90", "90"]}
+                      fontSize="25px"
+                      py={10}
+                      borderRadius="full"
+                      _hover={{ transform: "translateY(-2px)" }}
+                      bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                      loadingText={
+                        noAllowance
+                          ? "Approving..."
+                          : !localError
+                          ? "Redeeming..."
+                          : "Redeem Ticket"
+                      }
+                    >
+                      {
+                        // If no account then Wrong Network and Connect Wallet
+                        !account
+                          ? !!web3Error &&
+                            getErrorMessage(web3Error).title === "Wrong Network"
+                            ? "Connect to Polygon"
+                            : "Connect Wallet"
+                          : tooLarge
+                          ? "Quantity above number of tickets"
+                          : noFunds
+                          ? "Insufficient funds"
+                          : noAllowance
+                          ? "Approve WETH"
+                          : "Redeem Ticket"
+                      }
+                    </Button>
+                  </Box>
+                </VStack>
+              </Box>
             </HStack>
           </Center>
         </Container>
@@ -965,7 +1059,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 }
                 gap={2}
                 minH={"620px"}
-                overflow="scroll"
+                overflow="auto"
                 maxH="620px"
                 shadow="2xl"
                 layerStyle={"shrubBg"}
