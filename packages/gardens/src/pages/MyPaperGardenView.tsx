@@ -420,8 +420,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
         const { name, dna, emotion, type } = seed;
         const imageUrl =
           // @ts-ignore
-          IMAGE_ASSETS[`pottedPlant${type}${Math.floor(growth / 2000)}`];
-        console.log(`pottedPlant${type}${Math.floor(growth / 2000)}`);
+          // IMAGE_ASSETS[`pottedPlant${type}${Math.floor(growth / 2000)}${emotion === 'sad' ? 'sad' : ''}`];
+          IMAGE_ASSETS.getPottedPlant(type, Math.floor(growth / 2000), emotion);
+        // console.log(`pottedPlant${type}${Math.floor(growth / 2000)}`);
         console.log(imageUrl);
         const pottedPlantItem: itemType = {
           tokenId: id,

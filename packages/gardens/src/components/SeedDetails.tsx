@@ -42,7 +42,7 @@ import {
 import { useWeb3React } from "@web3-react/core";
 import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { ethers } from "ethers";
-import { ToastDescription } from "./TxMonitoring";
+import { ToastDescription, Txmonitor } from "./TxMonitoring";
 import { TxContext } from "./Store";
 
 function SeedDetails({
@@ -68,6 +68,7 @@ function SeedDetails({
   const { pendingTxs } = useContext(TxContext);
   const [plantingApproved, setPlantingApproved] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [approving, setApproving] = React.useState(false);
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
@@ -117,7 +118,7 @@ function SeedDetails({
     });
   }, [account, selectedItem]);
 
-  // For Modal
+  // Start animation
   useEffect(() => {
     console.log("useEffect - isOpen");
     if (!isOpen) {
@@ -127,7 +128,7 @@ function SeedDetails({
     setTimeout(() => {
       controls.start("final");
     }, 1);
-  }, [isOpen]);
+  }, []);
 
   // Scroll to top on error
   useEffect(() => {
@@ -252,12 +253,23 @@ function SeedDetails({
   //   }
   // }
 
+  function handleModalClose() {
+    setApproving(false);
+    setActiveHash(undefined);
+    onClose();
+  }
+
+  function openModal() {
+    onOpen();
+  }
+
   async function handleBlockchainTx(
     description: string,
     callbackTx: () => Promise<ethers.ContractTransaction>
   ) {
     setLocalError("");
     try {
+      setApproving(true);
       const tx = await callbackTx();
       pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
       setActiveHash(tx.hash);
@@ -283,6 +295,7 @@ function SeedDetails({
           status: "confirmed",
           data: { blockNumber: receipt.blockNumber },
         });
+        setApproving(false);
       } catch (e: any) {
         const toastDescription = ToastDescription(
           description,
@@ -302,9 +315,11 @@ function SeedDetails({
           variant: "solid",
           position: "top-right",
         });
+        setApproving(false);
       }
     } catch (e: any) {
       handleErrorMessages({ err: e });
+      setApproving(false);
     }
   }
 
@@ -456,7 +471,7 @@ function SeedDetails({
                 <Button
                   onClick={() => {
                     setModalState("water");
-                    onOpen();
+                    openModal();
                   }}
                   flex={1}
                   fontSize={"sm"}
@@ -473,7 +488,7 @@ function SeedDetails({
                 <Button
                   onClick={() => {
                     setModalState("plant");
-                    onOpen();
+                    openModal();
                   }}
                   flex={1}
                   fontSize={"sm"}
@@ -497,7 +512,7 @@ function SeedDetails({
                 <Button
                   onClick={() => {
                     setModalState("fertilize");
-                    onOpen();
+                    openModal();
                   }}
                   flex={1}
                   fontSize={"sm"}
@@ -511,7 +526,7 @@ function SeedDetails({
                 <Button
                   onClick={() => {
                     setModalState("harvest");
-                    onOpen();
+                    openModal();
                   }}
                   flex={1}
                   fontSize={"sm"}
@@ -529,7 +544,7 @@ function SeedDetails({
       </Box>
       <Modal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleModalClose}
         motionPreset="slideInBottom"
         scrollBehavior={isMobile ? "inside" : "outside"}
         size={"xl"}
@@ -566,116 +581,130 @@ function SeedDetails({
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody pt={40}>
-            {modalState === "plant" ? (
-              <Center>
-                <Box textStyle={"reading"}>
-                  <Text>Planting will result in</Text>
-                  <Text>{selectedItem.name}</Text>
-                  <Text>and</Text>
-                  <Text>1 Empty Pot</Text>
-                  <Text>
-                    converting into a potted plant that you can grow into a
-                    Shrub
-                  </Text>
-                  <Text>This is irrevesible.</Text>
-                  {!plantingApproved && (
-                    <Text>
-                      You must also first approve your seed for planting
-                    </Text>
+            {
+              // When transaction is in flight
+              approving || activeHash ? (
+                <Txmonitor txHash={activeHash} />
+              ) : (
+                // Base States based on action clicked
+                <>
+                  {modalState === "plant" ? (
+                    <Center>
+                      <Box textStyle={"reading"}>
+                        <Text>Planting will result in</Text>
+                        <Text>{selectedItem.name}</Text>
+                        <Text>and</Text>
+                        <Text>1 Empty Pot</Text>
+                        <Text>
+                          converting into a potted plant that you can grow into
+                          a Shrub
+                        </Text>
+                        <Text>This is irrevesible.</Text>
+                        {!plantingApproved && (
+                          <Text>
+                            You must also first approve your seed for planting
+                          </Text>
+                        )}
+                      </Box>
+                    </Center>
+                  ) : modalState === "water" ? (
+                    <Center>
+                      <Box textStyle={"reading"}>
+                        <Text>Watering will result in</Text>
+                        <Text>1 Water being consumed</Text>
+                        <Text>
+                          And in turn increasing the growth number of your
+                          potted plant.
+                        </Text>
+                        <Text>
+                          This can only be done once per day for each potted
+                          plant.
+                        </Text>
+                      </Box>
+                    </Center>
+                  ) : modalState === "fertilize" ? (
+                    <Center>
+                      <Box textStyle={"reading"}>
+                        <Text>Fertilizing will result in</Text>
+                        <Text>1 Fertilizer</Text>
+                        <Text>plus</Text>
+                        <Text>1 Water being consumed</Text>
+                        <Text>
+                          This is done in place of a normal daily watering
+                        </Text>
+                        <Text>
+                          Your potted plant will grow more compared to when
+                          simply watered
+                        </Text>
+                        <Text>
+                          This is a one-time effect, it will not affect future
+                          waterings
+                        </Text>
+                        <Text>
+                          This can only be done once per day for each potted
+                          plant.
+                        </Text>
+                      </Box>
+                    </Center>
+                  ) : modalState === "harvest" ? (
+                    <Center>
+                      <Box textStyle={"reading"}>
+                        <Text>Harvesting will result in</Text>
+                        <Text>your potted plant</Text>
+                        <Text>and</Text>
+                        <Text>1 Empty Pot</Text>
+                        <Text>converting into a fully-grown Shrub.</Text>
+                        <Text>This is irrevesible.</Text>
+                      </Box>
+                    </Center>
+                  ) : (
+                    <></>
                   )}
-                </Box>
-              </Center>
-            ) : modalState === "water" ? (
-              <Center>
-                <Box textStyle={"reading"}>
-                  <Text>Watering will result in</Text>
-                  <Text>1 Water being consumed</Text>
-                  <Text>
-                    And in turn increasing the growth number of your potted
-                    plant.
-                  </Text>
-                  <Text>
-                    This can only be done once per day for each potted plant.
-                  </Text>
-                </Box>
-              </Center>
-            ) : modalState === "fertilize" ? (
-              <Center>
-                <Box textStyle={"reading"}>
-                  <Text>Fertilizing will result in</Text>
-                  <Text>1 Fertilizer</Text>
-                  <Text>plus</Text>
-                  <Text>1 Water being consumed</Text>
-                  <Text>This is done in place of a normal daily watering</Text>
-                  <Text>
-                    Your potted plant will grow more compared to when simply
-                    watered
-                  </Text>
-                  <Text>
-                    This is a one-time effect, it will not affect future
-                    waterings
-                  </Text>
-                  <Text>
-                    This can only be done once per day for each potted plant.
-                  </Text>
-                </Box>
-              </Center>
-            ) : modalState === "harvest" ? (
-              <Center>
-                <Box textStyle={"reading"}>
-                  <Text>Harvesting will result in</Text>
-                  <Text>your potted plant</Text>
-                  <Text>and</Text>
-                  <Text>1 Empty Pot</Text>
-                  <Text>converting into a fully-grown Shrub.</Text>
-                  <Text>This is irrevesible.</Text>
-                </Box>
-              </Center>
-            ) : (
-              <></>
-            )}
-            <Center>
-              <Button
-                // onClick={onOpen}
-                onClick={
-                  modalState === "plant"
-                    ? plantingApproved
-                      ? handlePlanting
-                      : handleApprove
-                    : modalState === "water"
-                    ? handleWatering
-                    : modalState === "fertilize"
-                    ? handleFertilizing
-                    : modalState === "harvest"
-                    ? handleHarvesting
-                    : () => console.log("unexpected state")
-                }
-                flex={1}
-                fontSize={"sm"}
-                rounded={"full"}
-                bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
-                color={"black"}
-                boxShadow={"xl"}
-                _hover={{
-                  bg: "shrub.200",
-                }}
-                _focus={{
-                  bg: "shrub.100",
-                }}
-              >
-                {modalState === "plant"
-                  ? plantingApproved
-                    ? "Plant"
-                    : "Approve Seed for Planting"
-                  : modalState === "water"
-                  ? "Water"
-                  : modalState === "fertilize"
-                  ? "Fertilize"
-                  : modalState === "harvest"
-                  ? "Harvest"
-                  : "Unexpected State"}
-              </Button>
-            </Center>
+                  // The action button
+                  <Center>
+                    <Button
+                      onClick={
+                        modalState === "plant"
+                          ? plantingApproved
+                            ? handlePlanting
+                            : handleApprove
+                          : modalState === "water"
+                          ? handleWatering
+                          : modalState === "fertilize"
+                          ? handleFertilizing
+                          : modalState === "harvest"
+                          ? handleHarvesting
+                          : () => console.log("unexpected state")
+                      }
+                      flex={1}
+                      fontSize={"sm"}
+                      rounded={"full"}
+                      bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                      color={"black"}
+                      boxShadow={"xl"}
+                      _hover={{
+                        bg: "shrub.200",
+                      }}
+                      _focus={{
+                        bg: "shrub.100",
+                      }}
+                    >
+                      {modalState === "plant"
+                        ? plantingApproved
+                          ? "Plant"
+                          : "Approve Seed for Planting"
+                        : modalState === "water"
+                        ? "Water"
+                        : modalState === "fertilize"
+                        ? "Fertilize"
+                        : modalState === "harvest"
+                        ? "Harvest"
+                        : "Unexpected State"}
+                    </Button>
+                  </Center>
+                </>
+              )
+            }
             {/*Animation once planting occurs*/}
             {/*<Center>*/}
             {/*  {TransformScale(<FlyingSeed boxSize={20} />, controls)}*/}

@@ -6,7 +6,7 @@ import {
   PotNFTTicket__factory,
   SeedOrphanageV2__factory,
   ShrubExchange__factory, SMATICToken__factory,
-  SUSDToken__factory,
+  SUSDToken__factory, WETH__factory,
 } from './types'
 import { readFileSync } from 'fs'
 import { OrderCommon, SmallOrder } from '@shrub/app/src/types'
@@ -58,6 +58,102 @@ task("accounts", "Prints the list of accounts", async (taskArgs, env) => {
     console.log(account.address);
   }
 });
+
+task("testPaperGardens", "Sets up a test env for paper gardens")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [deployer, account1, account2, account3, account4] = await ethers.getSigners();
+    const seedDeployment = await deployments.get("PaperSeed");
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const wethDeployment = await deployments.get("WETH");
+    const WETH = WETH__factory.connect(
+      wethDeployment.address,
+      deployer
+    );
+
+    // Initialize NFT Ticket
+    await env.run('initializeNFTTicket',{
+      controller: account1.address,
+      recipient: account2.address,
+      contractAddress: paperPotDeployment.address,
+      wlMintStartDate: '2022-06-08T13:00:00.000Z',
+      wlMintEndDate: '2022-06-08T13:00:00.000Z',
+      mintStartDate: '2022-06-09T14:00:00.000Z',
+      mintEndDate: '2022-06-20T19:00:00.000Z',
+      redeemEndDate: '2022-06-30T00:00:00.000Z',
+      mintPrice: '35',
+      wlMintPrice: '15',
+      maxPerMint: 10,
+      redeemPrice: '15',
+      maxSupply: '1000'
+    })
+
+    // Activate Ticket
+    await env.run('activateNFTTicket', {
+      tokenId: '1',
+      controller: account1.address
+    })
+
+    // Controller Mint NFT Ticket
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+
+    // Mint Seeds
+    await env.run('mintSeed', {
+      ids: [5,16,17,250,251,2181,2182,2186,2188,8888,8869]
+    })
+
+    // Send Seeds
+    await env.run('sendSeed', {id: '5', receiver: account3.address});
+    await env.run('sendSeed', {id: '16', receiver: account3.address});
+    await env.run('sendSeed', {id: '17', receiver: account3.address});
+    await env.run('sendSeed', {id: '250', receiver: account3.address});
+    await env.run('sendSeed', {id: '251', receiver: account3.address});
+    await env.run('sendSeed', {id: '2181', receiver: account3.address});
+    await env.run('sendSeed', {id: '2182', receiver: account3.address});
+    await env.run('sendSeed', {id: '2186', receiver: account4.address});
+    await env.run('sendSeed', {id: '2188', receiver: account4.address});
+    await env.run('sendSeed', {id: '8888', receiver: account4.address});
+    await env.run('sendSeed', {id: '8869', receiver: account4.address});
+
+    // Set Redeem Active
+    await env.run('setRedeemActive', {
+      controller: account1.address,
+      tokenId: '1',
+      active: true
+    })
+
+    // Unpause Minting from the PaperPot Side
+    await env.run('unpausePot')
+
+    // Specify the NFTTicket address and tokenId
+    await env.run('setNftTicketInfo', {
+      address: potNFTTicketDeployment.address,
+      tokenId: '1'
+    })
+
+    // Mint Water
+    await env.run('mintWater', {
+      to: account3.address,
+      amount: '20'
+    })
+
+    // Mint Fertilizer
+    await env.run('mintFertilizer', {
+      to: account3.address,
+      amount: '3'
+    })
+
+    // Send WETH to accounts3 and 4
+    await WETH.transfer(account3.address, ethers.constants.WeiPerEther);
+    await WETH.transfer(account4.address, ethers.constants.WeiPerEther);
+
+  })
+
 
 task("mintSeed", "seedContract owner mints an unclaimed seed")
   .addOptionalParam("id", "tokenId of the seed to claim", undefined, types.int)
