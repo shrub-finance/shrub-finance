@@ -98,7 +98,7 @@ function PotSaleCountdown() {
           )}
           bgClip="text"
         >
-          Sale Details
+          Mint Details
         </Link>
       </Center>
     </Container>

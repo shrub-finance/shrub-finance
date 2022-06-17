@@ -391,7 +391,7 @@ function Intro(props: RouteComponentProps) {
       >
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
           <Box
-            mt={{ base: 0, md: 64 }}
+            mt={{ base: 0, md: 50 }}
             display={{
               base: "none",
               md: "none",
@@ -401,7 +401,7 @@ function Intro(props: RouteComponentProps) {
             }}
           >
             <Image
-              maxW="50rem"
+              maxW="40rem"
               maxH="48rem"
               src="https://shrub.finance/funky-pineapple-shrub.webp"
               fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
@@ -575,7 +575,7 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
-      {/*section 8*/}
+      {/*roadmap*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -606,9 +606,10 @@ function Intro(props: RouteComponentProps) {
               isExternal
               href="https://paper.shrub.finance"
             >
-              Shrub Paper [LIVE]
+              Shrub Paper
+              <br /> [LIVE]
             </Link>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"90"} />
+            <Icon as={IoEllipsisVertical} boxSize={"70"} />
             <Link
               display="block"
               fontSize={{ base: "25px", md: "35px" }}
@@ -622,9 +623,10 @@ function Intro(props: RouteComponentProps) {
               href="https://exchange.shrub.finance"
               isExternal
             >
-              Shrub Exchange [LIVE]
+              Shrub Exchange
+              <br /> [LIVE]
             </Link>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"90"} />
+            <Icon as={IoEllipsisVertical} boxSize={"70"} />
             <Link
               display="block"
               fontSize={{ base: "25px", md: "35px" }}
@@ -638,9 +640,10 @@ function Intro(props: RouteComponentProps) {
               isExternal
               href="https://gardens.shrub.finance"
             >
-              Paper Gardens [Q1-Q2]
+              Paper Gardens
+              <br /> [Q1-Q2]
             </Link>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"90"} />
+            <Icon as={IoEllipsisVertical} boxSize={"70"} />
             <Text
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
@@ -651,7 +654,8 @@ function Intro(props: RouteComponentProps) {
               )}
               bgClip="text"
             >
-              Options Main [Q3-Q4]
+              Options Main
+              <br /> [Q3-Q4]
             </Text>{" "}
           </Box>
           <Spacer />
@@ -666,7 +670,42 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
-      {/*section 6*/}
+      {/*partnerships*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
+          <Heading
+            fontSize={{ base: "30px", md: "50px" }}
+            letterSpacing={"tight"}
+            mb={16}
+            id="partners"
+          >
+            Official Partners
+          </Heading>
+          <Center>
+            <Flex direction="row" gap={8}>
+              <Link
+                href="https://polygonstudios.com/"
+                isExternal
+                cursor="pointer"
+              >
+                <PolygonStudiosIcon
+                  color={useColorModeValue("black", "white")}
+                  w={{ base: 300, md: 500 }}
+                  h={{ base: 100, md: 200 }}
+                />
+              </Link>
+            </Flex>
+          </Center>
+        </Box>
+      </Container>
+
+      {/*movement*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -675,7 +714,7 @@ function Intro(props: RouteComponentProps) {
         maxW={{ base: "container.sm", md: "1400px" }}
       >
         <Flex direction={{ base: "column", md: "row", lg: "row" }}>
-          <Box mt={{ base: "0", md: "0", lg: "40" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }} id="movement">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -696,14 +735,20 @@ function Intro(props: RouteComponentProps) {
                 movement
               </Text>
             </Heading>
+
             <Text textStyle={"description"}>
-              Shrubs represent those who believe in the decentralized world and
-              bringing innovative technology to the space.
-            </Text>{" "}
+              Shrub holders are builders, innovators, and thinkers.
+            </Text>
             <Text textStyle={"description"}>
-              Shrub holders are builders, innovators, thinkers, and
-              freedom-lovers. They think outside the box and stand away from the
-              crowd.
+              Shrubs represent those visionaries who believe in the
+              decentralized world and bring innovative technology to the space.
+            </Text>
+            <Text textStyle={"description"}>
+              If you have not already done so, become a{" "}
+              <Link href="#faqs" cursor="pointer" textDecoration="underline">
+                Shrub holder
+              </Link>{" "}
+              and join us!
             </Text>
           </Box>
           <Box mt={{ base: 0, md: 64 }}>
@@ -715,40 +760,6 @@ function Intro(props: RouteComponentProps) {
             />
           </Box>
         </Flex>
-      </Container>
-
-      {/*partnerships*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
-          <Heading
-            fontSize={{ base: "30px", md: "50px" }}
-            letterSpacing={"tight"}
-            mb={16}
-          >
-            Official Partners
-          </Heading>
-          <Center>
-            <Flex direction="row" gap={8}>
-              <Link
-                href="https://polygonstudios.com/"
-                isExternal
-                cursor="pointer"
-              >
-                <PolygonStudiosIcon
-                  color={useColorModeValue("black", "white")}
-                  w={{ base: 300, md: 500 }}
-                  h={{ base: 100, md: 200 }}
-                />
-              </Link>
-            </Flex>
-          </Center>
-        </Box>
       </Container>
 
       {/*as seen on*/}
@@ -857,7 +868,7 @@ function Intro(props: RouteComponentProps) {
 
       {/*ending*/}
       <Container
-        mt={{ base: 0, md: 50 }}
+        mt={{ base: 0, md: 0 }}
         p={5}
         flex="1"
         borderRadius="2xl"
