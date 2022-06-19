@@ -94,7 +94,7 @@ function SeedDetails({
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
-  // On selection changing
+  // determine if planting is approved
   useEffect(() => {
     console.log("useEffect - selection changing");
     async function main() {
@@ -116,7 +116,7 @@ function SeedDetails({
       console.error(e);
       handleErrorMessages({ err: e });
     });
-  }, [account, selectedItem]);
+  }, [account, selectedItem, pendingTxsState]);
 
   // Start animation
   useEffect(() => {

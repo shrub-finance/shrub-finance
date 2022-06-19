@@ -104,11 +104,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   });
 
   const btnShadow = useColorModeValue("md", "dark-lg");
-
-  const [isHidden, setIsHidden] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [mySeedRows, setMySeedRows] = useState<JSX.Element[]>([]);
-  const [selectedItem, setSelectedItem] = useState<itemType>({
+  const baseSelectedItem: itemType = {
     tokenId: "",
     name: "",
     emotion: "",
@@ -116,7 +112,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
     dna: 0,
     imageUrl: "",
     category: "",
-  });
+  };
+
+  const [isHidden, setIsHidden] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [mySeedRows, setMySeedRows] = useState<JSX.Element[]>([]);
+  const [selectedItem, setSelectedItem] = useState<itemType>(baseSelectedItem);
   const [redeemAmount, setRedeemAmount] = useState("1");
   const [polling, setPolling] = useState(false);
 
@@ -307,6 +308,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
     accountAsync();
   }, [account, ticketData, pendingTxsState]);
+
+  // run on account change
+  useEffect(() => {
+    // reset the selectedItem to the default so that it can be reset for the new account
+    setSelectedItem(baseSelectedItem);
+  }, [account]);
 
   useEffect(() => {
     console.log("useEffect 3 - []");

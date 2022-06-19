@@ -137,9 +137,7 @@ export function Txmonitor({
               View on explorer <ExternalLinkIcon mx="2px" />
             </Link>
             {!showDeposit && (
-              <Center>
-                <HappyBud mt={8} boxSize={260} />
-              </Center>
+              <Center>{/*<HappyBud mt={8} boxSize={260} />*/}</Center>
             )}
             {showDeposit && (
               <Button
