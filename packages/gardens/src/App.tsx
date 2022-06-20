@@ -17,6 +17,7 @@ import OpenSeaView from "./pages/OpenSeaView";
 import ReactGA from "react-ga";
 import NFTTicketView from "./pages/NFTTicketView";
 import MysteryBoxView from "./pages/MysteryBoxView";
+import MintPotView from "./pages/MintPotView";
 const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
   ReactGA.initialize(trackingID, {
@@ -56,8 +57,7 @@ function App() {
             <WyreCheckoutStatus />
             <Router>
               <HomeView path="/" />
-              {/*<MysteryBoxView path="/mystery-box" />*/}
-              <NFTTicketView path="/presale" />
+              <MintPotView path="/mint" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
