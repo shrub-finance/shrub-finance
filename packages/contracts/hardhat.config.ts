@@ -48,6 +48,8 @@ const config: HardhatUserConfig & AbiExporter = {
   },
   namedAccounts: {
     deployer: 0,
+    account1: 1,
+    account2: 2,
   },
   solidity: {
     version: "0.8.9",
