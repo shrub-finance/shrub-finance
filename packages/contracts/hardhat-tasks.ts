@@ -1,7 +1,7 @@
 import { task, types } from 'hardhat/config'
 import "@nomiclabs/hardhat-ethers";
 import {
-  HashUtil__factory, PaperPot__factory,
+  HashUtil__factory, PaperPot__factory, PaperPotMint__factory,
   PaperSeed__factory,
   PotNFTTicket__factory,
   SeedOrphanageV2__factory,
@@ -59,6 +59,23 @@ task("accounts", "Prints the list of accounts", async (taskArgs, env) => {
     console.log(account.address);
   }
 });
+
+task("unpausePotMinting", "Enables minting from PaperPotMint")
+  .addParam("pause", "pause or unpause", false, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { pause } = taskArgs;
+    const [deployer] = await ethers.getSigners();
+    const paperPotMintDeployment = await deployments.get("PaperPotMint");
+    const paperPotMint = PaperPotMint__factory.connect(paperPotMintDeployment.address, deployer);
+    if (pause) {
+      await paperPotMint.pauseMinting();
+      console.log("pausing minting");
+    } else {
+      await paperPotMint.unpauseMinting();
+      console.log("unpausing minting");
+    }
+  })
 
 task("testPaperGardens", "Sets up a test env for paper gardens")
   .setAction(async (taskArgs, env) => {
