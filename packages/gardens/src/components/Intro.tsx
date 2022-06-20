@@ -391,7 +391,7 @@ function Intro(props: RouteComponentProps) {
       >
         <Flex direction={{ base: "column", md: "column", lg: "row" }}>
           <Box
-            mt={{ base: 0, md: 64 }}
+            mt={{ base: 0, md: 50 }}
             display={{
               base: "none",
               md: "none",
@@ -401,7 +401,7 @@ function Intro(props: RouteComponentProps) {
             }}
           >
             <Image
-              maxW="50rem"
+              maxW="40rem"
               maxH="48rem"
               src="https://shrub.finance/funky-pineapple-shrub.webp"
               fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
@@ -444,14 +444,21 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    NFT Ticket Whitelist Pre-Sale <br />
-                    Wednesday, <b>June 8</b> <br />
-                    <br />
-                    NFT Ticket Public Pre-Sale <br />
-                    Thursday, <b>June 9</b> <br />
-                    <br />
                     Public Pot Sale <br />
-                    Thursday, <b>June 16</b>
+                    Saturday, <b>June 25</b>
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text textStyle={"description"} textAlign={"left"}>
+                    What's the mint price?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text textStyle={"description"} textAlign={"left"}>
+                    <b>0.05 ETH</b> for the Public Pot Sale.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -469,102 +476,9 @@ function Intro(props: RouteComponentProps) {
                   <AccordionIcon />
                 </AccordionButton>
                 <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
+                  <Text textStyle={"description"} textAlign={"left"}>
                     {" "}
-                    There will be a supply of 250 pots.
-                  </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    *Note: Tickets are tradable NFTs and can be sold on
-                    secondary markets.
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    How will the mint occur?{" "}
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    The minting will take place in stages.
-                    <Box ml={10}>
-                      <UnorderedList>
-                        <ListItem textDecoration={"line-through"}>
-                          Stage 1: NFT Ticket whitelist pre-sale
-                        </ListItem>
-                        <ListItem>Stage 2: NFT Ticket public pre-sale</ListItem>
-                        <ListItem>Stage 3: Pot public sale</ListItem>
-                      </UnorderedList>
-                    </Box>
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    How will the NFT ticket pre-sale work?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    Pre-sale NFT tickets will guarantee a Shrub Pot. Price:
-                    <Box
-                      ml={10}
-                      mt="3"
-                      fontSize={{ base: "20px", md: "20px" }}
-                      maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                      fontWeight={{ base: "semibold", md: "medium" }}
-                      textAlign={"left"}
-                    >
-                      <UnorderedList>
-                        <ListItem>
-                          <b>0.035 ETH</b> - Public
-                        </ListItem>
-                      </UnorderedList>
-                    </Box>
-                  </Text>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    All tickets will be redeemable for a pot for up to a week
-                    after the public sale. Redemption price for the tickets will
-                    be 0.015 ETH.
-                  </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    *Note: Tickets are tradable NFTs and can be sold on
-                    secondary markets.
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    What's the mint price for the Public Pot Sale?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    <b>0.05 ETH</b> for the Public Pot Sale.
+                    250 pots.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -626,39 +540,12 @@ function Intro(props: RouteComponentProps) {
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    What will the funds be used for?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    {" "}
-                    The funds will be used for the development of the Shrub
-                    ecosystem.
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
             </Accordion>
           </Box>
         </Flex>
       </Container>
 
-      {/*section 8*/}
+      {/*roadmap*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -675,8 +562,9 @@ function Intro(props: RouteComponentProps) {
             >
               Roadmap
             </Heading>
-            <Text
+            <Link
               mt="10"
+              display="block"
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight={{ base: "semibold", md: "semibold" }}
@@ -685,11 +573,15 @@ function Intro(props: RouteComponentProps) {
                 "linear(to-l, #7db5ff, #de00ff)"
               )}
               bgClip="text"
+              isExternal
+              href="https://paper.shrub.finance"
             >
-              Shrub Paper [LIVE]
-            </Text>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"90"} />
-            <Text
+              Shrub Paper
+              <br /> [LIVE]
+            </Link>{" "}
+            <Icon as={IoEllipsisVertical} boxSize={"70"} />
+            <Link
+              display="block"
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight="semibold"
@@ -698,11 +590,15 @@ function Intro(props: RouteComponentProps) {
                 "linear(to-l, #f5f2f2, #3300ff)"
               )}
               bgClip="text"
+              href="https://exchange.shrub.finance"
+              isExternal
             >
-              Shrub Exchange [LIVE]
-            </Text>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"90"} />
-            <Text
+              Shrub Exchange
+              <br /> [LIVE]
+            </Link>{" "}
+            <Icon as={IoEllipsisVertical} boxSize={"70"} />
+            <Link
+              display="block"
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
               fontWeight="semibold"
@@ -711,10 +607,13 @@ function Intro(props: RouteComponentProps) {
                 "linear(to-l, #ff6729, #73ff00)"
               )}
               bgClip="text"
+              isExternal
+              href="https://gardens.shrub.finance"
             >
-              Paper Gardens [Q1-Q2]
-            </Text>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"90"} />
+              Paper Gardens
+              <br /> [Q1-Q2]
+            </Link>{" "}
+            <Icon as={IoEllipsisVertical} boxSize={"70"} />
             <Text
               fontSize={{ base: "25px", md: "35px" }}
               maxW={{ base: "22rem", md: "40rem" }}
@@ -725,7 +624,8 @@ function Intro(props: RouteComponentProps) {
               )}
               bgClip="text"
             >
-              Options Main [Q3-Q4]
+              Options Main
+              <br /> [Q3-Q4]
             </Text>{" "}
           </Box>
           <Spacer />
@@ -740,7 +640,42 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
-      {/*section 6*/}
+      {/*partnerships*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
+          <Heading
+            fontSize={{ base: "30px", md: "50px" }}
+            letterSpacing={"tight"}
+            mb={16}
+            id="partners"
+          >
+            Official Partners
+          </Heading>
+          <Center>
+            <Flex direction="row" gap={8}>
+              <Link
+                href="https://polygonstudios.com/"
+                isExternal
+                cursor="pointer"
+              >
+                <PolygonStudiosIcon
+                  color={useColorModeValue("black", "white")}
+                  w={{ base: 300, md: 500 }}
+                  h={{ base: 100, md: 200 }}
+                />
+              </Link>
+            </Flex>
+          </Center>
+        </Box>
+      </Container>
+
+      {/*movement*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -749,7 +684,7 @@ function Intro(props: RouteComponentProps) {
         maxW={{ base: "container.sm", md: "1400px" }}
       >
         <Flex direction={{ base: "column", md: "row", lg: "row" }}>
-          <Box mt={{ base: "0", md: "0", lg: "40" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }} id="movement">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
@@ -770,15 +705,20 @@ function Intro(props: RouteComponentProps) {
                 movement
               </Text>
             </Heading>
+
             <Text textStyle={"description"}>
-              It takes a special sort of person to hold a Shrub. Shrubs
-              represent those who believe in the decentralized world and are
-              willing to put in the effort to make it a reality.
-            </Text>{" "}
+              Shrub holders are builders, innovators, and thinkers.
+            </Text>
             <Text textStyle={"description"}>
-              Shrub holders are dreamers, builders, innovators, thinkers, and
-              freedom-lovers. They think outside the box and bring positive
-              change to the world.
+              Shrubs represent those visionaries who believe in the
+              decentralized world and bring innovative technology to the space.
+            </Text>
+            <Text textStyle={"description"}>
+              If you have not already done so, become a{" "}
+              <Link href="#faqs" cursor="pointer" textDecoration="underline">
+                Shrub holder
+              </Link>{" "}
+              and join us!
             </Text>
           </Box>
           <Box mt={{ base: 0, md: 64 }}>
@@ -838,43 +778,67 @@ function Intro(props: RouteComponentProps) {
         </Box>
       </Container>
 
-      {/*partnerships*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
-          <Heading
-            fontSize={{ base: "30px", md: "50px" }}
-            letterSpacing={"tight"}
-            mb={16}
-          >
-            Official Partners
-          </Heading>
-          <Center>
-            <Flex direction="row" gap={8}>
-              <Link
-                href="https://polygonstudios.com/"
-                isExternal
-                cursor="pointer"
-              >
-                <PolygonStudiosIcon
-                  color={useColorModeValue("black", "white")}
-                  w={{ base: 300, md: 500 }}
-                  h={{ base: 100, md: 200 }}
-                />
-              </Link>
-            </Flex>
-          </Center>
-        </Box>
-      </Container>
+      {/*/!*cta*!/*/}
+      {/*<Container*/}
+      {/*  mt={{ base: 0, md: 50 }}*/}
+      {/*  p={5}*/}
+      {/*  flex="1"*/}
+      {/*  borderRadius="2xl"*/}
+      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
+      {/*>*/}
+      {/*  <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>*/}
+      {/*    <Heading*/}
+      {/*      fontSize={{ base: "30px", md: "40px" }}*/}
+      {/*      letterSpacing={"tight"}*/}
+      {/*      mb={16}*/}
+      {/*    >*/}
+      {/*      Get Started*/}
+      {/*    </Heading>*/}
+      {/*    <Center>*/}
+      {/*      <Flex*/}
+      {/*        direction={{*/}
+      {/*          base: "column",*/}
+      {/*          md: "column",*/}
+      {/*          lg: "column",*/}
+      {/*          xl: "row",*/}
+      {/*        }}*/}
+      {/*        gap={8}*/}
+      {/*      >*/}
+      {/*        <Box>*/}
+      {/*          <Link*/}
+      {/*            href="https://opensea.io/collection/shrub-paper-gardens"*/}
+      {/*            isExternal*/}
+      {/*            cursor="pointer"*/}
+      {/*            rounded="3xl"*/}
+      {/*            size="sm"*/}
+      {/*            px="6"*/}
+      {/*            fontSize="25px"*/}
+      {/*            fontWeight="semibold"*/}
+      {/*            py="5"*/}
+      {/*            _hover={{ transform: "translateY(-2px)" }}*/}
+      {/*            background="gold.100"*/}
+      {/*            color={"black"}*/}
+      {/*          >*/}
+      {/*            Get a Seed*/}
+      {/*            <ExternalLinkIcon*/}
+      {/*              mx="2px"*/}
+      {/*              display={{ base: "none", md: "inline" }}*/}
+      {/*            />*/}
+      {/*          </Link>*/}
+      {/*          <Center>*/}
+      {/*            <Text mt={8} maxW={"19rem"}>*/}
+      {/*              To grow a Shrub you need a seed*/}
+      {/*            </Text>*/}
+      {/*          </Center>*/}
+      {/*        </Box>*/}
+      {/*      </Flex>*/}
+      {/*    </Center>*/}
+      {/*  </Box>*/}
+      {/*</Container>*/}
 
-      {/*cta*/}
+      {/*ending*/}
       <Container
-        mt={{ base: 0, md: 50 }}
+        mt={{ base: 0, md: 0 }}
         p={5}
         flex="1"
         borderRadius="2xl"
@@ -887,64 +851,6 @@ function Intro(props: RouteComponentProps) {
             mb={16}
           >
             Get Started
-          </Heading>
-          <Center>
-            <Flex
-              direction={{
-                base: "column",
-                md: "column",
-                lg: "column",
-                xl: "row",
-              }}
-              gap={8}
-            >
-              <Box>
-                <Link
-                  href="https://opensea.io/collection/shrub-paper-gardens"
-                  isExternal
-                  cursor="pointer"
-                  rounded="3xl"
-                  size="sm"
-                  px="6"
-                  fontSize="25px"
-                  fontWeight="semibold"
-                  py="5"
-                  _hover={{ transform: "translateY(-2px)" }}
-                  background="gold.100"
-                  color={"black"}
-                >
-                  Get a Seed
-                  <ExternalLinkIcon
-                    mx="2px"
-                    display={{ base: "none", md: "inline" }}
-                  />
-                </Link>
-                <Center>
-                  <Text mt={8} maxW={"19rem"}>
-                    To grow a Shrub you need a seed
-                  </Text>
-                </Center>
-              </Box>
-            </Flex>
-          </Center>
-        </Box>
-      </Container>
-
-      {/*ending*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
-          <Heading
-            fontSize={{ base: "30px", md: "40px" }}
-            letterSpacing={"tight"}
-            mb={16}
-          >
-            Join Us
           </Heading>
           <Center>
             <Flex

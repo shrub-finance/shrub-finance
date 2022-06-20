@@ -48,6 +48,7 @@ import {
   SEED_ADOPTION_QUERY,
   SEED_OWNERSHIP_QUERY,
 } from "../constants/queries";
+import { Link as ReachLink } from "@reach/router";
 
 import AdoptionHistory from "../components/AdoptionHistory";
 
@@ -249,8 +250,8 @@ function AdoptionCenterView(props: RouteComponentProps) {
                   <Link
                     color="blue.500"
                     fontWeight={"bold"}
-                    isExternal
-                    href="https://opensea.io/collection/shrub-paper-gardens"
+                    to={"/opensea"}
+                    as={ReachLink}
                   >
                     Become a seed owner <ExternalLinkIcon />
                   </Link>

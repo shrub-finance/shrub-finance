@@ -808,7 +808,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     >
                       Redemption Date
                     </Text>
-                    <Text>Thursday, June 16</Text>
+                    <Text>Saturday, June 25</Text>
                   </Box>
                   <Box
                     fontSize={{ base: "18px", md: "20px" }}
@@ -821,7 +821,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     >
                       Redemption End Date
                     </Text>
-                    <Text>Thursday, June 23</Text>
+                    <Text>Sunday, July 3</Text>
                   </Box>
                   <Box
                     fontSize={{ base: "18px", md: "20px" }}
@@ -848,7 +848,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       Time until redemption
                     </Text>
                     <CountdownTimer
-                      targetDate={new Date("2022-06-17T22:00:00Z")}
+                      targetDate={new Date("2022-06-26T14:00:00Z")}
                     />
                   </Box>
                 </Box>
