@@ -119,6 +119,21 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
       controller: account1.address,
       addresses: [account3.address, account4.address]
     })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
 
     // Mint Seeds
     await env.run('mintSeed', {
@@ -170,6 +185,18 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     await WETH.transfer(account3.address, ethers.constants.WeiPerEther);
     await WETH.transfer(account4.address, ethers.constants.WeiPerEther);
 
+  })
+
+task("getPaperPotUri", "get the uri from a paperPot token")
+  .addParam("tokenId", "tokenId to get the uri for")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { tokenId } = taskArgs;
+    const provider = ethers.provider;
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, provider);
+    const uri = await paperPot.uri(tokenId);
+    console.log(uri);
   })
 
 task("setAllSadSeeds", "set all the sad seeds for the Paper Pot Contract")

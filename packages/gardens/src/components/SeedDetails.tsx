@@ -651,8 +651,6 @@ function SeedDetails({
                       <Box textStyle={"reading"}>
                         <Text>Harvesting will result in</Text>
                         <Text>your potted plant</Text>
-                        <Text>and</Text>
-                        <Text>1 Empty Pot</Text>
                         <Text>converting into a fully-grown Shrub.</Text>
                         <Text>This is irrevesible.</Text>
                       </Box>
@@ -660,7 +658,7 @@ function SeedDetails({
                   ) : (
                     <></>
                   )}
-                  // The action button
+                  {/*The action button*/}
                   <Center>
                     <Button
                       onClick={

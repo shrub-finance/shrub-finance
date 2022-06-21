@@ -11,7 +11,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //   _imageBaseUri = imageBaseUri_;
   // }
 
-  const imageBaseUri = 'https://imageBaseUri';
+  // const imageBaseUri = 'https://imageBaseUri';
+  const imageBaseUri = 'ipfs://QmXTQ7Wgk5GQ8guUYverajH4AU2CXqXSK2uFmTmEFzMjYo/'
 
   await deploy("PaperPotMetadata", {
     from: deployer,

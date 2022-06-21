@@ -89,8 +89,8 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     constructor(
         address[] memory seedContractAddresses,
         uint[] memory sadSeeds,
-        string[] memory resourceUris_,
-        string[] memory shrubDefaultUris_,
+        string[3] memory resourceUris_,
+        string[4] memory shrubDefaultUris_,
         address metadataGenerator_
     ) ERC1155("") {
         require(seedContractAddresses.length > 0, "Must be at least 1 seedContractAddress");
@@ -101,6 +101,7 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         // Set the uri for pot, fertilizer, water
         for (uint i = 0; i < resourceUris_.length; i++) {
             _setURI(i + 1, resourceUris_[i]);
+            emit URI(resourceUris_[i], i+1);
         }
         for (uint8 i = 0; i < shrubDefaultUris_.length; i++) {
             _shrubDefaultUris[NftClass(i)] = shrubDefaultUris_[i];
@@ -127,12 +128,12 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         require(msg.value == 1 ether, "PaperPot: Incorrect payment amount");
         // Ensure that the seed is sad
         require(_sadSeeds[_seedTokenId] == true, "PaperPot: Seed already happy");
+        // Update the sad metadata for _seedTokenId
+        _sadSeeds[_seedTokenId] = false;
         // run plant
         uint pottedPlantTokenId = plant(_seedContractAddress, _seedTokenId);
         // emit happy event
         emit Happy(pottedPlantTokenId);
-        // Update the sad metadata for _seedTokenId
-        _sadSeeds[_seedTokenId] = false;
     }
 
     function _water(uint[] memory _tokenIds, bool fertilizer) internal {
@@ -158,19 +159,23 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
             // TODO: JUST FOR TESTING UNCOMMENT THIS
 //            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
             require(balanceOf(_msgSender(), _tokenIds[i]) > 0, "PaperPot: Potted plant not owned by sender");
+            require(_growthState[_tokenIds[i]].growthBps < 10000, "PaperPot: Potted plant is already fully grown");
             waterNonce++;
 //            console.log("here2");
             uint16 relativeGrowth = fertilizer ? (
                 _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-                    getRandomInt(113, 150, waterNonce) :  // Case: Sad Potted Plant with Fertilizer (150-263)
-                    getRandomInt(225, 300, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
+                    getRandomInt(113, 1500, waterNonce) :  // Case: Sad Potted Plant with Fertilizer (150-263)
+                // TODO change 3000 to 300 - testing only
+                    getRandomInt(225, 3000, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
             ) : (
                 _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-                    getRandomInt(75, 100, waterNonce) :   // Case: Sad Potted Plant (100-175)
-                    getRandomInt(150, 200, waterNonce)    // Case: Happy Potted Plant (200-350)
+                    getRandomInt(75, 1000, waterNonce) :   // Case: Sad Potted Plant (100-175)
+                // TODO change 2000 to 200 - testing only
+                    getRandomInt(150, 2000, waterNonce)    // Case: Happy Potted Plant (200-350)
             );
 //            console.log("here3");
             _growPlant(_tokenIds[i], relativeGrowth);
+            emit URI(uri(_tokenIds[i]),_tokenIds[i]);
         }
     }
 
@@ -199,6 +204,7 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         // mint the shrub to the caller
         _mint(_msgSender(), shrubTokenId, 1, new bytes(0));
         emit Harvest(_tokenId, shrubTokenId, _msgSender());
+        emit URI(uri(shrubTokenId), shrubTokenId);
     }
 
     function receiveWaterFromFaucet(address _receiver) external {}
@@ -209,7 +215,7 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         NFTTicketAddress = NFTTicketAddress_;
     }
 
-function addSeedContractAddress(address _seedContractAddress) external adminOnly {
+    function addSeedContractAddress(address _seedContractAddress) external adminOnly {
         // TODO: Add a sanity check that this address has an ERC721 contract
         require(_seedContractAddresses[_seedContractAddress] == false, "address already on seedContractAddresses");
         require(ERC165Checker.supportsInterface(_seedContractAddress, type(IERC721).interfaceId), "not a valid ERC-721 implementation");
@@ -266,6 +272,7 @@ function addSeedContractAddress(address _seedContractAddress) external adminOnly
 
     function setURI(uint tokenId_, string calldata tokenURI_) external adminOnly {
         _setURI(tokenId_, tokenURI_);
+        emit URI(tokenURI_, tokenId_);
     }
 
     function setShrubSeedUris(uint[] calldata seedTokenIds_, string[] calldata uris_) external adminOnly {
@@ -279,6 +286,10 @@ function addSeedContractAddress(address _seedContractAddress) external adminOnly
     function setMetadataGenerator(address metadataGenerator_) external adminOnly {
         require(ERC165Checker.supportsInterface(metadataGenerator_, type(IPaperPotMetadata).interfaceId), "PaperPot: not a valid IPaperPotMetadata implementation");
         _metadataGenerator = IPaperPotMetadata(metadataGenerator_);
+    }
+
+    function adminEmitUri(uint tokenId_) external adminOnly {
+        emit URI(uri(tokenId_), tokenId_);
     }
 
     // External View
@@ -348,6 +359,7 @@ function addSeedContractAddress(address _seedContractAddress) external adminOnly
             lastWatering: 1             // Initialized to 1 to differentiate from uninitialized
         });
         emit Plant(tokenId, _seedTokenId, _msgSender());
+        emit URI(uri(tokenId), tokenId);
         return tokenId;
     }
 
@@ -355,9 +367,10 @@ function addSeedContractAddress(address _seedContractAddress) external adminOnly
         require(exists(_tokenId), "PaperPot: URI query for nonexistent token");
 //        console.log(_tokenId);
         // use the baseUri for the pots, water, and fertilizer
-        if (_tokenId > 0 && _tokenId < 4) {
-            return super.uri(_tokenId);
-        }
+        // don't think that we need this, it is covered in the next section as long as it is defined (which it will be)
+//        if (_tokenId > 0 && _tokenId < 4) {
+//            return super.uri(_tokenId);
+//        }
 //        console.log(POTTED_PLANT_BASE_TOKENID);
 //        console.log(3 * 10 ** 6);
         string memory storageUri = super.uri(_tokenId);
@@ -378,6 +391,13 @@ function addSeedContractAddress(address _seedContractAddress) external adminOnly
         }
         NftClass class = getClassFromSeedId(_shrubBaseSeed[_tokenId]);
         return _shrubDefaultUris[class];
+    }
+
+    function adminSetDefaultUris(string[4] memory shrubDefaultUris_) public adminOnly {
+        // must be 4 uris - wonder, passion, hope, power
+        for (uint8 i = 0; i < shrubDefaultUris_.length; i++) {
+            _shrubDefaultUris[NftClass(i)] = shrubDefaultUris_[i];
+        }
     }
 
     // Internal Functions
