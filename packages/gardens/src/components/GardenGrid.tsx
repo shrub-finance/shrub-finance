@@ -17,7 +17,6 @@ function GardenGrid({
     <Box
       as="button"
       key={id}
-      // shadow={btnShadow}
       shadow={"dark-lg"}
       borderRadius="md"
       minW={20}
@@ -36,9 +35,17 @@ function GardenGrid({
     >
       <VStack>
         <Box>
-          <Image w={20} h={20} src={imgCallback()} alt="Seed" />
+          <Image
+            w={id === "fertilizer" ? 10 : id === "water" ? 16 : 20}
+            h={20}
+            src={imgCallback()}
+          />
         </Box>
-        <Text fontWeight={600} color="gray.500" fontSize="sm">
+        <Text
+          fontWeight={600}
+          color="gray.500"
+          fontSize={{ base: "sm", md: "1.5vw", lg: ".9vw" }}
+        >
           {name}
         </Text>
       </VStack>

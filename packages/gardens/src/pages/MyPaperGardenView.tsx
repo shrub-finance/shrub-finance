@@ -131,7 +131,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   const { Zero } = ethers.constants;
 
-  // FROM NFTTICKET VIEW
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
   const [activeHash, setActiveHash] = useState<string>();
@@ -153,14 +152,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   const bgColor = useColorModeValue("gray.100", "blackAlpha.400");
   const format = (val: string) => val;
-  // const [
-  //   getMySeedDataQuery,
-  //   { loading: mySeedDataLoading, error: mySeedDataError, data: mySeedData },
-  // ] = useLazyQuery(MY_GARDENS_QUERY, {
-  //   variables: {
-  //     user: account && account.toLowerCase(),
-  //   },
-  // });
 
   const {
     loading: mySeedDataLoading,
@@ -469,8 +460,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
       for (const item of mySeeds) {
         const { id, dna, type, name, emotion } = item;
-        // let type: 'wonder' | 'passion' | 'hope' | 'power'
-        // type = uppercaseType.toLowerCase()
         const seedNumber = name.split("#")[1];
         console.log(type, emotion);
         const imageUrl = IMAGE_ASSETS.seeds[type][emotion];
@@ -1063,16 +1052,15 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 templateColumns={
                   mySeedDataLoading || mySeedDataError
                     ? "repeat(1, 1fr)"
-                    : { base: "repeat(4, 1fr)", md: "repeat(5, 1fr)" }
+                    : { base: "repeat(4, 1fr)", md: "repeat(4, 1fr)" }
                 }
                 gap={2}
-                minH={"620px"}
                 overflow="auto"
-                maxH="620px"
                 shadow="2xl"
                 layerStyle={"shrubBg"}
                 borderRadius="2xl"
                 p={4}
+                mt={9}
               >
                 {mySeedDataLoading || mySeedDataError ? (
                   <Center p={10}>
