@@ -712,253 +712,258 @@ function MyPaperGardenView(props: RouteComponentProps) {
           </VStack>
         </Center>
         {/*NFT Ticket view*/}
-        <Container
-          mt={isMobile ? 30 : 30}
-          p={5}
-          flex="1"
-          borderRadius="2xl"
-          maxW="container.lg"
-        >
-          <Center>
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              gap={{ base: "10", md: "20" }}
-            >
-              {/*Ticket info*/}
 
-              <Center>
-                <Box
-                  bgColor={useColorModeValue("gray.200", "gray.700")}
-                  p={10}
-                  rounded="3xl"
-                >
-                  <Box
-                    fontSize={{ base: "18px", md: "20px" }}
-                    mt={4}
-                    fontWeight="semibold"
-                  >
-                    <Text
-                      fontSize="sm"
-                      color={useColorModeValue("gray.600", "gray.400")}
-                    >
-                      Redemption Date
-                    </Text>
-                    <Text>Saturday, June 25</Text>
-                  </Box>
-                  <Box
-                    fontSize={{ base: "18px", md: "20px" }}
-                    mt={8}
-                    fontWeight="semibold"
-                  >
-                    <Text
-                      fontSize="sm"
-                      color={useColorModeValue("gray.600", "gray.400")}
-                    >
-                      Redemption End Date
-                    </Text>
-                    <Text>Sunday, July 3</Text>
-                  </Box>
-                  <Box
-                    fontSize={{ base: "18px", md: "20px" }}
-                    mt={8}
-                    fontWeight="semibold"
-                  >
-                    <Text
-                      fontSize="sm"
-                      color={useColorModeValue("gray.600", "gray.400")}
-                    >
-                      Redemption Price
-                    </Text>
-                    <Text>0.015 WETH</Text>
-                  </Box>
-                  <Box
-                    fontSize={{ base: "18px", md: "20px" }}
-                    mt={8}
-                    fontWeight="semibold"
-                  >
-                    <Text
-                      fontSize="sm"
-                      color={useColorModeValue("gray.600", "gray.400")}
-                    >
-                      Time until redemption
-                    </Text>
-                    <CountdownTimer
-                      targetDate={new Date("2022-06-26T14:00:00Z")}
-                    />
-                  </Box>
-                </Box>
-              </Center>
+        {accountTicketCount.gt(0) && (
+          <Container
+            mt={isMobile ? 30 : 30}
+            p={5}
+            flex="1"
+            borderRadius="2xl"
+            maxW="container.lg"
+          >
+            <Center>
+              <Flex
+                direction={{ base: "column", md: "row" }}
+                gap={{ base: "10", md: "20" }}
+              >
+                {/*Ticket info*/}
 
-              <Spacer />
-              {/*Redemption logic*/}
-              <Center>
-                <Box>
-                  <VStack>
-                    <Heading>
-                      You have {accountTicketCount.toString()} Tickets
-                    </Heading>
-                    {/*Quantity*/}
-                    <Box>
-                      <Center>
-                        <FormLabel
-                          fontSize={"sm"}
-                          color={"gray.500"}
-                          fontWeight={"medium"}
-                        >
-                          Quantity
-                        </FormLabel>
-                      </Center>
-                      <NumberInput
-                        isInvalid={invalidEntry}
-                        min={0}
-                        max={10}
-                        precision={0}
-                        onChange={(valueString) => {
-                          const [integerPart, decimalPart] =
-                            valueString.split(".");
-                          if (valueString.includes(".")) {
-                            setRedeemAmount(integerPart || "0");
-                            return;
-                          }
-                          if (integerPart && integerPart.length > 2) {
-                            return;
-                          }
-                          if (valueString === "00") {
-                            return;
-                          }
-                          if (isNaN(Number(valueString))) {
-                            return;
-                          }
-                          if (
-                            Number(valueString) !==
-                            Math.round(Number(valueString) * 1e6) / 1e6
-                          ) {
-                            setRedeemAmount(Number(valueString).toFixed(6));
-                            return;
-                          }
-                          setRedeemAmount(valueString);
-                        }}
-                        value={format(redeemAmount)}
-                        size="lg"
+                <Center>
+                  <Box
+                    bgColor={useColorModeValue("gray.200", "gray.700")}
+                    p={10}
+                    rounded="3xl"
+                  >
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={4}
+                      fontWeight="semibold"
+                    >
+                      <Text
+                        fontSize="sm"
+                        color={useColorModeValue("gray.600", "gray.400")}
                       >
-                        <NumberInputField
-                          h="6rem"
+                        Redemption Date
+                      </Text>
+                      <Text>Saturday, June 25</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text
+                        fontSize="sm"
+                        color={useColorModeValue("gray.600", "gray.400")}
+                      >
+                        Redemption End Date
+                      </Text>
+                      <Text>Sunday, July 3</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text
+                        fontSize="sm"
+                        color={useColorModeValue("gray.600", "gray.400")}
+                      >
+                        Redemption Price
+                      </Text>
+                      <Text>0.015 WETH</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text
+                        fontSize="sm"
+                        color={useColorModeValue("gray.600", "gray.400")}
+                      >
+                        Time until redemption
+                      </Text>
+                      <CountdownTimer
+                        targetDate={new Date("2022-06-26T14:00:00Z")}
+                      />
+                    </Box>
+                  </Box>
+                </Center>
+
+                <Spacer />
+                {/*Redemption logic*/}
+                <Center>
+                  <Box>
+                    <VStack>
+                      <Heading>
+                        You have {accountTicketCount.toString()} Tickets
+                      </Heading>
+                      {/*Quantity*/}
+                      <Box>
+                        <Center>
+                          <FormLabel
+                            fontSize={"sm"}
+                            color={"gray.500"}
+                            fontWeight={"medium"}
+                          >
+                            Quantity
+                          </FormLabel>
+                        </Center>
+                        <NumberInput
+                          isInvalid={invalidEntry}
+                          min={0}
+                          max={10}
+                          precision={0}
+                          onChange={(valueString) => {
+                            const [integerPart, decimalPart] =
+                              valueString.split(".");
+                            if (valueString.includes(".")) {
+                              setRedeemAmount(integerPart || "0");
+                              return;
+                            }
+                            if (integerPart && integerPart.length > 2) {
+                              return;
+                            }
+                            if (valueString === "00") {
+                              return;
+                            }
+                            if (isNaN(Number(valueString))) {
+                              return;
+                            }
+                            if (
+                              Number(valueString) !==
+                              Math.round(Number(valueString) * 1e6) / 1e6
+                            ) {
+                              setRedeemAmount(Number(valueString).toFixed(6));
+                              return;
+                            }
+                            setRedeemAmount(valueString);
+                          }}
+                          value={format(redeemAmount)}
+                          size="lg"
+                        >
+                          <NumberInputField
+                            h="6rem"
+                            borderRadius="3xl"
+                            shadow="sm"
+                            fontWeight="medium"
+                            fontSize="2xl"
+                          />
+                          <InputRightElement
+                            pointerEvents="none"
+                            p={14}
+                            children={
+                              <FormLabel
+                                htmlFor="amount"
+                                color="gray.500"
+                                fontWeight="medium"
+                                minW={"100"}
+                              >
+                                tickets
+                              </FormLabel>
+                            }
+                          />
+                        </NumberInput>
+                      </Box>
+                      {/*Redeem Price*/}
+                      <Box>
+                        <Center>
+                          <FormLabel
+                            fontSize={"sm"}
+                            color={"gray.500"}
+                            fontWeight={"medium"}
+                          >
+                            Total
+                          </FormLabel>
+                        </Center>
+                        <Box
+                          bg={bgColor}
                           borderRadius="3xl"
-                          shadow="sm"
                           fontWeight="medium"
                           fontSize="2xl"
-                        />
-                        <InputRightElement
-                          pointerEvents="none"
-                          p={14}
-                          children={
-                            <FormLabel
-                              htmlFor="amount"
-                              color="gray.500"
-                              fontWeight="medium"
-                              minW={"100"}
-                            >
-                              tickets
-                            </FormLabel>
-                          }
-                        />
-                      </NumberInput>
-                    </Box>
-                    {/*Redeem Price*/}
-                    <Box>
-                      <Center>
-                        <FormLabel
-                          fontSize={"sm"}
-                          color={"gray.500"}
-                          fontWeight={"medium"}
+                          p={"1.813rem"}
                         >
-                          Total
-                        </FormLabel>
-                      </Center>
-                      <Box
-                        bg={bgColor}
-                        borderRadius="3xl"
-                        fontWeight="medium"
-                        fontSize="2xl"
-                        p={"1.813rem"}
-                      >
-                        {invalidEntry
-                          ? "?"
-                          : format(
-                              redeemPrice
-                                ? ethers.utils.formatEther(
-                                    redeemPrice.mul(Number(redeemAmount))
-                                  )
-                                : "-"
-                            )}{" "}
-                        WETH
+                          {invalidEntry
+                            ? "?"
+                            : format(
+                                redeemPrice
+                                  ? ethers.utils.formatEther(
+                                      redeemPrice.mul(Number(redeemAmount))
+                                    )
+                                  : "-"
+                              )}{" "}
+                          WETH
+                        </Box>
                       </Box>
-                    </Box>
-                    {/*Approve/Redeem ticket button*/}
-                    <Tooltip
-                      hasArrow
-                      label={
-                        Number(redeemAmount) <= 0
-                          ? "Nothing to redeem. Please enter the number of tickets you want to redeem"
-                          : noFunds
-                          ? "You do not have enough funds to redeem the tickets"
-                          : accountTicketCount.lte(Zero)
-                          ? "Ticket you are trying to redeem exceeds the tickets you have available"
-                          : null
-                      }
-                      shouldWrapChildren
-                      mt="3"
-                    >
-                      <Button
-                        onClick={noAllowance ? handleApprove : handleRedeemNFT}
-                        colorScheme={tradingBtnColor}
-                        variant="solid"
-                        rounded="2xl"
-                        isLoading={isLoading}
-                        isDisabled={
-                          Number(redeemAmount) <= 0 ||
-                          noFunds ||
-                          accountTicketCount.lte(Zero)
-                        }
-                        size="lg"
-                        px={["50", "70", "90", "90"]}
-                        fontSize="25px"
-                        py={10}
-                        borderRadius="full"
-                        _hover={{ transform: "translateY(-2px)" }}
-                        bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                        loadingText={
-                          noAllowance
-                            ? "Approving..."
-                            : !localError
-                            ? "Redeeming..."
-                            : "Redeem Ticket"
-                        }
-                      >
-                        {
-                          // If no account then Wrong Network and Connect Wallet
-                          !account
-                            ? !!web3Error &&
-                              getErrorMessage(web3Error).title ===
-                                "Wrong Network"
-                              ? "Connect to Polygon"
-                              : "Connect Wallet"
-                            : tooLarge
-                            ? "Exceeds available"
+                      {/*Approve/Redeem ticket button*/}
+                      <Tooltip
+                        hasArrow
+                        label={
+                          Number(redeemAmount) <= 0
+                            ? "Nothing to redeem. Please enter the number of tickets you want to redeem"
                             : noFunds
-                            ? "Insufficient funds"
-                            : noAllowance
-                            ? "Approve WETH"
-                            : "Redeem Ticket"
+                            ? "You do not have enough funds to redeem the tickets"
+                            : accountTicketCount.lte(Zero)
+                            ? "Ticket you are trying to redeem exceeds the tickets you have available"
+                            : null
                         }
-                      </Button>
-                    </Tooltip>
-                  </VStack>
-                </Box>
-              </Center>
-            </Flex>
-          </Center>
-        </Container>
+                        shouldWrapChildren
+                        mt="3"
+                      >
+                        <Button
+                          onClick={
+                            noAllowance ? handleApprove : handleRedeemNFT
+                          }
+                          colorScheme={tradingBtnColor}
+                          variant="solid"
+                          rounded="2xl"
+                          isLoading={isLoading}
+                          isDisabled={
+                            Number(redeemAmount) <= 0 ||
+                            noFunds ||
+                            accountTicketCount.lte(Zero)
+                          }
+                          size="lg"
+                          px={["50", "70", "90", "90"]}
+                          fontSize="25px"
+                          py={10}
+                          borderRadius="full"
+                          _hover={{ transform: "translateY(-2px)" }}
+                          bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                          loadingText={
+                            noAllowance
+                              ? "Approving..."
+                              : !localError
+                              ? "Redeeming..."
+                              : "Redeem Ticket"
+                          }
+                        >
+                          {
+                            // If no account then Wrong Network and Connect Wallet
+                            !account
+                              ? !!web3Error &&
+                                getErrorMessage(web3Error).title ===
+                                  "Wrong Network"
+                                ? "Connect to Polygon"
+                                : "Connect Wallet"
+                              : tooLarge
+                              ? "Exceeds available"
+                              : noFunds
+                              ? "Insufficient funds"
+                              : noAllowance
+                              ? "Approve WETH"
+                              : "Redeem Ticket"
+                          }
+                        </Button>
+                      </Tooltip>
+                    </VStack>
+                  </Box>
+                </Center>
+              </Flex>
+            </Center>
+          </Container>
+        )}
 
         {/*Main Grid view*/}
         {!isInitialized ? (
@@ -966,44 +971,43 @@ function MyPaperGardenView(props: RouteComponentProps) {
             <Spinner size="xl" />
           </Center>
         ) : (!holdsSeed && !tickets && !holdsFungibleAsset) || !account ? (
-          <></>
-        ) : // <Grid templateColumns="repeat(1, 1fr)">
-        //   <Center>
-        //     <SeedBasketImg boxSize={220} />
-        //   </Center>
-        //   <Center>
-        //     <Box maxW="30rem" mb={8} fontSize="20px" textStyle={"reading"}>
-        //       <Text pt="8">
-        //         {!account
-        //           ? "Please connect your wallet"
-        //           : !holdsSeed
-        //           ? "Your garden has no seeds"
-        //           : ""}
-        //       </Text>
-        //     </Box>
-        //   </Center>
-        //   <Center>
-        //     {!holdsSeed && !tickets && account && (
-        //       <Link
-        //         href="https://opensea.io/collection/shrub-paper-gardens"
-        //         isExternal
-        //         cursor="pointer"
-        //         rounded="3xl"
-        //         size="sm"
-        //         px="6"
-        //         fontSize="25px"
-        //         fontWeight="semibold"
-        //         py="5"
-        //         _hover={{ transform: "translateY(-2px)" }}
-        //         bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
-        //         color={useColorModeValue("white", "black")}
-        //       >
-        //         Get a Seed <ExternalLinkIcon mx="2px" />
-        //       </Link>
-        //     )}
-        //   </Center>
-        // </Grid>
-        holdsSeed || holdsFungibleAsset ? (
+          <Grid templateColumns="repeat(1, 1fr)">
+            <Center>
+              <SeedBasketImg boxSize={220} />
+            </Center>
+            <Center>
+              <Box maxW="30rem" mb={8} fontSize="20px" textStyle={"reading"}>
+                <Text pt="8">
+                  {!account
+                    ? "Please connect your wallet"
+                    : !holdsSeed
+                    ? "Your garden has no seeds"
+                    : ""}
+                </Text>
+              </Box>
+            </Center>
+            <Center>
+              {!holdsSeed && !tickets && account && (
+                <Link
+                  href="https://opensea.io/collection/shrub-paper-gardens"
+                  isExternal
+                  cursor="pointer"
+                  rounded="3xl"
+                  size="sm"
+                  px="6"
+                  fontSize="25px"
+                  fontWeight="semibold"
+                  py="5"
+                  _hover={{ transform: "translateY(-2px)" }}
+                  bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
+                  color={useColorModeValue("white", "black")}
+                >
+                  Get a Seed <ExternalLinkIcon mx="2px" />
+                </Link>
+              )}
+            </Center>
+          </Grid>
+        ) : holdsSeed || holdsFungibleAsset ? (
           // Only show the grid view if the user has items that will show in the grid
           <Grid
             templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
