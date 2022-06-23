@@ -365,7 +365,7 @@ function SeedDetails({
             {/*Buttons*/}
             <Stack mt={8} direction={"row"} spacing={4}>
               {/*Water Button*/}
-              {selectedItem.category === "pottedPlant" && (
+              {selectedItem.category === "pottedPlant" && stillGrowing && (
                 <Button
                   onClick={() => {
                     setModalState("water");
@@ -422,26 +422,31 @@ function SeedDetails({
             </Stack>
             {selectedItem.category === "pottedPlant" && (
               <Stack mt={8} direction={"row"} spacing={4}>
-                <Button
-                  onClick={() => {
-                    setModalState("fertilize");
-                    openModal();
-                  }}
-                  flex={1}
-                  fontSize={"sm"}
-                  rounded={"full"}
-                  bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
-                  color={"black"}
-                  boxShadow={"xl"}
-                  _hover={{
-                    bg: "shrub.200",
-                  }}
-                  _focus={{
-                    bg: "shrub.100",
-                  }}
-                >
-                  Fertilize
-                </Button>
+                {/*fertilize button*/}
+                {stillGrowing && (
+                  <Button
+                    onClick={() => {
+                      setModalState("fertilize");
+                      openModal();
+                    }}
+                    flex={1}
+                    fontSize={"sm"}
+                    rounded={"full"}
+                    bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                  >
+                    Fertilize
+                  </Button>
+                )}
+
+                {/*harvest button*/}
                 <Tooltip
                   hasArrow
                   label="Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
@@ -456,7 +461,7 @@ function SeedDetails({
                     as={motion.div}
                     animation={!stillGrowing ? animation : undefined}
                     flex={1}
-                    w="202px"
+                    w={stillGrowing ? "202px" : "420px"}
                     fontSize={"sm"}
                     rounded={"full"}
                     bgGradient={
