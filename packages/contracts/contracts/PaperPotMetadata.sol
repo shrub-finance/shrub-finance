@@ -334,7 +334,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
                 continue;
             }
 
-            bool insertComma = i < (attributes.length - 1) || (i == 4 && bytes(attributes[5].length == 0));
+            bool insertComma = i < (attributes.length - 1) && !(i == 4 && bytes(attributes[5].value).length == 0);
 
             byteString = abi.encodePacked(
                 byteString,
