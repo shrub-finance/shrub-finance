@@ -542,19 +542,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }, [mySeedData, pendingTxsState]);
 
-  // useEffect(() => {
-  //   async function main() {
-  //     if (!account) {
-  //       return;
-  //     }
-  //     getMySeedDataQuery();
-  //   }
-  //   main().catch((err) => {
-  //     handleErrorMessages({ err });
-  //     console.error(err);
-  //   });
-  // }, [account]);
-
   // Fun Functions
   async function handleApprove() {
     const description = "Approving WETH";

@@ -7,6 +7,7 @@ import {
   Center,
   Heading,
   Image,
+  keyframes,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -73,10 +74,25 @@ function SeedDetails({
   const [localError, setLocalError] = useState("");
   const [approving, setApproving] = React.useState(false);
   const [noPot, setNoPot] = React.useState(false);
+  const [stillGrowing, setStillGrowing] = React.useState(true);
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
   const [activeHash, setActiveHash] = useState<string>();
+
+  const animationKeyframes = keyframes`
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+`;
+
+  const animation = `${animationKeyframes} 4s ease-out infinite`;
 
   const {
     active,
@@ -91,14 +107,19 @@ function SeedDetails({
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
 
-  //Disable action if no pot
+  // Disable action if no pot
   useEffect(() => {
-    console.log("useEffect - potted plant");
     if (!emptyPot) {
       setNoPot(true);
     }
   }, [emptyPot]);
 
+  // Disable action if not ready for harvest
+  useEffect(() => {
+    if (selectedItem.growth === 10000) {
+      setStillGrowing(false);
+    }
+  }, [selectedItem.growth]);
   // Move errors to the top
   useEffect(() => {
     console.log("useEffect - error to top");
@@ -353,8 +374,14 @@ function SeedDetails({
                   flex={1}
                   fontSize={"sm"}
                   rounded={"full"}
+                  bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
+                  color={"black"}
+                  boxShadow={"xl"}
+                  _hover={{
+                    bg: "shrub.200",
+                  }}
                   _focus={{
-                    bg: "gray.200",
+                    bg: "shrub.100",
                   }}
                 >
                   Water
@@ -403,26 +430,54 @@ function SeedDetails({
                   flex={1}
                   fontSize={"sm"}
                   rounded={"full"}
+                  bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                  color={"black"}
+                  boxShadow={"xl"}
+                  _hover={{
+                    bg: "shrub.200",
+                  }}
                   _focus={{
-                    bg: "gray.200",
+                    bg: "shrub.100",
                   }}
                 >
                   Fertilize
                 </Button>
-                <Button
-                  onClick={() => {
-                    setModalState("harvest");
-                    openModal();
-                  }}
-                  flex={1}
-                  fontSize={"sm"}
-                  rounded={"full"}
-                  _focus={{
-                    bg: "gray.200",
-                  }}
+                <Tooltip
+                  hasArrow
+                  label="Shrub is still growing. Not ready to harvest!"
+                  shouldWrapChildren
+                  mt="3"
                 >
-                  Harvest
-                </Button>
+                  <Button
+                    onClick={() => {
+                      setModalState("harvest");
+                      openModal();
+                    }}
+                    as={motion.div}
+                    animation={!stillGrowing ? animation : undefined}
+                    flex={1}
+                    w="202px"
+                    fontSize={"sm"}
+                    rounded={"full"}
+                    bgGradient={
+                      !stillGrowing
+                        ? "linear(to-r, #49f4ff, #fff, #8fff6e 50%, #3fe5ff)"
+                        : undefined
+                    }
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                    backgroundSize="400% 400%"
+                    isDisabled={stillGrowing}
+                  >
+                    Harvest
+                  </Button>
+                </Tooltip>
               </Stack>
             )}
           </Box>
