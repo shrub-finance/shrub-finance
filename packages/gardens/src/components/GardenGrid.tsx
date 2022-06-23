@@ -44,7 +44,7 @@ function GardenGrid({
         <Text
           fontWeight={600}
           color="gray.500"
-          fontSize={{ base: "sm", md: "1.5vw", lg: ".9vw" }}
+          fontSize={{ base: "sm", md: "1.5vw", lg: ".7vw" }}
         >
           {name}
         </Text>
