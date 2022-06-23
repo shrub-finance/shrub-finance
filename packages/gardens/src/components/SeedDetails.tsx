@@ -18,6 +18,7 @@ import {
   Spinner,
   Stack,
   Text,
+  Tooltip,
   useColorMode,
   useDisclosure,
   useToast,
@@ -54,13 +55,14 @@ function SeedDetails({
     mySeedDataLoading: any;
     mySeedDataError: any;
     selectedItem: any;
+    emptyPot: any;
   };
   handleErrorMessages: (errorOptions: {
     err?: Error | undefined;
     customMessage?: string | undefined;
   }) => void;
 }) {
-  const { mySeedDataLoading, mySeedDataError, selectedItem } = hooks;
+  const { mySeedDataLoading, mySeedDataError, selectedItem, emptyPot } = hooks;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
@@ -70,11 +72,11 @@ function SeedDetails({
   const [plantingApproved, setPlantingApproved] = useState(false);
   const [localError, setLocalError] = useState("");
   const [approving, setApproving] = React.useState(false);
+  const [noPot, setNoPot] = React.useState(false);
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
   const [activeHash, setActiveHash] = useState<string>();
-  // const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
   const {
     active,
@@ -88,6 +90,14 @@ function SeedDetails({
 
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
+
+  //Disable action if no pot
+  useEffect(() => {
+    console.log("useEffect - potted plant");
+    if (!emptyPot) {
+      setNoPot(true);
+    }
+  }, [emptyPot]);
 
   // Move errors to the top
   useEffect(() => {
@@ -288,23 +298,7 @@ function SeedDetails({
                   <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
                     {`You have: ${selectedItem.quantity}`}
                   </Badge>
-                  {/*<Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
-                  {/*  Emotion: {selectedItem.emotion}*/}
-                  {/*</Badge>*/}
                 </Stack>
-                {/*<Stack*/}
-                {/*  align={"center"}*/}
-                {/*  justify={"center"}*/}
-                {/*  direction={"row"}*/}
-                {/*  mt={2}*/}
-                {/*>*/}
-                {/*  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
-                {/*    Class: {selectedItem.type}*/}
-                {/*  </Badge>*/}
-                {/*  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
-                {/*    DNA: {selectedItem.dna}*/}
-                {/*  </Badge>*/}
-                {/*</Stack>*/}
               </>
             )}
             {["paperSeed", "pottedPlant"].includes(selectedItem.category) && (
@@ -368,26 +362,35 @@ function SeedDetails({
               )}
               {/*Plant Button*/}
               {selectedItem.category === "paperSeed" && (
-                <Button
-                  onClick={() => {
-                    setModalState("plant");
-                    openModal();
-                  }}
-                  flex={1}
-                  fontSize={"sm"}
-                  rounded={"full"}
-                  bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
-                  color={"black"}
-                  boxShadow={"xl"}
-                  _hover={{
-                    bg: "shrub.200",
-                  }}
-                  _focus={{
-                    bg: "shrub.100",
-                  }}
+                <Tooltip
+                  hasArrow
+                  label="Must have an empty pot to plant"
+                  shouldWrapChildren
+                  mt="3"
                 >
-                  Plant
-                </Button>
+                  <Button
+                    onClick={() => {
+                      setModalState("plant");
+                      openModal();
+                    }}
+                    w={"420px"}
+                    flex={1}
+                    fontSize={"sm"}
+                    rounded={"full"}
+                    bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                    isDisabled={noPot}
+                  >
+                    Plant
+                  </Button>
+                </Tooltip>
               )}
             </Stack>
             {selectedItem.category === "pottedPlant" && (

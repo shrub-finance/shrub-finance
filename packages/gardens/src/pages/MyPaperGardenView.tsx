@@ -120,6 +120,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const [selectedItem, setSelectedItem] = useState<itemType>(baseSelectedItem);
   const [redeemAmount, setRedeemAmount] = useState("1");
   const [polling, setPolling] = useState(false);
+  const [emptyPot, setEmptyPot] = useState(false);
 
   const {
     active,
@@ -336,6 +337,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
     if (holdsFungibleAsset) {
       // handle pots
       if (fungibleAssets.pots) {
+        setEmptyPot(true);
         const potItem: itemType = {
           tokenId: "1",
           name: "Empty Pot",
@@ -485,58 +487,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
             }}
             imgCallback={() => imageUrl}
           />
-          // <Box
-          //   as="button"
-          //   key={name}
-          //   // shadow={btnShadow}
-          //   shadow={"dark-lg"}
-          //   borderRadius="md"
-          //   minW={20}
-          //   h={32}
-          //   p={2}
-          //   cursor="pointer"
-          //   _hover={{
-          //     transform: "translateY(-2px)",
-          //     boxShadow: "lg",
-          //   }}
-          //   _focus={{
-          //     borderWidth: "2px",
-          //     borderColor: "seed.600",
-          //   }}
-          //   onClick={() => {
-          //     setSelectedItem({ name, emotion, type, dna });
-          //     onOpen();
-          //   }}
-          // >
-          //   <VStack>
-          //     <Box>
-          //       <Image
-          //         w={20}
-          //         h={20}
-          //         src={
-          //           emotion === "sad"
-          //             ? `https://shrub.finance/${type.toLowerCase()}-sad.svg`
-          //             : `https://shrub.finance/${type.toLowerCase()}.svg`
-          //         }
-          //         alt="Seed"
-          //       />
-          //     </Box>
-          //     <Text fontWeight={600} color="gray.500" fontSize="sm">
-          //       #{seedNumber}
-          //     </Text>
-          //   </VStack>
-          // </Box>
         );
       }
-      // setSelectedItem({
-      //   tokenId: mySeeds[0].id,
-      //   name: mySeeds[0].name,
-      //   emotion: mySeeds[0].emotion,
-      //   type: mySeeds[0].type,
-      //   dna: mySeeds[0].dna,
-      //   imageUrl: IMAGE_ASSETS.seeds[mySeeds[0].type][mySeeds[0].emotion],
-      //   category: "paperSeed",
-      // });
     }
 
     // TODO: handle shrubs
@@ -1078,6 +1030,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   mySeedDataLoading,
                   mySeedDataError,
                   selectedItem,
+                  emptyPot,
                 }}
                 handleErrorMessages={handleErrorMessages}
               />
@@ -1098,6 +1051,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       mySeedDataLoading,
                       mySeedDataError,
                       selectedItem,
+                      emptyPot,
                     }}
                     handleErrorMessages={handleErrorMessages}
                   />
