@@ -444,7 +444,7 @@ function SeedDetails({
                 </Button>
                 <Tooltip
                   hasArrow
-                  label="Shrub is still growing. Not ready to harvest!"
+                  label="Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
                   shouldWrapChildren
                   mt="3"
                 >
