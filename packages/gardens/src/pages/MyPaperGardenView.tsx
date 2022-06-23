@@ -36,6 +36,9 @@ import {
   InputRightElement,
   useToast,
   GridItem,
+  Spacer,
+  Flex,
+  Tooltip,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -717,9 +720,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
           maxW="container.lg"
         >
           <Center>
-            <HStack>
+            <Flex
+              direction={{ base: "column", md: "row" }}
+              gap={{ base: "10", md: "20" }}
+            >
               {/*Ticket info*/}
-              <Center mt={{ base: 5, md: 10 }}>
+
+              <Center>
                 <Box
                   bgColor={useColorModeValue("gray.200", "gray.700")}
                   p={10}
@@ -782,157 +789,174 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 </Box>
               </Center>
 
+              <Spacer />
               {/*Redemption logic*/}
-              <Box>
-                <Heading>
-                  You have {accountTicketCount.toString()} Tickets
-                </Heading>
-                <VStack>
-                  {/*Quantity*/}
-                  <Box>
-                    <Center>
-                      <FormLabel
-                        fontSize={"sm"}
-                        color={"gray.500"}
-                        fontWeight={"medium"}
+              <Center>
+                <Box>
+                  <VStack>
+                    <Heading>
+                      You have {accountTicketCount.toString()} Tickets
+                    </Heading>
+                    {/*Quantity*/}
+                    <Box>
+                      <Center>
+                        <FormLabel
+                          fontSize={"sm"}
+                          color={"gray.500"}
+                          fontWeight={"medium"}
+                        >
+                          Quantity
+                        </FormLabel>
+                      </Center>
+                      <NumberInput
+                        isInvalid={invalidEntry}
+                        min={0}
+                        max={10}
+                        precision={0}
+                        onChange={(valueString) => {
+                          const [integerPart, decimalPart] =
+                            valueString.split(".");
+                          if (valueString.includes(".")) {
+                            setRedeemAmount(integerPart || "0");
+                            return;
+                          }
+                          if (integerPart && integerPart.length > 2) {
+                            return;
+                          }
+                          if (valueString === "00") {
+                            return;
+                          }
+                          if (isNaN(Number(valueString))) {
+                            return;
+                          }
+                          if (
+                            Number(valueString) !==
+                            Math.round(Number(valueString) * 1e6) / 1e6
+                          ) {
+                            setRedeemAmount(Number(valueString).toFixed(6));
+                            return;
+                          }
+                          setRedeemAmount(valueString);
+                        }}
+                        value={format(redeemAmount)}
+                        size="lg"
                       >
-                        Quantity
-                      </FormLabel>
-                    </Center>
-                    <NumberInput
-                      isInvalid={invalidEntry}
-                      min={0}
-                      max={10}
-                      precision={0}
-                      onChange={(valueString) => {
-                        const [integerPart, decimalPart] =
-                          valueString.split(".");
-                        if (valueString.includes(".")) {
-                          setRedeemAmount(integerPart || "0");
-                          return;
-                        }
-                        if (integerPart && integerPart.length > 2) {
-                          return;
-                        }
-                        if (valueString === "00") {
-                          return;
-                        }
-                        if (isNaN(Number(valueString))) {
-                          return;
-                        }
-                        if (
-                          Number(valueString) !==
-                          Math.round(Number(valueString) * 1e6) / 1e6
-                        ) {
-                          setRedeemAmount(Number(valueString).toFixed(6));
-                          return;
-                        }
-                        setRedeemAmount(valueString);
-                      }}
-                      value={format(redeemAmount)}
-                      size="lg"
-                    >
-                      <NumberInputField
-                        h="6rem"
+                        <NumberInputField
+                          h="6rem"
+                          borderRadius="3xl"
+                          shadow="sm"
+                          fontWeight="medium"
+                          fontSize="2xl"
+                        />
+                        <InputRightElement
+                          pointerEvents="none"
+                          p={14}
+                          children={
+                            <FormLabel
+                              htmlFor="amount"
+                              color="gray.500"
+                              fontWeight="medium"
+                              minW={"100"}
+                            >
+                              tickets
+                            </FormLabel>
+                          }
+                        />
+                      </NumberInput>
+                    </Box>
+                    {/*Redeem Price*/}
+                    <Box>
+                      <Center>
+                        <FormLabel
+                          fontSize={"sm"}
+                          color={"gray.500"}
+                          fontWeight={"medium"}
+                        >
+                          Total
+                        </FormLabel>
+                      </Center>
+                      <Box
+                        bg={bgColor}
                         borderRadius="3xl"
-                        shadow="sm"
                         fontWeight="medium"
                         fontSize="2xl"
-                      />
-                      <InputRightElement
-                        pointerEvents="none"
-                        p={14}
-                        children={
-                          <FormLabel
-                            htmlFor="amount"
-                            color="gray.500"
-                            fontWeight="medium"
-                            minW={"100"}
-                          >
-                            tickets
-                          </FormLabel>
-                        }
-                      />
-                    </NumberInput>
-                  </Box>
-                  {/*Redeem Price*/}
-                  <Box>
-                    <Center>
-                      <FormLabel
-                        fontSize={"sm"}
-                        color={"gray.500"}
-                        fontWeight={"medium"}
+                        p={"1.813rem"}
                       >
-                        Total
-                      </FormLabel>
-                    </Center>
-                    <Box
-                      bg={bgColor}
-                      borderRadius="3xl"
-                      fontWeight="medium"
-                      fontSize="2xl"
-                      p={"1.813rem"}
-                    >
-                      {invalidEntry
-                        ? "?"
-                        : format(
-                            redeemPrice
-                              ? ethers.utils.formatEther(
-                                  redeemPrice.mul(Number(redeemAmount))
-                                )
-                              : "-"
-                          )}{" "}
-                      WETH
+                        {invalidEntry
+                          ? "?"
+                          : format(
+                              redeemPrice
+                                ? ethers.utils.formatEther(
+                                    redeemPrice.mul(Number(redeemAmount))
+                                  )
+                                : "-"
+                            )}{" "}
+                        WETH
+                      </Box>
                     </Box>
-                  </Box>
-                  {/*Approve/Redeem button*/}
-                  <Box>
-                    <Button
-                      onClick={noAllowance ? handleApprove : handleRedeemNFT}
-                      colorScheme={tradingBtnColor}
-                      variant="solid"
-                      rounded="2xl"
-                      isLoading={isLoading}
-                      isDisabled={
-                        Number(redeemAmount) <= 0 ||
-                        noFunds ||
-                        accountTicketCount.lte(Zero)
-                      }
-                      size="lg"
-                      px={["50", "70", "90", "90"]}
-                      fontSize="25px"
-                      py={10}
-                      borderRadius="full"
-                      _hover={{ transform: "translateY(-2px)" }}
-                      bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                      loadingText={
-                        noAllowance
-                          ? "Approving..."
-                          : !localError
-                          ? "Redeeming..."
-                          : "Redeem Ticket"
-                      }
-                    >
-                      {
-                        // If no account then Wrong Network and Connect Wallet
-                        !account
-                          ? !!web3Error &&
-                            getErrorMessage(web3Error).title === "Wrong Network"
-                            ? "Connect to Polygon"
-                            : "Connect Wallet"
-                          : tooLarge
-                          ? "Quantity above number of tickets"
+                    {/*Approve/Redeem ticket button*/}
+                    <Tooltip
+                      hasArrow
+                      label={
+                        Number(redeemAmount) <= 0
+                          ? "Nothing to redeem. Please enter the number of tickets you want to redeem"
                           : noFunds
-                          ? "Insufficient funds"
-                          : noAllowance
-                          ? "Approve WETH"
-                          : "Redeem Ticket"
+                          ? "You do not have enough funds to redeem the tickets"
+                          : accountTicketCount.lte(Zero)
+                          ? "Ticket you are trying to redeem exceeds the tickets you have available"
+                          : null
                       }
-                    </Button>
-                  </Box>
-                </VStack>
-              </Box>
-            </HStack>
+                      shouldWrapChildren
+                      mt="3"
+                    >
+                      <Button
+                        onClick={noAllowance ? handleApprove : handleRedeemNFT}
+                        colorScheme={tradingBtnColor}
+                        variant="solid"
+                        rounded="2xl"
+                        isLoading={isLoading}
+                        isDisabled={
+                          Number(redeemAmount) <= 0 ||
+                          noFunds ||
+                          accountTicketCount.lte(Zero)
+                        }
+                        size="lg"
+                        px={["50", "70", "90", "90"]}
+                        fontSize="25px"
+                        py={10}
+                        borderRadius="full"
+                        _hover={{ transform: "translateY(-2px)" }}
+                        bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                        loadingText={
+                          noAllowance
+                            ? "Approving..."
+                            : !localError
+                            ? "Redeeming..."
+                            : "Redeem Ticket"
+                        }
+                      >
+                        {
+                          // If no account then Wrong Network and Connect Wallet
+                          !account
+                            ? !!web3Error &&
+                              getErrorMessage(web3Error).title ===
+                                "Wrong Network"
+                              ? "Connect to Polygon"
+                              : "Connect Wallet"
+                            : tooLarge
+                            ? "Exceeds available"
+                            : noFunds
+                            ? "Insufficient funds"
+                            : noAllowance
+                            ? "Approve WETH"
+                            : "Redeem Ticket"
+                        }
+                      </Button>
+                    </Tooltip>
+                  </VStack>
+                </Box>
+              </Center>
+            </Flex>
           </Center>
         </Container>
 

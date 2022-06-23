@@ -151,7 +151,7 @@ function TopNav() {
                       display={{ base: "none", sm: "flex" }}
                       size={buttonSize}
                     >
-                      <Balance />
+                      {/*<Balance />*/}
                     </Box>
                   )
                 }
