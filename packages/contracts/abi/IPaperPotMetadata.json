@@ -2,6 +2,35 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "seedTokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isSad",
+        "type": "bool"
+      }
+    ],
+    "name": "shrubTokenMetadata",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "string",
         "name": "name",
         "type": "string"
