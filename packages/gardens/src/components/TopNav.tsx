@@ -16,6 +16,7 @@ import {
   ModalCloseButton,
   Spinner,
   useBreakpointValue,
+  Link,
 } from "@chakra-ui/react";
 import {
   HamburgerIcon,
@@ -38,10 +39,13 @@ import { confirmingCount, TxStatusList } from "./TxMonitoring";
 import { isMobile } from "react-device-detect";
 import { trackEvent } from "../utils/handleGATracking";
 import { Match } from "@reach/router";
+import { Link as ReachLink } from "@reach/router";
 
 function TopNav() {
   const DesktopMenu = React.lazy(() => import("./DesktopMenu"));
   const MobileMenu = React.lazy(() => import("./MobileMenu"));
+
+  const rightCTA = useColorModeValue("blue", "yellow");
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
@@ -106,6 +110,40 @@ function TopNav() {
               <Match path="/">
                 {(props) =>
                   props.match ? (
+                    <Link
+                      pr={5}
+                      fontSize={"sm"}
+                      fontWeight={"bold"}
+                      color={rightCTA}
+                      href={"https://discord.gg/BpHuVCYtdB"}
+                      isExternal
+                    >
+                      Join Discord
+                    </Link>
+                  ) : (
+                    <></>
+                  )
+                }
+              </Match>
+              {/*mint cta*/}
+              {/*{!isMobile && (*/}
+              {/*  <Link*/}
+              {/*    as={ReachLink}*/}
+              {/*    to="/presale"*/}
+              {/*    fontSize={"sm"}*/}
+              {/*    variant={"link"}*/}
+              {/*    fontWeight={"extrabold"}*/}
+              {/*    color={useColorModeValue("blue", "cyan")}*/}
+              {/*    px={2}*/}
+              {/*    py={{ base: "3", md: "1", lg: "1" }}*/}
+              {/*    rounded={"lg"}*/}
+              {/*  >*/}
+              {/*    Mint NFT*/}
+              {/*  </Link>*/}
+              {/*)}*/}
+              <Match path="/">
+                {(props) =>
+                  props.match ? (
                     <></>
                   ) : (
                     <Box
@@ -113,7 +151,7 @@ function TopNav() {
                       display={{ base: "none", sm: "flex" }}
                       size={buttonSize}
                     >
-                      <Balance />
+                      {/*<Balance />*/}
                     </Box>
                   )
                 }

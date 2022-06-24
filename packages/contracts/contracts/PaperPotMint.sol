@@ -66,11 +66,11 @@ contract PaperPotMint is AdminControl {
     }
 
     function unpauseMinting() external adminOnly {
-        active = false;
+        active = true;
     }
 
     function pauseMinting() external adminOnly {
-        active = true;
+        active = false;
     }
 
     function updateMintEndDate(uint mintEndDate_) external adminOnly {

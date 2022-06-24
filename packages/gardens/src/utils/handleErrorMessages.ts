@@ -46,6 +46,10 @@ export function handleErrorMessagesFactory(
           setter("Minting has been paused");
         } else if (err.message.includes("PaperPot: invalid ticket tokenId")) {
           setter("Minting has been paused - #1005");
+        } else if (
+          err.message.includes("PaperPotMint: minting is not active")
+        ) {
+          setter("Pot Minting is not active - #1006");
         } else {
           setter(err.message);
         }

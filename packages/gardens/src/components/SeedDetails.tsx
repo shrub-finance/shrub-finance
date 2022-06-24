@@ -7,6 +7,7 @@ import {
   Center,
   Heading,
   Image,
+  keyframes,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -18,6 +19,7 @@ import {
   Spinner,
   Stack,
   Text,
+  Tooltip,
   useColorMode,
   useDisclosure,
   useToast,
@@ -44,6 +46,7 @@ import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { ethers } from "ethers";
 import { ToastDescription, Txmonitor } from "./TxMonitoring";
 import { TxContext } from "./Store";
+import { IMAGE_ASSETS } from "../utils/imageAssets";
 
 function SeedDetails({
   hooks,
@@ -53,13 +56,14 @@ function SeedDetails({
     mySeedDataLoading: any;
     mySeedDataError: any;
     selectedItem: any;
+    emptyPot: any;
   };
   handleErrorMessages: (errorOptions: {
     err?: Error | undefined;
     customMessage?: string | undefined;
   }) => void;
 }) {
-  const { mySeedDataLoading, mySeedDataError, selectedItem } = hooks;
+  const { mySeedDataLoading, mySeedDataError, selectedItem, emptyPot } = hooks;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
@@ -69,11 +73,26 @@ function SeedDetails({
   const [plantingApproved, setPlantingApproved] = useState(false);
   const [localError, setLocalError] = useState("");
   const [approving, setApproving] = React.useState(false);
+  const [noPot, setNoPot] = React.useState(false);
+  const [stillGrowing, setStillGrowing] = React.useState(true);
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
   const [activeHash, setActiveHash] = useState<string>();
-  // const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
+
+  const animationKeyframes = keyframes`
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+`;
+
+  const animation = `${animationKeyframes} 4s ease-out infinite`;
 
   const {
     active,
@@ -88,6 +107,19 @@ function SeedDetails({
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
 
+  // Disable action if no pot
+  useEffect(() => {
+    if (!emptyPot) {
+      setNoPot(true);
+    }
+  }, [emptyPot]);
+
+  // Disable action if not ready for harvest
+  useEffect(() => {
+    if (selectedItem.growth === 10000) {
+      setStillGrowing(false);
+    }
+  }, [selectedItem.growth]);
   // Move errors to the top
   useEffect(() => {
     console.log("useEffect - error to top");
@@ -130,128 +162,7 @@ function SeedDetails({
     }, 1);
   }, []);
 
-  // Scroll to top on error
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [localError, web3Error]);
-
   const MotionModalContent = motion<ModalContentProps>(ModalContent);
-  // console.log(selectedItem);
-
-  // async function handleApprove() {
-  //   const description = "Approving Paper Seeds for planting";
-  //   try {
-  //     console.log(PAPERSEED_ADDRESS, PAPER_POT_ADDRESS);
-  //     const tx = await approveAllErc721(
-  //       PAPERSEED_ADDRESS,
-  //       PAPER_POT_ADDRESS,
-  //       true,
-  //       library
-  //     );
-  //     pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
-  //     setActiveHash(tx.hash);
-  //     try {
-  //       const receipt = await tx.wait();
-  //       const toastDescription = ToastDescription(
-  //         description,
-  //         receipt.transactionHash,
-  //         chainId
-  //       );
-  //       toast({
-  //         title: "Transaction Confirmed",
-  //         description: toastDescription,
-  //         status: "success",
-  //         isClosable: true,
-  //         variant: "solid",
-  //         position: "top-right",
-  //       });
-  //       pendingTxsDispatch({
-  //         type: "update",
-  //         txHash: receipt.transactionHash,
-  //         status: "confirmed",
-  //       });
-  //     } catch (e: any) {
-  //       const toastDescription = ToastDescription(
-  //         description,
-  //         e.transactionHash,
-  //         chainId
-  //       );
-  //       pendingTxsDispatch({
-  //         type: "update",
-  //         txHash: e.transactionHash || e.hash,
-  //         status: "failed",
-  //       });
-  //       toast({
-  //         title: "Transaction Failed",
-  //         description: toastDescription,
-  //         status: "error",
-  //         isClosable: true,
-  //         variant: "solid",
-  //         position: "top-right",
-  //       });
-  //     }
-  //   } catch (e: any) {
-  //     handleErrorMessages({ err: e });
-  //   }
-  // }
-  //
-  // async function handlePlanting() {
-  //   setLocalError("");
-  //   // setIsMinted(false);
-  //   // setNftImageId("");
-  //   // setTokenId(0);
-  //   // setNftTitle("");
-  //   // setIsLoading(true);
-  //   const description = "Planting";
-  //   try {
-  //     const tx = await plant(selectedItem.tokenId, library);
-  //     pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
-  //     setActiveHash(tx.hash);
-  //     try {
-  //       const receipt = await tx.wait();
-  //       // setIsMinted(true);
-  //       const toastDescription = ToastDescription(
-  //         description,
-  //         receipt.transactionHash,
-  //         chainId
-  //       );
-  //       toast({
-  //         title: "Transaction Confirmed",
-  //         description: toastDescription,
-  //         status: "success",
-  //         isClosable: true,
-  //         variant: "solid",
-  //         position: "top-right",
-  //       });
-  //       pendingTxsDispatch({
-  //         type: "update",
-  //         txHash: receipt.transactionHash,
-  //         status: "confirmed",
-  //       });
-  //     } catch (e: any) {
-  //       const toastDescription = ToastDescription(
-  //         description,
-  //         e.transactionHash,
-  //         chainId
-  //       );
-  //       pendingTxsDispatch({
-  //         type: "update",
-  //         txHash: e.transactionHash || e.hash,
-  //         status: "failed",
-  //       });
-  //       toast({
-  //         title: "Transaction Failed",
-  //         description: toastDescription,
-  //         status: "error",
-  //         isClosable: true,
-  //         variant: "solid",
-  //         position: "top-right",
-  //       });
-  //     }
-  //   } catch (e: any) {
-  //     handleErrorMessages({ err: e });
-  //   }
-  // }
 
   function handleModalClose() {
     setApproving(false);
@@ -318,6 +229,9 @@ function SeedDetails({
         setApproving(false);
       }
     } catch (e: any) {
+      if (e.message.includes("Must own a pot token to plant")) {
+        setLocalError("You must own a pot to plant your seed");
+      }
       handleErrorMessages({ err: e });
       setApproving(false);
     }
@@ -405,23 +319,7 @@ function SeedDetails({
                   <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
                     {`You have: ${selectedItem.quantity}`}
                   </Badge>
-                  {/*<Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
-                  {/*  Emotion: {selectedItem.emotion}*/}
-                  {/*</Badge>*/}
                 </Stack>
-                {/*<Stack*/}
-                {/*  align={"center"}*/}
-                {/*  justify={"center"}*/}
-                {/*  direction={"row"}*/}
-                {/*  mt={2}*/}
-                {/*>*/}
-                {/*  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
-                {/*    Class: {selectedItem.type}*/}
-                {/*  </Badge>*/}
-                {/*  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>*/}
-                {/*    DNA: {selectedItem.dna}*/}
-                {/*  </Badge>*/}
-                {/*</Stack>*/}
               </>
             )}
             {["paperSeed", "pottedPlant"].includes(selectedItem.category) && (
@@ -467,7 +365,7 @@ function SeedDetails({
             {/*Buttons*/}
             <Stack mt={8} direction={"row"} spacing={4}>
               {/*Water Button*/}
-              {selectedItem.category === "pottedPlant" && (
+              {selectedItem.category === "pottedPlant" && stillGrowing && (
                 <Button
                   onClick={() => {
                     setModalState("water");
@@ -476,24 +374,7 @@ function SeedDetails({
                   flex={1}
                   fontSize={"sm"}
                   rounded={"full"}
-                  _focus={{
-                    bg: "gray.200",
-                  }}
-                >
-                  Water
-                </Button>
-              )}
-              {/*Plant Button*/}
-              {selectedItem.category === "paperSeed" && (
-                <Button
-                  onClick={() => {
-                    setModalState("plant");
-                    openModal();
-                  }}
-                  flex={1}
-                  fontSize={"sm"}
-                  rounded={"full"}
-                  bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                  bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
                   color={"black"}
                   boxShadow={"xl"}
                   _hover={{
@@ -503,40 +384,105 @@ function SeedDetails({
                     bg: "shrub.100",
                   }}
                 >
-                  Plant
+                  Water
                 </Button>
+              )}
+              {/*Plant Button*/}
+              {selectedItem.category === "paperSeed" && (
+                <Tooltip
+                  hasArrow
+                  label="Must have an empty pot to plant"
+                  shouldWrapChildren
+                  mt="3"
+                >
+                  <Button
+                    onClick={() => {
+                      setModalState("plant");
+                      openModal();
+                    }}
+                    w={"420px"}
+                    flex={1}
+                    fontSize={"sm"}
+                    rounded={"full"}
+                    bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                    isDisabled={noPot}
+                  >
+                    Plant
+                  </Button>
+                </Tooltip>
               )}
             </Stack>
             {selectedItem.category === "pottedPlant" && (
               <Stack mt={8} direction={"row"} spacing={4}>
-                <Button
-                  onClick={() => {
-                    setModalState("fertilize");
-                    openModal();
-                  }}
-                  flex={1}
-                  fontSize={"sm"}
-                  rounded={"full"}
-                  _focus={{
-                    bg: "gray.200",
-                  }}
+                {/*fertilize button*/}
+                {stillGrowing && (
+                  <Button
+                    onClick={() => {
+                      setModalState("fertilize");
+                      openModal();
+                    }}
+                    flex={1}
+                    fontSize={"sm"}
+                    rounded={"full"}
+                    bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                  >
+                    Fertilize
+                  </Button>
+                )}
+
+                {/*harvest button*/}
+                <Tooltip
+                  hasArrow
+                  label="Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
+                  shouldWrapChildren
+                  mt="3"
                 >
-                  Fertilize
-                </Button>
-                <Button
-                  onClick={() => {
-                    setModalState("harvest");
-                    openModal();
-                  }}
-                  flex={1}
-                  fontSize={"sm"}
-                  rounded={"full"}
-                  _focus={{
-                    bg: "gray.200",
-                  }}
-                >
-                  Harvest
-                </Button>
+                  <Button
+                    onClick={() => {
+                      setModalState("harvest");
+                      openModal();
+                    }}
+                    as={motion.div}
+                    animation={!stillGrowing ? animation : undefined}
+                    flex={1}
+                    w={stillGrowing ? "202px" : "420px"}
+                    fontSize={"sm"}
+                    rounded={"full"}
+                    bgGradient={
+                      !stillGrowing
+                        ? "linear(to-r, #49f4ff, #fff, #8fff6e 50%, #3fe5ff)"
+                        : undefined
+                    }
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                    backgroundSize="400% 400%"
+                    isDisabled={stillGrowing}
+                  >
+                    Harvest
+                  </Button>
+                </Tooltip>
               </Stack>
             )}
           </Box>
@@ -580,7 +526,15 @@ function SeedDetails({
               : "Unhandled State"}
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody pt={40}>
+          <ModalBody>
+            {localError && (
+              <SlideFade in={true} unmountOnExit={true}>
+                <Alert status="error" borderRadius={9}>
+                  <AlertIcon />
+                  {localError}
+                </Alert>
+              </SlideFade>
+            )}
             {
               // When transaction is in flight
               approving || activeHash ? (
@@ -590,19 +544,32 @@ function SeedDetails({
                 <>
                   {modalState === "plant" ? (
                     <Center>
-                      <Box textStyle={"reading"}>
+                      <Box textStyle={"reading"} fontSize={"md"}>
                         <Text>Planting will result in</Text>
+
+                        {/*<Image*/}
+                        {/*  w={20}*/}
+                        {/*  h={20}*/}
+                        {/*  src={*/}
+                        {/*    IMAGE_ASSETS.seeds[selectedItem.name][*/}
+                        {/*      selectedItem.emotion*/}
+                        {/*    ]*/}
+                        {/*  }*/}
+                        {/*/>*/}
+
                         <Text>{selectedItem.name}</Text>
                         <Text>and</Text>
+                        <PlantingPot boxSize={"20"} />
                         <Text>1 Empty Pot</Text>
                         <Text>
                           converting into a potted plant that you can grow into
                           a Shrub
                         </Text>
-                        <Text>This is irrevesible.</Text>
+                        <Text>This is irreversible.</Text>
                         {!plantingApproved && (
                           <Text>
-                            You must also first approve your seed for planting
+                            You must also first approve your seed for planting.
+                            You only have to do it once.
                           </Text>
                         )}
                       </Box>
@@ -661,6 +628,7 @@ function SeedDetails({
                   {/*The action button*/}
                   <Center>
                     <Button
+                      p={6}
                       onClick={
                         modalState === "plant"
                           ? plantingApproved

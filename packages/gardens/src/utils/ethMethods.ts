@@ -7,6 +7,7 @@ import {
   ERC1155__factory,
   ERC721__factory,
   PaperPot__factory,
+  PaperPotMint__factory,
 } from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import { OrderCommon, UnsignedOrder } from "../types";
@@ -19,6 +20,7 @@ const ORPHANAGE_CONTRACT_ADDRESS =
   process.env.REACT_APP_ORPHANAGE_ADDRESS || "";
 const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
 const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
+const PAPERPOTMINT_ADDRESS = process.env.REACT_APP_PAPERPOTMINT_ADDRESS || "";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id(
@@ -261,6 +263,18 @@ export async function mint(
     signer
   );
   return potTicketContract.mint(tokenID, amount, { gasLimit: 200000 });
+}
+
+export async function mintPot(
+  amount: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const potContract = PaperPotMint__factory.connect(
+    PAPERPOTMINT_ADDRESS,
+    signer
+  );
+  return potContract.mint(amount);
 }
 
 export async function balanceOfErc1155(
