@@ -1,4 +1,4 @@
-import { Box, Image, Text, VStack } from "@chakra-ui/react";
+import { Box, Image, Text, useColorModeValue, VStack } from "@chakra-ui/react";
 import React from "react";
 
 function GardenGrid({
@@ -17,7 +17,7 @@ function GardenGrid({
     <Box
       as="button"
       key={id}
-      shadow={"dark-lg"}
+      shadow={useColorModeValue("md", "dark-lg")}
       borderRadius="md"
       minW={20}
       h={32}
@@ -50,7 +50,7 @@ function GardenGrid({
         <Text
           fontWeight={600}
           color="gray.500"
-          fontSize={{ base: "sm", md: "1.5vw", lg: ".7vw" }}
+          fontSize={{ base: "sm", md: "1.2vw", lg: "1vw", xl: ".7vw" }}
         >
           {name}
         </Text>

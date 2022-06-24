@@ -70,6 +70,7 @@ import {
 import CountdownTimer from "../components/CountdownTimer";
 import GardenGrid from "../components/GardenGrid";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
+import Confetti from "../assets/Confetti";
 
 type itemType = {
   tokenId: string;
@@ -121,6 +122,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [mySeedRows, setMySeedRows] = useState<JSX.Element[]>([]);
   const [selectedItem, setSelectedItem] = useState<itemType>(baseSelectedItem);
+  const [ticketConfetti, setTicketConfetti] = useState(false);
   const [redeemAmount, setRedeemAmount] = useState("1");
   const [polling, setPolling] = useState(false);
   const [emptyPot, setEmptyPot] = useState(false);
@@ -234,6 +236,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
   }, [library]);
 
   // big useEffect from setTicketData to get a bunch of stuff - on account change
+
   // useEffect for account
   useEffect(() => {
     console.log("useEffect 1 - account, ticketData, pendingTxsState");
@@ -542,7 +545,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }, [mySeedData, pendingTxsState]);
 
-  // Fun Functions
+  useEffect(() => {
+    setTimeout(() => {
+      setTicketConfetti(false);
+    }, 40000);
+  }, [activeHash]);
+
   async function handleApprove() {
     const description = "Approving WETH";
     try {
@@ -635,6 +643,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           variant: "solid",
           position: "top-right",
         });
+        setTicketConfetti(true);
         pendingTxsDispatch({
           type: "update",
           txHash: receipt.transactionHash,
@@ -665,11 +674,14 @@ function MyPaperGardenView(props: RouteComponentProps) {
     } catch (e: any) {
       setApproving(false);
       setIsLoading(false);
+      setTicketConfetti(false);
       handleErrorMessages({ err: e });
     }
   }
+
   return (
     <>
+      {activeHash && ticketConfetti && <Confetti />}
       <Container
         mt={isMobile ? 30 : 50}
         p={5}
@@ -721,7 +733,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
             <Center>
               <Flex
                 direction={{ base: "column", md: "row" }}
-                gap={{ base: "10", md: "20" }}
+                gap={{ base: "10", md: "16" }}
               >
                 {/*Ticket info*/}
 
@@ -1021,7 +1033,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 }
                 gap={2}
                 overflow="auto"
-                shadow="2xl"
+                shadow="dark-lg"
                 layerStyle={"shrubBg"}
                 borderRadius="2xl"
                 p={4}
@@ -1044,6 +1056,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   mySeedDataError,
                   selectedItem,
                   emptyPot,
+                  holdsPottedPlant,
+                  fungibleAssets,
                 }}
                 handleErrorMessages={handleErrorMessages}
               />
@@ -1065,6 +1079,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       mySeedDataError,
                       selectedItem,
                       emptyPot,
+                      holdsPottedPlant,
+                      fungibleAssets,
                     }}
                     handleErrorMessages={handleErrorMessages}
                   />
