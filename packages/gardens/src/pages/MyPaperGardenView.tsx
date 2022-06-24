@@ -700,7 +700,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
               textAlign={"center"}
               maxW="60rem"
             >
-              My Paper Garden
+              Paper Garden
             </Heading>
             <Text
               textAlign="center"
@@ -711,8 +711,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
             </Text>
           </VStack>
         </Center>
-        {/*NFT Ticket view*/}
 
+        {/*NFT Ticket view*/}
         {accountTicketCount.gt(0) && (
           <Container
             mt={isMobile ? 30 : 30}
@@ -793,23 +793,23 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
                 <Spacer />
                 {/*Redemption logic*/}
-                <Center>
+                <Center shadow={"dark-lg"} p={10} borderRadius={"3xl"}>
                   <Box>
                     <VStack>
-                      <Heading>
-                        You have {accountTicketCount.toString()} Tickets
+                      <Heading pb={4}>
+                        You have {accountTicketCount.toString()}{" "}
+                        {accountTicketCount.eq(1) ? "Ticket" : "Tickets"}
                       </Heading>
                       {/*Quantity*/}
                       <Box>
-                        <Center>
-                          <FormLabel
-                            fontSize={"sm"}
-                            color={"gray.500"}
-                            fontWeight={"medium"}
-                          >
-                            Quantity
-                          </FormLabel>
-                        </Center>
+                        <FormLabel
+                          fontSize={"sm"}
+                          color={"gray.500"}
+                          fontWeight={"medium"}
+                        >
+                          Quantity
+                        </FormLabel>
+
                         <NumberInput
                           isInvalid={invalidEntry}
                           min={0}
@@ -867,22 +867,22 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         </NumberInput>
                       </Box>
                       {/*Redeem Price*/}
-                      <Box>
-                        <Center>
-                          <FormLabel
-                            fontSize={"sm"}
-                            color={"gray.500"}
-                            fontWeight={"medium"}
-                          >
-                            Total
-                          </FormLabel>
-                        </Center>
+                      <Box p={4}>
+                        <FormLabel
+                          fontSize={"sm"}
+                          color={"gray.500"}
+                          fontWeight={"medium"}
+                        >
+                          Total
+                        </FormLabel>
+
                         <Box
                           bg={bgColor}
                           borderRadius="3xl"
                           fontWeight="medium"
                           fontSize="2xl"
                           p={"1.813rem"}
+                          w="325px"
                         >
                           {invalidEntry
                             ? "?"
@@ -922,10 +922,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
                           isDisabled={
                             Number(redeemAmount) <= 0 ||
                             noFunds ||
-                            accountTicketCount.lte(Zero)
+                            accountTicketCount.lte(Zero) ||
+                            redeemAmount > accountTicketCount.toString()
                           }
                           size="lg"
-                          px={["50", "70", "90", "90"]}
+                          px={["50", "50", "50", "50"]}
                           fontSize="25px"
                           py={10}
                           borderRadius="full"
