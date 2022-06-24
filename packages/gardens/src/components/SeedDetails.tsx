@@ -317,9 +317,31 @@ function SeedDetails({
                   mt={6}
                 >
                   <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                    {`You have: ${selectedItem.quantity}`}
+                    {`You have: ${selectedItem.quantity} ${selectedItem.category}`}
                   </Badge>
                 </Stack>
+                {["water", "fertilizer"].includes(selectedItem.category) ? (
+                  <>
+                    <Text pt={6} textAlign={"center"} textStyle={"reading"}>
+                      You use 1{" "}
+                      {selectedItem.category === "water"
+                        ? "water"
+                        : "fertilizer"}{" "}
+                      per plant
+                    </Text>
+                    <Text pt={2} textAlign={"center"} textStyle={"reading"}>
+                      To{" "}
+                      {selectedItem.category === "water"
+                        ? "water"
+                        : "fertilizer"}
+                      , select a potted plant on the right
+                    </Text>
+                  </>
+                ) : (
+                  <Text pt={2} textAlign={"center"} textStyle={"reading"}>
+                    To plant, select a seed on the right
+                  </Text>
+                )}
               </>
             )}
             {["paperSeed", "pottedPlant"].includes(selectedItem.category) && (
