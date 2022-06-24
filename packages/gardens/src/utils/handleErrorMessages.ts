@@ -47,6 +47,12 @@ export function handleErrorMessagesFactory(
         } else if (err.message.includes("PaperPot: invalid ticket tokenId")) {
           setter("Minting has been paused - #1005");
         } else if (
+          err.message.includes(
+            "NFTTicket: Insufficient ticket balance to redeem"
+          )
+        ) {
+          setter("Ticket quantity you entered exceeds the tickets you have");
+        } else if (
           err.message.includes("PaperPotMint: minting is not active")
         ) {
           setter("Pot Minting is not active - #1006");

@@ -36,7 +36,13 @@ function GardenGrid({
       <VStack>
         <Box>
           <Image
-            w={id === "fertilizer" ? 10 : id === "water" ? 16 : 20}
+            w={
+              id === "fertilizer"
+                ? 10
+                : id === "water" || id === "pot"
+                ? 16
+                : 20
+            }
             h={20}
             src={imgCallback()}
           />
