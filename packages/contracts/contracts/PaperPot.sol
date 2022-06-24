@@ -34,6 +34,9 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     uint private NFTTicketTokenId;
     address private NFTTicketAddress;
 
+    uint private _fertForHappy = 3;
+    uint private _fertForName = 5;
+
     uint public pottedPlantCurrentIndex = 0;
     uint public shrubCurrentIndex = 0;
     uint private waterNonce = 0;
@@ -123,9 +126,11 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
 
     // External Functions
 
-    function plantAndMakeHappy(address _seedContractAddress, uint _seedTokenId) payable public {
-        // User must pay 1 MATIC to make the seed happy
-        require(msg.value == 1 ether, "PaperPot: Incorrect payment amount");
+    function plantAndMakeHappy(address _seedContractAddress, uint _seedTokenId) public {
+        // User must burn 3 Fertilizer to make the seed happy (can be configured later)
+        _burn(_msgSender(), FERTILIZER_TOKENID, _fertForHappy);
+        //        // User must pay 1 MATIC to make the seed happy
+//        require(msg.value == 1 ether, "PaperPot: Incorrect payment amount");
         // Ensure that the seed is sad
         require(_sadSeeds[_seedTokenId] == true, "PaperPot: Seed already happy");
         // Update the sad metadata for _seedTokenId
@@ -156,29 +161,29 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         // Loop through and water each plant
         for (uint i = 0; i < _tokenIds.length; i++) {
             // TODO: Re-enable this for PROD - VERY IMPORTANT
-//            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
+            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
             require(balanceOf(_msgSender(), _tokenIds[i]) > 0, "PaperPot: Potted plant not owned by sender");
             require(_growthState[_tokenIds[i]].growthBps < 10000, "PaperPot: Potted plant is already fully grown");
             waterNonce++;
-//            uint16 relativeGrowth = fertilizer ? (
-//                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-//                    getRandomInt(113, 150, waterNonce) : // Case: Sad Potted Plant with Fertilizer (150-263)
-//                    getRandomInt(225, 300, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
-//            ) : (
-//                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-//                    getRandomInt(75, 100, waterNonce) : // Case: Sad Potted Plant (100-175)
-//                    getRandomInt(150, 200, waterNonce)    // Case: Happy Potted Plant (200-350)
-//            );
-            // Uncomment for fast growing
             uint16 relativeGrowth = fertilizer ? (
                 _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-                    getRandomInt(113, 1500, waterNonce) :  // Case: Sad Potted Plant with Fertilizer (150-263)
-                    getRandomInt(225, 3000, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
+                    getRandomInt(113, 150, waterNonce) : // Case: Sad Potted Plant with Fertilizer (150-263)
+                    getRandomInt(225, 300, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
             ) : (
                 _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-                    getRandomInt(75, 1000, waterNonce) :   // Case: Sad Potted Plant (100-175)
-                    getRandomInt(150, 2000, waterNonce)    // Case: Happy Potted Plant (200-350)
+                    getRandomInt(75, 100, waterNonce) : // Case: Sad Potted Plant (100-175)
+                    getRandomInt(150, 200, waterNonce)    // Case: Happy Potted Plant (200-350)
             );
+            // Uncomment for fast growing
+//            uint16 relativeGrowth = fertilizer ? (
+//                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
+//                    getRandomInt(113, 1500, waterNonce) :  // Case: Sad Potted Plant with Fertilizer (150-263)
+//                    getRandomInt(225, 3000, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
+//            ) : (
+//                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
+//                    getRandomInt(75, 1000, waterNonce) :   // Case: Sad Potted Plant (100-175)
+//                    getRandomInt(150, 2000, waterNonce)    // Case: Happy Potted Plant (200-350)
+//            );
             _growPlant(_tokenIds[i], relativeGrowth);
             emit URI(uri(_tokenIds[i]),_tokenIds[i]);
         }
@@ -192,6 +197,17 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     function waterWithFertilizer(uint[] calldata _tokenIds) external {
 //        console.log("waterWithFertilezer");
         _water(_tokenIds, true);
+    }
+
+    function setShrubName(uint tokenId_, string memory newName_) external {
+        // Must be the tokenId of a shrub
+        require(tokenId_ > SHRUB_BASE_TOKENID, "PaperPot: Invalid tokenId");
+        // Must own SHRUB
+        require(balanceOf(_msgSender(), tokenId_) > 0, "PaperPot: Must own Shrub to name");
+        // Must pay 5 fertilizer
+        _burn(_msgSender(), FERTILIZER_TOKENID, _fertForName);
+        // update the name based on the seedTokenId
+        _metadataGenerator.setShrubName(_shrubBaseSeed[tokenId_], newName_);
     }
 
     function harvest(uint _tokenId) external {
@@ -275,18 +291,18 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         }
     }
 
+    function adminSetFertForHappy(uint fertForHappy_) external adminOnly {
+        _fertForHappy = fertForHappy_;
+    }
+
+    function adminSetFertForName(uint fertForName_) external adminOnly {
+        _fertForName = fertForName_;
+    }
+
     function setURI(uint tokenId_, string calldata tokenURI_) external adminOnly {
         _setURI(tokenId_, tokenURI_);
         emit URI(tokenURI_, tokenId_);
     }
-
-//    function setShrubSeedUris(uint[] calldata seedTokenIds_, string[] calldata uris_) external adminOnly {
-//        require(seedTokenIds_.length == uris_.length, "PaperPot: seedTokenIds and uris must be same length");
-//        for (uint i = 0; i < seedTokenIds_.length; i++) {
-//            require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPot: invalid seedTokenId");
-//            _shrubSeedUris[seedTokenIds_[i]] = uris_[i];
-//        }
-//    }
 
     function setMetadataGenerator(address metadataGenerator_) external adminOnly {
         require(ERC165Checker.supportsInterface(metadataGenerator_, type(IPaperPotMetadata).interfaceId), "PaperPot: not a valid IPaperPotMetadata implementation");
@@ -399,13 +415,6 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
 //        NftClass class = getClassFromSeedId(_shrubBaseSeed[_tokenId]);
 //        return _shrubDefaultUris[class];
     }
-
-//    function adminSetDefaultUris(string[4] memory shrubDefaultUris_) public adminOnly {
-//        // must be 4 uris - wonder, passion, hope, power
-//        for (uint8 i = 0; i < shrubDefaultUris_.length; i++) {
-//            _shrubDefaultUris[NftClass(i)] = shrubDefaultUris_[i];
-//        }
-//    }
 
     // Internal Functions
 

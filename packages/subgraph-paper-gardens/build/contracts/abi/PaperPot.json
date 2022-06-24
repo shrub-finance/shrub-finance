@@ -346,6 +346,32 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "fertForHappy_",
+        "type": "uint256"
+      }
+    ],
+    "name": "adminSetFertForHappy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "fertForName_",
+        "type": "uint256"
+      }
+    ],
+    "name": "adminSetFertForName",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256[]",
         "name": "seedTokenIds",
         "type": "uint256[]"
@@ -690,7 +716,7 @@
     ],
     "name": "plantAndMakeHappy",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -932,6 +958,24 @@
       }
     ],
     "name": "setRoyalties",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "newName_",
+        "type": "string"
+      }
+    ],
+    "name": "setShrubName",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -25,6 +25,8 @@ interface IPaperPotMetadata {
         uint seedTokenId,
         bool isSad
     ) external view returns (string memory);
+
+    function setShrubName(uint seedTokenId_, string memory newName_) external;
 }
 
 contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminControl, ERC165 {
@@ -80,7 +82,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
         string memory imageBaseUri_,
         string[4] memory shrubDefaultUris_
 ) {
-        require(shrubDefaultUris_.length == 4, "must be 4 uris - wonder, passion, hope, power");
+        require(shrubDefaultUris_.length == 4, "PaperPotMetadata: must be 4 uris - wonder, passion, hope, power");
 
         // setup the initial admin as the contract deployer
         setAdmin(_msgSender(), true);
@@ -389,7 +391,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     }
 
     function getClassFromSeedId(uint256 _seedTokenId) private pure returns (string[3] memory) {
-        require(seedIdInRange(_seedTokenId), "seedTokenId not in range");
+        require(seedIdInRange(_seedTokenId), "PaperPotMetadata: seedTokenId not in range");
         if (_seedTokenId > 1110) {
             return ["Wonder", "Common", string(abi.encodePacked("Paper Seed of Wonder #",(_seedTokenId - 1110).toString()))];
         }
@@ -403,7 +405,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     }
 
     function getNftClassFromSeedId(uint256 _seedTokenId) private pure returns (NftClass) {
-        require(seedIdInRange(_seedTokenId), "seedTokenId not in range");
+        require(seedIdInRange(_seedTokenId), "PaperPotMetadata: seedTokenId not in range");
         if (_seedTokenId > 1110) {
             return NftClass.wonder;
         }
@@ -417,7 +419,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     }
 
     function getDnaFromSeedId(uint256 _seedTokenId) private pure returns (uint256 dna) {
-        require(seedIdInRange(_seedTokenId), "seedTokenId not in range");
+        require(seedIdInRange(_seedTokenId), "PaperPotMetadata: seedTokenId not in range");
         return _seedTokenId % 100;
     }
 
@@ -429,10 +431,39 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     }
 
     function setShrubSeedUris(uint[] calldata seedTokenIds_, CustomMetadata[] calldata metadatas_) external adminOnly {
-        require(seedTokenIds_.length == metadatas_.length, "PaperPot: seedTokenIds and uris must be same length");
+        require(seedTokenIds_.length == metadatas_.length, "PaperPotMetadata: seedTokenIds and uris must be same length");
         for (uint i = 0; i < seedTokenIds_.length; i++) {
-            require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPot: invalid seedTokenId");
+            require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPotMetadata: invalid seedTokenId");
             _shrubSeedUris[seedTokenIds_[i]] = metadatas_[i];
         }
+    }
+
+    function setShrubName(uint seedTokenId_, string memory newName_) external adminOnly {
+        require(bytes(_shrubSeedUris[seedTokenId_].imageUri).length > 0, "PaperPotMetadata: Can only set name for already set Shrub");
+        require(bytes(newName_).length < 27, "PaperPotMetadata: Maximum characters in name is 26.");
+        require(validateMessage(newName_), "PaperPotMetadata: Invalid Name");
+        _shrubSeedUris[seedTokenId_].name = newName_;
+    }
+
+    function validateMessage(string memory message_) public view returns(bool) {
+        // a-z,A-Z only
+        bytes memory messageBytes = bytes(message_);
+        if (messageBytes.length == 0) {
+            // Length 0 is allow to revert
+            return true;
+        }
+
+        // cannot begin or end with a space
+        require(messageBytes.length > 0 && messageBytes[0] != 0x20 && messageBytes[messageBytes.length-1] != 0x20, "Invalid characters");
+
+        for (uint i = 0; i < messageBytes.length; i++) {
+            bytes1 char = messageBytes[i];
+            if (!(char >= 0x41 && char <= 0x5A) && !(char >= 0x61 && char <= 0x7A) && char != 0x20) {
+                revert("Invalid character");
+            } else if (i >= 1 && char == 0x20 && messageBytes[i-1] == 0x20) {
+                revert("Cannot have multiple sequential spaces");
+            }
+        }
+        return true;
     }
 }
