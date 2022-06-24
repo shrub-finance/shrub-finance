@@ -120,6 +120,7 @@ function SeedDetails({
       setStillGrowing(false);
     }
   }, [selectedItem.growth]);
+
   // Move errors to the top
   useEffect(() => {
     console.log("useEffect - error to top");
@@ -413,7 +414,9 @@ function SeedDetails({
               {selectedItem.category === "paperSeed" && (
                 <Tooltip
                   hasArrow
-                  label="Must have an empty pot to plant"
+                  label={
+                    noPot ? "You must have an empty pot to plant seed" : null
+                  }
                   shouldWrapChildren
                   mt="3"
                 >
@@ -471,7 +474,11 @@ function SeedDetails({
                 {/*harvest button*/}
                 <Tooltip
                   hasArrow
-                  label="Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
+                  label={
+                    stillGrowing
+                      ? "Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
+                      : null
+                  }
                   shouldWrapChildren
                   mt="3"
                 >

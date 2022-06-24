@@ -188,15 +188,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
     mySeedData.user &&
     mySeedData.user.pottedPlants &&
     mySeedData.user.pottedPlants.length;
-  // console.log(fungibleAssets);
-  // console.log(holdsFungibleAsset);
 
   const POLL_INTERVAL = 1000; // 1 second
   const tooLarge = accountTicketCount.lt(
     ethers.BigNumber.from(redeemAmount || 0)
   );
-  // isDisabled={Number(redeemAmount) <= 0 || noFunds || accountTicketCount.lte(Zero)}
-  // tickets && ethers.BigNumber.from(redeemAmount || 0).gt(tickets);
+
   const noFunds =
     walletTokenBalance &&
     redeemPrice &&
