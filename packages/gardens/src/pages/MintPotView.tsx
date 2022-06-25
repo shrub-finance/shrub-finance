@@ -197,7 +197,6 @@ function MintPotView(props: RouteComponentProps) {
 
   // Move errors to the top
   useEffect(() => {
-    console.log("useEffect - error to top");
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
@@ -218,7 +217,6 @@ function MintPotView(props: RouteComponentProps) {
         ? fromEthDate(mintEndDate)
         : undefined;
     setTimerDate(timerD);
-    console.log(toEthDate(timerD || new Date()));
   }, []);
 
   useEffect(() => {
@@ -230,7 +228,6 @@ function MintPotView(props: RouteComponentProps) {
     if (!library || !account || !phase) {
       return;
     }
-    console.log("running useEffect-account");
 
     async function accountAsync() {
       if (!account) {
@@ -238,7 +235,6 @@ function MintPotView(props: RouteComponentProps) {
       }
 
       // Check if account has pots
-      console.log("checking pot count");
       try {
         const potCount = await balanceOfErc1155(PAPER_POT_ADDRESS, 1, library);
         setAccountPotCount(potCount);
@@ -248,7 +244,6 @@ function MintPotView(props: RouteComponentProps) {
       }
 
       // Check the wallet balance
-      console.log("checking balance");
       try {
         const balanceObj = await getBigWalletBalance(WETHAddress, library);
         const { bigBalance } = balanceObj;
@@ -260,7 +255,6 @@ function MintPotView(props: RouteComponentProps) {
       }
 
       // Check if approved for the balance amount
-      console.log("checking approved");
       try {
         const allowance = await getAllowance(
           WETHAddress,
