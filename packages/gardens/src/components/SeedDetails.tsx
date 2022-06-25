@@ -1,11 +1,15 @@
 import {
   Alert,
   AlertIcon,
+  Avatar,
   Badge,
   Box,
   Button,
   Center,
+  Divider,
   Heading,
+  HStack,
+  Icon,
   Image,
   keyframes,
   Modal,
@@ -18,25 +22,26 @@ import {
   SlideFade,
   Spinner,
   Stack,
+  StackDivider,
+  Tag,
   Text,
   Tooltip,
   useColorMode,
+  useColorModeValue,
   useDisclosure,
   useToast,
+  VStack,
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { FlyingSeed, PlantingPot, WonderPot } from "../assets/Icons";
+import { FlyingSeed, PlantingPot, Pot, WonderPot } from "../assets/Icons";
 import { TransformScale } from "./animations/TransformScale";
 import { Disappear, Appear } from "./animations/Fade";
 import { motion, useAnimation } from "framer-motion";
 import {
   approveAllErc721,
-  approveToken,
   harvestShrub,
   isApprovedErc721,
-  mint,
-  mintWL,
   plant,
   water,
   waterWithFertilizer,
@@ -47,6 +52,10 @@ import { ethers } from "ethers";
 import { ToastDescription, Txmonitor } from "./TxMonitoring";
 import { TxContext } from "./Store";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
+import Confetti from "../assets/Confetti";
+
+import { Feature } from "./Feature";
+import { FaHandHoldingHeart, FaHeart } from "react-icons/all";
 
 function SeedDetails({
   hooks,
@@ -57,13 +66,22 @@ function SeedDetails({
     mySeedDataError: any;
     selectedItem: any;
     emptyPot: any;
+    holdsPottedPlant: any;
+    fungibleAssets: any;
   };
   handleErrorMessages: (errorOptions: {
     err?: Error | undefined;
     customMessage?: string | undefined;
   }) => void;
 }) {
-  const { mySeedDataLoading, mySeedDataError, selectedItem, emptyPot } = hooks;
+  const {
+    mySeedDataLoading,
+    mySeedDataError,
+    selectedItem,
+    emptyPot,
+    holdsPottedPlant,
+    fungibleAssets,
+  } = hooks;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
@@ -75,9 +93,11 @@ function SeedDetails({
   const [approving, setApproving] = React.useState(false);
   const [noPot, setNoPot] = React.useState(false);
   const [stillGrowing, setStillGrowing] = React.useState(true);
+  const [showConfetti, setShowConfetti] = React.useState(false);
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
+
   const [activeHash, setActiveHash] = useState<string>();
 
   const animationKeyframes = keyframes`
@@ -112,7 +132,7 @@ function SeedDetails({
     if (!emptyPot) {
       setNoPot(true);
     }
-  }, [emptyPot]);
+  }, [emptyPot, account]);
 
   // Disable action if not ready for harvest
   useEffect(() => {
@@ -120,11 +140,17 @@ function SeedDetails({
       setStillGrowing(false);
     }
   }, [selectedItem.growth]);
+
   // Move errors to the top
   useEffect(() => {
-    console.log("useEffect - error to top");
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 40000);
+  }, [activeHash]);
 
   // determine if planting is approved
   useEffect(() => {
@@ -152,11 +178,9 @@ function SeedDetails({
 
   // Start animation
   useEffect(() => {
-    console.log("useEffect - isOpen");
     if (!isOpen) {
       return;
     }
-    console.log(" animation effect starts");
     setTimeout(() => {
       controls.start("final");
     }, 1);
@@ -167,6 +191,7 @@ function SeedDetails({
   function handleModalClose() {
     setApproving(false);
     setActiveHash(undefined);
+    setLocalError("");
     onClose();
   }
 
@@ -186,7 +211,6 @@ function SeedDetails({
       setActiveHash(tx.hash);
       try {
         const receipt = await tx.wait();
-        // setIsMinted(true);
         const toastDescription = ToastDescription(
           description,
           receipt.transactionHash,
@@ -207,6 +231,7 @@ function SeedDetails({
           data: { blockNumber: receipt.blockNumber },
         });
         setApproving(false);
+        setShowConfetti(true);
       } catch (e: any) {
         const toastDescription = ToastDescription(
           description,
@@ -227,6 +252,7 @@ function SeedDetails({
           position: "top-right",
         });
         setApproving(false);
+        setShowConfetti(false);
       }
     } catch (e: any) {
       if (e.message.includes("Must own a pot token to plant")) {
@@ -234,9 +260,9 @@ function SeedDetails({
       }
       handleErrorMessages({ err: e });
       setApproving(false);
+      setShowConfetti(false);
     }
   }
-
   function handlePlanting() {
     return handleBlockchainTx("Planting", () =>
       plant(selectedItem.tokenId, library)
@@ -269,7 +295,8 @@ function SeedDetails({
 
   return (
     <>
-      <Center mt={10}>
+      {activeHash && showConfetti && <Confetti />}
+      <Center mt={10} mb={4}>
         {localError && (
           <SlideFade in={true} unmountOnExit={true}>
             <Alert status="error" borderRadius={9}>
@@ -288,9 +315,11 @@ function SeedDetails({
           <Box
             w={"full"}
             layerStyle="shrubBg"
-            boxShadow={"2xl"}
+            boxShadow={"dark-lg"}
             rounded={"xl"}
-            p={4}
+            pt={10}
+            px={4}
+            pb={4}
           >
             {/*image*/}
             <Center mt={{ base: "6", md: "0" }}>
@@ -323,7 +352,7 @@ function SeedDetails({
                 {["water", "fertilizer"].includes(selectedItem.category) ? (
                   <>
                     <Text pt={6} textAlign={"center"} textStyle={"reading"}>
-                      You use 1{" "}
+                      You need 1{" "}
                       {selectedItem.category === "water"
                         ? "water"
                         : "fertilizer"}{" "}
@@ -334,7 +363,10 @@ function SeedDetails({
                       {selectedItem.category === "water"
                         ? "water"
                         : "fertilizer"}
-                      , select a potted plant on the right
+                      ,{" "}
+                      {holdsPottedPlant
+                        ? "select a potted plant on the right"
+                        : "plant a seed first"}
                     </Text>
                   </>
                 ) : (
@@ -388,32 +420,48 @@ function SeedDetails({
             <Stack mt={8} direction={"row"} spacing={4}>
               {/*Water Button*/}
               {selectedItem.category === "pottedPlant" && stillGrowing && (
-                <Button
-                  onClick={() => {
-                    setModalState("water");
-                    openModal();
-                  }}
-                  flex={1}
-                  fontSize={"sm"}
-                  rounded={"full"}
-                  bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
-                  color={"black"}
-                  boxShadow={"xl"}
-                  _hover={{
-                    bg: "shrub.200",
-                  }}
-                  _focus={{
-                    bg: "shrub.100",
-                  }}
+                <Tooltip
+                  hasArrow
+                  label={
+                    fungibleAssets.water === 0
+                      ? "You do not have water yet. First get some water from the water faucet."
+                      : null
+                  }
+                  shouldWrapChildren
+                  mt="3"
                 >
-                  Water
-                </Button>
+                  <Button
+                    onClick={() => {
+                      setModalState("water");
+                      openModal();
+                    }}
+                    flex={1}
+                    fontSize={"xl"}
+                    w={"420px"}
+                    rounded={"2xl"}
+                    bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                    isDisabled={fungibleAssets.water === 0}
+                  >
+                    Water
+                  </Button>
+                </Tooltip>
               )}
+
               {/*Plant Button*/}
               {selectedItem.category === "paperSeed" && (
                 <Tooltip
                   hasArrow
-                  label="Must have an empty pot to plant"
+                  label={
+                    noPot ? "You must have an empty pot to plant seed" : null
+                  }
                   shouldWrapChildren
                   mt="3"
                 >
@@ -424,8 +472,8 @@ function SeedDetails({
                     }}
                     w={"420px"}
                     flex={1}
-                    fontSize={"sm"}
-                    rounded={"full"}
+                    fontSize={"xl"}
+                    rounded={"2xl"}
                     bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
                     color={"black"}
                     boxShadow={"xl"}
@@ -446,32 +494,49 @@ function SeedDetails({
               <Stack mt={8} direction={"row"} spacing={4}>
                 {/*fertilize button*/}
                 {stillGrowing && (
-                  <Button
-                    onClick={() => {
-                      setModalState("fertilize");
-                      openModal();
-                    }}
-                    flex={1}
-                    fontSize={"sm"}
-                    rounded={"full"}
-                    bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
-                    color={"black"}
-                    boxShadow={"xl"}
-                    _hover={{
-                      bg: "shrub.200",
-                    }}
-                    _focus={{
-                      bg: "shrub.100",
-                    }}
+                  <Tooltip
+                    hasArrow
+                    label={
+                      fungibleAssets.fertilizer === 0
+                        ? "You do not have fertilizer. First earn some."
+                        : null
+                    }
+                    shouldWrapChildren
+                    mt="3"
                   >
-                    Fertilize
-                  </Button>
+                    <Button
+                      onClick={() => {
+                        setModalState("fertilize");
+                        openModal();
+                      }}
+                      flex={1}
+                      w={"202px"}
+                      fontSize={"xl"}
+                      rounded={"2xl"}
+                      bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                      color={"black"}
+                      boxShadow={"xl"}
+                      _hover={{
+                        bg: "shrub.200",
+                      }}
+                      _focus={{
+                        bg: "shrub.100",
+                      }}
+                      isDisabled={fungibleAssets.fertilizer === 0}
+                    >
+                      Fertilize
+                    </Button>
+                  </Tooltip>
                 )}
 
                 {/*harvest button*/}
                 <Tooltip
                   hasArrow
-                  label="Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
+                  label={
+                    stillGrowing
+                      ? "Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
+                      : null
+                  }
                   shouldWrapChildren
                   mt="3"
                 >
@@ -484,8 +549,8 @@ function SeedDetails({
                     animation={!stillGrowing ? animation : undefined}
                     flex={1}
                     w={stillGrowing ? "202px" : "420px"}
-                    fontSize={"sm"}
-                    rounded={"full"}
+                    fontSize={"xl"}
+                    rounded={"2xl"}
                     bgGradient={
                       !stillGrowing
                         ? "linear(to-r, #49f4ff, #fff, #8fff6e 50%, #3fe5ff)"
@@ -515,7 +580,7 @@ function SeedDetails({
         onClose={handleModalClose}
         motionPreset="slideInBottom"
         scrollBehavior={isMobile ? "inside" : "outside"}
-        size={"xl"}
+        size={isMobile ? "full" : "xl"}
       >
         <ModalOverlay />
         <MotionModalContent
@@ -523,18 +588,18 @@ function SeedDetails({
           top="6rem"
           boxShadow="dark-lg"
           borderRadius="2xl"
-          animate={{
-            backgroundColor: [
-              colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-              "#ffd06b",
-              colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-            ],
-          }}
+          // animate={{
+          //   backgroundColor: [
+          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+          //     "#ffd06b",
+          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+          //   ],
+          // }}
           //@ts-ignore
-          transition={{
-            duration: 0.25,
-            delay: 1.97,
-          }}
+          // transition={{
+          //   duration: 0.25,
+          //   delay: 1.97,
+          // }}
         >
           <ModalHeader>
             {modalState === "plant"
@@ -560,50 +625,120 @@ function SeedDetails({
             {
               // When transaction is in flight
               approving || activeHash ? (
-                <Txmonitor txHash={activeHash} />
+                <Center mt={20}>
+                  {" "}
+                  <Txmonitor txHash={activeHash} />
+                </Center>
               ) : (
                 // Base States based on action clicked
                 <>
                   {modalState === "plant" ? (
-                    <Center>
-                      <Box textStyle={"reading"} fontSize={"md"}>
-                        <Text>Planting will result in</Text>
-
-                        {/*<Image*/}
-                        {/*  w={20}*/}
-                        {/*  h={20}*/}
-                        {/*  src={*/}
-                        {/*    IMAGE_ASSETS.seeds[selectedItem.name][*/}
-                        {/*      selectedItem.emotion*/}
-                        {/*    ]*/}
-                        {/*  }*/}
-                        {/*/>*/}
-
-                        <Text>{selectedItem.name}</Text>
-                        <Text>and</Text>
-                        <PlantingPot boxSize={"20"} />
-                        <Text>1 Empty Pot</Text>
-                        <Text>
-                          converting into a potted plant that you can grow into
-                          a Shrub
+                    <Stack spacing={4}>
+                      <Text textStyle={"reading"} fontSize={"lg"}>
+                        You are about to turn
+                      </Text>
+                      <Divider
+                        borderColor={useColorModeValue("gray.100", "gray.700")}
+                      />
+                      <Stack spacing={4}>
+                        <Feature
+                          icon={
+                            selectedItem &&
+                            selectedItem.category === "paperSeed" && (
+                              <Avatar
+                                name="Seed"
+                                bg="yellow.100"
+                                size="xs"
+                                src={
+                                  IMAGE_ASSETS.seeds[selectedItem.type][
+                                    selectedItem.emotion
+                                  ]
+                                }
+                              />
+                            )
+                          }
+                          iconBg={""}
+                          text={`1 ${selectedItem.name}`}
+                        />
+                        <Feature
+                          icon={
+                            <Icon as={Pot} color={"green.500"} w={5} h={5} />
+                          }
+                          iconBg={useColorModeValue("green.100", "green.900")}
+                          text={"1 Empty Pot"}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          Into
                         </Text>
-                        <Text>This is irreversible.</Text>
-                        {!plantingApproved && (
-                          <Text>
-                            You must also first approve your seed for planting.
-                            You only have to do it once.
+                        <Feature
+                          icon={
+                            selectedItem &&
+                            selectedItem.category === "paperSeed" && (
+                              <Avatar
+                                name="Seed"
+                                bg="yellow.100"
+                                size="sm"
+                                src={IMAGE_ASSETS.getPottedPlant(
+                                  selectedItem.type,
+                                  0,
+                                  selectedItem.emotion
+                                )}
+                              />
+                            )
+                          }
+                          iconBg={""}
+                          text={"1 Potted Plant"}
+                        />
+                        <Divider
+                          borderColor={useColorModeValue(
+                            "gray.100",
+                            "gray.700"
+                          )}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          You will grow it into a Shrub{" "}
+                          <Icon as={FaHeart} color={"red.500"} w={5} h={5} />
+                        </Text>
+                      </Stack>
+                      {!plantingApproved && (
+                        <>
+                          <Text textStyle={"reading"} fontSize={"lg"}>
+                            You must first approve your seed for planting
                           </Text>
-                        )}
-                      </Box>
-                    </Center>
+                          <Text
+                            textTransform={"uppercase"}
+                            color={useColorModeValue("gray.600", "gray.400")}
+                            fontWeight={600}
+                            fontSize={"sm"}
+                            bg={useColorModeValue("gray.100", "gray.900")}
+                            p={2}
+                            alignSelf={"flex-start"}
+                            rounded={"md"}
+                          >
+                            You only have to approve once
+                          </Text>
+                        </>
+                      )}
+                      <Text
+                        textTransform={"uppercase"}
+                        color={"blue.400"}
+                        fontWeight={600}
+                        fontSize={"sm"}
+                        bg={useColorModeValue("blue.50", "blue.900")}
+                        p={2}
+                        alignSelf={"flex-start"}
+                        rounded={"md"}
+                      >
+                        This action is irreversible
+                      </Text>
+                    </Stack>
                   ) : modalState === "water" ? (
                     <Center>
                       <Box textStyle={"reading"}>
-                        <Text>Watering will result in</Text>
-                        <Text>1 Water being consumed</Text>
                         <Text>
-                          And in turn increasing the growth number of your
-                          potted plant.
+                          Watering will result in 1 Water being consumed, and in
+                          turn increasing the growth number of your potted
+                          plant.
                         </Text>
                         <Text>
                           This can only be done once per day for each potted
@@ -614,20 +749,15 @@ function SeedDetails({
                   ) : modalState === "fertilize" ? (
                     <Center>
                       <Box textStyle={"reading"}>
-                        <Text>Fertilizing will result in</Text>
-                        <Text>1 Fertilizer</Text>
-                        <Text>plus</Text>
-                        <Text>1 Water being consumed</Text>
                         <Text>
-                          This is done in place of a normal daily watering
-                        </Text>
-                        <Text>
-                          Your potted plant will grow more compared to when
-                          simply watered
+                          Fertilizing will result in 1 Fertilizer plus 1 Water
+                          being consumed. This is done in place of a normal
+                          daily watering. Your potted plant will grow more
+                          compared to when simply watered
                         </Text>
                         <Text>
                           This is a one-time effect, it will not affect future
-                          waterings
+                          watering
                         </Text>
                         <Text>
                           This can only be done once per day for each potted
@@ -638,10 +768,11 @@ function SeedDetails({
                   ) : modalState === "harvest" ? (
                     <Center>
                       <Box textStyle={"reading"}>
-                        <Text>Harvesting will result in</Text>
-                        <Text>your potted plant</Text>
-                        <Text>converting into a fully-grown Shrub.</Text>
-                        <Text>This is irrevesible.</Text>
+                        <Text>
+                          Harvesting will result in your potted plant and 1
+                          Empty Pot converting into a fully-grown Shrub.
+                        </Text>
+                        <Text>This is irreversible.</Text>
                       </Box>
                     </Center>
                   ) : (
@@ -651,6 +782,9 @@ function SeedDetails({
                   <Center>
                     <Button
                       p={6}
+                      mt={8}
+                      mb={4}
+                      cursor={"pointer"}
                       onClick={
                         modalState === "plant"
                           ? plantingApproved
@@ -665,8 +799,8 @@ function SeedDetails({
                           : () => console.log("unexpected state")
                       }
                       flex={1}
-                      fontSize={"sm"}
-                      rounded={"full"}
+                      fontSize={"xl"}
+                      rounded={"2xl"}
                       bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
                       color={"black"}
                       boxShadow={"xl"}
@@ -679,7 +813,7 @@ function SeedDetails({
                     >
                       {modalState === "plant"
                         ? plantingApproved
-                          ? "Plant"
+                          ? "Let's Plant"
                           : "Approve Seed for Planting"
                         : modalState === "water"
                         ? "Water"

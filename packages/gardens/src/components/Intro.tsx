@@ -53,7 +53,7 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "container.lg" }}
       >
-        <Box maxW="80rem" mb={8} textAlign={{ base: "center", md: "center" }}>
+        <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
           <Box>
             <PotSaleCountdown />
             {/*<AspectRatio ratio={16 / 9}>*/}
@@ -742,9 +742,8 @@ function Intro(props: RouteComponentProps) {
       >
         <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
           <Heading
-            fontSize={{ base: "30px", md: "50px" }}
+            fontSize={{ base: "30px", md: "30px" }}
             letterSpacing={"tight"}
-            mb={16}
           >
             As seen on
           </Heading>
@@ -763,88 +762,19 @@ function Intro(props: RouteComponentProps) {
                   />
                 </Link>
               </Box>
-              <Spacer />
-              <Box>
-                <Link
-                  href="https://www.nftjet.com/"
-                  cursor="pointer"
-                  isExternal
-                >
-                  <NftJetIcon boxSize={"66"} />
-                </Link>
-              </Box>
             </Flex>
           </Center>
         </Box>
       </Container>
 
-      {/*/!*cta*!/*/}
-      {/*<Container*/}
-      {/*  mt={{ base: 0, md: 50 }}*/}
-      {/*  p={5}*/}
-      {/*  flex="1"*/}
-      {/*  borderRadius="2xl"*/}
-      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
-      {/*>*/}
-      {/*  <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>*/}
-      {/*    <Heading*/}
-      {/*      fontSize={{ base: "30px", md: "40px" }}*/}
-      {/*      letterSpacing={"tight"}*/}
-      {/*      mb={16}*/}
-      {/*    >*/}
-      {/*      Get Started*/}
-      {/*    </Heading>*/}
-      {/*    <Center>*/}
-      {/*      <Flex*/}
-      {/*        direction={{*/}
-      {/*          base: "column",*/}
-      {/*          md: "column",*/}
-      {/*          lg: "column",*/}
-      {/*          xl: "row",*/}
-      {/*        }}*/}
-      {/*        gap={8}*/}
-      {/*      >*/}
-      {/*        <Box>*/}
-      {/*          <Link*/}
-      {/*            href="https://opensea.io/collection/shrub-paper-gardens"*/}
-      {/*            isExternal*/}
-      {/*            cursor="pointer"*/}
-      {/*            rounded="3xl"*/}
-      {/*            size="sm"*/}
-      {/*            px="6"*/}
-      {/*            fontSize="25px"*/}
-      {/*            fontWeight="semibold"*/}
-      {/*            py="5"*/}
-      {/*            _hover={{ transform: "translateY(-2px)" }}*/}
-      {/*            background="gold.100"*/}
-      {/*            color={"black"}*/}
-      {/*          >*/}
-      {/*            Get a Seed*/}
-      {/*            <ExternalLinkIcon*/}
-      {/*              mx="2px"*/}
-      {/*              display={{ base: "none", md: "inline" }}*/}
-      {/*            />*/}
-      {/*          </Link>*/}
-      {/*          <Center>*/}
-      {/*            <Text mt={8} maxW={"19rem"}>*/}
-      {/*              To grow a Shrub you need a seed*/}
-      {/*            </Text>*/}
-      {/*          </Center>*/}
-      {/*        </Box>*/}
-      {/*      </Flex>*/}
-      {/*    </Center>*/}
-      {/*  </Box>*/}
-      {/*</Container>*/}
-
       {/*ending*/}
       <Container
-        mt={{ base: 0, md: 0 }}
         p={5}
         flex="1"
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
+        <Box maxW="80rem" mt={{ base: 16, md: 16 }} textAlign={"center"}>
           <Heading
             fontSize={{ base: "30px", md: "40px" }}
             letterSpacing={"tight"}

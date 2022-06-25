@@ -110,7 +110,7 @@ function MintPotView(props: RouteComponentProps) {
   const invalidEntry = Number(amountValue) < 0 || isNaN(Number(amountValue));
 
   const mintPrice = ethers.constants.WeiPerEther.mul(50).div(1000); // 0.05 Eth
-  const mintStartDate = toEthDate(new Date("2022-06-10T14:00:00Z"));
+  const mintStartDate = toEthDate(new Date("2022-06-25T14:00:00Z"));
   const mintEndDate = toEthDate(new Date("2022-06-26T14:00:00Z"));
   const maxMintAmount = 10;
 
@@ -197,7 +197,6 @@ function MintPotView(props: RouteComponentProps) {
 
   // Move errors to the top
   useEffect(() => {
-    console.log("useEffect - error to top");
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
@@ -218,15 +217,17 @@ function MintPotView(props: RouteComponentProps) {
         ? fromEthDate(mintEndDate)
         : undefined;
     setTimerDate(timerD);
-    console.log(toEthDate(timerD || new Date()));
   }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [localError, web3Error]);
 
   // useEffect for account
   useEffect(() => {
     if (!library || !account || !phase) {
       return;
     }
-    console.log("running useEffect-account");
 
     async function accountAsync() {
       if (!account) {
@@ -234,7 +235,6 @@ function MintPotView(props: RouteComponentProps) {
       }
 
       // Check if account has pots
-      console.log("checking pot count");
       try {
         const potCount = await balanceOfErc1155(PAPER_POT_ADDRESS, 1, library);
         setAccountPotCount(potCount);
@@ -244,7 +244,6 @@ function MintPotView(props: RouteComponentProps) {
       }
 
       // Check the wallet balance
-      console.log("checking balance");
       try {
         const balanceObj = await getBigWalletBalance(WETHAddress, library);
         const { bigBalance } = balanceObj;
@@ -256,7 +255,6 @@ function MintPotView(props: RouteComponentProps) {
       }
 
       // Check if approved for the balance amount
-      console.log("checking approved");
       try {
         const allowance = await getAllowance(
           WETHAddress,
@@ -287,14 +285,14 @@ function MintPotView(props: RouteComponentProps) {
   return (
     <>
       <Container
-        mt={isMobile ? 30 : 50}
+        mt={isMobile ? 30 : 0}
         p={5}
         flex="1"
         borderRadius="2xl"
         maxW="container.sm"
       >
-        {isMinted && <Confetti />}
-        <Center mt={10}>
+        {/*{isMinted && <Confetti />}*/}
+        <Center mt={12}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
               <Alert status="error" borderRadius={9}>
@@ -308,12 +306,12 @@ function MintPotView(props: RouteComponentProps) {
           <Box mb={{ base: 6, md: 10 }}>
             <Heading
               textAlign={"center"}
-              fontSize={{ base: "30px", md: "70px" }}
+              fontSize={{ base: "30px", md: "60px" }}
               letterSpacing={"tight"}
               bgGradient="gold.100"
               maxW={{ base: "20rem", md: "40rem" }}
             >
-              Pot{" "}
+              &#127881;Pot{" "}
               <Text
                 as="span"
                 background="gold.100"
@@ -327,40 +325,49 @@ function MintPotView(props: RouteComponentProps) {
               >
                 Sale
               </Text>
+              &#127881;
             </Heading>
-            <Center mt={{ base: 5, md: 10 }}>
-              <Box
-                bgColor={useColorModeValue("gray.200", "gray.700")}
-                p={10}
-                rounded="3xl"
-              >
-                <Box
-                  fontSize={{ base: "18px", md: "20px" }}
-                  fontWeight="semibold"
-                >
-                  <Text
-                    fontSize="md"
-                    color={useColorModeValue("gray.600", "gray.400")}
-                  >
-                    Mint Info:
-                  </Text>
-                  <Text>
-                    You currently have {accountPotCount.toString()} pot
-                    {sIfMany(accountPotCount)}
-                  </Text>
-                  <Text>
-                    Mint price per pot: {ethers.utils.formatEther(mintPrice)}{" "}
-                    WETH
-                  </Text>
-                </Box>
+            <Center mt={4} display={{ base: "flex", md: "flex", lg: "none" }}>
+              {timerDate && <CountdownTimer targetDate={timerDate} />}
+            </Center>
+
+            <Center p={4} rounded="3xl" mt={{ base: 5, md: 0 }} mb={4}>
+              <Box fontWeight="semibold">
+                <Text fontSize={{ base: "md", md: "lg" }}>
+                  You currently have {accountPotCount.toString()} Pot
+                  {sIfMany(accountPotCount)}
+                </Text>
+                <Text fontSize={{ base: "md", md: "lg" }} pt={2}>
+                  Mint price per pot {ethers.utils.formatEther(mintPrice)} WETH
+                </Text>
               </Box>
             </Center>
 
             {/*Input boxes*/}
             {["mint"].includes(phase || "") && (
-              <VStack mt={6}>
-                <Box>
-                  <Center>
+              <Box
+                shadow={!isMobile ? "dark-lg" : undefined}
+                p={!isMobile ? 6 : undefined}
+                borderRadius={!isMobile ? "3xl" : undefined}
+              >
+                <VStack pt={2}>
+                  {!isMobile && (
+                    <Text
+                      mt="3"
+                      fontSize="14px"
+                      textAlign="center"
+                      fontWeight="medium"
+                      background="gold.100"
+                      bgClip="text"
+                      sx={{
+                        "-webkit-text-stroke":
+                          colorMode === "light" ? "1px #7e5807" : "transparent",
+                      }}
+                    >
+                      Time to get your pot. Let's go!
+                    </Text>
+                  )}
+                  <Box>
                     <FormLabel
                       fontSize={"sm"}
                       color={"gray.500"}
@@ -368,164 +375,164 @@ function MintPotView(props: RouteComponentProps) {
                     >
                       Quantity
                     </FormLabel>
-                  </Center>
-                  <NumberInput
-                    isInvalid={invalidEntry}
-                    min={0}
-                    max={10}
-                    precision={0}
-                    onChange={(valueString) => {
-                      const [integerPart, decimalPart] = valueString.split(".");
-                      if (valueString.includes(".")) {
-                        setAmountValue(integerPart || "0");
-                        return;
-                      }
-                      if (integerPart && integerPart.length > 2) {
-                        return;
-                      }
-                      if (valueString === "00") {
-                        return;
-                      }
-                      if (isNaN(Number(valueString))) {
-                        return;
-                      }
-                      if (
-                        Number(valueString) !==
-                        Math.round(Number(valueString) * 1e6) / 1e6
-                      ) {
-                        setAmountValue(Number(valueString).toFixed(6));
-                        return;
-                      }
-                      setAmountValue(valueString);
-                    }}
-                    value={format(amountValue)}
-                    size="lg"
-                  >
-                    <NumberInputField
-                      h="6rem"
-                      borderRadius="3xl"
-                      shadow="sm"
-                      fontWeight="medium"
-                      fontSize="2xl"
-                    />
-                    <InputRightElement
-                      pointerEvents="none"
-                      p={14}
-                      children={
-                        <FormLabel
-                          htmlFor="amount"
-                          color="gray.500"
-                          fontWeight="medium"
-                          minW={"100"}
-                        >
-                          pots
-                        </FormLabel>
-                      }
-                    />
-                  </NumberInput>
-                </Box>
-                <Box>
-                  <Center>
+                    <NumberInput
+                      isInvalid={invalidEntry}
+                      min={0}
+                      max={10}
+                      precision={0}
+                      onChange={(valueString) => {
+                        const [integerPart, decimalPart] =
+                          valueString.split(".");
+                        if (valueString.includes(".")) {
+                          setAmountValue(integerPart || "0");
+                          return;
+                        }
+                        if (integerPart && integerPart.length > 2) {
+                          return;
+                        }
+                        if (valueString === "00") {
+                          return;
+                        }
+                        if (isNaN(Number(valueString))) {
+                          return;
+                        }
+                        if (
+                          Number(valueString) !==
+                          Math.round(Number(valueString) * 1e6) / 1e6
+                        ) {
+                          setAmountValue(Number(valueString).toFixed(6));
+                          return;
+                        }
+                        setAmountValue(valueString);
+                      }}
+                      value={format(amountValue)}
+                      size="lg"
+                    >
+                      <NumberInputField
+                        h="6rem"
+                        borderRadius="3xl"
+                        shadow="sm"
+                        fontWeight="medium"
+                        fontSize="2xl"
+                      />
+                      <InputRightElement
+                        pointerEvents="none"
+                        p={14}
+                        children={
+                          <FormLabel
+                            htmlFor="amount"
+                            color="gray.500"
+                            fontWeight="medium"
+                          >
+                            pots
+                          </FormLabel>
+                        }
+                      />
+                    </NumberInput>
+                  </Box>
+                  <Box>
                     <FormLabel
                       fontSize={"sm"}
                       color={"gray.500"}
                       fontWeight={"medium"}
+                      pt={4}
                     >
                       Total
                     </FormLabel>
-                  </Center>
-                  <Box
-                    bg={bgColor}
-                    borderRadius="3xl"
-                    fontWeight="medium"
-                    fontSize="2xl"
-                    p={"1.813rem"}
-                  >
-                    {invalidEntry
-                      ? "?"
-                      : format(
-                          mintPrice
-                            ? ethers.utils.formatEther(
-                                mintPrice.mul(Number(amountValue))
-                              )
-                            : "-"
-                        )}{" "}
-                    WETH
+
+                    <Box
+                      bg={bgColor}
+                      borderRadius="3xl"
+                      fontWeight="medium"
+                      fontSize="2xl"
+                      p={"1.813rem"}
+                      w="325px"
+                    >
+                      {invalidEntry
+                        ? "?"
+                        : format(
+                            mintPrice
+                              ? ethers.utils.formatEther(
+                                  mintPrice.mul(Number(amountValue))
+                                )
+                              : "-"
+                          )}{" "}
+                      WETH
+                    </Box>
                   </Box>
-                </Box>
-              </VStack>
-            )}
-            {["wlMint", "mint"].includes(phase || "") && (
-              <Text
-                mt="3"
-                mb={{ base: "16px", md: "10", lg: "10" }}
-                fontSize="18px"
-                textAlign="center"
-                fontWeight="medium"
-                background="gold.100"
-                bgClip="text"
-                sx={{
-                  "-webkit-text-stroke":
-                    colorMode === "light" ? "1px #7e5807" : "transparent",
-                }}
-              >
-                {isMobile
-                  ? "Time to get your Pot!"
-                  : "Time to get your pot. Let's go!"}
-              </Text>
-            )}
-            {["mint"].includes(phase || "") && (
-              <Center>
-                {
-                  <Button
-                    onClick={noAllowance ? handleApprove : handleMintPot}
-                    colorScheme={tradingBtnColor}
-                    variant="solid"
-                    rounded="2xl"
-                    isLoading={isLoading}
-                    isDisabled={Number(amountValue) <= 0 || noFunds || tooLarge}
-                    size="lg"
-                    px={["50", "70", "90", "90"]}
-                    fontSize="25px"
-                    py={10}
-                    borderRadius="full"
-                    _hover={{ transform: "translateY(-2px)" }}
-                    bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
-                    loadingText={noAllowance ? "Approving..." : "Minting..."}
-                  >
-                    {
-                      // If no account then Wrong Network and Connect Wallet
-                      !account
-                        ? !!web3Error &&
-                          getErrorMessage(web3Error).title === "Wrong Network"
-                          ? "Connect to Polygon"
-                          : "Connect Wallet"
-                        : tooLarge
-                        ? `Quantity above allowed (max ${maxMintAmount.toString()})`
-                        : noFunds
-                        ? "Insufficient funds"
-                        : noAllowance
-                        ? "Approve WETH"
-                        : "Mint Pot"
-                    }
-                  </Button>
-                }
-              </Center>
+                </VStack>
+                {/*button*/}
+                <Center pt={6}>
+                  {
+                    <Button
+                      onClick={noAllowance ? handleApprove : handleMintPot}
+                      colorScheme={tradingBtnColor}
+                      variant="solid"
+                      rounded="2xl"
+                      isLoading={isLoading}
+                      isDisabled={
+                        Number(amountValue) <= 0 || noFunds || tooLarge
+                      }
+                      size="lg"
+                      px={["50", "70", "90", "90"]}
+                      fontSize="25px"
+                      py={10}
+                      borderRadius="full"
+                      _hover={{ transform: "translateY(-2px)" }}
+                      bgGradient={"linear(to-r, #74cecc, green.300, blue.400)"}
+                      loadingText={noAllowance ? "Approving..." : "Minting..."}
+                    >
+                      {
+                        // If no account then Wrong Network and Connect Wallet
+                        !account
+                          ? !!web3Error &&
+                            getErrorMessage(web3Error).title === "Wrong Network"
+                            ? "Connect to Polygon"
+                            : "Connect Wallet"
+                          : tooLarge
+                          ? `Quantity above allowed (max ${maxMintAmount.toString()})`
+                          : noFunds
+                          ? "Insufficient funds"
+                          : noAllowance
+                          ? "Approve WETH"
+                          : "Mint Pot"
+                      }
+                    </Button>
+                  }
+                </Center>
+              </Box>
             )}
           </Box>
         </Center>
       </Container>
-
-      {timerDate && (
-        <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 10, md: 20 }}>
-          <Text fontSize={{ base: "20px", md: "30px" }} fontWeight="semibold">
-            <CountdownTimer targetDate={timerDate} />
-          </Text>
+      <Box
+        position={{ base: "static", md: "static", lg: "fixed", xl: "fixed" }}
+        bottom={0}
+        left={4}
+      >
+        {!isMobile && timerDate && (
+          <Box maxW="60rem" mb={4} mt={{ base: 10, md: 20 }}>
+            <Text
+              fontSize="sm"
+              fontWeight={"bold"}
+              color={useColorModeValue("gray.600", "gray.400")}
+            >
+              Sale End In:
+            </Text>
+            <Text
+              fontSize={{ base: "20px", md: "20px", lg: "20px", xl: "30px" }}
+              fontWeight="semibold"
+            >
+              <CountdownTimer targetDate={timerDate} />
+            </Text>
+          </Box>
+        )}
+        <Box fontSize={"xs"} color={useColorModeValue("gray.600", "gray.300")}>
+          <Text fontWeight="bold">Paper Pot Address:</Text>
+          <Text fontWeight="md"> {PAPERPOTMINT_ADDRESS}</Text>
+          <Text fontWeight="bold">WETH Address:</Text>
+          <Text fontWeight="md"> {WETHAddress}</Text>
         </Box>
-      )}
-      <Box fontWeight="medium" fontSize={"xs"}>
-        <Text>Paper Pot Address: {PAPERPOTMINT_ADDRESS}</Text>
-        <Text>WETH Address: {WETHAddress}</Text>
       </Box>
 
       <Modal
@@ -533,6 +540,7 @@ function MintPotView(props: RouteComponentProps) {
         onClose={onConnectWalletClose}
         motionPreset="slideInBottom"
         scrollBehavior={isMobile ? "inside" : "outside"}
+        size={isMobile ? "full" : "md"}
       >
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">
