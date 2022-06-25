@@ -181,7 +181,6 @@ function SeedDetails({
     if (!isOpen) {
       return;
     }
-    console.log(" animation effect starts");
     setTimeout(() => {
       controls.start("final");
     }, 1);
@@ -192,6 +191,7 @@ function SeedDetails({
   function handleModalClose() {
     setApproving(false);
     setActiveHash(undefined);
+    setLocalError("");
     onClose();
   }
 
