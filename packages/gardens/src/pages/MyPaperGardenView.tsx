@@ -784,9 +784,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         fontSize="sm"
                         color={useColorModeValue("gray.600", "gray.400")}
                       >
-                        Redemption Date
+                        Redemption Available
                       </Text>
-                      <Text>Saturday, June 25</Text>
+                      <Text>Redemption is now active</Text>
                     </Box>
                     <Box
                       fontSize={{ base: "18px", md: "20px" }}
@@ -797,7 +797,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         fontSize="sm"
                         color={useColorModeValue("gray.600", "gray.400")}
                       >
-                        Redemption End Date
+                        Last day to redeem your ticket
                       </Text>
                       <Text>Sunday, July 3</Text>
                     </Box>
@@ -823,10 +823,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         fontSize="sm"
                         color={useColorModeValue("gray.600", "gray.400")}
                       >
-                        Time until redemption
+                        If not redeemed, your ticket will expire in
                       </Text>
                       <CountdownTimer
-                        targetDate={new Date("2022-06-26T14:00:00Z")}
+                        targetDate={new Date("2022-07-03T14:00:00Z")}
                       />
                     </Box>
                   </Box>
