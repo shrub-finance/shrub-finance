@@ -35,7 +35,7 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     uint private NFTTicketTokenId;
     address private NFTTicketAddress;
 
-    string private CONTRACT_URI = ;
+    string private CONTRACT_URI = "ipfs://QmZ7GM5AYS8fZKXhVJ518uHV4Wdx8nAdyquPhDH6TNY4Q5";
 
     uint private _fertForHappy = 3;
     uint private _fertForName = 5;
