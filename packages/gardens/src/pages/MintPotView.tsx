@@ -310,7 +310,7 @@ function MintPotView(props: RouteComponentProps) {
         maxW="container.sm"
       >
         {isMinted && <Confetti />}
-        <Center mt={12}>
+        <Center mt={14}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
               <Alert status="error" borderRadius={9}>
