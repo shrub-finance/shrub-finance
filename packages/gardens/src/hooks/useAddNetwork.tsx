@@ -7,7 +7,7 @@ export default function useAddNetwork() {
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
   const addNetwork = () => {
-    const params = [NETWORK_RPC_DETAILS[137]];
+    const params = [NETWORK_RPC_DETAILS[80001]];
     // @ts-ignore
     window.ethereum
       // @ts-ignore

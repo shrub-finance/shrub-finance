@@ -162,29 +162,30 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         // Loop through and water each plant
         for (uint i = 0; i < _tokenIds.length; i++) {
             // TODO: Re-enable this for PROD - VERY IMPORTANT
-            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
+//            require(_eligibleForWatering(_tokenIds[i]), "PaperPot: provided tokenIds not eligible");
             require(balanceOf(_msgSender(), _tokenIds[i]) > 0, "PaperPot: Potted plant not owned by sender");
             require(_growthState[_tokenIds[i]].growthBps < 10000, "PaperPot: Potted plant is already fully grown");
             waterNonce++;
-            uint16 relativeGrowth = fertilizer ? (
-                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-                    getRandomInt(113, 150, waterNonce) : // Case: Sad Potted Plant with Fertilizer (150-263)
-                    getRandomInt(225, 300, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
-            ) : (
-                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-                    getRandomInt(75, 100, waterNonce) : // Case: Sad Potted Plant (100-175)
-                    getRandomInt(150, 200, waterNonce)    // Case: Happy Potted Plant (200-350)
-            );
-            // Uncomment for fast growing
+            // TODO: Re-enable this for PROD - VERY IMPORTANT
 //            uint16 relativeGrowth = fertilizer ? (
 //                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-//                    getRandomInt(113, 1500, waterNonce) :  // Case: Sad Potted Plant with Fertilizer (150-263)
-//                    getRandomInt(225, 3000, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
+//                    getRandomInt(113, 150, waterNonce) : // Case: Sad Potted Plant with Fertilizer (150-263)
+//                    getRandomInt(225, 300, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
 //            ) : (
 //                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
-//                    getRandomInt(75, 1000, waterNonce) :   // Case: Sad Potted Plant (100-175)
-//                    getRandomInt(150, 2000, waterNonce)    // Case: Happy Potted Plant (200-350)
+//                    getRandomInt(75, 100, waterNonce) : // Case: Sad Potted Plant (100-175)
+//                    getRandomInt(150, 200, waterNonce)    // Case: Happy Potted Plant (200-350)
 //            );
+            // Uncomment for fast growing
+            uint16 relativeGrowth = fertilizer ? (
+                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
+                    getRandomInt(113, 1500, waterNonce) :  // Case: Sad Potted Plant with Fertilizer (150-263)
+                    getRandomInt(225, 3000, waterNonce)    // Case: Happy Potted Plant with Fertilizer (300-525)
+            ) : (
+                _sadSeeds[_plantedSeed[_tokenIds[i]]] ?
+                    getRandomInt(75, 1000, waterNonce) :   // Case: Sad Potted Plant (100-175)
+                    getRandomInt(150, 2000, waterNonce)    // Case: Happy Potted Plant (200-350)
+            );
             _growPlant(_tokenIds[i], relativeGrowth);
             emit URI(uri(_tokenIds[i]),_tokenIds[i]);
         }
