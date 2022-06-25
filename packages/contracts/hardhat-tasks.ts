@@ -805,6 +805,18 @@ task("updateNFTTicketWL")
     await PotNFTTicket.updateWL(tokenId, accounts, wlSpots);
   })
 
+task("emergencyFreeze", "Freeze Pot Assets in case of emergency - they cannot be transferred")
+  .addOptionalParam("enable", "true or false", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const enable:boolean = taskArgs.enable;
+    const [owner] = await ethers.getSigners();
+    const PaperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
+    const tx = await paperPot.adminSetFreeze(enable);
+    console.log(tx.hash);
+  })
+
 task("unpausePot", "unpause minting for paper Pot")
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;

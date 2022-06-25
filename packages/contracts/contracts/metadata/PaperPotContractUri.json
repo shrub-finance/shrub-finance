@@ -1,0 +1,8 @@
+{
+  "name": "Shrub Paper Gardens",
+  "description": "The first interactive on-chain growth NFT. Shrub.finance's genesis NFT project is the most technically advanced NFT series yet. In this series you plant a seed and grow it into a Shrub all on the Polygon blockchain. Dynamic metadata means you watch it grow on OpenSea. Join us in this groundbreaking series. Seeds available here https://opensea.io/collection/shrub-paper-gardens-seeds.",
+  "image": "https://shrub.finance/paper-gardens-logo.png",
+  "external_link": "https://gardens.shrub.finance",
+  "seller_fee_basis_points": 1000,
+  "fee_recipient": "0x4497C08e3FcC1580B13afA1ddDA10aB3aB0822ae"
+}

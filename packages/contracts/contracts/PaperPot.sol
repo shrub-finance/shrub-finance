@@ -35,6 +35,8 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     uint private NFTTicketTokenId;
     address private NFTTicketAddress;
 
+    string private CONTRACT_URI = ;
+
     uint private _fertForHappy = 3;
     uint private _fertForName = 5;
 
@@ -317,6 +319,10 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         emit URI(uri(tokenId_), tokenId_);
     }
 
+    function setContractURI(string memory _contractUri) external adminOnly {
+        CONTRACT_URI = _contractUri;
+    }
+
     // External View
 
     function getPlantedSeed(uint _tokenId) external view validPottedPlant(_tokenId) returns (uint seedTokenId) {
@@ -347,6 +353,10 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
 
     function isSeedSad(uint seedTokenId_) external view returns (bool) {
         return _sadSeeds[seedTokenId_];
+    }
+
+    function contractURI() external view returns (string memory) {
+        return CONTRACT_URI;
     }
 
     // Public Functions
