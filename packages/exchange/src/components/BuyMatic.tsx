@@ -1,7 +1,9 @@
 import axios from "axios";
-import { Button } from "@chakra-ui/react";
+import { Button, Link, useColorModeValue } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import { trackEvent } from "../utils/handleGATracking";
+import { isMobile } from "react-device-detect";
+import React from "react";
 
 function BuyMatic() {
   const { account } = useWeb3React();
@@ -13,9 +15,17 @@ function BuyMatic() {
       failureRedirectUrl?: string;
       dest?: string | undefined;
     };
+    // add query params to the success and failure redirect urls so that any route can realize status
+    const currentURL = new URL(window.location.href);
+    const currentURLParams = new URLSearchParams(currentURL.search);
+    const redirectPrefix = `${currentURL.protocol}//${currentURL.host}${currentURL.pathname}?`;
+    currentURLParams.set("wyreCheckoutStatus", "failure");
+    const failureRedirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
+    currentURLParams.set("wyreCheckoutStatus", "success");
+    const redirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
     const params: WyreCheckoutParams = {
-      redirectUrl: window.location.href,
-      failureRedirectUrl: window.location.href,
+      redirectUrl,
+      failureRedirectUrl,
     };
     let dest;
     if (account) {
@@ -103,6 +113,19 @@ function BuyMatic() {
       >
         Buy MATIC
       </Button>
+
+      {!isMobile && (
+        <Link
+          pr={5}
+          fontSize={"sm"}
+          fontWeight={"bold"}
+          color={useColorModeValue("blue", "yellow")}
+          href={"https://discord.gg/BpHuVCYtdB"}
+          isExternal
+        >
+          Join Discord
+        </Link>
+      )}
     </>
   );
 }

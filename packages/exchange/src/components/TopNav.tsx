@@ -91,7 +91,7 @@ function TopNav() {
     <>
       <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
         <Box layerStyle={"bannerBg"} textStyle={"bannerText"}>
-          🎉 {!isMobile ? "Shrub's Genesis NFT Series pre-sale on June 8!" : ""}
+          🎉 {!isMobile ? "Shrub's Genesis NFT sale on June 25!" : ""}
           <Link
             href="https://gardens.shrub.finance"
             isExternal
@@ -101,9 +101,7 @@ function TopNav() {
             // @ts-ignore
             onClick={handleGA}
           >
-            {!isMobile
-              ? "See Details"
-              : "Shrub's Genesis NFT Series sale on June 8!  "}
+            {!isMobile ? "Participate" : "Shrub's Genesis NFT sale June 25!  "}
           </Link>
         </Box>
         <Box shadow={topNavShadow} bg={topNavBgColor} px={4} m={"-11px"}>

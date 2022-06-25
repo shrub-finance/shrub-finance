@@ -4,6 +4,7 @@ import { Web3ReactProvider } from "@web3-react/core";
 import { getLibrary } from "./components/ConnectWallet";
 import React, { useEffect } from "react";
 import Store from "./components/Store";
+import WyreCheckoutStatus from "./components/WyreCheckoutStatus";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import HomeView from "./pages/HomeView";
 import NFTView from "./pages/NFTView";
@@ -14,6 +15,7 @@ import ChaptersView from "./pages/ChaptersView";
 import IntroView from "./pages/IntroView";
 import OpenSeaView from "./pages/OpenSeaView";
 import ReactGA from "react-ga";
+import NFTTicketView from "./pages/NFTTicketView";
 import MysteryBoxView from "./pages/MysteryBoxView";
 const trackingID = process.env.REACT_APP_TRACKING_ID;
 if (trackingID) {
@@ -51,16 +53,18 @@ function App() {
         <ApolloProvider client={client}>
           <Store>
             <TopNav />
+            <WyreCheckoutStatus />
             <Router>
               <HomeView path="/" />
-              {/*<MysteryBoxView path="/mystery-box" />*/}
+              <HomeView path="/presale" />
+              <NFTTicketView path="/presale" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
               <NFTView path="/nft/paper-seed/:tokenId" />
               <AdoptionCenterView path="/adoption" />
               <MyPaperGardenView path="/my-garden" />
-              <OpenSeaView path="/openSea" />
+              <OpenSeaView path="/opensea" />
             </Router>
           </Store>
         </ApolloProvider>

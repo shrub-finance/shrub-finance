@@ -6,6 +6,7 @@ import { ExchangeLogo } from "../assets/Icons";
 import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
 import { trackEvent } from "../utils/handleGATracking";
+import WyreCheckoutStatus from "./WyreCheckoutStatus";
 
 function Intro(props: RouteComponentProps) {
   const { account } = useWeb3React();
@@ -16,9 +17,17 @@ function Intro(props: RouteComponentProps) {
       failureRedirectUrl?: string;
       dest?: string | undefined;
     };
+    // add query params to the success and failure redirect urls so that any route can realize status
+    const currentURL = new URL(window.location.href);
+    const currentURLParams = new URLSearchParams(currentURL.search);
+    const redirectPrefix = `${currentURL.protocol}//${currentURL.host}${currentURL.pathname}?`;
+    currentURLParams.set('wyreCheckoutStatus', 'failure');
+    const failureRedirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
+    currentURLParams.set('wyreCheckoutStatus', 'success');
+    const redirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
     const params: WyreCheckoutParams = {
-      redirectUrl: window.location.href,
-      failureRedirectUrl: window.location.href,
+      redirectUrl,
+      failureRedirectUrl,
     };
     let dest;
     if (account) {
@@ -94,6 +103,7 @@ function Intro(props: RouteComponentProps) {
 
   return (
     <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
+      <WyreCheckoutStatus />
       <Center mt={isMobile ? 28 : 24}>
         <Box maxW="60rem" mb={8} textAlign={"center"}>
           <Heading

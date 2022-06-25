@@ -1,6 +1,9 @@
 import axios from "axios";
-import { Button } from "@chakra-ui/react";
+import { Button, Link, useColorModeValue } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
+import { isMobile } from "react-device-detect";
+import { Link as ReachLink } from "@reach/router";
+import React from "react";
 
 // TODO: could update source currency automatically based on locale
 
@@ -13,9 +16,17 @@ function BuyMatic() {
       failureRedirectUrl?: string;
       dest?: string | undefined;
     };
+    // add query params to the success and failure redirect urls so that any route can realize status
+    const currentURL = new URL(window.location.href);
+    const currentURLParams = new URLSearchParams(currentURL.search);
+    const redirectPrefix = `${currentURL.protocol}//${currentURL.host}${currentURL.pathname}?`;
+    currentURLParams.set("wyreCheckoutStatus", "failure");
+    const failureRedirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
+    currentURLParams.set("wyreCheckoutStatus", "success");
+    const redirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
     const params: WyreCheckoutParams = {
-      redirectUrl: window.location.href,
-      failureRedirectUrl: window.location.href,
+      redirectUrl,
+      failureRedirectUrl,
     };
     let dest;
     if (account) {

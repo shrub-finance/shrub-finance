@@ -4,7 +4,6 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "hardhat/console.sol";
 
 interface INftTicketRedeemable {
     function mintFromTicket(
@@ -13,6 +12,7 @@ interface INftTicketRedeemable {
         uint ticketTokenId
     ) external returns (bool);
 }
+
 
 contract PotNFTTicket is ERC1155, Ownable {
     using Counters for Counters.Counter;
@@ -29,9 +29,11 @@ contract PotNFTTicket is ERC1155, Ownable {
         uint32 wlMintStartDate;        // 4 bytes
         uint32 wlMintEndDate;          // 4 bytes
         uint96 wlMintPrice;          // 12 bytes
+        uint32 redeemEndDate;          // 4 bytes
         uint16 maxMintAmountPlusOne; // 2 bytes - How many can be minted at a time
         uint96 redeemPrice;          // 12 bytes (supports 7.92e+28 max)
         uint16 maxSupply;            // 2 bytes (supports 65536 tickets max)
+        bool redeemActive;           // 1 bytes
         bool active;                 // 1 bytes
         bool paused;                 // 1 bytes
     } // 64 bytes
@@ -42,6 +44,8 @@ contract PotNFTTicket is ERC1155, Ownable {
 
     IERC20 private _WETH;
 
+    string private CONTRACT_URI;
+
     constructor(address WETH_ADDRESS_) ERC1155("") {
         _WETH = IERC20(WETH_ADDRESS_);
     }
@@ -49,6 +53,18 @@ contract PotNFTTicket is ERC1155, Ownable {
     function initializeTicket(Ticket calldata ticketData_) public onlyOwner {
         uint tokenId = nextTokenId();
         ticketDatas[tokenId] = ticketData_;
+    }
+
+    function setUri(string calldata uri_) external onlyOwner {
+        _setURI(uri_);
+    }
+
+    function contractURI() public view returns (string memory) {
+        return CONTRACT_URI;
+    }
+
+    function setContractURI(string memory _contractUri) public onlyOwner {
+        CONTRACT_URI = _contractUri;
     }
 
     function getTicketData(uint tokenId_) public view returns (Ticket memory) {
@@ -86,6 +102,36 @@ contract PotNFTTicket is ERC1155, Ownable {
         ticketData.mintPrice = mintPrice_;
     }
 
+    function updateRedeemEndDate(uint tokenId_, uint32 redeemEndDate_) public onlyController(tokenId_) {
+        Ticket storage ticketData = ticketDatas[tokenId_];
+        ticketData.redeemEndDate = redeemEndDate_;
+    }
+
+    function updateRedeemActive(uint tokenId_, bool redeemActive_) public onlyController(tokenId_) {
+        Ticket storage ticketData = ticketDatas[tokenId_];
+        ticketData.redeemActive = redeemActive_;
+    }
+
+    function updateContractAddress(uint tokenId_, address contractAddress_) public onlyController(tokenId_) {
+        Ticket storage ticketData = ticketDatas[tokenId_];
+        ticketData.contractAddress = contractAddress_;
+    }
+
+    function updateWlMintStartDate(uint tokenId_, uint32 wlMintStartDate_) public onlyController(tokenId_) {
+        Ticket storage ticketData = ticketDatas[tokenId_];
+        ticketData.wlMintStartDate = wlMintStartDate_;
+    }
+
+    function updateWlMintEndDate(uint tokenId_, uint32 wlMintEndDate_) public onlyController(tokenId_) {
+        Ticket storage ticketData = ticketDatas[tokenId_];
+        ticketData.wlMintEndDate = wlMintEndDate_;
+    }
+
+    function updateWlMintPrice(uint tokenId_, uint96 wlMintPrice_) public onlyController(tokenId_) {
+        Ticket storage ticketData = ticketDatas[tokenId_];
+        ticketData.wlMintPrice = wlMintPrice_;
+    }
+
     function updateMaxMintAmount(uint tokenId_, uint16 maxMintAmountPlusOne_) public onlyController(tokenId_) {
         Ticket storage ticketData = ticketDatas[tokenId_];
         ticketData.maxMintAmountPlusOne = maxMintAmountPlusOne_;
@@ -97,6 +143,8 @@ contract PotNFTTicket is ERC1155, Ownable {
     }
 
     function redeem(uint tokenId_, uint amount_) public {
+        require(ticketDatas[tokenId_].redeemActive == true, "NFTTicket: Redeeming is not active");
+        require(block.timestamp < ticketDatas[tokenId_].redeemEndDate, "NFTTicket: Redeem Period has ended");
         // ensure that the sender owns at least the amount of tickets
         require(balanceOf(_msgSender(), tokenId_) >= amount_, "NFTTicket: Insufficient ticket balance to redeem");
         uint redeemWeth = amount_ * ticketDatas[tokenId_].redeemPrice;
@@ -224,10 +272,6 @@ contract PotNFTTicket is ERC1155, Ownable {
     }
 
     function mint(uint tokenId_, uint amount) external {
-        // TODO: Check if whitelist
-        // whitelist could make use of ecrecover along with a v,r,s and a hash for
-        // validation against an address that is used for signing on the back-end
-        // Check if mintAmount is above max
         require(_exists(tokenId_), "NFTTicket: tokenId does not exist");
         Ticket memory ticketData = ticketDatas[tokenId_];
         require(totalSupply[tokenId_] + amount <= ticketData.maxSupply, "NFTTicket: exceeds maxSupply");
@@ -246,14 +290,6 @@ contract PotNFTTicket is ERC1155, Ownable {
         );
         totalSupply[tokenId_] += amount;
         _mint(_msgSender(), tokenId_, amount, "");
-    }
-
-    function burn() public {
-        // Need to decrement totalSupply upon burn
-    }
-
-    function burnBatch() public {
-        // Need to decrement totalSupply upon burn
     }
 
     modifier onlyController(uint256 tokenId_) {
