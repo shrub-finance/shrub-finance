@@ -59,6 +59,7 @@ import Confetti from "../assets/Confetti";
 import { BigNumber, ethers } from "ethers";
 import CountdownTimer from "../components/CountdownTimer";
 import { Pot } from "../assets/Icons";
+import { FaTwitter } from "react-icons/all";
 
 type Phase = "before" | "mint" | "done";
 
@@ -356,8 +357,21 @@ function MintPotView(props: RouteComponentProps) {
                     <Box>
                       <AlertTitle>Congrats!</AlertTitle>
                       <AlertDescription>
-                        You just bought a Pot <Pot boxSize={6} />! Go to My
-                        Gardens page to see it!
+                        You just bought a Pot! Go to the My Gardens page to see
+                        it!
+                        <Pot boxSize={8} pl={2} />
+                        <Link
+                          href={`https://twitter.com/intent/tweet?text=I%20just%20minted%20a%20Shrub%20Pot%20via%20%40shrubfinance%20and%20became%20a%20part%20of%20the%20most%20technically%20advanced%20%23NFT%20series%20yet.%20%0A%0AJoin%20me%20in%20this%20groundbreaking%20series!%20%0A%0Ahttps%3A//opensea.io/assets/matic/${PAPER_POT_ADDRESS}/1/`}
+                          isExternal
+                        >
+                          <Button
+                            variant="link"
+                            colorScheme="twitter"
+                            leftIcon={<FaTwitter />}
+                          >
+                            Share in Twitter
+                          </Button>
+                        </Link>
                       </AlertDescription>
                     </Box>
                     <CloseButton
@@ -375,11 +389,10 @@ function MintPotView(props: RouteComponentProps) {
               <Box fontWeight="semibold">
                 <Text fontSize={{ base: "md", md: "lg" }}>
                   You currently have {accountPotCount.toString()} Pot
-                  {sIfMany(accountPotCount)} <Pot boxSize={6} />
+                  {sIfMany(accountPotCount)}
                 </Text>
                 <Text fontSize={{ base: "md", md: "lg" }} pt={2}>
-                  Mint price per <Pot boxSize={6} />{" "}
-                  {ethers.utils.formatEther(mintPrice)} WETH
+                  Mint Price per Pot {ethers.utils.formatEther(mintPrice)} WETH
                 </Text>
               </Box>
             </Center>
