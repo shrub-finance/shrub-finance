@@ -44,6 +44,8 @@ export function handleErrorMessagesFactory(
           setter("Redeem period has ended");
         } else if (err.message.includes("PaperPot: minting paused")) {
           setter("Minting has been paused");
+        } else if (err.message.includes("freeze in effect")) {
+          setter("Freeze is in effect");
         } else if (err.message.includes("PaperPot: invalid ticket tokenId")) {
           setter("Minting has been paused - #1005");
         } else if (err.message.includes("PaperPot: Insufficient balance")) {

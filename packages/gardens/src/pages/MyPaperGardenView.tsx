@@ -699,7 +699,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         maxW="container.lg"
       >
         {/*error states*/}
-        <Center mt={10} mb={6}>
+        <Center mt={0} mb={6}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
               <Alert variant={"shrubYellow"} status="info" borderRadius={9}>
@@ -718,7 +718,20 @@ function MyPaperGardenView(props: RouteComponentProps) {
               textAlign={"center"}
               maxW="60rem"
             >
-              Paper Garden
+              Paper{" "}
+              <Text
+                as="span"
+                background="gold.100"
+                bgClip="text"
+                sx={{
+                  "-webkit-text-stroke":
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
+                }}
+              >
+                Gardens
+              </Text>
             </Heading>
             <Text
               textAlign="center"
@@ -798,7 +811,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       >
                         Last day to redeem your ticket
                       </Text>
-                      <Text>Sunday, July 3</Text>
+                      <Text>Sunday, July 2</Text>
                     </Box>
                     <Box
                       fontSize={{ base: "18px", md: "20px" }}
@@ -825,7 +838,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         If not redeemed, your ticket will expire in
                       </Text>
                       <CountdownTimer
-                        targetDate={new Date("2022-07-03T14:00:00Z")}
+                        targetDate={new Date("2022-07-03T00:00:00.000Z")}
                       />
                     </Box>
                   </Box>

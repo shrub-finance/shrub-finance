@@ -28,6 +28,10 @@ import {
   NumberInputField,
   InputRightElement,
   VStack,
+  AlertTitle,
+  AlertDescription,
+  CloseButton,
+  Tooltip,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -54,6 +58,8 @@ import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
 import { BigNumber, ethers } from "ethers";
 import CountdownTimer from "../components/CountdownTimer";
+import { Pot } from "../assets/Icons";
+import { FaTwitter } from "react-icons/all";
 
 type Phase = "before" | "mint" | "done";
 
@@ -88,6 +94,13 @@ function MintPotView(props: RouteComponentProps) {
     onOpen: onConnectWalletOpen,
     onClose: onConnectWalletClose,
   } = useDisclosure();
+
+  const {
+    isOpen: isOpenSaleMessage,
+    onOpen: onOpenSaleMessage,
+    onClose: onCloseSaleMessage,
+  } = useDisclosure();
+
   const displayStatus = (val: boolean) => {
     setIsHidden(val);
   };
@@ -110,13 +123,14 @@ function MintPotView(props: RouteComponentProps) {
   const invalidEntry = Number(amountValue) < 0 || isNaN(Number(amountValue));
 
   const mintPrice = ethers.constants.WeiPerEther.mul(50).div(1000); // 0.05 Eth
-  const mintStartDate = toEthDate(new Date("2022-06-24T14:00:00Z"));
-  const mintEndDate = toEthDate(new Date("2022-06-26T14:00:00Z"));
+  const mintStartDate = toEthDate(new Date("2022-06-25T14:30:00.000Z"));
+  const mintEndDate = toEthDate(new Date("2022-06-26T14:30:00.000Z"));
   const maxMintAmount = 10;
 
   async function handleBlockchainTx(
     description: string,
-    callbackTx: () => Promise<ethers.ContractTransaction>
+    callbackTx: () => Promise<ethers.ContractTransaction>,
+    action?: string
   ) {
     setLocalError("");
     setIsMinted(false);
@@ -131,7 +145,10 @@ function MintPotView(props: RouteComponentProps) {
       try {
         const receipt = await tx.wait();
         setIsLoading(false);
-        setIsMinted(true);
+        if (action === "mintAction") {
+          setIsMinted(true);
+          onOpenSaleMessage();
+        }
         const toastDescription = ToastDescription(
           description,
           receipt.transactionHash,
@@ -190,15 +207,17 @@ function MintPotView(props: RouteComponentProps) {
   }
 
   async function handleMintPot() {
-    return handleBlockchainTx("Paper Pot Mint Successful!", () =>
-      mintPot(amountValue, library)
+    return handleBlockchainTx(
+      "Paper Pot Mint Successful!",
+      () => mintPot(amountValue, library),
+      "mintAction"
     );
   }
 
   // Move errors to the top
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [localError, web3Error]);
+  }, [localError, web3Error, isOpenSaleMessage]);
 
   // useEffect to set the phase
   useEffect(() => {
@@ -291,8 +310,8 @@ function MintPotView(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW="container.sm"
       >
-        {/*{isMinted && <Confetti />}*/}
-        <Center mt={12}>
+        {isMinted && <Confetti />}
+        <Center mt={14}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
               <Alert status="error" borderRadius={9}>
@@ -330,6 +349,41 @@ function MintPotView(props: RouteComponentProps) {
             <Center mt={4} display={{ base: "flex", md: "flex", lg: "none" }}>
               {timerDate && <CountdownTimer targetDate={timerDate} />}
             </Center>
+            {isOpenSaleMessage ? (
+              <Center mt={5}>
+                <SlideFade in={true} unmountOnExit={true}>
+                  <Alert status={"success"} borderRadius={9}>
+                    <AlertIcon />
+                    <Box>
+                      <AlertTitle>Congrats!</AlertTitle>
+                      <AlertDescription>
+                        You just bought a Pot! Go to the My Gardens page to see
+                        it!
+                        <Pot boxSize={8} pl={2} />
+                        <Link
+                          href={`https://twitter.com/intent/tweet?text=I%20just%20minted%20a%20Shrub%20Pot%20via%20%40shrubfinance%20and%20became%20a%20part%20of%20the%20most%20technically%20advanced%20%23NFT%20series%20yet.%20%0A%0AJoin%20me%20in%20this%20groundbreaking%20series!%20%0A%0Ahttps%3A//opensea.io/assets/matic/${PAPER_POT_ADDRESS}/1/`}
+                          isExternal
+                        >
+                          <Button
+                            variant="link"
+                            colorScheme="twitter"
+                            leftIcon={<FaTwitter />}
+                          >
+                            Share in Twitter
+                          </Button>
+                        </Link>
+                      </AlertDescription>
+                    </Box>
+                    <CloseButton
+                      alignSelf="flex-start"
+                      onClick={onCloseSaleMessage}
+                    />
+                  </Alert>
+                </SlideFade>
+              </Center>
+            ) : (
+              <></>
+            )}
 
             <Center p={4} rounded="3xl" mt={{ base: 5, md: 0 }} mb={4}>
               <Box fontWeight="semibold">
@@ -338,7 +392,7 @@ function MintPotView(props: RouteComponentProps) {
                   {sIfMany(accountPotCount)}
                 </Text>
                 <Text fontSize={{ base: "md", md: "lg" }} pt={2}>
-                  Mint price per pot {ethers.utils.formatEther(mintPrice)} WETH
+                  Mint Price per Pot {ethers.utils.formatEther(mintPrice)} WETH
                 </Text>
               </Box>
             </Center>
@@ -350,11 +404,11 @@ function MintPotView(props: RouteComponentProps) {
                 p={!isMobile ? 6 : undefined}
                 borderRadius={!isMobile ? "3xl" : undefined}
               >
-                <VStack pt={2}>
+                <VStack>
                   {!isMobile && (
                     <Text
                       mt="3"
-                      fontSize="14px"
+                      fontSize="16px"
                       textAlign="center"
                       fontWeight="medium"
                       background="gold.100"
@@ -464,40 +518,60 @@ function MintPotView(props: RouteComponentProps) {
                 {/*button*/}
                 <Center pt={6}>
                   {
-                    <Button
-                      onClick={noAllowance ? handleApprove : handleMintPot}
-                      colorScheme={tradingBtnColor}
-                      variant="solid"
-                      rounded="2xl"
-                      isLoading={isLoading}
-                      isDisabled={
-                        Number(amountValue) <= 0 || noFunds || tooLarge
-                      }
-                      size="lg"
-                      px={["50", "70", "90", "90"]}
-                      fontSize="25px"
-                      py={10}
-                      borderRadius="full"
-                      _hover={{ transform: "translateY(-2px)" }}
-                      bgGradient={"linear(to-r, #74cecc, green.300, blue.400)"}
-                      loadingText={noAllowance ? "Approving..." : "Minting..."}
-                    >
-                      {
-                        // If no account then Wrong Network and Connect Wallet
-                        !account
-                          ? !!web3Error &&
-                            getErrorMessage(web3Error).title === "Wrong Network"
-                            ? "Connect to Polygon"
-                            : "Connect Wallet"
+                    <Tooltip
+                      hasArrow
+                      label={
+                        noFunds
+                          ? "You do not have enough MATIC to make this purchase. Please check your wallet balance. "
                           : tooLarge
-                          ? `Quantity above allowed (max ${maxMintAmount.toString()})`
-                          : noFunds
-                          ? "Insufficient funds"
+                          ? "Pots you are trying to buy exceeds allowed "
                           : noAllowance
-                          ? "Approve WETH"
-                          : "Mint Pot"
+                          ? "Please approve WETH first to mint a pot."
+                          : null
                       }
-                    </Button>
+                      shouldWrapChildren
+                      mt="3"
+                    >
+                      <Button
+                        onClick={noAllowance ? handleApprove : handleMintPot}
+                        colorScheme={tradingBtnColor}
+                        variant="solid"
+                        rounded="2xl"
+                        isLoading={isLoading}
+                        isDisabled={
+                          Number(amountValue) <= 0 || noFunds || tooLarge
+                        }
+                        size="lg"
+                        px={["50", "70", "90", "90"]}
+                        fontSize="25px"
+                        py={10}
+                        borderRadius="full"
+                        _hover={{ transform: "translateY(-2px)" }}
+                        bgGradient={
+                          "linear(to-r, #74cecc, green.300, blue.400)"
+                        }
+                        loadingText={
+                          noAllowance ? "Approving..." : "Minting..."
+                        }
+                      >
+                        {
+                          // If no account then Wrong Network and Connect Wallet
+                          !account
+                            ? !!web3Error &&
+                              getErrorMessage(web3Error).title ===
+                                "Wrong Network"
+                              ? "Connect to Polygon"
+                              : "Connect Wallet"
+                            : tooLarge
+                            ? `Exceeds allowed (max ${maxMintAmount.toString()})`
+                            : noFunds
+                            ? "Insufficient funds"
+                            : noAllowance
+                            ? "Approve WETH"
+                            : "Mint Pot"
+                        }
+                      </Button>
+                    </Tooltip>
                   }
                 </Center>
               </Box>
@@ -517,7 +591,7 @@ function MintPotView(props: RouteComponentProps) {
               fontWeight={"bold"}
               color={useColorModeValue("gray.600", "gray.400")}
             >
-              Sale End In:
+              Sale Ends In:
             </Text>
             <Text
               fontSize={{ base: "20px", md: "20px", lg: "20px", xl: "30px" }}
@@ -528,7 +602,7 @@ function MintPotView(props: RouteComponentProps) {
           </Box>
         )}
         <Box fontSize={"xs"} color={useColorModeValue("gray.600", "gray.300")}>
-          <Text fontWeight="bold">Paper Pot Address:</Text>
+          <Text fontWeight="bold">Paper Pot Mint Address:</Text>
           <Text fontWeight="md"> {PAPERPOTMINT_ADDRESS}</Text>
           <Text fontWeight="bold">WETH Address:</Text>
           <Text fontWeight="md"> {WETHAddress}</Text>
