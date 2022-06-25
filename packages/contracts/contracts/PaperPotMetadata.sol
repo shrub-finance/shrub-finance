@@ -25,6 +25,8 @@ interface IPaperPotMetadata {
         uint seedTokenId,
         bool isSad
     ) external view returns (string memory);
+
+    function setShrubName(uint seedTokenId_, string memory newName_) external;
 }
 
 contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminControl, ERC165 {
@@ -80,15 +82,12 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
         string memory imageBaseUri_,
         string[4] memory shrubDefaultUris_
 ) {
-        require(shrubDefaultUris_.length == 4, "must be 4 uris - wonder, passion, hope, power");
+        require(shrubDefaultUris_.length == 4, "PaperPotMetadata: must be 4 uris - wonder, passion, hope, power");
 
         // setup the initial admin as the contract deployer
         setAdmin(_msgSender(), true);
 
         adminSetDefaultUris(shrubDefaultUris_);
-//        for (uint8 i = 0; i < shrubDefaultUris_.length; i++) {
-//            _shrubDefaultUris[NftClass(i)] = shrubDefaultUris_[i];
-//        }
         _imageBaseUri = imageBaseUri_;
     }
 
@@ -135,7 +134,6 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     function _getJsonShrub(uint _tokenId, uint _seedTokenId, bool _isSad) private view returns (string memory) {
         ERC1155MetadataStructure memory metadata = ERC1155MetadataStructure({
             isImageLinked: true,
-//            name: string(abi.encodePacked("Shrub #", (_tokenId - 2000000).toString())),
             name: _getNameShrub(_tokenId, _seedTokenId),
             description: "created by Shrub.finance",
             createdBy: "Shrub.finance",
@@ -199,27 +197,11 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     function _getJsonAttributesShrub(uint _tokenId, uint _seedTokenId, bool isSad) private view returns (ERC1155MetadataAttribute[] memory) {
         string[3] memory classRarity = getClassFromSeedId(_seedTokenId);
         ERC1155MetadataAttribute[] memory attributes = new ERC1155MetadataAttribute[](14);
-//        ERC1155MetadataAttribute[] memory attributes;
         attributes[0] = _getERC721MetadataAttribute(false, true, true, "", "Class", classRarity[0]);
         attributes[1] = _getERC721MetadataAttribute(false, true, false, "", "DNA", getDnaFromSeedId(_seedTokenId).toString());
         attributes[2] = _getERC721MetadataAttribute(false, true, true, "", "Emotion", isSad ? "Sad" : "Happy");
         attributes[3] = _getERC721MetadataAttribute(false, true, true, "", "Planted Seed", classRarity[2]);
         attributes[4] = _getERC721MetadataAttribute(false, true, true, "", "Birth Order", (_tokenId - 2000000).toString());
-//        _shrubSeedUris[seedTokenIds_[i]] = metadatas_[i];
-//        struct CustomMetadata {
-//        string name;
-//        string imageUri;
-//        string bodyType;
-//        string background;
-//        string top;
-//        string hat;
-//        string expression;
-//        string leftHand;
-//        string rightHand;
-//        string clothes;
-//        string accessory;
-//        }
-//        if (bytes(shrubSeedUriName).length > 0)
         if (bytes(_shrubSeedUris[_seedTokenId].bodyType).length == 0) {
             return attributes;
         }
@@ -389,7 +371,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     }
 
     function getClassFromSeedId(uint256 _seedTokenId) private pure returns (string[3] memory) {
-        require(seedIdInRange(_seedTokenId), "seedTokenId not in range");
+        require(seedIdInRange(_seedTokenId), "PaperPotMetadata: seedTokenId not in range");
         if (_seedTokenId > 1110) {
             return ["Wonder", "Common", string(abi.encodePacked("Paper Seed of Wonder #",(_seedTokenId - 1110).toString()))];
         }
@@ -403,7 +385,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     }
 
     function getNftClassFromSeedId(uint256 _seedTokenId) private pure returns (NftClass) {
-        require(seedIdInRange(_seedTokenId), "seedTokenId not in range");
+        require(seedIdInRange(_seedTokenId), "PaperPotMetadata: seedTokenId not in range");
         if (_seedTokenId > 1110) {
             return NftClass.wonder;
         }
@@ -417,7 +399,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     }
 
     function getDnaFromSeedId(uint256 _seedTokenId) private pure returns (uint256 dna) {
-        require(seedIdInRange(_seedTokenId), "seedTokenId not in range");
+        require(seedIdInRange(_seedTokenId), "PaperPotMetadata: seedTokenId not in range");
         return _seedTokenId % 100;
     }
 
@@ -429,10 +411,41 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     }
 
     function setShrubSeedUris(uint[] calldata seedTokenIds_, CustomMetadata[] calldata metadatas_) external adminOnly {
-        require(seedTokenIds_.length == metadatas_.length, "PaperPot: seedTokenIds and uris must be same length");
+        require(seedTokenIds_.length == metadatas_.length, "PaperPotMetadata: seedTokenIds and uris must be same length");
         for (uint i = 0; i < seedTokenIds_.length; i++) {
-            require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPot: invalid seedTokenId");
+            require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPotMetadata: invalid seedTokenId");
             _shrubSeedUris[seedTokenIds_[i]] = metadatas_[i];
         }
     }
+
+    function setShrubName(uint seedTokenId_, string memory newName_) external adminOnly {
+        require(bytes(_shrubSeedUris[seedTokenId_].imageUri).length > 0, "PaperPotMetadata: Can only set name for already set Shrub");
+        require(bytes(newName_).length < 27, "PaperPotMetadata: Maximum characters in name is 26.");
+        require(validateMessage(newName_), "PaperPotMetadata: Invalid Name");
+        _shrubSeedUris[seedTokenId_].name = newName_;
+    }
+
+    function validateMessage(string memory message_) public pure returns(bool) {
+        // a-z,A-Z only
+        bytes memory messageBytes = bytes(message_);
+        if (messageBytes.length == 0) {
+            // Length 0 is allow to revert
+            return true;
+        }
+
+        // cannot begin or end with a space
+        require(messageBytes.length > 0 && messageBytes[0] != 0x20 && messageBytes[messageBytes.length-1] != 0x20, "Invalid characters");
+
+        for (uint i = 0; i < messageBytes.length; i++) {
+            bytes1 char = messageBytes[i];
+            if (!(char >= 0x41 && char <= 0x5A) && !(char >= 0x61 && char <= 0x7A) && char != 0x20) {
+                revert("Invalid character");
+            } else if (i >= 1 && char == 0x20 && messageBytes[i-1] == 0x20) {
+                revert("Cannot have multiple sequential spaces");
+            }
+        }
+        return true;
+    }
+
+
 }

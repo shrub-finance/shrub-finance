@@ -3,7 +3,6 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "./AdminControl.sol";
-//import "hardhat/console.sol";
 
 interface IPaperPot {
     function adminMintPot(address _to, uint _amount) external;

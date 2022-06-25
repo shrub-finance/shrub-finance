@@ -1,7 +1,7 @@
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import hre, { ethers } from "hardhat";
 import {
   ERC20, ERC20Token, ERC20Token__factory, NFTTicket, NFTTicket__factory,
   PaperPot,
@@ -52,6 +52,10 @@ describe("PotNFTTicket", () => {
   let fourDaysFromNow = new Date(new Date().setUTCDate(now.getUTCDate() + 4));
   const ADDRESS_ONE = "0x0000000000000000000000000000000000000001";
   const DEAD_ADDRESS = "0x000000000000000000000000000000000000dEaD";
+
+  before(async () => {
+    await hre.network.provider.send('hardhat_reset');
+  })
 
   beforeEach(async () => {
     const signers = await ethers.getSigners();
@@ -1029,10 +1033,16 @@ describe("PotNFTTicket", () => {
         const PaperSeed = await ethers.getContractFactory("PaperSeed") as PaperSeed__factory;
         paperSeed = await PaperSeed.deploy(maxIndex, merkleRoot, baseUri);
         const PaperPotMetadata = await ethers.getContractFactory("PaperPotMetadata") as PaperPotMetadata__factory;
-        paperPotMetadata = await PaperPotMetadata.deploy(imageBaseUri);
+        const shrubDefaultImageUris: [string, string, string, string] = [
+          'ipfs://wonder.png',
+          'ipfs://passion.png',
+          'ipfs://hope.png',
+          'ipfs://power.png'
+        ]
+        paperPotMetadata = await PaperPotMetadata.deploy(imageBaseUri, shrubDefaultImageUris);
         const PaperPot = await ethers.getContractFactory("PaperPot") as PaperPot__factory;
         const SAD_SEEDS = [11, 13, 15, 17, 19];
-        const RESOURCE_URIS = [
+        const RESOURCE_URIS: [string, string, string] = [
           'http://test.xyz/1',
           'http://test.xyz/2',
           'http://test.xyz/3'
@@ -1047,7 +1057,6 @@ describe("PotNFTTicket", () => {
           [paperSeed.address],
           SAD_SEEDS,
           RESOURCE_URIS,
-          SHRUB_DEFAULT_URIS,
           paperPotMetadata.address
         );
         const ticketData = {

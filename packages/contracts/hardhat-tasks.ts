@@ -1,6 +1,7 @@
 import { task, types } from 'hardhat/config'
 import "@nomiclabs/hardhat-ethers";
 import {
+  ERC20Token__factory,
   HashUtil__factory, PaperPot__factory, PaperPotMetadata__factory, PaperPotMint__factory,
   PaperSeed__factory,
   PotNFTTicket__factory,
@@ -20,7 +21,7 @@ import promptly from "promptly";
 // import optionContracts from "./option-contracts.json";
 import chainlinkAggregatorV3Interface from "./external-contracts/chainlinkAggregatorV3InterfaceABI.json";
 import { address } from 'hardhat/internal/core/config/config-validation'
-import { BigNumberish } from 'ethers'
+import { BigNumberish, ContractTransaction } from 'ethers'
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 
@@ -61,6 +62,32 @@ task("accounts", "Prints the list of accounts", async (taskArgs, env) => {
   }
 });
 
+task("makeMinterAdmin", "Makes PaperPotMint an Admin of PaperPot")
+  .addParam("enable", "true or false", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { enable } = taskArgs;
+    const [deployer] = await ethers.getSigners();
+    const paperPotMintDeployment = await deployments.get("PaperPotMint");
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, deployer);
+    const adminAddressToSet = paperPotMintDeployment.address;
+    let tx: ContractTransaction;
+    const conf = await promptly.confirm(
+      `You are about to ${enable ? 'set' : 'remove'} ${adminAddressToSet} as an admin of PaperPot. Continue? (y/n)`
+    );
+    if (!conf) {
+      return;
+    }
+    if (enable) {
+      tx = await paperPot.setAdmin(adminAddressToSet, true);
+    } else {
+      tx = await paperPot.setAdmin(adminAddressToSet, false);
+    }
+    console.log(tx.hash);
+    console.log("done");
+  })
+
 task("unpausePotMinting", "Enables minting from PaperPotMint")
   .addParam("pause", "pause or unpause", false, types.boolean)
   .setAction(async (taskArgs, env) => {
@@ -69,13 +96,15 @@ task("unpausePotMinting", "Enables minting from PaperPotMint")
     const [deployer] = await ethers.getSigners();
     const paperPotMintDeployment = await deployments.get("PaperPotMint");
     const paperPotMint = PaperPotMint__factory.connect(paperPotMintDeployment.address, deployer);
+    let tx: ContractTransaction;
     if (pause) {
-      await paperPotMint.pauseMinting();
+      tx = await paperPotMint.pauseMinting();
       console.log("pausing minting");
     } else {
-      await paperPotMint.unpauseMinting();
+      tx = await paperPotMint.unpauseMinting();
       console.log("unpausing minting");
     }
+    console.log(tx.hash);
   })
 
 task("testPaperGardens", "Sets up a test env for paper gardens")
@@ -282,7 +311,8 @@ task("setShrubSeedUris", "set the imageUri for the full grown shrub based on the
     assert.equal(seedTokenIds.length > 0, true, "imageObj must not be empty");
     const paperPotMetadataDeployment = await deployments.get("PaperPotMetadata");
     const paperPotMetadata = PaperPotMetadata__factory.connect(paperPotMetadataDeployment.address, owner);
-    await paperPotMetadata.setShrubSeedUris(seedTokenIds, customMetadatas);
+    const tx = await paperPotMetadata.setShrubSeedUris(seedTokenIds, customMetadatas);
+    console.log(tx.hash);
   })
 
 task("setAllSadSeeds", "set all the sad seeds for the Paper Pot Contract")
@@ -326,7 +356,8 @@ task("setSadSeeds", "set the sad seeds for the Paper Pot Contract")
       tempSadArr.push(id);
       tempBoolArr.push(isSad);
     }
-    await paperPot.adminSetSadSeeds(tempSadArr, tempBoolArr);
+    const tx = await paperPot.adminSetSadSeeds(tempSadArr, tempBoolArr);
+    console.log(tx.hash);
   })
 
 task("mintSeed", "seedContract owner mints an unclaimed seed")
@@ -349,7 +380,8 @@ task("mintSeed", "seedContract owner mints an unclaimed seed")
     for (const tokenId of tokenIds) {
       console.log(`claiming token ${tokenId}`);
       try {
-        await PaperSeed.claimReserve(tokenId);
+        const tx = await PaperSeed.claimReserve(tokenId);
+        console.log(tx.hash);
       } catch (e) {
         console.log(e.message);
         console.log(`error minting tokenId ${tokenId}`);
@@ -440,7 +472,8 @@ task("mintWater", "mint new water to an account")
     const amount = taskArgs.amount;
     const paperPotDeployment = await deployments.get("PaperPot");
     const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
-    await paperPot.adminDistributeWater(to, amount);
+    const tx = await paperPot.adminDistributeWater(to, amount);
+    console.log(tx.hash);
   })
 
 task("mintFertilizer", "mint new fertilizer to an account")
@@ -453,7 +486,8 @@ task("mintFertilizer", "mint new fertilizer to an account")
     const amount = taskArgs.amount;
     const paperPotDeployment = await deployments.get("PaperPot");
     const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
-    await paperPot.adminDistributeFertilizer(to, amount);
+    const tx = await paperPot.adminDistributeFertilizer(to, amount);
+    console.log(tx.hash);
   })
 
 task("getTicketData", "gets the settings for a NFTTicket")
@@ -480,7 +514,8 @@ task("activateNFTTicket", "set the active state of an NFTTicket")
     const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
-    await PotNFTTicket.updateActive(tokenId, active);
+    const tx = await PotNFTTicket.updateActive(tokenId, active);
+    console.log(tx.hash)
   })
 
 task("setRedeemActive", "turn redeeming off or on from the NFT Ticket side")
@@ -495,7 +530,25 @@ task("setRedeemActive", "turn redeeming off or on from the NFT Ticket side")
     const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
-    await PotNFTTicket.updateRedeemActive(tokenId, active);
+    const tx = await PotNFTTicket.updateRedeemActive(tokenId, active);
+    console.log(tx.hash);
+  })
+
+// updateContractAddress
+task("updateContractAddress", "Update the contract that the NFT Ticket points to")
+  .addParam("tokenId", "tokenId to set")
+  .addParam("contractAddress", "Contract Address to Mint")
+  .addOptionalParam('controller', 'controller of a particular ticket set', '', types.string)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: number = taskArgs.tokenId;
+    const contractAddress: string = taskArgs.contractAddress;
+    const [owner] = await ethers.getSigners();
+    const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+    const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+    const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+    const tx = await PotNFTTicket.updateContractAddress(tokenId, contractAddress);
+    console.log(tx.hash);
   })
 
 task("updateRedeemEndDate", "update the redemption date for NFT Ticket")
@@ -514,7 +567,8 @@ task("updateRedeemEndDate", "update the redemption date for NFT Ticket")
     const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
-    await PotNFTTicket.updateRedeemEndDate(tokenId, toEthDate(date));
+    const tx = await PotNFTTicket.updateRedeemEndDate(tokenId, toEthDate(date));
+    console.log(tx.hash);
   })
 
 
@@ -530,7 +584,8 @@ task("setPauseNFTTicket", "set the paused state of an NFTTicket")
     const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
-    await PotNFTTicket.updatePaused(tokenId, paused);
+    const tx = await PotNFTTicket.updatePaused(tokenId, paused);
+    console.log(tx.hash);
   })
 
 task("initializeNFTTicket", "initialize a ticket for the pot sale")
@@ -583,8 +638,58 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
       active: active,
       paused: paused,
     };
-    await PotNFTTicket.initializeTicket(ticketData);
+    const tx = await PotNFTTicket.initializeTicket(ticketData);
+    console.log(tx.hash);
   });
+
+task("paperPotWithdraw", "Withdraw funds that were sent to the PaperPot contract")
+  .addOptionalParam("tokenAddress", "Address of ERC-20 token to withdraw")
+  .addParam("recipient", "Address to receive the funds")
+  .addParam("amount", "Amount to withdraw (in major units)")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenAddress: string = taskArgs.tokenAddress;
+    const recipient: string = taskArgs.recipient;
+    const amount: string = taskArgs.amount;
+    const [owner] = await ethers.getSigners();
+    if (!ethers.utils.isAddress(recipient)) {
+      throw new Error('invalid recipient');
+    }
+    let tx: ContractTransaction;
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+    if (!tokenAddress) {
+      // MATIC
+      const weiAmount = ethers.utils.parseUnits(amount);
+      tx = await paperPot.p(ethers.constants.AddressZero, recipient, weiAmount);
+    } else {
+      // ERC-20
+      const erc20 = ERC20Token__factory.connect(tokenAddress, ethers.provider);
+      const decimals = await erc20.decimals();
+      const weiAmount = ethers.utils.parseUnits(amount, decimals);
+      tx = await paperPot.p(tokenAddress, recipient, weiAmount);
+    }
+    console.log(tx.hash);
+  });
+
+
+task("setUriPaperPot", "Override the default uri for an asset")
+  .addParam("tokenId", "tokenId to set uri for")
+  .addParam("uri", "new URI for that tokenId")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: string = taskArgs.tokenId;
+    const uri: string = taskArgs.uri;
+    if (isNaN(Number(tokenId))) {
+      throw new Error('Invalid tokenId');
+    }
+    const [owner] = await ethers.getSigners();
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+    const tx = await paperPot.setURI(tokenId, uri);
+    console.log(tx.hash);
+  });
+
 
 task("setUriTicket")
   .addParam("uri", "uri to set the ticket to")
@@ -668,7 +773,8 @@ task("controllerMintTicket")
     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
     console.log(validatedAddresses);
     console.log(amounts);
-    await PotNFTTicket.controllerMint(tokenId, validatedAddresses, amounts);
+    const tx = await PotNFTTicket.controllerMint(tokenId, validatedAddresses, amounts);
+    console.log(tx.hash);
   });
 
 task("updateNFTTicketMintDates")
@@ -749,13 +855,26 @@ task("updateNFTTicketWL")
     await PotNFTTicket.updateWL(tokenId, accounts, wlSpots);
   })
 
+task("emergencyFreeze", "Freeze Pot Assets in case of emergency - they cannot be transferred")
+  .addOptionalParam("enable", "true or false", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const enable:boolean = taskArgs.enable;
+    const [owner] = await ethers.getSigners();
+    const PaperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
+    const tx = await paperPot.adminSetFreeze(enable);
+    console.log(tx.hash);
+  })
+
 task("unpausePot", "unpause minting for paper Pot")
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
     const [owner] = await ethers.getSigners();
     const PaperPotDeployment = await deployments.get("PaperPot");
     const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
-    await paperPot.unpauseMinting();
+    const tx = await paperPot.unpauseMinting();
+    console.log(tx.hash);
   })
 
 task("pausePot", "pause minting for paper Pot")
@@ -764,7 +883,8 @@ task("pausePot", "pause minting for paper Pot")
     const [owner] = await ethers.getSigners();
     const PaperPotDeployment = await deployments.get("PaperPot");
     const paperPot = PaperPot__factory.connect(PaperPotDeployment.address, owner);
-    await paperPot.pauseMinting();
+    const tx = await paperPot.pauseMinting();
+    console.log(tx.hash);
   })
 
 task("setNftTicketInfo", "set the address and tokenId for the NFTTicket")

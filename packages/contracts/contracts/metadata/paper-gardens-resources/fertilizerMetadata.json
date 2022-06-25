@@ -1,8 +1,8 @@
 {
   "name": "Fertilizer",
-  "description": "Paper Plants grow faster with fertilizer",
-  "image": "ipfs://QmRjcmBAdMTPaezG34mufeWfNiE1si269vWXyX93X3ah21",
-  "preview_image": "ipfs://QmRjcmBAdMTPaezG34mufeWfNiE1si269vWXyX93X3ah21",
+  "description": "Shrubs grow faster with fertilizer. Go to https://gardens.shrub.finance to use.",
+  "image": "ipfs://QmPWjXWvtusxSsYAxdkmnLw4s97Gd22S2NEJJSpK88ePYt",
+  "preview_image": "ipfs://QmPWjXWvtusxSsYAxdkmnLw4s97Gd22S2NEJJSpK88ePYt",
   "external_link": "https://paper.shrub.finance/nft/paper-pot/2",
   "attributes": []
 }

@@ -2,7 +2,8 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import {
-  ERC20, ERC20Token, ERC20Token__factory,
+  ERC20Token,
+  ERC20Token__factory,
   PaperPot,
   PaperPot__factory,
   PaperPotMetadata,
@@ -10,13 +11,11 @@ import {
   PaperSeed,
   PaperSeed__factory,
 } from '../types'
-import { describe } from 'mocha'
-import { sign } from 'crypto'
+import { beforeEach, describe } from 'mocha'
 import { BigNumber } from 'ethers';
-import { string } from 'hardhat/internal/core/params/argumentTypes'
-// import { BigNumber } from 'ethers/lib/ethers'
+import { sign } from 'crypto'
+import hre from 'hardhat';
 
-// const { BigNumber } = ethers;
 const { Zero, One } = ethers.constants;
 const BYTES_ZERO = ethers.utils.toUtf8Bytes('');
 
@@ -50,12 +49,10 @@ describe("PaperPot", () => {
     'http://test.xyz/2',
     'http://test.xyz/3'
   ];
-  const SHRUB_DEFAULT_URIS: [string, string, string, string] = [
-    'http://test.xyz/wonder',
-    'http://test.xyz/passion',
-    'http://test.xyz/hope',
-    'http://test.xyz/power'
-  ];
+
+  before(async () => {
+    await hre.network.provider.send('hardhat_reset');
+  })
 
   beforeEach(async () => {
     now = new Date();
@@ -510,47 +507,45 @@ describe("PaperPot", () => {
         expect(isSad4).to.equal(false);
         expect(isSad11).to.equal(true);
       })
-      it("should reject if incorrect payment amount - no payment", async () => {
+      it("should reject if no fertilizer", async () => {
         await expect(signer1PaperPot.plantAndMakeHappy(
           paperSeed.address,
-          11,
-          {value: ethers.constants.Zero})
+          11
+          )
         ).to.be.revertedWith(
-          "PaperPot: Incorrect payment amount"
+          "PaperPot: Insufficient balance"
         );
       });
-      it("should reject if incorrect payment amount - too low", async () => {
+      it("should reject if insufficient fertilizer", async () => {
+        await paperPot.adminDistributeFertilizer(signer1.address, 2);
+        const fertilizerBefore = await paperPot.balanceOf(signer1.address, 2);
         await expect(signer1PaperPot.plantAndMakeHappy(
-          paperSeed.address,
-          11,
-          {value: ethers.constants.WeiPerEther.div(2)})
+            paperSeed.address,
+            11
+          )
         ).to.be.revertedWith(
-          "PaperPot: Incorrect payment amount"
+          "PaperPot: Insufficient balance"
         );
-      });
-      it("should reject if incorrect payment amount - too high", async () => {
-        await expect(signer1PaperPot.plantAndMakeHappy(
-          paperSeed.address,
-          11,
-          {value: ethers.constants.WeiPerEther.mul(2)})
-        ).to.be.revertedWith(
-          "PaperPot: Incorrect payment amount"
-        );
+        const fertilizerAfter = await paperPot.balanceOf(signer1.address, 2);
+        expect(fertilizerBefore).to.equal(2);
+        expect(fertilizerAfter).to.equal(2);
       });
       it("should reject if seed already happy", async () => {
+        await paperPot.adminDistributeFertilizer(signer1.address, 6);
         await expect(signer1PaperPot.plantAndMakeHappy(
           paperSeed.address,
           4,
-          {value: ethers.constants.WeiPerEther})
+          )
         ).to.be.revertedWith(
           "PaperPot: Seed already happy"
         );
       });
       it("should plant and create a happy plant", async () => {
-
+        await paperPot.adminDistributeFertilizer(signer1.address, 6);
         const potCountBefore = await paperPot.balanceOf(signer1.address, 1);
         const pottedPlantIndexBefore = await paperPot.pottedPlantCurrentIndex();
         const seedOwnerBefore = await paperSeed.ownerOf(11);
+        const fertilizerBefore = await paperPot.balanceOf(signer1.address, 2);
         expect(seedOwnerBefore).to.equal(signer1.address);
         expect(potCountBefore).to.equal(BigNumber.from(1));
         expect(pottedPlantIndexBefore).to.equal(0);
@@ -558,7 +553,6 @@ describe("PaperPot", () => {
         const plantTx = await signer1PaperPot.plantAndMakeHappy(
           paperSeed.address,
           11,
-          {value: ethers.constants.WeiPerEther}
         )
         const plantReceipt = await plantTx.wait();
         const plantEvent = plantReceipt.events.find(
@@ -579,6 +573,7 @@ describe("PaperPot", () => {
         const plantedSeed = await paperPot.getPlantedSeed(1e6 + 1);
         const growthLevel = await paperPot.getGrowthLevel(1e6 + 1);
         const lastWatering = await paperPot.getLastWatering(1e6 + 1);
+        const fertilizerAfter = await paperPot.balanceOf(signer1.address, 2);
         expect(potCountAfter).to.equal(BigNumber.from(0));
         expect(pottedPlantIndexAfter).to.equal(1);
         expect(seedOwnerAfter).to.equal(DEAD_ADDRESS);
@@ -586,11 +581,31 @@ describe("PaperPot", () => {
         expect(plantedSeed).to.equal(11);
         expect(growthLevel).to.equal(0);
         expect(lastWatering).to.equal(1);
+        expect(fertilizerBefore).to.equal(6);
+        expect(fertilizerAfter).to.equal(3);
 
         const isSad4 = await paperPot.isSeedSad(4);
         const isSad11 = await paperPot.isSeedSad(11);
         expect(isSad4).to.equal(false);
         expect(isSad11).to.equal(false);
+      });
+      describe("adminSetFertForHappy", async () => {
+        it("should not allow non-admin to call", async() => {
+          await expect(signer1PaperPot.adminSetFertForHappy(2)
+          ).to.be.revertedWith(
+            "AdminControl: caller is not an admin"
+          );
+        });
+        it("should properly update for admin", async() => {
+          await paperPot.adminDistributeFertilizer(signer1.address, 2);
+          const fertilizerBefore = await paperPot.balanceOf(signer1.address, 2);
+          await paperPot.adminSetFertForHappy(2);
+          await signer1PaperSeed.approve(paperPot.address, 11);
+          await signer1PaperPot.plantAndMakeHappy(paperSeed.address, 11);
+          const fertilizerAfter = await paperPot.balanceOf(signer1.address, 2);
+          expect(fertilizerBefore).to.equal(2);
+          expect(fertilizerAfter).to.equal(0);
+        });
       });
     });
   });
@@ -998,8 +1013,6 @@ describe("PaperPot", () => {
     });
   });
 
-  describe("harvest", async () => {});
-
   describe("receiveWaterFromFaucet", async () => {});
 
   describe("setUri", async () => {
@@ -1098,6 +1111,8 @@ describe("PaperPot", () => {
       const metadataAddressAfter = await paperPot._metadataGenerator();
       expect(metadataAddressBefore).to.equal(paperPotMetadata.address);
       expect(metadataAddressAfter).to.equal(paperPotMetadata2.address);
+      // console.log(paperPotMetadata.address);
+      // console.log(paperPotMetadata2.address);
     });
   });
 
@@ -1904,8 +1919,181 @@ describe("PaperPot", () => {
         // console.log(expectedDecoded);
       }
 
+      // Revert the change to 2000004
+      await paperPot.setURI(2e6 + 4, '');
 
+      // SetShrubName
+      // Should not work if called directly for non-admin
+      const signer1PaperPotMetadata = paperPotMetadata.connect(signer1);
+      await expect(signer1PaperPotMetadata.setShrubName(1500, "Billy Bob")).to.be.revertedWith("AdminControl: caller is not an admin");
+      // Should not work if called directly and metadata has not been set
+      await paperPotMetadata.setShrubSeedUris([1500], [blankMetadata]);
+      await expect(paperPotMetadata.setShrubName(1500, "Billy Bob")).to.be.revertedWith("PaperPotMetadata: Can only set name for already set Shrub");
+      await paperPotMetadata.setShrubSeedUris([1500], [seed1500Metadata]);
+      // Should not work if length is too long
+      await expect(paperPotMetadata.setShrubName(1500, "This is a name that is too long to fit")).to.be.revertedWith("PaperPotMetadata: Maximum characters in name is 26.");
+      // Should not work if starts with a space
+      await expect(paperPotMetadata.setShrubName(1500, " Billy Bob")).to.be.revertedWith("Invalid characters");
+      // Should not work if ends with a space
+      await expect(paperPotMetadata.setShrubName(1500, "Billy Bob ")).to.be.revertedWith("Invalid characters");
+      // Should not work if consecutive spaces
+      await expect(paperPotMetadata.setShrubName(1500, "Billy  Bob")).to.be.revertedWith("Cannot have multiple sequential spaces");
+      // Should not work if symbols
+      await expect(paperPotMetadata.setShrubName(1500, "Billy B$ob")).to.be.revertedWith("Invalid character");
+      // Should work if all good
+      await paperPotMetadata.setShrubName(1500, "Billy Bob");
+      let uri = await paperPot.uri(2e6 + 4);
+      let expectedDecoded = afterWonderMetadata1
+      let splitUri = uri.split(',');
+      expect(splitUri.length).to.equal(2);
+      expect(splitUri[0]).to.equal('data:application/json;base64');
+      let decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+      let decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+      expect(decodedMetadata).to.deep.equal({...expectedDecoded, name: "Billy Bob"});
+      // Should be able set set back to default
+      await paperPotMetadata.setShrubName(1500, "");
+      uri = await paperPot.uri(2e6 + 4);
+      expectedDecoded = afterWonderMetadata1
+      splitUri = uri.split(',');
+      expect(splitUri.length).to.equal(2);
+      expect(splitUri[0]).to.equal('data:application/json;base64');
+      decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+      decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+      expect(decodedMetadata).to.deep.equal(expectedDecoded);
+      // Should not work if invalid tokenId provided
+      await expect(signer1PaperPot.setShrubName(1e6 + 4, "Johnny")).to.be.revertedWith("PaperPot: Invalid tokenId");
+      // Should not work if do not own the shrub (signer3 owns it)
+      await expect(signer1PaperPot.setShrubName(2e6 + 4, "Johnny")).to.be.revertedWith("PaperPot: Must own Shrub to name");
+      // Should not work if no fertilizer
+      const fertilizerBefore = await paperPot.balanceOf(signer3.address, 2);
+      expect(fertilizerBefore).to.equal(0);
+      // Should not work if insufficient fertilizer
+      await paperPot.adminDistributeFertilizer(signer3.address, 3);
+      await expect(signer3PaperPot.setShrubName(2e6 + 4, "Johnny")).to.be.revertedWith("PaperPot: Insufficient balance");
+      const fertilizer2 = await paperPot.balanceOf(signer3.address, 2);
+      expect(fertilizer2).to.equal(3);
+      // Should not work if indirectly called and admin has not been set
+      await paperPot.adminDistributeFertilizer(signer3.address, 2);
+      await expect(signer3PaperPot.setShrubName(2e6 + 4, "Johnny")).to.be.revertedWith("AdminControl: caller is not an admin");
+      const fertilizer3 = await paperPot.balanceOf(signer3.address, 2);
+      expect(fertilizer3).to.equal(5);
+      // Should work if admin set properly
+      await paperPotMetadata.setAdmin(paperPot.address, true);
+      await signer3PaperPot.setShrubName(2e6 + 4, "Johnny")
+      const fertilizer4 = await paperPot.balanceOf(signer3.address, 2);
+      expect(fertilizer4).to.equal(0);
+      uri = await paperPot.uri(2e6 + 4);
+      expectedDecoded = afterWonderMetadata1
+      splitUri = uri.split(',');
+      expect(splitUri.length).to.equal(2);
+      expect(splitUri[0]).to.equal('data:application/json;base64');
+      decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+      decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+      expect(decodedMetadata).to.deep.equal({...expectedDecoded, name: "Johnny"});
+      // Setting naming cost should not be allowed by non admin
+      await expect(signer1PaperPot.adminSetFertForName(3)).to.be.revertedWith("AdminControl: caller is not an admin");
+      // Setting fertilizer cost should work for an admin
+      await paperPot.adminSetFertForName(3);
+      await paperPot.adminDistributeFertilizer(signer3.address, 4);
+      const fertilizer5 = await paperPot.balanceOf(signer3.address, 2);
+      await expect(signer3PaperPot.setShrubName(2e6 + 4, "This is a name that is too long to fit")).to.be.revertedWith("PaperPotMetadata: Maximum characters in name is 26.");
+      await expect(signer3PaperPot.setShrubName(2e6 + 4, " Billy Bob")).to.be.revertedWith("Invalid characters");
+      await expect(signer3PaperPot.setShrubName(2e6 + 4, "Billy Bob ")).to.be.revertedWith("Invalid characters");
+      await expect(signer3PaperPot.setShrubName(2e6 + 4, "Billy  Bob")).to.be.revertedWith("Cannot have multiple sequential spaces");
+      await expect(signer3PaperPot.setShrubName(2e6 + 4, "Billy B$ob")).to.be.revertedWith("Invalid character");
+      await signer3PaperPot.setShrubName(2e6 + 4, "Taco Bell");
+      const fertilizer6 = await paperPot.balanceOf(signer3.address, 2);
+      expect(fertilizer5).to.equal(4);
+      expect(fertilizer6).to.equal(1);
+      uri = await paperPot.uri(2e6 + 4);
+      expectedDecoded = afterWonderMetadata1
+      splitUri = uri.split(',');
+      expect(splitUri.length).to.equal(2);
+      expect(splitUri[0]).to.equal('data:application/json;base64');
+      decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+      decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+      expect(decodedMetadata).to.deep.equal({...expectedDecoded, name: "Taco Bell"});
+    });
+  });
 
+  describe("freeze", async () => {
+    beforeEach(async() => {
+      await paperPot.adminDistributeWater(signer1.address, 1);
+    })
+    it('adminSetFreeze should fail if called by non admin', async () => {
+      await expect(
+        signer1PaperPot.adminSetFreeze(true)
+      ).to.be.revertedWith("AdminControl: caller is not an admin");
+      await signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO);
+      const signer1water = await paperPot.balanceOf(signer1.address, 3);
+      const signer2water = await paperPot.balanceOf(signer2.address, 3);
+      expect(signer1water).to.equal(0);
+      expect(signer2water).to.equal(1);
+    });
+    it('adminSetFreeze should be able to set freeze to true', async () => {
+      await paperPot.adminSetFreeze(true);
+      await expect(
+        signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO)
+      ).to.be.revertedWith("Shrub: freeze in effect");
+      const signer1water = await paperPot.balanceOf(signer1.address, 3);
+      const signer2water = await paperPot.balanceOf(signer2.address, 3);
+      expect(signer1water).to.equal(1);
+      expect(signer2water).to.equal(0);
+    });
+    it('adminSetFreeze should be able to set freeze to false', async () => {
+      await paperPot.adminSetFreeze(true);
+      await expect(
+        signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO)
+      ).to.be.revertedWith("Shrub: freeze in effect");
+      const signer1water = await paperPot.balanceOf(signer1.address, 3);
+      const signer2water = await paperPot.balanceOf(signer2.address, 3);
+      expect(signer1water).to.equal(1);
+      expect(signer2water).to.equal(0);
+      await paperPot.adminSetFreeze(false);
+      await signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO);
+      const signer1waterAfter = await paperPot.balanceOf(signer1.address, 3);
+      const signer2waterAfter = await paperPot.balanceOf(signer2.address, 3);
+      expect(signer1waterAfter).to.equal(0);
+      expect(signer2waterAfter).to.equal(1);
+    });
+    it('freezing should disable planting', async () => {
+      // Transfer also seed 4 to signer1
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer1.address,
+        3
+      );
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer1.address,
+        4
+      );
+      await paperPot.adminMintPot(signer1.address, 3);
+      await signer1PaperSeed.approve(paperPot.address, 3);
+      await signer1PaperSeed.approve(paperPot.address, 4);
+      await paperPot.adminSetFreeze(true);
+      await expect(
+        signer1PaperPot.plant(paperSeed.address, 3)
+      ).to.be.revertedWith("Shrub: freeze in effect");
+      await paperPot.adminSetFreeze(false);
+      await signer1PaperPot.plant(paperSeed.address, 3);
+    });
+    it('freezing should disable watering', async() => {
+      await paperPot.adminMintPot(signer1.address, 3);
+      await paperPot.adminDistributeWater(signer1.address, 1);
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer1.address,
+        3
+      );
+      await signer1PaperSeed.approve(paperPot.address, 3);
+      await signer1PaperPot.plant(paperSeed.address, 3);
+      await paperPot.adminSetFreeze(true);
+      await expect(
+        signer1PaperPot.water([1e6 + 1])
+      ).to.be.revertedWith("Shrub: freeze in effect");
+      await paperPot.adminSetFreeze(false);
+      await signer1PaperPot.water([1e6 + 1]);
     });
   });
 });

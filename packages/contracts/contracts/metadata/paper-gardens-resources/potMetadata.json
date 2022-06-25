@@ -1,8 +1,8 @@
 {
-  "name": "Paper Pot",
-  "description": "What is a seed without a pot?",
-  "image": "ipfs://QmUqvSgB7TkwU1Yf5EQcEZcoq4DcByiQG95Qom7eQpHj8g",
-  "preview_image": "ipfs://QmUqvSgB7TkwU1Yf5EQcEZcoq4DcByiQG95Qom7eQpHj8g",
+  "name": "Shrub Pot",
+  "description": "What is a seed without a pot? Go to https://gardens.shrub.finance to plant your seed.",
+  "image": "ipfs://QmPrkVdPJzjShn4gKDfGQHgEjZktMhVLF62xfiHWpir2rK",
+  "preview_image": "ipfs://QmPrkVdPJzjShn4gKDfGQHgEjZktMhVLF62xfiHWpir2rK",
   "external_link": "https://paper.shrub.finance/nft/paper-pot/1",
   "attributes": []
 }
