@@ -768,7 +768,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 gap={{ base: "10", md: "16" }}
               >
                 {/*Ticket info*/}
-
                 <Center>
                   <Box
                     bgColor={useColorModeValue("gray.200", "gray.700")}
@@ -899,7 +898,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
                                 htmlFor="amount"
                                 color="gray.500"
                                 fontWeight="medium"
-                                minW={"100"}
                               >
                                 tickets
                               </FormLabel>
