@@ -201,9 +201,11 @@ function SeedDetails({
 
   async function handleBlockchainTx(
     description: string,
-    callbackTx: () => Promise<ethers.ContractTransaction>
+    callbackTx: () => Promise<ethers.ContractTransaction>,
+    action?: string
   ) {
     setLocalError("");
+    setShowConfetti(false);
     try {
       setApproving(true);
       const tx = await callbackTx();
@@ -231,7 +233,9 @@ function SeedDetails({
           data: { blockNumber: receipt.blockNumber },
         });
         setApproving(false);
-        setShowConfetti(true);
+        if (action !== "approve") {
+          setShowConfetti(true);
+        }
       } catch (e: any) {
         const toastDescription = ToastDescription(
           description,
@@ -270,8 +274,11 @@ function SeedDetails({
   }
 
   function handleApprove() {
-    return handleBlockchainTx("Approving Paper Seeds for planting", () =>
-      approveAllErc721(PAPERSEED_ADDRESS, PAPER_POT_ADDRESS, true, library)
+    return handleBlockchainTx(
+      "Approving Paper Seeds for planting",
+      () =>
+        approveAllErc721(PAPERSEED_ADDRESS, PAPER_POT_ADDRESS, true, library),
+      "approve"
     );
   }
 
