@@ -110,7 +110,7 @@ function MintPotView(props: RouteComponentProps) {
   const invalidEntry = Number(amountValue) < 0 || isNaN(Number(amountValue));
 
   const mintPrice = ethers.constants.WeiPerEther.mul(50).div(1000); // 0.05 Eth
-  const mintStartDate = toEthDate(new Date("2022-06-25T14:00:00Z"));
+  const mintStartDate = toEthDate(new Date("2022-06-14T14:00:00Z"));
   const mintEndDate = toEthDate(new Date("2022-06-26T14:00:00Z"));
   const maxMintAmount = 10;
 
@@ -291,7 +291,7 @@ function MintPotView(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW="container.sm"
       >
-        {isMinted && <Confetti />}
+        {/*{isMinted && <Confetti />}*/}
         <Center mt={12}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
@@ -351,6 +351,22 @@ function MintPotView(props: RouteComponentProps) {
                 borderRadius={!isMobile ? "3xl" : undefined}
               >
                 <VStack pt={2}>
+                  {!isMobile && (
+                    <Text
+                      mt="3"
+                      fontSize="14px"
+                      textAlign="center"
+                      fontWeight="medium"
+                      background="gold.100"
+                      bgClip="text"
+                      sx={{
+                        "-webkit-text-stroke":
+                          colorMode === "light" ? "1px #7e5807" : "transparent",
+                      }}
+                    >
+                      Time to get your pot. Let's go!
+                    </Text>
+                  )}
                   <Box>
                     <FormLabel
                       fontSize={"sm"}
@@ -446,22 +462,6 @@ function MintPotView(props: RouteComponentProps) {
                   </Box>
                 </VStack>
                 {/*button*/}
-                {!isMobile && (
-                  <Text
-                    mt="3"
-                    fontSize="14px"
-                    textAlign="center"
-                    fontWeight="medium"
-                    background="gold.100"
-                    bgClip="text"
-                    sx={{
-                      "-webkit-text-stroke":
-                        colorMode === "light" ? "1px #7e5807" : "transparent",
-                    }}
-                  >
-                    Time to get your pot. Let's go!
-                  </Text>
-                )}
                 <Center pt={6}>
                   {
                     <Button
