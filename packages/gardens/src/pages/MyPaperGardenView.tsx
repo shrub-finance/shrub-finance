@@ -975,7 +975,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                             Number(redeemAmount) <= 0 ||
                             noFunds ||
                             accountTicketCount.lte(Zero) ||
-                            accountTicketCount.lt(redeemAmount)
+                            accountTicketCount.lt(redeemAmount || 0)
                           }
                           size="lg"
                           px={["50", "50", "50", "50"]}
