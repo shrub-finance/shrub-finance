@@ -445,7 +445,7 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
         _shrubSeedUris[seedTokenId_].name = newName_;
     }
 
-    function validateMessage(string memory message_) public view returns(bool) {
+    function validateMessage(string memory message_) public pure returns(bool) {
         // a-z,A-Z only
         bytes memory messageBytes = bytes(message_);
         if (messageBytes.length == 0) {
@@ -466,4 +466,6 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
         }
         return true;
     }
+
+
 }

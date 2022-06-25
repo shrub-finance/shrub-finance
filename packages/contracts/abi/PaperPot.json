@@ -372,6 +372,19 @@
   {
     "inputs": [
       {
+        "internalType": "bool",
+        "name": "freeze_",
+        "type": "bool"
+      }
+    ],
+    "name": "adminSetFreeze",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256[]",
         "name": "seedTokenIds",
         "type": "uint256[]"
@@ -749,19 +762,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_receiver",
-        "type": "address"
-      }
-    ],
-    "name": "receiveWaterFromFaucet",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

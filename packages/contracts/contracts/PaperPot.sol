@@ -31,6 +31,7 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
     bytes4 constant ERC1155ID = 0xd9b67a26;
 
     bool public mintingPaused = true;
+    bool private freeze = false;
     uint private NFTTicketTokenId;
     address private NFTTicketAddress;
 
@@ -228,8 +229,6 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
 //        emit URI(uri(shrubTokenId), shrubTokenId);
     }
 
-    function receiveWaterFromFaucet(address _receiver) external {}
-
     // Owner Write Functions
     function setNftTicketInfo(uint NFTTicketTokenId_, address NFTTicketAddress_) external adminOnly {
         NFTTicketTokenId = NFTTicketTokenId_;
@@ -274,6 +273,10 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
         require(_msgSender() == NFTTicketAddress, "PaperPot: invalid sender");
         _mint(_to, POT_TOKENID, _amount, new bytes(0));
         return true;
+    }
+
+    function adminSetFreeze(bool freeze_) external adminOnly {
+        freeze = freeze_;
     }
 
     function adminDistributeWater(address _to, uint _amount) external adminOnly {
@@ -432,6 +435,7 @@ contract PaperPot is AdminControl, ERC1155, ERC1155Supply, ERC1155URIStorageSrb,
                 require(balanceOf(from, ids[i]) >= amounts[i], "PaperPot: Insufficient balance");
             }
         }
+        require(freeze == false, "Shrub: freeze in effect");
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 

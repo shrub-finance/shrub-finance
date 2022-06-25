@@ -11,7 +11,7 @@ import {
   PaperSeed,
   PaperSeed__factory,
 } from '../types'
-import { describe } from 'mocha'
+import { beforeEach, describe } from 'mocha'
 import { BigNumber } from 'ethers';
 import { sign } from 'crypto'
 import hre from 'hardhat';
@@ -2013,6 +2013,87 @@ describe("PaperPot", () => {
       decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
       decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
       expect(decodedMetadata).to.deep.equal({...expectedDecoded, name: "Taco Bell"});
+    });
+  });
+
+  describe("freeze", async () => {
+    beforeEach(async() => {
+      await paperPot.adminDistributeWater(signer1.address, 1);
+    })
+    it('adminSetFreeze should fail if called by non admin', async () => {
+      await expect(
+        signer1PaperPot.adminSetFreeze(true)
+      ).to.be.revertedWith("AdminControl: caller is not an admin");
+      await signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO);
+      const signer1water = await paperPot.balanceOf(signer1.address, 3);
+      const signer2water = await paperPot.balanceOf(signer2.address, 3);
+      expect(signer1water).to.equal(0);
+      expect(signer2water).to.equal(1);
+    });
+    it('adminSetFreeze should be able to set freeze to true', async () => {
+      await paperPot.adminSetFreeze(true);
+      await expect(
+        signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO)
+      ).to.be.revertedWith("Shrub: freeze in effect");
+      const signer1water = await paperPot.balanceOf(signer1.address, 3);
+      const signer2water = await paperPot.balanceOf(signer2.address, 3);
+      expect(signer1water).to.equal(1);
+      expect(signer2water).to.equal(0);
+    });
+    it('adminSetFreeze should be able to set freeze to false', async () => {
+      await paperPot.adminSetFreeze(true);
+      await expect(
+        signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO)
+      ).to.be.revertedWith("Shrub: freeze in effect");
+      const signer1water = await paperPot.balanceOf(signer1.address, 3);
+      const signer2water = await paperPot.balanceOf(signer2.address, 3);
+      expect(signer1water).to.equal(1);
+      expect(signer2water).to.equal(0);
+      await paperPot.adminSetFreeze(false);
+      await signer1PaperPot.safeTransferFrom(signer1.address, signer2.address, 3, 1, BYTES_ZERO);
+      const signer1waterAfter = await paperPot.balanceOf(signer1.address, 3);
+      const signer2waterAfter = await paperPot.balanceOf(signer2.address, 3);
+      expect(signer1waterAfter).to.equal(0);
+      expect(signer2waterAfter).to.equal(1);
+    });
+    it('freezing should disable planting', async () => {
+      // Transfer also seed 4 to signer1
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer1.address,
+        3
+      );
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer1.address,
+        4
+      );
+      await paperPot.adminMintPot(signer1.address, 3);
+      await signer1PaperSeed.approve(paperPot.address, 3);
+      await signer1PaperSeed.approve(paperPot.address, 4);
+      await paperPot.adminSetFreeze(true);
+      await expect(
+        signer1PaperPot.plant(paperSeed.address, 3)
+      ).to.be.revertedWith("Shrub: freeze in effect");
+      await paperPot.adminSetFreeze(false);
+      await signer1PaperPot.plant(paperSeed.address, 3);
+    });
+    it('freezing should disable watering', async() => {
+      await paperPot.adminMintPot(signer1.address, 3);
+      await paperPot.adminDistributeWater(signer1.address, 1);
+      await paperSeed["safeTransferFrom(address,address,uint256)"](
+        owner.address,
+        signer1.address,
+        3
+      );
+      await signer1PaperSeed.approve(paperPot.address, 3);
+      await signer1PaperPot.plant(paperSeed.address, 3);
+      await paperPot.adminSetFreeze(true);
+      await expect(
+        signer1PaperPot.water([1e6 + 1])
+      ).to.be.revertedWith("Shrub: freeze in effect");
+      await paperPot.adminSetFreeze(false);
+      await signer1PaperPot.water([1e6 + 1]);
     });
   });
 });
