@@ -47,7 +47,7 @@ function Intro(props: RouteComponentProps) {
   return (
     <>
       <Container
-        mt={{ base: 0, md: 50 }}
+        mt={{ base: 0, md: 0 }}
         p={5}
         flex="1"
         borderRadius="2xl"

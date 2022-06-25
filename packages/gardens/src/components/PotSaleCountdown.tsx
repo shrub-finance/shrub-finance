@@ -84,11 +84,11 @@ function PotSaleCountdown() {
           rounded="3xl"
           fontSize="sm"
           px="9"
-          fontWeight="semibold"
+          fontWeight="bold"
           py="5"
           bgGradient={useColorModeValue(
             "linear(to-l, green, green)",
-            "linear(to-l, white, white)"
+            "linear(to-l, gray.300, blue.200)"
           )}
           bgClip="text"
         >
