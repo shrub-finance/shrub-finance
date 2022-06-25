@@ -110,7 +110,7 @@ function MintPotView(props: RouteComponentProps) {
   const invalidEntry = Number(amountValue) < 0 || isNaN(Number(amountValue));
 
   const mintPrice = ethers.constants.WeiPerEther.mul(50).div(1000); // 0.05 Eth
-  const mintStartDate = toEthDate(new Date("2022-06-14T14:00:00Z"));
+  const mintStartDate = toEthDate(new Date("2022-06-25T14:00:00Z"));
   const mintEndDate = toEthDate(new Date("2022-06-26T14:00:00Z"));
   const maxMintAmount = 10;
 
