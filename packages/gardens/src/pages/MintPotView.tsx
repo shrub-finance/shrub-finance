@@ -28,6 +28,9 @@ import {
   NumberInputField,
   InputRightElement,
   VStack,
+  AlertTitle,
+  AlertDescription,
+  CloseButton,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -54,6 +57,7 @@ import { TxContext } from "../components/Store";
 import Confetti from "../assets/Confetti";
 import { BigNumber, ethers } from "ethers";
 import CountdownTimer from "../components/CountdownTimer";
+import { Pot } from "../assets/Icons";
 
 type Phase = "before" | "mint" | "done";
 
@@ -88,6 +92,13 @@ function MintPotView(props: RouteComponentProps) {
     onOpen: onConnectWalletOpen,
     onClose: onConnectWalletClose,
   } = useDisclosure();
+
+  const {
+    isOpen: isOpenSaleMessage,
+    onOpen: onOpenSaleMessage,
+    onClose: onCloseSaleMessage,
+  } = useDisclosure();
+
   const displayStatus = (val: boolean) => {
     setIsHidden(val);
   };
@@ -134,6 +145,7 @@ function MintPotView(props: RouteComponentProps) {
         setIsLoading(false);
         if (action === "mintAction") {
           setIsMinted(true);
+          onOpenSaleMessage();
         }
         const toastDescription = ToastDescription(
           description,
@@ -203,7 +215,7 @@ function MintPotView(props: RouteComponentProps) {
   // Move errors to the top
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [localError, web3Error]);
+  }, [localError, web3Error, isOpenSaleMessage]);
 
   // useEffect to set the phase
   useEffect(() => {
@@ -296,7 +308,7 @@ function MintPotView(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW="container.sm"
       >
-        {/*{isMinted && <Confetti />}*/}
+        {isMinted && <Confetti />}
         <Center mt={12}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
@@ -335,6 +347,28 @@ function MintPotView(props: RouteComponentProps) {
             <Center mt={4} display={{ base: "flex", md: "flex", lg: "none" }}>
               {timerDate && <CountdownTimer targetDate={timerDate} />}
             </Center>
+            {isOpenSaleMessage ? (
+              <Center mt={20}>
+                <SlideFade in={true} unmountOnExit={true}>
+                  <Alert status={"success"} borderRadius={9}>
+                    <AlertIcon />
+                    <Box>
+                      <AlertTitle>Congrats!</AlertTitle>
+                      <AlertDescription>
+                        You just bought a pot! Go to My Gardens page to see your
+                        pot! <Pot boxSize={10} />
+                      </AlertDescription>
+                    </Box>
+                    <CloseButton
+                      alignSelf="flex-start"
+                      onClick={onCloseSaleMessage}
+                    />
+                  </Alert>
+                </SlideFade>
+              </Center>
+            ) : (
+              <></>
+            )}
 
             <Center p={4} rounded="3xl" mt={{ base: 5, md: 0 }} mb={4}>
               <Box fontWeight="semibold">
