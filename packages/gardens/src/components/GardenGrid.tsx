@@ -12,7 +12,6 @@ function GardenGrid({
   onClick: () => void;
   imgCallback: () => string;
 }) {
-  console.log(id, name);
   return (
     <Box
       as="button"
@@ -34,7 +33,7 @@ function GardenGrid({
       onClick={onClick}
     >
       <VStack>
-        <Box>
+        <Box key={id}>
           <Image
             w={
               id === "fertilizer"
@@ -45,6 +44,7 @@ function GardenGrid({
             }
             h={20}
             src={imgCallback()}
+            cursor={"pointer"}
           />
         </Box>
         <Text

@@ -39,6 +39,9 @@ import {
   Spacer,
   Flex,
   Tooltip,
+  AlertTitle,
+  AlertDescription,
+  CloseButton,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -53,7 +56,7 @@ import {
 } from "../components/ConnectWallet";
 import { ToastDescription, TxStatusList } from "../components/TxMonitoring";
 import { MY_GARDENS_QUERY } from "../constants/queries";
-import { SeedBasketImg } from "../assets/Icons";
+import { Pot, SeedBasketImg } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import SeedDetails from "../components/SeedDetails";
 import { BigNumber, ethers } from "ethers";
@@ -96,9 +99,15 @@ function MyPaperGardenView(props: RouteComponentProps) {
     setIsHidden(val);
   };
 
+  const {
+    isOpen: isOpenInfoMessage,
+    onOpen: onOpenInfoMessage,
+    onClose: onCloseInfoMessage,
+  } = useDisclosure();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const drawerSize = useBreakpointValue({
-    base: "xs",
+    base: "sm",
     md: "sm",
   });
   //@ts-ignore
@@ -320,9 +329,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
   }, []);
 
   useEffect(() => {
-    console.log("useEffect 4 - localError, web3Error");
     window.scrollTo(0, 0);
-  }, [localError, web3Error]);
+  }, [localError, web3Error, isOpenInfoMessage]);
 
   useEffect(() => {
     console.log("useEffect 5 - mySeedData");
@@ -644,6 +652,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           position: "top-right",
         });
         setTicketConfetti(true);
+        onOpenInfoMessage();
         pendingTxsDispatch({
           type: "update",
           txHash: receipt.transactionHash,
@@ -720,6 +729,29 @@ function MyPaperGardenView(props: RouteComponentProps) {
             </Text>
           </VStack>
         </Center>
+
+        {isOpenInfoMessage ? (
+          <Center mt={20}>
+            <SlideFade in={true} unmountOnExit={true}>
+              <Alert status={"success"} borderRadius={9}>
+                <AlertIcon />
+                <Box>
+                  <AlertTitle>Congrats!</AlertTitle>
+                  <AlertDescription>
+                    You just redeemed your ticket for a pot! Scroll down to see
+                    it in your garden view below. <Pot boxSize={10} />
+                  </AlertDescription>
+                </Box>
+                <CloseButton
+                  alignSelf="flex-start"
+                  onClick={onCloseInfoMessage}
+                />
+              </Alert>
+            </SlideFade>
+          </Center>
+        ) : (
+          <></>
+        )}
 
         {/*NFT Ticket view*/}
         {accountTicketCount.gt(0) && (
@@ -974,7 +1006,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
             </Center>
           </Container>
         )}
-
         {/*Main Grid view*/}
         {!isInitialized ? (
           <Center p={10}>
@@ -1085,12 +1116,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
                     handleErrorMessages={handleErrorMessages}
                   />
                 </DrawerBody>
-                {/*<DrawerFooter>*/}
-                {/*  <Button variant="outline" mr={3} onClick={onClose}>*/}
-                {/*    Close*/}
-                {/*  </Button>*/}
-                {/*  <Button colorScheme="blue">Save</Button>*/}
-                {/*</DrawerFooter>*/}
               </DrawerContent>
             </Drawer>
           </Grid>
@@ -1105,6 +1130,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         onClose={onConnectWalletClose}
         motionPreset="slideInBottom"
         scrollBehavior={isMobile ? "inside" : "outside"}
+        size={isMobile ? "full" : "md"}
       >
         <ModalOverlay />
         <ModalContent top="6rem" boxShadow="dark-lg" borderRadius="2xl">

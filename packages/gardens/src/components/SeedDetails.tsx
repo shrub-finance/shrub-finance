@@ -132,7 +132,7 @@ function SeedDetails({
     if (!emptyPot) {
       setNoPot(true);
     }
-  }, [emptyPot]);
+  }, [emptyPot, account]);
 
   // Disable action if not ready for harvest
   useEffect(() => {
@@ -143,7 +143,6 @@ function SeedDetails({
 
   // Move errors to the top
   useEffect(() => {
-    console.log("useEffect - error to top");
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
@@ -290,7 +289,7 @@ function SeedDetails({
   return (
     <>
       {activeHash && showConfetti && <Confetti />}
-      <Center mt={10}>
+      <Center mt={10} mb={4}>
         {localError && (
           <SlideFade in={true} unmountOnExit={true}>
             <Alert status="error" borderRadius={9}>
@@ -574,7 +573,7 @@ function SeedDetails({
         onClose={handleModalClose}
         motionPreset="slideInBottom"
         scrollBehavior={isMobile ? "inside" : "outside"}
-        size={"xl"}
+        size={isMobile ? "full" : "xl"}
       >
         <ModalOverlay />
         <MotionModalContent
@@ -619,7 +618,10 @@ function SeedDetails({
             {
               // When transaction is in flight
               approving || activeHash ? (
-                <Txmonitor txHash={activeHash} />
+                <Center mt={20}>
+                  {" "}
+                  <Txmonitor txHash={activeHash} />
+                </Center>
               ) : (
                 // Base States based on action clicked
                 <>
@@ -775,6 +777,7 @@ function SeedDetails({
                       p={6}
                       mt={8}
                       mb={4}
+                      cursor={"pointer"}
                       onClick={
                         modalState === "plant"
                           ? plantingApproved
