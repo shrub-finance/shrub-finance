@@ -29,8 +29,6 @@ import { useWeb3React } from "@web3-react/core";
 
 export function Txmonitor({
   txHash,
-  showDeposit,
-  goToDeposit,
 }: {
   txHash?: string;
   showDeposit?: boolean;
@@ -64,7 +62,7 @@ export function Txmonitor({
               Waiting for approval
             </AlertTitle>
             <AlertDescription maxWidth="sm">
-              Please continue with your wallet.
+              Please continue in your wallet
             </AlertDescription>
           </Alert>
         }
@@ -118,13 +116,8 @@ export function Txmonitor({
           mt="20px"
           bg="none"
         >
-          <AlertIcon
-            boxSize={showDeposit ? "140px" : "40px"}
-            mr={0}
-            mt={14}
-            color={"sprout.300"}
-          />
-          <AlertTitle mt={showDeposit ? 12 : 4} mb={1} fontSize="lg">
+          <AlertIcon boxSize={"140px"} mr={0} mt={14} color={"sprout.300"} />
+          <AlertTitle mt={12} mb={1} fontSize="lg">
             Transaction Confirmed
           </AlertTitle>
           <AlertDescription maxWidth="sm">
@@ -136,21 +129,6 @@ export function Txmonitor({
             >
               View on explorer <ExternalLinkIcon mx="2px" />
             </Link>
-            {!showDeposit && (
-              <Center>{/*<HappyBud mt={8} boxSize={260} />*/}</Center>
-            )}
-            {showDeposit && (
-              <Button
-                variant={"ghost"}
-                mt={10}
-                colorScheme="teal"
-                size={"lg"}
-                isFullWidth={true}
-                onClick={goToDeposit}
-              >
-                Go to Deposit
-              </Button>
-            )}
           </AlertDescription>
         </Alert>
       )}
