@@ -88,9 +88,6 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
         setAdmin(_msgSender(), true);
 
         adminSetDefaultUris(shrubDefaultUris_);
-//        for (uint8 i = 0; i < shrubDefaultUris_.length; i++) {
-//            _shrubDefaultUris[NftClass(i)] = shrubDefaultUris_[i];
-//        }
         _imageBaseUri = imageBaseUri_;
     }
 
@@ -137,7 +134,6 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     function _getJsonShrub(uint _tokenId, uint _seedTokenId, bool _isSad) private view returns (string memory) {
         ERC1155MetadataStructure memory metadata = ERC1155MetadataStructure({
             isImageLinked: true,
-//            name: string(abi.encodePacked("Shrub #", (_tokenId - 2000000).toString())),
             name: _getNameShrub(_tokenId, _seedTokenId),
             description: "created by Shrub.finance",
             createdBy: "Shrub.finance",
@@ -201,27 +197,11 @@ contract PaperPotMetadata is IPaperPotMetadata, JsonBuilder, Ownable, AdminContr
     function _getJsonAttributesShrub(uint _tokenId, uint _seedTokenId, bool isSad) private view returns (ERC1155MetadataAttribute[] memory) {
         string[3] memory classRarity = getClassFromSeedId(_seedTokenId);
         ERC1155MetadataAttribute[] memory attributes = new ERC1155MetadataAttribute[](14);
-//        ERC1155MetadataAttribute[] memory attributes;
         attributes[0] = _getERC721MetadataAttribute(false, true, true, "", "Class", classRarity[0]);
         attributes[1] = _getERC721MetadataAttribute(false, true, false, "", "DNA", getDnaFromSeedId(_seedTokenId).toString());
         attributes[2] = _getERC721MetadataAttribute(false, true, true, "", "Emotion", isSad ? "Sad" : "Happy");
         attributes[3] = _getERC721MetadataAttribute(false, true, true, "", "Planted Seed", classRarity[2]);
         attributes[4] = _getERC721MetadataAttribute(false, true, true, "", "Birth Order", (_tokenId - 2000000).toString());
-//        _shrubSeedUris[seedTokenIds_[i]] = metadatas_[i];
-//        struct CustomMetadata {
-//        string name;
-//        string imageUri;
-//        string bodyType;
-//        string background;
-//        string top;
-//        string hat;
-//        string expression;
-//        string leftHand;
-//        string rightHand;
-//        string clothes;
-//        string accessory;
-//        }
-//        if (bytes(shrubSeedUriName).length > 0)
         if (bytes(_shrubSeedUris[_seedTokenId].bodyType).length == 0) {
             return attributes;
         }

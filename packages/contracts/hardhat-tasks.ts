@@ -1,6 +1,7 @@
 import { task, types } from 'hardhat/config'
 import "@nomiclabs/hardhat-ethers";
 import {
+  ERC20Token__factory,
   HashUtil__factory, PaperPot__factory, PaperPotMetadata__factory, PaperPotMint__factory,
   PaperSeed__factory,
   PotNFTTicket__factory,
@@ -640,6 +641,55 @@ task("initializeNFTTicket", "initialize a ticket for the pot sale")
     const tx = await PotNFTTicket.initializeTicket(ticketData);
     console.log(tx.hash);
   });
+
+task("paperPotWithdraw", "Withdraw funds that were sent to the PaperPot contract")
+  .addOptionalParam("tokenAddress", "Address of ERC-20 token to withdraw")
+  .addParam("recipient", "Address to receive the funds")
+  .addParam("amount", "Amount to withdraw (in major units)")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenAddress: string = taskArgs.tokenAddress;
+    const recipient: string = taskArgs.recipient;
+    const amount: string = taskArgs.amount;
+    const [owner] = await ethers.getSigners();
+    if (!ethers.utils.isAddress(recipient)) {
+      throw new Error('invalid recipient');
+    }
+    let tx: ContractTransaction;
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+    if (!tokenAddress) {
+      // MATIC
+      const weiAmount = ethers.utils.parseUnits(amount);
+      tx = await paperPot.p(ethers.constants.AddressZero, recipient, weiAmount);
+    } else {
+      // ERC-20
+      const erc20 = ERC20Token__factory.connect(tokenAddress, ethers.provider);
+      const decimals = await erc20.decimals();
+      const weiAmount = ethers.utils.parseUnits(amount, decimals);
+      tx = await paperPot.p(tokenAddress, recipient, weiAmount);
+    }
+    console.log(tx.hash);
+  });
+
+
+task("setUriPaperPot", "Override the default uri for an asset")
+  .addParam("tokenId", "tokenId to set uri for")
+  .addParam("uri", "new URI for that tokenId")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const tokenId: string = taskArgs.tokenId;
+    const uri: string = taskArgs.uri;
+    if (isNaN(Number(tokenId))) {
+      throw new Error('Invalid tokenId');
+    }
+    const [owner] = await ethers.getSigners();
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
+    const tx = await paperPot.setURI(tokenId, uri);
+    console.log(tx.hash);
+  });
+
 
 task("setUriTicket")
   .addParam("uri", "uri to set the ticket to")
