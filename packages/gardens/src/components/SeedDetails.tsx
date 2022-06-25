@@ -146,6 +146,12 @@ function SeedDetails({
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 40000);
+  }, [activeHash]);
+
   // determine if planting is approved
   useEffect(() => {
     console.log("useEffect - selection changing");
@@ -246,6 +252,7 @@ function SeedDetails({
           position: "top-right",
         });
         setApproving(false);
+        setShowConfetti(false);
       }
     } catch (e: any) {
       if (e.message.includes("Must own a pot token to plant")) {

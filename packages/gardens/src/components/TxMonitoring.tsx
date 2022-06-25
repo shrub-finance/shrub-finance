@@ -112,11 +112,9 @@ export function Txmonitor({
           alignItems="center"
           justifyContent="center"
           textAlign="center"
-          height="400px"
-          mt="20px"
           bg="none"
         >
-          <AlertIcon boxSize={"140px"} mr={0} mt={14} color={"sprout.300"} />
+          <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />
           <AlertTitle mt={12} mb={1} fontSize="lg">
             Transaction Confirmed
           </AlertTitle>
