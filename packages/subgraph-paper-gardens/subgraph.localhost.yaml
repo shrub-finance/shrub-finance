@@ -1,0 +1,171 @@
+specVersion: 0.0.2
+description: Shrub Paper Gardens
+repository: https://github.com/shrub-finance/shrub-finance
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: PaperSeed
+#    network: matic
+    network: mainnet
+    source:
+#      address: '0xd415517378fe6832f8AA94037c52C0757a3A9915'
+#      startBlock: 23740333
+      address: '0xA7Ede11859c5ca177b2252d8f8f9df38E80C38cf'
+      startBlock: 1
+      abi: PaperSeed
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Seed
+        - Exchange
+      abis:
+        - name: PaperSeed
+          file: ../contracts/abi/PaperSeed.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Claimed(uint256,address,uint256)
+          handler: handleClaim
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: SeedOrphanage
+#    network: matic
+    network: mainnet
+    source:
+#      address: '0xfa116901C7361677fb3248595655404f4BcF7A06'
+#      startBlock: 24561047
+      address: '0x4BFA3A0Ab519Ea028fE030f297F9Cb5601D1dAF7'
+      startBlock: 1
+      abi: SeedOrphanage
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Seed
+        - Exchange
+      abis:
+        - name: SeedOrphanage
+          file: ../contracts/abi/SeedOrphanage.json
+      eventHandlers:
+        - event: Add(uint256)
+          handler: handleAdd
+        - event: Remove(uint256)
+          handler: handleRemove
+        - event: ClearRegister()
+          handler: handleClearRegister
+        - event: Register(address)
+          handler: handleRegister
+        - event: Deliver(uint256,address)
+          handler: handleDeliver
+      file: ./src/mapping-orphanage.ts
+  - kind: ethereum/contract
+    name: SeedOrphanageV2
+#    network: matic
+    network: mainnet
+    source:
+#      address: '0x2E4286B71ba5808f006C6e3bf41fA9daB064C46d'
+#      startBlock: 24561047
+      address: '0xeFf21B278066ed8986639F3B88037FF37401Ee6f'
+      startBlock: 1
+      abi: SeedOrphanage
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Seed
+        - Exchange
+      abis:
+        - name: SeedOrphanage
+          file: ../contracts/abi/SeedOrphanageV2.json
+      eventHandlers:
+        - event: Add(uint256)
+          handler: handleAdd
+        - event: Remove(uint256)
+          handler: handleRemove
+        - event: ClearRegister()
+          handler: handleClearRegister
+        - event: Register(address)
+          handler: handleRegister
+        - event: Deliver(uint256,address)
+          handler: handleDeliver
+      file: ./src/mapping-orphanage.ts
+  - kind: ethereum/contract
+    name: PotNFTTicket
+    #    network: matic
+    network: mainnet
+    source:
+      #      address: '0x2E4286B71ba5808f006C6e3bf41fA9daB064C46d'
+      #      startBlock: 24561047
+      address: '0x0b67Ea436502c1E2a412b28dC1ee601E0E909EAe'
+      startBlock: 1
+      abi: PotNFTTicket
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+#        - Seed
+#        - Exchange
+      abis:
+        - name: PotNFTTicket
+          file: ../contracts/abi/PotNFTTicket.json
+      eventHandlers:
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+      file: ./src/mapping-pot-nft-tickets.ts
+  - kind: ethereum/contract
+    name: PaperPot
+    #    network: matic
+    network: mainnet
+    source:
+      #      address: '0x2E4286B71ba5808f006C6e3bf41fA9daB064C46d'
+      #      startBlock: 24561047
+      address: '0xD9aE5e4C56Bc69DE7383748586BB85251cb8E721'
+      startBlock: 1
+      abi: PaperPot
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+      #        - Seed
+      #        - Exchange
+      abis:
+        - name: PaperPot
+          file: ../contracts/abi/PaperPot.json
+      eventHandlers:
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+        - event: Grow(uint256,uint16,uint16)
+          handler: handleGrow
+        - event: Plant(uint256,uint256,address)
+          handler: handlePlant
+        - event: Harvest(uint256,uint256,address)
+          handler: handleHarvest
+      file: ./src/mapping-paper-pot.ts
+
+#  - ApprovalForAll(indexed address,indexed address,bool)
+#  - OwnershipTransferred(indexed address,indexed address)
+#  - TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+#  - TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+#  - URI(string,indexed uint256)
