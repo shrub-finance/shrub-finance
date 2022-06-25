@@ -31,6 +31,7 @@ import {
   AlertTitle,
   AlertDescription,
   CloseButton,
+  Tooltip,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -348,15 +349,15 @@ function MintPotView(props: RouteComponentProps) {
               {timerDate && <CountdownTimer targetDate={timerDate} />}
             </Center>
             {isOpenSaleMessage ? (
-              <Center mt={20}>
+              <Center mt={5}>
                 <SlideFade in={true} unmountOnExit={true}>
                   <Alert status={"success"} borderRadius={9}>
                     <AlertIcon />
                     <Box>
                       <AlertTitle>Congrats!</AlertTitle>
                       <AlertDescription>
-                        You just bought a pot! Go to My Gardens page to see your
-                        pot! <Pot boxSize={10} />
+                        You just bought a Pot <Pot boxSize={6} />! Go to My
+                        Gardens page to see it!
                       </AlertDescription>
                     </Box>
                     <CloseButton
@@ -374,10 +375,11 @@ function MintPotView(props: RouteComponentProps) {
               <Box fontWeight="semibold">
                 <Text fontSize={{ base: "md", md: "lg" }}>
                   You currently have {accountPotCount.toString()} Pot
-                  {sIfMany(accountPotCount)}
+                  {sIfMany(accountPotCount)} <Pot boxSize={6} />
                 </Text>
                 <Text fontSize={{ base: "md", md: "lg" }} pt={2}>
-                  Mint price per pot {ethers.utils.formatEther(mintPrice)} WETH
+                  Mint price per <Pot boxSize={6} />{" "}
+                  {ethers.utils.formatEther(mintPrice)} WETH
                 </Text>
               </Box>
             </Center>
@@ -389,11 +391,11 @@ function MintPotView(props: RouteComponentProps) {
                 p={!isMobile ? 6 : undefined}
                 borderRadius={!isMobile ? "3xl" : undefined}
               >
-                <VStack pt={2}>
+                <VStack>
                   {!isMobile && (
                     <Text
                       mt="3"
-                      fontSize="14px"
+                      fontSize="16px"
                       textAlign="center"
                       fontWeight="medium"
                       background="gold.100"
@@ -503,40 +505,60 @@ function MintPotView(props: RouteComponentProps) {
                 {/*button*/}
                 <Center pt={6}>
                   {
-                    <Button
-                      onClick={noAllowance ? handleApprove : handleMintPot}
-                      colorScheme={tradingBtnColor}
-                      variant="solid"
-                      rounded="2xl"
-                      isLoading={isLoading}
-                      isDisabled={
-                        Number(amountValue) <= 0 || noFunds || tooLarge
-                      }
-                      size="lg"
-                      px={["50", "70", "90", "90"]}
-                      fontSize="25px"
-                      py={10}
-                      borderRadius="full"
-                      _hover={{ transform: "translateY(-2px)" }}
-                      bgGradient={"linear(to-r, #74cecc, green.300, blue.400)"}
-                      loadingText={noAllowance ? "Approving..." : "Minting..."}
-                    >
-                      {
-                        // If no account then Wrong Network and Connect Wallet
-                        !account
-                          ? !!web3Error &&
-                            getErrorMessage(web3Error).title === "Wrong Network"
-                            ? "Connect to Polygon"
-                            : "Connect Wallet"
+                    <Tooltip
+                      hasArrow
+                      label={
+                        noFunds
+                          ? "You do not have enough MATIC to make this purchase. Please check your wallet balance. "
                           : tooLarge
-                          ? `Quantity above allowed (max ${maxMintAmount.toString()})`
-                          : noFunds
-                          ? "Insufficient funds"
+                          ? "Pots you are trying to buy exceeds allowed "
                           : noAllowance
-                          ? "Approve WETH"
-                          : "Mint Pot"
+                          ? "Please approve WETH first to mint a pot."
+                          : null
                       }
-                    </Button>
+                      shouldWrapChildren
+                      mt="3"
+                    >
+                      <Button
+                        onClick={noAllowance ? handleApprove : handleMintPot}
+                        colorScheme={tradingBtnColor}
+                        variant="solid"
+                        rounded="2xl"
+                        isLoading={isLoading}
+                        isDisabled={
+                          Number(amountValue) <= 0 || noFunds || tooLarge
+                        }
+                        size="lg"
+                        px={["50", "70", "90", "90"]}
+                        fontSize="25px"
+                        py={10}
+                        borderRadius="full"
+                        _hover={{ transform: "translateY(-2px)" }}
+                        bgGradient={
+                          "linear(to-r, #74cecc, green.300, blue.400)"
+                        }
+                        loadingText={
+                          noAllowance ? "Approving..." : "Minting..."
+                        }
+                      >
+                        {
+                          // If no account then Wrong Network and Connect Wallet
+                          !account
+                            ? !!web3Error &&
+                              getErrorMessage(web3Error).title ===
+                                "Wrong Network"
+                              ? "Connect to Polygon"
+                              : "Connect Wallet"
+                            : tooLarge
+                            ? `Exceeds allowed (max ${maxMintAmount.toString()})`
+                            : noFunds
+                            ? "Insufficient funds"
+                            : noAllowance
+                            ? "Approve WETH"
+                            : "Mint Pot"
+                        }
+                      </Button>
+                    </Tooltip>
                   }
                 </Center>
               </Box>
