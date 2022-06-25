@@ -126,20 +126,28 @@ function TopNav() {
               {/*  }*/}
               {/*</Match>*/}
 
-              <Link
-                as={ReachLink}
-                to="/mint"
-                fontSize={"sm"}
-                variant={"link"}
-                fontWeight={"extrabold"}
-                color={useColorModeValue("blue", "cyan")}
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                textDecoration={"underline"}
-              >
-                Mint Now
-              </Link>
+              <Match path="/">
+                {(props) =>
+                  props.match ? (
+                    <Link
+                      as={ReachLink}
+                      to="/mint"
+                      fontSize={"sm"}
+                      variant={"link"}
+                      fontWeight={"extrabold"}
+                      color="cyan"
+                      px={2}
+                      py={{ base: "3", md: "1", lg: "1" }}
+                      rounded={"lg"}
+                      textDecoration={"underline"}
+                    >
+                      Mint Now
+                    </Link>
+                  ) : (
+                    <></>
+                  )
+                }
+              </Match>
 
               <Match path="/">
                 {(props) =>
