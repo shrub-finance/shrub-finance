@@ -12,14 +12,9 @@
         "type": "uint256[]"
       },
       {
-        "internalType": "string[]",
+        "internalType": "string[3]",
         "name": "resourceUris_",
-        "type": "string[]"
-      },
-      {
-        "internalType": "string[]",
-        "name": "shrubDefaultUris_",
-        "type": "string[]"
+        "type": "string[3]"
       },
       {
         "internalType": "address",
@@ -313,6 +308,19 @@
       }
     ],
     "name": "adminDistributeWater",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId_",
+        "type": "uint256"
+      }
+    ],
+    "name": "adminEmitUri",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -614,6 +622,29 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "p",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "pauseMinting",
     "outputs": [],
@@ -718,6 +749,35 @@
     "name": "removeSeedContractAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "royaltyInfo",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -856,17 +916,22 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "seedTokenIds_",
-        "type": "uint256[]"
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       },
       {
-        "internalType": "string[]",
-        "name": "uris_",
-        "type": "string[]"
+        "internalType": "address payable",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "bps",
+        "type": "uint256"
       }
     ],
-    "name": "setShrubSeedUris",
+    "name": "setRoyalties",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -991,5 +1056,9 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]

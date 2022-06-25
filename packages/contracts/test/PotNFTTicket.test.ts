@@ -1053,7 +1053,7 @@ describe("PotNFTTicket", () => {
         const ticketData = {
           controller: signer1.address,
           recipient: signer2.address,
-          contractAddress: paperPot.address,
+          contractAddress: ethers.constants.AddressZero,
           startDate: toEthDate(now),
           endDate: toEthDate(oneDayFromNow),
           mintStartDate: toEthDate(twoDaysFromNow),
@@ -1071,6 +1071,11 @@ describe("PotNFTTicket", () => {
           paused: false,
         };
         await nftTicket.initializeTicket(ticketData)
+        const ticketData1 = await nftTicket.getTicketData(1);
+        expect(ticketData1.contractAddress).to.equal(ethers.constants.AddressZero);
+        await signer1NftTicket.updateContractAddress(1, paperPot.address);
+        const ticketData2 = await nftTicket.getTicketData(1);
+        expect(ticketData2.contractAddress).to.equal(paperPot.address);
       });
       it("rejects if redeemActive is false", async () => {
         await paperPot.unpauseMinting();

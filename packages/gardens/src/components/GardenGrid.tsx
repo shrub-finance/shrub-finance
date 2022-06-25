@@ -1,4 +1,4 @@
-import { Box, Image, Text, VStack } from "@chakra-ui/react";
+import { Box, Image, Text, useColorModeValue, VStack } from "@chakra-ui/react";
 import React from "react";
 
 function GardenGrid({
@@ -12,13 +12,11 @@ function GardenGrid({
   onClick: () => void;
   imgCallback: () => string;
 }) {
-  console.log(id, name);
   return (
     <Box
       as="button"
       key={id}
-      // shadow={btnShadow}
-      shadow={"dark-lg"}
+      shadow={useColorModeValue("md", "dark-lg")}
       borderRadius="md"
       minW={20}
       h={32}
@@ -35,10 +33,25 @@ function GardenGrid({
       onClick={onClick}
     >
       <VStack>
-        <Box>
-          <Image w={20} h={20} src={imgCallback()} alt="Seed" />
+        <Box key={id}>
+          <Image
+            w={
+              id === "fertilizer"
+                ? 10
+                : id === "water" || id === "pot"
+                ? 16
+                : 20
+            }
+            h={20}
+            src={imgCallback()}
+            cursor={"pointer"}
+          />
         </Box>
-        <Text fontWeight={600} color="gray.500" fontSize="sm">
+        <Text
+          fontWeight={600}
+          color="gray.500"
+          fontSize={{ base: "12px", md: "11px", lg: "12px", xl: "12px" }}
+        >
           {name}
         </Text>
       </VStack>

@@ -44,8 +44,26 @@ export function handleErrorMessagesFactory(
           setter("Redeem period has ended");
         } else if (err.message.includes("PaperPot: minting paused")) {
           setter("Minting has been paused");
+        } else if (err.message.includes("freeze in effect")) {
+          setter("Freeze is in effect");
         } else if (err.message.includes("PaperPot: invalid ticket tokenId")) {
           setter("Minting has been paused - #1005");
+        } else if (err.message.includes("PaperPot: Insufficient balance")) {
+          setter("Not enough planting material");
+        } else if (err.message.includes(" Must own seed to plant")) {
+          setter(
+            "Looks like there is no seed to plant. Try refreshing the page."
+          );
+        } else if (
+          err.message.includes(
+            "NFTTicket: Insufficient ticket balance to redeem"
+          )
+        ) {
+          setter("Ticket quantity you entered exceeds the tickets you have");
+        } else if (
+          err.message.includes("PaperPotMint: minting is not active")
+        ) {
+          setter("Pot Minting is not active - #1006");
         } else {
           setter(err.message);
         }

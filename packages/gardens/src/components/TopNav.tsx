@@ -107,40 +107,40 @@ function TopNav() {
           <Flex alignItems={"center"}>
             <>
               <BuyMatic />
-              <Match path="/">
-                {(props) =>
-                  props.match ? (
-                    <Link
-                      pr={5}
-                      fontSize={"sm"}
-                      fontWeight={"bold"}
-                      color={rightCTA}
-                      href={"https://discord.gg/BpHuVCYtdB"}
-                      isExternal
-                    >
-                      Join Discord
-                    </Link>
-                  ) : (
-                    <></>
-                  )
-                }
-              </Match>
-              {/*mint cta*/}
-              {/*{!isMobile && (*/}
-              {/*  <Link*/}
-              {/*    as={ReachLink}*/}
-              {/*    to="/presale"*/}
-              {/*    fontSize={"sm"}*/}
-              {/*    variant={"link"}*/}
-              {/*    fontWeight={"extrabold"}*/}
-              {/*    color={useColorModeValue("blue", "cyan")}*/}
-              {/*    px={2}*/}
-              {/*    py={{ base: "3", md: "1", lg: "1" }}*/}
-              {/*    rounded={"lg"}*/}
-              {/*  >*/}
-              {/*    Mint NFT*/}
-              {/*  </Link>*/}
-              {/*)}*/}
+              {/*<Match path="/">*/}
+              {/*  {(props) =>*/}
+              {/*    props.match ? (*/}
+              {/*      <Link*/}
+              {/*        pr={5}*/}
+              {/*        fontSize={"sm"}*/}
+              {/*        fontWeight={"bold"}*/}
+              {/*        color={rightCTA}*/}
+              {/*        href={"https://discord.gg/BpHuVCYtdB"}*/}
+              {/*        isExternal*/}
+              {/*      >*/}
+              {/*        Join Discord*/}
+              {/*      </Link>*/}
+              {/*    ) : (*/}
+              {/*      <></>*/}
+              {/*    )*/}
+              {/*  }*/}
+              {/*</Match>*/}
+
+              <Link
+                as={ReachLink}
+                to="/mint"
+                fontSize={"sm"}
+                variant={"link"}
+                fontWeight={"extrabold"}
+                color={useColorModeValue("blue", "cyan")}
+                px={2}
+                py={{ base: "3", md: "1", lg: "1" }}
+                rounded={"lg"}
+                textDecoration={"underline"}
+              >
+                Mint Now
+              </Link>
+
               <Match path="/">
                 {(props) =>
                   props.match ? (
@@ -151,7 +151,7 @@ function TopNav() {
                       display={{ base: "none", sm: "flex" }}
                       size={buttonSize}
                     >
-                      <Balance />
+                      {/*<Balance />*/}
                     </Box>
                   )
                 }
