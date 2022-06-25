@@ -1,7 +1,7 @@
 import { task, types } from 'hardhat/config'
 import "@nomiclabs/hardhat-ethers";
 import {
-  HashUtil__factory, PaperPot__factory, PaperPotMint__factory,
+  HashUtil__factory, PaperPot__factory, PaperPotMetadata__factory, PaperPotMint__factory,
   PaperSeed__factory,
   PotNFTTicket__factory,
   SeedOrphanageV2__factory,
@@ -20,6 +20,7 @@ import promptly from "promptly";
 // import optionContracts from "./option-contracts.json";
 import chainlinkAggregatorV3Interface from "./external-contracts/chainlinkAggregatorV3InterfaceABI.json";
 import { address } from 'hardhat/internal/core/config/config-validation'
+import { BigNumberish } from 'ethers'
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 
@@ -119,6 +120,21 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
       controller: account1.address,
       addresses: [account3.address, account4.address]
     })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
 
     // Mint Seeds
     await env.run('mintSeed', {
@@ -170,6 +186,103 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     await WETH.transfer(account3.address, ethers.constants.WeiPerEther);
     await WETH.transfer(account4.address, ethers.constants.WeiPerEther);
 
+  })
+
+task("getPaperPotUri", "get the uri from a paperPot token")
+  .addParam("tokenId", "tokenId to get the uri for")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { tokenId } = taskArgs;
+    const provider = ethers.provider;
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, provider);
+    const uri = await paperPot.uri(tokenId);
+    console.log(uri);
+  })
+
+
+// task("updateNFTTicketWL")
+//   .addParam("tokenId", "tokenId to update the whitelist for")
+//   .addParam("wls", "object of acccount/wlSpot pairs ex: {account1: 2, account2: 1}", {}, types.json)
+//   .addOptionalParam("controller", "address of the controller of the ticket")
+//   .setAction(async (taskArgs, env) => {
+//     const { ethers, deployments } = env;
+//     const tokenId: number = taskArgs.tokenId;
+//     const [owner, account1, account2, account3, account4 ] = await ethers.getSigners();
+//     const wls: {[account: string] : number} = taskArgs.wls;
+//     const controller = taskArgs.controller ? await ethers.getSigner(taskArgs.controller) : owner;
+//     if (Object.keys(wls).length === 0) {
+//       wls[owner.address] = 1;
+//       wls[account1.address] = 2;
+//       wls[account2.address] = 3;
+//       wls[account3.address] = 4;
+//     }
+//     const accounts = [];
+//     const wlSpots = [];
+//     for (const [account, wlSpot] of Object.entries(wls)) {
+//       accounts.push(ethers.utils.getAddress(account));
+//       assert.equal(Math.floor(wlSpot), wlSpot, "wlSpot must be an integer");
+//       assert.equal(wlSpot >= 0, true, "wlSpot must not be negative");
+//       wlSpots.push(wlSpot);
+//     }
+//     assert.equal(accounts.length > 0, true, "some wls must be specified");
+//     const potNFTTicketDeployment = await deployments.get("PotNFTTicket");
+//     const PotNFTTicket = PotNFTTicket__factory.connect(potNFTTicketDeployment.address, controller);
+//     await PotNFTTicket.updateWL(tokenId, accounts, wlSpots);
+//   })
+
+
+task("setShrubSeedUris", "set the imageUri for the full grown shrub based on the Seed TokenId")
+  .addParam("imageObj", "object of seedTokenId/imageUri pairs ex: '{\"251\": \"https://shrub.finance/lovely-passion-shrub.png\"}')", {}, types.json)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const [owner] = await ethers.getSigners();
+    type CustomMetadata = {
+      name: string
+      imageUri: string
+      bodyType: string
+      background: string
+      top: string
+      hat: string
+      expression: string
+      leftHand: string
+      rightHand: string
+      clothes: string
+      accessory: string
+    }
+    const imageObj: {
+      [seedTokenId: string]: CustomMetadata
+    } = taskArgs.imageObj;
+    const seedTokenIds: BigNumberish[] = [];
+    const customMetadatas: CustomMetadata[] = [];
+    console.log(imageObj);
+    console.log(Object.entries(imageObj));
+    for (const [seedTokenId, metadataObj] of Object.entries(imageObj)) {
+      const nSeedTokenId = ethers.BigNumber.from(seedTokenId);
+      console.log(seedTokenId);
+      console.log(nSeedTokenId);
+      assert.equal(nSeedTokenId.gt(0), true, "seedTokenId must be in the range of 1 to 10000");
+      assert.equal(nSeedTokenId.lte(10000), true, "seedTokenId must be in the range of 1 to 10000");
+      seedTokenIds.push(nSeedTokenId)
+      let tempObj:CustomMetadata = {
+        name: metadataObj.name || '',
+        imageUri: metadataObj.imageUri || '',
+        bodyType: metadataObj.bodyType || '',
+        background: metadataObj.background || '',
+        top: metadataObj.top || '',
+        hat: metadataObj.hat || '',
+        expression: metadataObj.expression || '',
+        leftHand: metadataObj.leftHand || '',
+        rightHand: metadataObj.rightHand || '',
+        clothes: metadataObj.clothes || '',
+        accessory: metadataObj.accessory || ''
+      };
+      customMetadatas.push(tempObj);
+    }
+    assert.equal(seedTokenIds.length > 0, true, "imageObj must not be empty");
+    const paperPotMetadataDeployment = await deployments.get("PaperPotMetadata");
+    const paperPotMetadata = PaperPotMetadata__factory.connect(paperPotMetadataDeployment.address, owner);
+    await paperPotMetadata.setShrubSeedUris(seedTokenIds, customMetadatas);
   })
 
 task("setAllSadSeeds", "set all the sad seeds for the Paper Pot Contract")

@@ -42,15 +42,15 @@ describe("PaperPot", () => {
   let paperSeed: PaperSeed;
   let paperPot: PaperPot;
   let paperPotMetadata: PaperPotMetadata;
-  const SAD_SEEDS = [11, 13, 15, 17, 19];
+  const SAD_SEEDS = [11, 13, 15, 17, 19, 6667];
   const ADDRESS_ONE = "0x0000000000000000000000000000000000000001";
   const DEAD_ADDRESS = "0x000000000000000000000000000000000000dEaD";
-  const RESOURCE_URIS = [
+  const RESOURCE_URIS: [string, string, string] = [
     'http://test.xyz/1',
     'http://test.xyz/2',
     'http://test.xyz/3'
   ];
-  const SHRUB_DEFAULT_URIS = [
+  const SHRUB_DEFAULT_URIS: [string, string, string, string] = [
     'http://test.xyz/wonder',
     'http://test.xyz/passion',
     'http://test.xyz/hope',
@@ -77,14 +77,19 @@ describe("PaperPot", () => {
     await paperSeed.claimReserve(3);
     await paperSeed.claimReserve(4);
     const imageBaseUri = "ipfs://abcdefg/";
+    const shrubDefaultImageUris: [string, string, string, string] = [
+      'ipfs://wonder.png',
+      'ipfs://passion.png',
+      'ipfs://hope.png',
+      'ipfs://power.png'
+    ]
     const PaperPotMetadata = await ethers.getContractFactory("PaperPotMetadata") as PaperPotMetadata__factory;
-    paperPotMetadata = await PaperPotMetadata.deploy(imageBaseUri);
+    paperPotMetadata = await PaperPotMetadata.deploy(imageBaseUri, shrubDefaultImageUris);
     const PaperPot = await ethers.getContractFactory("PaperPot") as PaperPot__factory;
     paperPot = await PaperPot.deploy(
       [paperSeed.address],
       SAD_SEEDS,
       RESOURCE_URIS,
-      SHRUB_DEFAULT_URIS,
       paperPotMetadata.address
     );
     const WETH = await ethers.getContractFactory("ERC20Token") as ERC20Token__factory;
@@ -614,7 +619,7 @@ describe("PaperPot", () => {
         name: 'Potted Plant of Power #1',
         description: 'created by Shrub.finance',
         created_by: 'Shrub.finance',
-        image: 'ipfs://abcdefg/pottedplant-Power-0-happy',
+        image: 'ipfs://abcdefg/pottedplant-Power-0-happy.svg',
         attributes: [
           { trait_type: 'Class', value: 'Power' },
           { trait_type: 'Rarity', value: 'Legendary' },
@@ -634,9 +639,6 @@ describe("PaperPot", () => {
       const plantTx = await signer1PaperPot.plant(paperSeed.address, 3);
       const uri = await paperPot.uri(1e6 + 1);
       const splitUri = uri.split(',');
-      // console.log(uri);
-      // console.log(splitUri);
-      // console.log(splitUri.length);
       expect(splitUri.length).to.equal(2);
       expect(splitUri[0]).to.equal('data:application/json;base64');
       const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
@@ -658,7 +660,7 @@ describe("PaperPot", () => {
         name: 'Potted Plant of Power #1',
         description: 'created by Shrub.finance',
         created_by: 'Shrub.finance',
-        image: 'ipfs://abcdefg/pottedplant-Power-0-happy',
+        image: 'ipfs://abcdefg/pottedplant-Power-0-happy.svg',
         attributes: [
           { trait_type: 'Class', value: 'Power' },
           { trait_type: 'Rarity', value: 'Legendary' },
@@ -702,7 +704,7 @@ describe("PaperPot", () => {
         name: 'Potted Plant of Power #1',
         description: 'created by Shrub.finance',
         created_by: 'Shrub.finance',
-        image: 'ipfs://abcdefg/pottedplant-Power-0-happy',
+        image: 'ipfs://abcdefg/pottedplant-Power-0-happy.svg',
         attributes: [
           { trait_type: 'Class', value: 'Power' },
           { trait_type: 'Rarity', value: 'Legendary' },
@@ -750,7 +752,7 @@ describe("PaperPot", () => {
         name: 'Potted Plant of Power #1',
         description: 'created by Shrub.finance',
         created_by: 'Shrub.finance',
-        image: 'ipfs://abcdefg/pottedplant-Power-0-happy',
+        image: 'ipfs://abcdefg/pottedplant-Power-0-happy.svg',
         attributes: [
           { trait_type: 'Class', value: 'Power' },
           { trait_type: 'Rarity', value: 'Legendary' },
@@ -1021,48 +1023,49 @@ describe("PaperPot", () => {
     });
   });
 
-  describe("setShrubSeedUris", async () => {
-    it("should reject for non-owner", async () => {
-      await expect(
-        signer1PaperPot.setShrubSeedUris([1], ["https://testUri/seed1"])
-      ).to.be.revertedWith("caller is not an admin");
-    });
-    // require(seedTokenIds_.length == uris_.length, "PaperPot: seedTokenIds and uris must be same length");
-    it("should reject if seedTokenIds is longer than uris", async () => {
-      await expect(
-        paperPot.setShrubSeedUris([1,2], ["https://testUri/seed1"])
-      ).to.be.revertedWith("PaperPot: seedTokenIds and uris must be same length");
-    });
-    it("should reject if seedTokenIds is shorter than uris", async () => {
-      await expect(
-        paperPot.setShrubSeedUris([1,2], [
-          "https://testUri/seed1",
-          "https://testUri/seed2",
-          "https://testUri/seed3"
-        ])
-      ).to.be.revertedWith("PaperPot: seedTokenIds and uris must be same length");
-    });
-    // require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPot: invalid seedTokenId");
-    it("should reject if seedTokenId is too high", async () => {
-      await expect(
-        paperPot.setShrubSeedUris([1, 2, 1000001], [
-          "https://testUri/seed1",
-          "https://testUri/seed2",
-          "https://testUri/seed3"
-        ])
-      ).to.be.revertedWith("PaperPot: invalid seedTokenId");
-    });
-    it("should allow setting one", async () => {
-      await paperPot.setShrubSeedUris([1], ["https://testUri/seed1"])
-    });
-    it("should allow setting many", async () => {
-      await paperPot.setShrubSeedUris([1,2,3], [
-        "https://testUri/seed1",
-        "https://testUri/seed2",
-        "https://testUri/seed3"
-      ])
-    });
-  });
+  // TODO: Rework this to hit PaperPotMetadata
+  // describe.skip("setShrubSeedUris", async () => {
+  //   it("should reject for non-owner", async () => {
+  //     await expect(
+  //       signer1PaperPot.setShrubSeedUris([1], ["https://testUri/seed1"])
+  //     ).to.be.revertedWith("caller is not an admin");
+  //   });
+  //   // require(seedTokenIds_.length == uris_.length, "PaperPot: seedTokenIds and uris must be same length");
+  //   it("should reject if seedTokenIds is longer than uris", async () => {
+  //     await expect(
+  //       paperPot.setShrubSeedUris([1,2], ["https://testUri/seed1"])
+  //     ).to.be.revertedWith("PaperPot: seedTokenIds and uris must be same length");
+  //   });
+  //   it("should reject if seedTokenIds is shorter than uris", async () => {
+  //     await expect(
+  //       paperPot.setShrubSeedUris([1,2], [
+  //         "https://testUri/seed1",
+  //         "https://testUri/seed2",
+  //         "https://testUri/seed3"
+  //       ])
+  //     ).to.be.revertedWith("PaperPot: seedTokenIds and uris must be same length");
+  //   });
+  //   // require(seedTokenIds_[i] < POTTED_PLANT_BASE_TOKENID, "PaperPot: invalid seedTokenId");
+  //   it("should reject if seedTokenId is too high", async () => {
+  //     await expect(
+  //       paperPot.setShrubSeedUris([1, 2, 1000001], [
+  //         "https://testUri/seed1",
+  //         "https://testUri/seed2",
+  //         "https://testUri/seed3"
+  //       ])
+  //     ).to.be.revertedWith("PaperPot: invalid seedTokenId");
+  //   });
+  //   it("should allow setting one", async () => {
+  //     await paperPot.setShrubSeedUris([1], ["https://testUri/seed1"])
+  //   });
+  //   it("should allow setting many", async () => {
+  //     await paperPot.setShrubSeedUris([1,2,3], [
+  //       "https://testUri/seed1",
+  //       "https://testUri/seed2",
+  //       "https://testUri/seed3"
+  //     ])
+  //   });
+  // });
 
   describe("setMetadataGenerator", async () => {
     it("should reject for non-owner", async () => {
@@ -1083,7 +1086,14 @@ describe("PaperPot", () => {
     it("should allow setting for owner", async () => {
       const metadataAddressBefore = await paperPot._metadataGenerator();
       const PaperPotMetadata = await ethers.getContractFactory("PaperPotMetadata") as PaperPotMetadata__factory;
-      const paperPotMetadata2 = await PaperPotMetadata.deploy("ipfs://test1/");
+      // const imageBaseUri = 'ipfs://Qma6J1XLwV6H1XgEMY5h6GqdFaYbLmu49iT1GBCcSgk32C/'
+      const shrubDefaultImageUris: [string, string, string, string] = [
+        'ipfs://wonder.png',
+        'ipfs://passion.png',
+        'ipfs://hope.png',
+        'ipfs://power.png'
+      ]
+      const paperPotMetadata2 = await PaperPotMetadata.deploy("ipfs://test1/", shrubDefaultImageUris);
       await paperPot.setMetadataGenerator(paperPotMetadata2.address);
       const metadataAddressAfter = await paperPot._metadataGenerator();
       expect(metadataAddressBefore).to.equal(paperPotMetadata.address);
@@ -1372,11 +1382,11 @@ describe("PaperPot", () => {
           signer3.address,
           6667
         );
-        await signer1PaperSeed.approve(paperPot.address, 3);
-        await signer2PaperSeed.approve(paperPot.address, 67);
-        await signer2PaperSeed.approve(paperPot.address, 667);
-        await signer3PaperSeed.approve(paperPot.address, 1500);
-        await signer3PaperSeed.approve(paperPot.address, 6667);
+        await signer1PaperSeed.approve(paperPot.address, 3);  // Power #3, Happy
+        await signer2PaperSeed.approve(paperPot.address, 67);  // Hope #57, Happy
+        await signer2PaperSeed.approve(paperPot.address, 667);  // Passion #557, Happy
+        await signer3PaperSeed.approve(paperPot.address, 1500);  // Wonder #390, Happy
+        await signer3PaperSeed.approve(paperPot.address, 6667);  // Wonder #5557, Sad
         await signer1PaperPot.plant(paperSeed.address, 3);
         await signer2PaperPot.plant(paperSeed.address, 67);
         await signer2PaperPot.plant(paperSeed.address, 667);
@@ -1440,8 +1450,15 @@ describe("PaperPot", () => {
           if (growthLevelNew.lt(10000)) {
             // Should not allow harvesting in this case.
             await expect(paperPotInstance.harvest(tokenId)).to.be.revertedWith("PaperPot: Not eligible for harvest");
-            expect(growthLevelNew).to.be.gte(growthLevels[index].add(200));
-            expect(growthLevelNew).to.be.lte(growthLevels[index].add(350));
+            if (tokenId === 1e6 + 5) {
+              // Case: Sad Seed
+              expect(growthLevelNew).to.be.gte(growthLevels[index].add(100));
+              expect(growthLevelNew).to.be.lte(growthLevels[index].add(175));
+            } else {
+              // Case: The rest are happy seeds
+              expect(growthLevelNew).to.be.gte(growthLevels[index].add(200));
+              expect(growthLevelNew).to.be.lte(growthLevels[index].add(350));
+            }
           }
           growthLevels[index] = growthLevelNew;
           // console.log(growthLevels.map(g => g.toNumber()));
@@ -1483,7 +1500,9 @@ describe("PaperPot", () => {
       balances[2] = await paperPot.balanceOf(signer2.address, 2e6 + 3);
       balances[3] = await paperPot.balanceOf(signer3.address, 2e6 + 4);
       balances[4] = await paperPot.balanceOf(signer3.address, 2e6 + 5);
-      expect(balances).to.deep.equal([Zero, Zero, Zero, Zero, Zero]);
+      // console.log(balances);
+      // console.log([Zero, Zero, Zero, Zero, Zero]);
+      expect(balances.map(b => b.toNumber())).to.deep.equal([0,0,0,0,0]);
 
       // Harvest the power shrub
       await signerInfo[signer1.address].paperPot.harvest(1e6 + 1);
@@ -1493,103 +1512,399 @@ describe("PaperPot", () => {
       await signerInfo[signer2.address].paperPot.harvest(1e6 + 3);
       // Harvest a wonder shrub
       await signerInfo[signer3.address].paperPot.harvest(1e6 + 4);
-      // Harvest a wonder shrub
-      await signerInfo[signer3.address].paperPot.harvest(1e6 + 5);
-      
+
+      // await signer1PaperSeed.approve(paperPot.address, 3);  // Power #3, Happy
+      // await signer2PaperSeed.approve(paperPot.address, 67);  // Hope #57, Happy
+      // await signer2PaperSeed.approve(paperPot.address, 667);  // Passion #557, Happy
+      // await signer3PaperSeed.approve(paperPot.address, 1500);  // Wonder #390, Happy
+      // await signer3PaperSeed.approve(paperPot.address, 6667);  // Wonder #5557, Sad
+
+
+      // const shrubDefaultImageUris: [string, string, string, string] = [
+      //   'ipfs://wonder.png',
+      //   'ipfs://passion.png',
+      //   'ipfs://hope.png',
+      //   'ipfs://power.png'
+      // ]
+      const defaultPowerMetadata = {
+        name: 'Shrub #1',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://power.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Power' },
+          { 'trait_type': 'DNA', 'value': 3 },
+          { 'trait_type': 'Emotion', 'value': 'Happy'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Power #3'},
+          { 'trait_type': 'Birth Order', 'value': '1' },
+        ]
+      }
+      const afterPowerMetadata = {
+        name: 'Shrub #1',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://power3.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Power' },
+          { 'trait_type': 'DNA', 'value': 3 },
+          { 'trait_type': 'Emotion', 'value': 'Happy'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Power #3'},
+          { 'trait_type': 'Birth Order', 'value': '1' },
+          { 'trait_type': 'Body Type', 'value': 'Power' },
+          { 'trait_type': 'Background', 'value': 'Red' },
+          { 'trait_type': 'Top', 'value': 'Mohawk' },
+          { 'trait_type': 'Hat', 'value': 'none' },
+          { 'trait_type': 'Left Hand', 'value': 'Fire' },
+          { 'trait_type': 'Right Hand', 'value': 'Lightning' },
+          { 'trait_type': 'Clothes', 'value': 'none' },
+          { 'trait_type': 'Accessory', 'value': 'Money' },
+          { 'trait_type': 'Expression', 'value': 'Powerful' }
+        ]
+      }
+      const defaultHopeMetadata = {
+        name: 'Shrub #2',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://hope.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Hope' },
+          { 'trait_type': 'DNA', 'value': 67 },
+          { 'trait_type': 'Emotion', 'value': 'Happy'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Hope #57'},
+          { 'trait_type': 'Birth Order', 'value': '2' }
+        ]
+      }
+      const afterHopeMetadata = {
+        name: 'Shrub #2',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://hope67.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Hope' },
+          { 'trait_type': 'DNA', 'value': 67 },
+          { 'trait_type': 'Emotion', 'value': 'Happy' },
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Hope #57'},
+          { 'trait_type': 'Birth Order', 'value': '2' },
+          { 'trait_type': 'Body Type', 'value': 'Hope' },
+          { 'trait_type': 'Background', 'value': 'Pink' },
+          { 'trait_type': 'Top', 'value': 'Aloe' },
+          { 'trait_type': 'Hat', 'value': 'none' },
+          { 'trait_type': 'Left Hand', 'value': 'Seed' },
+          { 'trait_type': 'Right Hand', 'value': 'Pole' },
+          { 'trait_type': 'Clothes', 'value': 'Basketball Jersey' },
+          { 'trait_type': 'Accessory', 'value': 'Medal' },
+          { 'trait_type': 'Expression', 'value': 'Excited' }
+        ]
+      }
+      const defaultPassionMetadata = {
+        name: 'Shrub #3',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://passion.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Passion' },
+          { 'trait_type': 'DNA', 'value': 67 },
+          { 'trait_type': 'Emotion', 'value': 'Happy'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Passion #557'},
+          { 'trait_type': 'Birth Order', 'value': '3' }
+        ]
+      }
+      const afterPassionMetadata = {
+        name: 'Shrub #3',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://passion667.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Passion' },
+          { 'trait_type': 'DNA', 'value': 67 },
+          { 'trait_type': 'Emotion', 'value': 'Happy'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Passion #557'},
+          { 'trait_type': 'Birth Order', 'value': '3' },
+          { 'trait_type': 'Body Type', 'value': 'Passion' },
+          { 'trait_type': 'Background', 'value': 'Yellow' },
+          { 'trait_type': 'Top', 'value': 'Lotus' },
+          { 'trait_type': 'Hat', 'value': 'Flower Hat' },
+          { 'trait_type': 'Left Hand', 'value': 'Green Heart' },
+          { 'trait_type': 'Right Hand', 'value': 'Fishing Pole' },
+          { 'trait_type': 'Clothes', 'value': 'Skirt' },
+          { 'trait_type': 'Accessory', 'value': 'Diamond Necklace' },
+          { 'trait_type': 'Expression', 'value': 'Loving' }
+        ]
+      }
+
+      const defaultWonderMetadata1 = {
+        name: 'Shrub #4',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://wonder.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Wonder' },
+          { 'trait_type': 'DNA', 'value': 0 },
+          { 'trait_type': 'Emotion', 'value': 'Happy'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Wonder #390'},
+          { 'trait_type': 'Birth Order', 'value': '4' }
+        ]
+      }
+      const afterWonderMetadata1 = {
+        name: 'Shrub #4',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://wonder1500.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Wonder' },
+          { 'trait_type': 'DNA', 'value': 0 },
+          { 'trait_type': 'Emotion', 'value': 'Happy'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Wonder #390'},
+          { 'trait_type': 'Birth Order', 'value': '4' },
+          { 'trait_type': 'Body Type', 'value': 'Wonder' },
+          { 'trait_type': 'Background', 'value': 'Blue' },
+          { 'trait_type': 'Top', 'value': 'Hibiscus' },
+          { 'trait_type': 'Hat', 'value': 'Top Hat' },
+          { 'trait_type': 'Left Hand', 'value': 'Light Bulb' },
+          { 'trait_type': 'Right Hand', 'value': 'Watch' },
+          { 'trait_type': 'Clothes', 'value': 'Shirt' },
+          { 'trait_type': 'Accessory', 'value': 'Eye Patch' },
+          { 'trait_type': 'Expression', 'value': 'Sad' }
+        ]
+      }
+      const defaultWonderMetadata2 = {
+        name: 'Shrub #5',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://wonder.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Wonder' },
+          { 'trait_type': 'DNA', 'value': 67 },
+          { 'trait_type': 'Emotion', 'value': 'Sad'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Wonder #5557'},
+          { 'trait_type': 'Birth Order', 'value': '5' }
+        ]
+      }
+      const afterWonderMetadata2 = {
+        name: 'Henry #5',
+        description: 'created by Shrub.finance',
+        created_by: 'Shrub.finance',
+        image: 'ipfs://wonder6667.png',
+        attributes: [
+          { 'trait_type': 'Class', 'value': 'Wonder' },
+          { 'trait_type': 'DNA', 'value': 67 },
+          { 'trait_type': 'Emotion', 'value': 'Sad'},
+          { 'trait_type': 'Planted Seed', 'value': 'Paper Seed of Wonder #5557'},
+          { 'trait_type': 'Birth Order', 'value': '5' },
+          { 'trait_type': 'Body Type', 'value': 'Wonder' },
+          { 'trait_type': 'Background', 'value': 'Purple' },
+          { 'trait_type': 'Top', 'value': 'Rose' },
+          { 'trait_type': 'Hat', 'value': 'none' },
+          { 'trait_type': 'Left Hand', 'value': 'none' },
+          { 'trait_type': 'Right Hand', 'value': 'Football' },
+          { 'trait_type': 'Clothes', 'value': 'none' },
+          { 'trait_type': 'Accessory', 'value': 'none' },
+          { 'trait_type': 'Expression', 'value': 'Happy' }
+        ]
+      }
+
+      const blankMetadata = {
+        name: '',
+        imageUri: "",
+        bodyType: "",
+        background: "",
+        top: "",
+        hat: "",
+        expression: "",
+        leftHand: "",
+        rightHand: "",
+        clothes: "",
+        accessory: ""
+      }
+      const seed3Metadata = {
+        name: '',
+        imageUri: "ipfs://power3.png",
+        bodyType: "Power",
+        background: "Red",
+        top: "Mohawk",
+        hat: "none",
+        expression: "Powerful",
+        leftHand: "Fire",
+        rightHand: "Lightning",
+        clothes: "none",
+        accessory: "Money"
+      }
+      const seed67Metadata = {
+        name: '',
+        imageUri: "ipfs://hope67.png",
+        bodyType: "Hope",
+        background: "Pink",
+        top: "Aloe",
+        hat: "none",
+        expression: "Excited",
+        leftHand: "Seed",
+        rightHand: "Pole",
+        clothes: "Basketball Jersey",
+        accessory: "Medal"
+      }
+      const seed667Metadata = {
+        name: '',
+        imageUri: "ipfs://passion667.png",
+        bodyType: "Passion",
+        background: "Yellow",
+        top: "Lotus",
+        hat: "Flower Hat",
+        expression: "Loving",
+        leftHand: "Green Heart",
+        rightHand: "Fishing Pole",
+        clothes: "Skirt",
+        accessory: "Diamond Necklace"
+      }
+      const seed1500Metadata = {
+        name: '',
+        imageUri: "ipfs://wonder1500.png",
+        bodyType: "Wonder",
+        background: "Blue",
+        top: "Hibiscus",
+        hat: "Top Hat",
+        expression: "Sad",
+        leftHand: "Light Bulb",
+        rightHand: "Watch",
+        clothes: "Shirt",
+        accessory: "Eye Patch"
+      }
+      const seed6667Metadata = {
+        name: 'Henry #5',
+        imageUri: "ipfs://wonder6667.png",
+        bodyType: "Wonder",
+        background: "Purple",
+        top: "Rose",
+        hat: "none",
+        expression: "Happy",
+        leftHand: "none",
+        rightHand: "Football",
+        clothes: "none",
+        accessory: "none"
+      }
+
       balances[0] = await paperPot.balanceOf(signer1.address, 2e6 + 1);
       balances[1] = await paperPot.balanceOf(signer2.address, 2e6 + 2);
       balances[2] = await paperPot.balanceOf(signer2.address, 2e6 + 3);
       balances[3] = await paperPot.balanceOf(signer3.address, 2e6 + 4);
       balances[4] = await paperPot.balanceOf(signer3.address, 2e6 + 5);
-      expect(balances).to.deep.equal([One, One, One, One, One]);
+      expect(balances.map(b => b.toNumber())).to.deep.equal([1,1,1,1,0]);
+
+      // Set metadata for the unharvested plant
+      await paperPotMetadata.setShrubSeedUris([6667], [seed6667Metadata]);
+
+      // Then harvest
+      // Harvest the second wonder shrub
+      await signerInfo[signer3.address].paperPot.harvest(1e6 + 5);
 
       uris[0] = await paperPot.uri(2e6 + 1);
       uris[1] = await paperPot.uri(2e6 + 2);
       uris[2] = await paperPot.uri(2e6 + 3);
       uris[3] = await paperPot.uri(2e6 + 4);
       uris[4] = await paperPot.uri(2e6 + 5);
-      expect(uris[0]).to.equal('http://test.xyz/power');
-      expect(uris[1]).to.equal('http://test.xyz/hope');
-      expect(uris[2]).to.equal('http://test.xyz/passion');
-      expect(uris[3]).to.equal('http://test.xyz/wonder');
-      expect(uris[4]).to.equal('http://test.xyz/wonder');
+      let expectedDecodeds = [defaultPowerMetadata, defaultHopeMetadata, defaultPassionMetadata, defaultWonderMetadata1, afterWonderMetadata2];
 
-      // Update 2 of the seedBased uris and expect that they update but not the rest
-      await paperPot.setShrubSeedUris([67, 1500, 6667], [
-        'http://test.xyz/seed67',
-        'http://test.xyz/seed1500',
-        'http://test.xyz/seed6667'
+      // Ensure that all of the URIs are correct
+      for (let i = 0; i < 5; i++) {
+        const uri = uris[i];
+        const expectedDecoded = expectedDecodeds[i];
+        const splitUri = uri.split(',');
+        expect(splitUri.length).to.equal(2);
+        expect(splitUri[0]).to.equal('data:application/json;base64');
+        const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+        const decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+        expect(decodedMetadata).to.deep.equal(expectedDecoded);
+        // console.log(expectedDecoded);
+      }
+
+      await paperPotMetadata.setShrubSeedUris([67, 1500, 6667], [
+        seed67Metadata,
+        seed1500Metadata,
+        seed6667Metadata
       ]);
       uris[0] = await paperPot.uri(2e6 + 1);
       uris[1] = await paperPot.uri(2e6 + 2);
       uris[2] = await paperPot.uri(2e6 + 3);
       uris[3] = await paperPot.uri(2e6 + 4);
       uris[4] = await paperPot.uri(2e6 + 5);
-      expect(uris[0]).to.equal('http://test.xyz/power');
-      expect(uris[1]).to.equal('http://test.xyz/seed67');
-      expect(uris[2]).to.equal('http://test.xyz/passion');
-      expect(uris[3]).to.equal('http://test.xyz/seed1500');
-      expect(uris[4]).to.equal('http://test.xyz/seed6667');
+      expectedDecodeds = [defaultPowerMetadata, afterHopeMetadata, defaultPassionMetadata, afterWonderMetadata1, afterWonderMetadata2];
+      for (let i = 0; i < 5; i++) {
+        const uri = uris[i];
+        const expectedDecoded = expectedDecodeds[i];
+        const splitUri = uri.split(',');
+        expect(splitUri.length).to.equal(2);
+        expect(splitUri[0]).to.equal('data:application/json;base64');
+        const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+        const decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+        expect(decodedMetadata).to.deep.equal(expectedDecoded);
+        // console.log(expectedDecoded);
+      }
 
-      // Revert 1 back
-      await paperPot.setShrubSeedUris([1500], ['']);
+      // Revert 2 back - including the one that was set before harvesting
+      await paperPotMetadata.setShrubSeedUris([1500, 6667], [blankMetadata, blankMetadata]);
       uris[0] = await paperPot.uri(2e6 + 1);
       uris[1] = await paperPot.uri(2e6 + 2);
       uris[2] = await paperPot.uri(2e6 + 3);
       uris[3] = await paperPot.uri(2e6 + 4);
       uris[4] = await paperPot.uri(2e6 + 5);
-      expect(uris[0]).to.equal('http://test.xyz/power');
-      expect(uris[1]).to.equal('http://test.xyz/seed67');
-      expect(uris[2]).to.equal('http://test.xyz/passion');
-      expect(uris[3]).to.equal('http://test.xyz/wonder');
-      expect(uris[4]).to.equal('http://test.xyz/seed6667');
-
-
-      // Update 2 of the uris and expect that they update but not the rest
-      await paperPot.setURI(2e6 + 2, "http://test.xyz/67")
-      await paperPot.setURI(2e6 + 4, "http://test.xyz/1500")
-
-      uris[0] = await paperPot.uri(2e6 + 1);
-      uris[1] = await paperPot.uri(2e6 + 2);
-      uris[2] = await paperPot.uri(2e6 + 3);
-      uris[3] = await paperPot.uri(2e6 + 4);
-      uris[4] = await paperPot.uri(2e6 + 5);
-      expect(uris[0]).to.equal('http://test.xyz/power');
-      expect(uris[1]).to.equal('http://test.xyz/67');
-      expect(uris[2]).to.equal('http://test.xyz/passion');
-      expect(uris[3]).to.equal('http://test.xyz/1500');
-      expect(uris[4]).to.equal('http://test.xyz/seed6667');
-
-      // Change the rest and revert the other two
-      await paperPot.setURI(2e6 + 1, "http://test.xyz/3")
-      await paperPot.setURI(2e6 + 2, "")
-      await paperPot.setURI(2e6 + 3, "http://test.xyz/667")
-      await paperPot.setURI(2e6 + 4, "")
-      await paperPot.setURI(2e6 + 5, "http://test.xyz/6667")
-      uris[0] = await paperPot.uri(2e6 + 1);
-      uris[1] = await paperPot.uri(2e6 + 2);
-      uris[2] = await paperPot.uri(2e6 + 3);
-      uris[3] = await paperPot.uri(2e6 + 4);
-      uris[4] = await paperPot.uri(2e6 + 5);
-      expect(uris[0]).to.equal('http://test.xyz/3');
-      expect(uris[1]).to.equal('http://test.xyz/seed67');
-      expect(uris[2]).to.equal('http://test.xyz/667');
-      expect(uris[3]).to.equal('http://test.xyz/wonder');
-      expect(uris[4]).to.equal('http://test.xyz/6667');
+      expectedDecodeds = [defaultPowerMetadata, afterHopeMetadata, defaultPassionMetadata, defaultWonderMetadata1, defaultWonderMetadata2];
+      for (let i = 0; i < 5; i++) {
+        const uri = uris[i];
+        const expectedDecoded = expectedDecodeds[i];
+        const splitUri = uri.split(',');
+        expect(splitUri.length).to.equal(2);
+        expect(splitUri[0]).to.equal('data:application/json;base64');
+        const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+        const decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+        expect(decodedMetadata).to.deep.equal(expectedDecoded);
+        // console.log(expectedDecoded);
+      }
 
       // Change them all to custom
-      await paperPot.setURI(2e6 + 2, "http://test.xyz/67b")
-      await paperPot.setURI(2e6 + 4, "http://test.xyz/1500b")
+      await paperPotMetadata.setShrubSeedUris([3, 667, 1500, 6667], [seed3Metadata, seed667Metadata, seed1500Metadata, seed6667Metadata]);
       uris[0] = await paperPot.uri(2e6 + 1);
       uris[1] = await paperPot.uri(2e6 + 2);
       uris[2] = await paperPot.uri(2e6 + 3);
       uris[3] = await paperPot.uri(2e6 + 4);
       uris[4] = await paperPot.uri(2e6 + 5);
-      expect(uris[0]).to.equal('http://test.xyz/3');
-      expect(uris[1]).to.equal('http://test.xyz/67b');
-      expect(uris[2]).to.equal('http://test.xyz/667');
-      expect(uris[3]).to.equal('http://test.xyz/1500b');
-      expect(uris[4]).to.equal('http://test.xyz/6667');
+      expectedDecodeds = [afterPowerMetadata, afterHopeMetadata, afterPassionMetadata, afterWonderMetadata1, afterWonderMetadata2];
+      for (let i = 0; i < 5; i++) {
+        const uri = uris[i];
+        const expectedDecoded = expectedDecodeds[i];
+        const splitUri = uri.split(',');
+        expect(splitUri.length).to.equal(2);
+        expect(splitUri[0]).to.equal('data:application/json;base64');
+        const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+        const decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+        expect(decodedMetadata).to.deep.equal(expectedDecoded);
+        // console.log(expectedDecoded);
+      }
+
+
+      // Setting uri from PaperPot should override metadata
+      await paperPot.setURI(2e6 + 4, "http://test.xyz/1500b")
+      await paperPot.setURI(2e6 + 2, "http://test.xyz/67b")
+      uris[0] = await paperPot.uri(2e6 + 2);
+      uris[1] = await paperPot.uri(2e6 + 4);
+      expect(uris[0]).to.equal("http://test.xyz/67b");
+      expect(uris[1]).to.equal("http://test.xyz/1500b");
+      // ensure the rest are unchanged
+      uris[0] = await paperPot.uri(2e6 + 1);
+      uris[1] = await paperPot.uri(2e6 + 3);
+      uris[2] = await paperPot.uri(2e6 + 5);
+      expectedDecodeds = [afterPowerMetadata, afterPassionMetadata, afterWonderMetadata2];
+      for (let i = 0; i < 3; i++) {
+        const uri = uris[i];
+        const expectedDecoded = expectedDecodeds[i];
+        const splitUri = uri.split(',');
+        expect(splitUri.length).to.equal(2);
+        expect(splitUri[0]).to.equal('data:application/json;base64');
+        const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+        const decodedMetadata = JSON.parse(ethers.utils.toUtf8String(decodedBase64Bytes));
+        expect(decodedMetadata).to.deep.equal(expectedDecoded);
+        // console.log(expectedDecoded);
+      }
+
+
 
     });
   });
