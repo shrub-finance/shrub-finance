@@ -110,13 +110,14 @@ function MintPotView(props: RouteComponentProps) {
   const invalidEntry = Number(amountValue) < 0 || isNaN(Number(amountValue));
 
   const mintPrice = ethers.constants.WeiPerEther.mul(50).div(1000); // 0.05 Eth
-  const mintStartDate = toEthDate(new Date("2022-06-25T14:00:00Z"));
+  const mintStartDate = toEthDate(new Date("2022-06-14T14:00:00Z"));
   const mintEndDate = toEthDate(new Date("2022-06-26T14:00:00Z"));
   const maxMintAmount = 10;
 
   async function handleBlockchainTx(
     description: string,
-    callbackTx: () => Promise<ethers.ContractTransaction>
+    callbackTx: () => Promise<ethers.ContractTransaction>,
+    action?: string
   ) {
     setLocalError("");
     setIsMinted(false);
@@ -131,7 +132,9 @@ function MintPotView(props: RouteComponentProps) {
       try {
         const receipt = await tx.wait();
         setIsLoading(false);
-        setIsMinted(true);
+        if (action === "mintAction") {
+          setIsMinted(true);
+        }
         const toastDescription = ToastDescription(
           description,
           receipt.transactionHash,
@@ -190,8 +193,10 @@ function MintPotView(props: RouteComponentProps) {
   }
 
   async function handleMintPot() {
-    return handleBlockchainTx("Paper Pot Mint Successful!", () =>
-      mintPot(amountValue, library)
+    return handleBlockchainTx(
+      "Paper Pot Mint Successful!",
+      () => mintPot(amountValue, library),
+      "mintAction"
     );
   }
 
@@ -517,7 +522,7 @@ function MintPotView(props: RouteComponentProps) {
               fontWeight={"bold"}
               color={useColorModeValue("gray.600", "gray.400")}
             >
-              Sale End In:
+              Sale Ends In:
             </Text>
             <Text
               fontSize={{ base: "20px", md: "20px", lg: "20px", xl: "30px" }}
@@ -528,7 +533,7 @@ function MintPotView(props: RouteComponentProps) {
           </Box>
         )}
         <Box fontSize={"xs"} color={useColorModeValue("gray.600", "gray.300")}>
-          <Text fontWeight="bold">Paper Pot Address:</Text>
+          <Text fontWeight="bold">Paper Pot Mint Address:</Text>
           <Text fontWeight="md"> {PAPERPOTMINT_ADDRESS}</Text>
           <Text fontWeight="bold">WETH Address:</Text>
           <Text fontWeight="md"> {WETHAddress}</Text>
