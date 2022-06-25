@@ -57,6 +57,8 @@ function App() {
             <WyreCheckoutStatus />
             <Router>
               <HomeView path="/" />
+              <HomeView path="/presale" />
+              <NFTTicketView path="/presale" />
               <MintPotView path="/mint" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
