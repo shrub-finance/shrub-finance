@@ -124,7 +124,7 @@ function MintPotView(props: RouteComponentProps) {
 
   const mintPrice = ethers.constants.WeiPerEther.mul(50).div(1000); // 0.05 Eth
   const mintStartDate = toEthDate(new Date("2022-06-25T14:30:00.000Z"));
-  const mintEndDate = toEthDate(new Date("2022-06-26T14:30:00.000Z"));
+  const mintEndDate = toEthDate(new Date("2022-06-27T14:30:00.000Z"));
   const maxMintAmount = 10;
 
   async function handleBlockchainTx(
