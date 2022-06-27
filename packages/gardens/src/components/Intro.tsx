@@ -109,8 +109,14 @@ function Intro(props: RouteComponentProps) {
               creates a potted plant.
             </Text>
             <Text textStyle={"description"}>
-              For the first time ever, grow an NFT by interacting with it
-              on-chain!
+              For the first time ever,{" "}
+              <Link
+                isExternal
+                textDecoration={"underline"}
+                href="https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
+              >
+                grow an NFT by interacting with it on-chain
+              </Link>
             </Text>
           </Box>
           <Spacer />
@@ -253,7 +259,7 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
-      {/*section 4*/}
+      {/*story so far*/}
       <Container
         mt={{ base: 0, md: 54, lg: 50 }}
         p={5}
@@ -319,7 +325,7 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
-      {/*section 5*/}
+      {/*NFT Tickets*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -351,19 +357,27 @@ function Intro(props: RouteComponentProps) {
               distribution system
             </Heading>
             <Text textStyle={"description"}>
-              The distribution for the Pot sale will use a new product created
-              by the Shrub engineering team that provides NFT collectors more
-              flexibility than a traditional whitelist.
+              The distribution of Pots will use a new mechanism created by Shrub
+              that provides NFT collectors more flexibility than a traditional
+              whitelist.
             </Text>
             <Text textStyle={"description"}>
-              NFT Tickets are NFTs themselves (ERC-1155) and are gas-efficient
+              NFT Tickets are NFTs themselves, ERC-1155, and are gas-efficient
               to mint.
             </Text>
             <Text textStyle={"description"}>
               When buying tickets during the pre-sale, collectors only pay a
               portion of the total price. The ticket can later be redeemed for
-              the pot by paying the remainder, or can be sold on the secondary
-              markets.
+              the pot by paying the remainder, or sold on the secondary markets.
+            </Text>
+            <Text textStyle={"description"}>
+              <Link
+                isExternal
+                textDecoration={"underline"}
+                href="https://medium.com/@shrubfinance/nft-tickets-the-next-generation-of-distribution-eab1e0fdc317"
+              >
+                Learn more about NFT tickets
+              </Link>
             </Text>
           </Box>
           <Box
@@ -381,169 +395,136 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
-      {/*section 7*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Flex direction={{ base: "column", md: "column", lg: "row" }}>
-          <Box
-            mt={{ base: 0, md: 50 }}
-            display={{
-              base: "none",
-              md: "none",
-              lg: "flex",
-              xl: "flex",
-              "2xl": "flex",
-            }}
-          >
-            <Image
-              maxW="40rem"
-              maxH="48rem"
-              src="https://shrub.finance/funky-pineapple-shrub.webp"
-              fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
-              alt="pineapple"
-            />
-          </Box>
-          <Spacer
-            display={{
-              base: "none",
-              md: "none",
-              lg: "flex",
-              xl: "flex",
-              "2xl": "flex",
-            }}
-          />
-          <Box mt={{ base: 0, md: 8 }} id="faqs">
-            <Heading
-              fontSize={{ base: "30px", md: "70px" }}
-              letterSpacing={"tight"}
-              maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}
-            >
-              FAQs
-            </Heading>
-            <Accordion
-              allowToggle
-              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-            >
-              <AccordionItem>
-                <AccordionButton>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    When mint?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    Public Pot Sale <br />
-                    Saturday, <b>June 25</b>
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    What's the mint price?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    <b>0.05 ETH</b> for the Public Pot Sale.
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "28px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    What's the total pot supply ?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    {" "}
-                    250 pots.
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    What would it mean to have a fully grown Shrub?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    Shrub NFTs are Shrub Finance’s genesis NFT.
-                  </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    {" "}
-                    They will grant holders the highest status in the Shrub
-                    ecosystem, access to future drops, special airdrops, and
-                    early access to new products.
-                  </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    <Link
-                      isExternal
-                      textDecoration={"underline"}
-                      href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
-                    >
-                      Read Shrub roadmap
-                    </Link>
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-              <AccordionItem>
-                <AccordionButton>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    Will my NFTs be stored on-chain?
-                  </Text>
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    The latest in NFT technology is being used to store all
-                    metadata for pots and shrubs on-chain dynamically.
-                  </Text>
-                  <Text textStyle={"description"} textAlign={"left"}>
-                    All art is stored on a redundant Inter-Planetary File System
-                    (IPFS) setup. It's not going anywhere.
-                  </Text>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
-          </Box>
-        </Flex>
-      </Container>
+      {/*faqs*/}
+      {/*<Container*/}
+      {/*  mt={{ base: 0, md: 50 }}*/}
+      {/*  p={5}*/}
+      {/*  flex="1"*/}
+      {/*  borderRadius="2xl"*/}
+      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
+      {/*>*/}
+      {/*  <Flex direction={{ base: "column", md: "column", lg: "row" }}>*/}
+      {/*    <Box*/}
+      {/*      mt={{ base: 0, md: 50 }}*/}
+      {/*      display={{*/}
+      {/*        base: "none",*/}
+      {/*        md: "none",*/}
+      {/*        lg: "flex",*/}
+      {/*        xl: "flex",*/}
+      {/*        "2xl": "flex",*/}
+      {/*      }}*/}
+      {/*    >*/}
+      {/*      <Image*/}
+      {/*        maxW="40rem"*/}
+      {/*        maxH="48rem"*/}
+      {/*        src="https://shrub.finance/funky-pineapple-shrub.webp"*/}
+      {/*        fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"*/}
+      {/*        alt="pineapple"*/}
+      {/*      />*/}
+      {/*    </Box>*/}
+      {/*    <Spacer*/}
+      {/*      display={{*/}
+      {/*        base: "none",*/}
+      {/*        md: "none",*/}
+      {/*        lg: "flex",*/}
+      {/*        xl: "flex",*/}
+      {/*        "2xl": "flex",*/}
+      {/*      }}*/}
+      {/*    />*/}
+      {/*    <Box mt={{ base: 0, md: 8 }} id="faqs">*/}
+      {/*      <Heading*/}
+      {/*        fontSize={{ base: "30px", md: "70px" }}*/}
+      {/*        letterSpacing={"tight"}*/}
+      {/*        maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}*/}
+      {/*      >*/}
+      {/*        FAQs*/}
+      {/*      </Heading>*/}
+      {/*      <Accordion*/}
+      {/*        allowToggle*/}
+      {/*        maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
+      {/*      >*/}
+      {/*        <AccordionItem>*/}
+      {/*          <AccordionButton>*/}
+      {/*            <Text*/}
+      {/*              mt="3"*/}
+      {/*              fontSize={{ base: "20px", md: "28px" }}*/}
+      {/*              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
+      {/*              fontWeight={{ base: "semibold", md: "medium" }}*/}
+      {/*              textAlign={"left"}*/}
+      {/*            >*/}
+      {/*              Where can I learn more about the series ?*/}
+      {/*            </Text>*/}
+      {/*            <AccordionIcon />*/}
+      {/*          </AccordionButton>*/}
+      {/*          <AccordionPanel pb={4}>*/}
+      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
+      {/*              {" "}*/}
+      {/*              250 pots.*/}
+      {/*            </Text>*/}
+      {/*          </AccordionPanel>*/}
+      {/*        </AccordionItem>*/}
+      {/*        <AccordionItem>*/}
+      {/*          <AccordionButton>*/}
+      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
+      {/*              What would it mean to have a fully grown Shrub?*/}
+      {/*            </Text>*/}
+      {/*            <AccordionIcon />*/}
+      {/*          </AccordionButton>*/}
+      {/*          <AccordionPanel pb={4}>*/}
+      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
+      {/*              Shrub NFTs are Shrub Finance’s genesis NFT.*/}
+      {/*            </Text>*/}
+      {/*            <Text*/}
+      {/*              mt="3"*/}
+      {/*              fontSize={{ base: "20px", md: "20px" }}*/}
+      {/*              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
+      {/*              fontWeight={{ base: "semibold", md: "medium" }}*/}
+      {/*              textAlign={"left"}*/}
+      {/*            >*/}
+      {/*              {" "}*/}
+      {/*              They will grant holders the highest status in the Shrub*/}
+      {/*              ecosystem, access to future drops, special airdrops, and*/}
+      {/*              early access to new products.*/}
+      {/*            </Text>*/}
+      {/*            <Text*/}
+      {/*              mt="3"*/}
+      {/*              fontSize={{ base: "20px", md: "20px" }}*/}
+      {/*              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
+      {/*              fontWeight={{ base: "semibold", md: "medium" }}*/}
+      {/*              textAlign={"left"}*/}
+      {/*            >*/}
+      {/*              <Link*/}
+      {/*                isExternal*/}
+      {/*                textDecoration={"underline"}*/}
+      {/*                href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"*/}
+      {/*              >*/}
+      {/*                Read Shrub roadmap*/}
+      {/*              </Link>*/}
+      {/*            </Text>*/}
+      {/*          </AccordionPanel>*/}
+      {/*        </AccordionItem>*/}
+      {/*        <AccordionItem>*/}
+      {/*          <AccordionButton>*/}
+      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
+      {/*              Will my NFTs be stored on-chain?*/}
+      {/*            </Text>*/}
+      {/*            <AccordionIcon />*/}
+      {/*          </AccordionButton>*/}
+      {/*          <AccordionPanel pb={4}>*/}
+      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
+      {/*              The latest in NFT technology is being used to store all*/}
+      {/*              metadata for pots and shrubs on-chain dynamically.*/}
+      {/*            </Text>*/}
+      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
+      {/*              All art is stored on a redundant Inter-Planetary File System*/}
+      {/*              (IPFS) setup. It's not going anywhere.*/}
+      {/*            </Text>*/}
+      {/*          </AccordionPanel>*/}
+      {/*        </AccordionItem>*/}
+      {/*      </Accordion>*/}
+      {/*    </Box>*/}
+      {/*  </Flex>*/}
+      {/*</Container>*/}
 
       {/*roadmap*/}
       <Container
@@ -608,11 +589,25 @@ function Intro(props: RouteComponentProps) {
               )}
               bgClip="text"
               isExternal
-              href="https://gardens.shrub.finance"
+              href="https://gardens.shrub.finance/my-garden"
             >
               Paper Gardens
-              <br /> [Q1-Q2]
+              <br /> [LIVE]
             </Link>{" "}
+            <Icon as={IoEllipsisVertical} boxSize={"70"} />
+            <Text
+              fontSize={{ base: "25px", md: "35px" }}
+              maxW={{ base: "22rem", md: "40rem" }}
+              fontWeight="semibold"
+              bgGradient={useColorModeValue(
+                "linear(to-l, black, black)",
+                "linear(to-l, #c9ff04, #51eae6)"
+              )}
+              bgClip="text"
+            >
+              Shrub Swap
+              <br /> [Q3]
+            </Text>{" "}
             <Icon as={IoEllipsisVertical} boxSize={"70"} />
             <Text
               fontSize={{ base: "25px", md: "35px" }}
@@ -690,7 +685,7 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW="40rem"
             >
-              Join the{" "}
+              Join{" "}
               <Text
                 as="span"
                 background="gold.100"
@@ -702,7 +697,7 @@ function Intro(props: RouteComponentProps) {
                       : "transparent",
                 }}
               >
-                movement
+                Us
               </Text>
             </Heading>
 
@@ -733,39 +728,39 @@ function Intro(props: RouteComponentProps) {
       </Container>
 
       {/*as seen on*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
-          <Heading
-            fontSize={{ base: "30px", md: "30px" }}
-            letterSpacing={"tight"}
-          >
-            As seen on
-          </Heading>
-          <Center>
-            <Flex direction="row" gap={8}>
-              <Box>
-                <Link
-                  href="https://nftcalendar.io/"
-                  cursor="pointer"
-                  isExternal
-                >
-                  <Img
-                    src="/extra/nft-calendar.webp"
-                    alt="nft calendar"
-                    width={100}
-                  />
-                </Link>
-              </Box>
-            </Flex>
-          </Center>
-        </Box>
-      </Container>
+      {/*<Container*/}
+      {/*  mt={{ base: 0, md: 50 }}*/}
+      {/*  p={5}*/}
+      {/*  flex="1"*/}
+      {/*  borderRadius="2xl"*/}
+      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
+      {/*>*/}
+      {/*  <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>*/}
+      {/*    <Heading*/}
+      {/*      fontSize={{ base: "30px", md: "30px" }}*/}
+      {/*      letterSpacing={"tight"}*/}
+      {/*    >*/}
+      {/*      As seen on*/}
+      {/*    </Heading>*/}
+      {/*    <Center>*/}
+      {/*      <Flex direction="row" gap={8}>*/}
+      {/*        <Box>*/}
+      {/*          <Link*/}
+      {/*            href="https://nftcalendar.io/"*/}
+      {/*            cursor="pointer"*/}
+      {/*            isExternal*/}
+      {/*          >*/}
+      {/*            <Img*/}
+      {/*              src="/extra/nft-calendar.webp"*/}
+      {/*              alt="nft calendar"*/}
+      {/*              width={100}*/}
+      {/*            />*/}
+      {/*          </Link>*/}
+      {/*        </Box>*/}
+      {/*      </Flex>*/}
+      {/*    </Center>*/}
+      {/*  </Box>*/}
+      {/*</Container>*/}
 
       {/*ending*/}
       <Container
@@ -814,7 +809,9 @@ function Intro(props: RouteComponentProps) {
                   />
                 </Link>
                 <Center>
-                  <Text mt={8}>Whitelist contests, games, updates</Text>
+                  <Text mt={8}>
+                    Connect with the core team, and get detailed updates
+                  </Text>
                 </Center>
               </Box>
               <Spacer />
@@ -840,7 +837,7 @@ function Intro(props: RouteComponentProps) {
                   />
                 </Link>
                 <Center>
-                  <Text mt={8}>Official announcements, contests</Text>
+                  <Text mt={8}>Official announcements</Text>
                 </Center>
               </Box>
             </Flex>

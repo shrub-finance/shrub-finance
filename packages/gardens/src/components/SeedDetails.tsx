@@ -378,7 +378,7 @@ function SeedDetails({
                   </>
                 ) : (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                    To plant, select a seed on the right
+                    To plant, select a seed on the left
                   </Text>
                 )}
               </>
