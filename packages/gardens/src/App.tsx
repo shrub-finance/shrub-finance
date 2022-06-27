@@ -58,7 +58,7 @@ function App() {
             <Router>
               <HomeView path="/" />
               <HomeView path="/presale" />
-              <MintPotView path="/mint" />
+              <HomeView path="/mint" />
               <ChaptersView path="/chapters" />
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />

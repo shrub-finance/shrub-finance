@@ -107,41 +107,18 @@ function TopNav() {
           <Flex alignItems={"center"}>
             <>
               <BuyMatic />
-              {/*<Match path="/">*/}
-              {/*  {(props) =>*/}
-              {/*    props.match ? (*/}
-              {/*      <Link*/}
-              {/*        pr={5}*/}
-              {/*        fontSize={"sm"}*/}
-              {/*        fontWeight={"bold"}*/}
-              {/*        color={rightCTA}*/}
-              {/*        href={"https://discord.gg/BpHuVCYtdB"}*/}
-              {/*        isExternal*/}
-              {/*      >*/}
-              {/*        Join Discord*/}
-              {/*      </Link>*/}
-              {/*    ) : (*/}
-              {/*      <></>*/}
-              {/*    )*/}
-              {/*  }*/}
-              {/*</Match>*/}
-
               <Match path="/">
                 {(props) =>
                   props.match ? (
                     <Link
-                      as={ReachLink}
-                      to="/mint"
+                      pr={5}
                       fontSize={"sm"}
-                      variant={"link"}
-                      fontWeight={"extrabold"}
-                      color="cyan"
-                      px={2}
-                      py={{ base: "3", md: "1", lg: "1" }}
-                      rounded={"lg"}
-                      textDecoration={"underline"}
+                      fontWeight={"bold"}
+                      color={rightCTA}
+                      href={"https://discord.gg/BpHuVCYtdB"}
+                      isExternal
                     >
-                      Mint Now
+                      Join Discord
                     </Link>
                   ) : (
                     <></>
