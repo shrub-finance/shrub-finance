@@ -6,8 +6,14 @@ export default function useAddNetwork() {
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
 
+  const chainId = Number(process.env.REACT_APP_CHAIN_ID);
+  if (!chainId) {
+    throw new Error("Invalid chainId");
+  }
+
   const addNetwork = () => {
-    const params = [NETWORK_RPC_DETAILS[137]];
+    // Creates a prompt to move to another network
+    const params = [NETWORK_RPC_DETAILS[chainId]];
     // @ts-ignore
     window.ethereum
       // @ts-ignore
