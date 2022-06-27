@@ -88,7 +88,7 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW={{ base: "20rem", md: "40rem" }}
             >
-              The first{" "}
+              First{" "}
               <Text
                 as="span"
                 background="gold.100"
