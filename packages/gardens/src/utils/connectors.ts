@@ -19,9 +19,15 @@ const RPC_URLS: { [chainId: number]: string } = {
   137: process.env.REACT_APP_RPC_URL_137 as string,
 };
 
+const chainId = Number(process.env.REACT_APP_CHAIN_ID);
+if (!chainId) {
+  throw new Error("Invalid chainId");
+}
+
 export const injected = new InjectedConnector({
+  // This dictates which networks are considered valid
   // supportedChainIds: [1, 3, 4, 5, 42, 421611, 80001, 137, 1337],
-  supportedChainIds: [137],
+  supportedChainIds: [chainId],
 });
 
 export const network = new NetworkConnector({
