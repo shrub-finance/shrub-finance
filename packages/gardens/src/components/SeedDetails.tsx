@@ -85,7 +85,6 @@ function SeedDetails({
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
-  const { colorMode } = useColorMode();
   const toast = useToast();
   const { pendingTxs } = useContext(TxContext);
   const [plantingApproved, setPlantingApproved] = useState(false);
@@ -466,11 +465,8 @@ function SeedDetails({
               {selectedItem.category === "paperSeed" && (
                 <Tooltip
                   hasArrow
-                  // label={
-                  //   noPot ? "You must have an empty pot to plant seed" : null
-                  // }
                   label={
-                    "You can't plant just yet, but very soon you will be able to!"
+                    noPot ? "You must have an empty pot to plant seed" : null
                   }
                   shouldWrapChildren
                   mt="3"
@@ -493,8 +489,7 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    // isDisabled={noPot}
-                    isDisabled
+                    isDisabled={noPot}
                   >
                     Plant
                   </Button>
@@ -838,14 +833,6 @@ function SeedDetails({
                 </>
               )
             }
-            {/*Animation once planting occurs*/}
-            {/*<Center>*/}
-            {/*  {TransformScale(<FlyingSeed boxSize={20} />, controls)}*/}
-            {/*</Center>*/}
-            {/*<Center>*/}
-            {/*  {Disappear(<PlantingPot boxSize={40} />, controls)}*/}
-            {/*  {Appear(<WonderPot boxSize={40} />, controls)}*/}
-            {/*</Center>*/}
           </ModalBody>
         </MotionModalContent>
       </Modal>

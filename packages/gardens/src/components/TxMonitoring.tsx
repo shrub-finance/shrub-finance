@@ -20,12 +20,15 @@ import {
   Icon,
   TimeIcon,
 } from "@chakra-ui/icons";
-import { HappyBud } from "../assets/Icons";
+import { FlyingSeed, HappyBud, PlantingPot, WonderPot } from "../assets/Icons";
 import { PendingTxState } from "../types";
 import { VscError } from "react-icons/all";
 import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
+import { TransformScale } from "./animations/TransformScale";
+import { Appear, Disappear } from "./animations/Fade";
+import { useAnimation } from "framer-motion";
 
 export function Txmonitor({
   txHash,
@@ -37,6 +40,8 @@ export function Txmonitor({
   const { chainId } = useWeb3React();
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
+  const controls = useAnimation();
+
   if (!txHash) {
     return (
       <>
@@ -69,12 +74,23 @@ export function Txmonitor({
       </>
     );
   }
-  const { status } = pendingTxsState[txHash];
+  const { status, description } = pendingTxsState[txHash];
   console.log(pendingTxsState[txHash]);
 
   return (
     <>
-      {status === "confirming" && (
+      {status === "confirming" && description === "Planting" ? (
+        /*Animation once planting occurs*/
+        <>
+          <Center>
+            {TransformScale(<FlyingSeed boxSize={20} />, controls)}
+          </Center>
+          <Center>
+            {Disappear(<PlantingPot boxSize={40} />, controls)}
+            {Appear(<WonderPot boxSize={40} />, controls)}
+          </Center>
+        </>
+      ) : (
         <Alert
           status="success"
           variant="subtle"
