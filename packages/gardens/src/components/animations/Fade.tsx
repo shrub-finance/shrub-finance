@@ -53,10 +53,6 @@ export function Disappear(
         duration: 0.001,
         delay: 1.97,
       }}
-      onAnimationStart={() => console.log("disappear start")}
-      onAnimationComplete={() => {
-        console.log("disapper complete");
-      }}
     >
       {animationItem}
     </MotionBox>
@@ -81,10 +77,6 @@ export function Appear(
       transition={{
         duration: 0.001,
         delay: 1.97,
-      }}
-      onAnimationStart={() => console.log("appear start")}
-      onAnimationComplete={() => {
-        console.log("appear complete");
       }}
     >
       {animationItem}

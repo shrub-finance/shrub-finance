@@ -8,7 +8,6 @@ import {
   Center,
   Divider,
   Heading,
-  HStack,
   Icon,
   Image,
   keyframes,
@@ -22,21 +21,15 @@ import {
   SlideFade,
   Spinner,
   Stack,
-  StackDivider,
-  Tag,
   Text,
   Tooltip,
   useColorMode,
   useColorModeValue,
   useDisclosure,
   useToast,
-  VStack,
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { FlyingSeed, PlantingPot, Pot, WonderPot } from "../assets/Icons";
-import { TransformScale } from "./animations/TransformScale";
-import { Disappear, Appear } from "./animations/Fade";
 import { motion, useAnimation } from "framer-motion";
 import {
   approveAllErc721,
@@ -47,7 +40,6 @@ import {
   waterWithFertilizer,
 } from "../utils/ethMethods";
 import { useWeb3React } from "@web3-react/core";
-import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { ethers } from "ethers";
 import { ToastDescription, Txmonitor } from "./TxMonitoring";
 import { TxContext } from "./Store";
@@ -55,7 +47,8 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 import Confetti from "../assets/Confetti";
 
 import { Feature } from "./Feature";
-import { FaHandHoldingHeart, FaHeart } from "react-icons/all";
+import { FaHeart } from "react-icons/all";
+import { Pot } from "../assets/Icons";
 
 function SeedDetails({
   hooks,
@@ -85,8 +78,14 @@ function SeedDetails({
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
+
   const toast = useToast();
   const { pendingTxs } = useContext(TxContext);
+  const [activeHash, setActiveHash] = useState<string>();
+  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+
+  const { colorMode } = useColorMode();
+
   const [plantingApproved, setPlantingApproved] = useState(false);
   const [localError, setLocalError] = useState("");
   const [approving, setApproving] = React.useState(false);
@@ -96,8 +95,6 @@ function SeedDetails({
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
-
-  const [activeHash, setActiveHash] = useState<string>();
 
   const animationKeyframes = keyframes`
     0% {
@@ -113,15 +110,7 @@ function SeedDetails({
 
   const animation = `${animationKeyframes} 4s ease-out infinite`;
 
-  const {
-    active,
-    account,
-    error: web3Error,
-    library,
-    chainId,
-  } = useWeb3React();
-
-  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+  const { account, error: web3Error, library, chainId } = useWeb3React();
 
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
@@ -148,7 +137,7 @@ function SeedDetails({
   useEffect(() => {
     setTimeout(() => {
       setShowConfetti(false);
-    }, 40000);
+    }, 500);
   }, [activeHash]);
 
   // determine if planting is approved
@@ -204,7 +193,6 @@ function SeedDetails({
     action?: string
   ) {
     setLocalError("");
-    setShowConfetti(false);
     try {
       setApproving(true);
       const tx = await callbackTx();
@@ -301,7 +289,7 @@ function SeedDetails({
 
   return (
     <>
-      {activeHash && showConfetti && <Confetti />}
+      {/*{activeHash && showConfetti && <Confetti />}*/}
       <Center mt={10} mb={4}>
         {localError && (
           <SlideFade in={true} unmountOnExit={true}>
@@ -334,6 +322,11 @@ function SeedDetails({
                 maxH={{ base: "250px", md: "250px", lg: "250" }}
                 src={selectedItem.imageUrl}
                 alt={selectedItem.name}
+                transform={
+                  selectedItem.category === "pottedPlant"
+                    ? "scale(2)"
+                    : undefined
+                }
               />
             </Center>
             {/*title*/}
@@ -371,7 +364,7 @@ function SeedDetails({
                         : "fertilizer"}
                       ,{" "}
                       {holdsPottedPlant
-                        ? "select a potted plant on the right"
+                        ? "select a potted plant on the left"
                         : "plant a seed first"}
                     </Text>
                   </>
@@ -429,9 +422,10 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    fungibleAssets.water === 0
-                      ? "You do not have water yet. First get some water from the water faucet."
-                      : null
+                    // fungibleAssets.water === 0
+                    //   ? "You do not have water yet. First get some water from the water faucet."
+                    //   : null
+                    "Watering is not enabled yet"
                   }
                   shouldWrapChildren
                   mt="3"
@@ -454,7 +448,8 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    isDisabled={fungibleAssets.water === 0}
+                    // isDisabled={fungibleAssets.water === 0}
+                    isDisabled
                   >
                     Water
                   </Button>
@@ -503,9 +498,10 @@ function SeedDetails({
                   <Tooltip
                     hasArrow
                     label={
-                      fungibleAssets.fertilizer === 0
-                        ? "You do not have fertilizer. First earn some."
-                        : null
+                      // fungibleAssets.fertilizer === 0
+                      //   ? "You do not have fertilizer. First earn some."
+                      //   : null
+                      "Fertilizer is not available yet"
                     }
                     shouldWrapChildren
                     mt="3"
@@ -528,7 +524,8 @@ function SeedDetails({
                       _focus={{
                         bg: "shrub.100",
                       }}
-                      isDisabled={fungibleAssets.fertilizer === 0}
+                      // isDisabled={fungibleAssets.fertilizer === 0}
+                      isDisabled
                     >
                       Fertilize
                     </Button>
@@ -539,9 +536,10 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    stillGrowing
-                      ? "Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
-                      : null
+                    // stillGrowing
+                    //   ? "Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
+                    //   : null
+                    "Harvesting is not available yet."
                   }
                   shouldWrapChildren
                   mt="3"
@@ -571,7 +569,8 @@ function SeedDetails({
                       bg: "shrub.100",
                     }}
                     backgroundSize="400% 400%"
-                    isDisabled={stillGrowing}
+                    // isDisabled={stillGrowing}
+                    isDisabled
                   >
                     Harvest
                   </Button>
@@ -594,18 +593,18 @@ function SeedDetails({
           top="6rem"
           boxShadow="dark-lg"
           borderRadius="2xl"
-          // animate={{
+          // animate={description === "Planting"?{
           //   backgroundColor: [
           //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
           //     "#ffd06b",
           //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
           //   ],
-          // }}
-          //@ts-ignore
-          // transition={{
+          // }: undefined}
+          // //@ts-ignore
+          // transition={?{
           //   duration: 0.25,
           //   delay: 1.97,
-          // }}
+          // }:undefined}
         >
           <ModalHeader>
             {modalState === "plant"
@@ -633,7 +632,11 @@ function SeedDetails({
               approving || activeHash ? (
                 <Center mt={20}>
                   {" "}
-                  <Txmonitor txHash={activeHash} />
+                  <Txmonitor
+                    txHash={activeHash}
+                    seed={selectedItem.type}
+                    emotion={selectedItem.emotion}
+                  />
                 </Center>
               ) : (
                 // Base States based on action clicked

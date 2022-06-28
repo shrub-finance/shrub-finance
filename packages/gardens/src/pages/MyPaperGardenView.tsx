@@ -452,6 +452,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <GardenGrid
             id={id}
             name={`#${id}`}
+            category="pottedPlant"
             onClick={() => {
               setSelectedItem(pottedPlantItem);
               onOpen();
@@ -744,15 +745,15 @@ function MyPaperGardenView(props: RouteComponentProps) {
         </Center>
 
         {isOpenInfoMessage ? (
-          <Center mt={20}>
+          <Center>
             <SlideFade in={true} unmountOnExit={true}>
               <Alert status={"success"} borderRadius={9}>
                 <AlertIcon />
                 <Box>
                   <AlertTitle>Congrats!</AlertTitle>
                   <AlertDescription>
-                    You just redeemed your ticket for a pot! Scroll down to see
-                    it in your garden view below. <Pot boxSize={10} />
+                    You just redeemed your ticket for a pot! See it in your
+                    garden view below. <Pot boxSize={10} />
                   </AlertDescription>
                 </Box>
                 <CloseButton
@@ -1005,8 +1006,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
                               : noFunds
                               ? "Insufficient funds"
                               : noAllowance
-                              ? "Approve WETH"
-                              : "Redeem Ticket"
+                              ? "Step 1: Approve WETH"
+                              : "Step 2: Redeem Ticket"
                           }
                         </Button>
                       </Tooltip>
@@ -1079,7 +1080,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 layerStyle={"shrubBg"}
                 borderRadius="2xl"
                 p={4}
-                mt={9}
+                mt={14}
               >
                 {mySeedDataLoading || mySeedDataError ? (
                   <Center p={10}>

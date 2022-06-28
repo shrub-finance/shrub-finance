@@ -20,7 +20,23 @@ import {
   Icon,
   TimeIcon,
 } from "@chakra-ui/icons";
-import { FlyingSeed, HappyBud, PlantingPot, WonderPot } from "../assets/Icons";
+import {
+  Hope,
+  HopePot,
+  HopeSad,
+  HopeSadPot,
+  Passion,
+  PassionPot,
+  PassionSad,
+  PassionSadPot,
+  PlantingPot,
+  Power,
+  PowerPot,
+  Wonder,
+  WonderPot,
+  WonderSad,
+  WonderSadPot,
+} from "../assets/Icons";
 import { PendingTxState } from "../types";
 import { VscError } from "react-icons/all";
 import { isMobile } from "react-device-detect";
@@ -32,15 +48,23 @@ import { useAnimation } from "framer-motion";
 
 export function Txmonitor({
   txHash,
+  seed,
+  emotion,
 }: {
   txHash?: string;
-  showDeposit?: boolean;
-  goToDeposit?: any;
+  seed?: string;
+  emotion?: string;
 }) {
   const { chainId } = useWeb3React();
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
   const controls = useAnimation();
+
+  const plantingAnimation: JSX.Element[] = [];
+
+  setTimeout(() => {
+    controls.start("final");
+  }, 1);
 
   if (!txHash) {
     return (
@@ -77,75 +101,163 @@ export function Txmonitor({
   const { status, description } = pendingTxsState[txHash];
   console.log(pendingTxsState[txHash]);
 
-  return (
-    <>
-      {status === "confirming" && description === "Planting" ? (
-        /*Animation once planting occurs*/
+  switch (seed) {
+    case "Wonder":
+      if (emotion === "sad") {
+        plantingAnimation.push(
+          <>
+            <Center>
+              {TransformScale(<WonderSad boxSize={20} />, controls)}
+            </Center>
+            <Center>
+              {Disappear(<PlantingPot boxSize={40} />, controls)}
+              {Appear(<WonderSadPot boxSize={40} />, controls)}
+            </Center>
+          </>
+        );
+      } else {
+        plantingAnimation.push(
+          <>
+            <Center>{TransformScale(<Wonder boxSize={20} />, controls)}</Center>
+            <Center>
+              {Disappear(<PlantingPot boxSize={40} />, controls)}
+              {Appear(<WonderPot boxSize={40} />, controls)}
+            </Center>
+          </>
+        );
+      }
+      break;
+    case "Passion":
+      if (emotion === "sad") {
+        plantingAnimation.push(
+          <>
+            <Center>
+              {TransformScale(<PassionSad boxSize={20} />, controls)}
+            </Center>
+            <Center>
+              {Disappear(<PlantingPot boxSize={40} />, controls)}
+              {Appear(<PassionSadPot boxSize={40} />, controls)}
+            </Center>
+          </>
+        );
+      } else {
+        plantingAnimation.push(
+          <>
+            <Center>
+              {TransformScale(<Passion boxSize={20} />, controls)}
+            </Center>
+            <Center>
+              {Disappear(<PlantingPot boxSize={40} />, controls)}
+              {Appear(<PassionPot boxSize={40} />, controls)}
+            </Center>
+          </>
+        );
+      }
+      break;
+    case "Hope":
+      if (emotion === "sad") {
+        plantingAnimation.push(
+          <>
+            <Center>
+              {TransformScale(<HopeSad boxSize={20} />, controls)}
+            </Center>
+            <Center>
+              {Disappear(<PlantingPot boxSize={40} />, controls)}
+              {Appear(<HopeSadPot boxSize={40} />, controls)}
+            </Center>
+          </>
+        );
+      } else {
+        plantingAnimation.push(
+          <>
+            <Center>{TransformScale(<Hope boxSize={20} />, controls)}</Center>
+            <Center>
+              {Disappear(<PlantingPot boxSize={40} />, controls)}
+              {Appear(<HopePot boxSize={40} />, controls)}
+            </Center>
+          </>
+        );
+      }
+      break;
+    default:
+      plantingAnimation.push(
         <>
-          <Center>
-            {TransformScale(<FlyingSeed boxSize={20} />, controls)}
-          </Center>
+          <Center>{TransformScale(<Power boxSize={20} />, controls)}</Center>
           <Center>
             {Disappear(<PlantingPot boxSize={40} />, controls)}
-            {Appear(<WonderPot boxSize={40} />, controls)}
+            {Appear(<PowerPot boxSize={40} />, controls)}
           </Center>
         </>
-      ) : (
-        <Alert
-          status="success"
-          variant="subtle"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          height="200px"
-          mt="20px"
-          bg="none"
-        >
-          <TimeIcon boxSize="40px" />
-          <AlertTitle mt={4} mb={1} fontSize="lg">
-            Transaction Confirming...
-          </AlertTitle>
-          <AlertDescription maxWidth="sm">
-            <Link
-              color={"gray"}
-              fontSize={"sm"}
-              // @ts-ignore
-              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
-              isExternal
-            >
-              View on explorer <ExternalLinkIcon mx="2px" />
-            </Link>
-          </AlertDescription>
-        </Alert>
-      )}
+      );
+  }
 
-      {status === "confirmed" && (
-        <Alert
-          status="success"
-          variant="subtle"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          bg="none"
-        >
-          <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />
-          <AlertTitle mt={12} mb={1} fontSize="lg">
-            Transaction Confirmed
-          </AlertTitle>
-          <AlertDescription maxWidth="sm">
-            <Link
-              color={"gray"}
-              fontSize={"sm"}
-              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
-              isExternal
-            >
-              View on explorer <ExternalLinkIcon mx="2px" />
-            </Link>
-          </AlertDescription>
-        </Alert>
-      )}
+  return (
+    <>
+      {status === "confirming" &&
+        (description === "Planting" ? (
+          <Box>{plantingAnimation}</Box>
+        ) : (
+          <Alert
+            status="success"
+            variant="subtle"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            height="200px"
+            mt="20px"
+            bg="none"
+          >
+            <TimeIcon boxSize="40px" />
+            <AlertTitle mt={4} mb={1} fontSize="lg">
+              Transaction Confirming...
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+              <Link
+                color={"gray"}
+                fontSize={"sm"}
+                // @ts-ignore
+                href={explorerLink(
+                  chainId,
+                  txHash,
+                  ExplorerDataType.TRANSACTION
+                )}
+                isExternal
+              >
+                View on explorer <ExternalLinkIcon mx="2px" />
+              </Link>
+            </AlertDescription>
+          </Alert>
+        ))}
+
+      {status === "confirmed" && <Box>{plantingAnimation}</Box>}
+
+      {/*{status === "confirmed" && (*/}
+      {/*  <Alert*/}
+      {/*    status="success"*/}
+      {/*    variant="subtle"*/}
+      {/*    flexDirection="column"*/}
+      {/*    alignItems="center"*/}
+      {/*    justifyContent="center"*/}
+      {/*    textAlign="center"*/}
+      {/*    bg="none"*/}
+      {/*  >*/}
+      {/*    <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />*/}
+      {/*    <AlertTitle mt={12} mb={1} fontSize="lg">*/}
+      {/*      Transaction Confirmed*/}
+      {/*    </AlertTitle>*/}
+      {/*    <AlertDescription maxWidth="sm">*/}
+      {/*      <Link*/}
+      {/*        color={"gray"}*/}
+      {/*        fontSize={"sm"}*/}
+      {/*        href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}*/}
+      {/*        isExternal*/}
+      {/*      >*/}
+      {/*        View on explorer <ExternalLinkIcon mx="2px" />*/}
+      {/*      </Link>*/}
+      {/*    </AlertDescription>*/}
+      {/*  </Alert>*/}
+      {/*)}*/}
 
       {status === "failed" && (
         <Alert
