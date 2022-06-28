@@ -206,6 +206,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
     mySeedData.user.pottedPlants &&
     mySeedData.user.pottedPlants.length;
 
+  const holdsViewItem = holdsSeed || holdsFungibleAsset || holdsPottedPlant;
+
   const POLL_INTERVAL = 1000; // 1 second
   const tooLarge = accountTicketCount.lt(
     ethers.BigNumber.from(redeemAmount || 0)
@@ -1049,7 +1051,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <Center p={10}>
             <Spinner size="xl" />
           </Center>
-        ) : (!holdsSeed && !tickets && !holdsFungibleAsset) || !account ? (
+        ) : (!holdsSeed && !holdsViewItem) || !account ? (
           <Grid templateColumns="repeat(1, 1fr)">
             <Center>
               <SeedBasketImg boxSize={220} />
@@ -1066,7 +1068,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
               </Box>
             </Center>
             <Center>
-              {!holdsSeed && !tickets && account && (
+              {!holdsViewItem && account && (
                 <Link
                   href="https://opensea.io/collection/shrub-paper-gardens"
                   isExternal
@@ -1086,7 +1088,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
               )}
             </Center>
           </Grid>
-        ) : holdsSeed || holdsFungibleAsset ? (
+        ) : holdsViewItem ? (
           // Only show the grid view if the user has items that will show in the grid
           <Grid
             templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(2, 1fr)" }}
