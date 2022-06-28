@@ -88,6 +88,7 @@ type itemType = {
 };
 
 function MyPaperGardenView(props: RouteComponentProps) {
+  console.debug("rendering MyPaperGardenView");
   const [localError, setLocalError] = useState("");
   const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
   const {
@@ -116,7 +117,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
     md: false,
   });
 
-  const btnShadow = useColorModeValue("md", "dark-lg");
   const baseSelectedItem: itemType = {
     tokenId: "",
     name: "",
@@ -165,7 +165,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
   const WETHAddress = process.env.REACT_APP_WETH_TOKEN_ADDRESS || "";
 
+  // Colors
+  const linkColor = useColorModeValue("white", "black");
+  const btnShadow = useColorModeValue("md", "dark-lg");
   const bgColor = useColorModeValue("gray.100", "blackAlpha.400");
+  const bgColor2 = useColorModeValue("gray.200", "gray.700");
+  const textColor = useColorModeValue("gray.600", "gray.400");
+
   const format = (val: string) => val;
 
   const {
@@ -214,7 +220,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   // run on init - setTicketData
   useEffect(() => {
-    console.log("useEffect 0 - library");
+    console.debug("myPaperGardenView useEffect 1 - library - getTicketData");
     if (!library) {
       return;
     }
@@ -248,11 +254,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   // useEffect for account
   useEffect(() => {
-    console.log("useEffect 1 - account, ticketData, pendingTxsState");
+    console.debug(
+      "myPaperGardenView useEffect 2 - account, ticketData, pendingTxsState - ticket redemption checks"
+    );
     if (!library || !account || !ticketData) {
       return;
     }
-    console.log("running useEffect-account");
 
     async function accountAsync() {
       if (!account) {
@@ -266,7 +273,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
           NFT_TICKET_TOKEN_ID,
           library
         );
-        setAccountTicketCount(ticketCount);
+        if (!accountTicketCount.eq(ticketCount)) {
+          console.debug(`setting accountTicketCount ${ticketCount.toString()}`);
+          setAccountTicketCount(ticketCount);
+        }
       } catch (e) {
         console.error(e);
         // Continue along if this fails - it does not affect the rest of the chain
@@ -287,7 +297,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
       try {
         const balanceObj = await getBigWalletBalance(WETHAddress, library);
         const { bigBalance } = balanceObj;
-        setWalletTokenBalance(bigBalance);
+        if (!walletTokenBalance || !walletTokenBalance.eq(bigBalance)) {
+          console.debug(`setting walletTokenBalance ${bigBalance.toString()}`);
+          setWalletTokenBalance(bigBalance);
+        }
       } catch (e: any) {
         handleErrorMessages(e);
         console.error(e);
@@ -302,7 +315,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
           NFT_TICKET_ADDRESS,
           library
         );
-        setWethAllowance(allowance);
+        if (!wethAllowance || !wethAllowance.eq(allowance)) {
+          console.debug(`setting wethAllowance ${allowance.toString()}`);
+          setWethAllowance(allowance);
+        }
       } catch (e: any) {
         handleErrorMessages(e);
         console.error(e);
@@ -315,12 +331,15 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   // run on account change
   useEffect(() => {
+    console.debug("myPaperGardenView useEffect 3 - account - set selectedItem");
     // reset the selectedItem to the default so that it can be reset for the new account
     setSelectedItem(baseSelectedItem);
   }, [account]);
 
   useEffect(() => {
-    console.log("useEffect 3 - []");
+    console.debug(
+      "myPaperGardenView useEffect 4 - [] - set isInitialized (3000ms)"
+    );
     setTimeout(() => {
       if (!isInitialized) {
         setIsInitialized(true);
@@ -329,11 +348,14 @@ function MyPaperGardenView(props: RouteComponentProps) {
   }, []);
 
   useEffect(() => {
+    console.debug(
+      "myPaperGardenView useEffect 5 - localError web3Error isOpenInfoMessage - scroll to top on error"
+    );
     window.scrollTo(0, 0);
   }, [localError, web3Error, isOpenInfoMessage]);
 
   useEffect(() => {
-    console.log("useEffect 5 - mySeedData");
+    console.debug("myPaperGardenView useEffect 6 - mySeedData - fill the grid");
     const tempMySeedDataRows: JSX.Element[] = [];
     let selectedItemSet = selectedItem.tokenId !== "";
 
@@ -363,6 +385,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         tempMySeedDataRows.push(
           <GardenGrid
             id={"pot"}
+            key={"pot"}
             name={`Pot x ${fungibleAssets.pots}`}
             onClick={() => {
               setSelectedItem(potItem);
@@ -388,6 +411,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         tempMySeedDataRows.push(
           <GardenGrid
             id={"water"}
+            key={"water"}
             name={`Water x ${fungibleAssets.water}`}
             onClick={() => {
               setSelectedItem(waterItem);
@@ -413,6 +437,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         tempMySeedDataRows.push(
           <GardenGrid
             id={"fertilizer"}
+            key={"fertilizer"}
             name={`Fertilizer x ${fungibleAssets.fertilizer}`}
             onClick={() => {
               setSelectedItem(fertilizerItem);
@@ -451,6 +476,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         tempMySeedDataRows.push(
           <GardenGrid
             id={id}
+            key={id}
             name={`#${id}`}
             category="pottedPlant"
             onClick={() => {
@@ -492,6 +518,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         tempMySeedDataRows.push(
           <GardenGrid
             id={name}
+            key={name}
             name={`#${seedNumber}`}
             onClick={() => {
               setSelectedItem(seedItem);
@@ -524,39 +551,44 @@ function MyPaperGardenView(props: RouteComponentProps) {
   //   },
   // });
 
-  useEffect(() => {
-    console.log("useEffect 6 - mySeedData, pendingTxsState");
-    const queryBlock =
-      mySeedData &&
-      mySeedData._meta &&
-      mySeedData._meta.block &&
-      mySeedData._meta.block.number;
-    let txBlock = 0;
-    for (const txinfo of Object.values(pendingTxsState)) {
-      console.log(txinfo);
-      console.log(
-        txinfo.data && txinfo.data.blockNumber && txinfo.data.blockNumber
-      );
-      console.log(queryBlock);
-      if (
-        txinfo.data &&
-        txinfo.data.blockNumber &&
-        txinfo.data.blockNumber > queryBlock
-      ) {
-        mySeedDataStartPolling(POLL_INTERVAL);
-        setPolling(true);
-        txBlock = txinfo.data.blockNumber;
-      }
-    }
-    if (queryBlock > txBlock) {
-      mySeedDataStopPolling();
-      setPolling(false);
-    }
-  }, [mySeedData, pendingTxsState]);
+  // useEffect(() => {
+  //   console.debug('myPaperGardenView useEffect 7 - mySeedData, pendingTxState - poll for changes in grid');
+  //   const queryBlock =
+  //     mySeedData &&
+  //     mySeedData._meta &&
+  //     mySeedData._meta.block &&
+  //     mySeedData._meta.block.number;
+  //   let txBlock = 0;
+  //   for (const txinfo of Object.values(pendingTxsState)) {
+  //     console.log(txinfo);
+  //     console.log(
+  //       txinfo.data && txinfo.data.blockNumber && txinfo.data.blockNumber
+  //     );
+  //     console.log(queryBlock);
+  //     if (
+  //       txinfo.data &&
+  //       txinfo.data.blockNumber &&
+  //       txinfo.data.blockNumber > queryBlock
+  //     ) {
+  //       mySeedDataStartPolling(POLL_INTERVAL);
+  //       setPolling(true);
+  //       txBlock = txinfo.data.blockNumber;
+  //     }
+  //   }
+  //   if (queryBlock > txBlock) {
+  //     mySeedDataStopPolling();
+  //     setPolling(false);
+  //   }
+  // }, [mySeedData, pendingTxsState]);
 
   useEffect(() => {
+    console.debug(
+      "myPaperGardenView useEffect 8 - activeHash - set Confetti to false (40000ms)"
+    );
     setTimeout(() => {
-      setTicketConfetti(false);
+      if (ticketConfetti) {
+        setTicketConfetti(false);
+      }
     }, 40000);
   }, [activeHash]);
 
@@ -783,20 +815,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
               >
                 {/*Ticket info*/}
                 <Center>
-                  <Box
-                    bgColor={useColorModeValue("gray.200", "gray.700")}
-                    p={10}
-                    rounded="3xl"
-                  >
+                  <Box bgColor={bgColor2} p={10} rounded="3xl">
                     <Box
                       fontSize={{ base: "18px", md: "20px" }}
                       mt={4}
                       fontWeight="semibold"
                     >
-                      <Text
-                        fontSize="sm"
-                        color={useColorModeValue("gray.600", "gray.400")}
-                      >
+                      <Text fontSize="sm" color={textColor}>
                         Redemption Available
                       </Text>
                       <Text>Redemption is now active</Text>
@@ -806,10 +831,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       mt={8}
                       fontWeight="semibold"
                     >
-                      <Text
-                        fontSize="sm"
-                        color={useColorModeValue("gray.600", "gray.400")}
-                      >
+                      <Text fontSize="sm" color={textColor}>
                         Last day to redeem your ticket
                       </Text>
                       <Text>Sunday, July 2</Text>
@@ -819,10 +841,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       mt={8}
                       fontWeight="semibold"
                     >
-                      <Text
-                        fontSize="sm"
-                        color={useColorModeValue("gray.600", "gray.400")}
-                      >
+                      <Text fontSize="sm" color={textColor}>
                         Redemption Price
                       </Text>
                       <Text>0.015 WETH</Text>
@@ -832,10 +851,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       mt={8}
                       fontWeight="semibold"
                     >
-                      <Text
-                        fontSize="sm"
-                        color={useColorModeValue("gray.600", "gray.400")}
-                      >
+                      <Text fontSize="sm" color={textColor}>
                         If not redeemed, your ticket will expire in
                       </Text>
                       <CountdownTimer
@@ -1053,7 +1069,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   py="5"
                   _hover={{ transform: "translateY(-2px)" }}
                   bgGradient="linear(to-r, #74cecc, green.300, #e3d606)"
-                  color={useColorModeValue("white", "black")}
+                  color={linkColor}
                 >
                   Get a Seed <ExternalLinkIcon mx="2px" />
                 </Link>

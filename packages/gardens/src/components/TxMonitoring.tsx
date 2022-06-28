@@ -20,31 +20,12 @@ import {
   Icon,
   TimeIcon,
 } from "@chakra-ui/icons";
-import {
-  Hope,
-  HopePot,
-  HopeSad,
-  HopeSadPot,
-  Passion,
-  PassionPot,
-  PassionSad,
-  PassionSadPot,
-  PlantingPot,
-  Power,
-  PowerPot,
-  Wonder,
-  WonderPot,
-  WonderSad,
-  WonderSadPot,
-} from "../assets/Icons";
 import { PendingTxState } from "../types";
 import { VscError } from "react-icons/all";
 import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
-import { TransformScale } from "./animations/TransformScale";
-import { Appear, Disappear } from "./animations/Fade";
-import { useAnimation } from "framer-motion";
+import { Planting } from "./animations/Planting";
 
 export function Txmonitor({
   txHash,
@@ -55,16 +36,12 @@ export function Txmonitor({
   seed?: string;
   emotion?: string;
 }) {
+  // TODO: Make this dynamic
+  const seedId = "100";
+  console.debug("rendering Txmonitor");
   const { chainId } = useWeb3React();
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
-  const controls = useAnimation();
-
-  const plantingAnimation: JSX.Element[] = [];
-
-  setTimeout(() => {
-    controls.start("final");
-  }, 1);
 
   if (!txHash) {
     return (
@@ -101,102 +78,13 @@ export function Txmonitor({
   const { status, description } = pendingTxsState[txHash];
   console.log(pendingTxsState[txHash]);
 
-  switch (seed) {
-    case "Wonder":
-      if (emotion === "sad") {
-        plantingAnimation.push(
-          <>
-            <Center>
-              {TransformScale(<WonderSad boxSize={20} />, controls)}
-            </Center>
-            <Center>
-              {Disappear(<PlantingPot boxSize={40} />, controls)}
-              {Appear(<WonderSadPot boxSize={40} />, controls)}
-            </Center>
-          </>
-        );
-      } else {
-        plantingAnimation.push(
-          <>
-            <Center>{TransformScale(<Wonder boxSize={20} />, controls)}</Center>
-            <Center>
-              {Disappear(<PlantingPot boxSize={40} />, controls)}
-              {Appear(<WonderPot boxSize={40} />, controls)}
-            </Center>
-          </>
-        );
-      }
-      break;
-    case "Passion":
-      if (emotion === "sad") {
-        plantingAnimation.push(
-          <>
-            <Center>
-              {TransformScale(<PassionSad boxSize={20} />, controls)}
-            </Center>
-            <Center>
-              {Disappear(<PlantingPot boxSize={40} />, controls)}
-              {Appear(<PassionSadPot boxSize={40} />, controls)}
-            </Center>
-          </>
-        );
-      } else {
-        plantingAnimation.push(
-          <>
-            <Center>
-              {TransformScale(<Passion boxSize={20} />, controls)}
-            </Center>
-            <Center>
-              {Disappear(<PlantingPot boxSize={40} />, controls)}
-              {Appear(<PassionPot boxSize={40} />, controls)}
-            </Center>
-          </>
-        );
-      }
-      break;
-    case "Hope":
-      if (emotion === "sad") {
-        plantingAnimation.push(
-          <>
-            <Center>
-              {TransformScale(<HopeSad boxSize={20} />, controls)}
-            </Center>
-            <Center>
-              {Disappear(<PlantingPot boxSize={40} />, controls)}
-              {Appear(<HopeSadPot boxSize={40} />, controls)}
-            </Center>
-          </>
-        );
-      } else {
-        plantingAnimation.push(
-          <>
-            <Center>{TransformScale(<Hope boxSize={20} />, controls)}</Center>
-            <Center>
-              {Disappear(<PlantingPot boxSize={40} />, controls)}
-              {Appear(<HopePot boxSize={40} />, controls)}
-            </Center>
-          </>
-        );
-      }
-      break;
-    default:
-      plantingAnimation.push(
-        <>
-          <Center>{TransformScale(<Power boxSize={20} />, controls)}</Center>
-          <Center>
-            {Disappear(<PlantingPot boxSize={40} />, controls)}
-            {Appear(<PowerPot boxSize={40} />, controls)}
-          </Center>
-        </>
-      );
-  }
-
   return (
     <>
       {status === "confirming" &&
         (description === "Planting" ? (
-          <Box>{plantingAnimation}</Box>
+          <></>
         ) : (
+          // <Box><Planting seedClass={seed || ''} emotion={emotion || ''} id={seedId} /></Box>
           <Alert
             status="success"
             variant="subtle"
@@ -230,7 +118,17 @@ export function Txmonitor({
           </Alert>
         ))}
 
-      {status === "confirmed" && <Box>{plantingAnimation}</Box>}
+      {/*This is for testing planting animation*/}
+      {/*{status === "confirmed" && <Box>{Planting(seed || "", emotion || "", seedId)}</Box>}*/}
+      {status === "confirmed" && (
+        <Box>
+          <Planting
+            seedClass={seed || ""}
+            emotion={emotion || ""}
+            id={seedId}
+          />
+        </Box>
+      )}
 
       {/*{status === "confirmed" && (*/}
       {/*  <Alert*/}

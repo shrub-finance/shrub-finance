@@ -96,6 +96,12 @@ function SeedDetails({
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
 
+  const borderColor = useColorModeValue("gray.100", "gray.700");
+  const iconBg = useColorModeValue("green.100", "green.900");
+  const textColor = useColorModeValue("gray.600", "gray.400");
+  const textBg = useColorModeValue("gray.100", "gray.900");
+  const textBg2 = useColorModeValue("blue.50", "blue.900");
+
   const animationKeyframes = keyframes`
     0% {
       background-position: 0% 50%;
@@ -115,36 +121,56 @@ function SeedDetails({
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
 
+  console.debug("rendering SeedDetails");
+
   // Disable action if no pot
   useEffect(() => {
+    console.debug("SeedDetails useEffect 1 - emptyPot account (set noPot)");
     if (!emptyPot) {
+      console.debug("setting noPot true");
       setNoPot(true);
     }
   }, [emptyPot, account]);
 
   // Disable action if not ready for harvest
   useEffect(() => {
+    console.debug(
+      "SeedDetails useEffect 2 - selectedItem.growth (set StillGrowing to false)"
+    );
     if (selectedItem.growth === 10000) {
       setStillGrowing(false);
+      console.debug("setting stillGrowing false");
     }
   }, [selectedItem.growth]);
 
   // Move errors to the top
   useEffect(() => {
+    console.debug(
+      "SeedDetails useEffect 3 - localError, web3Error (move errors to top)"
+    );
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
   useEffect(() => {
+    console.debug(
+      "SeedDetails useEffect 4 - activeHash (showConfetti off 500ms)"
+    );
     setTimeout(() => {
-      setShowConfetti(false);
+      if (showConfetti) {
+        console.debug("setting showConfetti false");
+        setShowConfetti(false);
+      }
     }, 500);
   }, [activeHash]);
 
   // determine if planting is approved
   useEffect(() => {
-    console.log("useEffect - selection changing");
+    console.debug(
+      "SeedDetails useEffect 5 - account, selectedItem, pendingTxsState (selected item changed)"
+    );
     async function main() {
       if (!account || selectedItem.category !== "paperSeed") {
+        console.debug("setting plantingApproved false");
         setPlantingApproved(false);
         return;
       }
@@ -156,7 +182,10 @@ function SeedDetails({
         PAPER_POT_ADDRESS,
         library
       );
-      setPlantingApproved(isApproved);
+      if (plantingApproved !== isApproved) {
+        console.debug(`setting plantingApproved ${isApproved}`);
+        setPlantingApproved(isApproved);
+      }
     }
     main().catch((e) => {
       console.error(e);
@@ -166,11 +195,13 @@ function SeedDetails({
 
   // Start animation
   useEffect(() => {
+    console.debug("SeedDetails useEffect 6 - [] (start animation on init)");
     if (!isOpen) {
       return;
     }
     setTimeout(() => {
       controls.start("final");
+      console.debug("running controls start final");
     }, 1);
   }, []);
 
@@ -194,9 +225,11 @@ function SeedDetails({
   ) {
     setLocalError("");
     try {
+      console.debug("setting approving true");
       setApproving(true);
       const tx = await callbackTx();
       pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+      console.debug(`setting activeHash ${tx.hash}`);
       setActiveHash(tx.hash);
       try {
         const receipt = await tx.wait();
@@ -219,9 +252,11 @@ function SeedDetails({
           status: "confirmed",
           data: { blockNumber: receipt.blockNumber },
         });
+        console.debug(`setting approving false`);
         setApproving(false);
         if (action !== "approve") {
-          setShowConfetti(true);
+          // setShowConfetti(true);
+          // console.debug(`setting showConfetti true`);
         }
       } catch (e: any) {
         const toastDescription = ToastDescription(
@@ -243,7 +278,9 @@ function SeedDetails({
           position: "top-right",
         });
         setApproving(false);
+        console.debug(`setting approving false`);
         setShowConfetti(false);
+        console.debug(`setting showConfetti false`);
       }
     } catch (e: any) {
       if (e.message.includes("Must own a pot token to plant")) {
@@ -286,6 +323,28 @@ function SeedDetails({
       harvestShrub(selectedItem.tokenId, library)
     );
   }
+
+  function getSeedColor(type: string) {
+    console.log(type);
+    return type === "Wonder"
+      ? "#ffd16b"
+      : type === "Passion"
+      ? "#fcaec5"
+      : type === "Hope"
+      ? "#b8ecfd"
+      : type === "Power"
+      ? "#eb7131"
+      : "#000000";
+  }
+
+  const isActivelyPlanting =
+    activeHash &&
+    pendingTxsState[activeHash] &&
+    pendingTxsState[activeHash].description === "Planting";
+
+  // console.log(activeHash);
+  // console.log(pendingTxsState);
+  console.log(selectedItem.type);
 
   return (
     <>
@@ -593,18 +652,23 @@ function SeedDetails({
           top="6rem"
           boxShadow="dark-lg"
           borderRadius="2xl"
-          // animate={description === "Planting"?{
-          //   backgroundColor: [
-          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-          //     "#ffd06b",
-          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-          //   ],
-          // }: undefined}
-          // //@ts-ignore
-          // transition={?{
-          //   duration: 0.25,
-          //   delay: 1.97,
-          // }:undefined}
+          animate={
+            isActivelyPlanting && {
+              backgroundColor: [
+                colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+                getSeedColor(selectedItem.type),
+                // "#fcaec5",
+                colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+              ],
+            }
+          }
+          // @ts-ignore
+          transition={
+            isActivelyPlanting && {
+              duration: 0.25,
+              delay: 1.97,
+            }
+          }
         >
           <ModalHeader>
             {modalState === "plant"
@@ -646,9 +710,7 @@ function SeedDetails({
                       <Text textStyle={"reading"} fontSize={"lg"}>
                         You are about to turn
                       </Text>
-                      <Divider
-                        borderColor={useColorModeValue("gray.100", "gray.700")}
-                      />
+                      <Divider borderColor={borderColor} />
                       <Stack spacing={4}>
                         <Feature
                           icon={
@@ -673,7 +735,7 @@ function SeedDetails({
                           icon={
                             <Icon as={Pot} color={"green.500"} w={5} h={5} />
                           }
-                          iconBg={useColorModeValue("green.100", "green.900")}
+                          iconBg={iconBg}
                           text={"1 Empty Pot"}
                         />
                         <Text textStyle={"reading"} fontSize={"lg"}>
@@ -698,12 +760,7 @@ function SeedDetails({
                           iconBg={""}
                           text={"1 Potted Plant"}
                         />
-                        <Divider
-                          borderColor={useColorModeValue(
-                            "gray.100",
-                            "gray.700"
-                          )}
-                        />
+                        <Divider borderColor={borderColor} />
                         <Text textStyle={"reading"} fontSize={"lg"}>
                           You will grow it into a Shrub{" "}
                           <Icon as={FaHeart} color={"red.500"} w={5} h={5} />
@@ -716,10 +773,10 @@ function SeedDetails({
                           </Text>
                           <Text
                             textTransform={"uppercase"}
-                            color={useColorModeValue("gray.600", "gray.400")}
+                            color={textColor}
                             fontWeight={600}
                             fontSize={"sm"}
-                            bg={useColorModeValue("gray.100", "gray.900")}
+                            bg={textBg}
                             p={2}
                             alignSelf={"flex-start"}
                             rounded={"md"}
@@ -733,7 +790,7 @@ function SeedDetails({
                         color={"blue.400"}
                         fontWeight={600}
                         fontSize={"sm"}
-                        bg={useColorModeValue("blue.50", "blue.900")}
+                        bg={textBg2}
                         p={2}
                         alignSelf={"flex-start"}
                         rounded={"md"}

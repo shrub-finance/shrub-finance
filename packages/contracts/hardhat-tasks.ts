@@ -144,6 +144,47 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     })
 
     // Controller Mint NFT Ticket
+
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
+    await env.run('controllerMintTicket', {
+      tokenId: '1',
+      controller: account1.address,
+      addresses: [account3.address, account4.address]
+    })
     await env.run('controllerMintTicket', {
       tokenId: '1',
       controller: account1.address,
@@ -167,7 +208,8 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
 
     // Mint Seeds
     await env.run('mintSeed', {
-      ids: [5,16,17,250,251,2181,2182,2186,2188,8888,8869]
+      ids: [5,16,17,250,251,2181,2182,2186,2188,8888,8869,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
+      // ids: [1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
     })
 
     // Send Seeds
@@ -176,6 +218,22 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     await env.run('sendSeed', {id: '17', receiver: account3.address});
     await env.run('sendSeed', {id: '250', receiver: account3.address});
     await env.run('sendSeed', {id: '251', receiver: account3.address});
+    await env.run('sendSeed', {id: '1000', receiver: account3.address});
+    await env.run('sendSeed', {id: '1001', receiver: account3.address});
+    await env.run('sendSeed', {id: '1002', receiver: account3.address});
+    await env.run('sendSeed', {id: '1003', receiver: account3.address});
+    await env.run('sendSeed', {id: '1004', receiver: account3.address});
+    await env.run('sendSeed', {id: '1005', receiver: account3.address});
+    await env.run('sendSeed', {id: '1006', receiver: account3.address});
+    await env.run('sendSeed', {id: '1007', receiver: account3.address});
+    await env.run('sendSeed', {id: '1008', receiver: account3.address});
+    await env.run('sendSeed', {id: '1009', receiver: account3.address});
+    await env.run('sendSeed', {id: '1010', receiver: account3.address});
+    await env.run('sendSeed', {id: '1011', receiver: account3.address});
+    await env.run('sendSeed', {id: '1012', receiver: account3.address});
+    await env.run('sendSeed', {id: '1013', receiver: account3.address});
+    await env.run('sendSeed', {id: '1014', receiver: account3.address});
+    await env.run('sendSeed', {id: '1015', receiver: account3.address});
     await env.run('sendSeed', {id: '2181', receiver: account3.address});
     await env.run('sendSeed', {id: '2182', receiver: account3.address});
     await env.run('sendSeed', {id: '2186', receiver: account4.address});
