@@ -12,7 +12,7 @@ import {
   Spinner,
   useColorModeValue,
 } from "@chakra-ui/react";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { TxContext } from "./Store";
 import {
   CheckCircleIcon,
@@ -26,6 +26,7 @@ import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
 import { Planting } from "./animations/Planting";
+import { useAnimation } from "framer-motion";
 
 export function Txmonitor({
   txHash,
@@ -42,6 +43,17 @@ export function Txmonitor({
   const { chainId } = useWeb3React();
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
+  const controls = useAnimation();
+  const [lastSeed, setLastSeed] = useState("");
+
+  useEffect(() => {
+    if (lastSeed !== seed) {
+      setTimeout(() => {
+        controls.start("final");
+      }, 1);
+      setLastSeed(seed || "");
+    }
+  }, []);
 
   if (!txHash) {
     return (
@@ -126,6 +138,7 @@ export function Txmonitor({
             seedClass={seed || ""}
             emotion={emotion || ""}
             id={seedId}
+            controls={controls}
           />
         </Box>
       )}

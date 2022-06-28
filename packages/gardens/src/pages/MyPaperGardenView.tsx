@@ -551,35 +551,45 @@ function MyPaperGardenView(props: RouteComponentProps) {
   //   },
   // });
 
-  // useEffect(() => {
-  //   console.debug('myPaperGardenView useEffect 7 - mySeedData, pendingTxState - poll for changes in grid');
-  //   const queryBlock =
-  //     mySeedData &&
-  //     mySeedData._meta &&
-  //     mySeedData._meta.block &&
-  //     mySeedData._meta.block.number;
-  //   let txBlock = 0;
-  //   for (const txinfo of Object.values(pendingTxsState)) {
-  //     console.log(txinfo);
-  //     console.log(
-  //       txinfo.data && txinfo.data.blockNumber && txinfo.data.blockNumber
-  //     );
-  //     console.log(queryBlock);
-  //     if (
-  //       txinfo.data &&
-  //       txinfo.data.blockNumber &&
-  //       txinfo.data.blockNumber > queryBlock
-  //     ) {
-  //       mySeedDataStartPolling(POLL_INTERVAL);
-  //       setPolling(true);
-  //       txBlock = txinfo.data.blockNumber;
-  //     }
-  //   }
-  //   if (queryBlock > txBlock) {
-  //     mySeedDataStopPolling();
-  //     setPolling(false);
-  //   }
-  // }, [mySeedData, pendingTxsState]);
+  useEffect(() => {
+    console.debug(
+      "myPaperGardenView useEffect 7 - mySeedData, pendingTxState - poll for changes in grid"
+    );
+    const queryBlock =
+      mySeedData &&
+      mySeedData._meta &&
+      mySeedData._meta.block &&
+      mySeedData._meta.block.number;
+    let txBlock = 0;
+    for (const txinfo of Object.values(pendingTxsState)) {
+      console.log(txinfo);
+      console.log(
+        txinfo.data && txinfo.data.blockNumber && txinfo.data.blockNumber
+      );
+      console.log(queryBlock);
+      if (
+        txinfo.data &&
+        txinfo.data.blockNumber &&
+        txinfo.data.blockNumber > queryBlock &&
+        txinfo.data.blockNumber > txBlock
+      ) {
+        txBlock = txinfo.data.blockNumber;
+      }
+    }
+    if (txBlock > queryBlock) {
+      if (!polling) {
+        console.debug("setting polling to true");
+        mySeedDataStartPolling(POLL_INTERVAL);
+        setPolling(true);
+      }
+    } else {
+      if (polling) {
+        console.debug("setting polling to false");
+        mySeedDataStopPolling();
+        setPolling(false);
+      }
+    }
+  }, [mySeedData, pendingTxsState]);
 
   useEffect(() => {
     console.debug(

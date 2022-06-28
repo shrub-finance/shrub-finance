@@ -1,4 +1,4 @@
-import { useAnimation } from "framer-motion";
+import { AnimationControls, useAnimation } from "framer-motion";
 import { Box, Center, useColorMode } from "@chakra-ui/react";
 import { TransformScale } from "./TransformScale";
 import {
@@ -25,28 +25,30 @@ export function Planting({
   seedClass,
   emotion,
   id,
+  controls,
 }: {
   seedClass: string;
   emotion: string;
   id: string;
+  controls: AnimationControls;
 }) {
   // export function Planting(seedClass: string, emotion: string, id: string) {
 
   console.debug("rendering Planting");
-  const controls = useAnimation();
+  // const controls = useAnimation();
   const { colorMode } = useColorMode();
 
   const [lastId, setLastId] = useState<string>("");
 
-  useEffect(() => {
-    if (lastId !== id) {
-      setTimeout(() => {
-        controls.start("final");
-      }, 1);
-      console.debug(`setting lastId ${id}`);
-      setLastId(id);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (lastId !== id) {
+  //     setTimeout(() => {
+  //       controls.start("final");
+  //     }, 1);
+  //     console.debug(`setting lastId ${id}`);
+  //     setLastId(id);
+  //   }
+  // }, []);
 
   function getSeedSvg(seedClass: string, emotion: string) {
     return seedClass === "Wonder" ? (
