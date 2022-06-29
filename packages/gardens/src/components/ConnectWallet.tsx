@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   CoinbaseIcon,
   LedgerIcon,
@@ -20,6 +20,7 @@ import {
   Badge,
   Box,
   Button,
+  Image,
   Stack,
   Link,
   Spinner,
@@ -47,6 +48,8 @@ import {
 } from "../utils/chainMethods";
 import useAddNetwork from "../hooks/useAddNetwork";
 import { useGetBalance } from "../hooks/useGetBalance";
+import { useQuery } from "@apollo/client";
+import { HighestSeed } from "../constants/queries";
 
 enum ConnectorNames {
   MetaMask = "MetaMask",
@@ -60,6 +63,8 @@ const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.CoinbaseWallet]: walletlink,
 };
 
+const shrubSeeds = ["Power", "Hope", "Passion", "Wonder"];
+let highestSeedAdopt: string;
 export function getErrorMessage(error: Error) {
   if (error instanceof NoEthereumProviderError) {
     return {
@@ -160,17 +165,71 @@ export function Balance() {
 
 export function Account() {
   const ref = useRef<HTMLDivElement>();
+  const [connectWalletSymbole, setConnectWalletSymbole] = useState(false);
+  const [checkSeedAdded, setCheckSeedAdded] = useState(false);
   const { account } = useWeb3React();
+  let seedImgSrc;
+  let seedImgText;
+  for (let i = 0; i < 4; i++) {
+    const { data } = useQuery(HighestSeed, {
+      variables: {
+        id: account,
+        type: shrubSeeds[i],
+      },
+    });
+    if (
+      data?.user?.seedCount > 0 &&
+      data?.user?.seeds?.length > 0 &&
+      !checkSeedAdded &&
+      ref.current
+    ) {
+      highestSeedAdopt = data?.user?.seeds[0].type;
+      setCheckSeedAdded(true);
+      setConnectWalletSymbole(true);
+      ref.current.innerHTML = "";
+    }
+  }
+  switch (highestSeedAdopt) {
+    case "Power":
+      seedImgSrc = "https://shrub.finance/power.svg";
+      seedImgText = "Power Seed";
+      break;
+
+    case "Hope":
+      seedImgSrc = "https://shrub.finance/hope.svg";
+      seedImgText = "Hope Seed";
+      break;
+    case "Passion":
+      seedImgSrc = "https://shrub.finance/passion.svg";
+      seedImgText = "Passion Seed";
+      break;
+    case "Wonder":
+      seedImgSrc = "https://shrub.finance/wonder.svg";
+      seedImgText = "Wonder Seed";
+      break;
+  }
+
   useEffect(() => {
     if (account && ref.current) {
       ref.current.innerHTML = "";
       ref.current.appendChild(Jazzicon(14, parseInt(account.slice(2, 10), 16)));
     }
   }, [account]);
+
   return (
     <>
       {account ? (
-        <Box pr={2} d="flex" alignItems="center" ref={ref as any} />
+        connectWalletSymbole ? (
+          <Box pr={2} d="flex" alignItems="center">
+            <Image
+              boxSize={isMobile ? 5 : 6}
+              src={seedImgSrc}
+              alt={seedImgText}
+            />
+          </Box>
+        ) : (
+          <Box pr={2} d="flex" alignItems="center" ref={ref as any} />
+        )
       ) : (
         ""
       )}
