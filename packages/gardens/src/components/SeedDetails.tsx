@@ -325,7 +325,6 @@ function SeedDetails({
   }
 
   function getSeedColor(type: string) {
-    console.log(type);
     return type === "Wonder"
       ? "#ffd16b"
       : type === "Passion"
@@ -341,10 +340,6 @@ function SeedDetails({
     activeHash &&
     pendingTxsState[activeHash] &&
     pendingTxsState[activeHash].description === "Planting";
-
-  // console.log(activeHash);
-  // console.log(pendingTxsState);
-  console.log(selectedItem.type);
 
   return (
     <>

@@ -88,7 +88,7 @@ export function Txmonitor({
     );
   }
   const { status, description } = pendingTxsState[txHash];
-  console.log(pendingTxsState[txHash]);
+  console.debug(pendingTxsState[txHash]);
 
   return (
     <>
@@ -209,7 +209,6 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
 
 // displayed inside connect wallet modal
 export function TxStatusList() {
-  console.log("rendering TxStatusList");
   const { pendingTxs } = useContext(TxContext);
   const { chainId, account, active } = useWeb3React();
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
@@ -256,9 +255,9 @@ export function TxStatusList() {
       </Flex>
     );
   }
-  console.log(entries);
-  console.log(pendingTxsState);
-  console.log(list);
+  console.debug(entries);
+  console.debug(pendingTxsState);
+  console.debug(list);
 
   const shadow = useColorModeValue("base", "dark-lg");
   const bgColor = useColorModeValue("gray.100", "dark.300");
