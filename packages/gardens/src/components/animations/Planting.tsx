@@ -24,12 +24,10 @@ import { Appear, Disappear } from "./Fade";
 export function Planting({
   seedClass,
   emotion,
-  id,
   controls,
 }: {
   seedClass: string;
   emotion: string;
-  id: string;
   controls: AnimationControls;
 }) {
   console.debug("rendering Planting");

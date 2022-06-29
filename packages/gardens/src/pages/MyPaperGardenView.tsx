@@ -732,7 +732,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   return (
     <>
-      {activeHash && ticketConfetti && <Confetti />}
+      {/*{activeHash && ticketConfetti && <Confetti />}*/}
       <Container
         mt={isMobile ? 30 : 50}
         p={5}
@@ -1101,6 +1101,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 }
                 gap={2}
                 overflow="auto"
+                maxH="520px"
                 shadow="dark-lg"
                 layerStyle={"shrubBg"}
                 borderRadius="2xl"
