@@ -46,7 +46,6 @@ import {
 import { TxStatusList } from "../components/TxMonitoring";
 import { BigNumber, ethers } from "ethers";
 import { TxContext } from "../components/Store";
-import { ToastDescription, Txmonitor } from "../components/TxMonitoring";
 import { ShrubBalance, SupportedCurrencies } from "../types";
 import { Currencies } from "../constants/currencies";
 import { motion } from "framer-motion";

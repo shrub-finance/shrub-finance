@@ -90,20 +90,20 @@ function TopNav() {
   return (
     <>
       <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
-        <Box layerStyle={"bannerBg"} textStyle={"bannerText"}>
-          🎉 {!isMobile ? "Shrub's Genesis NFT sale on June 25!" : ""}
-          <Link
-            href="https://gardens.shrub.finance"
-            isExternal
-            cursor="pointer"
-            textDecoration="underline"
-            pl={2}
-            // @ts-ignore
-            onClick={handleGA}
-          >
-            {!isMobile ? "Participate" : "Shrub's Genesis NFT sale June 25!  "}
-          </Link>
-        </Box>
+        {/*<Box layerStyle={"bannerBg"} textStyle={"bannerText"}>*/}
+        {/*  🎉 {!isMobile ? "Shrub's Genesis NFT Sale is live!" : ""}*/}
+        {/*  <Link*/}
+        {/*    href="https://gardens.shrub.finance/mint"*/}
+        {/*    isExternal*/}
+        {/*    cursor="pointer"*/}
+        {/*    textDecoration="underline"*/}
+        {/*    pl={2}*/}
+        {/*    // @ts-ignore*/}
+        {/*    onClick={handleGA}*/}
+        {/*  >*/}
+        {/*    {!isMobile ? "Mint Now" : "Shrub's Genesis NFT Sale is live!  "}*/}
+        {/*  </Link>*/}
+        {/*</Box>*/}
         <Box shadow={topNavShadow} bg={topNavBgColor} px={4} m={"-11px"}>
           <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
             <Suspense fallback={<Box>…</Box>}>

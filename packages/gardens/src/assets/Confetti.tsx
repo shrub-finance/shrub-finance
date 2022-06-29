@@ -8,9 +8,8 @@ export default function Confetti() {
     // you can initialize the tsParticles instance (main) here, adding custom shapes or presets
   };
 
-  const particlesLoaded = (container: any) => {
-    console.log(container);
-  };
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  const particlesLoaded = (container: any) => {};
 
   return (
     <Particles

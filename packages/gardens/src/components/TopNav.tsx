@@ -125,22 +125,7 @@ function TopNav() {
                   )
                 }
               </Match>
-              {/*mint cta*/}
-              {/*{!isMobile && (*/}
-              {/*  <Link*/}
-              {/*    as={ReachLink}*/}
-              {/*    to="/presale"*/}
-              {/*    fontSize={"sm"}*/}
-              {/*    variant={"link"}*/}
-              {/*    fontWeight={"extrabold"}*/}
-              {/*    color={useColorModeValue("blue", "cyan")}*/}
-              {/*    px={2}*/}
-              {/*    py={{ base: "3", md: "1", lg: "1" }}*/}
-              {/*    rounded={"lg"}*/}
-              {/*  >*/}
-              {/*    Mint NFT*/}
-              {/*  </Link>*/}
-              {/*)}*/}
+
               <Match path="/">
                 {(props) =>
                   props.match ? (
@@ -151,7 +136,7 @@ function TopNav() {
                       display={{ base: "none", sm: "flex" }}
                       size={buttonSize}
                     >
-                      <Balance />
+                      {/*<Balance />*/}
                     </Box>
                   )
                 }

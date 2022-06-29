@@ -59,6 +59,11 @@ export const NFT_LEADERBOARD_QUERY = gql`
 
 export const MY_GARDENS_QUERY = gql`
   query MyGardens($user: String) {
+    _meta {
+      block {
+        number
+      }
+    }
     user(id: $user) {
       ticketCount
       waterCount

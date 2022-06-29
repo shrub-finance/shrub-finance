@@ -59,11 +59,11 @@ contract PotNFTTicket is ERC1155, Ownable {
         _setURI(uri_);
     }
 
-    function contractURI() public view returns (string memory) {
+    function contractURI() external view returns (string memory) {
         return CONTRACT_URI;
     }
 
-    function setContractURI(string memory _contractUri) public onlyOwner {
+    function setContractURI(string memory _contractUri) external onlyOwner {
         CONTRACT_URI = _contractUri;
     }
 

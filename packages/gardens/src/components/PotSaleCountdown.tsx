@@ -33,7 +33,7 @@ function PotSaleCountdown() {
             letterSpacing={"tight"}
             mt={{ base: 8 }}
           >
-            Paper Gardens Sale
+            Paper Gardens
           </Heading>
           <Box maxW="60rem" textAlign={"center"} mt={2}>
             <Text
@@ -41,66 +41,60 @@ function PotSaleCountdown() {
               fontWeight="semibold"
               color={useColorModeValue("gray.500", "gray.400")}
             >
-              TIME TO GROW
+              The most advanced NFT series
             </Text>
           </Box>
         </Box>
       </Center>
-      <Center>
-        <Box
-          bgColor={useColorModeValue("gray.200", "gray.700")}
-          p={10}
-          rounded="3xl"
-        >
-          <Box fontSize={{ base: "18px", md: "20px" }} fontWeight="semibold">
-            <Text
-              fontSize="sm"
-              color={useColorModeValue("gray.600", "gray.400")}
-            >
-              Public Pot Sale
-            </Text>
-            <Text>Saturday, June 25, 2022</Text>
-            {/*  /!*<Link*!/*/}
-            {/*  /!*  as={ReachLink}*!/*/}
-            {/*  /!*  to="/presale"*!/*/}
-            {/*  /!*  fontSize={"md"}*!/*/}
-            {/*  /!*  variant={"link"}*!/*/}
-            {/*  /!*  fontWeight={"extrabold"}*!/*/}
-            {/*  /!*  color={useColorModeValue("blue", "cyan")}*!/*/}
-            {/*  /!*  px={2}*!/*/}
-            {/*  /!*  py={{ base: "3", md: "1", lg: "1" }}*!/*/}
-            {/*  /!*  rounded={"lg"}*!/*/}
-            {/*  /!*>*!/*/}
-            {/*  /!*  Mint NFT Now*!/*/}
-            {/*  /!*</Link>*!/*/}
-          </Box>
-        </Box>
-      </Center>
-      <Center>
-        <Box maxW="60rem" mb={4} textAlign={"center"} mt={{ base: 5, md: 5 }}>
-          <Text fontSize={{ base: "30px", md: "30px" }} fontWeight="semibold">
-            <CountdownTimer targetDate={saleDay} />
-          </Text>
-        </Box>
-      </Center>
-      <Center>
-        <Link
-          href="#faqs"
-          cursor="pointer"
-          rounded="3xl"
-          fontSize="lg"
-          px="9"
-          fontWeight="semibold"
-          py="5"
-          bgGradient={useColorModeValue(
-            "linear(to-l, green, green)",
-            "linear(to-l, #fbb8ff, #e55b5b)"
-          )}
-          bgClip="text"
-        >
-          Mint Details
-        </Link>
-      </Center>
+      {/*<Center>*/}
+      {/*  <Box*/}
+      {/*    bgColor={useColorModeValue("gray.200", "gray.700")}*/}
+      {/*    p={10}*/}
+      {/*    rounded="3xl"*/}
+      {/*  >*/}
+      {/*    <Box fontSize={{ base: "18px", md: "20px" }} fontWeight="semibold">*/}
+      {/*      <Text*/}
+      {/*        fontSize="sm"*/}
+      {/*        color={useColorModeValue("gray.600", "gray.400")}*/}
+      {/*      >*/}
+      {/*        Pot Sale*/}
+      {/*      </Text>*/}
+      {/*      <Text>MINT IS LIVE!</Text>*/}
+      {/*      <Link*/}
+      {/*        as={ReachLink}*/}
+      {/*        textDecoration={"underline"}*/}
+      {/*        to="/mint"*/}
+      {/*        fontSize={"lg"}*/}
+      {/*        variant={"link"}*/}
+      {/*        fontWeight={"extrabold"}*/}
+      {/*        color={useColorModeValue("blue", "cyan")}*/}
+      {/*        px={2}*/}
+      {/*        py={{ base: "3", md: "1", lg: "1" }}*/}
+      {/*        rounded={"lg"}*/}
+      {/*      >*/}
+      {/*        &#127881; Mint NFT Now! &#127881;*/}
+      {/*      </Link>*/}
+      {/*    </Box>*/}
+      {/*  </Box>*/}
+      {/*</Center>*/}
+      {/*<Center>*/}
+      {/*  <Link*/}
+      {/*    href="#faqs"*/}
+      {/*    cursor="pointer"*/}
+      {/*    rounded="3xl"*/}
+      {/*    fontSize="sm"*/}
+      {/*    px="9"*/}
+      {/*    fontWeight="bold"*/}
+      {/*    py="5"*/}
+      {/*    bgGradient={useColorModeValue(*/}
+      {/*      "linear(to-l, green, green)",*/}
+      {/*      "linear(to-l, gray.300, blue.200)"*/}
+      {/*    )}*/}
+      {/*    bgClip="text"*/}
+      {/*  >*/}
+      {/*    Mint Details*/}
+      {/*  </Link>*/}
+      {/*</Center>*/}
     </Container>
   );
 }

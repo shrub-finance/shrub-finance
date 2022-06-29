@@ -16,10 +16,10 @@ const ShowCounter = ({
 }) => {
   return (
     <HStack color={"green.300"}>
-      <DateTimeDisplay value={days} type={"Days"} />
-      <DateTimeDisplay value={hours} type={"Hours"} />
+      <DateTimeDisplay value={days} type={"Day"} />
+      <DateTimeDisplay value={hours} type={"Hrs"} />
       <DateTimeDisplay value={minutes} type={"Mins"} />
-      <DateTimeDisplay value={seconds} type={"Seconds"} />
+      <DateTimeDisplay value={seconds} type={"Secs"} />
     </HStack>
   );
 };
