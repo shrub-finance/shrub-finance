@@ -4327,7 +4327,7 @@ export const Passion = (props: any) => (
         width="121"
         height="97.9023"
         filterUnits="userSpaceOnUse"
-        color-interpolation-filters="sRGB"
+        colorInterpolationFilters="sRGB"
       >
         <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feBlend
@@ -4499,7 +4499,7 @@ export const PassionSad = (props: any) => (
         width="121"
         height="97.9023"
         filterUnits="userSpaceOnUse"
-        color-interpolation-filters="sRGB"
+        colorInterpolationFilters="sRGB"
       >
         <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feBlend
@@ -4663,7 +4663,7 @@ export const Hope = (props: any) => (
         width="100"
         height="104"
         filterUnits="userSpaceOnUse"
-        color-interpolation-filters="sRGB"
+        colorInterpolationFilters="sRGB"
       >
         <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feBlend
@@ -4832,7 +4832,7 @@ export const HopeSad = (props: any) => (
         width="100"
         height="104"
         filterUnits="userSpaceOnUse"
-        color-interpolation-filters="sRGB"
+        colorInterpolationFilters="sRGB"
       >
         <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feBlend
@@ -4983,7 +4983,7 @@ export const Power = (props: any) => (
         width="120.154"
         height="153.213"
         filterUnits="userSpaceOnUse"
-        color-interpolation-filters="sRGB"
+        colorInterpolationFilters="sRGB"
       >
         <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feBlend

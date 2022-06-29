@@ -359,7 +359,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
     if (holdsFungibleAsset) {
       // handle pots
       if (fungibleAssets.pots) {
-        setEmptyPot(true);
         const potItem: itemType = {
           tokenId: "1",
           name: "Empty Pot",
@@ -589,6 +588,16 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
     }, 40000);
   }, [activeHash]);
+
+  useEffect(() => {
+    console.debug(
+      "myPaperGardenView useEffect 9 - account, mySeedData - set emptyPot"
+    );
+    const tempEmptyPot = !(holdsFungibleAsset && fungibleAssets.pots);
+    if (emptyPot !== tempEmptyPot) {
+      setEmptyPot(tempEmptyPot);
+    }
+  }, [account, mySeedData]);
 
   async function handleApprove() {
     const description = "Approving WETH";

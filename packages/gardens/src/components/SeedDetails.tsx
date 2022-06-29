@@ -92,7 +92,6 @@ function SeedDetails({
   const [plantingApproved, setPlantingApproved] = useState(false);
   const [localError, setLocalError] = useState("");
   const [approving, setApproving] = React.useState(false);
-  const [noPot, setNoPot] = React.useState(false);
   const [stillGrowing, setStillGrowing] = React.useState(true);
   const [showConfetti, setShowConfetti] = React.useState(false);
   const [modalState, setModalState] = useState<
@@ -131,15 +130,6 @@ function SeedDetails({
   const { account, error: web3Error, library, chainId } = useWeb3React();
 
   console.debug("rendering SeedDetails");
-
-  // Disable action if no pot
-  useEffect(() => {
-    console.debug("SeedDetails useEffect 1 - emptyPot account (set noPot)");
-    if (!emptyPot) {
-      console.debug("setting noPot true");
-      setNoPot(true);
-    }
-  }, [emptyPot, account]);
 
   // Disable action if not ready for harvest
   useEffect(() => {
@@ -546,7 +536,7 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    noPot ? "You must have an empty pot to plant seed" : null
+                    emptyPot ? "You must have an empty pot to plant seed" : null
                   }
                   shouldWrapChildren
                   mt="3"
@@ -569,7 +559,7 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    isDisabled={noPot}
+                    isDisabled={emptyPot}
                   >
                     Plant
                   </Button>
