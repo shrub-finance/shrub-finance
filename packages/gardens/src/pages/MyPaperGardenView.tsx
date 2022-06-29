@@ -188,7 +188,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   const invalidEntry = Number(redeemAmount) < 0 || isNaN(Number(redeemAmount));
 
-  // console.log(mySeedData);
   const holdsSeed = mySeedData && mySeedData.seeds && mySeedData.seeds.length;
   const tickets =
     mySeedData && mySeedData.user && Number(mySeedData.user.ticketCount);
@@ -227,7 +226,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
       return;
     }
     async function init() {
-      console.log("getting ticketData");
+      console.debug("getting ticketData");
       const td = await getTicketData(NFT_TICKET_TOKEN_ID, library);
       const {
         contractAddress,
@@ -247,7 +246,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
         active,
         paused,
       });
-      console.log(td);
     }
     init().catch((err) => console.error(err));
   }, [library]);
@@ -268,7 +266,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         return;
       }
       // Check if account has tickets
-      console.log("checking ticket count");
+
       try {
         const ticketCount = await balanceOfErc1155(
           NFT_TICKET_ADDRESS,
@@ -285,7 +283,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
 
       // Check the redemption price
-      console.log("checking redemption price");
+
       try {
         setRedeemPrice(ticketData.redeemPrice);
       } catch (e: any) {
@@ -295,7 +293,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
 
       // Check the wallet balance
-      console.log("checking balance");
+
       try {
         const balanceObj = await getBigWalletBalance(WETHAddress, library);
         const { bigBalance } = balanceObj;
@@ -310,7 +308,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
 
       // Check if approved for the balance amount
-      console.log("checking approved");
+
       try {
         const allowance = await getAllowance(
           WETHAddress,
@@ -458,10 +456,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
         const { name, dna, emotion, type } = seed;
         const imageUrl =
           // @ts-ignore
-          // IMAGE_ASSETS[`pottedPlant${type}${Math.floor(growth / 2000)}${emotion === 'sad' ? 'sad' : ''}`];
           IMAGE_ASSETS.getPottedPlant(type, Math.floor(growth / 2000), emotion);
-        // console.log(`pottedPlant${type}${Math.floor(growth / 2000)}`);
-        console.log(imageUrl);
+        console.debug(imageUrl);
+
         const pottedPlantItem: itemType = {
           tokenId: id,
           name: "Potted Plant",
@@ -503,7 +500,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
       for (const item of mySeeds) {
         const { id, dna, type, name, emotion } = item;
         const seedNumber = name.split("#")[1];
-        console.log(type, emotion);
+
         const imageUrl = IMAGE_ASSETS.seeds[type][emotion];
         const seedItem: itemType = {
           tokenId: id,
@@ -564,11 +561,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
       mySeedData._meta.block.number;
     let txBlock = 0;
     for (const txinfo of Object.values(pendingTxsState)) {
-      console.log(txinfo);
-      console.log(
+      console.debug(txinfo);
+      console.debug(
         txinfo.data && txinfo.data.blockNumber && txinfo.data.blockNumber
       );
-      console.log(queryBlock);
+      console.debug(queryBlock);
       if (
         txinfo.data &&
         txinfo.data.blockNumber &&
@@ -673,7 +670,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
       if (!redeemPrice) {
         throw new Error("mintPrice not found");
       }
-      console.log(NFT_TICKET_TOKEN_ID);
+
       const tx = await redeemNFTTicket(
         NFT_TICKET_TOKEN_ID,
         redeemAmount,
