@@ -76,7 +76,6 @@ function SeedDetails({
   } = hooks;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const controls = useAnimation();
 
   const toast = useToast();
   const { pendingTxs } = useContext(TxContext);
@@ -94,7 +93,6 @@ function SeedDetails({
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
-  const [lastId, setLastId] = useState<string>("");
 
   const borderColor = useColorModeValue("gray.100", "gray.700");
   const iconBg = useColorModeValue("green.100", "green.900");
@@ -180,21 +178,6 @@ function SeedDetails({
       handleErrorMessages({ err: e });
     });
   }, [account, selectedItem, pendingTxsState]);
-
-  // Start animation
-  useEffect(() => {
-    console.debug("SeedDetails useEffect 6 - [] (start animation on init)");
-    if (!isOpen) {
-      return;
-    }
-    if (lastId !== selectedItem.name) {
-      setTimeout(() => {
-        controls.start("final");
-      }, 1);
-      console.debug(`setting lastId ${lastId}`);
-      setLastId(lastId);
-    }
-  }, []);
 
   const MotionModalContent = motion<ModalContentProps>(ModalContent);
 
@@ -643,7 +626,6 @@ function SeedDetails({
               backgroundColor: [
                 colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
                 getSeedColor(selectedItem.type),
-                // "#fcaec5",
                 colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
               ],
             }

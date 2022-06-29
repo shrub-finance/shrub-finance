@@ -37,13 +37,19 @@ export function Txmonitor({
   seed?: string;
   emotion?: string;
 }) {
-  // TODO: Make this dynamic
-  const seedId = "100";
   console.debug("rendering Txmonitor");
   const { chainId } = useWeb3React();
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
   const controls = useAnimation();
+
+  // Start animation
+  useEffect(() => {
+    setTimeout(() => {
+      controls.start("final");
+    }, 1);
+  }, []);
+
   if (!txHash) {
     return (
       <>
@@ -126,7 +132,6 @@ export function Txmonitor({
           <Planting
             seedClass={seed || ""}
             emotion={emotion || ""}
-            id={seedId}
             controls={controls}
           />
         </Box>
