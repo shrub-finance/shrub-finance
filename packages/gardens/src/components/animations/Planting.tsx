@@ -18,7 +18,7 @@ import {
   WonderSad,
   WonderSadPot,
 } from "../../assets/Icons";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Appear, Disappear } from "./Fade";
 
 export function Planting({

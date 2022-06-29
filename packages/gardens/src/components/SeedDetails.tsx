@@ -355,6 +355,7 @@ function SeedDetails({
   const isActivelyPlanting =
     activeHash &&
     pendingTxsState[activeHash] &&
+    pendingTxsState[activeHash].status === "confirming" &&
     pendingTxsState[activeHash].description === "Planting";
 
   return (
