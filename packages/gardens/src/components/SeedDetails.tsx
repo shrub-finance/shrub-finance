@@ -512,7 +512,7 @@ function SeedDetails({
                     }}
                     flex={1}
                     fontSize={"xl"}
-                    w={"420px"}
+                    w={{ base: "350px", md: "420px" }}
                     rounded={"2xl"}
                     bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
                     color={"black"}
@@ -546,7 +546,7 @@ function SeedDetails({
                       setModalState("plant");
                       openModal();
                     }}
-                    w={"420px"}
+                    w={{ base: "350px", md: "420px" }}
                     flex={1}
                     fontSize={"xl"}
                     rounded={"2xl"}
@@ -587,7 +587,7 @@ function SeedDetails({
                         openModal();
                       }}
                       flex={1}
-                      w={"202px"}
+                      w={{ base: "167px", md: "202px" }}
                       fontSize={"xl"}
                       rounded={"2xl"}
                       bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
@@ -627,7 +627,11 @@ function SeedDetails({
                     as={motion.div}
                     animation={!stillGrowing ? animation : undefined}
                     flex={1}
-                    w={stillGrowing ? "202px" : "420px"}
+                    w={
+                      stillGrowing
+                        ? { base: "167px", md: "202px" }
+                        : { base: "350px", md: "420px" }
+                    }
                     fontSize={"xl"}
                     rounded={"2xl"}
                     bgGradient={

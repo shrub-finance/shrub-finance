@@ -1100,7 +1100,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 }
                 gap={2}
                 overflow="auto"
-                maxH="520px"
+                maxH={{ base: "auto", md: "520px" }}
                 shadow="dark-lg"
                 layerStyle={"shrubBg"}
                 borderRadius="2xl"
