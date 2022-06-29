@@ -198,6 +198,18 @@ export type Stringify<Type> = {
   [Property in keyof Type]: string;
 };
 
+export type itemType = {
+  tokenId: string;
+  name: string;
+  emotion: string;
+  type: string;
+  dna: number;
+  imageUrl: string;
+  category: string;
+  quantity?: number;
+  growth?: number;
+};
+
 // https://stackoverflow.com/questions/41285211/overriding-interface-property-type-defined-in-typescript-d-ts-file/65561287#65561287
 
 type ModifyDeep<A extends AnyObject, B extends DeepPartialAny<A>> = {

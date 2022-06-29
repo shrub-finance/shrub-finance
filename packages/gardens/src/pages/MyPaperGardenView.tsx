@@ -74,18 +74,7 @@ import CountdownTimer from "../components/CountdownTimer";
 import GardenGrid from "../components/GardenGrid";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
 import Confetti from "../assets/Confetti";
-
-type itemType = {
-  tokenId: string;
-  name: string;
-  emotion: string;
-  type: string;
-  dna: number;
-  imageUrl: string;
-  category: string;
-  quantity?: number;
-  growth?: number;
-};
+import { itemType } from "../types";
 
 function MyPaperGardenView(props: RouteComponentProps) {
   console.debug("rendering MyPaperGardenView");
@@ -1124,6 +1113,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   mySeedDataLoading,
                   mySeedDataError,
                   selectedItem,
+                  setSelectedItem,
                   emptyPot,
                   holdsPottedPlant,
                   fungibleAssets,
@@ -1147,6 +1137,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       mySeedDataLoading,
                       mySeedDataError,
                       selectedItem,
+                      setSelectedItem,
                       emptyPot,
                       holdsPottedPlant,
                       fungibleAssets,
