@@ -759,6 +759,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
               letterSpacing={"tight"}
               textAlign={"center"}
               maxW="60rem"
+              mt={{ base: 6 }}
             >
               Paper{" "}
               <Text
