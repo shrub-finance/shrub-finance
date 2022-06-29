@@ -48,6 +48,7 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 import { Feature } from "./Feature";
 import { FaHeart } from "react-icons/all";
 import { Pot } from "../assets/Icons";
+import { itemType } from "../types";
 
 function SeedDetails({
   hooks,
@@ -57,6 +58,7 @@ function SeedDetails({
     mySeedDataLoading: any;
     mySeedDataError: any;
     selectedItem: any;
+    setSelectedItem: any;
     emptyPot: any;
     holdsPottedPlant: any;
     fungibleAssets: any;
@@ -70,6 +72,7 @@ function SeedDetails({
     mySeedDataLoading,
     mySeedDataError,
     selectedItem,
+    setSelectedItem,
     emptyPot,
     holdsPottedPlant,
     fungibleAssets,
@@ -226,6 +229,37 @@ function SeedDetails({
           status: "confirmed",
           data: { blockNumber: receipt.blockNumber },
         });
+        const plantEvent = receipt.events?.find(
+          (event) => event.event === "Plant"
+        );
+        if (plantEvent && plantEvent.args) {
+          const eventAccount = plantEvent.args.account;
+          const seedTokenId = plantEvent.args.seedTokenId;
+          const tokenId = plantEvent.args.tokenId;
+          if (
+            account &&
+            ethers.utils.getAddress(eventAccount) ===
+              ethers.utils.getAddress(account) &&
+            seedTokenId.eq(selectedItem.tokenId)
+          ) {
+            console.debug("everything matches");
+            const pottedPlantItem: itemType = {
+              tokenId: tokenId.toString(),
+              name: "Potted Plant",
+              emotion: selectedItem.emotion,
+              type: selectedItem.type,
+              dna: selectedItem.dna,
+              imageUrl: IMAGE_ASSETS.getPottedPlant(
+                selectedItem.type,
+                0,
+                selectedItem.emotion
+              ),
+              growth: 0,
+              category: "pottedPlant",
+            };
+            setSelectedItem(pottedPlantItem);
+          }
+        }
         console.debug(`setting approving false`);
         setApproving(false);
         if (action !== "approve") {
