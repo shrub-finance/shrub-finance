@@ -8,7 +8,6 @@ import {
   Center,
   Divider,
   Heading,
-  HStack,
   Icon,
   Image,
   keyframes,
@@ -22,21 +21,15 @@ import {
   SlideFade,
   Spinner,
   Stack,
-  StackDivider,
-  Tag,
   Text,
   Tooltip,
   useColorMode,
   useColorModeValue,
   useDisclosure,
   useToast,
-  VStack,
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { FlyingSeed, PlantingPot, Pot, WonderPot } from "../assets/Icons";
-import { TransformScale } from "./animations/TransformScale";
-import { Disappear, Appear } from "./animations/Fade";
 import { motion, useAnimation } from "framer-motion";
 import {
   approveAllErc721,
@@ -47,15 +40,14 @@ import {
   waterWithFertilizer,
 } from "../utils/ethMethods";
 import { useWeb3React } from "@web3-react/core";
-import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 import { ethers } from "ethers";
 import { ToastDescription, Txmonitor } from "./TxMonitoring";
 import { TxContext } from "./Store";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
-import Confetti from "../assets/Confetti";
 
 import { Feature } from "./Feature";
-import { FaHandHoldingHeart, FaHeart } from "react-icons/all";
+import { FaHeart } from "react-icons/all";
+import { Pot } from "../assets/Icons";
 
 function SeedDetails({
   hooks,
@@ -85,9 +77,14 @@ function SeedDetails({
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const controls = useAnimation();
-  const { colorMode } = useColorMode();
+
   const toast = useToast();
   const { pendingTxs } = useContext(TxContext);
+  const [activeHash, setActiveHash] = useState<string>();
+  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+
+  const { colorMode } = useColorMode();
+
   const [plantingApproved, setPlantingApproved] = useState(false);
   const [localError, setLocalError] = useState("");
   const [approving, setApproving] = React.useState(false);
@@ -97,66 +94,71 @@ function SeedDetails({
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
+  const [lastId, setLastId] = useState<string>("");
 
-  const [activeHash, setActiveHash] = useState<string>();
+  const borderColor = useColorModeValue("gray.100", "gray.700");
+  const iconBg = useColorModeValue("green.100", "green.900");
+  const textColor = useColorModeValue("gray.600", "gray.400");
+  const textBg = useColorModeValue("gray.100", "gray.900");
+  const textBg2 = useColorModeValue("blue.50", "blue.900");
 
   const animationKeyframes = keyframes`
     0% {
-      background-position: 0% 50%;
+      background-position: 0 50%;
     }
     50% {
       background-position: 100% 50%;
     }
     100% {
-      background-position: 0% 50%;
+      background-position: 0 50%;
     }
 `;
 
   const animation = `${animationKeyframes} 4s ease-out infinite`;
 
-  const {
-    active,
-    account,
-    error: web3Error,
-    library,
-    chainId,
-  } = useWeb3React();
-
-  const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
+  const { account, error: web3Error, library, chainId } = useWeb3React();
 
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
 
+  console.debug("rendering SeedDetails");
+
   // Disable action if no pot
   useEffect(() => {
+    console.debug("SeedDetails useEffect 1 - emptyPot account (set noPot)");
     if (!emptyPot) {
+      console.debug("setting noPot true");
       setNoPot(true);
     }
   }, [emptyPot, account]);
 
   // Disable action if not ready for harvest
   useEffect(() => {
+    console.debug(
+      "SeedDetails useEffect 2 - selectedItem.growth (set StillGrowing to false)"
+    );
     if (selectedItem.growth === 10000) {
       setStillGrowing(false);
+      console.debug("setting stillGrowing false");
     }
   }, [selectedItem.growth]);
 
   // Move errors to the top
   useEffect(() => {
+    console.debug(
+      "SeedDetails useEffect 3 - localError, web3Error (move errors to top)"
+    );
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setShowConfetti(false);
-    }, 40000);
-  }, [activeHash]);
-
   // determine if planting is approved
   useEffect(() => {
-    console.log("useEffect - selection changing");
+    console.debug(
+      "SeedDetails useEffect 5 - account, selectedItem, pendingTxsState (selected item changed)"
+    );
     async function main() {
       if (!account || selectedItem.category !== "paperSeed") {
+        console.debug("setting plantingApproved false");
         setPlantingApproved(false);
         return;
       }
@@ -168,7 +170,10 @@ function SeedDetails({
         PAPER_POT_ADDRESS,
         library
       );
-      setPlantingApproved(isApproved);
+      if (plantingApproved !== isApproved) {
+        console.debug(`setting plantingApproved ${isApproved}`);
+        setPlantingApproved(isApproved);
+      }
     }
     main().catch((e) => {
       console.error(e);
@@ -178,12 +183,17 @@ function SeedDetails({
 
   // Start animation
   useEffect(() => {
+    console.debug("SeedDetails useEffect 6 - [] (start animation on init)");
     if (!isOpen) {
       return;
     }
-    setTimeout(() => {
-      controls.start("final");
-    }, 1);
+    if (lastId !== selectedItem.name) {
+      setTimeout(() => {
+        controls.start("final");
+      }, 1);
+      console.debug(`setting lastId ${lastId}`);
+      setLastId(lastId);
+    }
   }, []);
 
   const MotionModalContent = motion<ModalContentProps>(ModalContent);
@@ -205,11 +215,12 @@ function SeedDetails({
     action?: string
   ) {
     setLocalError("");
-    setShowConfetti(false);
     try {
+      console.debug("setting approving true");
       setApproving(true);
       const tx = await callbackTx();
       pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+      console.debug(`setting activeHash ${tx.hash}`);
       setActiveHash(tx.hash);
       try {
         const receipt = await tx.wait();
@@ -232,9 +243,11 @@ function SeedDetails({
           status: "confirmed",
           data: { blockNumber: receipt.blockNumber },
         });
+        console.debug(`setting approving false`);
         setApproving(false);
         if (action !== "approve") {
-          setShowConfetti(true);
+          // setShowConfetti(true);
+          // console.debug(`setting showConfetti true`);
         }
       } catch (e: any) {
         const toastDescription = ToastDescription(
@@ -256,7 +269,9 @@ function SeedDetails({
           position: "top-right",
         });
         setApproving(false);
+        console.debug(`setting approving false`);
         setShowConfetti(false);
+        console.debug(`setting showConfetti false`);
       }
     } catch (e: any) {
       if (e.message.includes("Must own a pot token to plant")) {
@@ -300,9 +315,26 @@ function SeedDetails({
     );
   }
 
+  function getSeedColor(type: string) {
+    return type === "Wonder"
+      ? "#ffd16b"
+      : type === "Passion"
+      ? "#fcaec5"
+      : type === "Hope"
+      ? "#b8ecfd"
+      : type === "Power"
+      ? "#eb7131"
+      : "#000000";
+  }
+
+  const isActivelyPlanting =
+    activeHash &&
+    pendingTxsState[activeHash] &&
+    pendingTxsState[activeHash].description === "Planting";
+
   return (
     <>
-      {activeHash && showConfetti && <Confetti />}
+      {/*{activeHash && showConfetti && <Confetti />}*/}
       <Center mt={10} mb={4}>
         {localError && (
           <SlideFade in={true} unmountOnExit={true}>
@@ -335,6 +367,11 @@ function SeedDetails({
                 maxH={{ base: "250px", md: "250px", lg: "250" }}
                 src={selectedItem.imageUrl}
                 alt={selectedItem.name}
+                transform={
+                  selectedItem.category === "pottedPlant"
+                    ? "scale(2)"
+                    : undefined
+                }
               />
             </Center>
             {/*title*/}
@@ -372,7 +409,7 @@ function SeedDetails({
                         : "fertilizer"}
                       ,{" "}
                       {holdsPottedPlant
-                        ? "select a potted plant on the right"
+                        ? "select a potted plant on the left"
                         : "plant a seed first"}
                     </Text>
                   </>
@@ -430,9 +467,10 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    fungibleAssets.water === 0
-                      ? "You do not have water yet. First get some water from the water faucet."
-                      : null
+                    // fungibleAssets.water === 0
+                    //   ? "You do not have water yet. First get some water from the water faucet."
+                    //   : null
+                    "Watering is not enabled yet"
                   }
                   shouldWrapChildren
                   mt="3"
@@ -455,7 +493,8 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    isDisabled={fungibleAssets.water === 0}
+                    // isDisabled={fungibleAssets.water === 0}
+                    isDisabled
                   >
                     Water
                   </Button>
@@ -466,11 +505,8 @@ function SeedDetails({
               {selectedItem.category === "paperSeed" && (
                 <Tooltip
                   hasArrow
-                  // label={
-                  //   noPot ? "You must have an empty pot to plant seed" : null
-                  // }
                   label={
-                    "You can't plant just yet, but very soon you will be able to!"
+                    noPot ? "You must have an empty pot to plant seed" : null
                   }
                   shouldWrapChildren
                   mt="3"
@@ -493,8 +529,7 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    // isDisabled={noPot}
-                    isDisabled
+                    isDisabled={noPot}
                   >
                     Plant
                   </Button>
@@ -508,9 +543,10 @@ function SeedDetails({
                   <Tooltip
                     hasArrow
                     label={
-                      fungibleAssets.fertilizer === 0
-                        ? "You do not have fertilizer. First earn some."
-                        : null
+                      // fungibleAssets.fertilizer === 0
+                      //   ? "You do not have fertilizer. First earn some."
+                      //   : null
+                      "Fertilizer is not available yet"
                     }
                     shouldWrapChildren
                     mt="3"
@@ -533,7 +569,8 @@ function SeedDetails({
                       _focus={{
                         bg: "shrub.100",
                       }}
-                      isDisabled={fungibleAssets.fertilizer === 0}
+                      // isDisabled={fungibleAssets.fertilizer === 0}
+                      isDisabled
                     >
                       Fertilize
                     </Button>
@@ -544,9 +581,10 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    stillGrowing
-                      ? "Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
-                      : null
+                    // stillGrowing
+                    //   ? "Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
+                    //   : null
+                    "Harvesting is not available yet."
                   }
                   shouldWrapChildren
                   mt="3"
@@ -576,7 +614,8 @@ function SeedDetails({
                       bg: "shrub.100",
                     }}
                     backgroundSize="400% 400%"
-                    isDisabled={stillGrowing}
+                    // isDisabled={stillGrowing}
+                    isDisabled
                   >
                     Harvest
                   </Button>
@@ -599,18 +638,23 @@ function SeedDetails({
           top="6rem"
           boxShadow="dark-lg"
           borderRadius="2xl"
-          // animate={{
-          //   backgroundColor: [
-          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-          //     "#ffd06b",
-          //     colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-          //   ],
-          // }}
-          //@ts-ignore
-          // transition={{
-          //   duration: 0.25,
-          //   delay: 1.97,
-          // }}
+          animate={
+            isActivelyPlanting && {
+              backgroundColor: [
+                colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+                getSeedColor(selectedItem.type),
+                // "#fcaec5",
+                colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
+              ],
+            }
+          }
+          // @ts-ignore
+          transition={
+            isActivelyPlanting && {
+              duration: 0.25,
+              delay: 1.97,
+            }
+          }
         >
           <ModalHeader>
             {modalState === "plant"
@@ -638,7 +682,11 @@ function SeedDetails({
               approving || activeHash ? (
                 <Center mt={20}>
                   {" "}
-                  <Txmonitor txHash={activeHash} />
+                  <Txmonitor
+                    txHash={activeHash}
+                    seed={selectedItem.type}
+                    emotion={selectedItem.emotion}
+                  />
                 </Center>
               ) : (
                 // Base States based on action clicked
@@ -648,9 +696,7 @@ function SeedDetails({
                       <Text textStyle={"reading"} fontSize={"lg"}>
                         You are about to turn
                       </Text>
-                      <Divider
-                        borderColor={useColorModeValue("gray.100", "gray.700")}
-                      />
+                      <Divider borderColor={borderColor} />
                       <Stack spacing={4}>
                         <Feature
                           icon={
@@ -675,7 +721,7 @@ function SeedDetails({
                           icon={
                             <Icon as={Pot} color={"green.500"} w={5} h={5} />
                           }
-                          iconBg={useColorModeValue("green.100", "green.900")}
+                          iconBg={iconBg}
                           text={"1 Empty Pot"}
                         />
                         <Text textStyle={"reading"} fontSize={"lg"}>
@@ -700,12 +746,7 @@ function SeedDetails({
                           iconBg={""}
                           text={"1 Potted Plant"}
                         />
-                        <Divider
-                          borderColor={useColorModeValue(
-                            "gray.100",
-                            "gray.700"
-                          )}
-                        />
+                        <Divider borderColor={borderColor} />
                         <Text textStyle={"reading"} fontSize={"lg"}>
                           You will grow it into a Shrub{" "}
                           <Icon as={FaHeart} color={"red.500"} w={5} h={5} />
@@ -718,10 +759,10 @@ function SeedDetails({
                           </Text>
                           <Text
                             textTransform={"uppercase"}
-                            color={useColorModeValue("gray.600", "gray.400")}
+                            color={textColor}
                             fontWeight={600}
                             fontSize={"sm"}
-                            bg={useColorModeValue("gray.100", "gray.900")}
+                            bg={textBg}
                             p={2}
                             alignSelf={"flex-start"}
                             rounded={"md"}
@@ -735,7 +776,7 @@ function SeedDetails({
                         color={"blue.400"}
                         fontWeight={600}
                         fontSize={"sm"}
-                        bg={useColorModeValue("blue.50", "blue.900")}
+                        bg={textBg2}
                         p={2}
                         alignSelf={"flex-start"}
                         rounded={"md"}
@@ -838,14 +879,6 @@ function SeedDetails({
                 </>
               )
             }
-            {/*Animation once planting occurs*/}
-            {/*<Center>*/}
-            {/*  {TransformScale(<FlyingSeed boxSize={20} />, controls)}*/}
-            {/*</Center>*/}
-            {/*<Center>*/}
-            {/*  {Disappear(<PlantingPot boxSize={40} />, controls)}*/}
-            {/*  {Appear(<WonderPot boxSize={40} />, controls)}*/}
-            {/*</Center>*/}
           </ModalBody>
         </MotionModalContent>
       </Modal>

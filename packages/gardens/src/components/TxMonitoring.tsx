@@ -12,7 +12,7 @@ import {
   Spinner,
   useColorModeValue,
 } from "@chakra-ui/react";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { TxContext } from "./Store";
 import {
   CheckCircleIcon,
@@ -20,23 +20,30 @@ import {
   Icon,
   TimeIcon,
 } from "@chakra-ui/icons";
-import { HappyBud } from "../assets/Icons";
 import { PendingTxState } from "../types";
 import { VscError } from "react-icons/all";
 import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
+import { Planting } from "./animations/Planting";
+import { useAnimation } from "framer-motion";
 
 export function Txmonitor({
   txHash,
+  seed,
+  emotion,
 }: {
   txHash?: string;
-  showDeposit?: boolean;
-  goToDeposit?: any;
+  seed?: string;
+  emotion?: string;
 }) {
+  // TODO: Make this dynamic
+  const seedId = "100";
+  console.debug("rendering Txmonitor");
   const { chainId } = useWeb3React();
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
+  const controls = useAnimation();
   if (!txHash) {
     return (
       <>
@@ -69,67 +76,88 @@ export function Txmonitor({
       </>
     );
   }
-  const { status } = pendingTxsState[txHash];
-  console.log(pendingTxsState[txHash]);
+  const { status, description } = pendingTxsState[txHash];
+  console.debug(pendingTxsState[txHash]);
 
   return (
     <>
-      {status === "confirming" && (
-        <Alert
-          status="success"
-          variant="subtle"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          height="200px"
-          mt="20px"
-          bg="none"
-        >
-          <TimeIcon boxSize="40px" />
-          <AlertTitle mt={4} mb={1} fontSize="lg">
-            Transaction Confirming...
-          </AlertTitle>
-          <AlertDescription maxWidth="sm">
-            <Link
-              color={"gray"}
-              fontSize={"sm"}
-              // @ts-ignore
-              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
-              isExternal
-            >
-              View on explorer <ExternalLinkIcon mx="2px" />
-            </Link>
-          </AlertDescription>
-        </Alert>
+      {status === "confirming" &&
+        (description === "Planting" ? (
+          <></>
+        ) : (
+          // <Box><Planting seedClass={seed || ''} emotion={emotion || ''} id={seedId} /></Box>
+          <Alert
+            status="success"
+            variant="subtle"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            height="200px"
+            mt="20px"
+            bg="none"
+          >
+            <TimeIcon boxSize="40px" />
+            <AlertTitle mt={4} mb={1} fontSize="lg">
+              Transaction Confirming...
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+              <Link
+                color={"gray"}
+                fontSize={"sm"}
+                // @ts-ignore
+                href={explorerLink(
+                  chainId,
+                  txHash,
+                  ExplorerDataType.TRANSACTION
+                )}
+                isExternal
+              >
+                View on explorer <ExternalLinkIcon mx="2px" />
+              </Link>
+            </AlertDescription>
+          </Alert>
+        ))}
+
+      {/*This is for testing planting animation*/}
+      {/*{status === "confirmed" && <Box>{Planting(seed || "", emotion || "", seedId)}</Box>}*/}
+      {status === "confirmed" && (
+        <Box>
+          <Planting
+            seedClass={seed || ""}
+            emotion={emotion || ""}
+            id={seedId}
+            controls={controls}
+          />
+        </Box>
       )}
 
-      {status === "confirmed" && (
-        <Alert
-          status="success"
-          variant="subtle"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          bg="none"
-        >
-          <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />
-          <AlertTitle mt={12} mb={1} fontSize="lg">
-            Transaction Confirmed
-          </AlertTitle>
-          <AlertDescription maxWidth="sm">
-            <Link
-              color={"gray"}
-              fontSize={"sm"}
-              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
-              isExternal
-            >
-              View on explorer <ExternalLinkIcon mx="2px" />
-            </Link>
-          </AlertDescription>
-        </Alert>
-      )}
+      {/*{status === "confirmed" && (*/}
+      {/*  <Alert*/}
+      {/*    status="success"*/}
+      {/*    variant="subtle"*/}
+      {/*    flexDirection="column"*/}
+      {/*    alignItems="center"*/}
+      {/*    justifyContent="center"*/}
+      {/*    textAlign="center"*/}
+      {/*    bg="none"*/}
+      {/*  >*/}
+      {/*    <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />*/}
+      {/*    <AlertTitle mt={12} mb={1} fontSize="lg">*/}
+      {/*      Transaction Confirmed*/}
+      {/*    </AlertTitle>*/}
+      {/*    <AlertDescription maxWidth="sm">*/}
+      {/*      <Link*/}
+      {/*        color={"gray"}*/}
+      {/*        fontSize={"sm"}*/}
+      {/*        href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}*/}
+      {/*        isExternal*/}
+      {/*      >*/}
+      {/*        View on explorer <ExternalLinkIcon mx="2px" />*/}
+      {/*      </Link>*/}
+      {/*    </AlertDescription>*/}
+      {/*  </Alert>*/}
+      {/*)}*/}
 
       {status === "failed" && (
         <Alert
@@ -170,7 +198,6 @@ export function confirmingCount(pendingTxsState: PendingTxState) {
 
 // displayed inside connect wallet modal
 export function TxStatusList() {
-  console.log("rendering TxStatusList");
   const { pendingTxs } = useContext(TxContext);
   const { chainId, account, active } = useWeb3React();
   const [pendingTxsState, pendingTxsDispatch] = pendingTxs;
@@ -217,9 +244,9 @@ export function TxStatusList() {
       </Flex>
     );
   }
-  console.log(entries);
-  console.log(pendingTxsState);
-  console.log(list);
+  console.debug(entries);
+  console.debug(pendingTxsState);
+  console.debug(list);
 
   const shadow = useColorModeValue("base", "dark-lg");
   const bgColor = useColorModeValue("gray.100", "dark.300");

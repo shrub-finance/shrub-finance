@@ -6,11 +6,13 @@ function GardenGrid({
   name,
   onClick,
   imgCallback,
+  category,
 }: {
   id: string;
   name: string;
   onClick: () => void;
   imgCallback: () => string;
+  category?: string;
 }) {
   return (
     <Box
@@ -45,6 +47,7 @@ function GardenGrid({
             h={20}
             src={imgCallback()}
             cursor={"pointer"}
+            transform={category === "pottedPlant" ? "scale(1.5)" : undefined}
           />
         </Box>
         <Text
