@@ -167,11 +167,9 @@ export function Account() {
   const ref = useRef<HTMLDivElement>();
   const [connectWalletSymbole, setConnectWalletSymbole] = useState(false);
   const [checkSeedAdded, setCheckSeedAdded] = useState(false);
-
   const { account } = useWeb3React();
   let seedImgSrc;
   let seedImgText;
-  let seedCountValue = 0;
   for (let i = 0; i < 4; i++) {
     const { data } = useQuery(HighestSeed, {
       variables: {
@@ -182,12 +180,13 @@ export function Account() {
     if (
       data?.user?.seedCount > 0 &&
       data?.user?.seeds?.length > 0 &&
-      !checkSeedAdded
+      !checkSeedAdded &&
+      ref.current
     ) {
       highestSeedAdopt = data?.user?.seeds[0].type;
-      seedCountValue = data?.user?.seedCount;
       setCheckSeedAdded(true);
       setConnectWalletSymbole(true);
+      ref.current.innerHTML = "";
     }
   }
   switch (highestSeedAdopt) {
@@ -214,10 +213,6 @@ export function Account() {
     if (account && ref.current) {
       ref.current.innerHTML = "";
       ref.current.appendChild(Jazzicon(14, parseInt(account.slice(2, 10), 16)));
-    }
-
-    if (seedCountValue > 0) {
-      setConnectWalletSymbole(true);
     }
   }, [account]);
 
