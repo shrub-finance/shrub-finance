@@ -11,6 +11,7 @@ import {
   Icon,
   Image,
   keyframes,
+  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -49,6 +50,7 @@ import { Feature } from "./Feature";
 import { FaHeart } from "react-icons/all";
 import { Pot } from "../assets/Icons";
 import { itemType } from "../types";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 function SeedDetails({
   hooks,
@@ -103,6 +105,15 @@ function SeedDetails({
   const textBg = useColorModeValue("gray.100", "gray.900");
   const textBg2 = useColorModeValue("blue.50", "blue.900");
 
+  const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
+  const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
+
+  const openSeaLink = `https://opensea.io/assets/matic/${
+    selectedItem.category === "paperSeed"
+      ? PAPERSEED_ADDRESS
+      : PAPER_POT_ADDRESS
+  }/${selectedItem.tokenId}`;
+
   const animationKeyframes = keyframes`
     0% {
       background-position: 0 50%;
@@ -118,9 +129,6 @@ function SeedDetails({
   const animation = `${animationKeyframes} 4s ease-out infinite`;
 
   const { account, error: web3Error, library, chainId } = useWeb3React();
-
-  const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
-  const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
 
   console.debug("rendering SeedDetails");
 
@@ -397,6 +405,20 @@ function SeedDetails({
                 {selectedItem.name}
               </Heading>
             </Center>
+
+            <Center>
+              <Link
+                color={"gray"}
+                fontSize={"xs"}
+                href={openSeaLink}
+                isExternal
+                zIndex={2}
+              >
+                View in Open Sea
+                <ExternalLinkIcon mx="2px" />
+              </Link>
+            </Center>
+
             {/*Traits*/}
             {["pot", "water", "fertilizer"].includes(selectedItem.category) && (
               <>
