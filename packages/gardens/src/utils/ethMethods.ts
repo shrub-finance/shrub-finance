@@ -317,9 +317,7 @@ export async function isApprovedForAllErc721(
   spender: string,
   provider: JsonRpcProvider
 ) {
-  console.log(tokenContractAddress);
   const erc721 = ERC721__factory.connect(tokenContractAddress, provider);
-  console.log(owner, spender);
   return await erc721.isApprovedForAll(owner, spender);
 }
 

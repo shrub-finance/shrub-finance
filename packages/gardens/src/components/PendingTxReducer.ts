@@ -6,8 +6,8 @@ export function pendingTxReducer(
 ) {
   const { type, txHash, status, description, data } = action;
   const now = new Date();
-  console.log("txmonReducer");
-  console.log(action);
+  console.debug("pendingTxReducer");
+  console.debug(action);
   switch (action.type) {
     case "add":
       if (!txHash) {
