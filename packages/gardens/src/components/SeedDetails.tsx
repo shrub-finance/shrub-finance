@@ -44,7 +44,6 @@ import { ethers } from "ethers";
 import { ToastDescription, Txmonitor } from "./TxMonitoring";
 import { TxContext } from "./Store";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
-import Confetti from "../assets/Confetti";
 
 import { Feature } from "./Feature";
 import { FaHeart } from "react-icons/all";
@@ -95,6 +94,7 @@ function SeedDetails({
   const [modalState, setModalState] = useState<
     "plant" | "water" | "fertilize" | "harvest" | "planting"
   >("plant");
+  const [lastId, setLastId] = useState<string>("");
 
   const borderColor = useColorModeValue("gray.100", "gray.700");
   const iconBg = useColorModeValue("green.100", "green.900");
@@ -104,13 +104,13 @@ function SeedDetails({
 
   const animationKeyframes = keyframes`
     0% {
-      background-position: 0% 50%;
+      background-position: 0 50%;
     }
     50% {
       background-position: 100% 50%;
     }
     100% {
-      background-position: 0% 50%;
+      background-position: 0 50%;
     }
 `;
 
@@ -151,18 +151,6 @@ function SeedDetails({
     window.scrollTo(0, 0);
   }, [localError, web3Error]);
 
-  useEffect(() => {
-    console.debug(
-      "SeedDetails useEffect 4 - activeHash (showConfetti off 500ms)"
-    );
-    setTimeout(() => {
-      if (showConfetti) {
-        console.debug("setting showConfetti false");
-        setShowConfetti(false);
-      }
-    }, 500);
-  }, [activeHash]);
-
   // determine if planting is approved
   useEffect(() => {
     console.debug(
@@ -199,10 +187,13 @@ function SeedDetails({
     if (!isOpen) {
       return;
     }
-    setTimeout(() => {
-      controls.start("final");
-      console.debug("running controls start final");
-    }, 1);
+    if (lastId !== selectedItem.name) {
+      setTimeout(() => {
+        controls.start("final");
+      }, 1);
+      console.debug(`setting lastId ${lastId}`);
+      setLastId(lastId);
+    }
   }, []);
 
   const MotionModalContent = motion<ModalContentProps>(ModalContent);

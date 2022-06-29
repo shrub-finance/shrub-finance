@@ -44,17 +44,6 @@ export function Txmonitor({
   const { pendingTxs } = useContext(TxContext);
   const [pendingTxsState] = pendingTxs;
   const controls = useAnimation();
-  const [lastSeed, setLastSeed] = useState("");
-
-  useEffect(() => {
-    if (lastSeed !== seed) {
-      setTimeout(() => {
-        controls.start("final");
-      }, 1);
-      setLastSeed(seed || "");
-    }
-  }, []);
-
   if (!txHash) {
     return (
       <>

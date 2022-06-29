@@ -32,23 +32,7 @@ export function Planting({
   id: string;
   controls: AnimationControls;
 }) {
-  // export function Planting(seedClass: string, emotion: string, id: string) {
-
   console.debug("rendering Planting");
-  // const controls = useAnimation();
-  const { colorMode } = useColorMode();
-
-  const [lastId, setLastId] = useState<string>("");
-
-  // useEffect(() => {
-  //   if (lastId !== id) {
-  //     setTimeout(() => {
-  //       controls.start("final");
-  //     }, 1);
-  //     console.debug(`setting lastId ${id}`);
-  //     setLastId(id);
-  //   }
-  // }, []);
 
   function getSeedSvg(seedClass: string, emotion: string) {
     return seedClass === "Wonder" ? (
@@ -104,20 +88,7 @@ export function Planting({
 
   return (
     <>
-      <Box
-      // animate={{
-      //   backgroundColor: [
-      //   colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-      //   "#ffd06b",
-      //   colorMode === "light" ? "#fff" : "rgb(31, 31, 65)",
-      //   ]
-      // }}
-      // // @ts-ignore
-      // transition={{
-      //   duration: 0.25,
-      //   delay: 1.97,
-      // }}
-      >
+      <Box>
         <Center>
           {TransformScale(
             React.cloneElement(getSeedSvg(seedClass, emotion), { boxSize: 20 }),
