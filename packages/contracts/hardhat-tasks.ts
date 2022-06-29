@@ -2,12 +2,17 @@ import { task, types } from 'hardhat/config'
 import "@nomiclabs/hardhat-ethers";
 import {
   ERC20Token__factory,
-  HashUtil__factory, PaperPot__factory, PaperPotMetadata__factory, PaperPotMint__factory,
+  HashUtil__factory,
+  PaperPot__factory,
+  PaperPotMetadata__factory,
+  PaperPotMint__factory,
   PaperSeed__factory,
   PotNFTTicket__factory,
   SeedOrphanageV2__factory,
-  ShrubExchange__factory, SMATICToken__factory,
-  SUSDToken__factory, WETH__factory,
+  ShrubExchange__factory,
+  SMATICToken__factory,
+  SUSDToken__factory,
+  WETH__factory,
 } from './types'
 import { readFileSync } from 'fs'
 import { OrderCommon, SmallOrder } from '@shrub/app/src/types'
@@ -237,9 +242,9 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     await env.run('sendSeed', {id: '2181', receiver: account3.address});
     await env.run('sendSeed', {id: '2182', receiver: account3.address});
     await env.run('sendSeed', {id: '2186', receiver: account4.address});
-    await env.run('sendSeed', {id: '2188', receiver: account4.address});
-    await env.run('sendSeed', {id: '8888', receiver: account4.address});
-    await env.run('sendSeed', {id: '8869', receiver: account4.address});
+    // await env.run('sendSeed', {id: '2188', receiver: account4.address});
+    // await env.run('sendSeed', {id: '8888', receiver: account4.address});
+    // await env.run('sendSeed', {id: '8869', receiver: account4.address});
 
     // Set Redeem Active
     await env.run('setRedeemActive', {
