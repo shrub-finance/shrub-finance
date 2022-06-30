@@ -425,23 +425,23 @@ function SeedDetails({
                 </Stack>
                 {["water", "fertilizer"].includes(selectedItem.category) ? (
                   <>
-                    <Text pt={6} textAlign={"center"} textStyle={"reading"}>
-                      You need 1{" "}
-                      {selectedItem.category === "water"
-                        ? "water"
-                        : "fertilizer"}{" "}
-                      per plant
-                    </Text>
-                    <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                      To{" "}
-                      {selectedItem.category === "water"
-                        ? "water"
-                        : "fertilizer"}
-                      ,{" "}
-                      {holdsPottedPlant
-                        ? "select a potted plant on the left"
-                        : "plant a seed first"}
-                    </Text>
+                    {/*<Text pt={6} textAlign={"center"} textStyle={"reading"}>*/}
+                    {/*  You need 1{" "}*/}
+                    {/*  {selectedItem.category === "water"*/}
+                    {/*    ? "water"*/}
+                    {/*    : "fertilizer"}{" "}*/}
+                    {/*  per plant*/}
+                    {/*</Text>*/}
+                    {/*<Text pt={2} textAlign={"center"} textStyle={"reading"}>*/}
+                    {/*  To{" "}*/}
+                    {/*  {selectedItem.category === "water"*/}
+                    {/*    ? "water"*/}
+                    {/*    : "fertilizer"}*/}
+                    {/*  ,{" "}*/}
+                    {/*  {holdsPottedPlant*/}
+                    {/*    ? "select a potted plant on the left"*/}
+                    {/*    : "plant a seed first"}*/}
+                    {/*</Text>*/}
                   </>
                 ) : (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
@@ -488,6 +488,19 @@ function SeedDetails({
                     DNA: {selectedItem.dna}
                   </Badge>
                 </Stack>
+                <Stack
+                  align={"center"}
+                  justify={"center"}
+                  direction={"row"}
+                  mt={2}
+                >
+                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    Watering Available:{" "}
+                    {selectedItem.wateringNextAvailable >= new Date()
+                      ? selectedItem.wateringNextAvailable.toLocaleString()
+                      : "Now"}
+                  </Badge>
+                </Stack>
               </>
             )}
             {/*Buttons*/}
@@ -523,8 +536,10 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    // isDisabled={fungibleAssets.water === 0}
-                    isDisabled
+                    isDisabled={
+                      fungibleAssets.water === 0 ||
+                      selectedItem.wateringNextAvailable > new Date()
+                    }
                   >
                     Water
                   </Button>

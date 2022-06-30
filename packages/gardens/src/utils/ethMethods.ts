@@ -464,3 +464,29 @@ export async function approveToken(
   }
   return erc20Contract.approve(spenderAddress, bigAmount);
 }
+
+export function wateringNextAvailable(lastWatering: number): Date {
+  const lastWateringDate = fromEthDate(lastWatering);
+  if (lastWateringDate.toString() === "Invalid Date") {
+    throw new Error("Invalid Date");
+  }
+  // 8 hours must have passed
+  const eightHoursFromWatering = new Date(lastWateringDate);
+  eightHoursFromWatering.setUTCHours(eightHoursFromWatering.getUTCHours() + 8);
+
+  // It must also be the next day
+  const nextDayMidnight = new Date(lastWateringDate);
+  nextDayMidnight.setUTCDate(nextDayMidnight.getUTCDate() + 1);
+  nextDayMidnight.setUTCHours(0, 0, 0, 0);
+
+  //nextWateringDate must meet both conditions
+  const nextWateringDate = new Date(
+    Math.max(eightHoursFromWatering.getTime(), nextDayMidnight.getTime())
+  );
+  return nextWateringDate;
+}
+
+export function wateringAvailableNow(lastWatering: number): boolean {
+  const now = new Date();
+  return now > wateringNextAvailable(lastWatering);
+}

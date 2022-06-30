@@ -69,6 +69,7 @@ import {
   getBigWalletBalance,
   getTicketData,
   redeemNFTTicket,
+  wateringNextAvailable,
 } from "../utils/ethMethods";
 import CountdownTimer from "../components/CountdownTimer";
 import GardenGrid from "../components/GardenGrid";
@@ -440,11 +441,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
     if (holdsPottedPlant) {
       // id, name, image
       for (const pottedPlant of mySeedData.user.pottedPlants) {
-        const { id, growth, seed } = pottedPlant;
+        const { id, growth, seed, lastWatering } = pottedPlant;
         const { name, dna, emotion, type } = seed;
-        const imageUrl =
-          // @ts-ignore
-          IMAGE_ASSETS.getPottedPlant(type, Math.floor(growth / 2000), emotion);
+        const imageUrl = IMAGE_ASSETS.getPottedPlant(
+          type,
+          Math.floor(growth / 2000),
+          emotion
+        );
         console.debug(imageUrl);
 
         const pottedPlantItem: itemType = {
@@ -456,6 +459,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           imageUrl: imageUrl,
           growth: growth,
           category: "pottedPlant",
+          wateringNextAvailable: wateringNextAvailable(lastWatering),
         };
         if (pottedPlant === mySeedData.user.pottedPlants[0]) {
           updateSelectedItem(pottedPlantItem);
