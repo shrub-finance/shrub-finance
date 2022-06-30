@@ -34,10 +34,12 @@ import { isMobile } from "react-device-detect";
 import { motion, useAnimation } from "framer-motion";
 import {
   approveAllErc721,
+  getBlockTime,
   harvestShrub,
   isApprovedErc721,
   plant,
   water,
+  wateringNextAvailable,
   waterWithFertilizer,
 } from "../utils/ethMethods";
 import { useWeb3React } from "@web3-react/core";
@@ -227,6 +229,34 @@ function SeedDetails({
           status: "confirmed",
           data: { blockNumber: receipt.blockNumber },
         });
+        const growEvent = receipt.events?.find(
+          (event) => event.event === "Grow"
+        );
+        console.log(growEvent);
+        if (growEvent && growEvent.args) {
+          const growth: number = growEvent.args.growthBps;
+          const tokenId = growEvent.args.tokenId || ethers.constants.Zero;
+          const growthDiff = growEvent.args.growthAmount;
+          if (tokenId.eq(selectedItem.tokenId) && growth) {
+            const timestamp = await getBlockTime(receipt.blockHash, library);
+            const pottedPlantItem: itemType = {
+              tokenId: selectedItem.tokenId,
+              name: "Potted Plant",
+              emotion: selectedItem.emotion,
+              type: selectedItem.type,
+              dna: selectedItem.dna,
+              imageUrl: IMAGE_ASSETS.getPottedPlant(
+                selectedItem.type,
+                Math.floor(growth / 2000),
+                selectedItem.emotion
+              ),
+              growth: growth,
+              category: "pottedPlant",
+              wateringNextAvailable: wateringNextAvailable(timestamp),
+            };
+            setSelectedItem(pottedPlantItem);
+          }
+        }
         const plantEvent = receipt.events?.find(
           (event) => event.event === "Plant"
         );
@@ -254,6 +284,7 @@ function SeedDetails({
               ),
               growth: 0,
               category: "pottedPlant",
+              wateringNextAvailable: selectedItem.wateringNextAvailable,
             };
             setSelectedItem(pottedPlantItem);
           }
@@ -265,6 +296,7 @@ function SeedDetails({
           // console.debug(`setting showConfetti true`);
         }
       } catch (e: any) {
+        console.error(e);
         const toastDescription = ToastDescription(
           description,
           e.transactionHash,

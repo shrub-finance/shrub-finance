@@ -94,7 +94,7 @@ function Intro(props: RouteComponentProps) {
                 background="gold.100"
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",
@@ -161,7 +161,7 @@ function Intro(props: RouteComponentProps) {
                 background="gold.100"
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",
@@ -227,7 +227,7 @@ function Intro(props: RouteComponentProps) {
                 background="gold.100"
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",
@@ -288,7 +288,7 @@ function Intro(props: RouteComponentProps) {
                 background="gold.100"
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",
@@ -346,7 +346,7 @@ function Intro(props: RouteComponentProps) {
                 background="gold.100"
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",
@@ -691,7 +691,7 @@ function Intro(props: RouteComponentProps) {
                 background="gold.100"
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",

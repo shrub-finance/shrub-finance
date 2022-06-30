@@ -108,7 +108,7 @@ function MysteryBoxView(props: RouteComponentProps) {
                 bgGradient={gold}
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",

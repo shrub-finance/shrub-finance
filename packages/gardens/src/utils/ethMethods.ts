@@ -417,6 +417,14 @@ export function formatTime(date: number | Date) {
   });
 }
 
+export async function getBlockTime(
+  blockHash: string,
+  provider: JsonRpcProvider
+) {
+  const block = await provider.getBlock(blockHash);
+  return block.timestamp;
+}
+
 export function getBlockNumber(provider: JsonRpcProvider) {
   return provider.getBlockNumber();
 }
