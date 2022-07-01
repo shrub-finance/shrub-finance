@@ -11,27 +11,16 @@ import {
   Flex,
   useColorModeValue,
   useColorMode,
-  ListItem,
   HStack,
-  UnorderedList,
-  AccordionItem,
-  AccordionIcon,
-  AccordionPanel,
-  Accordion,
-  AccordionButton,
-  Img,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import {
   GoofyWonder,
-  NftJetIcon,
   Night,
   PolygonStudiosIcon,
   Pot,
-  Ticket,
-  Ticket1,
   WonderPot,
 } from "../assets/Icons";
 import {
@@ -39,7 +28,6 @@ import {
   FaPlus,
   IoEllipsisVertical,
 } from "react-icons/all";
-import PotSaleCountdown from "./PotSaleCountdown";
 
 function Intro(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
@@ -55,7 +43,6 @@ function Intro(props: RouteComponentProps) {
       >
         <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
           <Box>
-            {/*<PotSaleCountdown />*/}
             <AspectRatio ratio={16 / 9}>
               <iframe
                 title="Shrub Paper Gardens trailer"
@@ -67,7 +54,7 @@ function Intro(props: RouteComponentProps) {
         </Box>
       </Container>
 
-      {/*section 1*/}
+      {/*first on chain growth nft section*/}
       <Container
         p={5}
         flex="1"
@@ -120,20 +107,25 @@ function Intro(props: RouteComponentProps) {
           </Box>
           <Spacer />
           <Box mt={{ base: 20, md: 32 }}>
-            <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
-              <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-              <Icon
-                as={FaPlus}
-                boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
-              />
-              <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-              <Icon
-                as={FaLongArrowAltRight}
-                boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
-              />
+            <Link
+              isExternal
+              href={"https://opensea.io/collection/shrub-paper-gardens"}
+            >
+              <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
+                <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Icon
+                  as={FaPlus}
+                  boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
+                />
+                <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Icon
+                  as={FaLongArrowAltRight}
+                  boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
+                />
 
-              <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-            </HStack>
+                <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+              </HStack>
+            </Link>
           </Box>
         </Flex>
       </Container>
@@ -188,13 +180,17 @@ function Intro(props: RouteComponentProps) {
             ml={{ md: 20, lg: 80, xl: 0 }}
             display={{ base: "none", md: "block" }}
           >
-            {/*<Stage1 />*/}
-            <Image
-              width={{ base: "32rem", md: "42rem" }}
-              src="https://shrub.finance/watering.png"
-              fallbackSrc="https://shrub.finance/watering.png"
-              alt="watering"
-            />
+            <Link
+              isExternal
+              href={"https://opensea.io/collection/shrub-paper-gardens"}
+            >
+              <Image
+                width={{ base: "32rem", md: "42rem" }}
+                src="https://shrub.finance/watering.png"
+                fallbackSrc="https://shrub.finance/watering.png"
+                alt="watering"
+              />
+            </Link>
           </Box>
           <Box mt={{ base: 10, md: 32 }} display={{ base: "flex", md: "none" }}>
             <Image
@@ -384,12 +380,19 @@ function Intro(props: RouteComponentProps) {
             mt={{ base: 0, md: 0, lg: 40, xl: 40, "2xl": 0 }}
             ml={{ base: 0, md: 40, lg: 20, xl: 40 }}
           >
-            <Image
-              width={{ base: "32rem", md: "42rem" }}
-              src="https://shrub.finance/assets/nft-ticket.webp"
-              fallbackSrc="https://shrub.finance/assets/tickets.png"
-              alt="nft ticket by shrub finance"
-            />
+            <Link
+              isExternal
+              href={
+                "https://opensea.io/assets/matic/0xb0e17d58ae2bc6693303b90383bed83699145866/1"
+              }
+            >
+              <Image
+                width={{ base: "32rem", md: "42rem" }}
+                src="https://shrub.finance/assets/nft-ticket.webp"
+                fallbackSrc="https://shrub.finance/assets/tickets.png"
+                alt="nft ticket by shrub finance"
+              />
+            </Link>
           </Box>
         </Flex>
       </Container>
@@ -621,6 +624,16 @@ function Intro(props: RouteComponentProps) {
               Options Main
               <br /> [Q3-Q4]
             </Text>{" "}
+            <Text textStyle={"description"}>
+              <Link
+                textDecoration={"underline"}
+                href={
+                  "https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
+                }
+              >
+                Detailed Shrub Roadmap
+              </Link>
+            </Text>
           </Box>
           <Spacer />
           <Box mt={{ base: 0, md: 64 }}>
@@ -842,6 +855,26 @@ function Intro(props: RouteComponentProps) {
           </Center>
         </Box>
       </Container>
+      {/*<Container*/}
+      {/*  p={5}*/}
+      {/*  flex="1"*/}
+      {/*  borderRadius="2xl"*/}
+      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
+      {/*>*/}
+      {/*  <Box maxW="80rem" mt={{ base: 16, md: 16 }} textAlign={"center"}>*/}
+      {/*    <AspectRatio*/}
+      {/*      maxW="560px"*/}
+      {/*      ratio={16 / 9}*/}
+      {/*      layerStyle="hideExternalBranding"*/}
+      {/*    >*/}
+      {/*      <iframe*/}
+      {/*        title="sign up for shrub"*/}
+      {/*        src="https://form.jotform.com/shrub_finance/email"*/}
+      {/*        allowFullScreen*/}
+      {/*      />*/}
+      {/*    </AspectRatio>*/}
+      {/*  </Box>*/}
+      {/*</Container>*/}
     </>
   );
 }
