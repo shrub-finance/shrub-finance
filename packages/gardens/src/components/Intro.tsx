@@ -28,6 +28,7 @@ import {
   FaPlus,
   IoEllipsisVertical,
 } from "react-icons/all";
+import PotSaleCountdown from "./PotSaleCountdown";
 
 function Intro(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
@@ -43,6 +44,7 @@ function Intro(props: RouteComponentProps) {
       >
         <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
           <Box>
+            <PotSaleCountdown />
             <AspectRatio ratio={16 / 9}>
               <iframe
                 title="Shrub Paper Gardens trailer"
