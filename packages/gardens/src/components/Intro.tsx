@@ -55,14 +55,14 @@ function Intro(props: RouteComponentProps) {
       >
         <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
           <Box>
-            <PotSaleCountdown />
-            {/*<AspectRatio ratio={16 / 9}>*/}
-            {/*  <iframe*/}
-            {/*    title="Shrub Paper Gardens trailer"*/}
-            {/*    src="https://www.youtube.com/embed/9JBKPdFuBGE"*/}
-            {/*    allowFullScreen*/}
-            {/*  />*/}
-            {/*</AspectRatio>*/}
+            {/*<PotSaleCountdown />*/}
+            <AspectRatio ratio={16 / 9}>
+              <iframe
+                title="Shrub Paper Gardens trailer"
+                src="https://www.youtube.com/embed/9JBKPdFuBGE"
+                allowFullScreen
+              />
+            </AspectRatio>
           </Box>
         </Box>
       </Container>
@@ -105,18 +105,17 @@ function Intro(props: RouteComponentProps) {
               growth NFT
             </Heading>
             <Text textStyle={"description"}>
-              Plant your seed, grow a Shrub. Planting your seed into a pot
-              creates a potted plant.
-            </Text>
-            <Text textStyle={"description"}>
               For the first time ever,{" "}
               <Link
                 isExternal
                 textDecoration={"underline"}
                 href="https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
               >
-                grow an NFT by interacting with it on-chain
+                grow an NFT by interacting with it on-chain.
               </Link>
+            </Text>
+            <Text textStyle={"description"}>
+              Planting your seed into a pot creates a potted plant.
             </Text>
           </Box>
           <Spacer />
@@ -169,7 +168,7 @@ function Intro(props: RouteComponentProps) {
               >
                 Grow
               </Text>{" "}
-              your Shrub on-chain
+              your Shrub
             </Heading>
             <Text textStyle={"description"}>
               Take care of your potted plant to help it grow.
@@ -325,6 +324,7 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+
       {/*NFT Tickets*/}
       <Container
         mt={{ base: 0, md: 50 }}
@@ -357,18 +357,18 @@ function Intro(props: RouteComponentProps) {
               distribution system
             </Heading>
             <Text textStyle={"description"}>
-              The distribution of Pots will use a new mechanism created by Shrub
-              that provides NFT collectors more flexibility than a traditional
-              whitelist.
+              The distribution of Pots uses a new mechanism developed by the
+              Shrub team that provides NFT collectors more flexibility than a
+              traditional whitelist.
             </Text>
             <Text textStyle={"description"}>
-              NFT Tickets are NFTs themselves, ERC-1155, and are gas-efficient
-              to mint.
+              NFT Tickets are NFTs themselves, ERC-1155, and are extremely
+              gas-efficient to mint.
             </Text>
             <Text textStyle={"description"}>
               When buying tickets during the pre-sale, collectors only pay a
-              portion of the total price. The ticket can later be redeemed for
-              the pot by paying the remainder, or sold on the secondary markets.
+              portion of the total price. The ticket are later redeemed for the
+              asset by paying the remainder, or sold on the secondary markets.
             </Text>
             <Text textStyle={"description"}>
               <Link
@@ -384,12 +384,11 @@ function Intro(props: RouteComponentProps) {
             mt={{ base: 0, md: 0, lg: 40, xl: 40, "2xl": 0 }}
             ml={{ base: 0, md: 40, lg: 20, xl: 40 }}
           >
-            <Ticket
-              boxSize={{ base: 320, md: 600, lg: 400, xl: 400, "2xl": 500 }}
-            />
-            <Ticket1
-              display={{ base: "none", md: "none", lg: "flex" }}
-              boxSize={{ base: 320, md: 600, lg: 400, xl: 400, "2xl": 500 }}
+            <Image
+              width={{ base: "32rem", md: "42rem" }}
+              src="https://shrub.finance/assets/nft-ticket.webp"
+              fallbackSrc="https://shrub.finance/assets/tickets.png"
+              alt="nft ticket by shrub finance"
             />
           </Box>
         </Flex>
@@ -705,15 +704,14 @@ function Intro(props: RouteComponentProps) {
               Shrub holders are builders, innovators, and thinkers.
             </Text>
             <Text textStyle={"description"}>
-              Shrubs represent those visionaries who believe in the
-              decentralized world and bring innovative technology to the space.
+              Shrubs represent visionaries who believe in the decentralized
+              world and innovate to make it possible.
             </Text>
             <Text textStyle={"description"}>
-              If you have not already done so, become a{" "}
-              <Link href="#faqs" cursor="pointer" textDecoration="underline">
-                Shrub holder
+              If you haven't already done so, you can join us in the mission{" "}
+              <Link href="#faqs" cursor="pointer">
+                and grow a Shrub with us.
               </Link>{" "}
-              and join us!
             </Text>
           </Box>
           <Box mt={{ base: 0, md: 64 }}>
