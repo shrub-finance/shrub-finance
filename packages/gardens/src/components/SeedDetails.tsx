@@ -424,25 +424,14 @@ function SeedDetails({
                   </Badge>
                 </Stack>
                 {["water", "fertilizer"].includes(selectedItem.category) ? (
-                  <>
-                    <Text pt={6} textAlign={"center"} textStyle={"reading"}>
-                      You need 1{" "}
-                      {selectedItem.category === "water"
-                        ? "water"
-                        : "fertilizer"}{" "}
-                      per plant
-                    </Text>
-                    <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                      To{" "}
-                      {selectedItem.category === "water"
-                        ? "water"
-                        : "fertilizer"}
-                      ,{" "}
-                      {holdsPottedPlant
-                        ? "select a potted plant on the left"
-                        : "plant a seed first"}
-                    </Text>
-                  </>
+                  <Text pt={2} textAlign={"center"} textStyle={"reading"}>
+                    To{" "}
+                    {selectedItem.category === "water" ? "water" : "fertilizer"}
+                    ,{" "}
+                    {holdsPottedPlant
+                      ? "select a potted plant on the left"
+                      : "plant a seed first"}
+                  </Text>
                 ) : (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
                     To plant, select a seed on the left
@@ -512,7 +501,7 @@ function SeedDetails({
                     }}
                     flex={1}
                     fontSize={"xl"}
-                    w={{ base: "350px", md: "420px" }}
+                    w={{ base: "315px", md: "420px" }}
                     rounded={"2xl"}
                     bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
                     color={"black"}
@@ -546,7 +535,7 @@ function SeedDetails({
                       setModalState("plant");
                       openModal();
                     }}
-                    w={{ base: "350px", md: "420px" }}
+                    w={{ base: "315px", md: "420px" }}
                     flex={1}
                     fontSize={"xl"}
                     rounded={"2xl"}
@@ -587,7 +576,7 @@ function SeedDetails({
                         openModal();
                       }}
                       flex={1}
-                      w={{ base: "167px", md: "202px" }}
+                      w={{ base: "150px", md: "202px" }}
                       fontSize={"xl"}
                       rounded={"2xl"}
                       bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
@@ -629,8 +618,8 @@ function SeedDetails({
                     flex={1}
                     w={
                       stillGrowing
-                        ? { base: "167px", md: "202px" }
-                        : { base: "350px", md: "420px" }
+                        ? { base: "150px", md: "202px" }
+                        : { base: "315px", md: "420px" }
                     }
                     fontSize={"xl"}
                     rounded={"2xl"}
