@@ -1,10 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import {
-  CoinbaseIcon,
-  LedgerIcon,
-  MetaMaskIcon,
-  WalletConnectIcon,
-} from "../assets/Icons";
+import { CoinbaseIcon, MetaMaskIcon, WalletConnectIcon } from "../assets/Icons";
 import { useWeb3React, UnsupportedChainIdError } from "@web3-react/core";
 import {
   NoEthereumProviderError,
@@ -347,8 +342,6 @@ export function ConnectWalletModal() {
                   return <CoinbaseIcon boxSize={8} />;
                 case "Wallet Connect":
                   return <WalletConnectIcon boxSize={8} />;
-                case "Ledger":
-                  return !isMobile ? <LedgerIcon boxSize={8} /> : null;
                 default:
                   return <MetaMaskIcon boxSize={8} />;
               }
