@@ -11,27 +11,16 @@ import {
   Flex,
   useColorModeValue,
   useColorMode,
-  ListItem,
   HStack,
-  UnorderedList,
-  AccordionItem,
-  AccordionIcon,
-  AccordionPanel,
-  Accordion,
-  AccordionButton,
-  Img,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import {
   GoofyWonder,
-  NftJetIcon,
   Night,
   PolygonStudiosIcon,
   Pot,
-  Ticket,
-  Ticket1,
   WonderPot,
 } from "../assets/Icons";
 import {
@@ -56,18 +45,18 @@ function Intro(props: RouteComponentProps) {
         <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
           <Box>
             <PotSaleCountdown />
-            {/*<AspectRatio ratio={16 / 9}>*/}
-            {/*  <iframe*/}
-            {/*    title="Shrub Paper Gardens trailer"*/}
-            {/*    src="https://www.youtube.com/embed/9JBKPdFuBGE"*/}
-            {/*    allowFullScreen*/}
-            {/*  />*/}
-            {/*</AspectRatio>*/}
+            <AspectRatio ratio={16 / 9}>
+              <iframe
+                title="Shrub Paper Gardens trailer"
+                src="https://www.youtube.com/embed/9JBKPdFuBGE"
+                allowFullScreen
+              />
+            </AspectRatio>
           </Box>
         </Box>
       </Container>
 
-      {/*section 1*/}
+      {/*first on chain growth nft section*/}
       <Container
         p={5}
         flex="1"
@@ -105,36 +94,40 @@ function Intro(props: RouteComponentProps) {
               growth NFT
             </Heading>
             <Text textStyle={"description"}>
-              Plant your seed, grow a Shrub. Planting your seed into a pot
-              creates a potted plant.
-            </Text>
-            <Text textStyle={"description"}>
               For the first time ever,{" "}
               <Link
                 isExternal
                 textDecoration={"underline"}
                 href="https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
               >
-                grow an NFT by interacting with it on-chain
+                grow an NFT by interacting with it on-chain.
               </Link>
+            </Text>
+            <Text textStyle={"description"}>
+              Planting your seed into a pot creates a potted plant.
             </Text>
           </Box>
           <Spacer />
           <Box mt={{ base: 20, md: 32 }}>
-            <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
-              <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-              <Icon
-                as={FaPlus}
-                boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
-              />
-              <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-              <Icon
-                as={FaLongArrowAltRight}
-                boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
-              />
+            <Link
+              isExternal
+              href={"https://opensea.io/collection/shrub-paper-gardens"}
+            >
+              <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
+                <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Icon
+                  as={FaPlus}
+                  boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
+                />
+                <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Icon
+                  as={FaLongArrowAltRight}
+                  boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
+                />
 
-              <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-            </HStack>
+                <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+              </HStack>
+            </Link>
           </Box>
         </Flex>
       </Container>
@@ -169,7 +162,7 @@ function Intro(props: RouteComponentProps) {
               >
                 Grow
               </Text>{" "}
-              your Shrub on-chain
+              your Shrub
             </Heading>
             <Text textStyle={"description"}>
               Take care of your potted plant to help it grow.
@@ -189,13 +182,17 @@ function Intro(props: RouteComponentProps) {
             ml={{ md: 20, lg: 80, xl: 0 }}
             display={{ base: "none", md: "block" }}
           >
-            {/*<Stage1 />*/}
-            <Image
-              width={{ base: "32rem", md: "42rem" }}
-              src="https://shrub.finance/watering.png"
-              fallbackSrc="https://shrub.finance/watering.png"
-              alt="watering"
-            />
+            <Link
+              isExternal
+              href={"https://opensea.io/collection/shrub-paper-gardens"}
+            >
+              <Image
+                width={{ base: "32rem", md: "42rem" }}
+                src="https://shrub.finance/watering.png"
+                fallbackSrc="https://shrub.finance/watering.png"
+                alt="watering"
+              />
+            </Link>
           </Box>
           <Box mt={{ base: 10, md: 32 }} display={{ base: "flex", md: "none" }}>
             <Image
@@ -325,6 +322,7 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+
       {/*NFT Tickets*/}
       <Container
         mt={{ base: 0, md: 50 }}
@@ -357,18 +355,18 @@ function Intro(props: RouteComponentProps) {
               distribution system
             </Heading>
             <Text textStyle={"description"}>
-              The distribution of Pots will use a new mechanism created by Shrub
-              that provides NFT collectors more flexibility than a traditional
-              whitelist.
+              The distribution of Pots uses a new mechanism developed by the
+              Shrub team that provides NFT collectors more flexibility than a
+              traditional whitelist.
             </Text>
             <Text textStyle={"description"}>
-              NFT Tickets are NFTs themselves, ERC-1155, and are gas-efficient
-              to mint.
+              NFT Tickets are NFTs themselves, ERC-1155, and are extremely
+              gas-efficient to mint.
             </Text>
             <Text textStyle={"description"}>
               When buying tickets during the pre-sale, collectors only pay a
-              portion of the total price. The ticket can later be redeemed for
-              the pot by paying the remainder, or sold on the secondary markets.
+              portion of the total price. The ticket are later redeemed for the
+              asset by paying the remainder, or sold on the secondary markets.
             </Text>
             <Text textStyle={"description"}>
               <Link
@@ -384,13 +382,19 @@ function Intro(props: RouteComponentProps) {
             mt={{ base: 0, md: 0, lg: 40, xl: 40, "2xl": 0 }}
             ml={{ base: 0, md: 40, lg: 20, xl: 40 }}
           >
-            <Ticket
-              boxSize={{ base: 320, md: 600, lg: 400, xl: 400, "2xl": 500 }}
-            />
-            <Ticket1
-              display={{ base: "none", md: "none", lg: "flex" }}
-              boxSize={{ base: 320, md: 600, lg: 400, xl: 400, "2xl": 500 }}
-            />
+            <Link
+              isExternal
+              href={
+                "https://opensea.io/assets/matic/0xb0e17d58ae2bc6693303b90383bed83699145866/1"
+              }
+            >
+              <Image
+                width={{ base: "32rem", md: "42rem" }}
+                src="https://shrub.finance/assets/nft-ticket.webp"
+                fallbackSrc="https://shrub.finance/assets/tickets.png"
+                alt="nft ticket by shrub finance"
+              />
+            </Link>
           </Box>
         </Flex>
       </Container>
@@ -622,6 +626,16 @@ function Intro(props: RouteComponentProps) {
               Options Main
               <br /> [Q3-Q4]
             </Text>{" "}
+            <Text textStyle={"description"}>
+              <Link
+                textDecoration={"underline"}
+                href={
+                  "https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
+                }
+              >
+                Detailed Shrub Roadmap
+              </Link>
+            </Text>
           </Box>
           <Spacer />
           <Box mt={{ base: 0, md: 64 }}>
@@ -705,15 +719,14 @@ function Intro(props: RouteComponentProps) {
               Shrub holders are builders, innovators, and thinkers.
             </Text>
             <Text textStyle={"description"}>
-              Shrubs represent those visionaries who believe in the
-              decentralized world and bring innovative technology to the space.
+              Shrubs represent visionaries who believe in the decentralized
+              world and innovate to make it possible.
             </Text>
             <Text textStyle={"description"}>
-              If you have not already done so, become a{" "}
-              <Link href="#faqs" cursor="pointer" textDecoration="underline">
-                Shrub holder
+              If you haven't already done so, you can join us in the mission{" "}
+              <Link href="#faqs" cursor="pointer">
+                and grow a Shrub with us.
               </Link>{" "}
-              and join us!
             </Text>
           </Box>
           <Box mt={{ base: 0, md: 64 }}>
@@ -844,6 +857,26 @@ function Intro(props: RouteComponentProps) {
           </Center>
         </Box>
       </Container>
+      {/*<Container*/}
+      {/*  p={5}*/}
+      {/*  flex="1"*/}
+      {/*  borderRadius="2xl"*/}
+      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
+      {/*>*/}
+      {/*  <Box maxW="80rem" mt={{ base: 16, md: 16 }} textAlign={"center"}>*/}
+      {/*    <AspectRatio*/}
+      {/*      maxW="560px"*/}
+      {/*      ratio={16 / 9}*/}
+      {/*      layerStyle="hideExternalBranding"*/}
+      {/*    >*/}
+      {/*      <iframe*/}
+      {/*        title="sign up for shrub"*/}
+      {/*        src="https://form.jotform.com/shrub_finance/email"*/}
+      {/*        allowFullScreen*/}
+      {/*      />*/}
+      {/*    </AspectRatio>*/}
+      {/*  </Box>*/}
+      {/*</Container>*/}
     </>
   );
 }

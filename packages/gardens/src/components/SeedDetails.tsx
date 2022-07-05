@@ -11,6 +11,7 @@ import {
   Icon,
   Image,
   keyframes,
+  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -48,6 +49,8 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 import { Feature } from "./Feature";
 import { FaHeart } from "react-icons/all";
 import { Pot } from "../assets/Icons";
+import { itemType } from "../types";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 function SeedDetails({
   hooks,
@@ -57,6 +60,7 @@ function SeedDetails({
     mySeedDataLoading: any;
     mySeedDataError: any;
     selectedItem: any;
+    setSelectedItem: any;
     emptyPot: any;
     holdsPottedPlant: any;
     fungibleAssets: any;
@@ -70,6 +74,7 @@ function SeedDetails({
     mySeedDataLoading,
     mySeedDataError,
     selectedItem,
+    setSelectedItem,
     emptyPot,
     holdsPottedPlant,
     fungibleAssets,
@@ -87,7 +92,6 @@ function SeedDetails({
   const [plantingApproved, setPlantingApproved] = useState(false);
   const [localError, setLocalError] = useState("");
   const [approving, setApproving] = React.useState(false);
-  const [noPot, setNoPot] = React.useState(false);
   const [stillGrowing, setStillGrowing] = React.useState(true);
   const [showConfetti, setShowConfetti] = React.useState(false);
   const [modalState, setModalState] = useState<
@@ -99,6 +103,15 @@ function SeedDetails({
   const textColor = useColorModeValue("gray.600", "gray.400");
   const textBg = useColorModeValue("gray.100", "gray.900");
   const textBg2 = useColorModeValue("blue.50", "blue.900");
+
+  const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
+  const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
+
+  const openSeaLink = `https://opensea.io/assets/matic/${
+    selectedItem.category === "paperSeed"
+      ? PAPERSEED_ADDRESS
+      : PAPER_POT_ADDRESS
+  }/${selectedItem.tokenId}`;
 
   const animationKeyframes = keyframes`
     0% {
@@ -116,19 +129,7 @@ function SeedDetails({
 
   const { account, error: web3Error, library, chainId } = useWeb3React();
 
-  const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
-  const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
-
   console.debug("rendering SeedDetails");
-
-  // Disable action if no pot
-  useEffect(() => {
-    console.debug("SeedDetails useEffect 1 - emptyPot account (set noPot)");
-    if (!emptyPot) {
-      console.debug("setting noPot true");
-      setNoPot(true);
-    }
-  }, [emptyPot, account]);
 
   // Disable action if not ready for harvest
   useEffect(() => {
@@ -226,6 +227,37 @@ function SeedDetails({
           status: "confirmed",
           data: { blockNumber: receipt.blockNumber },
         });
+        const plantEvent = receipt.events?.find(
+          (event) => event.event === "Plant"
+        );
+        if (plantEvent && plantEvent.args) {
+          const eventAccount = plantEvent.args.account;
+          const seedTokenId = plantEvent.args.seedTokenId;
+          const tokenId = plantEvent.args.tokenId;
+          if (
+            account &&
+            ethers.utils.getAddress(eventAccount) ===
+              ethers.utils.getAddress(account) &&
+            seedTokenId.eq(selectedItem.tokenId)
+          ) {
+            console.debug("everything matches");
+            const pottedPlantItem: itemType = {
+              tokenId: tokenId.toString(),
+              name: "Potted Plant",
+              emotion: selectedItem.emotion,
+              type: selectedItem.type,
+              dna: selectedItem.dna,
+              imageUrl: IMAGE_ASSETS.getPottedPlant(
+                selectedItem.type,
+                0,
+                selectedItem.emotion
+              ),
+              growth: 0,
+              category: "pottedPlant",
+            };
+            setSelectedItem(pottedPlantItem);
+          }
+        }
         console.debug(`setting approving false`);
         setApproving(false);
         if (action !== "approve") {
@@ -313,6 +345,7 @@ function SeedDetails({
   const isActivelyPlanting =
     activeHash &&
     pendingTxsState[activeHash] &&
+    pendingTxsState[activeHash].status === "confirming" &&
     pendingTxsState[activeHash].description === "Planting";
 
   return (
@@ -363,6 +396,20 @@ function SeedDetails({
                 {selectedItem.name}
               </Heading>
             </Center>
+
+            <Center>
+              <Link
+                color={"gray"}
+                fontSize={"xs"}
+                href={openSeaLink}
+                isExternal
+                zIndex={2}
+              >
+                View in Open Sea
+                <ExternalLinkIcon mx="2px" />
+              </Link>
+            </Center>
+
             {/*Traits*/}
             {["pot", "water", "fertilizer"].includes(selectedItem.category) && (
               <>
@@ -377,25 +424,14 @@ function SeedDetails({
                   </Badge>
                 </Stack>
                 {["water", "fertilizer"].includes(selectedItem.category) ? (
-                  <>
-                    <Text pt={6} textAlign={"center"} textStyle={"reading"}>
-                      You need 1{" "}
-                      {selectedItem.category === "water"
-                        ? "water"
-                        : "fertilizer"}{" "}
-                      per plant
-                    </Text>
-                    <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                      To{" "}
-                      {selectedItem.category === "water"
-                        ? "water"
-                        : "fertilizer"}
-                      ,{" "}
-                      {holdsPottedPlant
-                        ? "select a potted plant on the left"
-                        : "plant a seed first"}
-                    </Text>
-                  </>
+                  <Text pt={2} textAlign={"center"} textStyle={"reading"}>
+                    To{" "}
+                    {selectedItem.category === "water" ? "water" : "fertilizer"}
+                    ,{" "}
+                    {holdsPottedPlant
+                      ? "select a potted plant on the left"
+                      : "plant a seed first"}
+                  </Text>
                 ) : (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
                     To plant, select a seed on the left
@@ -465,7 +501,7 @@ function SeedDetails({
                     }}
                     flex={1}
                     fontSize={"xl"}
-                    w={"420px"}
+                    w={{ base: "315px", md: "420px" }}
                     rounded={"2xl"}
                     bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
                     color={"black"}
@@ -489,7 +525,7 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    noPot ? "You must have an empty pot to plant seed" : null
+                    emptyPot ? "You must have an empty pot to plant seed" : null
                   }
                   shouldWrapChildren
                   mt="3"
@@ -499,7 +535,7 @@ function SeedDetails({
                       setModalState("plant");
                       openModal();
                     }}
-                    w={"420px"}
+                    w={{ base: "315px", md: "420px" }}
                     flex={1}
                     fontSize={"xl"}
                     rounded={"2xl"}
@@ -512,7 +548,7 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    isDisabled={noPot}
+                    isDisabled={emptyPot}
                   >
                     Plant
                   </Button>
@@ -540,7 +576,7 @@ function SeedDetails({
                         openModal();
                       }}
                       flex={1}
-                      w={"202px"}
+                      w={{ base: "150px", md: "202px" }}
                       fontSize={"xl"}
                       rounded={"2xl"}
                       bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
@@ -580,7 +616,11 @@ function SeedDetails({
                     as={motion.div}
                     animation={!stillGrowing ? animation : undefined}
                     flex={1}
-                    w={stillGrowing ? "202px" : "420px"}
+                    w={
+                      stillGrowing
+                        ? { base: "150px", md: "202px" }
+                        : { base: "315px", md: "420px" }
+                    }
                     fontSize={"xl"}
                     rounded={"2xl"}
                     bgGradient={

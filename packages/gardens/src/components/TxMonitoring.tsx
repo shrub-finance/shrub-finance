@@ -89,9 +89,14 @@ export function Txmonitor({
     <>
       {status === "confirming" &&
         (description === "Planting" ? (
-          <></>
+          <Box>
+            <Planting
+              seedClass={seed || ""}
+              emotion={emotion || ""}
+              controls={controls}
+            />
+          </Box>
         ) : (
-          // <Box><Planting seedClass={seed || ''} emotion={emotion || ''} id={seedId} /></Box>
           <Alert
             status="success"
             variant="subtle"
@@ -125,44 +130,32 @@ export function Txmonitor({
           </Alert>
         ))}
 
-      {/*This is for testing planting animation*/}
-      {/*{status === "confirmed" && <Box>{Planting(seed || "", emotion || "", seedId)}</Box>}*/}
       {status === "confirmed" && (
-        <Box>
-          <Planting
-            seedClass={seed || ""}
-            emotion={emotion || ""}
-            controls={controls}
-          />
-        </Box>
+        <Alert
+          status="success"
+          variant="subtle"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          textAlign="center"
+          bg="none"
+        >
+          <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />
+          <AlertTitle mt={12} mb={1} fontSize="lg">
+            Transaction Confirmed
+          </AlertTitle>
+          <AlertDescription maxWidth="sm">
+            <Link
+              color={"gray"}
+              fontSize={"sm"}
+              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
+              isExternal
+            >
+              View on explorer <ExternalLinkIcon mx="2px" />
+            </Link>
+          </AlertDescription>
+        </Alert>
       )}
-
-      {/*{status === "confirmed" && (*/}
-      {/*  <Alert*/}
-      {/*    status="success"*/}
-      {/*    variant="subtle"*/}
-      {/*    flexDirection="column"*/}
-      {/*    alignItems="center"*/}
-      {/*    justifyContent="center"*/}
-      {/*    textAlign="center"*/}
-      {/*    bg="none"*/}
-      {/*  >*/}
-      {/*    <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />*/}
-      {/*    <AlertTitle mt={12} mb={1} fontSize="lg">*/}
-      {/*      Transaction Confirmed*/}
-      {/*    </AlertTitle>*/}
-      {/*    <AlertDescription maxWidth="sm">*/}
-      {/*      <Link*/}
-      {/*        color={"gray"}*/}
-      {/*        fontSize={"sm"}*/}
-      {/*        href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}*/}
-      {/*        isExternal*/}
-      {/*      >*/}
-      {/*        View on explorer <ExternalLinkIcon mx="2px" />*/}
-      {/*      </Link>*/}
-      {/*    </AlertDescription>*/}
-      {/*  </Alert>*/}
-      {/*)}*/}
 
       {status === "failed" && (
         <Alert
