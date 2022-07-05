@@ -5,6 +5,10 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
+    env: {
+      baseUrl: "http://localhost:3000/",
+    },
     experimentalSessionAndOrigin: true,
+    chromeWebSecurity: false,
   },
 });
