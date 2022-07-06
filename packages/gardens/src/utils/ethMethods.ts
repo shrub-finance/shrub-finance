@@ -464,3 +464,16 @@ export async function approveToken(
   }
   return erc20Contract.approve(spenderAddress, bigAmount);
 }
+
+export function decodeBase64Uri(uri: string) {
+  let decodedMetadata = "";
+  try {
+    const splitUri = uri.split(",");
+    const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+    const utf8String = ethers.utils.toUtf8String(decodedBase64Bytes);
+    decodedMetadata = JSON.parse(utf8String);
+  } catch (e) {
+    console.error(e);
+  }
+  return decodedMetadata;
+}

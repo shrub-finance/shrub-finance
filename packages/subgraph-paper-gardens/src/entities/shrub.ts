@@ -1,21 +1,10 @@
-import { PottedPlant, Seed, ShrubNFT } from '../../generated/schema'
+import { PottedPlant, ShrubNFT } from '../../generated/schema'
 import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
-import { addPottedPlant, getSeed } from './seed'
-import { getUser } from './user'
-import { getTypeStat, recordClaim } from './typestats'
+import { getSeedFromString } from './seed'
+import { recordHarvest } from './typestats'
 import { addShrubNft, getPottedPlant } from './potted-plant'
 
-// let account = event.params.account
-// let pottedPlantTokenId = event.params.pottedPlantTokenId
-// let shrubTokenId = event.params.shrubTokenId
-// let block = event.block;
 export function createShrub(tokenId: BigInt, pottedPlantTokenId: BigInt, owner: Address, block: ethereum.Block): ShrubNFT {
-  // id: ID!
-  // owner: User!
-  // name: String!
-  // pottedPlant: PottedPlant!
-  // born: Int!
-  // bornBlock: Int!
   let id = tokenId.toString();
   let shrubNft = ShrubNFT.load(id);
   if (shrubNft !== null) {
@@ -30,6 +19,15 @@ export function createShrub(tokenId: BigInt, pottedPlantTokenId: BigInt, owner: 
   shrubNft.name = "";
 
   addShrubNft(pottedPlant as PottedPlant, shrubNft as ShrubNFT);
+  shrubNft.save();
+  let seed = getSeedFromString(pottedPlant.seed);
+  recordHarvest(seed.type);
+  return shrubNft as ShrubNFT;
+}
+
+export function updateShrubUri(tokenId: BigInt, uri: string): ShrubNFT {
+  let shrubNft = getShrubNft(tokenId);
+  shrubNft.uri = uri;
   shrubNft.save();
   return shrubNft as ShrubNFT;
 }

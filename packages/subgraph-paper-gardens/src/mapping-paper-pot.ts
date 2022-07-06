@@ -9,10 +9,17 @@ import {
   incrementPotCount,
   incrementTicketCount, incrementWaterCount,
 } from './entities/user'
-import { Plant, Grow, TransferBatch, TransferSingle, Harvest } from '../generated/PaperPot/PaperPot'
+import { Plant, Grow, TransferBatch, TransferSingle, Harvest, URI } from '../generated/PaperPot/PaperPot'
 import { User } from '../generated/schema'
-import { changePottedPlantOwner, createPottedPlant, growPottedPlant } from './entities/potted-plant'
-import { createShrub } from './entities/shrub'
+import {
+  changePottedPlantOwner,
+  createPottedPlant,
+  growPottedPlant,
+  updatePottedPlantUri,
+} from './entities/potted-plant'
+import { createShrub, updateShrubUri } from './entities/shrub'
+import { recordPlant } from './entities/typestats'
+import { getSeed } from './entities/seed'
 let One = BigInt.fromI32(1);
 let Two = BigInt.fromI32(2);
 let Three = BigInt.fromI32(3);
@@ -120,4 +127,17 @@ export function handleHarvest(event: Harvest): void {
   let shrubTokenId = event.params.shrubTokenId
   let block = event.block;
   createShrub(shrubTokenId, pottedPlantTokenId, account, block);
+}
+
+export function handleUri(event: URI): void {
+  let tokenId = event.params.id;
+  let uri = event.params.value;
+  // Handle case of Paper Pot
+  if (tokenId.gt(OneMillion) && tokenId.lt(TwoMillion)) {
+    updatePottedPlantUri(tokenId, uri);
+  }
+  // Handle case of Shrub
+  if (tokenId.gt(TwoMillion)) {
+    updateShrubUri(tokenId, uri);
+  }
 }

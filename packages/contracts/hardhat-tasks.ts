@@ -112,6 +112,32 @@ task("unpausePotMinting", "Enables minting from PaperPotMint")
     console.log(tx.hash);
   })
 
+task("adminMintPot", "mint a pot to an account")
+  .addParam("account", "account to mint pots to")
+  .addParam("amount", "number of pots to mint")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const account = ethers.utils.getAddress(taskArgs.account);
+    const amount = Number(taskArgs.amount);
+    if (env.network.name !== 'localhost') {
+      if (!account || !amount) {
+        throw new Error('invalid params');
+      }
+      const conf = await promptly.confirm(
+        `You are about to send ${amount} pots to ${account}. Continue? (y/n)`
+      );
+      if (!conf) {
+        return;
+      }
+    }
+    const [deployer] = await ethers.getSigners();
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, deployer);
+    const tx = await paperPot.adminMintPot(account, amount);
+    console.log(tx.hash);
+  })
+
+
 task("testPaperGardens", "Sets up a test env for paper gardens")
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
@@ -265,7 +291,7 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     // Mint Water
     await env.run('mintWater', {
       to: account3.address,
-      amount: '20'
+      amount: '25'
     })
 
     // Mint Fertilizer
@@ -273,6 +299,10 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
       to: account3.address,
       amount: '3'
     })
+
+    // Mint Pots
+    await env.run('adminMintPot', {account: account3.address, amount: '25'})
+    await env.run('adminMintPot', {account: account4.address, amount: '30'})
 
     // Send WETH to accounts3 and 4
     await WETH.transfer(account3.address, ethers.constants.WeiPerEther);
