@@ -1,5 +1,16 @@
-import { Box, Image, Text, useColorModeValue, VStack } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Icon,
+  Image,
+  keyframes,
+  Text,
+  Tooltip,
+  useColorModeValue,
+  VStack,
+} from "@chakra-ui/react";
 import React from "react";
+import { WateringCan } from "../assets/Icons";
 
 function GardenGrid({
   id,
@@ -14,11 +25,13 @@ function GardenGrid({
   imgCallback: () => string;
   category?: string;
 }) {
+  const shadow = useColorModeValue("md", "dark-lg");
+
   return (
     <Box
       as="button"
       key={id}
-      shadow={useColorModeValue("md", "dark-lg")}
+      shadow={shadow}
       borderRadius="md"
       minW={20}
       h={32}
@@ -34,22 +47,37 @@ function GardenGrid({
       }}
       onClick={onClick}
     >
-      <VStack>
-        <Box key={id}>
-          <Image
-            w={
-              id === "fertilizer"
-                ? 10
-                : id === "water" || id === "pot"
-                ? 16
-                : 20
-            }
-            h={20}
-            src={imgCallback()}
-            cursor={"pointer"}
-            transform={category === "pottedPlant" ? "scale(1.5)" : undefined}
+      <VStack position="relative">
+        <Tooltip
+          hasArrow
+          label={"Water is available for your plant now!"}
+          shouldWrapChildren
+          mt="3"
+        >
+          <Icon
+            as={WateringCan}
+            w={5}
+            h={5}
+            position={"absolute"}
+            right={0}
+            top={0}
           />
-        </Box>
+          <Box key={id}>
+            <Image
+              w={
+                id === "fertilizer"
+                  ? 10
+                  : id === "water" || id === "pot"
+                  ? 16
+                  : 20
+              }
+              h={20}
+              src={imgCallback()}
+              cursor={"pointer"}
+              transform={category === "pottedPlant" ? "scale(1.5)" : undefined}
+            />
+          </Box>
+        </Tooltip>
         <Text
           fontWeight={600}
           color="gray.500"
