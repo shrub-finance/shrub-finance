@@ -468,6 +468,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <GardenGrid
             id={id}
             key={id}
+            canWater={wateringNextAvailable(lastWatering) < new Date()}
             name={`#${id}`}
             category="pottedPlant"
             onClick={() => {

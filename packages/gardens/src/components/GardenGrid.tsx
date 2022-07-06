@@ -1,9 +1,7 @@
 import {
-  Badge,
   Box,
   Icon,
   Image,
-  keyframes,
   Text,
   Tooltip,
   useColorModeValue,
@@ -18,12 +16,14 @@ function GardenGrid({
   onClick,
   imgCallback,
   category,
+  canWater,
 }: {
   id: string;
   name: string;
   onClick: () => void;
   imgCallback: () => string;
   category?: string;
+  canWater?: boolean;
 }) {
   const shadow = useColorModeValue("md", "dark-lg");
 
@@ -50,18 +50,20 @@ function GardenGrid({
       <VStack position="relative">
         <Tooltip
           hasArrow
-          label={"Water is available for your plant now!"}
+          label={canWater ? "Water is available for your plant now!" : null}
           shouldWrapChildren
           mt="3"
         >
-          <Icon
-            as={WateringCan}
-            w={5}
-            h={5}
-            position={"absolute"}
-            right={0}
-            top={0}
-          />
+          {canWater && (
+            <Icon
+              as={WateringCan}
+              w={5}
+              h={5}
+              position={"absolute"}
+              right={0}
+              top={0}
+            />
+          )}
           <Box key={id}>
             <Image
               w={
