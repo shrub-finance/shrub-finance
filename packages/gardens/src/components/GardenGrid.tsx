@@ -50,7 +50,7 @@ function GardenGrid({
       <VStack position="relative">
         <Tooltip
           hasArrow
-          label={canWater ? "Water is available for your plant now!" : null}
+          label={canWater ? "Water now available for this potted plant!" : null}
           shouldWrapChildren
           mt="3"
         >

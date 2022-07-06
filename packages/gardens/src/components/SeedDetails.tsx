@@ -103,9 +103,11 @@ function SeedDetails({
   const borderColor = useColorModeValue("gray.100", "gray.700");
   const iconBg = useColorModeValue("green.100", "green.900");
   const textColor = useColorModeValue("gray.600", "gray.400");
+  const textColor1 = "yellow.900";
   const textBg = useColorModeValue("gray.100", "gray.900");
   const textBg2 = useColorModeValue("blue.50", "blue.900");
-  const iconBg3 = useColorModeValue("yellow.100", "yellow.200");
+  const textBg3 = useColorModeValue("yellow.100", "yellow.200");
+  const textBg4 = useColorModeValue("cyan.300", "cyan.200");
 
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
@@ -432,11 +434,12 @@ function SeedDetails({
 
             <Center>
               <Link
-                color={"gray"}
+                color={"gray.500"}
                 fontSize={"xs"}
                 href={openSeaLink}
                 isExternal
                 zIndex={2}
+                fontWeight={"medium"}
               >
                 View in Open Sea
                 <ExternalLinkIcon mx="2px" />
@@ -482,6 +485,29 @@ function SeedDetails({
                   mt={6}
                 >
                   <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    Class: {selectedItem.type}
+                  </Badge>
+                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    DNA: {selectedItem.dna}
+                  </Badge>
+                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                    Emotion: {selectedItem.emotion}
+                  </Badge>
+                </Stack>
+                <Stack
+                  align={"center"}
+                  justify={"center"}
+                  direction={"row"}
+                  mt={4}
+                >
+                  <Badge
+                    px={2}
+                    py={1}
+                    fontWeight={"600"}
+                    rounded={"lg"}
+                    bg={textBg3}
+                    color={textColor1}
+                  >
                     {selectedItem.category === "paperSeed"
                       ? `Rarity: ${
                           selectedItem.type === "Hope"
@@ -494,30 +520,21 @@ function SeedDetails({
                         }`
                       : `Growth: ${Math.floor(selectedItem.growth / 10) / 10}%`}
                   </Badge>
-                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                    Emotion: {selectedItem.emotion}
-                  </Badge>
                 </Stack>
                 <Stack
                   align={"center"}
                   justify={"center"}
                   direction={"row"}
-                  mt={2}
+                  mt={4}
                 >
-                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                    Class: {selectedItem.type}
-                  </Badge>
-                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                    DNA: {selectedItem.dna}
-                  </Badge>
-                </Stack>
-                <Stack
-                  align={"center"}
-                  justify={"center"}
-                  direction={"row"}
-                  mt={2}
-                >
-                  <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                  <Badge
+                    px={2}
+                    py={0}
+                    fontWeight={"600"}
+                    rounded={"md"}
+                    color={"cyan.900"}
+                    bg={textBg4}
+                  >
                     Watering Available:{" "}
                     {selectedItem.wateringNextAvailable >= new Date()
                       ? selectedItem.wateringNextAvailable.toLocaleString()
@@ -535,8 +552,8 @@ function SeedDetails({
                   label={
                     fungibleAssets.water === 0 ||
                     selectedItem.wateringNextAvailable > new Date()
-                      ? "You do not have water yet."
-                      : "Click to water"
+                      ? `Watering will become available for this potted plant on ${selectedItem.wateringNextAvailable.toLocaleString()}`
+                      : "Watering is available!"
                   }
                   shouldWrapChildren
                   mt="3"
@@ -864,7 +881,7 @@ function SeedDetails({
                       <Stack spacing={4}>
                         <Feature
                           icon={<Icon as={WateringCan} w={7} h={7} />}
-                          iconBg={iconBg3}
+                          iconBg={textBg3}
                           text={"1 Water being used"}
                         />
                         <Text textStyle={"reading"} fontSize={"lg"}>
@@ -916,7 +933,7 @@ function SeedDetails({
                         </Text>
                         <Feature
                           icon={<Icon as={WateringCan} w={7} h={7} />}
-                          iconBg={iconBg3}
+                          iconBg={textBg3}
                           text={"1 Water"}
                         />
                         <Text textStyle={"reading"} fontSize={"lg"}>
