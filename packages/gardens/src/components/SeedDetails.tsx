@@ -49,8 +49,8 @@ import { TxContext } from "./Store";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
 
 import { Feature } from "./Feature";
-import { FaHeart } from "react-icons/all";
-import { Pot } from "../assets/Icons";
+import { FaHandPointLeft, FaHeart, RiHeartAddFill } from "react-icons/all";
+import { Pot, WateringCan } from "../assets/Icons";
 import { itemType } from "../types";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
@@ -105,6 +105,7 @@ function SeedDetails({
   const textColor = useColorModeValue("gray.600", "gray.400");
   const textBg = useColorModeValue("gray.100", "gray.900");
   const textBg2 = useColorModeValue("blue.50", "blue.900");
+  const iconBg3 = useColorModeValue("yellow.100", "yellow.200");
 
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
@@ -457,7 +458,7 @@ function SeedDetails({
                 </Stack>
                 {["water", "fertilizer"].includes(selectedItem.category) ? (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                    To{" "}
+                    <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To{" "}
                     {selectedItem.category === "water" ? "water" : "fertilizer"}
                     ,{" "}
                     {holdsPottedPlant
@@ -466,7 +467,8 @@ function SeedDetails({
                   </Text>
                 ) : (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                    To plant, select a seed on the left
+                    <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To plant,
+                    select a seed on the left
                   </Text>
                 )}
               </>
@@ -531,10 +533,10 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    // fungibleAssets.water === 0
-                    //   ? "You do not have water yet. First get some water from the water faucet."
-                    //   : null
-                    "Watering is not enabled yet"
+                    fungibleAssets.water === 0 ||
+                    selectedItem.wateringNextAvailable > new Date()
+                      ? "You do not have water yet."
+                      : "Click to water"
                   }
                   shouldWrapChildren
                   mt="3"
@@ -829,9 +831,9 @@ function SeedDetails({
                           <Text
                             textTransform={"uppercase"}
                             color={textColor}
+                            bg={textBg}
                             fontWeight={600}
                             fontSize={"sm"}
-                            bg={textBg}
                             p={2}
                             alignSelf={"flex-start"}
                             rounded={"md"}
@@ -854,19 +856,49 @@ function SeedDetails({
                       </Text>
                     </Stack>
                   ) : modalState === "water" ? (
-                    <Center>
-                      <Box textStyle={"reading"}>
-                        <Text>
-                          Watering will result in 1 Water being consumed, and in
-                          turn increasing the growth number of your potted
-                          plant.
+                    <Stack spacing={4}>
+                      <Text textStyle={"reading"} fontSize={"lg"}>
+                        Watering will result in
+                      </Text>
+                      <Divider borderColor={borderColor} />
+                      <Stack spacing={4}>
+                        <Feature
+                          icon={<Icon as={WateringCan} w={5} h={5} />}
+                          iconBg={iconBg3}
+                          text={"1 Water being used"}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          And
                         </Text>
-                        <Text>
-                          This can only be done once per day for each potted
-                          plant.
-                        </Text>
-                      </Box>
-                    </Center>
+                        <Feature
+                          icon={
+                            <Icon
+                              as={RiHeartAddFill}
+                              color={"red.500"}
+                              w={5}
+                              h={5}
+                            />
+                          }
+                          iconBg={"pink.100"}
+                          text={
+                            "The growth number of your potted plant increasing"
+                          }
+                        />
+                        <Divider borderColor={borderColor} />
+                      </Stack>
+                      <Text
+                        textTransform={"uppercase"}
+                        color={"blue.400"}
+                        bg={textBg2}
+                        fontWeight={600}
+                        fontSize={"sm"}
+                        p={2}
+                        alignSelf={"flex-start"}
+                        rounded={"md"}
+                      >
+                        You can only do it once per day per potted plant
+                      </Text>
+                    </Stack>
                   ) : modalState === "fertilize" ? (
                     <Center>
                       <Box textStyle={"reading"}>

@@ -755,7 +755,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         </Center>
         {/*heading*/}
         <Center>
-          <VStack mb={{ base: 8, md: 14 }}>
+          <VStack mb={{ base: 8, md: 0 }}>
             <Heading
               fontSize={{ base: "30px", md: "30px", lg: "50px" }}
               letterSpacing={"tight"}
