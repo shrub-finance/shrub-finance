@@ -50,7 +50,7 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 
 import { Feature } from "./Feature";
 import { FaHandPointLeft, FaHeart, RiHeartAddFill } from "react-icons/all";
-import { Pot, WateringCan } from "../assets/Icons";
+import { Fertilizer, Pot, WateringCan } from "../assets/Icons";
 import { itemType } from "../types";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
@@ -863,7 +863,7 @@ function SeedDetails({
                       <Divider borderColor={borderColor} />
                       <Stack spacing={4}>
                         <Feature
-                          icon={<Icon as={WateringCan} w={5} h={5} />}
+                          icon={<Icon as={WateringCan} w={7} h={7} />}
                           iconBg={iconBg3}
                           text={"1 Water being used"}
                         />
@@ -896,28 +896,79 @@ function SeedDetails({
                         alignSelf={"flex-start"}
                         rounded={"md"}
                       >
-                        You can only do it once per day per potted plant
+                        Can only be done once per day per potted plant
                       </Text>
                     </Stack>
                   ) : modalState === "fertilize" ? (
-                    <Center>
-                      <Box textStyle={"reading"}>
-                        <Text>
-                          Fertilizing will result in 1 Fertilizer plus 1 Water
-                          being consumed. This is done in place of a normal
-                          daily watering. Your potted plant will grow more
-                          compared to when simply watered
+                    <Stack spacing={4}>
+                      <Text textStyle={"reading"} fontSize={"lg"}>
+                        Fertilizing will result in
+                      </Text>
+                      <Divider borderColor={borderColor} />
+                      <Stack spacing={4}>
+                        <Feature
+                          icon={<Icon as={Fertilizer} w={5} h={5} />}
+                          iconBg={iconBg}
+                          text={"1 Fertilizer"}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          And
                         </Text>
-                        <Text>
-                          This is a one-time effect, it will not affect future
-                          watering
+                        <Feature
+                          icon={<Icon as={WateringCan} w={7} h={7} />}
+                          iconBg={iconBg3}
+                          text={"1 Water"}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          Being used
                         </Text>
-                        <Text>
-                          This can only be done once per day for each potted
-                          plant.
+                        <Divider borderColor={borderColor} />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          <Icon
+                            as={RiHeartAddFill}
+                            color={"red.500"}
+                            w={5}
+                            h={5}
+                          />{" "}
+                          Done in addition to normal daily watering.
                         </Text>
-                      </Box>
-                    </Center>
+                        <Divider borderColor={borderColor} />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          <Icon
+                            as={RiHeartAddFill}
+                            color={"red.500"}
+                            w={5}
+                            h={5}
+                          />{" "}
+                          Potted plant grows more when fertilized.{" "}
+                        </Text>
+                      </Stack>
+                      <Text
+                        textTransform={"uppercase"}
+                        color={textColor}
+                        bg={textBg}
+                        fontWeight={600}
+                        fontSize={"sm"}
+                        p={2}
+                        alignSelf={"flex-start"}
+                        rounded={"md"}
+                      >
+                        One-time effect only. Will not affect future watering
+                      </Text>
+
+                      <Text
+                        textTransform={"uppercase"}
+                        color={"blue.400"}
+                        fontWeight={600}
+                        fontSize={"sm"}
+                        bg={textBg2}
+                        p={2}
+                        alignSelf={"flex-start"}
+                        rounded={"md"}
+                      >
+                        Can only be done once per day per potted plant
+                      </Text>
+                    </Stack>
                   ) : modalState === "harvest" ? (
                     <Center>
                       <Box textStyle={"reading"}>
