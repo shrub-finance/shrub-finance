@@ -31,7 +31,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
-import { motion, useAnimation } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   approveAllErc721,
   getBlockTime,
@@ -50,9 +50,10 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 
 import { Feature } from "./Feature";
 import { FaHandPointLeft, FaHeart, RiHeartAddFill } from "react-icons/all";
-import { Fertilizer, Pot, WateringCan } from "../assets/Icons";
+import { Fertilizer, Pot, Water, WateringCan } from "../assets/Icons";
 import { itemType } from "../types";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { Grow } from "./animations/TransformScale";
 
 function SeedDetails({
   hooks,
@@ -83,7 +84,6 @@ function SeedDetails({
   } = hooks;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-
   const toast = useToast();
   const { pendingTxs } = useContext(TxContext);
   const [activeHash, setActiveHash] = useState<string>();
@@ -107,7 +107,7 @@ function SeedDetails({
   const textBg = useColorModeValue("gray.100", "gray.900");
   const textBg2 = useColorModeValue("blue.50", "blue.900");
   const textBg3 = useColorModeValue("yellow.100", "yellow.200");
-  const textBg4 = useColorModeValue("cyan.100", "cyan.400");
+  const textBg4 = "green.100";
 
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
@@ -655,8 +655,7 @@ function SeedDetails({
                       _focus={{
                         bg: "shrub.100",
                       }}
-                      // isDisabled={fungibleAssets.fertilizer === 0}
-                      isDisabled
+                      isDisabled={fungibleAssets.fertilizer === 0}
                     >
                       Fertilize
                     </Button>
@@ -874,7 +873,7 @@ function SeedDetails({
                       </Text>
                     </Stack>
                   ) : modalState === "water" ? (
-                    <Stack spacing={4}>
+                    <Stack spacing={4} mb={20}>
                       <Text textStyle={"reading"} fontSize={"lg"}>
                         Watering will result in
                       </Text>
@@ -948,7 +947,7 @@ function SeedDetails({
                             w={5}
                             h={5}
                           />{" "}
-                          Done in addition to normal daily watering.
+                          Done in addition to normal daily watering
                         </Text>
                         <Divider borderColor={borderColor} />
                         <Text textStyle={"reading"} fontSize={"lg"}>
@@ -958,7 +957,7 @@ function SeedDetails({
                             w={5}
                             h={5}
                           />{" "}
-                          Potted plant grows more when fertilized.{" "}
+                          Potted plant grows more when fertilized
                         </Text>
                       </Stack>
                       <Text

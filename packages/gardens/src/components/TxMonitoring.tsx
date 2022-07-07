@@ -27,6 +27,8 @@ import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
 import { Planting } from "./animations/Planting";
 import { useAnimation } from "framer-motion";
+import Watering from "./animations/Watering";
+import Fertilizing from "./animations/Fertilizing";
 
 export function Txmonitor({
   txHash,
@@ -97,6 +99,25 @@ export function Txmonitor({
             />
           </Box>
         ) : (
+          //   : description === "Watering" ? (
+          //   <Box>
+          //     <Watering
+          //       seedClass={seed || ""}
+          //       emotion={emotion || ""}
+          //       controls={controls}
+          //     />
+          //   </Box>
+          // ):
+          // (
+          //   : description === "Fertilizing" ? (
+          //   <Box>
+          //     <Fertilizing
+          //       seedClass={seed || ""}
+          //       emotion={emotion || ""}
+          //       controls={controls}
+          //     />
+          //   </Box>
+          // )
           <Alert
             status="success"
             variant="subtle"
@@ -131,31 +152,41 @@ export function Txmonitor({
         ))}
 
       {status === "confirmed" && (
-        <Alert
-          status="success"
-          variant="subtle"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          bg="none"
-        >
-          <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />
-          <AlertTitle mt={12} mb={1} fontSize="lg">
-            Transaction Confirmed
-          </AlertTitle>
-          <AlertDescription maxWidth="sm">
-            <Link
-              color={"gray"}
-              fontSize={"sm"}
-              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
-              isExternal
-            >
-              View on explorer <ExternalLinkIcon mx="2px" />
-            </Link>
-          </AlertDescription>
-        </Alert>
+        <Box>
+          <Watering
+            seedClass={seed || ""}
+            emotion={emotion || ""}
+            controls={controls}
+          />
+        </Box>
       )}
+
+      {/*{status === "confirmed" && (*/}
+      {/*  <Alert*/}
+      {/*    status="success"*/}
+      {/*    variant="subtle"*/}
+      {/*    flexDirection="column"*/}
+      {/*    alignItems="center"*/}
+      {/*    justifyContent="center"*/}
+      {/*    textAlign="center"*/}
+      {/*    bg="none"*/}
+      {/*  >*/}
+      {/*    <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />*/}
+      {/*    <AlertTitle mt={12} mb={1} fontSize="lg">*/}
+      {/*      Transaction Confirmed*/}
+      {/*    </AlertTitle>*/}
+      {/*    <AlertDescription maxWidth="sm">*/}
+      {/*      <Link*/}
+      {/*        color={"gray"}*/}
+      {/*        fontSize={"sm"}*/}
+      {/*        href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}*/}
+      {/*        isExternal*/}
+      {/*      >*/}
+      {/*        View on explorer <ExternalLinkIcon mx="2px" />*/}
+      {/*      </Link>*/}
+      {/*    </AlertDescription>*/}
+      {/*  </Alert>*/}
+      {/*)}*/}
 
       {status === "failed" && (
         <Alert

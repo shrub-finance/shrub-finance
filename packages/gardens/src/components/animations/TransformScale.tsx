@@ -53,6 +53,29 @@ export function Spray(animationItem: JSX.Element, controls: AnimationControls) {
   );
 }
 
+export function Growth(
+  animationItem: JSX.Element,
+  controls: AnimationControls
+) {
+  const MotionBox = motion<BoxProps>(Box);
+  return (
+    <MotionBox
+      animate={{
+        opacity: [0, 1, 1, 1, 1, 0],
+      }}
+      // @ts-ignore
+      transition={{
+        duration: 2.5,
+        type: "tween",
+        ease: "linear",
+        delay: 1.5,
+      }}
+    >
+      {animationItem}
+    </MotionBox>
+  );
+}
+
 export function Spray2(
   animationItem: JSX.Element,
   controls: AnimationControls
@@ -91,8 +114,8 @@ export function Tilt(animationItem: JSX.Element, controls: AnimationControls) {
       animate={{
         opacity: [0, 1, 1, 1, 0],
         rotate: [15, 0, 15],
-        y: [-39, -61, -39],
-        x: [74, 74, 74],
+        y: [-128, -147, -128],
+        x: [154, 154, 154],
       }}
       // @ts-ignore
       transition={{
@@ -157,6 +180,7 @@ export function Shake(animationItem: JSX.Element, controls: AnimationControls) {
     </MotionBox>
   );
 }
+
 export function Grow(animationItem: JSX.Element, controls: AnimationControls) {
   const MotionBox = motion<BoxProps>(Box);
   return (
@@ -180,6 +204,7 @@ export function Grow(animationItem: JSX.Element, controls: AnimationControls) {
     </MotionBox>
   );
 }
+
 export function Scale(animationItem: JSX.Element, controls: AnimationControls) {
   const MotionBox = motion<BoxProps>(Box);
   return (
