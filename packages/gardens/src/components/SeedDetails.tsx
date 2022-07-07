@@ -107,7 +107,7 @@ function SeedDetails({
   const textBg = useColorModeValue("gray.100", "gray.900");
   const textBg2 = useColorModeValue("blue.50", "blue.900");
   const textBg3 = useColorModeValue("yellow.100", "yellow.200");
-  const textBg4 = useColorModeValue("cyan.300", "cyan.200");
+  const textBg4 = useColorModeValue("cyan.100", "cyan.400");
 
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
@@ -529,11 +529,12 @@ function SeedDetails({
                 >
                   <Badge
                     px={2}
-                    py={0}
+                    py={1}
                     fontWeight={"600"}
                     rounded={"md"}
                     color={"cyan.900"}
                     bg={textBg4}
+                    letterSpacing={"wider"}
                   >
                     Watering Available:{" "}
                     {selectedItem.wateringNextAvailable >= new Date()
