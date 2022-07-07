@@ -629,10 +629,9 @@ function SeedDetails({
                   <Tooltip
                     hasArrow
                     label={
-                      // fungibleAssets.fertilizer === 0
-                      //   ? "You do not have fertilizer. First earn some."
-                      //   : null
-                      "Fertilizer is not available yet"
+                      fungibleAssets.fertilizer === 0
+                        ? "You do not have fertilizer. First earn some."
+                        : "Fertilizer is available!"
                     }
                     shouldWrapChildren
                     mt="3"
@@ -774,6 +773,7 @@ function SeedDetails({
                     txHash={activeHash}
                     seed={selectedItem.type}
                     emotion={selectedItem.emotion}
+                    growth={selectedItem.growth}
                   />
                 </Center>
               ) : (
@@ -947,7 +947,7 @@ function SeedDetails({
                             w={5}
                             h={5}
                           />{" "}
-                          Done in addition to normal daily watering
+                          Done in place of normal daily watering
                         </Text>
                         <Divider borderColor={borderColor} />
                         <Text textStyle={"reading"} fontSize={"lg"}>

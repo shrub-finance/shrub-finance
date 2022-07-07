@@ -43,14 +43,18 @@ function Fertilizing({
   seedClass,
   emotion,
   controls,
+  fromArg,
+  growthAmountArg,
 }: {
   seedClass: string;
   emotion: string;
   controls: AnimationControls;
+  fromArg: number;
+  growthAmountArg: number;
 }) {
   console.debug("rendering Fertilizing");
-  const [from, setFrom] = useState(2187);
-  const [to, setTo] = useState(2384);
+  const from = fromArg;
+  const to = fromArg + growthAmountArg;
 
   const growthColor = useColorModeValue("pink.400", "pink.300");
   const dropColor = useColorModeValue("blue.300", "blue.100");
@@ -94,7 +98,7 @@ function Fertilizing({
       {Growth(
         <Center position={"absolute"} top={"150px"}>
           <Text fontSize={"25px"} fontWeight={"bold"} color={growthColor}>
-            Growth: <Counter from={from} to={to} duration={6} />
+            Growth: <Counter from={from} to={to} duration={10} />%
           </Text>
         </Center>,
         controls,

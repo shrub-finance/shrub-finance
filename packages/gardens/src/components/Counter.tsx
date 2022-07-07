@@ -19,7 +19,7 @@ export function Counter({
       duration: duration,
       onUpdate(value) {
         // @ts-ignore
-        nodeRef.current.textContent = value.toFixed(0);
+        nodeRef.current.textContent = value.toFixed(2);
       },
     });
 

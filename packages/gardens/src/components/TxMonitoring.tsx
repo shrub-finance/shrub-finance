@@ -34,10 +34,12 @@ export function Txmonitor({
   txHash,
   seed,
   emotion,
+  growth,
 }: {
   txHash?: string;
   seed?: string;
   emotion?: string;
+  growth?: number;
 }) {
   console.debug("rendering Txmonitor");
   const { chainId } = useWeb3React();
@@ -87,6 +89,16 @@ export function Txmonitor({
   const { status, description } = pendingTxsState[txHash];
   console.debug(pendingTxsState[txHash]);
 
+  function getGrowthAmount(description: string, emotion?: string) {
+    return description === "Fertilizing"
+      ? emotion === "sad"
+        ? 2.07
+        : 4.13
+      : emotion === "sad"
+      ? 1.38
+      : 2.75;
+  }
+
   return (
     <>
       {status === "confirming" &&
@@ -98,26 +110,27 @@ export function Txmonitor({
               controls={controls}
             />
           </Box>
+        ) : description === "Watering" ? (
+          <Box>
+            <Watering
+              seedClass={seed || ""}
+              emotion={emotion || ""}
+              controls={controls}
+              fromArg={(growth || 0) / 10000}
+              growthAmountArg={getGrowthAmount(description, emotion)}
+            />
+          </Box>
+        ) : description === "Fertilizing" ? (
+          <Box>
+            <Fertilizing
+              seedClass={seed || ""}
+              emotion={emotion || ""}
+              controls={controls}
+              fromArg={(growth || 0) / 10000}
+              growthAmountArg={getGrowthAmount(description, emotion)}
+            />
+          </Box>
         ) : (
-          //   : description === "Watering" ? (
-          //   <Box>
-          //     <Watering
-          //       seedClass={seed || ""}
-          //       emotion={emotion || ""}
-          //       controls={controls}
-          //     />
-          //   </Box>
-          // ):
-          // (
-          //   : description === "Fertilizing" ? (
-          //   <Box>
-          //     <Fertilizing
-          //       seedClass={seed || ""}
-          //       emotion={emotion || ""}
-          //       controls={controls}
-          //     />
-          //   </Box>
-          // )
           <Alert
             status="success"
             variant="subtle"
@@ -151,42 +164,45 @@ export function Txmonitor({
           </Alert>
         ))}
 
-      {status === "confirmed" && (
-        <Box>
-          <Fertilizing
-            seedClass={seed || ""}
-            emotion={emotion || ""}
-            controls={controls}
-          />
-        </Box>
-      )}
-
       {/*{status === "confirmed" && (*/}
-      {/*  <Alert*/}
-      {/*    status="success"*/}
-      {/*    variant="subtle"*/}
-      {/*    flexDirection="column"*/}
-      {/*    alignItems="center"*/}
-      {/*    justifyContent="center"*/}
-      {/*    textAlign="center"*/}
-      {/*    bg="none"*/}
-      {/*  >*/}
-      {/*    <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />*/}
-      {/*    <AlertTitle mt={12} mb={1} fontSize="lg">*/}
-      {/*      Transaction Confirmed*/}
-      {/*    </AlertTitle>*/}
-      {/*    <AlertDescription maxWidth="sm">*/}
-      {/*      <Link*/}
-      {/*        color={"gray"}*/}
-      {/*        fontSize={"sm"}*/}
-      {/*        href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}*/}
-      {/*        isExternal*/}
-      {/*      >*/}
-      {/*        View on explorer <ExternalLinkIcon mx="2px" />*/}
-      {/*      </Link>*/}
-      {/*    </AlertDescription>*/}
-      {/*  </Alert>*/}
+      {/*  <Box>*/}
+      {/*    <Fertilizing*/}
+      {/*      seedClass={seed || ""}*/}
+      {/*      emotion={emotion || ""}*/}
+      {/*      controls={controls}*/}
+      {/*      fromArg={(growth || 0) / 10000}*/}
+      {/*      growthAmountArg={getGrowthAmount(description, emotion)}*/}
+      {/*    />*/}
+      {/*    <Watering seedClass={seed || ""} emotion={emotion || ""} controls={controls} fromArg={(growth || 0) / 10000} growthAmountArg={getGrowthAmount(description, emotion)}/>*/}
+      {/*  </Box>*/}
       {/*)}*/}
+
+      {status === "confirmed" && (
+        <Alert
+          status="success"
+          variant="subtle"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          textAlign="center"
+          bg="none"
+        >
+          <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />
+          <AlertTitle mt={12} mb={1} fontSize="lg">
+            Transaction Confirmed
+          </AlertTitle>
+          <AlertDescription maxWidth="sm">
+            <Link
+              color={"gray"}
+              fontSize={"sm"}
+              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
+              isExternal
+            >
+              View on explorer <ExternalLinkIcon mx="2px" />
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {status === "failed" && (
         <Alert
