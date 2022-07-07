@@ -56,10 +56,10 @@ export function handleTransfer(event: Transfer): void {
     recordBurn(seed.type);
   }
   if (isTreasuryAddress(from)) {
-    recordFromTreasury(seed.id);
+    recordFromTreasury(seed.type);
   }
   if (isTreasuryAddress(to)) {
-    recordToTreasury(seed.id);
+    recordToTreasury(seed.type);
   }
 }
 
