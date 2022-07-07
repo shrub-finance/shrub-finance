@@ -29,6 +29,7 @@ import { Planting } from "./animations/Planting";
 import { useAnimation } from "framer-motion";
 import Watering from "./animations/Watering";
 import Fertilizing from "./animations/Fertilizing";
+import WateringAll from "./animations/WaterAll";
 
 export function Txmonitor({
   txHash,
@@ -153,11 +154,7 @@ export function Txmonitor({
 
       {status === "confirmed" && (
         <Box>
-          <Fertilizing
-            seedClass={seed || ""}
-            emotion={emotion || ""}
-            controls={controls}
-          />
+          <WateringAll controls={controls} />
         </Box>
       )}
 
