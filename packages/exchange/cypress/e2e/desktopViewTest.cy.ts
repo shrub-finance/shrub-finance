@@ -6,10 +6,10 @@ describe("empty spec", () => {
   });
   it("initial Load", () => {
     cy.get("a").as("links");
-    cy.get("@links").first().contains("See Details");
-    cy.get("@links").eq(2).contains("Shrub Main");
-    cy.get("@links").eq(3).contains("Paper Gardens");
-    cy.get("@links").eq(4).contains("Help");
+    // cy.get("@links").first().contains("See Details");
+    cy.get("@links").eq(1).contains("Shrub Main");
+    cy.get("@links").eq(2).contains("Paper Gardens");
+    cy.get("@links").eq(3).contains("Help");
     cy.get("button").as("buttons");
     cy.get("@buttons").first().should("have.text", "Buy MATIC");
     cy.get("@buttons").eq(1).should("not.be.visible");
@@ -310,5 +310,36 @@ describe("empty spec", () => {
         .should("have.attr", "href", "https://discord.gg/csusZhYgTg")
         .and("have.text", "Contact Us");
     });
+  });
+
+  it("leader Board test", () => {
+    cy.get(".css-1xinffc").find(".css-lygqz2").children().first().as("navLink");
+    cy.get("@navLink").find("nav").children().as("navChildren");
+    cy.get("@navChildren")
+      .eq(1)
+      .as("navButton")
+      .invoke("removeAttr", "target")
+      .click({ force: true });
+    cy.intercept(
+      "POST",
+      "https://api.thegraph.com/subgraphs/name/jguthrie7/shrubpapergardens",
+      (req) => {
+        req.alias = req.body.operationName;
+      }
+    );
+    cy.get(".css-lygqz2")
+      .children()
+      .first()
+      .find("nav")
+      .children()
+      .eq(2)
+      .click();
+    cy.wait("@NFTLeaderboard")
+      .its("response.body.data.users")
+      .should("have.length", 30);
+    cy.get("@NFTLeaderboard")
+      .its("response.body.data.users.0")
+      .and("have.property", "id");
+    cy.get(".css-gmuwbf").find("table").should("to.be.visible");
   });
 });

@@ -11,7 +11,6 @@ describe("Mobile View Test Case", () => {
     "samsung-note9",
     "samsung-s10",
   ];
-  //  const mobileDeviceName = ["iphone-6"];
   beforeEach(() => {
     const baseUrl = Cypress.env("baseUrl");
     cy.visit(baseUrl);
@@ -44,10 +43,9 @@ describe("Mobile View Test Case", () => {
             cy.get("@liChildren")
               .first()
               .invoke("removeAttr", "target")
-              .click()
+              .click({ timeout: 10000 })
               .then(() => {
                 cy.visit("https://gardens.shrub.finance");
-
                 cy.get(".css-lygqz2")
                   .find("button")
                   .should("have.text", "Buy MATIC");
