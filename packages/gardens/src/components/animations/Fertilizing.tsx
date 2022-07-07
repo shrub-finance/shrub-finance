@@ -48,7 +48,7 @@ function Fertilizing({
   emotion: string;
   controls: AnimationControls;
 }) {
-  console.debug("rendering Watering");
+  console.debug("rendering Fertilizing");
   const [from, setFrom] = useState(2187);
   const [to, setTo] = useState(2384);
 
