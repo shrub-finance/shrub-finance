@@ -153,7 +153,7 @@ export function Txmonitor({
 
       {status === "confirmed" && (
         <Box>
-          <Watering
+          <Fertilizing
             seedClass={seed || ""}
             emotion={emotion || ""}
             controls={controls}

@@ -545,7 +545,7 @@ function SeedDetails({
               </>
             )}
             {/*Buttons*/}
-            <Stack mt={8} direction={"row"} spacing={4}>
+            <Stack mt={6} direction={"row"} spacing={4}>
               {/*Water Button*/}
               {selectedItem.category === "pottedPlant" && stillGrowing && (
                 <Tooltip
@@ -623,7 +623,7 @@ function SeedDetails({
               )}
             </Stack>
             {selectedItem.category === "pottedPlant" && (
-              <Stack mt={8} direction={"row"} spacing={4}>
+              <Stack mt={4} direction={"row"} spacing={4}>
                 {/*fertilize button*/}
                 {stillGrowing && (
                   <Tooltip

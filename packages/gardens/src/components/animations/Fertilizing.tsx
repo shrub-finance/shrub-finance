@@ -6,8 +6,17 @@ import {
   useColorMode,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { Growth, Spray, Tilt, TransformScale } from "./TransformScale";
 import {
+  Growth,
+  Spray,
+  Spray2,
+  Tilt,
+  Tilt2,
+  TransformScale,
+} from "./TransformScale";
+import {
+  Fertilizer,
+  FertilizerSoil,
   Hope,
   HopePot,
   HopeSad,
@@ -73,21 +82,24 @@ function Fertilizing({
   }
 
   return (
-    <>
+    <Center>
       <Center>
         {React.cloneElement(getPotSvg(seedClass, emotion), {
           boxSize: 40,
           position: "relative",
           bottom: "-146px",
+          left: "96px",
         })}
       </Center>
       {Growth(
         <Center position={"absolute"} top={"150px"}>
           <Text fontSize={"25px"} fontWeight={"bold"} color={growthColor}>
-            Growth: <Counter from={from} to={to} />
+            Growth: <Counter from={from} to={to} duration={6} />
           </Text>
         </Center>,
-        controls
+        controls,
+        7.5,
+        1.5
       )}
       <Center>
         {Spray(
@@ -96,13 +108,36 @@ function Fertilizing({
             boxSize={28}
             position={"absolute"}
             top={"224px"}
-            right={"210px"}
+            right={"197px"}
           />,
           controls
         )}
-        {Tilt(<WateringCan boxSize={44} />, controls)}
+        {Tilt(
+          <WateringCan boxSize={44} />,
+          controls,
+          [87, 87, 87],
+          [33, 12, 33]
+        )}
       </Center>
-    </>
+      <Center>
+        {Spray2(
+          <FertilizerSoil
+            stroke={dropColor}
+            boxSize={28}
+            position={"absolute"}
+            top={"229px"}
+            left={"188px"}
+          />,
+          controls
+        )}
+        {Tilt2(
+          <Fertilizer boxSize={28} position={"absolute"} />,
+          controls,
+          [-367, -367, -367],
+          [-1, -26, -1]
+        )}
+      </Center>
+    </Center>
   );
 }
 

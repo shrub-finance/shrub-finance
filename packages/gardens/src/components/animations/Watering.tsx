@@ -84,10 +84,12 @@ function Watering({
       {Growth(
         <Center position={"absolute"} top={"150px"}>
           <Text fontSize={"25px"} fontWeight={"bold"} color={growthColor}>
-            Growth: <Counter from={from} to={to} />
+            Growth: <Counter from={from} to={to} duration={4} />
           </Text>
         </Center>,
-        controls
+        controls,
+        2.5,
+        1.5
       )}
       <Center>
         {Spray(
@@ -100,7 +102,12 @@ function Watering({
           />,
           controls
         )}
-        {Tilt(<WateringCan boxSize={44} />, controls)}
+        {Tilt(
+          <WateringCan boxSize={44} />,
+          controls,
+          [154, 154, 154],
+          [-128, -147, -128]
+        )}
       </Center>
     </>
   );
