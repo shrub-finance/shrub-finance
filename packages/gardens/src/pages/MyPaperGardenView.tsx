@@ -469,6 +469,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
             id={id}
             key={id}
             canWater={wateringNextAvailable(lastWatering) < new Date()}
+            waterNextAvailable={wateringNextAvailable(
+              lastWatering
+            ).toLocaleString()}
             name={`#${id}`}
             category="pottedPlant"
             onClick={() => {

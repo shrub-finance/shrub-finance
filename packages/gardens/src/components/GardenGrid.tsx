@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { WateringCan } from "../assets/Icons";
+import { wateringNextAvailable } from "../utils/ethMethods";
 
 function GardenGrid({
   id,
@@ -17,6 +18,7 @@ function GardenGrid({
   imgCallback,
   category,
   canWater,
+  waterNextAvailable,
 }: {
   id: string;
   name: string;
@@ -24,6 +26,7 @@ function GardenGrid({
   imgCallback: () => string;
   category?: string;
   canWater?: boolean;
+  waterNextAvailable?: string;
 }) {
   const shadow = useColorModeValue("md", "dark-lg");
 
@@ -50,7 +53,13 @@ function GardenGrid({
       <VStack position="relative">
         <Tooltip
           hasArrow
-          label={canWater ? "Water now available for this potted plant!" : null}
+          label={
+            canWater
+              ? "Water now available for this potted plant!"
+              : category === "pottedPlant" && waterNextAvailable
+              ? `Watering will become available for this potted plant on ${waterNextAvailable}`
+              : null
+          }
           shouldWrapChildren
           mt="3"
         >
