@@ -69,6 +69,7 @@ import {
   getBigWalletBalance,
   getTicketData,
   redeemNFTTicket,
+  wateringNextAvailable,
 } from "../utils/ethMethods";
 import CountdownTimer from "../components/CountdownTimer";
 import GardenGrid from "../components/GardenGrid";
@@ -440,11 +441,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
     if (holdsPottedPlant) {
       // id, name, image
       for (const pottedPlant of mySeedData.user.pottedPlants) {
-        const { id, growth, seed } = pottedPlant;
+        const { id, growth, seed, lastWatering } = pottedPlant;
         const { name, dna, emotion, type } = seed;
-        const imageUrl =
-          // @ts-ignore
-          IMAGE_ASSETS.getPottedPlant(type, Math.floor(growth / 2000), emotion);
+        const imageUrl = IMAGE_ASSETS.getPottedPlant(
+          type,
+          Math.floor(growth / 2000),
+          emotion
+        );
         console.debug(imageUrl);
 
         const pottedPlantItem: itemType = {
@@ -456,6 +459,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           imageUrl: imageUrl,
           growth: growth,
           category: "pottedPlant",
+          wateringNextAvailable: wateringNextAvailable(lastWatering),
         };
         if (pottedPlant === mySeedData.user.pottedPlants[0]) {
           updateSelectedItem(pottedPlantItem);
@@ -464,6 +468,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <GardenGrid
             id={id}
             key={id}
+            canWater={wateringNextAvailable(lastWatering) < new Date()}
+            waterNextAvailable={wateringNextAvailable(
+              lastWatering
+            ).toLocaleString()}
             name={`#${id}`}
             category="pottedPlant"
             onClick={() => {
@@ -751,7 +759,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         </Center>
         {/*heading*/}
         <Center>
-          <VStack mb={{ base: 8, md: 14 }}>
+          <VStack mb={{ base: 8, md: 0 }}>
             <Heading
               fontSize={{ base: "30px", md: "30px", lg: "50px" }}
               letterSpacing={"tight"}
@@ -765,7 +773,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 background="gold.100"
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",

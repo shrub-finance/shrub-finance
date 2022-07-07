@@ -50,10 +50,14 @@ export function handleErrorMessagesFactory(
           setter("Minting has been paused - #1005");
         } else if (err.message.includes("PaperPot: Insufficient balance")) {
           setter("Not enough planting material");
-        } else if (err.message.includes(" Must own seed to plant")) {
+        } else if (err.message.includes("Must own seed to plant")) {
           setter(
             "Looks like there is no seed to plant. Try refreshing the page."
           );
+        } else if (
+          err.message.includes("PaperPot: provided tokenIds not eligible")
+        ) {
+          setter("Not eligible for fertilizing");
         } else if (
           err.message.includes(
             "NFTTicket: Insufficient ticket balance to redeem"
