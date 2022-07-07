@@ -142,8 +142,15 @@ function SeedDetails({
       "SeedDetails useEffect 2 - selectedItem.growth (set StillGrowing to false)"
     );
     if (selectedItem.growth === 10000) {
-      setStillGrowing(false);
-      console.debug("setting stillGrowing false");
+      if (stillGrowing !== false) {
+        setStillGrowing(false);
+        console.debug("setting stillGrowing false");
+      }
+    } else {
+      if (stillGrowing !== true) {
+        setStillGrowing(true);
+        console.debug("setting stillGrowing true");
+      }
     }
   }, [selectedItem.growth]);
 
@@ -631,7 +638,10 @@ function SeedDetails({
                     label={
                       fungibleAssets.fertilizer === 0
                         ? "You do not have fertilizer. First earn some."
-                        : "Fertilizer is available!"
+                        : // : "Fertilizer is available!"
+                        selectedItem.wateringNextAvailable > new Date()
+                        ? `Fertilizing will become available for this potted plant on ${selectedItem.wateringNextAvailable.toLocaleString()}`
+                        : "Fertilizing is available!"
                     }
                     shouldWrapChildren
                     mt="3"
@@ -654,7 +664,10 @@ function SeedDetails({
                       _focus={{
                         bg: "shrub.100",
                       }}
-                      isDisabled={fungibleAssets.fertilizer === 0}
+                      isDisabled={
+                        fungibleAssets.fertilizer === 0 ||
+                        selectedItem.wateringNextAvailable > new Date()
+                      }
                     >
                       Fertilize
                     </Button>

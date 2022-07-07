@@ -117,7 +117,7 @@ export function Txmonitor({
               seedClass={seed || ""}
               emotion={emotion || ""}
               controls={controls}
-              fromArg={(growth || 0) / 10000}
+              fromArg={(growth || 0) / 100}
               growthAmountArg={getGrowthAmount(description, emotion)}
             />
           </Box>
@@ -127,7 +127,7 @@ export function Txmonitor({
               seedClass={seed || ""}
               emotion={emotion || ""}
               controls={controls}
-              fromArg={(growth || 0) / 10000}
+              fromArg={(growth || 0) / 100}
               growthAmountArg={getGrowthAmount(description, emotion)}
             />
           </Box>
