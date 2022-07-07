@@ -511,11 +511,11 @@ function SeedDetails({
                     {selectedItem.category === "paperSeed"
                       ? `Rarity: ${
                           selectedItem.type === "Hope"
-                            ? "Rare"
+                            ? "Rare 💎"
                             : selectedItem.type === "Power"
-                            ? "Legendary"
+                            ? "Legendary 👑"
                             : selectedItem.type === "Passion"
-                            ? "Uncommon"
+                            ? "Uncommon 💍"
                             : "Common"
                         }`
                       : `Growth: ${Math.floor(selectedItem.growth / 10) / 10}%`}
@@ -539,7 +539,7 @@ function SeedDetails({
                     Watering Available:{" "}
                     {selectedItem.wateringNextAvailable >= new Date()
                       ? selectedItem.wateringNextAvailable.toLocaleString()
-                      : "Now"}
+                      : "Now 🚀"}
                   </Badge>
                 </Stack>
               </>
