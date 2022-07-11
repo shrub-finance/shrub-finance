@@ -14,15 +14,23 @@ function StatsBox({
 }) {
   return (
     <HStack>
-      <Box>
-        <Image w={10} src={imgSrc} />
-      </Box>
-      <Box>
-        <VStack>
-          <Text fontSize={"lg"}>{name}</Text>
-          {isLoading ? <Spinner /> : <Text fontSize={"3xl"}>{amount}</Text>}
-        </VStack>
-      </Box>
+      {name.includes("Wonder") ||
+      name.includes("Power") ||
+      name.includes("Hope") ||
+      name.includes("Passion") ? (
+        <Image boxSize={16} src={imgSrc} />
+      ) : name.includes("Seeds") ? (
+        ""
+      ) : name.includes("Empty Pot") ? (
+        <Image src={imgSrc} boxSize={14} />
+      ) : (
+        <Image src={imgSrc} boxSize={24} />
+      )}
+
+      <VStack>
+        <Text fontSize={"lg"}>{name}</Text>
+        {isLoading ? <Spinner /> : <Text fontSize={"3xl"}>{amount}</Text>}
+      </VStack>
     </HStack>
   );
 }

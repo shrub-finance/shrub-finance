@@ -143,11 +143,21 @@ function GardenStats() {
 
   return (
     <>
-      <TableContainer>
-        <Table variant="simple">
+      <Center mt={12}>
+        <Heading
+          fontSize={{ base: "30px", md: "50px" }}
+          letterSpacing={"tight"}
+          textAlign={"center"}
+          maxW="60rem"
+          mb={{ base: 8, md: 14 }}
+        >
+          Garden Stats
+        </Heading>
+      </Center>
+      <TableContainer mb={12}>
+        <Table>
           <TableCaption>
-            <Text>Total Planted: {getTotalPlanted()}</Text>
-            <Text>Unclaimed Tickets: {31}</Text>
+            <Text fontSize={"md"}>Total Planted: {getTotalPlanted()}</Text>
           </TableCaption>
           <Tbody>
             <Tr>
@@ -195,7 +205,7 @@ function GardenStats() {
             <Tr>
               <Td>
                 <StatsBox
-                  name={"Pots"}
+                  name={"Empty Pots"}
                   amount={potsInCirculation()}
                   imgSrc={IMAGE_ASSETS.emptyPot}
                   isLoading={gardenStatsLoading}
@@ -203,7 +213,7 @@ function GardenStats() {
               </Td>
               <Td>
                 <StatsBox
-                  name={"Wonder"}
+                  name={""}
                   amount={getPotCount("Wonder")}
                   imgSrc={IMAGE_ASSETS.getPottedPlant("Wonder", 0, "happy")}
                   isLoading={gardenStatsLoading}
@@ -211,7 +221,7 @@ function GardenStats() {
               </Td>
               <Td>
                 <StatsBox
-                  name={"Passion"}
+                  name={""}
                   amount={getPotCount("Passion")}
                   imgSrc={IMAGE_ASSETS.getPottedPlant("Passion", 0, "happy")}
                   isLoading={gardenStatsLoading}
@@ -219,7 +229,7 @@ function GardenStats() {
               </Td>
               <Td>
                 <StatsBox
-                  name={"Hope"}
+                  name={""}
                   amount={getPotCount("Hope")}
                   imgSrc={IMAGE_ASSETS.getPottedPlant("Hope", 0, "happy")}
                   isLoading={gardenStatsLoading}
@@ -227,7 +237,7 @@ function GardenStats() {
               </Td>
               <Td>
                 <StatsBox
-                  name={"Power"}
+                  name={""}
                   amount={getPotCount("Power")}
                   imgSrc={IMAGE_ASSETS.getPottedPlant("Power", 0, "happy")}
                   isLoading={gardenStatsLoading}

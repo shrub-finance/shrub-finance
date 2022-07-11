@@ -70,7 +70,7 @@ function GrowthLeadBox({
       </Td>
       <Td fontWeight={position === 1 ? "extrabold" : "medium"}>
         <Text>{name}</Text>
-        <Text>{`Growth: ${growth}%`}</Text>
+        <Text>{`Growth: ${growth / 100}%`}</Text>
       </Td>
       <Td>
         {loading ? (
