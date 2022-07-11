@@ -1,19 +1,33 @@
-import { Box, HStack, Image, Spinner, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  HStack,
+  Image,
+  Spinner,
+  Stack,
+  Td,
+  Text,
+  Tr,
+  VStack,
+} from "@chakra-ui/react";
 import React from "react";
 import { decodeBase64Uri } from "../utils/ethMethods";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
 import useTruncateAddress from "../hooks/useTruncateAddress";
+import { isMobile } from "react-device-detect";
 
 function GrowthLeadBox({
   position,
   base64Uri,
   owner,
   growth,
+  loading,
 }: {
   base64Uri: string;
   position: number;
   owner: string;
   growth: number;
+  loading: boolean;
 }) {
   let decodedMetadata: any;
   try {
@@ -41,27 +55,34 @@ function GrowthLeadBox({
   );
 
   return (
-    <HStack>
-      <Text fontSize={"xl"}>#{position}</Text>
-      <Box>
+    <Tr key={position}>
+      <Td
+        display={{ base: "none", md: "table-cell" }}
+        fontWeight={position === 1 ? "extrabold" : "medium"}
+      >
+        {position}
+      </Td>
+      <Td
+        fontWeight={position === 1 ? "extrabold" : "medium"}
+        fontSize={isMobile ? "12px" : "auto"}
+      >
         <Image w={10} src={imgSrc} />
-      </Box>
-      <VStack>
+      </Td>
+      <Td fontWeight={position === 1 ? "extrabold" : "medium"}>
         <Text>{name}</Text>
         <Text>{`Growth: ${growth}%`}</Text>
-      </VStack>
-      <Text>{useTruncateAddress(owner)}</Text>
-      {/*<Box>*/}
-      {/*  <VStack>*/}
-      {/*    <Text fontSize={'lg'}>{name}</Text>*/}
-      {/*    {*/}
-      {/*      isLoading ?*/}
-      {/*        <Spinner/> :*/}
-      {/*        <Text fontSize={'3xl'}>{amount}</Text>*/}
-      {/*    }*/}
-      {/*  </VStack>*/}
-      {/*</Box>*/}
-    </HStack>
+      </Td>
+      <Td>
+        {loading ? (
+          <Center>
+            {" "}
+            <Spinner size="xl" />
+          </Center>
+        ) : (
+          useTruncateAddress(owner)
+        )}
+      </Td>
+    </Tr>
   );
 }
 

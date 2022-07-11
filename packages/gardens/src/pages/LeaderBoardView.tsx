@@ -169,7 +169,7 @@ function LeaderBoardView(props: RouteComponentProps) {
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW="container.sm"
+        maxW="container.lg"
       >
         <GardenStats />
         <Center mt={10}>
@@ -182,7 +182,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             </SlideFade>
           )}
         </Center>
-        <Center>
+        <Center mt={12}>
           <Heading
             fontSize={{ base: "30px", md: "50px" }}
             letterSpacing={"tight"}
@@ -190,7 +190,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             maxW="60rem"
             mb={{ base: 8, md: 14 }}
           >
-            Leaderboard
+            Seed Leaderboard
           </Heading>
         </Center>
         <Center>
