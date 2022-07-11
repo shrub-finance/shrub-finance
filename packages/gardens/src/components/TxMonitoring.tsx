@@ -20,7 +20,7 @@ import {
   Icon,
   TimeIcon,
 } from "@chakra-ui/icons";
-import { PendingTxState } from "../types";
+import { PendingTxState, potForWatering } from "../types";
 import { VscError } from "react-icons/all";
 import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
@@ -36,11 +36,13 @@ export function Txmonitor({
   seed,
   emotion,
   growth,
+  potsForWatering,
 }: {
   txHash?: string;
   seed?: string;
   emotion?: string;
   growth?: number;
+  potsForWatering?: potForWatering[];
 }) {
   console.debug("rendering Txmonitor");
   const { chainId } = useWeb3React();
@@ -131,6 +133,13 @@ export function Txmonitor({
               growthAmountArg={getGrowthAmount(description, emotion)}
             />
           </Box>
+        ) : description === "Watering All" ? (
+          <Box>
+            <WateringAll
+              controls={controls}
+              potsForWatering={potsForWatering || []}
+            />
+          </Box>
         ) : (
           <Alert
             status="success"
@@ -167,14 +176,15 @@ export function Txmonitor({
 
       {/*{status === "confirmed" && (*/}
       {/*  <Box>*/}
-      {/*    <Fertilizing*/}
-      {/*      seedClass={seed || ""}*/}
-      {/*      emotion={emotion || ""}*/}
-      {/*      controls={controls}*/}
-      {/*      fromArg={(growth || 0) / 10000}*/}
-      {/*      growthAmountArg={getGrowthAmount(description, emotion)}*/}
-      {/*    />*/}
-      {/*    <Watering seedClass={seed || ""} emotion={emotion || ""} controls={controls} fromArg={(growth || 0) / 10000} growthAmountArg={getGrowthAmount(description, emotion)}/>*/}
+      {/*<Fertilizing*/}
+      {/*  seedClass={seed || ""}*/}
+      {/*  emotion={emotion || ""}*/}
+      {/*  controls={controls}*/}
+      {/*  fromArg={(growth || 0) / 10000}*/}
+      {/*  growthAmountArg={getGrowthAmount(description, emotion)}*/}
+      {/*/>*/}
+      {/*<Watering seedClass={seed || ""} emotion={emotion || ""} controls={controls} fromArg={(growth || 0) / 10000} growthAmountArg={getGrowthAmount(description, emotion)}/>*/}
+      {/*<WateringAll controls={controls} potsForWatering={potsForWatering || []}/>*/}
       {/*  </Box>*/}
       {/*)}*/}
 

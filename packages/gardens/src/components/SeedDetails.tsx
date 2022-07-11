@@ -97,7 +97,7 @@ function SeedDetails({
   const [stillGrowing, setStillGrowing] = React.useState(true);
   const [showConfetti, setShowConfetti] = React.useState(false);
   const [modalState, setModalState] = useState<
-    "plant" | "water" | "fertilize" | "harvest" | "planting"
+    "plant" | "water" | "waterAll" | "fertilize" | "harvest" | "planting"
   >("plant");
 
   const borderColor = useColorModeValue("gray.100", "gray.700");
@@ -360,6 +360,13 @@ function SeedDetails({
     );
   }
 
+  function handleWaterAll() {
+    return handleBlockchainTx("Watering All", () => {
+      const idsForWatering = selectedItem.potsForWatering.map((s: any) => s.id);
+      return water(idsForWatering, library);
+    });
+  }
+
   function handleFertilizing() {
     return handleBlockchainTx("Fertilizing", () =>
       waterWithFertilizer([selectedItem.tokenId], library)
@@ -467,14 +474,53 @@ function SeedDetails({
                   </Badge>
                 </Stack>
                 {["water", "fertilizer"].includes(selectedItem.category) ? (
-                  <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                    <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To{" "}
-                    {selectedItem.category === "water" ? "water" : "fertilizer"}
-                    ,{" "}
-                    {holdsPottedPlant
-                      ? "select a potted plant on the left"
-                      : "plant a seed first"}
-                  </Text>
+                  <>
+                    <Text pt={2} textAlign={"center"} textStyle={"reading"}>
+                      <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To{" "}
+                      {selectedItem.category === "water"
+                        ? "water"
+                        : "fertilizer"}
+                      ,{" "}
+                      {holdsPottedPlant
+                        ? "select a potted plant on the left"
+                        : "plant a seed first"}
+                    </Text>
+                    <Tooltip
+                      hasArrow
+                      label={"Water all eligible potted plants!"}
+                      shouldWrapChildren
+                      mt="3"
+                    >
+                      <Button
+                        onClick={() => {
+                          setModalState("waterAll");
+                          openModal();
+                        }}
+                        flex={1}
+                        fontSize={"xl"}
+                        w={{ base: "315px", md: "420px" }}
+                        rounded={"2xl"}
+                        bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
+                        color={"black"}
+                        boxShadow={"xl"}
+                        _hover={{
+                          bg: "shrub.200",
+                        }}
+                        _focus={{
+                          bg: "shrub.100",
+                        }}
+                        isDisabled={
+                          fungibleAssets.water === 0 ||
+                          !selectedItem.potsForWatering ||
+                          !selectedItem.potsForWatering.length ||
+                          fungibleAssets.water <
+                            selectedItem.potsForWatering.length
+                        }
+                      >
+                        Water All
+                      </Button>
+                    </Tooltip>
+                  </>
                 ) : (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
                     <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To plant,
@@ -761,6 +807,8 @@ function SeedDetails({
               ? "Plant Your Seed"
               : modalState === "water"
               ? "Water Your Potted Plant"
+              : modalState === "waterAll"
+              ? "Water All Eligible Potted Plants"
               : modalState === "fertilize"
               ? "Fertilize Your Potted Plant"
               : modalState === "harvest"
@@ -787,6 +835,7 @@ function SeedDetails({
                     seed={selectedItem.type}
                     emotion={selectedItem.emotion}
                     growth={selectedItem.growth}
+                    potsForWatering={selectedItem.potsForWatering}
                   />
                 </Center>
               ) : (
@@ -929,6 +978,53 @@ function SeedDetails({
                         Can only be done once per day per potted plant
                       </Text>
                     </Stack>
+                  ) : modalState === "waterAll" ? (
+                    <Stack spacing={4} mb={20}>
+                      <Text textStyle={"reading"} fontSize={"lg"}>
+                        Watering will result in
+                      </Text>
+                      <Divider borderColor={borderColor} />
+                      <Stack spacing={4}>
+                        <Feature
+                          icon={<Icon as={WateringCan} w={7} h={7} />}
+                          iconBg={textBg3}
+                          text={`${
+                            selectedItem.potsForWatering &&
+                            selectedItem.potsForWatering.length
+                          } Water being used`}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          And
+                        </Text>
+                        <Feature
+                          icon={
+                            <Icon
+                              as={RiHeartAddFill}
+                              color={"red.500"}
+                              w={5}
+                              h={5}
+                            />
+                          }
+                          iconBg={"pink.100"}
+                          text={
+                            "The growth number of all of your eligible for watering potted plants increasing"
+                          }
+                        />
+                        <Divider borderColor={borderColor} />
+                      </Stack>
+                      <Text
+                        textTransform={"uppercase"}
+                        color={"blue.400"}
+                        bg={textBg2}
+                        fontWeight={600}
+                        fontSize={"sm"}
+                        p={2}
+                        alignSelf={"flex-start"}
+                        rounded={"md"}
+                      >
+                        Can only be done once per day per potted plant
+                      </Text>
+                    </Stack>
                   ) : modalState === "fertilize" ? (
                     <Stack spacing={4}>
                       <Text textStyle={"reading"} fontSize={"lg"}>
@@ -1026,6 +1122,8 @@ function SeedDetails({
                             : handleApprove
                           : modalState === "water"
                           ? handleWatering
+                          : modalState === "waterAll"
+                          ? handleWaterAll
                           : modalState === "fertilize"
                           ? handleFertilizing
                           : modalState === "harvest"
@@ -1051,6 +1149,8 @@ function SeedDetails({
                           : "Approve Seed for Planting"
                         : modalState === "water"
                         ? "Water"
+                        : modalState === "waterAll"
+                        ? "Water All"
                         : modalState === "fertilize"
                         ? "Fertilize"
                         : modalState === "harvest"

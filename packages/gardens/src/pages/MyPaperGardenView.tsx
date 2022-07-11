@@ -395,6 +395,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           imageUrl: IMAGE_ASSETS.waterCan,
           category: "water",
           quantity: fungibleAssets.water,
+          potsForWatering: getPotsForWatering(),
         };
         updateSelectedItem(waterItem);
         tempMySeedDataRows.push(
@@ -734,6 +735,37 @@ function MyPaperGardenView(props: RouteComponentProps) {
       setTicketConfetti(false);
       handleErrorMessages({ err: e });
     }
+  }
+
+  function getPotsForWatering() {
+    if (!holdsPottedPlant) {
+      return [];
+    }
+    const now = new Date();
+    let wateringPlants;
+    try {
+      wateringPlants = mySeedData.user.pottedPlants.filter(
+        (p: { lastWatering: number; id: string }) =>
+          wateringNextAvailable(p.lastWatering) < now
+      );
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+    return wateringPlants.map(
+      (p: {
+        id: string;
+        growth: number;
+        seed: { emotion: string; type: string };
+      }) => {
+        return {
+          id: p.id,
+          growth: p.growth,
+          emotion: p.seed.emotion,
+          type: p.seed.type,
+        };
+      }
+    );
   }
 
   return (

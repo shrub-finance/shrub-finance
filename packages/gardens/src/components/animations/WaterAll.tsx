@@ -1,46 +1,41 @@
-import { AnimationControls, useAnimation } from "framer-motion";
-import {
-  Box,
-  Center,
-  Grid,
-  Text,
-  useColorMode,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import { Growth, Spray, Tilt, TransformScale } from "./TransformScale";
-import {
-  Hope,
-  HopePot,
-  HopeSad,
-  HopeSadPot,
-  Passion,
-  PassionPot,
-  PassionSad,
-  PassionSadPot,
-  PlantingPot,
-  Power,
-  PowerPot,
-  Water,
-  WateringCan,
-  Wonder,
-  WonderPot,
-  WonderSad,
-  WonderSadPot,
-} from "../../assets/Icons";
-import React, { ReactElement, useState } from "react";
-import { Appear, Disappear } from "./Fade";
-import { Counter } from "../Counter";
+import { AnimationControls } from "framer-motion";
+import { Grid } from "@chakra-ui/react";
+import React from "react";
 import Watering from "./Watering";
 import WateringMany from "./WateringMany";
+import { potForWatering } from "../../types";
 
 function WateringAll({
-  waterAnimation,
   controls,
+  potsForWatering,
 }: {
-  waterAnimation?: ReactElement;
   controls: AnimationControls;
+  potsForWatering: potForWatering[];
 }) {
   console.debug("rendering Water All");
+
+  function getGrowthAmount(description: string, emotion?: string) {
+    return description === "Fertilizing"
+      ? emotion === "sad"
+        ? 2.07
+        : 4.13
+      : emotion === "sad"
+      ? 1.38
+      : 2.75;
+  }
+
+  const waterPots: JSX.Element[] = [];
+  for (const potForWatering of potsForWatering) {
+    waterPots.push(
+      <WateringMany
+        seedClass={potForWatering.type}
+        emotion={potForWatering.emotion}
+        controls={controls}
+        fromArg={potForWatering.growth}
+        growthAmountArg={getGrowthAmount("Watering", potForWatering.emotion)}
+      />
+    );
+  }
 
   return (
     <Grid
@@ -48,81 +43,7 @@ function WateringAll({
       templateRows="repeat(3, 1fr)"
       gap={8}
     >
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
-      <WateringMany
-        seedClass={"Wonder"}
-        emotion={"Happy"}
-        controls={controls}
-      />
+      {waterPots}
     </Grid>
   );
 }
