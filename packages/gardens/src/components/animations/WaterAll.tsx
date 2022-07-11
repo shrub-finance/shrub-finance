@@ -31,7 +31,7 @@ function WateringAll({
         seedClass={potForWatering.type}
         emotion={potForWatering.emotion}
         controls={controls}
-        fromArg={potForWatering.growth}
+        fromArg={(potForWatering.growth || 0) / 100}
         growthAmountArg={getGrowthAmount("Watering", potForWatering.emotion)}
       />
     );

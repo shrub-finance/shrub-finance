@@ -243,6 +243,17 @@ function SeedDetails({
           (event) => event.event === "Grow"
         );
         console.log(growEvent);
+        if (
+          description === "Watering All" &&
+          selectedItem.category === "water"
+        ) {
+          setSelectedItem({
+            ...selectedItem,
+            quantity:
+              selectedItem.quantity - selectedItem.potsForWatering.length,
+            potsForWatering: [],
+          });
+        }
         if (growEvent && growEvent.args) {
           const growth: number = growEvent.args.growthBps;
           const tokenId = growEvent.args.tokenId || ethers.constants.Zero;

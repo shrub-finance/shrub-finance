@@ -469,7 +469,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <GardenGrid
             id={id}
             key={id}
-            canWater={wateringNextAvailable(lastWatering) < new Date()}
+            canWater={isWaterAvailable(growth, lastWatering)}
             waterNextAvailable={wateringNextAvailable(
               lastWatering
             ).toLocaleString()}
@@ -669,6 +669,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }
 
+  function isWaterAvailable(growth: number, lastWatering: number) {
+    return wateringNextAvailable(lastWatering) < new Date() && growth < 10000;
+  }
+
   async function handleRedeemNFT() {
     setLocalError("");
     setIsLoading(true);
@@ -745,8 +749,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
     let wateringPlants;
     try {
       wateringPlants = mySeedData.user.pottedPlants.filter(
-        (p: { lastWatering: number; id: string }) =>
-          wateringNextAvailable(p.lastWatering) < now
+        (p: { lastWatering: number; id: string; growth: number }) =>
+          isWaterAvailable(p.growth, p.lastWatering)
       );
     } catch (e) {
       console.error(e);
