@@ -456,7 +456,7 @@ function SeedDetails({
                 {selectedItem.name}
               </Heading>
             </Center>
-
+            {/*open sea link*/}
             <Center>
               <Link
                 color={"gray.500"}
@@ -485,53 +485,14 @@ function SeedDetails({
                   </Badge>
                 </Stack>
                 {["water", "fertilizer"].includes(selectedItem.category) ? (
-                  <>
-                    <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                      <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To{" "}
-                      {selectedItem.category === "water"
-                        ? "water"
-                        : "fertilizer"}
-                      ,{" "}
-                      {holdsPottedPlant
-                        ? "select a potted plant on the left"
-                        : "plant a seed first"}
-                    </Text>
-                    <Tooltip
-                      hasArrow
-                      label={"Water all eligible potted plants!"}
-                      shouldWrapChildren
-                      mt="3"
-                    >
-                      <Button
-                        onClick={() => {
-                          setModalState("waterAll");
-                          openModal();
-                        }}
-                        flex={1}
-                        fontSize={"xl"}
-                        w={{ base: "315px", md: "420px" }}
-                        rounded={"2xl"}
-                        bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
-                        color={"black"}
-                        boxShadow={"xl"}
-                        _hover={{
-                          bg: "shrub.200",
-                        }}
-                        _focus={{
-                          bg: "shrub.100",
-                        }}
-                        isDisabled={
-                          fungibleAssets.water === 0 ||
-                          !selectedItem.potsForWatering ||
-                          !selectedItem.potsForWatering.length ||
-                          fungibleAssets.water <
-                            selectedItem.potsForWatering.length
-                        }
-                      >
-                        Water All
-                      </Button>
-                    </Tooltip>
-                  </>
+                  <Text pt={2} textAlign={"center"} textStyle={"reading"}>
+                    <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To{" "}
+                    {selectedItem.category === "water" ? "water" : "fertilizer"}
+                    ,{" "}
+                    {holdsPottedPlant
+                      ? "select a potted plant on the left"
+                      : "plant a seed first"}
+                  </Text>
                 ) : (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
                     <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To plant,
@@ -591,25 +552,64 @@ function SeedDetails({
                   direction={"row"}
                   mt={4}
                 >
-                  <Badge
-                    px={2}
-                    py={1}
-                    fontWeight={"600"}
-                    rounded={"md"}
-                    color={"cyan.900"}
-                    bg={textBg4}
-                    letterSpacing={"wider"}
-                  >
-                    Watering Available:{" "}
-                    {selectedItem.wateringNextAvailable >= new Date()
-                      ? selectedItem.wateringNextAvailable.toLocaleString()
-                      : "Now 🚀"}
-                  </Badge>
+                  {selectedItem.category === "pottedPlant" && (
+                    <Badge
+                      px={2}
+                      py={1}
+                      fontWeight={"600"}
+                      rounded={"md"}
+                      color={"cyan.900"}
+                      bg={textBg4}
+                      letterSpacing={"wider"}
+                    >
+                      Watering Available:{" "}
+                      {selectedItem.wateringNextAvailable >= new Date()
+                        ? selectedItem.wateringNextAvailable.toLocaleString()
+                        : "Now 🚀"}
+                    </Badge>
+                  )}
                 </Stack>
               </>
             )}
             {/*Buttons*/}
             <Stack mt={6} direction={"row"} spacing={4}>
+              {/*Water All button*/}
+              {selectedItem.category === "water" && (
+                <Tooltip
+                  hasArrow
+                  label={"Water all eligible potted plants!"}
+                  shouldWrapChildren
+                  mt="3"
+                >
+                  <Button
+                    onClick={() => {
+                      setModalState("waterAll");
+                      openModal();
+                    }}
+                    flex={1}
+                    fontSize={"xl"}
+                    w={{ base: "315px", md: "420px" }}
+                    rounded={"2xl"}
+                    bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                    isDisabled={
+                      fungibleAssets.water === 0 ||
+                      !selectedItem.potsForWatering ||
+                      !selectedItem.potsForWatering.length ||
+                      fungibleAssets.water < selectedItem.potsForWatering.length
+                    }
+                  >
+                    Water All
+                  </Button>
+                </Tooltip>
+              )}
               {/*Water Button*/}
               {selectedItem.category === "pottedPlant" && stillGrowing && (
                 <Tooltip
