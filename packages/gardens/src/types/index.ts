@@ -208,6 +208,7 @@ export type itemType = {
   category: string;
   quantity?: number;
   growth?: number;
+  wateringNextAvailable?: Date;
 };
 
 // https://stackoverflow.com/questions/41285211/overriding-interface-property-type-defined-in-typescript-d-ts-file/65561287#65561287

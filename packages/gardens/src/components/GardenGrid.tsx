@@ -1,5 +1,15 @@
-import { Box, Image, Text, useColorModeValue, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Icon,
+  Image,
+  Text,
+  Tooltip,
+  useColorModeValue,
+  VStack,
+} from "@chakra-ui/react";
 import React from "react";
+import { WateringCan } from "../assets/Icons";
+import { wateringNextAvailable } from "../utils/ethMethods";
 
 function GardenGrid({
   id,
@@ -7,18 +17,24 @@ function GardenGrid({
   onClick,
   imgCallback,
   category,
+  canWater,
+  waterNextAvailable,
 }: {
   id: string;
   name: string;
   onClick: () => void;
   imgCallback: () => string;
   category?: string;
+  canWater?: boolean;
+  waterNextAvailable?: string;
 }) {
+  const shadow = useColorModeValue("md", "dark-lg");
+
   return (
     <Box
       as="button"
       key={id}
-      shadow={useColorModeValue("md", "dark-lg")}
+      shadow={shadow}
       borderRadius="md"
       minW={20}
       h={32}
@@ -34,22 +50,45 @@ function GardenGrid({
       }}
       onClick={onClick}
     >
-      <VStack>
-        <Box key={id}>
-          <Image
-            w={
-              id === "fertilizer"
-                ? 10
-                : id === "water" || id === "pot"
-                ? 16
-                : 20
-            }
-            h={20}
-            src={imgCallback()}
-            cursor={"pointer"}
-            transform={category === "pottedPlant" ? "scale(1.5)" : undefined}
-          />
-        </Box>
+      <VStack position="relative">
+        <Tooltip
+          hasArrow
+          label={
+            canWater
+              ? "Water now available for this potted plant!"
+              : category === "pottedPlant" && waterNextAvailable
+              ? `Watering will become available for this potted plant on ${waterNextAvailable}`
+              : null
+          }
+          shouldWrapChildren
+          mt="3"
+        >
+          {canWater && (
+            <Icon
+              as={WateringCan}
+              w={5}
+              h={5}
+              position={"absolute"}
+              right={0}
+              top={0}
+            />
+          )}
+          <Box key={id}>
+            <Image
+              w={
+                id === "fertilizer"
+                  ? 10
+                  : id === "water" || id === "pot"
+                  ? 16
+                  : 20
+              }
+              h={20}
+              src={imgCallback()}
+              cursor={"pointer"}
+              transform={category === "pottedPlant" ? "scale(1.5)" : undefined}
+            />
+          </Box>
+        </Tooltip>
         <Text
           fontWeight={600}
           color="gray.500"
