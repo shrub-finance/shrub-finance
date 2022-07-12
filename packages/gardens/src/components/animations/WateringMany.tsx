@@ -88,8 +88,6 @@ function WateringMany({
               position={"absolute"}
               left={"-30px"}
               bottom={"33px"}
-              // top={"144px"}
-              // right={"210px"}
             />,
             controls
           )}

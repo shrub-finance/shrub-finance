@@ -1159,7 +1159,11 @@ function SeedDetails({
                       flex={1}
                       fontSize={"xl"}
                       rounded={"2xl"}
-                      bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                      bgGradient={
+                        modalState === "water" || modalState === "waterAll"
+                          ? "linear(to-l, #82caff, #d9efff, #a1d2e7)"
+                          : "linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                      }
                       color={"black"}
                       boxShadow={"xl"}
                       _hover={{
@@ -1174,14 +1178,14 @@ function SeedDetails({
                           ? "Let's Plant"
                           : "Approve Seed for Planting"
                         : modalState === "water"
-                        ? "Water"
+                        ? "Let's Water"
                         : modalState === "waterAll"
-                        ? "Water All"
+                        ? "Let's Water All"
                         : modalState === "fertilize"
-                        ? "Fertilize"
+                        ? "Let's Fertilize"
                         : modalState === "harvest"
-                        ? "Harvest"
-                        : "Unexpected State"}
+                        ? "Let's Harvest"
+                        : "Something is wrong"}
                     </Button>
                   </Center>
                 </>
