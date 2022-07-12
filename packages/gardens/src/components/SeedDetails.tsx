@@ -486,7 +486,15 @@ function SeedDetails({
                 </Stack>
                 {["water", "fertilizer"].includes(selectedItem.category) ? (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                    <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To{" "}
+                    <Icon
+                      as={FaHandPointLeft}
+                      w={6}
+                      h={6}
+                      mt={5}
+                      mr={2}
+                      verticalAlign={"bottom"}
+                    />
+                    To{" "}
                     {selectedItem.category === "water" ? "water" : "fertilizer"}
                     ,{" "}
                     {holdsPottedPlant
@@ -495,8 +503,15 @@ function SeedDetails({
                   </Text>
                 ) : (
                   <Text pt={2} textAlign={"center"} textStyle={"reading"}>
-                    <Icon as={FaHandPointLeft} w={6} h={6} pt={1} /> To plant,
-                    select a seed on the left
+                    <Icon
+                      as={FaHandPointLeft}
+                      w={6}
+                      h={6}
+                      mt={5}
+                      mr={2}
+                      verticalAlign={"bottom"}
+                    />{" "}
+                    To plant, select a seed on the left
                   </Text>
                 )}
               </>
