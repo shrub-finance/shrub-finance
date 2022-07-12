@@ -107,8 +107,6 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - User
-#        - Seed
-#        - Exchange
       abis:
         - name: PotNFTTicket
           file: ../contracts/abi/PotNFTTicket.json
@@ -131,8 +129,6 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - User
-      #        - Seed
-      #        - Exchange
       abis:
         - name: PaperPot
           file: ../contracts/abi/PaperPot.json
@@ -147,10 +143,6 @@ dataSources:
           handler: handlePlant
         - event: Harvest(uint256,uint256,address)
           handler: handleHarvest
+        - event: URI(string,indexed uint256)
+          handler: handleUri
       file: ./src/mapping-paper-pot.ts
-
-#  - ApprovalForAll(indexed address,indexed address,bool)
-#  - OwnershipTransferred(indexed address,indexed address)
-#  - TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
-#  - TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
-#  - URI(string,indexed uint256)

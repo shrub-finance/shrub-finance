@@ -25,10 +25,17 @@
 // }
 import {Transfer, Approval, ApprovalForAll, OwnershipTransferred, Claimed} from '../generated/PaperSeed/PaperSeed';
 import { decrementCount, getUser, incrementCount } from './entities/user'
-import { createSeed, updateOwner } from './entities/seed'
+import { createSeed, getSeed, updateOwner } from './entities/seed'
 import { Address, log } from '@graphprotocol/graph-ts'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
-import { recordClaim } from './entities/typestats'
+import {
+  isBurnAddress,
+  isTreasuryAddress,
+  recordBurn,
+  recordClaim,
+  recordFromTreasury,
+  recordToTreasury,
+} from './entities/typestats'
 
 export function handleTransfer(event: Transfer): void {
   let from = event.params.from;
@@ -41,9 +48,19 @@ export function handleTransfer(event: Transfer): void {
   }
   let toUser = getUser(to);
   let fromUser = getUser(from);
+  let seed = getSeed(tokenId);
   decrementCount(fromUser);
   incrementCount(toUser);
   updateOwner(tokenId, Address.fromString(toUser.id));
+  if (isBurnAddress(to)) {
+    recordBurn(seed.type);
+  }
+  if (isTreasuryAddress(from)) {
+    recordFromTreasury(seed.type);
+  }
+  if (isTreasuryAddress(to)) {
+    recordToTreasury(seed.type);
+  }
 }
 
 export function handleApproval(event: Approval): void {}

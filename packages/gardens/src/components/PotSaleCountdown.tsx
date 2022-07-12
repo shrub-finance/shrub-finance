@@ -42,7 +42,7 @@ function PotSaleCountdown() {
               color={useColorModeValue("gray.500", "gray.400")}
             >
               {!isMobile
-                ? "Experience the most advanced NFT series yet"
+                ? "The most advanced NFT series yet"
                 : "The most advanced NFT series yet"}
             </Text>
           </Box>

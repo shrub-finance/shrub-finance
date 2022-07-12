@@ -25,6 +25,7 @@ type PottedPlant @entity {
   growth: Int!
   lastWatering: Int!
   shrubNft: ShrubNFT
+  uri: String!
 }
 
 type ShrubNFT @entity {
@@ -35,6 +36,7 @@ type ShrubNFT @entity {
   pottedPlant: PottedPlant!
   born: Int!
   bornBlock: Int!
+  uri: String!
 }
 
 type Seed @entity {
@@ -65,6 +67,11 @@ type TypeStat @entity {
   claimed: Int!
   unmoved: Int!
   virgin: Int!
+  burned: Int!
+  treasury: Int!
+  circulation: Int!
+  planted: Int!
+  harvested: Int!
 }
 
 type AdoptionRecord @entity {

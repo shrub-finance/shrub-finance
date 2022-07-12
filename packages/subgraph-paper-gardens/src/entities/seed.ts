@@ -50,7 +50,7 @@ export function createSeed(tokenId: BigInt, owner: Address, block: ethereum.Bloc
   seed.emotion = emotion;
   seed.unmoved = true;
   seed.virgin = true;
-  recordClaim(seed.type);
+  recordClaim(seed.type, owner);
   seed.save();
   return seed as Seed;
 }
@@ -79,9 +79,13 @@ export function updateOwner(tokenId: BigInt, newOwner: Address): Seed {
 
 export function getSeed(tokenId: BigInt): Seed {
   let id = tokenId.toString();
-  let seed = Seed.load(id);
+  return getSeedFromString(id);
+}
+
+export function getSeedFromString(tokenIdString: string): Seed {
+  let seed = Seed.load(tokenIdString);
   if (seed === null) {
-    throw new Error(`Seed with tokenId ${tokenId.toString()} not found`);
+    throw new Error(`Seed with tokenId ${tokenIdString} not found`);
   }
   return seed as Seed;
 }
