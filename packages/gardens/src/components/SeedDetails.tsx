@@ -1017,7 +1017,7 @@ function SeedDetails({
                           text={`${
                             selectedItem.potsForWatering &&
                             selectedItem.potsForWatering.length
-                          } Water being used`}
+                          } Waters being used`}
                         />
                         <Text textStyle={"reading"} fontSize={"lg"}>
                           And
@@ -1033,7 +1033,7 @@ function SeedDetails({
                           }
                           iconBg={"pink.100"}
                           text={
-                            "The growth number of all of your eligible for watering potted plants increasing"
+                            "The growth number of all your eligible potted plants increasing"
                           }
                         />
                         <Divider borderColor={borderColor} />
@@ -1048,7 +1048,7 @@ function SeedDetails({
                         alignSelf={"flex-start"}
                         rounded={"md"}
                       >
-                        Can only be done once per day per potted plant
+                        Can only be done once per day
                       </Text>
                     </Stack>
                   ) : modalState === "fertilize" ? (
