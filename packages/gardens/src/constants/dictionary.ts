@@ -21,6 +21,13 @@ export const addressMap = {
   "0xebb8f70d40d62864eab334c66bb5b88ce558054f": "hogehoge.eth",
   "0x8b4e7ac91e8a6aac0c087f2bfa7c42cdcea32e96": "Yagami96",
   "0xc5e7c5032d203b69da4d8feb7f3c3179fd9cb83b": "ShawnXP",
+  "0xddf2b130c82d9fcdc5c7ca2e78f7fe2a5a0df6fc": "cyberwannabe",
+  "0xb7f51ad220953d56908f8a0c50f64e3851f5c848": "diepca102.eth",
+  "0xe12d52275eb64ff18680aa2b081fef8b736cd66d": "RobK",
+  "0x3aef315b67c2e23aae9e9c1174d05371e2c9b144": "Jack_Giao",
+  "0x9d6afd3dd7cbe2429764788c2ef3a607d57943d6": "cryptol.eth",
+  "0xcc3d7f9fe6946979215a901bba385a88fdabbbf4": "dvinataba.eth",
+  "0xab769309ebceeda984e666ab727b36211ba02a8a": "DegenKingo",
 };
 
 export const b = [
