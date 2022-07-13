@@ -5,7 +5,7 @@ import Watering from "./Watering";
 import WateringMany from "./WateringMany";
 import { potForWatering } from "../../types";
 
-function WateringAll({
+function WaterAll({
   controls,
   potsForWatering,
 }: {
@@ -48,4 +48,4 @@ function WateringAll({
   );
 }
 
-export default WateringAll;
+export default WaterAll;

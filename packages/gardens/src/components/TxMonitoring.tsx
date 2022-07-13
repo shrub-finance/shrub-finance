@@ -29,7 +29,7 @@ import { Planting } from "./animations/Planting";
 import { useAnimation } from "framer-motion";
 import Watering from "./animations/Watering";
 import Fertilizing from "./animations/Fertilizing";
-import WateringAll from "./animations/WaterAll";
+import WaterAll from "./animations/WaterAll";
 
 export function Txmonitor({
   txHash,
@@ -135,7 +135,7 @@ export function Txmonitor({
           </Box>
         ) : description === "Watering All" ? (
           <Box>
-            <WateringAll
+            <WaterAll
               controls={controls}
               potsForWatering={potsForWatering || []}
             />
@@ -184,7 +184,7 @@ export function Txmonitor({
       {/*  growthAmountArg={getGrowthAmount(description, emotion)}*/}
       {/*/>*/}
       {/*<Watering seedClass={seed || ""} emotion={emotion || ""} controls={controls} fromArg={(growth || 0) / 10000} growthAmountArg={getGrowthAmount(description, emotion)}/>*/}
-      {/*<WateringAll controls={controls} potsForWatering={potsForWatering || []}/>*/}
+      {/*<WaterAll controls={controls} potsForWatering={potsForWatering || []}/>*/}
       {/*  </Box>*/}
       {/*)}*/}
 
