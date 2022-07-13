@@ -1,6 +1,6 @@
-import { AnimationControls, useAnimation } from "framer-motion";
+import { AnimationControls } from "framer-motion";
 import { Box, Center, Text, useColorModeValue } from "@chakra-ui/react";
-import { Growth, Spray, Tilt, TransformScale } from "./TransformScale";
+import { Growth, Spray, Tilt } from "./TransformScale";
 import {
   Hope,
   HopePot,
@@ -16,21 +16,24 @@ import {
   WonderPot,
   WonderSadPot,
 } from "../../assets/Icons";
-import React, { useState } from "react";
+import React from "react";
 import { Counter } from "../Counter";
 
 function WateringMany({
   seedClass,
   emotion,
   controls,
+  fromArg,
+  growthAmountArg,
 }: {
   seedClass: string;
   emotion: string;
   controls: AnimationControls;
+  fromArg: number;
+  growthAmountArg: number;
 }) {
-  console.debug("rendering Watering");
-  const [from, setFrom] = useState(2187);
-  const [to, setTo] = useState(2384);
+  const from = fromArg;
+  const to = fromArg + growthAmountArg;
 
   const growthColor = useColorModeValue("pink.400", "pink.300");
   const dropColor = useColorModeValue("blue.300", "blue.100");
@@ -70,7 +73,7 @@ function WateringMany({
         {Growth(
           <Center position={"absolute"} bottom={"70px"}>
             <Text fontSize={"10px"} fontWeight={"bold"} color={growthColor}>
-              Growth: <Counter from={from} to={to} duration={4} />
+              Growth: <Counter from={from} to={to} duration={7} />%
             </Text>
           </Center>,
           controls,
@@ -85,8 +88,6 @@ function WateringMany({
               position={"absolute"}
               left={"-30px"}
               bottom={"33px"}
-              // top={"144px"}
-              // right={"210px"}
             />,
             controls
           )}

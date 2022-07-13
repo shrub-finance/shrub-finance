@@ -198,6 +198,13 @@ export type Stringify<Type> = {
   [Property in keyof Type]: string;
 };
 
+export type potForWatering = {
+  id: string;
+  growth: number;
+  emotion: string;
+  type: string;
+};
+
 export type itemType = {
   tokenId: string;
   name: string;
@@ -209,6 +216,7 @@ export type itemType = {
   quantity?: number;
   growth?: number;
   wateringNextAvailable?: Date;
+  potsForWatering?: potForWatering[];
 };
 
 // https://stackoverflow.com/questions/41285211/overriding-interface-property-type-defined-in-typescript-d-ts-file/65561287#65561287

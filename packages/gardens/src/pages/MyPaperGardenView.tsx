@@ -395,6 +395,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           imageUrl: IMAGE_ASSETS.waterCan,
           category: "water",
           quantity: fungibleAssets.water,
+          potsForWatering: getPotsForWatering(),
         };
         updateSelectedItem(waterItem);
         tempMySeedDataRows.push(
@@ -468,7 +469,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <GardenGrid
             id={id}
             key={id}
-            canWater={wateringNextAvailable(lastWatering) < new Date()}
+            canWater={isWaterAvailable(growth, lastWatering)}
             waterNextAvailable={wateringNextAvailable(
               lastWatering
             ).toLocaleString()}
@@ -668,6 +669,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }
 
+  function isWaterAvailable(growth: number, lastWatering: number) {
+    return wateringNextAvailable(lastWatering) < new Date() && growth < 10000;
+  }
+
   async function handleRedeemNFT() {
     setLocalError("");
     setIsLoading(true);
@@ -734,6 +739,37 @@ function MyPaperGardenView(props: RouteComponentProps) {
       setTicketConfetti(false);
       handleErrorMessages({ err: e });
     }
+  }
+
+  function getPotsForWatering() {
+    if (!holdsPottedPlant) {
+      return [];
+    }
+    const now = new Date();
+    let wateringPlants;
+    try {
+      wateringPlants = mySeedData.user.pottedPlants.filter(
+        (p: { lastWatering: number; id: string; growth: number }) =>
+          isWaterAvailable(p.growth, p.lastWatering)
+      );
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+    return wateringPlants.map(
+      (p: {
+        id: string;
+        growth: number;
+        seed: { emotion: string; type: string };
+      }) => {
+        return {
+          id: p.id,
+          growth: p.growth,
+          emotion: p.seed.emotion,
+          type: p.seed.type,
+        };
+      }
+    );
   }
 
   return (
