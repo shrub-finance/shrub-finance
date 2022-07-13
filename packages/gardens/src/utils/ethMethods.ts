@@ -338,7 +338,9 @@ export async function water(
 ) {
   const signer = provider.getSigner();
   const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
-  return paperPot.water(tokenIds);
+  const gasEstimate = await paperPot.estimateGas.water(tokenIds);
+  const gasLimit = gasEstimate.mul(1150).div(1000);
+  return paperPot.water(tokenIds, { gasLimit });
 }
 
 export async function waterWithFertilizer(
@@ -347,7 +349,9 @@ export async function waterWithFertilizer(
 ) {
   const signer = provider.getSigner();
   const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
-  return paperPot.waterWithFertilizer(tokenIds);
+  const gasEstimate = await paperPot.estimateGas.waterWithFertilizer(tokenIds);
+  const gasLimit = gasEstimate.mul(1150).div(1000);
+  return paperPot.waterWithFertilizer(tokenIds, { gasLimit });
 }
 
 export async function harvestShrub(
