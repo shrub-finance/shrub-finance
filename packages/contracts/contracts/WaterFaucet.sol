@@ -16,7 +16,7 @@ contract WaterFaucet is AdminControl {
     uint constant POTTED_PLANT_BASE_TOKENID = 10 ** 6;
     uint constant SHRUB_BASE_TOKENID = 2 * 10 ** 6;
 
-    // tokenId => owner => delegate
+    // tokenId => delegate => owner
     mapping(uint => mapping(address => address)) private _delegations;
 
     // tokenId => timestamp
@@ -57,38 +57,44 @@ contract WaterFaucet is AdminControl {
         for (uint i = 0; i < tokenIds_.length; i++) {
             _validPottedPlant(tokenIds_[i]);
             require(_PAPER_POT.balanceOf(account_, tokenIds_[i]) > 0, "WaterFaucet: account does not own token");
-            _delegations[tokenIds_[i]][_msgSender()] = account_;
+            _delegations[tokenIds_[i]][account_] = _msgSender();
         }
     }
 
     // Admin methods
-    function setOpenTimeNext(uint openTimeNext_) external adminOnly {}
-    function setClosedTimeNext(uint closedTimeNext_) external adminOnly {}
-    function setDailyOpen(uint openTime_) external adminOnly {}
-    function setDailyClosed(uint closedTime_) external adminOnly {}
     function setCutoffTimes(CutoffTimes calldata cutoffTimes_) external adminOnly {}
 
     // External View
 
     // Internal Functions
+    function _ownerOrDelegate(uint tokenId_, address account_) internal view returns (bool) {
+        if (_PAPER_POT.balanceOf(account_, tokenId_) > 0) {
+            return true;
+        }
+        if (_PAPER_POT.balanceOf(_delegations[tokenId_][_msgSender()], tokenId_) > 0) {
+            return true;
+        }
+        return false;
+    }
 
     function _eligibleForClaim(uint tokenId_) internal view validPottedPlant(tokenId_) returns (bool) {
         // Ensure that token is either owned or delegated
-        // TODO: Add delegation allow
-        require(_PAPER_POT.balanceOf(_msgSender(), tokenId_) > 0, "WaterFaucet: account does not own token");
-        // Check that timestamp is from previous day
-        if (block.timestamp / 1 days == _lastClaims[tokenId_] / 1 days) {
+        require(_ownerOrDelegate(tokenId_, _msgSender()), "WaterFaucet: account not owner or delegate of token");
+        // Check that timestamp is not from previous period
+        if (
+            (block.timestamp - cutoffTimes.startTime1) / 1 days ==
+            (_lastClaims[tokenId_] - cutoffTimes.startTime1) / 1 days)
+        {
             return false;
         }
         uint time = block.timestamp % 1 days;
         if (
-            (time > cutoffTimes.startTime1 && time < cutoffTimes.endTime1) ||
-            (time > cutoffTimes.startTime2 && time < cutoffTimes.endTime2)
+            !(time > cutoffTimes.startTime1 && time < cutoffTimes.endTime1) &&
+            !(time > cutoffTimes.startTime2 && time < cutoffTimes.endTime2)
         ) {
-            return true;
-        } else {
             return false;
         }
+        return true;
     }
 
     // Private Functions
