@@ -18,6 +18,7 @@ import {
   Tr,
   Td,
   Heading,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { GARDENS_STATS_QUERY } from "../constants/queries";
@@ -165,7 +166,7 @@ function GardenStats() {
                 <StatsBox
                   name={"Seeds in Circulation"}
                   amount={seedsInCirculation()}
-                  imgSrc={""}
+                  imgSrc={IMAGE_ASSETS.seeds.Wonder.happy}
                   isLoading={gardenStatsLoading}
                 />
               </Td>
