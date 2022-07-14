@@ -171,7 +171,6 @@ function LeaderBoardView(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW="container.lg"
       >
-        <GardenStats />
         <Center mt={10}>
           {localError && (
             <SlideFade in={true} unmountOnExit={true}>
@@ -182,6 +181,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             </SlideFade>
           )}
         </Center>
+        <GardenStats />
         <Center mt={12}>
           <Heading
             fontSize={{ base: "30px", md: "50px" }}

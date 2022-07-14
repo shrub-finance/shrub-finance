@@ -36,7 +36,6 @@ function GrowthLeadBox({
     console.error(e);
     return <></>;
   }
-  console.log(decodedMetadata);
   const name = decodedMetadata.name;
   const classObj = decodedMetadata.attributes.find(
     (a: any) => a.trait_type === "Class"
@@ -47,7 +46,6 @@ function GrowthLeadBox({
   const type = classObj && classObj.value;
   const emotion = emoObj && emoObj.value;
   const stage = Math.floor(growth / 2000);
-  console.log(type, stage, emotion);
   const imgSrc = IMAGE_ASSETS.getPottedPlant(
     type,
     stage,

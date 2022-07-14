@@ -475,7 +475,7 @@ function SeedDetails({
                 href={openSeaLink}
                 isExternal
                 zIndex={2}
-                fontWeight={"medium"}
+                fontWeight={"semibold"}
               >
                 View in Open Sea
                 <ExternalLinkIcon mx="2px" />
