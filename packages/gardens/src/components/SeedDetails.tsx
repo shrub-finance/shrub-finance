@@ -436,7 +436,7 @@ function SeedDetails({
             px={4}
             pb={4}
           >
-            {/*image*/}
+            {/*Image*/}
             <Center mt={{ base: "6", md: "0" }}>
               <Image
                 objectFit={"cover"}
@@ -450,12 +450,14 @@ function SeedDetails({
                 }
               />
             </Center>
+
             {/*title*/}
             <Center mt={6}>
               <Heading fontSize={{ base: "lg", md: "xl", lg: "2xl" }}>
                 {selectedItem.name}
               </Heading>
             </Center>
+
             {/*open sea link*/}
             <Center>
               <Link
@@ -592,7 +594,14 @@ function SeedDetails({
               {selectedItem.category === "water" && (
                 <Tooltip
                   hasArrow
-                  label={"Water all eligible potted plants!"}
+                  label={
+                    fungibleAssets.water === 0 ||
+                    !selectedItem.potsForWatering ||
+                    !selectedItem.potsForWatering.length ||
+                    fungibleAssets.water < selectedItem.potsForWatering.length
+                      ? "No plants currently eligible for watering"
+                      : "Water all eligible potted plants!"
+                  }
                   shouldWrapChildren
                   mt="3"
                 >
