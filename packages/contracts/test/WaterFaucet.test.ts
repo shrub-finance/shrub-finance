@@ -371,6 +371,24 @@ describe("WaterFaucet", () => {
       expect(waterBefore).to.equal(0);
       expect(waterAfter).to.equal(2);
     });
+    it("Should not allow claiming in the next period after removing admin", async () => {
+      // 5:00a
+      nextBlockTime.setUTCDate(nextBlockTime.getUTCDate() + 1);
+      nextBlockTime.setUTCHours(5,0,0,0);
+      await paperPot.setAdmin(waterFaucet.address, true);
+      await ethers.provider.send('evm_setNextBlockTimestamp', [toEthDate(nextBlockTime)]);
+      const waterBefore = await paperPot.balanceOf(signer1.address, 3);
+      const tx = await signer1WaterFaucet.claim([1e6 + 1]);
+      nextBlockTime.setUTCHours(19,0,0,0);
+      await paperPot.setAdmin(waterFaucet.address, false);
+      await ethers.provider.send('evm_setNextBlockTimestamp', [toEthDate(nextBlockTime)]);
+      await expect(
+        signer1WaterFaucet.claim([1e6 + 1])
+      ).to.be.revertedWith("AdminControl: caller is not an admin");
+      const waterAfter = await paperPot.balanceOf(signer1.address, 3);
+      expect(waterBefore).to.equal(0);
+      expect(waterAfter).to.equal(1);
+    });
     it("Should allow claiming many", async () => {
       await paperPot.adminMintPot(signer1.address, 2);
       await paperSeed["safeTransferFrom(address,address,uint256)"](
