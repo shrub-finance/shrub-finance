@@ -49,7 +49,8 @@ function GrowthLeadBox({
   const imgSrc = IMAGE_ASSETS.getPottedPlant(
     type,
     stage,
-    emotion.toLowerCase()
+    emotion.toLowerCase(),
+    "shrub"
   );
 
   return (

@@ -41,7 +41,6 @@ function GardenStats() {
 
   useEffect(() => {
     console.debug("useEffect gardenStats");
-    console.log(gardenStatsData);
     if (!gardenStatsData) {
       return;
     }
