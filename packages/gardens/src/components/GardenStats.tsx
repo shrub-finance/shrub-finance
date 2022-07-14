@@ -18,6 +18,7 @@ import {
   Tr,
   Td,
   Heading,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { GARDENS_STATS_QUERY } from "../constants/queries";
@@ -165,11 +166,11 @@ function GardenStats() {
                 <StatsBox
                   name={"Seeds in Circulation"}
                   amount={seedsInCirculation()}
-                  imgSrc={""}
+                  imgSrc={IMAGE_ASSETS.seeds.Wonder.happy}
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Wonder"}
                   amount={getSeedCount("Wonder")}
@@ -177,7 +178,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Passion"}
                   amount={getSeedCount("Passion")}
@@ -185,7 +186,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Hope"}
                   amount={getSeedCount("Hope")}
@@ -193,7 +194,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Power"}
                   amount={getSeedCount("Power")}
@@ -211,7 +212,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={""}
                   amount={getPotCount("Wonder")}
@@ -224,7 +225,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={""}
                   amount={getPotCount("Passion")}
@@ -237,7 +238,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={""}
                   amount={getPotCount("Hope")}
@@ -250,7 +251,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={""}
                   amount={getPotCount("Power")}
