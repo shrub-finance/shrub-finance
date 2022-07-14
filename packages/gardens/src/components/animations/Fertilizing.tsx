@@ -2,6 +2,7 @@ import { AnimationControls, useAnimation } from "framer-motion";
 import {
   Box,
   Center,
+  Image,
   Text,
   useColorMode,
   useColorModeValue,
@@ -38,6 +39,7 @@ import {
 import React, { useState } from "react";
 import { Appear, Disappear } from "./Fade";
 import { Counter } from "../Counter";
+import { IMAGE_ASSETS } from "../../utils/imageAssets";
 
 function Fertilizing({
   seedClass,
@@ -52,51 +54,37 @@ function Fertilizing({
   fromArg: number;
   growthAmountArg: number;
 }) {
-  console.debug("rendering Fertilizing");
   const from = fromArg;
   const to = fromArg + growthAmountArg;
+  const stage = IMAGE_ASSETS.percentageToStage(from);
 
   const growthColor = useColorModeValue("pink.400", "pink.300");
   const dropColor = useColorModeValue("blue.300", "blue.100");
 
-  function getPotSvg(seedClass: string, emotion: string) {
-    return seedClass === "Wonder" ? (
-      emotion === "happy" ? (
-        <WonderPot />
-      ) : (
-        <WonderSadPot />
-      )
-    ) : seedClass === "Passion" ? (
-      emotion === "happy" ? (
-        <PassionPot />
-      ) : (
-        <PassionSadPot />
-      )
-    ) : seedClass === "Hope" ? (
-      emotion === "happy" ? (
-        <HopePot />
-      ) : (
-        <HopeSadPot />
-      )
-    ) : seedClass === "Power" ? (
-      <PowerPot />
-    ) : (
-      <></>
-    );
-  }
-
   return (
     <Center>
       <Center>
-        {React.cloneElement(getPotSvg(seedClass, emotion), {
-          boxSize: 40,
-          position: "relative",
-          bottom: "-146px",
-          left: "96px",
-        })}
+        <Image
+          src={IMAGE_ASSETS.getPottedPlant(
+            seedClass,
+            IMAGE_ASSETS.percentageToStage(from),
+            emotion
+          )}
+          alt={seedClass}
+          boxSize={80}
+          position="absolute"
+          left={"130px"}
+          bottom={
+            stage === 0 || stage === 1 || stage === 2
+              ? "-50px"
+              : stage === 3
+              ? "-24px"
+              : 0
+          }
+        />
       </Center>
       {Growth(
-        <Center position={"absolute"} top={"150px"}>
+        <Center position={"absolute"} top={"124px"}>
           <Text fontSize={"25px"} fontWeight={"bold"} color={growthColor}>
             Growth: <Counter from={from} to={to} duration={10} />%
           </Text>
@@ -119,7 +107,7 @@ function Fertilizing({
         {Tilt(
           <WateringCan boxSize={44} />,
           controls,
-          [87, 87, 87],
+          [166, 166, 166],
           [33, 12, 33]
         )}
       </Center>
@@ -129,15 +117,15 @@ function Fertilizing({
             stroke={dropColor}
             boxSize={28}
             position={"absolute"}
-            top={"229px"}
-            left={"188px"}
+            top={"228px"}
+            left={"189px"}
           />,
           controls
         )}
         {Tilt2(
           <Fertilizer boxSize={28} position={"absolute"} />,
           controls,
-          [-367, -367, -367],
+          [-286, -286, -286],
           [-1, -26, -1]
         )}
       </Center>
