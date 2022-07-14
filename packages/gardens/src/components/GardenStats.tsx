@@ -61,6 +61,7 @@ function GardenStats() {
       }
       tempGrowthLeadBoardRows.push(
         <GrowthLeadBox
+          key={i}
           base64Uri={uri}
           position={i}
           owner={owner}
@@ -215,7 +216,12 @@ function GardenStats() {
                 <StatsBox
                   name={""}
                   amount={getPotCount("Wonder")}
-                  imgSrc={IMAGE_ASSETS.getPottedPlant("Wonder", 0, "happy")}
+                  imgSrc={IMAGE_ASSETS.getPottedPlant(
+                    "Wonder",
+                    0,
+                    "happy",
+                    "shrub"
+                  )}
                   isLoading={gardenStatsLoading}
                 />
               </Td>
@@ -223,7 +229,12 @@ function GardenStats() {
                 <StatsBox
                   name={""}
                   amount={getPotCount("Passion")}
-                  imgSrc={IMAGE_ASSETS.getPottedPlant("Passion", 0, "happy")}
+                  imgSrc={IMAGE_ASSETS.getPottedPlant(
+                    "Passion",
+                    0,
+                    "happy",
+                    "shrub"
+                  )}
                   isLoading={gardenStatsLoading}
                 />
               </Td>
@@ -231,7 +242,12 @@ function GardenStats() {
                 <StatsBox
                   name={""}
                   amount={getPotCount("Hope")}
-                  imgSrc={IMAGE_ASSETS.getPottedPlant("Hope", 0, "happy")}
+                  imgSrc={IMAGE_ASSETS.getPottedPlant(
+                    "Hope",
+                    0,
+                    "happy",
+                    "shrub"
+                  )}
                   isLoading={gardenStatsLoading}
                 />
               </Td>
@@ -239,7 +255,12 @@ function GardenStats() {
                 <StatsBox
                   name={""}
                   amount={getPotCount("Power")}
-                  imgSrc={IMAGE_ASSETS.getPottedPlant("Power", 0, "happy")}
+                  imgSrc={IMAGE_ASSETS.getPottedPlant(
+                    "Power",
+                    0,
+                    "happy",
+                    "shrub"
+                  )}
                   isLoading={gardenStatsLoading}
                 />
               </Td>
