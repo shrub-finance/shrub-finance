@@ -162,7 +162,7 @@ function GardenStats() {
           </TableCaption>
           <Tbody>
             <Tr>
-              <Td display={{ base: "none", md: "table-cell" }}>
+              <Td>
                 <StatsBox
                   name={"Seeds in Circulation"}
                   amount={seedsInCirculation()}
@@ -186,7 +186,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Hope"}
                   amount={getSeedCount("Hope")}
