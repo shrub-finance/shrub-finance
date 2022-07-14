@@ -49,7 +49,7 @@ export function handleErrorMessagesFactory(
         } else if (err.message.includes("PaperPot: invalid ticket tokenId")) {
           setter("Minting has been paused - #1005");
         } else if (err.message.includes("PaperPot: Insufficient balance")) {
-          setter("Not enough planting material");
+          setter("Not enough material to perform this action");
         } else if (err.message.includes("Must own seed to plant")) {
           setter(
             "Looks like there is no seed to plant. Try refreshing the page."
