@@ -162,7 +162,7 @@ function GardenStats() {
           </TableCaption>
           <Tbody>
             <Tr>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Seeds in Circulation"}
                   amount={seedsInCirculation()}
@@ -170,7 +170,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Wonder"}
                   amount={getSeedCount("Wonder")}
@@ -178,7 +178,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Passion"}
                   amount={getSeedCount("Passion")}
@@ -194,7 +194,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={"Power"}
                   amount={getSeedCount("Power")}
@@ -212,7 +212,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={""}
                   amount={getPotCount("Wonder")}
@@ -225,7 +225,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={""}
                   amount={getPotCount("Passion")}
@@ -238,7 +238,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={""}
                   amount={getPotCount("Hope")}
@@ -251,7 +251,7 @@ function GardenStats() {
                   isLoading={gardenStatsLoading}
                 />
               </Td>
-              <Td>
+              <Td display={{ base: "none", md: "table-cell" }}>
                 <StatsBox
                   name={""}
                   amount={getPotCount("Power")}
