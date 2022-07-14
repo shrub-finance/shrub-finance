@@ -9,7 +9,6 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { WateringCan } from "../assets/Icons";
-import { wateringNextAvailable } from "../utils/ethMethods";
 
 function GardenGrid({
   id,
@@ -85,7 +84,7 @@ function GardenGrid({
               h={20}
               src={imgCallback()}
               cursor={"pointer"}
-              transform={category === "pottedPlant" ? "scale(1.5)" : undefined}
+              transform={category === "pottedPlant" ? "scale(1.3)" : undefined}
             />
           </Box>
         </Tooltip>

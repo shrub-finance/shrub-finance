@@ -118,6 +118,8 @@ function SeedDetails({
       : PAPER_POT_ADDRESS
   }/${selectedItem.tokenId}`;
 
+  const growthPercentage = Math.floor(selectedItem.growth / 10) / 10;
+
   const animationKeyframes = keyframes`
     0% {
       background-position: 0 50%;
@@ -444,8 +446,15 @@ function SeedDetails({
                 src={selectedItem.imageUrl}
                 alt={selectedItem.name}
                 transform={
-                  selectedItem.category === "pottedPlant"
+                  selectedItem.category === "pottedPlant" &&
+                  growthPercentage < 20
                     ? "scale(2)"
+                    : 20 < growthPercentage && growthPercentage < 60
+                    ? "scale(1.8)"
+                    : 60 < growthPercentage && growthPercentage < 80
+                    ? "scale(1.4)"
+                    : 80 < growthPercentage && growthPercentage <= 100
+                    ? "scale(1.2)"
                     : undefined
                 }
               />
@@ -560,7 +569,7 @@ function SeedDetails({
                             ? "Uncommon 💍"
                             : "Common"
                         }`
-                      : `Growth: ${Math.floor(selectedItem.growth / 10) / 10}%`}
+                      : `Growth: ${growthPercentage}%`}
                   </Badge>
                 </Stack>
                 <Stack
