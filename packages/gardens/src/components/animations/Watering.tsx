@@ -2,6 +2,7 @@ import { AnimationControls, useAnimation } from "framer-motion";
 import {
   Box,
   Center,
+  Image,
   Text,
   useColorMode,
   useColorModeValue,
@@ -12,6 +13,10 @@ import {
   HopePot,
   HopeSad,
   HopeSadPot,
+  Leaf1,
+  Leaf2,
+  Leaf3,
+  Leaf4,
   Passion,
   PassionPot,
   PassionSad,
@@ -29,6 +34,7 @@ import {
 import React, { useState } from "react";
 import { Appear, Disappear } from "./Fade";
 import { Counter } from "../Counter";
+import { IMAGE_ASSETS } from "../../utils/imageAssets";
 
 function Watering({
   seedClass,
@@ -43,50 +49,36 @@ function Watering({
   fromArg: number;
   growthAmountArg: number;
 }) {
-  console.debug("rendering Watering");
   const from = fromArg;
   const to = fromArg + growthAmountArg;
 
   const growthColor = useColorModeValue("pink.400", "pink.300");
   const dropColor = useColorModeValue("blue.300", "blue.100");
-
-  function getPotSvg(seedClass: string, emotion: string) {
-    return seedClass === "Wonder" ? (
-      emotion === "happy" ? (
-        <WonderPot />
-      ) : (
-        <WonderSadPot />
-      )
-    ) : seedClass === "Passion" ? (
-      emotion === "happy" ? (
-        <PassionPot />
-      ) : (
-        <PassionSadPot />
-      )
-    ) : seedClass === "Hope" ? (
-      emotion === "happy" ? (
-        <HopePot />
-      ) : (
-        <HopeSadPot />
-      )
-    ) : seedClass === "Power" ? (
-      <PowerPot />
-    ) : (
-      <></>
-    );
-  }
+  const stage = IMAGE_ASSETS.percentageToStage(from);
 
   return (
     <>
       <Center>
-        {React.cloneElement(getPotSvg(seedClass, emotion), {
-          boxSize: 40,
-          position: "relative",
-          bottom: "-146px",
-        })}
+        <Image
+          src={IMAGE_ASSETS.getPottedPlant(
+            seedClass,
+            IMAGE_ASSETS.percentageToStage(from),
+            emotion
+          )}
+          alt={seedClass}
+          boxSize={80}
+          position="absolute"
+          bottom={
+            stage === 0 || stage === 1 || stage === 2
+              ? "-50px"
+              : stage === 3
+              ? "-24px"
+              : 0
+          }
+        />
       </Center>
       {Growth(
-        <Center position={"absolute"} top={"150px"}>
+        <Center position={"absolute"} top={"124px"}>
           <Text fontSize={"25px"} fontWeight={"bold"} color={growthColor}>
             Growth: <Counter from={from} to={to} duration={7} />%
           </Text>
@@ -110,7 +102,7 @@ function Watering({
           <WateringCan boxSize={44} />,
           controls,
           [154, 154, 154],
-          [-128, -147, -128]
+          [33, 13, 33]
         )}
       </Center>
     </>

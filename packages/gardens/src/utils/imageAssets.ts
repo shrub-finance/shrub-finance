@@ -30,4 +30,7 @@ export const IMAGE_ASSETS: any = {
   // use for potted plant asset
   getPottedPlant: (type: string, stage: number, emotion: string) =>
     `${IPFS_POTTED_PLANT}/pottedplant-${type}-${stage}-${emotion}.svg`,
+
+  percentageToStage: (growthPercentage: number) =>
+    Math.floor(growthPercentage / 0.2),
 };
