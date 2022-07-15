@@ -180,7 +180,7 @@ export function Shake(animationItem: JSX.Element, controls: AnimationControls) {
         stiffness: 100,
         duration: 0.25,
         repeat: 4,
-        delay: 9,
+        delay: 1.5,
       }}
     >
       {animationItem}
@@ -201,10 +201,7 @@ export function Grow(animationItem: JSX.Element, controls: AnimationControls) {
       transition={{
         type: "spring",
         stiffness: 100,
-        // opacity: { delay: 9, duration: 3, times: [0, 0.25, 0.5, 0.75, 1] },
-        // default: { delay: 4, duration: 2 },
-        opacity: { delay: 2.5, duration: 3, times: [0, 0.25, 0.5, 0.75, 1] },
-        default: { delay: 4, duration: 2 },
+        opacity: { delay: 1.5, duration: 4, times: [0, 0.25, 0.5, 0.75, 1] },
       }}
     >
       {animationItem}

@@ -54,6 +54,8 @@ import { Fertilizer, Pot, Water, WateringCan } from "../assets/Icons";
 import { itemType } from "../types";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { Grow } from "./animations/TransformScale";
+import StageChange from "./animations/StageChange";
+import Confetti from "../assets/Confetti";
 
 function SeedDetails({
   hooks,
@@ -95,7 +97,8 @@ function SeedDetails({
   const [localError, setLocalError] = useState("");
   const [approving, setApproving] = React.useState(false);
   const [stillGrowing, setStillGrowing] = React.useState(true);
-  const [showConfetti, setShowConfetti] = React.useState(false);
+  // const [showConfetti, setShowConfetti] = React.useState(false);
+  const [showGrowth, setShowGrowth] = React.useState(false);
   const [modalState, setModalState] = useState<
     "plant" | "water" | "waterAll" | "fertilize" | "harvest" | "planting"
   >("plant");
@@ -244,7 +247,7 @@ function SeedDetails({
         const growEvent = receipt.events?.find(
           (event) => event.event === "Grow"
         );
-        console.log(growEvent);
+
         if (
           description === "Watering All" &&
           selectedItem.category === "water"
@@ -260,6 +263,10 @@ function SeedDetails({
           const growth: number = growEvent.args.growthBps;
           const tokenId = growEvent.args.tokenId || ethers.constants.Zero;
           const growthDiff = growEvent.args.growthAmount;
+          if (Math.floor(growth / 2000) - Math.floor(growthDiff / 2000) === 0) {
+            setShowGrowth(true);
+          }
+
           if (tokenId.eq(selectedItem.tokenId) && growth) {
             const timestamp = await getBlockTime(receipt.blockHash, library);
             const pottedPlantItem: itemType = {
@@ -340,8 +347,6 @@ function SeedDetails({
         });
         setApproving(false);
         console.debug(`setting approving false`);
-        setShowConfetti(false);
-        console.debug(`setting showConfetti false`);
       }
     } catch (e: any) {
       if (e.message.includes("Must own a pot token to plant")) {
@@ -349,7 +354,6 @@ function SeedDetails({
       }
       handleErrorMessages({ err: e });
       setApproving(false);
-      setShowConfetti(false);
     }
   }
   function handlePlanting() {
@@ -412,7 +416,7 @@ function SeedDetails({
 
   return (
     <>
-      {/*{activeHash && showConfetti && <Confetti />}*/}
+      {/*{showGrowth && <Confetti />}*/}
       <Center mt={10} mb={4}>
         {localError && (
           <SlideFade in={true} unmountOnExit={true}>
@@ -440,24 +444,32 @@ function SeedDetails({
           >
             {/*Image*/}
             <Center mt={{ base: "6", md: "0" }}>
-              <Image
-                objectFit={"cover"}
-                maxH={{ base: "250px", md: "250px", lg: "250" }}
-                src={selectedItem.imageUrl}
-                alt={selectedItem.name}
-                transform={
-                  selectedItem.category === "pottedPlant" &&
-                  growthPercentage < 20
-                    ? "scale(2)"
-                    : 20 < growthPercentage && growthPercentage < 60
-                    ? "scale(1.8)"
-                    : 60 < growthPercentage && growthPercentage < 80
-                    ? "scale(1.4)"
-                    : 80 < growthPercentage && growthPercentage <= 100
-                    ? "scale(1.2)"
-                    : undefined
-                }
-              />
+              {showGrowth && selectedItem.category === "pottedPlant" ? (
+                <StageChange
+                  seedClass={selectedItem.type}
+                  emotion={selectedItem.emotion}
+                  growthPercentage={growthPercentage}
+                />
+              ) : (
+                <Image
+                  objectFit={"cover"}
+                  maxH={{ base: "250px", md: "250px", lg: "250px" }}
+                  src={selectedItem.imageUrl}
+                  alt={selectedItem.name}
+                  transform={
+                    selectedItem.category === "pottedPlant" &&
+                    growthPercentage < 20
+                      ? "scale(2)"
+                      : 20 < growthPercentage && growthPercentage < 60
+                      ? "scale(1.8)"
+                      : 60 < growthPercentage && growthPercentage < 80
+                      ? "scale(1.4)"
+                      : 80 < growthPercentage && growthPercentage <= 100
+                      ? "scale(1.2)"
+                      : undefined
+                  }
+                />
+              )}
             </Center>
 
             {/*title*/}
@@ -590,7 +602,11 @@ function SeedDetails({
                     >
                       Watering Available:{" "}
                       {selectedItem.wateringNextAvailable >= new Date()
-                        ? selectedItem.wateringNextAvailable.toLocaleString()
+                        ? selectedItem &&
+                          selectedItem.wateringNextAvailable &&
+                          selectedItem.wateringNextAvailable.toLocaleString()
+                        : fungibleAssets.water === 0
+                        ? "No 😞"
                         : "Now 🚀"}
                     </Badge>
                   )}
@@ -648,9 +664,14 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    fungibleAssets.water === 0 ||
-                    selectedItem.wateringNextAvailable > new Date()
-                      ? `Watering will become available for this potted plant on ${selectedItem.wateringNextAvailable.toLocaleString()}`
+                    fungibleAssets.water === 0
+                      ? "You don't have any water. First get some."
+                      : selectedItem.wateringNextAvailable > new Date()
+                      ? `Watering will become available for this potted plant on ${
+                          selectedItem &&
+                          selectedItem.wateringNextAvailable &&
+                          selectedItem.wateringNextAvailable.toLocaleString()
+                        }`
                       : "Watering is available!"
                   }
                   shouldWrapChildren
@@ -816,6 +837,7 @@ function SeedDetails({
           </Box>
         )}
       </Box>
+
       <Modal
         isOpen={isOpen}
         onClose={handleModalClose}
