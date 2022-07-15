@@ -197,6 +197,13 @@ function SeedDetails({
     });
   }, [account, selectedItem, pendingTxsState]);
 
+  useEffect(() => {
+    console.debug("SeedDetails useEffect 6 - selectedItem");
+    if (showGrowth) {
+      setShowGrowth(false);
+    }
+  }, [selectedItem]);
+
   const MotionModalContent = motion<ModalContentProps>(ModalContent);
 
   function handleModalClose() {
@@ -263,14 +270,6 @@ function SeedDetails({
           const growth: number = growEvent.args.growthBps;
           const tokenId = growEvent.args.tokenId || ethers.constants.Zero;
           const growthDiff = growEvent.args.growthAmount;
-          const showStageChangeAnimation =
-            Math.floor(growth / 2000) -
-              Math.floor((growth - growthDiff) / 2000) !==
-            0;
-          if (showStageChangeAnimation !== showGrowth) {
-            setShowGrowth(showStageChangeAnimation);
-          }
-
           if (tokenId.eq(selectedItem.tokenId) && growth) {
             const timestamp = await getBlockTime(receipt.blockHash, library);
             const pottedPlantItem: itemType = {
@@ -289,6 +288,13 @@ function SeedDetails({
               wateringNextAvailable: wateringNextAvailable(timestamp),
             };
             setSelectedItem(pottedPlantItem);
+          }
+          const showStageChangeAnimation =
+            Math.floor(growth / 2000) -
+              Math.floor((growth - growthDiff) / 2000) !==
+            0;
+          if (showStageChangeAnimation !== showGrowth) {
+            setShowGrowth(showStageChangeAnimation);
           }
         }
         const plantEvent = receipt.events?.find(
