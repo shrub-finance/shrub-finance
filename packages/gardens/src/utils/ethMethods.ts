@@ -338,7 +338,9 @@ export async function water(
 ) {
   const signer = provider.getSigner();
   const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
-  return paperPot.water(tokenIds);
+  const gasEstimate = await paperPot.estimateGas.water(tokenIds);
+  const gasLimit = gasEstimate.mul(1150).div(1000);
+  return paperPot.water(tokenIds, { gasLimit });
 }
 
 export async function waterWithFertilizer(
@@ -347,7 +349,9 @@ export async function waterWithFertilizer(
 ) {
   const signer = provider.getSigner();
   const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
-  return paperPot.waterWithFertilizer(tokenIds);
+  const gasEstimate = await paperPot.estimateGas.waterWithFertilizer(tokenIds);
+  const gasLimit = gasEstimate.mul(1150).div(1000);
+  return paperPot.waterWithFertilizer(tokenIds, { gasLimit });
 }
 
 export async function harvestShrub(
@@ -417,6 +421,14 @@ export function formatTime(date: number | Date) {
   });
 }
 
+export async function getBlockTime(
+  blockHash: string,
+  provider: JsonRpcProvider
+) {
+  const block = await provider.getBlock(blockHash);
+  return block.timestamp;
+}
+
 export function getBlockNumber(provider: JsonRpcProvider) {
   return provider.getBlockNumber();
 }
@@ -463,4 +475,43 @@ export async function approveToken(
     throw new Error("Allowance is sufficient. You don't need to approve.");
   }
   return erc20Contract.approve(spenderAddress, bigAmount);
+}
+
+export function decodeBase64Uri(uri: string) {
+  let decodedMetadata = "";
+  try {
+    const splitUri = uri.split(",");
+    const decodedBase64Bytes = ethers.utils.base64.decode(splitUri[1]);
+    const utf8String = ethers.utils.toUtf8String(decodedBase64Bytes);
+    decodedMetadata = JSON.parse(utf8String);
+  } catch (e) {
+    console.error(e);
+  }
+  return decodedMetadata;
+}
+
+export function wateringNextAvailable(lastWatering: number): Date {
+  const lastWateringDate = fromEthDate(lastWatering);
+  if (lastWateringDate.toString() === "Invalid Date") {
+    throw new Error("Invalid Date");
+  }
+  // 8 hours must have passed
+  const eightHoursFromWatering = new Date(lastWateringDate);
+  eightHoursFromWatering.setUTCHours(eightHoursFromWatering.getUTCHours() + 8);
+
+  // It must also be the next day
+  const nextDayMidnight = new Date(lastWateringDate);
+  nextDayMidnight.setUTCDate(nextDayMidnight.getUTCDate() + 1);
+  nextDayMidnight.setUTCHours(0, 0, 0, 0);
+
+  //nextWateringDate must meet both conditions
+  const nextWateringDate = new Date(
+    Math.max(eightHoursFromWatering.getTime(), nextDayMidnight.getTime())
+  );
+  return nextWateringDate;
+}
+
+export function wateringAvailableNow(lastWatering: number): boolean {
+  const now = new Date();
+  return now > wateringNextAvailable(lastWatering);
 }

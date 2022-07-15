@@ -72,6 +72,7 @@ export const MY_GARDENS_QUERY = gql`
       pottedPlants {
         id
         growth
+        lastWatering
         seed {
           name
           dna
@@ -102,6 +103,33 @@ export const SEED_OWNERSHIP_QUERY = gql`
         born
         bornBlock
       }
+    }
+  }
+`;
+
+export const GARDENS_STATS_QUERY = gql`
+  query Stats {
+    typeStats {
+      virgin
+      unmoved
+      treasury
+      planted
+      id
+      harvested
+      claimed
+      circulation
+      burned
+    }
+    pottedPlants(orderBy: growth, orderDirection: desc) {
+      id
+      growth
+      owner {
+        id
+      }
+      uri
+    }
+    users(where: { potCount_gt: "0" }) {
+      potCount
     }
   }
 `;

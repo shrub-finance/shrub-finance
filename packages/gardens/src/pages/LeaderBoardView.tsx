@@ -25,6 +25,7 @@ import {
   Stack,
   Link,
   Spinner,
+  Box,
 } from "@chakra-ui/react";
 import { Link as ReachLink, RouteComponentProps } from "@reach/router";
 import React, { useEffect, useState } from "react";
@@ -43,6 +44,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import useTruncateAddress from "../hooks/useTruncateAddress";
 import { b } from "../constants/dictionary";
 import { trackEvent } from "../utils/handleGATracking";
+import GardenStats from "../components/GardenStats";
 function handleGA(event: any) {
   trackEvent({
     action: event.type,
@@ -167,7 +169,7 @@ function LeaderBoardView(props: RouteComponentProps) {
         p={5}
         flex="1"
         borderRadius="2xl"
-        maxW="container.sm"
+        maxW="container.lg"
       >
         <Center mt={10}>
           {localError && (
@@ -179,7 +181,8 @@ function LeaderBoardView(props: RouteComponentProps) {
             </SlideFade>
           )}
         </Center>
-        <Center>
+        <GardenStats />
+        <Center mt={12}>
           <Heading
             fontSize={{ base: "30px", md: "50px" }}
             letterSpacing={"tight"}
@@ -187,7 +190,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             maxW="60rem"
             mb={{ base: 8, md: 14 }}
           >
-            Leaderboard
+            Seed Leaderboard
           </Heading>
         </Center>
         <Center>

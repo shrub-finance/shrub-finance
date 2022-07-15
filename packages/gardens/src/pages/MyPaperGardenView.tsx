@@ -69,6 +69,7 @@ import {
   getBigWalletBalance,
   getTicketData,
   redeemNFTTicket,
+  wateringNextAvailable,
 } from "../utils/ethMethods";
 import CountdownTimer from "../components/CountdownTimer";
 import GardenGrid from "../components/GardenGrid";
@@ -394,6 +395,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           imageUrl: IMAGE_ASSETS.waterCan,
           category: "water",
           quantity: fungibleAssets.water,
+          potsForWatering: getPotsForWatering(),
         };
         updateSelectedItem(waterItem);
         tempMySeedDataRows.push(
@@ -440,11 +442,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
     if (holdsPottedPlant) {
       // id, name, image
       for (const pottedPlant of mySeedData.user.pottedPlants) {
-        const { id, growth, seed } = pottedPlant;
+        const { id, growth, seed, lastWatering } = pottedPlant;
         const { name, dna, emotion, type } = seed;
-        const imageUrl =
-          // @ts-ignore
-          IMAGE_ASSETS.getPottedPlant(type, Math.floor(growth / 2000), emotion);
+        const imageUrl = IMAGE_ASSETS.getPottedPlant(
+          type,
+          Math.floor(growth / 2000),
+          emotion
+        );
         console.debug(imageUrl);
 
         const pottedPlantItem: itemType = {
@@ -456,6 +460,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           imageUrl: imageUrl,
           growth: growth,
           category: "pottedPlant",
+          wateringNextAvailable: wateringNextAvailable(lastWatering),
         };
         if (pottedPlant === mySeedData.user.pottedPlants[0]) {
           updateSelectedItem(pottedPlantItem);
@@ -464,6 +469,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <GardenGrid
             id={id}
             key={id}
+            canWater={isWaterAvailable(growth, lastWatering)}
+            waterNextAvailable={wateringNextAvailable(
+              lastWatering
+            ).toLocaleString()}
             name={`#${id}`}
             category="pottedPlant"
             onClick={() => {
@@ -660,6 +669,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }
 
+  function isWaterAvailable(growth: number, lastWatering: number) {
+    return wateringNextAvailable(lastWatering) < new Date() && growth < 10000;
+  }
+
   async function handleRedeemNFT() {
     setLocalError("");
     setIsLoading(true);
@@ -728,6 +741,37 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }
 
+  function getPotsForWatering() {
+    if (!holdsPottedPlant) {
+      return [];
+    }
+    const now = new Date();
+    let wateringPlants;
+    try {
+      wateringPlants = mySeedData.user.pottedPlants.filter(
+        (p: { lastWatering: number; id: string; growth: number }) =>
+          isWaterAvailable(p.growth, p.lastWatering)
+      );
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+    return wateringPlants.map(
+      (p: {
+        id: string;
+        growth: number;
+        seed: { emotion: string; type: string };
+      }) => {
+        return {
+          id: p.id,
+          growth: p.growth,
+          emotion: p.seed.emotion,
+          type: p.seed.type,
+        };
+      }
+    );
+  }
+
   return (
     <>
       {/*{activeHash && ticketConfetti && <Confetti />}*/}
@@ -751,7 +795,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         </Center>
         {/*heading*/}
         <Center>
-          <VStack mb={{ base: 8, md: 14 }}>
+          <VStack mb={{ base: 8, md: 0 }}>
             <Heading
               fontSize={{ base: "30px", md: "30px", lg: "50px" }}
               letterSpacing={"tight"}
@@ -765,7 +809,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 background="gold.100"
                 bgClip="text"
                 sx={{
-                  "-webkit-text-stroke":
+                  WebkitTextStroke:
                     colorMode === "light"
                       ? { base: "1px #7e5807", md: "2px #7e5807" }
                       : "transparent",

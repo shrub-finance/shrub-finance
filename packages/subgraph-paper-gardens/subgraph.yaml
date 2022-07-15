@@ -143,4 +143,6 @@ dataSources:
           handler: handlePlant
         - event: Harvest(uint256,uint256,address)
           handler: handleHarvest
+        - event: URI(string,indexed uint256)
+          handler: handleUri
       file: ./src/mapping-paper-pot.ts

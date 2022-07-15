@@ -20,22 +20,29 @@ import {
   Icon,
   TimeIcon,
 } from "@chakra-ui/icons";
-import { PendingTxState } from "../types";
+import { PendingTxState, potForWatering } from "../types";
 import { VscError } from "react-icons/all";
 import { isMobile } from "react-device-detect";
 import { ExplorerDataType, explorerLink } from "../utils/chainMethods";
 import { useWeb3React } from "@web3-react/core";
 import { Planting } from "./animations/Planting";
 import { useAnimation } from "framer-motion";
+import Watering from "./animations/Watering";
+import Fertilizing from "./animations/Fertilizing";
+import WaterAll from "./animations/WaterAll";
 
 export function Txmonitor({
   txHash,
   seed,
   emotion,
+  growth,
+  potsForWatering,
 }: {
   txHash?: string;
   seed?: string;
   emotion?: string;
+  growth?: number;
+  potsForWatering?: potForWatering[];
 }) {
   console.debug("rendering Txmonitor");
   const { chainId } = useWeb3React();
@@ -85,6 +92,16 @@ export function Txmonitor({
   const { status, description } = pendingTxsState[txHash];
   console.debug(pendingTxsState[txHash]);
 
+  function getGrowthAmount(description: string, emotion?: string) {
+    return description === "Fertilizing"
+      ? emotion === "sad"
+        ? 2.07
+        : 4.13
+      : emotion === "sad"
+      ? 1.38
+      : 2.75;
+  }
+
   return (
     <>
       {status === "confirming" &&
@@ -94,6 +111,33 @@ export function Txmonitor({
               seedClass={seed || ""}
               emotion={emotion || ""}
               controls={controls}
+            />
+          </Box>
+        ) : description === "Watering" ? (
+          <Box>
+            <Watering
+              seedClass={seed || ""}
+              emotion={emotion || ""}
+              controls={controls}
+              fromArg={(growth || 0) / 100}
+              growthAmountArg={getGrowthAmount(description, emotion)}
+            />
+          </Box>
+        ) : description === "Fertilizing" ? (
+          <Box>
+            <Fertilizing
+              seedClass={seed || ""}
+              emotion={emotion || ""}
+              controls={controls}
+              fromArg={(growth || 0) / 100}
+              growthAmountArg={getGrowthAmount(description, emotion)}
+            />
+          </Box>
+        ) : description === "Watering All" ? (
+          <Box>
+            <WaterAll
+              controls={controls}
+              potsForWatering={potsForWatering || []}
             />
           </Box>
         ) : (
@@ -129,6 +173,20 @@ export function Txmonitor({
             </AlertDescription>
           </Alert>
         ))}
+
+      {/*{status === "confirmed" && (*/}
+      {/*  <Box>*/}
+      {/*<Fertilizing*/}
+      {/*  seedClass={seed || ""}*/}
+      {/*  emotion={emotion || ""}*/}
+      {/*  controls={controls}*/}
+      {/*  fromArg={(growth || 0) / 10000}*/}
+      {/*  growthAmountArg={getGrowthAmount(description, emotion)}*/}
+      {/*/>*/}
+      {/*<Watering seedClass={seed || ""} emotion={emotion || ""} controls={controls} fromArg={(growth || 0) / 10000} growthAmountArg={getGrowthAmount(description, emotion)}/>*/}
+      {/*<WaterAll controls={controls} potsForWatering={potsForWatering || []}/>*/}
+      {/*  </Box>*/}
+      {/*)}*/}
 
       {status === "confirmed" && (
         <Alert

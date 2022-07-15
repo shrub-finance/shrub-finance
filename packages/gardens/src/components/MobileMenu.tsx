@@ -56,6 +56,19 @@ function MobileMenu({ onMenuClose }) {
         </Link>
         <Link
           as={ReachLink}
+          to="/leaderboard"
+          variant="ghost"
+          cursor="pointer"
+          px={2}
+          py={{ base: "3", md: "1", lg: "1" }}
+          rounded={"lg"}
+          _hover={{ textDecoration: "none", bgGradient: gradient }}
+          onClick={handleClick}
+        >
+          Leaderboard
+        </Link>
+        <Link
+          as={ReachLink}
           to="/chapters"
           variant="ghost"
           cursor="pointer"
@@ -81,19 +94,6 @@ function MobileMenu({ onMenuClose }) {
         {/*>*/}
         {/*  Adoption*/}
         {/*</Link>*/}
-        <Link
-          as={ReachLink}
-          to="/leaderboard"
-          variant="ghost"
-          cursor="pointer"
-          px={2}
-          py={{ base: "3", md: "1", lg: "1" }}
-          rounded={"lg"}
-          _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={handleClick}
-        >
-          Leaderboard
-        </Link>
         <Link
           as={ReachLink}
           to="/opensea"
