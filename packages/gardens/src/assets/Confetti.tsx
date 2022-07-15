@@ -12,6 +12,7 @@ export default function Confetti() {
   const particlesLoaded = (container: any) => {};
 
   return (
+    // @ts-ignore
     <Particles
       id="tsparticles"
       // @ts-ignore
