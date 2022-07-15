@@ -31,7 +31,7 @@ contract WaterFaucet is AdminControl {
 
     CutoffTimes cutoffTimes;
 
-    event Claim(address account, uint amount);
+    event Claim(address account, uint[] tokenIds);
 
     // Constructor
     constructor(
@@ -52,7 +52,7 @@ contract WaterFaucet is AdminControl {
             _lastClaims[tokenIds_[i]] = block.timestamp;
         }
         _PAPER_POT.adminDistributeWater(_msgSender(), tokenIds_.length);
-        emit Claim(_msgSender(), tokenIds_.length);
+        emit Claim(_msgSender(), tokenIds_);
         return tokenIds_.length;
     }
 
