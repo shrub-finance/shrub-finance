@@ -263,8 +263,12 @@ function SeedDetails({
           const growth: number = growEvent.args.growthBps;
           const tokenId = growEvent.args.tokenId || ethers.constants.Zero;
           const growthDiff = growEvent.args.growthAmount;
-          if (Math.floor(growth / 2000) - Math.floor(growthDiff / 2000) === 0) {
-            setShowGrowth(true);
+          const showStageChangeAnimation =
+            Math.floor(growth / 2000) -
+              Math.floor((growth - growthDiff) / 2000) !==
+            0;
+          if (showStageChangeAnimation !== showGrowth) {
+            setShowGrowth(showStageChangeAnimation);
           }
 
           if (tokenId.eq(selectedItem.tokenId) && growth) {
@@ -460,11 +464,11 @@ function SeedDetails({
                     selectedItem.category === "pottedPlant" &&
                     growthPercentage < 20
                       ? "scale(2)"
-                      : 20 < growthPercentage && growthPercentage < 60
+                      : 20 <= growthPercentage && growthPercentage < 60
                       ? "scale(1.8)"
-                      : 60 < growthPercentage && growthPercentage < 80
+                      : 60 <= growthPercentage && growthPercentage < 80
                       ? "scale(1.4)"
-                      : 80 < growthPercentage && growthPercentage <= 100
+                      : 80 <= growthPercentage && growthPercentage <= 100
                       ? "scale(1.2)"
                       : undefined
                   }
