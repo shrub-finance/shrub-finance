@@ -1,8 +1,6 @@
 import axios from "axios";
-import { Button, Link, useColorModeValue } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
-import { isMobile } from "react-device-detect";
-import { Link as ReachLink } from "@reach/router";
 import React from "react";
 
 // TODO: could update source currency automatically based on locale
