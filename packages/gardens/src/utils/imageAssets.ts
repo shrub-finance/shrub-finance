@@ -42,5 +42,5 @@ export const IMAGE_ASSETS: any = {
   },
 
   percentageToStage: (growthPercentage: number) =>
-    Math.floor(growthPercentage / 0.2),
+    Math.floor(growthPercentage / 20),
 };
