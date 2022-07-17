@@ -31,7 +31,7 @@ contract WaterFaucet is AdminControl {
 
     CutoffTimes cutoffTimes;
 
-    event Claim(address account, uint amount);
+    event Claim(address account, uint24[] tokenIds);
 
     // Constructor
     constructor(
@@ -46,13 +46,13 @@ contract WaterFaucet is AdminControl {
 
     // External Functions
 
-    function claim(uint[] calldata tokenIds_) external returns (uint) {
+    function claim(uint24[] calldata tokenIds_) external returns (uint) {
         for (uint i = 0; i < tokenIds_.length; i++) {
             require(_eligibleForClaim(tokenIds_[i]), "WaterFaucet: not eligible");
             _lastClaims[tokenIds_[i]] = block.timestamp;
         }
         _PAPER_POT.adminDistributeWater(_msgSender(), tokenIds_.length);
-        emit Claim(_msgSender(), tokenIds_.length);
+        emit Claim(_msgSender(), tokenIds_);
         return tokenIds_.length;
     }
 
@@ -90,7 +90,7 @@ contract WaterFaucet is AdminControl {
 //        return false;
 //    }
 
-    function _eligibleForClaim(uint tokenId_) internal view validPottedPlant(tokenId_) returns (bool) {
+    function _eligibleForClaim(uint24 tokenId_) internal view validPottedPlant(tokenId_) returns (bool) {
         // Ensure that token is either owned or delegated
 //        require(_ownerOrDelegate(tokenId_, _msgSender()), "WaterFaucet: account not owner or delegate of token");
         require(_PAPER_POT.balanceOf(_msgSender(), tokenId_) > 0, "WaterFaucet: account not owner of token");
@@ -118,7 +118,7 @@ contract WaterFaucet is AdminControl {
     /**
  * @dev Throws if not a valid tokenId for a pottedplant or does not exist.
      */
-    modifier validPottedPlant(uint tokenId_) {
+    modifier validPottedPlant(uint24 tokenId_) {
         require(
             tokenId_ > POTTED_PLANT_BASE_TOKENID && tokenId_ < SHRUB_BASE_TOKENID,
             "WaterFaucet: invalid potted plant tokenId"

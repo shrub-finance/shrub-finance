@@ -12,6 +12,7 @@ import {
   ShrubExchange__factory,
   SMATICToken__factory,
   SUSDToken__factory,
+  WaterFaucet__factory,
   WETH__factory,
 } from './types'
 import { readFileSync } from 'fs'
@@ -27,6 +28,7 @@ import promptly from "promptly";
 import chainlinkAggregatorV3Interface from "./external-contracts/chainlinkAggregatorV3InterfaceABI.json";
 import { address } from 'hardhat/internal/core/config/config-validation'
 import { BigNumberish, ContractTransaction } from 'ethers'
+import { WaterFaucet } from '@shrub/subgraph-paper-gardens/generated/WaterFaucet/WaterFaucet'
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 
@@ -111,6 +113,72 @@ task("unpausePotMinting", "Enables minting from PaperPotMint")
     }
     console.log(tx.hash);
   })
+
+task("makeWaterFaucetAdmin", "Makes WaterFaucet an Admin of PaperPot")
+  .addParam("enable", "true or false", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { enable } = taskArgs;
+    const [deployer] = await ethers.getSigners();
+    const waterFaucetDeployment = await deployments.get("WaterFaucet");
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPot = PaperPot__factory.connect(paperPotDeployment.address, deployer);
+    const adminAddressToSet = waterFaucetDeployment.address;
+    let tx: ContractTransaction;
+    const conf = await promptly.confirm(
+      `You are about to ${enable ? 'set' : 'remove'} ${adminAddressToSet} as an admin of PaperPot. Continue? (y/n)`
+    );
+    if (!conf) {
+      return;
+    }
+    if (enable) {
+      tx = await paperPot.setAdmin(adminAddressToSet, true);
+    } else {
+      tx = await paperPot.setAdmin(adminAddressToSet, false);
+    }
+    console.log(tx.hash);
+    await tx.wait();
+    console.log('confirmed');
+  })
+
+task("setWaterFaucetCutoffTimes", "Sets the cutoff times for WaterFaucet")
+  .addParam('startTime1', 'startTime of phase 1 (seconds into the UTC day 0-86400)')
+  .addParam('endTime1', 'endTime of phase 1 (seconds into the UTC day 0-86400)')
+  .addParam('startTime2', 'startTime of phase 2 (seconds into the UTC day 0-86400)')
+  .addParam('endTime2', 'endTime of phase 2 (seconds into the UTC day 0-86400)')
+  .setAction(async (taskArgs, env) => {
+        const { ethers, deployments } = env;
+    const { startTime1, startTime2, endTime1, endTime2 } = taskArgs;
+    const [deployer] = await ethers.getSigners();
+    const waterFaucetDeployment = await deployments.get("WaterFaucet");
+    const waterFaucet = WaterFaucet__factory.connect(waterFaucetDeployment.address, deployer);
+
+    function validTimeArg(time: number) {
+      return time >= 0 && time <= 86400;
+    }
+
+    if (!validTimeArg(startTime1)) {
+      console.log("Invalid startTime1");
+      return;
+    }
+    if (!validTimeArg(endTime1)) {
+      console.log("Invalid endTime1");
+      return;
+    }
+    if (!validTimeArg(startTime2)) {
+      console.log("Invalid startTime2");
+      return;
+    }
+    if (!validTimeArg(endTime2)) {
+      console.log("Invalid endTime2");
+      return;
+    }
+
+    const tx = await waterFaucet.setCutoffTimes({startTime1, startTime2, endTime1, endTime2});
+    console.log(tx.hash);
+  })
+
+
 
 task("adminMintPot", "mint a pot to an account")
   .addParam("account", "account to mint pots to")
@@ -558,15 +626,25 @@ task("sendSeed", "send a seed from the owner contract to an address")
 task("mintWater", "mint new water to an account")
   .addParam("to", "account to mint water to")
   .addParam("amount", "amount of water to mint")
+  .addOptionalParam("nonce", "nonce to use for transaction")
   .setAction(async (taskArgs, env) => {
     const { ethers, deployments } = env;
     const [owner] = await ethers.getSigners();
     const to = taskArgs.to;
     const amount = taskArgs.amount;
+    const nonce = taskArgs.nonce;
     const paperPotDeployment = await deployments.get("PaperPot");
     const paperPot = PaperPot__factory.connect(paperPotDeployment.address, owner);
-    const tx = await paperPot.adminDistributeWater(to, amount);
+    console.log(`sending ${amount} water to ${to}`);
+    let tx;
+    if (nonce) {
+      tx = await paperPot.adminDistributeWater(to, amount, {nonce});
+    } else {
+      tx = await paperPot.adminDistributeWater(to, amount);
+    }
     console.log(tx.hash);
+    await tx.wait();
+    console.log('confirmed');
   })
 
 task("mintFertilizer", "mint new fertilizer to an account")
