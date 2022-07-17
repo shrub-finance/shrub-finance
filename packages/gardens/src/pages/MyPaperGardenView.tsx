@@ -56,7 +56,7 @@ import {
 } from "../components/ConnectWallet";
 import { ToastDescription, TxStatusList } from "../components/TxMonitoring";
 import { MY_GARDENS_QUERY } from "../constants/queries";
-import { Pot, SeedBasketImg } from "../assets/Icons";
+import { Pot, SeedBasketImg, WateringCan } from "../assets/Icons";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import SeedDetails from "../components/SeedDetails";
 import { BigNumber, ethers } from "ethers";
@@ -65,9 +65,13 @@ import {
   accountWL,
   approveToken,
   balanceOfErc1155,
+  claimFromFaucet,
+  faucetTriggerTimes,
   getAllowance,
   getBigWalletBalance,
+  getFaucetCutoffTimes,
   getTicketData,
+  potEligibleToClaim,
   redeemNFTTicket,
   wateringNextAvailable,
 } from "../utils/ethMethods";
@@ -76,6 +80,7 @@ import GardenGrid from "../components/GardenGrid";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
 import Confetti from "../assets/Confetti";
 import { itemType } from "../types";
+import { CutoffTimesStructOutput } from "@shrub/contracts/types/WaterFaucet";
 
 function MyPaperGardenView(props: RouteComponentProps) {
   console.debug("rendering MyPaperGardenView");
@@ -150,6 +155,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
   const [walletTokenBalance, setWalletTokenBalance] = useState<BigNumber>();
   const [approving, setApproving] = useState(false);
+  const [faucetCutoffTimes, setFaucetCutoffTimes] =
+    useState<CutoffTimesStructOutput>();
+  const [potsEligibleToClaim, setPotsEligibleToClaim] = useState<string[]>([]);
 
   const NFT_TICKET_TOKEN_ID = process.env.REACT_APP_TICKET_TOKEN_ID || "";
   const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
@@ -236,6 +244,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
         active,
         paused,
       });
+      const faucetCutoffTimesTemp = await getFaucetCutoffTimes(library);
+      setFaucetCutoffTimes(faucetCutoffTimesTemp);
     }
     init().catch((err) => console.error(err));
   }, [library]);
@@ -608,6 +618,27 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }, [account, mySeedData]);
 
+  useEffect(() => {
+    console.debug(
+      "myPaperGardenView useEffect 10 - mySeedData, faucetCutoffTimes"
+    );
+    if (!mySeedData || !faucetCutoffTimes) {
+      return;
+    }
+    if (!holdsPottedPlant) {
+      if (potsEligibleToClaim.length !== 0) {
+        setPotsEligibleToClaim([]);
+      }
+      return;
+    }
+    const eligiblePotMap = mySeedData.user.pottedPlants
+      .filter((v: { id: string; lastClaim: number }) =>
+        potEligibleToClaim(v.lastClaim, faucetCutoffTimes)
+      )
+      .map((v: { id: string; lastClaim: number }) => v.id);
+    setPotsEligibleToClaim(eligiblePotMap);
+  }, [mySeedData, faucetCutoffTimes]);
+
   async function handleApprove() {
     const description = "Approving WETH";
     try {
@@ -673,20 +704,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
     return wateringNextAvailable(lastWatering) < new Date() && growth < 10000;
   }
 
-  async function handleClaimWater() {
+  async function handleClaimFromFaucet() {
     setLocalError("");
     setIsLoading(true);
     const description = "Claimed water for Pots!";
     try {
-      if (!redeemPrice) {
-        throw new Error("mintPrice not found");
-      }
-
-      const tx = await redeemNFTTicket(
-        NFT_TICKET_TOKEN_ID,
-        redeemAmount,
-        library
-      );
+      const tx = await claimFromFaucet(potsEligibleToClaim, library);
       pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
       setActiveHash(tx.hash);
       try {
@@ -843,8 +866,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 <Box>
                   <AlertTitle>Congrats!</AlertTitle>
                   <AlertDescription>
-                    You just redeemed your ticket for a pot! See it in your
-                    garden view below. <Pot boxSize={10} />
+                    You just claimed water from the water faucet! See it in your
+                    garden view below. <WateringCan boxSize={10} />
                   </AlertDescription>
                 </Box>
                 <CloseButton
@@ -883,7 +906,13 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       <Text fontSize="sm" color={textColor}>
                         Water Availability Status
                       </Text>
-                      <Text>Water is now available</Text>
+                      <Text>
+                        Faucet is now{" "}
+                        {faucetCutoffTimes &&
+                        faucetTriggerTimes(faucetCutoffTimes).activeNow
+                          ? "On"
+                          : "Off"}
+                      </Text>
                     </Box>
                     <Box
                       fontSize={{ base: "18px", md: "20px" }}
@@ -891,21 +920,39 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       fontWeight="semibold"
                     >
                       <Text fontSize="sm" color={textColor}>
-                        Water becomes available
+                        Current cycle ends in:
                       </Text>
-                      <Text>Every 12 hours</Text>
-                    </Box>
-                    <Box
-                      fontSize={{ base: "18px", md: "20px" }}
-                      mt={8}
-                      fontWeight="semibold"
-                    >
-                      <Text fontSize="sm" color={textColor}>
-                        Water will become available next in
-                      </Text>
+                      {/*<Text>*/}
+                      {/*  { faucetCutoffTimes ? faucetTriggerTimes(faucetCutoffTimes).periodEndDate.toLocaleString() : "" }*/}
+                      {/*</Text>*/}
                       <CountdownTimer
-                        targetDate={new Date("2022-07-20T00:00:00.000Z")}
+                        targetDate={
+                          faucetCutoffTimes
+                            ? faucetTriggerTimes(faucetCutoffTimes)
+                                .periodEndDate
+                            : new Date(0)
+                        }
                       />
+                      {/*<Text>Every 12 hours</Text>*/}
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        Next faucet availability begins:
+                      </Text>
+                      <Text>
+                        {faucetCutoffTimes
+                          ? faucetTriggerTimes(
+                              faucetCutoffTimes
+                            ).nextPeriodStartDate.toLocaleString()
+                          : ""}
+                      </Text>
+                      {/*<CountdownTimer*/}
+                      {/*  targetDate={ faucetCutoffTimes ? faucetTriggerTimes(faucetCutoffTimes).nextPeriodStartDate : new Date(0) }*/}
+                      {/*/>*/}
                     </Box>
                   </Box>
                 </Center>
@@ -915,7 +962,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 <Center shadow={"dark-lg"} p={10} borderRadius={"3xl"}>
                   <Box>
                     <VStack>
-                      <Heading pb={4}>Water is available</Heading>
+                      <Heading pb={4}>Water Faucet</Heading>
                       {/*Redeem Price*/}
                       <Box p={4}>
                         <FormLabel
@@ -934,47 +981,27 @@ function MyPaperGardenView(props: RouteComponentProps) {
                           p={"1.813rem"}
                           w="325px"
                         >
-                          {invalidEntry
-                            ? "?"
-                            : format(
-                                redeemPrice
-                                  ? ethers.utils.formatEther(
-                                      redeemPrice.mul(Number(redeemAmount))
-                                    )
-                                  : "-"
-                              )}{" "}
-                          Waters
+                          {potsEligibleToClaim.length} Water
                         </Box>
                       </Box>
                       {/*Approve/Redeem ticket button*/}
                       <Tooltip
                         hasArrow
                         label={
-                          Number(redeemAmount) <= 0
-                            ? "Nothing to redeem. Please enter the number of tickets you want to redeem"
-                            : noFunds
-                            ? "You do not have enough funds to redeem the tickets"
-                            : accountTicketCount.lte(Zero)
-                            ? "Ticket you are trying to redeem exceeds the tickets you have available"
-                            : null
+                          !potsEligibleToClaim.length
+                            ? "No water to claim now - wait until the next claim period to get 1 per potted plant"
+                            : "Claim water"
                         }
                         shouldWrapChildren
                         mt="3"
                       >
                         <Button
-                          onClick={
-                            noAllowance ? handleApprove : handleClaimWater
-                          }
+                          onClick={() => handleClaimFromFaucet()}
                           colorScheme={tradingBtnColor}
                           variant="solid"
                           rounded="2xl"
                           isLoading={isLoading}
-                          isDisabled={
-                            Number(redeemAmount) <= 0 ||
-                            noFunds ||
-                            accountTicketCount.lte(Zero) ||
-                            accountTicketCount.lt(redeemAmount)
-                          }
+                          isDisabled={!potsEligibleToClaim.length}
                           size="lg"
                           px={["50", "50", "50", "50"]}
                           fontSize="25px"
@@ -998,13 +1025,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                                   "Wrong Network"
                                 ? "Connect to Polygon"
                                 : "Connect Wallet"
-                              : tooLarge
-                              ? "Exceeds available"
-                              : noFunds
-                              ? "Insufficient funds"
-                              : noAllowance
-                              ? "Step 1: Approve Water"
-                              : "Step 2: Claim Water"
+                              : "Claim Water"
                           }
                         </Button>
                       </Tooltip>

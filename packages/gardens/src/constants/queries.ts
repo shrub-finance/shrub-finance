@@ -73,6 +73,7 @@ export const MY_GARDENS_QUERY = gql`
         id
         growth
         lastWatering
+        lastClaim
         seed {
           name
           dna
