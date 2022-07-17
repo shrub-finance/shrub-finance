@@ -163,6 +163,6 @@ dataSources:
         - name: WaterFaucet
           file: ../contracts/abi/WaterFaucet.json
       eventHandlers:
-        - event: Claim(address,uint256[])
+        - event: Claim(address,uint24[])
           handler: handleClaim
       file: ./src/mapping-water-faucet.ts
