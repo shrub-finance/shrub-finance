@@ -882,7 +882,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         )}
 
         {/*Water Faucet view*/}
-        {accountTicketCount.gt(0) && (
+        {holdsViewItem && (
           <Container
             mt={isMobile ? 30 : 30}
             p={5}
