@@ -65,7 +65,7 @@ function GrowthLeadBox({
         fontWeight={position === 1 ? "extrabold" : "medium"}
         fontSize={isMobile ? "12px" : "auto"}
       >
-        <Image w={10} src={imgSrc} />
+        <Image w={16} src={imgSrc} />
       </Td>
       <Td fontWeight={position === 1 ? "extrabold" : "medium"}>
         <Text>{name}</Text>

@@ -56,9 +56,9 @@ function GardenStats() {
       const uri = item.uri;
       const owner = item.owner.id;
       const growth = item.growth;
-      if (i > 20) {
-        break;
-      }
+      // if (i > 50) {
+      //   break;
+      // }
       tempGrowthLeadBoardRows.push(
         <GrowthLeadBox
           key={i}
