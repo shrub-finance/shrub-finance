@@ -121,7 +121,11 @@ export const GARDENS_STATS_QUERY = gql`
       circulation
       burned
     }
-    pottedPlants(orderBy: growth, orderDirection: desc) {
+    pottedPlants(
+      orderBy: growth
+      orderDirection: desc
+      where: { growth_gt: 0 }
+    ) {
       id
       growth
       owner {
