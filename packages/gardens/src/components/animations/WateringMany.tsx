@@ -1,6 +1,6 @@
 import { AnimationControls } from "framer-motion";
 import { Box, Center, Text, useColorModeValue } from "@chakra-ui/react";
-import { Growth, Spray, Tilt } from "./TransformScale";
+import { GrowthCounter, Spray, Tilt } from "./TransformScale";
 import {
   Hope,
   HopePot,
@@ -70,7 +70,7 @@ function WateringMany({
         {React.cloneElement(getPotSvg(seedClass, emotion), {
           boxSize: 10,
         })}
-        {Growth(
+        {GrowthCounter(
           <Center position={"absolute"} bottom={"70px"}>
             <Text fontSize={"10px"} fontWeight={"bold"} color={growthColor}>
               Growth: <Counter from={from} to={to} duration={7} />%

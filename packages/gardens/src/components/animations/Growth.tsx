@@ -5,7 +5,7 @@ import { Leaf1, Leaf2, Leaf3, Leaf4, WonderPot } from "../../assets/Icons";
 import React, { useEffect } from "react";
 import { IMAGE_ASSETS } from "../../utils/imageAssets";
 
-function StageChange({
+function Growth({
   seedClass,
   emotion,
   growthPercentage,
@@ -94,4 +94,4 @@ function StageChange({
   );
 }
 
-export default StageChange;
+export default Growth;

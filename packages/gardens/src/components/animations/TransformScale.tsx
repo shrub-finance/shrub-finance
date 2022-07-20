@@ -53,7 +53,7 @@ export function Spray(animationItem: JSX.Element, controls: AnimationControls) {
   );
 }
 
-export function Growth(
+export function GrowthCounter(
   animationItem: JSX.Element,
   controls: AnimationControls,
   duration: number,
