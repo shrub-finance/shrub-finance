@@ -1,15 +1,4 @@
-import {
-  Box,
-  Center,
-  HStack,
-  Image,
-  Spinner,
-  Stack,
-  Td,
-  Text,
-  Tr,
-  VStack,
-} from "@chakra-ui/react";
+import { Center, Image, Spinner, Td, Text, Tr } from "@chakra-ui/react";
 import React from "react";
 import { decodeBase64Uri } from "../utils/ethMethods";
 import { IMAGE_ASSETS } from "../utils/imageAssets";
@@ -65,7 +54,7 @@ function GrowthLeadBox({
         fontWeight={position === 1 ? "extrabold" : "medium"}
         fontSize={isMobile ? "12px" : "auto"}
       >
-        <Image w={16} src={imgSrc} />
+        <Image w={{ base: 80, md: 16 }} src={imgSrc} />
       </Td>
       <Td fontWeight={position === 1 ? "extrabold" : "medium"}>
         <Text>{name}</Text>
