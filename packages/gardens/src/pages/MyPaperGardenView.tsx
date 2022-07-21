@@ -978,7 +978,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   <Box>
                     <VStack>
                       <Heading pb={4}>
-                        Water Faucet <Icon as={FaFaucet} />
+                        Water Faucet{" "}
+                        <Icon
+                          as={FaFaucet}
+                          color={"blue.300"}
+                          transform="scaleX(1)"
+                        />
                       </Heading>
                       {/*Redeem Price*/}
                       <Box p={4}>
