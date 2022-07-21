@@ -957,7 +957,7 @@ function SeedDetails({
                             selectedItem &&
                             selectedItem.category === "paperSeed" && (
                               <Avatar
-                                name="Seed"
+                                name="Potted Plant"
                                 bg="yellow.100"
                                 size="sm"
                                 src={IMAGE_ASSETS.getPottedPlant(
