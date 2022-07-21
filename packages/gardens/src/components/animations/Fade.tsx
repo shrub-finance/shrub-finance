@@ -33,6 +33,30 @@ export function Fade(opacities: number[], animationItem: JSX.Element) {
   );
 }
 
+export function Fade2(
+  opacities: number[],
+  animationItem: JSX.Element,
+  duration: number,
+  delay: number
+) {
+  const MotionBox = motion<BoxProps>(Box);
+  return (
+    <MotionBox
+      animate={{ opacity: opacities }}
+      // @ts-ignore
+      transition={{
+        times: [0, 0.6, 1],
+        duration: duration,
+        delay: delay,
+        ease: "easeIn",
+      }}
+      zIndex={2}
+    >
+      {animationItem}
+    </MotionBox>
+  );
+}
+
 export function Disappear(
   animationItem: JSX.Element,
   controls: AnimationControls

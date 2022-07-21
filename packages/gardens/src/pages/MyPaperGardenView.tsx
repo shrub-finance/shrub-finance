@@ -57,7 +57,7 @@ import {
 import { ToastDescription, TxStatusList } from "../components/TxMonitoring";
 import { MY_GARDENS_QUERY } from "../constants/queries";
 import { Pot, SeedBasketImg, WateringCan } from "../assets/Icons";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import SeedDetails from "../components/SeedDetails";
 import { BigNumber, ethers } from "ethers";
 import { TxContext } from "../components/Store";
@@ -81,6 +81,7 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 import Confetti from "../assets/Confetti";
 import { itemType } from "../types";
 import { CutoffTimesStructOutput } from "@shrub/contracts/types/WaterFaucet";
+import { FaFaucet } from "react-icons/all";
 
 function MyPaperGardenView(props: RouteComponentProps) {
   console.debug("rendering MyPaperGardenView");
@@ -820,7 +821,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
         <Center>
           <VStack mb={{ base: 8, md: 0 }}>
             <Heading
-              fontSize={{ base: "30px", md: "30px", lg: "50px" }}
+              fontSize={{ base: "30px", md: "30px", lg: "60px" }}
               letterSpacing={"tight"}
               textAlign={"center"}
               maxW="60rem"
@@ -844,14 +845,15 @@ function MyPaperGardenView(props: RouteComponentProps) {
             <Text
               textAlign="center"
               px={"5"}
-              fontSize={{ base: "15px", md: "15px", lg: "18px" }}
+              fontSize={{ base: "15px", md: "15px", lg: "16px" }}
             >
               Place where seeds grow into Shrubs!
             </Text>
             <Text
               textAlign="center"
+              color={"gray.400"}
               px={"5"}
-              fontSize={{ base: "15px", md: "15px", lg: "18px" }}
+              fontSize={{ base: "15px", md: "15px", lg: "16px" }}
             >
               Select seeds or plants below to grow them.
             </Text>
@@ -962,7 +964,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 <Center shadow={"dark-lg"} p={10} borderRadius={"3xl"}>
                   <Box>
                     <VStack>
-                      <Heading pb={4}>Water Faucet</Heading>
+                      <Heading pb={4}>
+                        Water Faucet <Icon as={FaFaucet} />
+                      </Heading>
                       {/*Redeem Price*/}
                       <Box p={4}>
                         <FormLabel
@@ -989,7 +993,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         hasArrow
                         label={
                           !potsEligibleToClaim.length
-                            ? "No water to claim now - wait until the next claim period to get 1 per potted plant"
+                            ? "No water to claim right now . Please wait until the next claim period to get 1 water per potted plant"
                             : "Claim water"
                         }
                         shouldWrapChildren

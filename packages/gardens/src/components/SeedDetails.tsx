@@ -9,7 +9,6 @@ import {
   Divider,
   Heading,
   Icon,
-  Image,
   keyframes,
   Link,
   Modal,
@@ -23,6 +22,7 @@ import {
   Spinner,
   Stack,
   Text,
+  Image,
   Tooltip,
   useColorMode,
   useColorModeValue,
@@ -50,12 +50,11 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 
 import { Feature } from "./Feature";
 import { FaHandPointLeft, FaHeart, RiHeartAddFill } from "react-icons/all";
-import { Fertilizer, Pot, Water, WateringCan } from "../assets/Icons";
+import { Fertilizer, Pot, WateringCan } from "../assets/Icons";
 import { itemType } from "../types";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { Grow } from "./animations/TransformScale";
-import StageChange from "./animations/StageChange";
-import Confetti from "../assets/Confetti";
+import { Grow } from "./animations/Transform";
+import Growth from "./animations/Growth";
 
 function SeedDetails({
   hooks,
@@ -455,7 +454,7 @@ function SeedDetails({
             {/*Image*/}
             <Center mt={{ base: "6", md: "0" }}>
               {showGrowth && selectedItem.category === "pottedPlant" ? (
-                <StageChange
+                <Growth
                   seedClass={selectedItem.type}
                   emotion={selectedItem.emotion}
                   growthPercentage={growthPercentage}

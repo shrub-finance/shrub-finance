@@ -1,38 +1,8 @@
-import { AnimationControls, useAnimation } from "framer-motion";
-import {
-  Box,
-  Center,
-  Image,
-  Text,
-  useColorMode,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import { Growth, Spray, Tilt, TransformScale } from "./TransformScale";
-import {
-  Hope,
-  HopePot,
-  HopeSad,
-  HopeSadPot,
-  Leaf1,
-  Leaf2,
-  Leaf3,
-  Leaf4,
-  Passion,
-  PassionPot,
-  PassionSad,
-  PassionSadPot,
-  PlantingPot,
-  Power,
-  PowerPot,
-  Water,
-  WateringCan,
-  Wonder,
-  WonderPot,
-  WonderSad,
-  WonderSadPot,
-} from "../../assets/Icons";
+import { AnimationControls } from "framer-motion";
+import { Center, Image, Text, useColorModeValue } from "@chakra-ui/react";
+import { GrowthCounter, Spray, Tilt } from "./Transform";
+import { Water, WateringCan } from "../../assets/Icons";
 import React, { useState } from "react";
-import { Appear, Disappear } from "./Fade";
 import { Counter } from "../Counter";
 import { IMAGE_ASSETS } from "../../utils/imageAssets";
 
@@ -77,7 +47,7 @@ function Watering({
           }
         />
       </Center>
-      {Growth(
+      {GrowthCounter(
         <Center position={"absolute"} top={"124px"}>
           <Text fontSize={"25px"} fontWeight={"bold"} color={growthColor}>
             Growth: <Counter from={from} to={to} duration={7} />%

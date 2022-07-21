@@ -1,6 +1,6 @@
 import { AnimationControls, useAnimation } from "framer-motion";
 import { Box, Center, useColorMode } from "@chakra-ui/react";
-import { TransformScale } from "./TransformScale";
+import { Transform } from "./Transform";
 import {
   Hope,
   HopePot,
@@ -88,7 +88,7 @@ export function Planting({
     <>
       <Box>
         <Center>
-          {TransformScale(
+          {Transform(
             React.cloneElement(getSeedSvg(seedClass, emotion), { boxSize: 20 }),
             controls
           )}
