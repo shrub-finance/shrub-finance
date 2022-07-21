@@ -52,10 +52,12 @@ function Growth({
                     : undefined
                 }
                 maxH={"250px"}
+                position={growthPercentage > 80 ? "relative" : "static"}
+                bottom={"-42px"}
               />
-              {20 <= growthPercentage && growthPercentage <= 40 ? (
+              {20 <= growthPercentage && growthPercentage < 40 ? (
                 <></>
-              ) : 40 <= growthPercentage && growthPercentage <= 60 ? (
+              ) : 40 <= growthPercentage && growthPercentage < 60 ? (
                 Fade2(
                   [1, 1, 0],
                   <Leaf1
@@ -67,7 +69,7 @@ function Growth({
                   7,
                   0
                 )
-              ) : 60 <= growthPercentage && growthPercentage <= 80 ? (
+              ) : 60 <= growthPercentage && growthPercentage < 80 ? (
                 Fade2(
                   [1, 1, 0],
                   <Leaf2
@@ -85,8 +87,8 @@ function Growth({
                   <Leaf4
                     boxSize={40}
                     position={"absolute"}
-                    bottom={"161px"}
-                    left={"47px"}
+                    bottom={"117px"}
+                    left={"53px"}
                   />,
                   7,
                   0
@@ -120,7 +122,7 @@ function Growth({
         </Center>
 
         <Center>
-          {20 <= growthPercentage && growthPercentage <= 40 ? (
+          {20 <= growthPercentage && growthPercentage < 40 ? (
             Fade2(
               [0, 0, 1],
               <Leaf1
@@ -132,7 +134,7 @@ function Growth({
               6,
               0
             )
-          ) : 40 <= growthPercentage && growthPercentage <= 60 ? (
+          ) : 40 <= growthPercentage && growthPercentage < 60 ? (
             Fade2(
               [0, 0, 1],
               <Leaf2
@@ -141,10 +143,10 @@ function Growth({
                 bottom={"176px"}
                 left={"48px"}
               />,
-              7,
+              6,
               0
             )
-          ) : 60 <= growthPercentage && growthPercentage <= 80 ? (
+          ) : 60 <= growthPercentage && growthPercentage < 80 ? (
             Fade2(
               [0, 0, 1],
               <Leaf3
@@ -153,7 +155,7 @@ function Growth({
                 bottom={"166px"}
                 left={"45px"}
               />,
-              7,
+              6,
               0
             )
           ) : 80 <= growthPercentage && growthPercentage < 100 ? (
@@ -165,7 +167,7 @@ function Growth({
                 bottom={"160px"}
                 left={"52px"}
               />,
-              7,
+              6,
               0
             )
           ) : growthPercentage === 100 ? (
@@ -185,7 +187,7 @@ function Growth({
                 bottom={"5px"}
                 left={"3px"}
               />,
-              7,
+              6,
               0
             )
           ) : (
