@@ -146,3 +146,23 @@ dataSources:
         - event: URI(string,indexed uint256)
           handler: handleUri
       file: ./src/mapping-paper-pot.ts
+  - kind: ethereum/contract
+    name: WaterFaucet
+    network: mumbai
+    source:
+      address: '0xD2754927623b591E2BAF0985c7792f0822eC8Ece'
+      startBlock: 27266554
+      abi: WaterFaucet
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PottedPlant
+      abis:
+        - name: WaterFaucet
+          file: ../contracts/abi/WaterFaucet.json
+      eventHandlers:
+        - event: Claim(address,uint24[])
+          handler: handleClaim
+      file: ./src/mapping-water-faucet.ts

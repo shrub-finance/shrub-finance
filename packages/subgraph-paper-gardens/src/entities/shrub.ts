@@ -17,6 +17,7 @@ export function createShrub(tokenId: BigInt, pottedPlantTokenId: BigInt, owner: 
   shrubNft.born = block.timestamp.toI32();
   shrubNft.bornBlock = block.number.toI32();
   shrubNft.name = "";
+  shrubNft.uri = "";
 
   addShrubNft(pottedPlant as PottedPlant, shrubNft as ShrubNFT);
   shrubNft.save();
