@@ -374,6 +374,15 @@ export async function plant(
   return paperPot.plant(PAPERSEED_CONTRACT_ADDRESS, seedTokenId);
 }
 
+export function plantAndMakeHappy(
+  seedTokenId: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.plantAndMakeHappy(PAPERSEED_CONTRACT_ADDRESS, seedTokenId);
+}
+
 export function addressToLabel(address: string) {
   if (address === ZERO_ADDRESS) {
     return "MATIC";

@@ -39,7 +39,8 @@ export function createSeed(tokenId: BigInt, owner: Address, block: ethereum.Bloc
   if (seed !== null) {
     throw new Error(`Seed with tokenId ${tokenId.toString()} already exists`);
   }
-  let emotion = block.number.ge(CLAIM_RESERVE_START) && block.number.le(CLAIM_RESERVE_END) ? 'sad' : 'happy';
+  // let emotion = block.number.ge(CLAIM_RESERVE_START) && block.number.le(CLAIM_RESERVE_END) ? 'sad' : 'happy';
+  let emotion = tokenId.equals(BigInt.fromI32(16)) || tokenId.equals(BigInt.fromI32(250)) ? 'sad' : 'happy';
   seed = new Seed(id);
   seed.owner = owner.toHex();
   seed.type = getType(tokenId);
