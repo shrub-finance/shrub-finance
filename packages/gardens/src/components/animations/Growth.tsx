@@ -84,11 +84,11 @@ function Growth({
               ) : 80 <= growthPercentage && growthPercentage < 100 ? (
                 Fade2(
                   [1, 1, 0],
-                  <Leaf4
+                  <Leaf3
                     boxSize={40}
                     position={"absolute"}
                     bottom={"117px"}
-                    left={"53px"}
+                    left={"48px"}
                   />,
                   7,
                   0
@@ -164,8 +164,8 @@ function Growth({
               <Leaf4
                 boxSize={36}
                 position={"absolute"}
-                bottom={"160px"}
-                left={"52px"}
+                bottom={"117px"}
+                left={"53px"}
               />,
               6,
               0
