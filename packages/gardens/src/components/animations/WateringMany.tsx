@@ -1,6 +1,6 @@
 import { AnimationControls } from "framer-motion";
 import { Box, Center, Text, useColorModeValue } from "@chakra-ui/react";
-import { GrowthCounter, Spray, Tilt } from "./TransformScale";
+import { GrowthCounter, Spray, Tilt } from "./Transform";
 import {
   Hope,
   HopePot,

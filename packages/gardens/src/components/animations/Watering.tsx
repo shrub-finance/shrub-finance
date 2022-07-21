@@ -1,6 +1,6 @@
 import { AnimationControls } from "framer-motion";
 import { Center, Image, Text, useColorModeValue } from "@chakra-ui/react";
-import { GrowthCounter, Spray, Tilt } from "./TransformScale";
+import { GrowthCounter, Spray, Tilt } from "./Transform";
 import { Water, WateringCan } from "../../assets/Icons";
 import React, { useState } from "react";
 import { Counter } from "../Counter";

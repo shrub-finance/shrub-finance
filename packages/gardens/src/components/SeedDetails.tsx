@@ -9,7 +9,6 @@ import {
   Divider,
   Heading,
   Icon,
-  Image,
   keyframes,
   Link,
   Modal,
@@ -23,6 +22,7 @@ import {
   Spinner,
   Stack,
   Text,
+  Image,
   Tooltip,
   useColorMode,
   useColorModeValue,
@@ -50,12 +50,11 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 
 import { Feature } from "./Feature";
 import { FaHandPointLeft, FaHeart, RiHeartAddFill } from "react-icons/all";
-import { Fertilizer, Pot, Water, WateringCan } from "../assets/Icons";
+import { Fertilizer, Pot, WateringCan } from "../assets/Icons";
 import { itemType } from "../types";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { Grow } from "./animations/TransformScale";
+import { Grow } from "./animations/Transform";
 import Growth from "./animations/Growth";
-import Confetti from "../assets/Confetti";
 
 function SeedDetails({
   hooks,

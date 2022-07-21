@@ -1,6 +1,6 @@
 import { AnimationControls, useAnimation } from "framer-motion";
 import { Center, Image, Text, useColorModeValue } from "@chakra-ui/react";
-import { GrowthCounter, Spray, Spray2, Tilt, Tilt2 } from "./TransformScale";
+import { GrowthCounter, Spray, Spray2, Tilt, Tilt2 } from "./Transform";
 import {
   Fertilizer,
   FertilizerSoil,
