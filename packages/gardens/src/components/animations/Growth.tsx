@@ -1,8 +1,8 @@
-import { AnimationControls, useAnimation } from "framer-motion";
-import { Box, Center, Image } from "@chakra-ui/react";
-import { Grow, Shake } from "./Transform";
-import { Disappear, Appear, Fade2 } from "./Fade";
-import { Leaf1, Leaf2, Leaf3, Leaf4, WonderPot } from "../../assets/Icons";
+import { useAnimation } from "framer-motion";
+import { Center, Image } from "@chakra-ui/react";
+import { Shake } from "./Transform";
+import { Fade2 } from "./Fade";
+import { Leaf1, Leaf2, Leaf3, Leaf4 } from "../../assets/Icons";
 import React, { useEffect } from "react";
 import { IMAGE_ASSETS } from "../../utils/imageAssets";
 
