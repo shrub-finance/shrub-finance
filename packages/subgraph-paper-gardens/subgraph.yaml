@@ -145,6 +145,8 @@ dataSources:
           handler: handleHarvest
         - event: URI(string,indexed uint256)
           handler: handleUri
+        - event: Happy(uint256)
+          handler: handleHappy
       file: ./src/mapping-paper-pot.ts
   - kind: ethereum/contract
     name: WaterFaucet

@@ -9,17 +9,17 @@ import {
   incrementPotCount,
   incrementTicketCount, incrementWaterCount,
 } from './entities/user'
-import { Plant, Grow, TransferBatch, TransferSingle, Harvest, URI } from '../generated/PaperPot/PaperPot'
+import { Plant, Grow, TransferBatch, TransferSingle, Harvest, URI, Happy } from '../generated/PaperPot/PaperPot'
 import { User } from '../generated/schema'
 import {
   changePottedPlantOwner,
-  createPottedPlant,
+  createPottedPlant, getPottedPlant,
   growPottedPlant,
   updatePottedPlantUri,
 } from './entities/potted-plant'
 import { createShrub, updateShrubUri } from './entities/shrub'
 import { recordPlant } from './entities/typestats'
-import { getSeed } from './entities/seed'
+import { getSeed, updateEmotion } from './entities/seed'
 let One = BigInt.fromI32(1);
 let Two = BigInt.fromI32(2);
 let Three = BigInt.fromI32(3);
@@ -140,4 +140,11 @@ export function handleUri(event: URI): void {
   if (tokenId.gt(TwoMillion)) {
     updateShrubUri(tokenId, uri);
   }
+}
+
+export function handleHappy(event: Happy): void {
+  let pottedPlantTokenId = event.params.tokenId;
+  let pottedPlant = getPottedPlant(pottedPlantTokenId);
+  let seed = getSeed(BigInt.fromString(pottedPlant.seed));
+  updateEmotion(seed, "happy");
 }
