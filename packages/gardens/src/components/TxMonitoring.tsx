@@ -30,6 +30,7 @@ import { useAnimation } from "framer-motion";
 import Watering from "./animations/Watering";
 import Fertilizing from "./animations/Fertilizing";
 import WaterAll from "./animations/WaterAll";
+import { Bounce } from "./animations/Bounce";
 
 export function Txmonitor({
   txHash,
@@ -152,7 +153,7 @@ export function Txmonitor({
             mt="20px"
             bg="none"
           >
-            <TimeIcon boxSize="40px" />
+            {Bounce(<TimeIcon boxSize="40px" />, "20%", "-20%", controls)}
             <AlertTitle mt={4} mb={1} fontSize="lg">
               Transaction Confirming...
             </AlertTitle>
