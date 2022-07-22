@@ -42,6 +42,7 @@ import {
   AlertTitle,
   AlertDescription,
   CloseButton,
+  Circle,
 } from "@chakra-ui/react";
 import { RouteComponentProps } from "@reach/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -909,11 +910,23 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         Water Availability Status
                       </Text>
                       <Text>
-                        Faucet is now{" "}
+                        <Circle
+                          size="10px"
+                          bg={
+                            faucetCutoffTimes &&
+                            faucetTriggerTimes(faucetCutoffTimes).activeNow
+                              ? "green"
+                              : "tomato"
+                          }
+                          color="white"
+                          display="inline-flex"
+                          mr={2}
+                        ></Circle>
+                        Faucet is{" "}
                         {faucetCutoffTimes &&
                         faucetTriggerTimes(faucetCutoffTimes).activeNow
-                          ? "On"
-                          : "Off"}
+                          ? "now on"
+                          : "off"}
                       </Text>
                     </Box>
                     <Box
@@ -965,7 +978,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
                   <Box>
                     <VStack>
                       <Heading pb={4}>
-                        Water Faucet <Icon as={FaFaucet} />
+                        Water Faucet{" "}
+                        <Icon
+                          as={FaFaucet}
+                          color={"blue.300"}
+                          transform="scaleX(1)"
+                        />
                       </Heading>
                       {/*Redeem Price*/}
                       <Box p={4}>
