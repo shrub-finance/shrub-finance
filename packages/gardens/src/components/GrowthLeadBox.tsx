@@ -67,7 +67,8 @@ function GrowthLeadBox({
             <Spinner size="xl" />
           </Center>
         ) : (
-          useTruncateAddress(owner)
+          owner
+          // useTruncateAddress(owner)
         )}
       </Td>
     </Tr>
