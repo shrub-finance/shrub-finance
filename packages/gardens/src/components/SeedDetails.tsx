@@ -307,6 +307,9 @@ function SeedDetails({
         const plantEvent = receipt.events?.find(
           (event) => event.event === "Plant"
         );
+        const happyEvent = receipt.events?.find(
+          (event) => event.event === "Happy"
+        );
         if (plantEvent && plantEvent.args) {
           const eventAccount = plantEvent.args.account;
           const seedTokenId = plantEvent.args.seedTokenId;
@@ -321,13 +324,14 @@ function SeedDetails({
             const pottedPlantItem: itemType = {
               tokenId: tokenId.toString(),
               name: "Potted Plant",
-              emotion: selectedItem.emotion,
+              emotion:
+                happyEvent && happyEvent.args ? "happy" : selectedItem.emotion,
               type: selectedItem.type,
               dna: selectedItem.dna,
               imageUrl: IMAGE_ASSETS.getPottedPlant(
                 selectedItem.type,
                 0,
-                selectedItem.emotion
+                happyEvent && happyEvent.args ? "happy" : selectedItem.emotion
               ),
               growth: 0,
               category: "pottedPlant",
@@ -773,6 +777,8 @@ function SeedDetails({
                     label={
                       emptyPot
                         ? "You must have an empty pot to plant seed"
+                        : !fungibleAssets || fungibleAssets.fertilizer < 3
+                        ? "You must have 3 fertilizer to plant and make happy"
                         : null
                     }
                     shouldWrapChildren
@@ -787,7 +793,7 @@ function SeedDetails({
                       flex={1}
                       fontSize={"xl"}
                       rounded={"2xl"}
-                      bgGradient="linear(to-l, #8fff6e,rgb(227, 214, 6),#b1e7a1)"
+                      bgGradient="linear(to-r, #74cecc, green.300, blue.400)"
                       color={"black"}
                       boxShadow={"xl"}
                       _hover={{
@@ -796,7 +802,11 @@ function SeedDetails({
                       _focus={{
                         bg: "shrub.100",
                       }}
-                      isDisabled={emptyPot}
+                      isDisabled={
+                        emptyPot ||
+                        !fungibleAssets ||
+                        fungibleAssets.fertilizer < 3
+                      }
                     >
                       Plant and Make Happy
                     </Button>
