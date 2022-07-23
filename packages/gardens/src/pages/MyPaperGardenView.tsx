@@ -1003,6 +1003,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                           fontSize="2xl"
                           p={"1.813rem"}
                           w="325px"
+                          color={"gray.500"}
                         >
                           {potsEligibleToClaim.length} Water
                         </Box>
