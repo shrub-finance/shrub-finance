@@ -104,7 +104,7 @@ function LeaderBoardView(props: RouteComponentProps) {
             </Td>
             <Td
               fontWeight={rank === 1 ? "extrabold" : "medium"}
-              fontSize={isMobile ? "12px" : "auto"}
+              fontSize={isMobile ? "12px" : "inherit"}
             >
               {useTruncateAddress(id)}
             </Td>

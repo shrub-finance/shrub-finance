@@ -1,7 +1,7 @@
 import { AnimationControls, motion, useAnimation } from "framer-motion";
 import { Box, BoxProps } from "@chakra-ui/react";
 
-export function TransformScale(
+export function Transform(
   animationItem: JSX.Element,
   controls: AnimationControls
 ) {
@@ -53,7 +53,7 @@ export function Spray(animationItem: JSX.Element, controls: AnimationControls) {
   );
 }
 
-export function Growth(
+export function GrowthCounter(
   animationItem: JSX.Element,
   controls: AnimationControls,
   duration: number,

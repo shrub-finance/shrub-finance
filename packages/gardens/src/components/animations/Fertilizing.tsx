@@ -1,43 +1,13 @@
 import { AnimationControls, useAnimation } from "framer-motion";
-import {
-  Box,
-  Center,
-  Image,
-  Text,
-  useColorMode,
-  useColorModeValue,
-} from "@chakra-ui/react";
-import {
-  Growth,
-  Spray,
-  Spray2,
-  Tilt,
-  Tilt2,
-  TransformScale,
-} from "./TransformScale";
+import { Center, Image, Text, useColorModeValue } from "@chakra-ui/react";
+import { GrowthCounter, Spray, Spray2, Tilt, Tilt2 } from "./Transform";
 import {
   Fertilizer,
   FertilizerSoil,
-  Hope,
-  HopePot,
-  HopeSad,
-  HopeSadPot,
-  Passion,
-  PassionPot,
-  PassionSad,
-  PassionSadPot,
-  PlantingPot,
-  Power,
-  PowerPot,
   Water,
   WateringCan,
-  Wonder,
-  WonderPot,
-  WonderSad,
-  WonderSadPot,
 } from "../../assets/Icons";
 import React, { useState } from "react";
-import { Appear, Disappear } from "./Fade";
 import { Counter } from "../Counter";
 import { IMAGE_ASSETS } from "../../utils/imageAssets";
 
@@ -83,7 +53,7 @@ function Fertilizing({
           }
         />
       </Center>
-      {Growth(
+      {GrowthCounter(
         <Center position={"absolute"} top={"124px"}>
           <Text fontSize={"25px"} fontWeight={"bold"} color={growthColor}>
             Growth: <Counter from={from} to={to} duration={10} />%

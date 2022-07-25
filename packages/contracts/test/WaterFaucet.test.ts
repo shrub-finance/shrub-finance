@@ -422,7 +422,11 @@ describe("WaterFaucet", () => {
       const waitEvent = receipt.events.find(r => r.event === 'Claim');
       expect(waitEvent).to.not.equal(undefined);
       expect(waitEvent.args.account).to.equal(signer1.address);
-      expect(waitEvent.args.amount).to.equal(4);
+      expect(waitEvent.args.tokenIds.length).to.equal(4);
+      expect(waitEvent.args.tokenIds[0]).to.equal(1e6 + 1);
+      expect(waitEvent.args.tokenIds[1]).to.equal(1e6 + 2);
+      expect(waitEvent.args.tokenIds[2]).to.equal(1e6 + 4);
+      expect(waitEvent.args.tokenIds[3]).to.equal(1e6 + 3);
       const waterAfter = await paperPot.balanceOf(signer1.address, 3);
       expect(waterBefore).to.equal(0);
       expect(waterAfter).to.equal(4);

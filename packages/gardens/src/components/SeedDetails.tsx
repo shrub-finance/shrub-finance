@@ -9,7 +9,6 @@ import {
   Divider,
   Heading,
   Icon,
-  Image,
   keyframes,
   Link,
   Modal,
@@ -23,6 +22,7 @@ import {
   Spinner,
   Stack,
   Text,
+  Image,
   Tooltip,
   useColorMode,
   useColorModeValue,
@@ -38,6 +38,7 @@ import {
   harvestShrub,
   isApprovedErc721,
   plant,
+  plantAndMakeHappy,
   water,
   wateringNextAvailable,
   waterWithFertilizer,
@@ -50,12 +51,11 @@ import { IMAGE_ASSETS } from "../utils/imageAssets";
 
 import { Feature } from "./Feature";
 import { FaHandPointLeft, FaHeart, RiHeartAddFill } from "react-icons/all";
-import { Fertilizer, Pot, Water, WateringCan } from "../assets/Icons";
+import { Fertilizer, Pot, WateringCan } from "../assets/Icons";
 import { itemType } from "../types";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { Grow } from "./animations/TransformScale";
-import StageChange from "./animations/StageChange";
-import Confetti from "../assets/Confetti";
+import { Grow } from "./animations/Transform";
+import Growth from "./animations/Growth";
 
 function SeedDetails({
   hooks,
@@ -100,7 +100,13 @@ function SeedDetails({
   // const [showConfetti, setShowConfetti] = React.useState(false);
   const [showGrowth, setShowGrowth] = React.useState(false);
   const [modalState, setModalState] = useState<
-    "plant" | "water" | "waterAll" | "fertilize" | "harvest" | "planting"
+    | "plant"
+    | "water"
+    | "waterAll"
+    | "fertilize"
+    | "harvest"
+    | "planting"
+    | "plantAndMakeHappy"
   >("plant");
 
   const borderColor = useColorModeValue("gray.100", "gray.700");
@@ -300,6 +306,9 @@ function SeedDetails({
         const plantEvent = receipt.events?.find(
           (event) => event.event === "Plant"
         );
+        const happyEvent = receipt.events?.find(
+          (event) => event.event === "Happy"
+        );
         if (plantEvent && plantEvent.args) {
           const eventAccount = plantEvent.args.account;
           const seedTokenId = plantEvent.args.seedTokenId;
@@ -314,13 +323,14 @@ function SeedDetails({
             const pottedPlantItem: itemType = {
               tokenId: tokenId.toString(),
               name: "Potted Plant",
-              emotion: selectedItem.emotion,
+              emotion:
+                happyEvent && happyEvent.args ? "happy" : selectedItem.emotion,
               type: selectedItem.type,
               dna: selectedItem.dna,
               imageUrl: IMAGE_ASSETS.getPottedPlant(
                 selectedItem.type,
                 0,
-                selectedItem.emotion
+                happyEvent && happyEvent.args ? "happy" : selectedItem.emotion
               ),
               growth: 0,
               category: "pottedPlant",
@@ -369,6 +379,12 @@ function SeedDetails({
   function handlePlanting() {
     return handleBlockchainTx("Planting", () =>
       plant(selectedItem.tokenId, library)
+    );
+  }
+
+  function handlePlantAndMakeHappy() {
+    return handleBlockchainTx("Plant and Make Happy", () =>
+      plantAndMakeHappy(selectedItem.tokenId, library)
     );
   }
 
@@ -455,7 +471,7 @@ function SeedDetails({
             {/*Image*/}
             <Center mt={{ base: "6", md: "0" }}>
               {showGrowth && selectedItem.category === "pottedPlant" ? (
-                <StageChange
+                <Growth
                   seedClass={selectedItem.type}
                   emotion={selectedItem.emotion}
                   growthPercentage={growthPercentage}
@@ -750,6 +766,53 @@ function SeedDetails({
                 </Tooltip>
               )}
             </Stack>
+
+            {/*Plant And Make Happy Button*/}
+            {selectedItem.category === "paperSeed" &&
+              selectedItem.emotion === "sad" && (
+                <Stack mt={4} direction={"row"} spacing={4}>
+                  <Tooltip
+                    hasArrow
+                    label={
+                      emptyPot
+                        ? "You must have an empty pot to plant seed"
+                        : !fungibleAssets || fungibleAssets.fertilizer < 3
+                        ? "You must have 3 fertilizer to plant and make happy"
+                        : null
+                    }
+                    shouldWrapChildren
+                    mt="3"
+                  >
+                    <Button
+                      onClick={() => {
+                        setModalState("plantAndMakeHappy");
+                        openModal();
+                      }}
+                      w={{ base: "315px", md: "420px" }}
+                      flex={1}
+                      fontSize={"xl"}
+                      rounded={"2xl"}
+                      bgGradient="linear(to-r, #74cecc, green.300, blue.400)"
+                      color={"black"}
+                      boxShadow={"xl"}
+                      _hover={{
+                        bg: "shrub.200",
+                      }}
+                      _focus={{
+                        bg: "shrub.100",
+                      }}
+                      isDisabled={
+                        emptyPot ||
+                        !fungibleAssets ||
+                        fungibleAssets.fertilizer < 3
+                      }
+                    >
+                      Plant and Make Happy
+                    </Button>
+                  </Tooltip>
+                </Stack>
+              )}
+
             {selectedItem.category === "pottedPlant" && (
               <Stack mt={4} direction={"row"} spacing={4}>
                 {/*fertilize button*/}
@@ -881,6 +944,8 @@ function SeedDetails({
           <ModalHeader>
             {modalState === "plant"
               ? "Plant Your Seed"
+              : modalState === "plantAndMakeHappy"
+              ? "Plant Your Seed and Make Happy"
               : modalState === "water"
               ? "Water Your Potted Plant"
               : modalState === "waterAll"
@@ -958,7 +1023,7 @@ function SeedDetails({
                             selectedItem &&
                             selectedItem.category === "paperSeed" && (
                               <Avatar
-                                name="Seed"
+                                name="Potted Plant"
                                 bg="yellow.100"
                                 size="sm"
                                 src={IMAGE_ASSETS.getPottedPlant(
@@ -971,6 +1036,111 @@ function SeedDetails({
                           }
                           iconBg={""}
                           text={"1 Potted Plant"}
+                        />
+                        <Divider borderColor={borderColor} />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          You will grow it into a Shrub{" "}
+                          <Icon as={FaHeart} color={"red.500"} w={5} h={5} />
+                        </Text>
+                      </Stack>
+                      {!plantingApproved && (
+                        <>
+                          <Text textStyle={"reading"} fontSize={"lg"}>
+                            You must first approve your seed for planting
+                          </Text>
+                          <Text
+                            textTransform={"uppercase"}
+                            color={textColor}
+                            bg={textBg}
+                            fontWeight={600}
+                            fontSize={"sm"}
+                            p={2}
+                            alignSelf={"flex-start"}
+                            rounded={"md"}
+                          >
+                            You only have to approve once
+                          </Text>
+                        </>
+                      )}
+                      <Text
+                        textTransform={"uppercase"}
+                        color={"blue.400"}
+                        fontWeight={600}
+                        fontSize={"sm"}
+                        bg={textBg2}
+                        p={2}
+                        alignSelf={"flex-start"}
+                        rounded={"md"}
+                      >
+                        This action is irreversible
+                      </Text>
+                    </Stack>
+                  ) : modalState === "plantAndMakeHappy" ? (
+                    <Stack spacing={4}>
+                      <Text textStyle={"reading"} fontSize={"lg"}>
+                        You are about to turn
+                      </Text>
+                      <Divider borderColor={borderColor} />
+                      <Stack spacing={4}>
+                        <Feature
+                          icon={
+                            selectedItem &&
+                            selectedItem.category === "paperSeed" && (
+                              <Avatar
+                                name="Seed"
+                                bg="yellow.100"
+                                size="xs"
+                                src={
+                                  IMAGE_ASSETS.seeds[selectedItem.type][
+                                    selectedItem.emotion
+                                  ]
+                                }
+                              />
+                            )
+                          }
+                          iconBg={""}
+                          text={`1 ${selectedItem.name}`}
+                        />
+                        <Feature
+                          icon={
+                            <Icon as={Pot} color={"green.500"} w={5} h={5} />
+                          }
+                          iconBg={iconBg}
+                          text={"1 Empty Pot"}
+                        />
+                        <Feature
+                          icon={
+                            <Icon
+                              as={Fertilizer}
+                              color={"green.500"}
+                              w={5}
+                              h={5}
+                            />
+                          }
+                          iconBg={iconBg}
+                          text={"3 Fertilizer"}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          Into
+                        </Text>
+                        <Feature
+                          icon={
+                            selectedItem &&
+                            selectedItem.category === "paperSeed" && (
+                              <Avatar
+                                name="Seed"
+                                bg="yellow.100"
+                                size="sm"
+                                src={IMAGE_ASSETS.getPottedPlant(
+                                  selectedItem.type,
+                                  0,
+                                  "happy"
+                                )}
+                              />
+                            )
+                          }
+                          iconBg={""}
+                          text={"1 Happy Potted Plant"}
                         />
                         <Divider borderColor={borderColor} />
                         <Text textStyle={"reading"} fontSize={"lg"}>
@@ -1196,7 +1366,12 @@ function SeedDetails({
                           ? plantingApproved
                             ? handlePlanting
                             : handleApprove
-                          : modalState === "water"
+                          : modalState === "plantAndMakeHappy"
+                          ? plantingApproved
+                            ? handlePlantAndMakeHappy
+                            : handleApprove
+                          : // ? handlePlantAndMakeHappy
+                          modalState === "water"
                           ? handleWatering
                           : modalState === "waterAll"
                           ? handleWaterAll
@@ -1226,6 +1401,10 @@ function SeedDetails({
                       {modalState === "plant"
                         ? plantingApproved
                           ? "Let's Plant"
+                          : "Approve Seed for Planting"
+                        : modalState === "plantAndMakeHappy"
+                        ? plantingApproved
+                          ? "Let's Plant and Make Happy"
                           : "Approve Seed for Planting"
                         : modalState === "water"
                         ? "Let's Water"

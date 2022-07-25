@@ -24,6 +24,7 @@ type PottedPlant @entity {
   bornBlock: Int!
   growth: Int!
   lastWatering: Int!
+  lastClaim: Int!
   shrubNft: ShrubNFT
   uri: String!
 }

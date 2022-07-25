@@ -8,6 +8,7 @@ import {
   ERC721__factory,
   PaperPot__factory,
   PaperPotMint__factory,
+  WaterFaucet__factory,
 } from "@shrub/contracts/types";
 import { Currencies } from "../constants/currencies";
 import { OrderCommon, UnsignedOrder } from "../types";
@@ -21,6 +22,7 @@ const ORPHANAGE_CONTRACT_ADDRESS =
 const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
 const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
 const PAPERPOTMINT_ADDRESS = process.env.REACT_APP_PAPERPOTMINT_ADDRESS || "";
+const WATER_FAUCET_ADDRESS = process.env.REACT_APP_WATER_FAUCET_ADDRESS || "";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const COMMON_TYPEHASH = ethers.utils.id(
@@ -372,6 +374,15 @@ export async function plant(
   return paperPot.plant(PAPERSEED_CONTRACT_ADDRESS, seedTokenId);
 }
 
+export function plantAndMakeHappy(
+  seedTokenId: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.plantAndMakeHappy(PAPERSEED_CONTRACT_ADDRESS, seedTokenId);
+}
+
 export function addressToLabel(address: string) {
   if (address === ZERO_ADDRESS) {
     return "MATIC";
@@ -514,4 +525,89 @@ export function wateringNextAvailable(lastWatering: number): Date {
 export function wateringAvailableNow(lastWatering: number): boolean {
   const now = new Date();
   return now > wateringNextAvailable(lastWatering);
+}
+
+export function getFaucetCutoffTimes(provider: JsonRpcProvider) {
+  const waterFaucet = WaterFaucet__factory.connect(
+    WATER_FAUCET_ADDRESS,
+    provider
+  );
+  console.log(WATER_FAUCET_ADDRESS);
+  return waterFaucet.getCutoffTimes();
+}
+
+export function potEligibleToClaim(
+  lastClaim: number,
+  cutoffTimes: {
+    startTime1: number;
+    startTime2: number;
+    endTime1: number;
+    endTime2: number;
+  }
+) {
+  // lastClaim is an ethDate
+  const now = new Date();
+  const ONE_DAY = 60 * 60 * 24;
+  const ethNow = toEthDate(now);
+  const time = ethNow % ONE_DAY;
+  console.log(lastClaim, cutoffTimes);
+  return (
+    lastClaim &&
+    !(
+      (lastClaim !== 1 &&
+        Math.floor((ethNow - cutoffTimes.startTime1) / ONE_DAY) ===
+          Math.floor((lastClaim - cutoffTimes.startTime1) / ONE_DAY)) ||
+      (!(time >= cutoffTimes.startTime1 && time < cutoffTimes.endTime1) &&
+        !(time >= cutoffTimes.startTime2 && time < cutoffTimes.endTime2))
+    )
+  );
+}
+
+export function faucetTriggerTimes(cutoffTimes: {
+  startTime1: number;
+  startTime2: number;
+  endTime1: number;
+  endTime2: number;
+}) {
+  const ONE_DAY = 60 * 60 * 24;
+  const now = new Date();
+  const ethNow = toEthDate(now);
+  const ethNowDay = Math.floor(ethNow / ONE_DAY);
+  const ethMidnight = ethNowDay * ONE_DAY;
+  const time = ethNow % ONE_DAY;
+  const activeNow =
+    (time >= cutoffTimes.startTime1 && time < cutoffTimes.endTime1) ||
+    !(time >= cutoffTimes.startTime2 && time < cutoffTimes.endTime2);
+  const usingSecond =
+    cutoffTimes.endTime1 === 86400 && cutoffTimes.startTime2 === 0;
+  const periodEndTime = activeNow
+    ? usingSecond
+      ? cutoffTimes.endTime2
+      : cutoffTimes.endTime1
+    : cutoffTimes.startTime1;
+  const periodEndDate =
+    ethNow > ethMidnight + periodEndTime
+      ? fromEthDate(ethMidnight + periodEndTime + ONE_DAY)
+      : fromEthDate(ethMidnight + periodEndTime);
+  const nextPeriodStartDate = activeNow
+    ? fromEthDate(ethMidnight + cutoffTimes.startTime1 + ONE_DAY)
+    : fromEthDate(ethMidnight + cutoffTimes.startTime1);
+  return {
+    activeNow,
+    periodEndDate,
+    nextPeriodStartDate,
+  };
+}
+
+export function claimFromFaucet(tokenIds: string[], provider: JsonRpcProvider) {
+  if (!tokenIds.length) {
+    throw new Error("no potted plants provided");
+  }
+  const signer = provider.getSigner();
+  const waterFaucet = WaterFaucet__factory.connect(
+    WATER_FAUCET_ADDRESS,
+    signer
+  );
+  console.log(tokenIds);
+  return waterFaucet.claim(tokenIds);
 }
