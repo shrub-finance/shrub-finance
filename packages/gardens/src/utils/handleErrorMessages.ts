@@ -68,6 +68,10 @@ export function handleErrorMessagesFactory(
           err.message.includes("PaperPotMint: minting is not active")
         ) {
           setter("Pot Minting is not active - #1006");
+        } else if (err.message.includes("WaterFaucet: not eligible")) {
+          setter(
+            "Not eligible for water. Most likely you already claimed water for the day. If not, contact the Shrub team in discord."
+          );
         } else {
           setter(err.message);
         }

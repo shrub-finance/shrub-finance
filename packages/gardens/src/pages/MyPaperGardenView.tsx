@@ -937,9 +937,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       <Text fontSize="sm" color={textColor}>
                         Current cycle ends in:
                       </Text>
-                      {/*<Text>*/}
-                      {/*  { faucetCutoffTimes ? faucetTriggerTimes(faucetCutoffTimes).periodEndDate.toLocaleString() : "" }*/}
-                      {/*</Text>*/}
                       <CountdownTimer
                         targetDate={
                           faucetCutoffTimes
@@ -965,15 +962,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
                             ).nextPeriodStartDate.toLocaleString()
                           : ""}
                       </Text>
-                      {/*<CountdownTimer*/}
-                      {/*  targetDate={ faucetCutoffTimes ? faucetTriggerTimes(faucetCutoffTimes).nextPeriodStartDate : new Date(0) }*/}
-                      {/*/>*/}
                     </Box>
                   </Box>
                 </Center>
 
                 <Spacer />
-                {/*Redemption logic*/}
                 <Center shadow={"dark-lg"} p={10} borderRadius={"3xl"}>
                   <Box>
                     <VStack>
@@ -985,7 +978,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
                           transform="scaleX(1)"
                         />
                       </Heading>
-                      {/*Redeem Price*/}
                       <Box p={4}>
                         <FormLabel
                           fontSize={"sm"}
@@ -1006,12 +998,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
                           {potsEligibleToClaim.length} Water
                         </Box>
                       </Box>
-                      {/*Approve/Redeem ticket button*/}
                       <Tooltip
                         hasArrow
                         label={
                           !potsEligibleToClaim.length
-                            ? "No water to claim right now . Please wait until the next claim period to get 1 water per potted plant"
+                            ? "No water to claim right now. Please wait until the next claim period to get 1 water per potted plant"
                             : "Claim water"
                         }
                         shouldWrapChildren
