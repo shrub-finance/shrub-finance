@@ -1,5 +1,13 @@
 import { isMobile } from "react-device-detect";
-import { Box, Center, Container, Heading, Link, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Center,
+  Container,
+  Heading,
+  Link,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import { ExchangeLogo } from "../assets/Icons";
@@ -7,6 +15,7 @@ import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
 import { trackEvent } from "../utils/handleGATracking";
 import WyreCheckoutStatus from "./WyreCheckoutStatus";
+import Testimonials from "./Testimonials";
 
 function Intro(props: RouteComponentProps) {
   const { account } = useWeb3React();
@@ -21,9 +30,9 @@ function Intro(props: RouteComponentProps) {
     const currentURL = new URL(window.location.href);
     const currentURLParams = new URLSearchParams(currentURL.search);
     const redirectPrefix = `${currentURL.protocol}//${currentURL.host}${currentURL.pathname}?`;
-    currentURLParams.set('wyreCheckoutStatus', 'failure');
+    currentURLParams.set("wyreCheckoutStatus", "failure");
     const failureRedirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
-    currentURLParams.set('wyreCheckoutStatus', 'success');
+    currentURLParams.set("wyreCheckoutStatus", "success");
     const redirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
     const params: WyreCheckoutParams = {
       redirectUrl,
@@ -177,6 +186,9 @@ function Intro(props: RouteComponentProps) {
               <ExchangeLogo boxSize={{ base: "xs", md: "xl" }} />
             </Center>
           )}
+          <Center>
+            <Testimonials />
+          </Center>
         </Box>
       </Center>
     </Container>
