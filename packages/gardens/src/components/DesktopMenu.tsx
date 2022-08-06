@@ -1,5 +1,4 @@
 import {
-  Badge,
   Box,
   HStack,
   Link,
@@ -8,7 +7,6 @@ import {
 } from "@chakra-ui/react";
 import { Link as ReachLink } from "@reach/router";
 import { PaperGardensLogo } from "../assets/Icons";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import React from "react";
 import { trackEvent } from "../utils/handleGATracking";
 
@@ -94,20 +92,20 @@ function DesktopMenu() {
         {/*>*/}
         {/*  Adoption*/}
         {/*</Link>*/}
+        {/*<Link*/}
+        {/*  as={ReachLink}*/}
+        {/*  to="/opensea"*/}
+        {/*  variant="ghost"*/}
+        {/*  cursor="pointer"*/}
+        {/*  px={2}*/}
+        {/*  py={{ base: "3", md: "1", lg: "1" }}*/}
+        {/*  rounded={"lg"}*/}
+        {/*  _hover={{ textDecoration: "none", bgGradient: gradient }}*/}
+        {/*  onClick={handleGA}*/}
+        {/*>*/}
+        {/*  OpenSea*/}
+        {/*</Link>*/}
         <Link
-          as={ReachLink}
-          to="/opensea"
-          variant="ghost"
-          cursor="pointer"
-          px={2}
-          py={{ base: "3", md: "1", lg: "1" }}
-          rounded={"lg"}
-          _hover={{ textDecoration: "none", bgGradient: gradient }}
-          onClick={handleGA}
-        >
-          OpenSea
-        </Link>
-        {/* <Link
           href="https://opensea.io/collection/shrub-paper-gardens"
           isExternal
           variant="ghost"
@@ -121,7 +119,7 @@ function DesktopMenu() {
           <Box as={"span"} whiteSpace={"nowrap"}>
             OpenSea
           </Box>
-        </Link> */}
+        </Link>
         <Link
           isExternal
           href="https://medium.com/@shrubfinance"

@@ -65,7 +65,7 @@ function App() {
               <NFTView path="/nft/paper-seed/:tokenId" />
               <AdoptionCenterView path="/adoption" />
               <MyPaperGardenView path="/my-garden" />
-              <OpenSeaView path="/opensea" />
+              {/*<OpenSeaView path="/opensea" />*/}
             </Router>
           </Store>
         </ApolloProvider>
