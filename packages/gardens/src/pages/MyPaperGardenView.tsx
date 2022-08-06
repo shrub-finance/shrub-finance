@@ -852,9 +852,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
             </Text>
             <Text
               textAlign="center"
-              color={"gray.400"}
+              color={"gray.500"}
               px={"5"}
-              fontSize={{ base: "15px", md: "15px", lg: "16px" }}
+              fontSize={"14px"}
+              fontWeight={"medium"}
             >
               Select seeds or plants below to grow them.
             </Text>
@@ -994,6 +995,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                           fontSize="2xl"
                           p={"1.813rem"}
                           w="325px"
+                          color={"gray.500"}
                         >
                           {potsEligibleToClaim.length} Water
                         </Box>

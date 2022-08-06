@@ -1,8 +1,8 @@
-import { AnimationControls, useAnimation } from "framer-motion";
-import { Box, Center, Image } from "@chakra-ui/react";
-import { Grow, Shake } from "./Transform";
-import { Disappear, Appear, Fade2 } from "./Fade";
-import { Leaf1, Leaf2, Leaf3, Leaf4, WonderPot } from "../../assets/Icons";
+import { useAnimation } from "framer-motion";
+import { Center, Image } from "@chakra-ui/react";
+import { Shake } from "./Transform";
+import { Fade2 } from "./Fade";
+import { Leaf1, Leaf2, Leaf3, Leaf4 } from "../../assets/Icons";
 import React, { useEffect } from "react";
 import { IMAGE_ASSETS } from "../../utils/imageAssets";
 
@@ -61,7 +61,7 @@ function Growth({
                 Fade2(
                   [1, 1, 0],
                   <Leaf1
-                    boxSize={40}
+                    boxSize={36}
                     position={"absolute"}
                     bottom={"178px"}
                     left={"62px"}
@@ -85,7 +85,7 @@ function Growth({
                 Fade2(
                   [1, 1, 0],
                   <Leaf3
-                    boxSize={40}
+                    boxSize={36}
                     position={"absolute"}
                     bottom={"117px"}
                     left={"48px"}
@@ -126,7 +126,7 @@ function Growth({
             Fade2(
               [0, 0, 1],
               <Leaf1
-                boxSize={40}
+                boxSize={36}
                 position={"absolute"}
                 bottom={"176px"}
                 left={"58px"}
@@ -138,7 +138,7 @@ function Growth({
             Fade2(
               [0, 0, 1],
               <Leaf2
-                boxSize={40}
+                boxSize={36}
                 position={"absolute"}
                 bottom={"176px"}
                 left={"48px"}
@@ -150,7 +150,7 @@ function Growth({
             Fade2(
               [0, 0, 1],
               <Leaf3
-                boxSize={40}
+                boxSize={36}
                 position={"absolute"}
                 bottom={"166px"}
                 left={"45px"}

@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { TxContext } from "./Store";
 import {
   CheckCircleIcon,
+  CheckIcon,
   ExternalLinkIcon,
   Icon,
   TimeIcon,
@@ -30,6 +31,7 @@ import { useAnimation } from "framer-motion";
 import Watering from "./animations/Watering";
 import Fertilizing from "./animations/Fertilizing";
 import WaterAll from "./animations/WaterAll";
+import { Bounce } from "./animations/Bounce";
 
 export function Txmonitor({
   txHash,
@@ -152,7 +154,7 @@ export function Txmonitor({
             mt="20px"
             bg="none"
           >
-            <TimeIcon boxSize="40px" />
+            {Bounce(<TimeIcon boxSize="40px" />, "20%", "-20%", controls)}
             <AlertTitle mt={4} mb={1} fontSize="lg">
               Transaction Confirming...
             </AlertTitle>
@@ -198,7 +200,7 @@ export function Txmonitor({
           textAlign="center"
           bg="none"
         >
-          <AlertIcon boxSize={40} mr={0} color={"sprout.300"} />
+          <CheckIcon boxSize={40} mr={0} color={"sprout.300"} />
           <AlertTitle mt={12} mb={1} fontSize="lg">
             Transaction Confirmed
           </AlertTitle>
@@ -292,7 +294,7 @@ export function TxStatusList() {
               label="loading"
             />
           ) : status === "confirmed" ? (
-            <CheckCircleIcon color="teal.400" />
+            <CheckIcon color="teal.400" />
           ) : (
             <Icon as={VscError} color="red.400" boxSize={3} />
           )}

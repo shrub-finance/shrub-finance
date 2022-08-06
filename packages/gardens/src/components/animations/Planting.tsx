@@ -1,5 +1,12 @@
 import { AnimationControls, useAnimation } from "framer-motion";
-import { Box, Center, useColorMode } from "@chakra-ui/react";
+import {
+  AlertTitle,
+  Box,
+  Center,
+  Fade,
+  SlideFade,
+  useColorMode,
+} from "@chakra-ui/react";
 import { Transform } from "./Transform";
 import {
   Hope,
@@ -18,7 +25,7 @@ import {
   WonderSad,
   WonderSadPot,
 } from "../../assets/Icons";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Appear, Disappear } from "./Fade";
 
 export function Planting({
@@ -31,6 +38,16 @@ export function Planting({
   controls: AnimationControls;
 }) {
   console.debug("rendering Planting");
+  const descRef = useRef();
+
+  useEffect(function () {
+    setTimeout(() => {
+      if (descRef.current) {
+        // @ts-ignore
+        descRef.current.textContent = "Transaction Confirming...";
+      }
+    }, 3000);
+  }, []);
 
   function getSeedSvg(seedClass: string, emotion: string) {
     return seedClass === "Wonder" ? (
@@ -99,6 +116,17 @@ export function Planting({
             React.cloneElement(getPotSvg(seedClass, emotion), { boxSize: 40 }),
             controls
           )}
+        </Center>
+        <Center>
+          <AlertTitle mt={6} mb={1} fontSize="lg" fontWeight={"medium"}>
+            {" "}
+            <SlideFade
+              in={true}
+              unmountOnExit={true}
+              // @ts-ignore
+              ref={descRef}
+            ></SlideFade>
+          </AlertTitle>
         </Center>
       </Box>
     </>
