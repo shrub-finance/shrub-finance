@@ -61,7 +61,7 @@ function Growth({
                 Fade2(
                   [1, 1, 0],
                   <Leaf1
-                    boxSize={40}
+                    boxSize={36}
                     position={"absolute"}
                     bottom={"178px"}
                     left={"62px"}
@@ -85,7 +85,7 @@ function Growth({
                 Fade2(
                   [1, 1, 0],
                   <Leaf3
-                    boxSize={40}
+                    boxSize={36}
                     position={"absolute"}
                     bottom={"117px"}
                     left={"48px"}
@@ -126,7 +126,7 @@ function Growth({
             Fade2(
               [0, 0, 1],
               <Leaf1
-                boxSize={40}
+                boxSize={36}
                 position={"absolute"}
                 bottom={"176px"}
                 left={"58px"}
@@ -138,7 +138,7 @@ function Growth({
             Fade2(
               [0, 0, 1],
               <Leaf2
-                boxSize={40}
+                boxSize={36}
                 position={"absolute"}
                 bottom={"176px"}
                 left={"48px"}
@@ -150,7 +150,7 @@ function Growth({
             Fade2(
               [0, 0, 1],
               <Leaf3
-                boxSize={40}
+                boxSize={36}
                 position={"absolute"}
                 bottom={"166px"}
                 left={"45px"}

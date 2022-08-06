@@ -1,8 +1,15 @@
 import { AnimationControls } from "framer-motion";
-import { Center, Image, Text, useColorModeValue } from "@chakra-ui/react";
+import {
+  AlertTitle,
+  Center,
+  Image,
+  SlideFade,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { GrowthCounter, Spray, Tilt } from "./Transform";
 import { Water, WateringCan } from "../../assets/Icons";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Counter } from "../Counter";
 import { IMAGE_ASSETS } from "../../utils/imageAssets";
 
@@ -25,6 +32,17 @@ function Watering({
   const growthColor = useColorModeValue("pink.400", "pink.300");
   const dropColor = useColorModeValue("blue.300", "blue.100");
   const stage = IMAGE_ASSETS.percentageToStage(from);
+
+  const descRef = useRef();
+
+  useEffect(function () {
+    setTimeout(() => {
+      if (descRef.current) {
+        // @ts-ignore
+        descRef.current.textContent = "Transaction Confirming...";
+      }
+    }, 4500);
+  }, []);
 
   return (
     <>
@@ -57,6 +75,24 @@ function Watering({
         2.5,
         1.5
       )}
+      <Center>
+        <AlertTitle
+          mt={6}
+          mb={1}
+          fontSize="lg"
+          fontWeight={"medium"}
+          position={"absolute"}
+          top={"124px"}
+        >
+          {" "}
+          <SlideFade
+            in={true}
+            unmountOnExit={true}
+            // @ts-ignore
+            ref={descRef}
+          ></SlideFade>
+        </AlertTitle>
+      </Center>
       <Center>
         {Spray(
           <Water

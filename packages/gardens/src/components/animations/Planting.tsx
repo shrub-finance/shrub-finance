@@ -118,7 +118,7 @@ export function Planting({
           )}
         </Center>
         <Center>
-          <AlertTitle mt={6} mb={1} fontSize="lg" fontWeight={"bold"}>
+          <AlertTitle mt={6} mb={1} fontSize="lg" fontWeight={"medium"}>
             {" "}
             <SlideFade
               in={true}
