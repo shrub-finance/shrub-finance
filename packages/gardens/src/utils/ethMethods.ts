@@ -577,7 +577,7 @@ export function faucetTriggerTimes(cutoffTimes: {
   const time = ethNow % ONE_DAY;
   const activeNow =
     (time >= cutoffTimes.startTime1 && time < cutoffTimes.endTime1) ||
-    !(time >= cutoffTimes.startTime2 && time < cutoffTimes.endTime2);
+    (time >= cutoffTimes.startTime2 && time < cutoffTimes.endTime2);
   const usingSecond =
     cutoffTimes.endTime1 === 86400 && cutoffTimes.startTime2 === 0;
   const periodEndTime = activeNow

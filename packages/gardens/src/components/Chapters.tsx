@@ -174,8 +174,8 @@ function Chapters() {
               </Text>
             </Box>
             <Link
-              as={ReachLink}
-              to={"/opensea"}
+              href="https://opensea.io/collection/shrub-paper-gardens"
+              isExternal
               cursor="pointer"
               rounded="3xl"
               size="sm"

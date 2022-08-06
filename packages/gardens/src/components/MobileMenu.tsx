@@ -95,8 +95,8 @@ function MobileMenu({ onMenuClose }) {
         {/*  Adoption*/}
         {/*</Link>*/}
         <Link
-          as={ReachLink}
-          to="/opensea"
+          href="https://opensea.io/collection/shrub-paper-gardens"
+          isExternal
           variant="ghost"
           cursor="pointer"
           px={2}
