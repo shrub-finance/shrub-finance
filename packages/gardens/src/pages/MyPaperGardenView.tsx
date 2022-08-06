@@ -855,7 +855,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
               color={"gray.500"}
               px={"5"}
               fontSize={"14px"}
-              fontWeight={"semibold"}
+              fontWeight={"medium"}
             >
               Select seeds or plants below to grow them.
             </Text>

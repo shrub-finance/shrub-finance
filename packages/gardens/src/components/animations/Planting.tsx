@@ -42,8 +42,10 @@ export function Planting({
 
   useEffect(function () {
     setTimeout(() => {
-      // @ts-ignore
-      descRef.current.textContent = "Transaction Confirming...";
+      if (descRef.current) {
+        // @ts-ignore
+        descRef.current.textContent = "Transaction Confirming...";
+      }
     }, 3000);
   }, []);
 
