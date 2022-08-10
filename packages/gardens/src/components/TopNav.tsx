@@ -171,7 +171,7 @@ function TopNav() {
                       borderRadius="xl"
                       leftIcon={
                         web3Error ? (
-                          <InfoOutlineIcon colorScheme="red" />
+                          <InfoOutlineIcon color="red.400" />
                         ) : undefined
                       }
                     >

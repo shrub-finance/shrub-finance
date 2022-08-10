@@ -82,7 +82,7 @@ function Watering({
           fontSize="lg"
           fontWeight={"medium"}
           position={"absolute"}
-          top={"124px"}
+          top={"140px"}
         >
           {" "}
           <SlideFade

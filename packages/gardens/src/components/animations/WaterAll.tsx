@@ -1,6 +1,6 @@
 import { AnimationControls } from "framer-motion";
-import { Grid } from "@chakra-ui/react";
-import React from "react";
+import { AlertTitle, Center, Grid, SlideFade } from "@chakra-ui/react";
+import React, { useEffect, useRef } from "react";
 import Watering from "./Watering";
 import WateringMany from "./WateringMany";
 import { potForWatering } from "../../types";
@@ -28,23 +28,66 @@ function WaterAll({
   for (const potForWatering of potsForWatering) {
     waterPots.push(
       <WateringMany
+        pots={potsForWatering.length}
         seedClass={potForWatering.type}
         emotion={potForWatering.emotion}
         controls={controls}
+        key={potForWatering.id}
         fromArg={(potForWatering.growth || 0) / 100}
         growthAmountArg={getGrowthAmount("Watering", potForWatering.emotion)}
       />
     );
   }
 
+  const descRef = useRef();
+
+  useEffect(function () {
+    setTimeout(() => {
+      if (descRef.current) {
+        // @ts-ignore
+        descRef.current.textContent = "Transaction Confirming...";
+      }
+    }, 4500);
+  }, []);
+
   return (
-    <Grid
-      templateColumns="repeat(5, 1fr)"
-      templateRows="repeat(3, 1fr)"
-      gap={8}
-    >
-      {waterPots}
-    </Grid>
+    <>
+      <Center>
+        <AlertTitle
+          position={"absolute"}
+          top={
+            potsForWatering.length === 2
+              ? "104px"
+              : potsForWatering.length === 3
+              ? "104px"
+              : "79px"
+          }
+          fontWeight={"medium"}
+        >
+          {" "}
+          <SlideFade
+            in={true}
+            unmountOnExit={true}
+            // @ts-ignore
+            ref={descRef}
+          ></SlideFade>
+        </AlertTitle>
+      </Center>
+      <Grid
+        templateColumns={
+          potsForWatering.length === 2
+            ? "repeat(2, 1fr)"
+            : potsForWatering.length === 3
+            ? "repeat(3, 1fr)"
+            : "repeat(5, 1fr)"
+        }
+        templateRows="repeat(3, 1fr)"
+        gap={6}
+        mt={potsForWatering.length > 5 ? "-48px" : "50px"}
+      >
+        {waterPots}
+      </Grid>
+    </>
   );
 }
 

@@ -550,7 +550,6 @@ export function potEligibleToClaim(
   const ONE_DAY = 60 * 60 * 24;
   const ethNow = toEthDate(now);
   const time = ethNow % ONE_DAY;
-  console.log(lastClaim, cutoffTimes);
   return (
     lastClaim &&
     !(
