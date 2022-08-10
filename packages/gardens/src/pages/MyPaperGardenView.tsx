@@ -910,7 +910,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       <Text fontSize="sm" color={textColor}>
                         Water Availability Status
                       </Text>
-                      <Text>
+                      <Box>
                         <Circle
                           size="10px"
                           bg={
@@ -928,7 +928,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         faucetTriggerTimes(faucetCutoffTimes).activeNow
                           ? "now on"
                           : "off"}
-                      </Text>
+                      </Box>
                     </Box>
                     <Box
                       fontSize={{ base: "18px", md: "20px" }}

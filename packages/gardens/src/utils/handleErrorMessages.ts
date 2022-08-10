@@ -72,6 +72,8 @@ export function handleErrorMessagesFactory(
           setter(
             "Not eligible for water. Most likely you already claimed water for the day. If not, contact the Shrub team in discord."
           );
+        } else if (err.message.includes("header not found")) {
+          setter("header not found");
         } else {
           setter(err.message);
         }
