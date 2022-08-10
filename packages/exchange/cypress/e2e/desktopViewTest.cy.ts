@@ -16,6 +16,36 @@ describe("empty spec", () => {
     cy.get("@buttons").eq(2).find("svg");
     cy.get("a").contains("Buy MATIC");
   });
+  it("leader Board test", () => {
+    cy.get(".css-1xinffc").find(".css-lygqz2").children().first().as("navLink");
+    cy.get("@navLink").find("nav").children().as("navChildren");
+    cy.get("@navChildren")
+      .eq(1)
+      .as("navButton")
+      .invoke("removeAttr", "target")
+      .click({ force: true });
+    cy.intercept(
+      "POST",
+      "https://api.thegraph.com/subgraphs/name/jguthrie7/shrubpapergardens",
+      (req) => {
+        req.alias = req.body.operationName;
+      }
+    );
+    cy.get(".css-lygqz2")
+      .children()
+      .first()
+      .find("nav")
+      .children()
+      .eq(1)
+      .click();
+    cy.wait("@NFTLeaderboard")
+      .its("response.body.data.users")
+      .should("have.length", 30);
+    cy.get("@NFTLeaderboard")
+      .its("response.body.data.users.0")
+      .and("have.property", "id");
+    cy.get(".css-gmuwbf").find("table").should("to.be.visible");
+  });
   it("Links Shrub Main testing", () => {
     cy.get(".css-1xinffc").find(".css-lygqz2").children().first().as("navLink");
     cy.get("@navLink").find("nav").children().as("navChildren");
@@ -47,7 +77,7 @@ describe("empty spec", () => {
             .as("gardensNavChildren");
           cy.get("@gardensNavChildren")
             .children()
-            .eq(1)
+            .eq(2)
             .click()
             .then(() => {
               cy.url().should("include", "/chapters");
@@ -310,36 +340,5 @@ describe("empty spec", () => {
         .should("have.attr", "href", "https://discord.gg/csusZhYgTg")
         .and("have.text", "Contact Us");
     });
-  });
-
-  it("leader Board test", () => {
-    cy.get(".css-1xinffc").find(".css-lygqz2").children().first().as("navLink");
-    cy.get("@navLink").find("nav").children().as("navChildren");
-    cy.get("@navChildren")
-      .eq(1)
-      .as("navButton")
-      .invoke("removeAttr", "target")
-      .click({ force: true });
-    cy.intercept(
-      "POST",
-      "https://api.thegraph.com/subgraphs/name/jguthrie7/shrubpapergardens",
-      (req) => {
-        req.alias = req.body.operationName;
-      }
-    );
-    cy.get(".css-lygqz2")
-      .children()
-      .first()
-      .find("nav")
-      .children()
-      .eq(2)
-      .click();
-    cy.wait("@NFTLeaderboard")
-      .its("response.body.data.users")
-      .should("have.length", 30);
-    cy.get("@NFTLeaderboard")
-      .its("response.body.data.users.0")
-      .and("have.property", "id");
-    cy.get(".css-gmuwbf").find("table").should("to.be.visible");
   });
 });

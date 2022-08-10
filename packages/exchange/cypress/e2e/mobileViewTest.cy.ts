@@ -58,10 +58,7 @@ describe("Mobile View Test Case", () => {
                   .should("have.text", "Paper Gardens");
                 cy.get(".css-1pg4s0")
                   .find("p")
-                  .should(
-                    "have.text",
-                    "Experience the most advanced NFT series yet"
-                  );
+                  .should("have.text", "The most advanced NFT series yet");
                 cy.get(".css-70qvj9")
                   .find("button")
                   .eq(1)
@@ -99,7 +96,7 @@ describe("Mobile View Test Case", () => {
                               .children()
                               .as("navLink");
                             cy.get("@navLink")
-                              .eq(1)
+                              .eq(2)
                               .click()
                               .then(() => {
                                 cy.url().should("include", "/chapters");
@@ -113,6 +110,24 @@ describe("Mobile View Test Case", () => {
                                     "CHAPTER 1: THE TRAVELLING MERCHANT"
                                   );
                               });
+                            // cy.get("@menuButton")
+                            //   .click()
+                            //   .then(() => {
+                            //     cy.get(".css-1ahmivy")
+                            //       .find("nav")
+                            //       .children()
+                            //       .as("navLink");
+                            //     cy.get("@navLink")
+                            //       .eq(3)
+                            //       .invoke("removeAttr", "target")
+                            //       .click()
+                            //       // .then(() => {
+                            //       //   cy.location("href").should(
+                            //       //     "eq",
+                            //       //     "https://gardens.shrub.finance/opensea"
+                            //       //   );
+                            //       // });
+                            //   });
                             cy.get("@menuButton")
                               .click()
                               .then(() => {
@@ -120,30 +135,7 @@ describe("Mobile View Test Case", () => {
                                   .find("nav")
                                   .children()
                                   .as("navLink");
-                                cy.get("@navLink")
-                                  .eq(3)
-                                  .invoke("removeAttr", "target")
-                                  .click()
-                                  .then(() => {
-                                    cy.location("href").should(
-                                      "eq",
-                                      "https://gardens.shrub.finance/opensea"
-                                    );
-                                  });
-                              });
-                            cy.get("@menuButton")
-                              .click()
-                              .then(() => {
-                                cy.get(".css-1ahmivy")
-                                  .find("nav")
-                                  .children()
-                                  .as("navLink");
-                                cy.get("@navLink")
-                                  .eq(4)
-                                  .click()
-                                  .then(() => {
-                                    // cy.location("href").should('eq', "https://gardens.shrub.finance/opensea")
-                                  });
+                                cy.get("@navLink").eq(4).click();
                               });
                             cy.get("@menuButton")
                               .click()
@@ -188,7 +180,7 @@ describe("Mobile View Test Case", () => {
         cy.get(".css-1pg4s0")
           .find(".css-kw8ndg")
           .find("p")
-          .should("have.text", "Experience the most advanced NFT series yet");
+          .should("have.text", "The most advanced NFT series yet");
         cy.get(".css-70qvj9")
           .find("button")
           .eq(1)
@@ -219,7 +211,7 @@ describe("Mobile View Test Case", () => {
                     cy.get(".css-1ahmivy").should("to.be.visible");
                     cy.get(".css-1ahmivy").find("nav").children().as("navLink");
                     cy.get("@navLink")
-                      .eq(1)
+                      .eq(2)
                       .click()
                       .then(() => {
                         cy.url().should("include", "/chapters");
@@ -247,38 +239,7 @@ describe("Mobile View Test Case", () => {
                           .then(() => {
                             cy.location("href").should(
                               "eq",
-                              "https://gardens.shrub.finance/opensea"
-                            );
-                          });
-                      });
-                    cy.get("@menuButton")
-                      .click()
-                      .then(() => {
-                        cy.get(".css-1ahmivy")
-                          .find("nav")
-                          .children()
-                          .as("navLink");
-                        cy.get("@navLink")
-                          .eq(4)
-                          .click()
-                          .then(() => {
-                            // cy.location("href").should('eq', "https://gardens.shrub.finance/opensea")
-                          });
-                      });
-                    cy.get("@menuButton")
-                      .click()
-                      .then(() => {
-                        cy.get(".css-1ahmivy")
-                          .find("nav")
-                          .children()
-                          .as("navLink");
-                        cy.get("@navLink")
-                          .eq(5)
-                          .click()
-                          .then(() => {
-                            cy.get("body").should(
-                              "have.class",
-                              "chakra-ui-light"
+                              "https://opensea.io/collection/shrub-paper-gardens"
                             );
                           });
                       });
