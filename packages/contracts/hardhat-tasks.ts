@@ -30,7 +30,6 @@ import { address } from 'hardhat/internal/core/config/config-validation'
 import { BigNumberish, ContractTransaction } from 'ethers'
 import { WaterFaucet } from '@shrub/subgraph-paper-gardens/generated/WaterFaucet/WaterFaucet'
 import { PaperPot } from '@shrub/subgraph-paper-gardens/generated/PaperPot/PaperPot'
-import { expect } from 'chai'
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 
