@@ -117,6 +117,7 @@ function SeedDetails({
   const textBg2 = useColorModeValue("blue.50", "blue.900");
   const textBg3 = useColorModeValue("yellow.100", "yellow.200");
   const textBg4 = "green.100";
+  const textBg5 = useColorModeValue("red.100", "red.200");
 
   const PAPERSEED_ADDRESS = process.env.REACT_APP_PAPERSEED_ADDRESS || "";
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
@@ -721,10 +722,10 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    isDisabled={
-                      fungibleAssets.water === 0 ||
-                      selectedItem.wateringNextAvailable > new Date()
-                    }
+                    // isDisabled={
+                    //   fungibleAssets.water === 0 ||
+                    //   selectedItem.wateringNextAvailable > new Date()
+                    // }
                   >
                     Water
                   </Button>
@@ -862,15 +863,15 @@ function SeedDetails({
                 <Tooltip
                   hasArrow
                   label={
-                    // stillGrowing
-                    //   ? "Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
-                    //   : null
-                    "Harvesting is not available yet."
+                    stillGrowing
+                      ? "Your potted plant will be ready to harvest at growth 100%. Until then keep watering, fertilizing and taking care!"
+                      : "Hurray! Your plant is now ready to harvest."
                   }
                   shouldWrapChildren
                   mt="3"
                 >
                   <Button
+                    cursor="pointer"
                     onClick={() => {
                       setModalState("harvest");
                       openModal();
@@ -887,7 +888,7 @@ function SeedDetails({
                     rounded={"2xl"}
                     bgGradient={
                       !stillGrowing
-                        ? "linear(to-r, #49f4ff, #fff, #8fff6e 50%, #3fe5ff)"
+                        ? "linear(to-r, #49f4ff, #fff, #c8ffb4 50%, #3fe5ff)"
                         : undefined
                     }
                     color={"black"}
@@ -898,9 +899,8 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    backgroundSize="400% 400%"
-                    // isDisabled={stillGrowing}
-                    isDisabled
+                    backgroundSize="400%"
+                    isDisabled={stillGrowing}
                   >
                     Harvest
                   </Button>
@@ -1342,15 +1342,67 @@ function SeedDetails({
                       </Text>
                     </Stack>
                   ) : modalState === "harvest" ? (
-                    <Center>
-                      <Box textStyle={"reading"}>
-                        <Text>
-                          Harvesting will result in your potted plant and 1
-                          Empty Pot converting into a fully-grown Shrub.
+                    <Stack spacing={4}>
+                      <Text textStyle={"reading"} fontSize={"lg"}>
+                        Harvesting will result in
+                      </Text>
+                      <Divider borderColor={borderColor} />
+                      <Stack spacing={4}>
+                        <Feature
+                          icon={
+                            <Icon as={Pot} color={"green.500"} w={5} h={5} />
+                          }
+                          iconBg={iconBg}
+                          text={"1 Empty Pot"}
+                        />
+
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          And
                         </Text>
-                        <Text>This is irreversible.</Text>
-                      </Box>
-                    </Center>
+                        <Feature
+                          icon={
+                            selectedItem && (
+                              <Avatar
+                                name="Potted Plant"
+                                bg="yellow.100"
+                                size="sm"
+                                src={IMAGE_ASSETS.getPottedPlant(
+                                  selectedItem.type,
+                                  0,
+                                  selectedItem.emotion,
+                                  "shrub"
+                                )}
+                              />
+                            )
+                          }
+                          iconBg={""}
+                          text={"1 Potted Plant"}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          Converting into
+                        </Text>
+                        <Feature
+                          icon={
+                            <Icon as={FaHeart} color={"red.500"} w={5} h={5} />
+                          }
+                          iconBg={iconBg}
+                          text={"A fully-grown Shrub"}
+                        />
+                        <Divider borderColor={borderColor} />
+                      </Stack>
+                      <Text
+                        textTransform={"uppercase"}
+                        color={"red.900"}
+                        fontWeight={600}
+                        fontSize={"sm"}
+                        bg={textBg5}
+                        p={2}
+                        alignSelf={"flex-start"}
+                        rounded={"md"}
+                      >
+                        This action is irreversible
+                      </Text>
+                    </Stack>
                   ) : (
                     <></>
                   )}
