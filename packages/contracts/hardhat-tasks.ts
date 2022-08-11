@@ -29,6 +29,8 @@ import chainlinkAggregatorV3Interface from "./external-contracts/chainlinkAggreg
 import { address } from 'hardhat/internal/core/config/config-validation'
 import { BigNumberish, ContractTransaction } from 'ethers'
 import { WaterFaucet } from '@shrub/subgraph-paper-gardens/generated/WaterFaucet/WaterFaucet'
+import { PaperPot } from '@shrub/subgraph-paper-gardens/generated/PaperPot/PaperPot'
+import { expect } from 'chai'
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 
@@ -356,7 +358,7 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     // Mint Water
     await env.run('mintWater', {
       to: account3.address,
-      amount: '25'
+      amount: '250'
     })
 
     // Mint Fertilizer
@@ -374,6 +376,53 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     await WETH.transfer(account4.address, ethers.constants.WeiPerEther);
 
   })
+
+task("testHarvest", "Gets five seeds ready for harvesting - extends testPaperGardens")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    await env.run('testPaperGardens');
+
+    const [deployer, account1, account2, account3, account4] = await ethers.getSigners();
+
+    const seedDeployment = await deployments.get("PaperSeed");
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperSeedAccount3 = PaperSeed__factory.connect(seedDeployment.address, account3);
+    const paperPotAccount3 = PaperPot__factory.connect(paperPotDeployment.address, account3);
+
+    // SetApprovalForAll
+    console.log(`setting approval for planting seeds with account ${account3.address}`);
+    await paperSeedAccount3.setApprovalForAll(paperPotAccount3.address, true);
+
+    // Loop through 5 seeds
+    for (const seedTokenId of [5, 16, 250, 1014, 1015]) {
+      // Plant
+      console.log(`planting seedTokenId ${seedTokenId}`)
+      const plantTx = await paperPotAccount3.plant(paperSeedAccount3.address, seedTokenId)
+      const plantReceipt = await plantTx.wait();
+      const plantEvent = plantReceipt.events.find(
+        (event) => event.event === "Plant"
+      );
+      const tokenId = plantEvent.args.tokenId;
+      console.log(`planting resulted in the creation of tokenId ${tokenId}`);
+
+      // Water until 100% growth
+      let growthBps = 0;
+      while (growthBps < 10000) {
+        console.log(`watering tokenId ${tokenId}`)
+        const waterTx = await paperPotAccount3.water([tokenId]);
+        const waterReceipt = await waterTx.wait();
+        const growEvent = waterReceipt.events.find(
+          (event) => event.event === "Grow"
+        );
+        growthBps = growEvent.args.growthBps;
+        console.log(`plant with tokenId ${tokenId} grew ${growEvent.args.growthAmount} to ${growthBps}`);
+      }
+
+    }
+
+
+  })
+
 
 task("getPaperPotUri", "get the uri from a paperPot token")
   .addParam("tokenId", "tokenId to get the uri for")
