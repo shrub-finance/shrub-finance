@@ -30,6 +30,7 @@ export const addressMap = {
   "0xab769309ebceeda984e666ab727b36211ba02a8a": "DegenKingo",
   "0x0268aa1755b49fa115a81090b836f2b111a20163": "jimmy",
   "0xeeff517294d2aa759274703a1b1c5ac81f9a754b": "whitesocks.eth",
+  "0xa9d90e75144658ee480fff3f291cb77cb6024ba9": "Leamax006",
 };
 
 export const b = [
