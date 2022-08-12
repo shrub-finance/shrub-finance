@@ -32,6 +32,7 @@ import Watering from "./animations/Watering";
 import Fertilizing from "./animations/Fertilizing";
 import WaterAll from "./animations/WaterAll";
 import { Bounce } from "./animations/Bounce";
+import Harvesting from "./animations/Harvesting";
 
 export function Txmonitor({
   txHash,
@@ -190,32 +191,16 @@ export function Txmonitor({
       {/*  </Box>*/}
       {/*)}*/}
 
-      {status === "confirmed" && (
-        <Alert
-          status="success"
-          variant="subtle"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          textAlign="center"
-          bg="none"
-        >
-          <CheckIcon boxSize={40} mr={0} color={"sprout.300"} />
-          <AlertTitle mt={12} mb={1} fontSize="lg">
-            Transaction Confirmed
-          </AlertTitle>
-          <AlertDescription maxWidth="sm">
-            <Link
-              color={"gray"}
-              fontSize={"sm"}
-              href={explorerLink(chainId, txHash, ExplorerDataType.TRANSACTION)}
-              isExternal
-            >
-              View on explorer <ExternalLinkIcon mx="2px" />
-            </Link>
-          </AlertDescription>
-        </Alert>
-      )}
+      {status === "confirmed" &&
+        (description === "Harvesting" ? (
+          <Box>
+            <Harvesting seedClass={seed || ""} />
+          </Box>
+        ) : (
+          <Box>
+            <Harvesting seedClass={seed || ""} />
+          </Box>
+        ))}
 
       {status === "failed" && (
         <Alert

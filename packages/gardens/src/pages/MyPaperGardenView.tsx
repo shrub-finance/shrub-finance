@@ -459,7 +459,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
         const imageUrl = IMAGE_ASSETS.getPottedPlant(
           type,
           Math.floor(growth / 2000),
-          emotion
+          emotion,
+          "shrub"
         );
         console.debug(imageUrl);
 

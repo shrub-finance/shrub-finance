@@ -26,7 +26,24 @@ export const IMAGE_ASSETS: any = {
       sad: "https://shrub.finance/assets/power.svg",
     },
   },
-
+  shrubs: {
+    Wonder: {
+      light: "https://shrub.finance/smart-wonder.webp",
+      bulky: "https://shrub.finance/assets/wonder-sad.png",
+    },
+    Passion: {
+      light: "https://shrub.finance/lovely-passion-shrub.webp",
+      bulky: "https://shrub.finance/lovely-passion-shrub.png",
+    },
+    Hope: {
+      light: "https://shrub.finance/beany-hope.webp",
+      bulky: "https://shrub.finance/beany-hope.png",
+    },
+    Power: {
+      light: "https://shrub.finance/rock-power-shrub.webp",
+      bulky: "https://shrub.finance/rock-power-shrub.png",
+    },
+  },
   // use for potted plant asset
   getPottedPlant: (
     type: string,
