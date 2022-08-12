@@ -58,6 +58,18 @@ export const IMAGE_ASSETS: any = {
     }
   },
 
+  getDefaultShrub: (type: string) => {
+    return type === "Wonder"
+      ? "https://shrub.finance/assets/shrubs/wonder-shrub-base.png"
+      : type === "Passion"
+      ? "https://shrub.finance/assets/shrubs/passion-shrub-base.webp"
+      : type === "Hope"
+      ? "https://shrub.finance/assets/shrubs/hope-shrub-base.webp"
+      : type === "Power"
+      ? "https://shrub.finance/assets/shrubs/power-shrub-base.webp"
+      : "";
+  },
+
   percentageToStage: (growthPercentage: number) =>
     Math.floor(growthPercentage / 20),
 };

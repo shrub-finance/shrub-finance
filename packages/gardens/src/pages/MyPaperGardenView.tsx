@@ -204,8 +204,14 @@ function MyPaperGardenView(props: RouteComponentProps) {
     mySeedData.user &&
     mySeedData.user.pottedPlants &&
     mySeedData.user.pottedPlants.length;
+  const holdsShrub =
+    mySeedData &&
+    mySeedData.user &&
+    mySeedData.user.shrubNfts &&
+    mySeedData.user.shrubNfts.length;
 
-  const holdsViewItem = holdsSeed || holdsFungibleAsset || holdsPottedPlant;
+  const holdsViewItem =
+    holdsSeed || holdsFungibleAsset || holdsPottedPlant || holdsShrub;
 
   const POLL_INTERVAL = 1000; // 1 second
   const tooLarge = accountTicketCount.lt(
@@ -446,6 +452,43 @@ function MyPaperGardenView(props: RouteComponentProps) {
               onOpen();
             }}
             imgCallback={() => IMAGE_ASSETS.fertilizer}
+          />
+        );
+      }
+    }
+
+    if (holdsShrub) {
+      // id, name, image
+      for (const shrubNft of mySeedData.user.shrubNfts) {
+        const { id, name, uri, pottedPlant } = shrubNft;
+        const { id: pottedPlantId, seed } = pottedPlant;
+        const { type, emotion, dna } = seed;
+        const imageUrl = IMAGE_ASSETS.getDefaultShrub(type);
+        console.debug(imageUrl);
+
+        const shrubItem: itemType = {
+          tokenId: id,
+          name: `Shrub #${Number(id) - 2e6}`,
+          emotion: emotion,
+          type: type,
+          dna: dna,
+          imageUrl: imageUrl,
+          category: "shrubNft",
+        };
+        if (shrubNft === mySeedData.user.shrubNfts[0]) {
+          updateSelectedItem(shrubItem);
+        }
+        tempMySeedDataRows.push(
+          <GardenGrid
+            id={id}
+            key={id}
+            name={`Shrub #${Number(id) - 2e6}`}
+            category="shrubNft"
+            onClick={() => {
+              setSelectedItem(shrubItem);
+              onOpen();
+            }}
+            imgCallback={() => imageUrl}
           />
         );
       }

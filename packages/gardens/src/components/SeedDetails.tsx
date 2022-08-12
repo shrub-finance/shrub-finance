@@ -566,7 +566,9 @@ function SeedDetails({
                 )}
               </>
             )}
-            {["paperSeed", "pottedPlant"].includes(selectedItem.category) && (
+            {["paperSeed", "pottedPlant", "shrubNft"].includes(
+              selectedItem.category
+            ) && (
               <>
                 <Stack
                   align={"center"}
@@ -590,26 +592,30 @@ function SeedDetails({
                   direction={"row"}
                   mt={4}
                 >
-                  <Badge
-                    px={2}
-                    py={1}
-                    fontWeight={"600"}
-                    rounded={"lg"}
-                    bg={textBg3}
-                    color={textColor1}
-                  >
-                    {selectedItem.category === "paperSeed"
-                      ? `Rarity: ${
-                          selectedItem.type === "Hope"
-                            ? "Rare 💎"
-                            : selectedItem.type === "Power"
-                            ? "Legendary 👑"
-                            : selectedItem.type === "Passion"
-                            ? "Uncommon 💍"
-                            : "Common"
-                        }`
-                      : `Growth: ${growthPercentage}%`}
-                  </Badge>
+                  {["paperSeed", "pottedPlant"].includes(
+                    selectedItem.category
+                  ) && (
+                    <Badge
+                      px={2}
+                      py={1}
+                      fontWeight={"600"}
+                      rounded={"lg"}
+                      bg={textBg3}
+                      color={textColor1}
+                    >
+                      {selectedItem.category === "paperSeed"
+                        ? `Rarity: ${
+                            selectedItem.type === "Hope"
+                              ? "Rare 💎"
+                              : selectedItem.type === "Power"
+                              ? "Legendary 👑"
+                              : selectedItem.type === "Passion"
+                              ? "Uncommon 💍"
+                              : "Common"
+                          }`
+                        : `Growth: ${growthPercentage}%`}
+                    </Badge>
+                  )}
                 </Stack>
                 <Stack
                   align={"center"}
