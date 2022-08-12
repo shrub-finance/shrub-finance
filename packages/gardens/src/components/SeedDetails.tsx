@@ -728,10 +728,10 @@ function SeedDetails({
                     _focus={{
                       bg: "shrub.100",
                     }}
-                    // isDisabled={
-                    //   fungibleAssets.water === 0 ||
-                    //   selectedItem.wateringNextAvailable > new Date()
-                    // }
+                    isDisabled={
+                      fungibleAssets.water === 0 ||
+                      selectedItem.wateringNextAvailable > new Date()
+                    }
                   >
                     Water
                   </Button>
