@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { IMAGE_ASSETS } from "../../utils/imageAssets";
 import Confetti from "../../assets/Confetti";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { useWeb3React } from "@web3-react/core";
 
 function Harvesting({ seedClass }: { seedClass: string }) {
   const PAPER_POT_ADDRESS = process.env.REACT_APP_PAPER_POT_ADDRESS || "";
@@ -21,7 +22,9 @@ function Harvesting({ seedClass }: { seedClass: string }) {
     }, 500);
   }, []);
 
-  const openSeaLink = `https://opensea.io/assets/matic/${PAPER_POT_ADDRESS}/${tokenId}`;
+  const { account } = useWeb3React();
+
+  const openSeaLink = `https://opensea.io/${account}`;
 
   return (
     <Center>
