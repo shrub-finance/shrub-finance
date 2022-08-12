@@ -40,7 +40,6 @@ import {
 } from "../components/ConnectWallet";
 import { TxStatusList } from "../components/TxMonitoring";
 import { NFT_LEADERBOARD_QUERY } from "../constants/queries";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
 import useTruncateAddress from "../hooks/useTruncateAddress";
 import { b } from "../constants/dictionary";
 import { trackEvent } from "../utils/handleGATracking";
