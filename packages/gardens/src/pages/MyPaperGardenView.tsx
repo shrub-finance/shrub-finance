@@ -67,10 +67,13 @@ import {
   approveToken,
   balanceOfErc1155,
   claimFromFaucet,
+  decodeBase64Uri,
   faucetTriggerTimes,
   getAllowance,
   getBigWalletBalance,
   getFaucetCutoffTimes,
+  getIpfsLink,
+  getShrubMetadata,
   getTicketData,
   potEligibleToClaim,
   redeemNFTTicket,
@@ -160,6 +163,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const [faucetCutoffTimes, setFaucetCutoffTimes] =
     useState<CutoffTimesStructOutput>();
   const [potsEligibleToClaim, setPotsEligibleToClaim] = useState<string[]>([]);
+  const [shrubMetadata, setShrubMetadata] = useState<{
+    [tokenId: string]: string;
+  }>({});
 
   const NFT_TICKET_TOKEN_ID = process.env.REACT_APP_TICKET_TOKEN_ID || "";
   const NFT_TICKET_ADDRESS = process.env.REACT_APP_NFT_TICKET_ADDRESS || "";
@@ -337,6 +343,26 @@ function MyPaperGardenView(props: RouteComponentProps) {
     accountAsync();
   }, [account, ticketData, pendingTxsState]);
 
+  // useEffect to get shrub metadata
+  useEffect(() => {
+    if (!library || !holdsShrub) {
+      return;
+    }
+    const tokenIds = mySeedData.user.shrubNfts.map(
+      (shrubNft: any) => shrubNft.id
+    );
+    getShrubMetadata(tokenIds, library)
+      .then((shrubMd) => {
+        if (
+          JSON.parse(JSON.stringify(shrubMd)) !==
+          JSON.parse(JSON.stringify(shrubMetadata))
+        ) {
+          setShrubMetadata(shrubMd);
+        }
+      })
+      .catch(console.error);
+  }, [library, mySeedData]);
+
   // run on account change
   useEffect(() => {
     console.debug("myPaperGardenView useEffect 3 - account - set selectedItem");
@@ -460,21 +486,46 @@ function MyPaperGardenView(props: RouteComponentProps) {
     if (holdsShrub) {
       // id, name, image
       for (const shrubNft of mySeedData.user.shrubNfts) {
-        const { id, name, uri, pottedPlant } = shrubNft;
+        const { id, name: subgraphShrubName, uri, pottedPlant } = shrubNft;
         const { id: pottedPlantId, seed } = pottedPlant;
         const { type, emotion, dna } = seed;
-        const imageUrl = IMAGE_ASSETS.getDefaultShrub(type);
-        console.debug(imageUrl);
 
+        const isMetadata = shrubMetadata && shrubMetadata[id];
+        const md: any = isMetadata
+          ? shrubMetadata[id].substring(0, 28) ===
+            "data:application/json;base64"
+            ? decodeBase64Uri(shrubMetadata[id])
+            : shrubMetadata[id]
+          : "";
+        const imageUrl = isMetadata
+          ? getIpfsLink(md.image)
+          : IMAGE_ASSETS.getDefaultShrub(type);
+        const name = isMetadata ? md.name : `Shrub #${Number(id) - 2e6}`;
+        const attributes = isMetadata ? md.attributes : [];
+
+        if (shrubMetadata && shrubMetadata[id]) {
+          // Check if encoded with base64
+          const md =
+            shrubMetadata[id].substring(0, 28) ===
+            "data:application/json;base64"
+              ? decodeBase64Uri(shrubMetadata[id])
+              : shrubMetadata[id];
+          console.log("TESTING");
+          console.log(md);
+        } else {
+          const imageUrl = IMAGE_ASSETS.getDefaultShrub(type);
+        }
         const shrubItem: itemType = {
           tokenId: id,
-          name: `Shrub #${Number(id) - 2e6}`,
-          emotion: emotion,
-          type: type,
-          dna: dna,
-          imageUrl: imageUrl,
+          name,
+          emotion,
+          type,
+          dna,
+          imageUrl,
+          attributes,
           category: "shrubNft",
         };
+
         if (shrubNft === mySeedData.user.shrubNfts[0]) {
           updateSelectedItem(shrubItem);
         }
@@ -587,7 +638,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
     if (mySeedData && mySeedData.seeds) {
       setIsInitialized(true);
     }
-  }, [mySeedData]);
+  }, [mySeedData, shrubMetadata]);
 
   // Query Handling
   // Needs to deal with having the two sources of subgraph and txmon

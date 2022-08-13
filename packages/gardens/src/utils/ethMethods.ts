@@ -1,4 +1,4 @@
-import { BytesLike, ethers } from "ethers";
+import { BigNumberish, BytesLike, ethers } from "ethers";
 import {
   SUSDToken__factory,
   PaperSeed__factory,
@@ -609,4 +609,32 @@ export function claimFromFaucet(tokenIds: string[], provider: JsonRpcProvider) {
   );
   console.log(tokenIds);
   return waterFaucet.claim(tokenIds);
+}
+
+export async function getShrubMetadata(
+  tokenIds: BigNumberish[],
+  provider: JsonRpcProvider
+) {
+  if (!tokenIds.length) {
+    throw new Error("no shrub nfts provided");
+  }
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, provider);
+  const res: { [tokenId: string]: string } = {};
+  for (const tokenId of tokenIds) {
+    res[tokenId.toString()] = await paperPot.uri(tokenId);
+  }
+  return res;
+}
+
+// From ethersproject
+export function getIpfsLink(link: string): string {
+  if (link.match(/^ipfs:\/\/ipfs\//i)) {
+    link = link.substring(12);
+  } else if (link.match(/^ipfs:\/\//i)) {
+    link = link.substring(7);
+  } else {
+    return link;
+  }
+
+  return `https://gateway.ipfs.io/ipfs/${link}`;
 }
