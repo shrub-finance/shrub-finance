@@ -192,14 +192,39 @@ export function Txmonitor({
       {/*)}*/}
 
       {status === "confirmed" &&
-        (description === "Harvesting" ? (
+        (description === "Harvesting Shrub" ? (
           <Box>
             <Harvesting seedClass={seed || ""} />
           </Box>
         ) : (
-          <Box>
-            <Harvesting seedClass={seed || ""} />
-          </Box>
+          <Alert
+            status="success"
+            variant="subtle"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+            bg="none"
+          >
+            <CheckIcon boxSize={40} mr={0} color={"sprout.300"} />
+            <AlertTitle mt={12} mb={1} fontSize="lg">
+              Transaction Confirmed
+            </AlertTitle>
+            <AlertDescription maxWidth="sm">
+              <Link
+                color={"gray"}
+                fontSize={"sm"}
+                href={explorerLink(
+                  chainId,
+                  txHash,
+                  ExplorerDataType.TRANSACTION
+                )}
+                isExternal
+              >
+                View on explorer <ExternalLinkIcon mx="2px" />
+              </Link>
+            </AlertDescription>
+          </Alert>
         ))}
 
       {status === "failed" && (
