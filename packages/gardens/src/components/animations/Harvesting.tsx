@@ -17,7 +17,7 @@ function Harvesting({ seedClass }: { seedClass: string }) {
       if (descRef.current) {
         // @ts-ignore
         descRef.current.textContent =
-          "Congrats!! You just became a proud owner of a Shrub!";
+          "Congrats!! You just became the proud owner of a Shrub!";
       }
     }, 500);
   }, []);
@@ -31,7 +31,7 @@ function Harvesting({ seedClass }: { seedClass: string }) {
       <Confetti />
       <Center>
         <Image
-          src={IMAGE_ASSETS.shrubs[seedClass].light}
+          src={IMAGE_ASSETS.getDefaultShrub(seedClass)}
           alt={seedClass}
           boxSize={80}
           position="absolute"
@@ -39,6 +39,7 @@ function Harvesting({ seedClass }: { seedClass: string }) {
           bottom={0}
         />
       </Center>
+
       <Center position={"relative"} bottom={"74px"}>
         <AlertTitle fontSize="lg" fontWeight={"medium"}>
           {" "}
@@ -48,20 +49,18 @@ function Harvesting({ seedClass }: { seedClass: string }) {
             // @ts-ignore
             ref={descRef}
           ></SlideFade>
+          <Link
+            color={"gray.500"}
+            fontSize={"xs"}
+            href={openSeaLink}
+            isExternal
+            zIndex={2}
+            fontWeight={"semibold"}
+          >
+            View in Open Sea
+            <ExternalLinkIcon mx="2px" />
+          </Link>
         </AlertTitle>
-      </Center>
-      <Center>
-        <Link
-          color={"gray.500"}
-          fontSize={"xs"}
-          href={openSeaLink}
-          isExternal
-          zIndex={2}
-          fontWeight={"semibold"}
-        >
-          View in Open Sea
-          <ExternalLinkIcon mx="2px" />
-        </Link>
       </Center>
     </Center>
   );
