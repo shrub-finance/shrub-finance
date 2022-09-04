@@ -120,6 +120,22 @@ function GardenStats() {
     return planted1 + planted2 + planted3 + planted4;
   }
 
+  function getTotalHarvested() {
+    const harvested1 = getTypeCount("Wonder", "harvested");
+    const harvested2 = getTypeCount("Passion", "harvested");
+    const harvested3 = getTypeCount("Hope", "harvested");
+    const harvested4 = getTypeCount("Power", "harvested");
+    if (
+      isNaN(harvested1) ||
+      isNaN(harvested2) ||
+      isNaN(harvested3) ||
+      isNaN(harvested4)
+    ) {
+      return 0;
+    }
+    return harvested1 + harvested2 + harvested3 + harvested4;
+  }
+
   function seedsInCirculation() {
     return (
       gardenStatsData &&
@@ -159,6 +175,7 @@ function GardenStats() {
         <Table>
           <TableCaption>
             <Text fontSize={"md"}>Total Planted: {getTotalPlanted()}</Text>
+            <Text fontSize={"md"}>Shrubs Harvested: {getTotalHarvested()}</Text>
           </TableCaption>
           <Tbody>
             <Tr>
