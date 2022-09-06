@@ -400,7 +400,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
 
   useEffect(() => {
     console.debug("myPaperGardenView useEffect 6 - mySeedData - fill the grid");
-    console.log(shrubMetadata);
+    console.debug(shrubMetadata);
     const tempMySeedDataRows: JSX.Element[] = [];
     let selectedItemSet = selectedItem.tokenId !== "";
 
@@ -521,8 +521,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
             "data:application/json;base64"
               ? decodeBase64Uri(shrubMetadata[id])
               : shrubMetadata[id];
-          console.log("TESTING");
-          console.log(md);
+          console.debug(md);
         } else {
           const imageUrl = IMAGE_ASSETS.getDefaultShrub(type);
         }
