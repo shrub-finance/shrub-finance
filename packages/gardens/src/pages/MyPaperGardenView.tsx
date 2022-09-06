@@ -67,10 +67,13 @@ import {
   approveToken,
   balanceOfErc1155,
   claimFromFaucet,
+  decodeBase64Uri,
   faucetTriggerTimes,
   getAllowance,
   getBigWalletBalance,
   getFaucetCutoffTimes,
+  getIpfsLink,
+  getPaperPotUri,
   getTicketData,
   potEligibleToClaim,
   redeemNFTTicket,
@@ -157,6 +160,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
   const [walletTokenBalance, setWalletTokenBalance] = useState<BigNumber>();
   const [approving, setApproving] = useState(false);
+  const [shrubMetadata, setShrubMetadata] = useState<{
+    [tokenId: string]: string;
+  }>({});
   const [faucetCutoffTimes, setFaucetCutoffTimes] =
     useState<CutoffTimesStructOutput>();
   const [potsEligibleToClaim, setPotsEligibleToClaim] = useState<string[]>([]);
@@ -363,7 +369,38 @@ function MyPaperGardenView(props: RouteComponentProps) {
   }, [localError, web3Error, isOpenInfoMessage]);
 
   useEffect(() => {
+    console.debug(
+      "myPaperGardenView useEffect 11 - mySeedData - get shrub NFT metadata"
+    );
+    if (!library || !holdsShrub) {
+      return;
+    }
+    const ids = mySeedData.user.shrubNfts.map((s: any) => s.id);
+    const metadataKeys = Object.keys(shrubMetadata);
+    if (
+      metadataKeys.length === ids.length &&
+      metadataKeys.every((key, index) => key === ids[index])
+    ) {
+      // return early if there is already data for these ids
+      return;
+    }
+    const res: { [tokenId: string]: string } = {};
+
+    async function fetchUri(ids: string[]) {
+      console.debug("Fetching Shrub Metadata");
+      for (const id of ids) {
+        const uri = await getPaperPotUri(id, library);
+        res[id] = uri;
+      }
+      setShrubMetadata(res);
+    }
+
+    fetchUri(ids).catch((err) => console.error(err));
+  }, [library, mySeedData]);
+
+  useEffect(() => {
     console.debug("myPaperGardenView useEffect 6 - mySeedData - fill the grid");
+    console.log(shrubMetadata);
     const tempMySeedDataRows: JSX.Element[] = [];
     let selectedItemSet = selectedItem.tokenId !== "";
 
@@ -460,19 +497,43 @@ function MyPaperGardenView(props: RouteComponentProps) {
     if (holdsShrub) {
       // id, name, image
       for (const shrubNft of mySeedData.user.shrubNfts) {
-        const { id, name, uri, pottedPlant } = shrubNft;
+        const { id, name: subgraphShrubName, uri, pottedPlant } = shrubNft;
         const { id: pottedPlantId, seed } = pottedPlant;
         const { type, emotion, dna } = seed;
-        const imageUrl = IMAGE_ASSETS.getDefaultShrub(type);
-        console.debug(imageUrl);
 
+        const isMetadata = shrubMetadata && shrubMetadata[id];
+        const md: any = isMetadata
+          ? shrubMetadata[id].substring(0, 28) ===
+            "data:application/json;base64"
+            ? decodeBase64Uri(shrubMetadata[id])
+            : shrubMetadata[id]
+          : "";
+        const imageUrl = isMetadata
+          ? getIpfsLink(md.image)
+          : IMAGE_ASSETS.getDefaultShrub(type);
+        const name = isMetadata ? md.name : `Shrub #${Number(id) - 2e6}`;
+        const attributes = isMetadata ? md.attributes : [];
+
+        if (shrubMetadata && shrubMetadata[id]) {
+          // Check if encoded with base64
+          const md =
+            shrubMetadata[id].substring(0, 28) ===
+            "data:application/json;base64"
+              ? decodeBase64Uri(shrubMetadata[id])
+              : shrubMetadata[id];
+          console.log("TESTING");
+          console.log(md);
+        } else {
+          const imageUrl = IMAGE_ASSETS.getDefaultShrub(type);
+        }
         const shrubItem: itemType = {
           tokenId: id,
-          name: `Shrub #${Number(id) - 2e6}`,
-          emotion: emotion,
-          type: type,
-          dna: dna,
-          imageUrl: imageUrl,
+          name,
+          emotion,
+          type,
+          dna,
+          imageUrl,
+          attributes,
           category: "shrubNft",
         };
         if (shrubNft === mySeedData.user.shrubNfts[0]) {
@@ -582,12 +643,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
     }
 
-    // TODO: handle shrubs
     setMySeedRows(tempMySeedDataRows);
     if (mySeedData && mySeedData.seeds) {
       setIsInitialized(true);
     }
-  }, [mySeedData]);
+  }, [mySeedData, shrubMetadata]);
 
   // Query Handling
   // Needs to deal with having the two sources of subgraph and txmon
