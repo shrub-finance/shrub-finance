@@ -1353,18 +1353,7 @@ function SeedDetails({
                         Harvesting will result in
                       </Text>
                       <Divider borderColor={borderColor} />
-                      <Stack spacing={4}>
-                        <Feature
-                          icon={
-                            <Icon as={Pot} color={"green.500"} w={5} h={5} />
-                          }
-                          iconBg={iconBg}
-                          text={"1 Empty Pot"}
-                        />
-
-                        <Text textStyle={"reading"} fontSize={"lg"}>
-                          And
-                        </Text>
+                      <Stack>
                         <Feature
                           icon={
                             selectedItem && (
@@ -1416,7 +1405,7 @@ function SeedDetails({
                   <Center>
                     <Button
                       p={6}
-                      mt={8}
+                      mt={modalState === "harvest" ? 28 : 8}
                       mb={4}
                       cursor={"pointer"}
                       onClick={
