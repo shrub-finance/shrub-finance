@@ -181,6 +181,15 @@ export async function seedBalanceOf(
   return paperseedContract.balanceOf(address);
 }
 
+export async function getPaperPotUri(
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, provider);
+  const uri = await paperPot.uri(tokenID);
+  return uri;
+}
+
 export async function getTokenUri(
   tokenID: ethers.BigNumberish,
   provider: JsonRpcProvider
@@ -609,4 +618,17 @@ export function claimFromFaucet(tokenIds: string[], provider: JsonRpcProvider) {
   );
   console.log(tokenIds);
   return waterFaucet.claim(tokenIds);
+}
+
+// From ethersproject
+export function getIpfsLink(link: string): string {
+  if (link.match(/^ipfs:\/\/ipfs\//i)) {
+    link = link.substring(12);
+  } else if (link.match(/^ipfs:\/\//i)) {
+    link = link.substring(7);
+  } else {
+    return link;
+  }
+
+  return `https://gateway.ipfs.io/ipfs/${link}`;
 }

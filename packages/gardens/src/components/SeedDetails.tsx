@@ -146,6 +146,19 @@ function SeedDetails({
 
   const { account, error: web3Error, library, chainId } = useWeb3React();
 
+  function getAttribute(attributeName: string) {
+    if (!selectedItem || !selectedItem.attributes) {
+      return "";
+    }
+    const attribute = selectedItem.attributes.find(
+      (a: any) => a.trait_type === attributeName
+    );
+    if (!attribute) {
+      return "";
+    }
+    return attribute.value;
+  }
+
   console.debug("rendering SeedDetails");
 
   // Disable action if not ready for harvest
@@ -586,13 +599,67 @@ function SeedDetails({
                     Emotion: {selectedItem.emotion}
                   </Badge>
                 </Stack>
+
+                {selectedItem.category === "shrubNft" && getAttribute("Top") && (
+                  <>
+                    <Stack
+                      align={"center"}
+                      justify={"center"}
+                      direction={"row"}
+                      mt={6}
+                    >
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Body Type: {getAttribute("Body Type")}
+                      </Badge>
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Top: {getAttribute("Top")}
+                      </Badge>
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Clothes: {getAttribute("Clothes")}
+                      </Badge>
+                    </Stack>
+                    <Stack
+                      align={"center"}
+                      justify={"center"}
+                      direction={"row"}
+                      mt={6}
+                    >
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Left Hand: {getAttribute("Left Hand")}
+                      </Badge>
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Right Hand: {getAttribute("Right Hand")}
+                      </Badge>
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Accessory: {getAttribute("Accessory")}
+                      </Badge>
+                    </Stack>
+                    <Stack
+                      align={"center"}
+                      justify={"center"}
+                      direction={"row"}
+                      mt={6}
+                    >
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Body Type: {getAttribute("Body Type")}
+                      </Badge>
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Hat: {getAttribute("Hat")}
+                      </Badge>
+                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
+                        Background: {getAttribute("Background")}
+                      </Badge>
+                    </Stack>
+                  </>
+                )}
+
                 <Stack
                   align={"center"}
                   justify={"center"}
                   direction={"row"}
                   mt={4}
                 >
-                  {["paperSeed", "pottedPlant"].includes(
+                  {["paperSeed", "pottedPlant", "shrubNft"].includes(
                     selectedItem.category
                   ) && (
                     <Badge
@@ -613,7 +680,9 @@ function SeedDetails({
                               ? "Uncommon 💍"
                               : "Common"
                           }`
-                        : `Growth: ${growthPercentage}%`}
+                        : selectedItem.category === "pottedPlant"
+                        ? `Growth: ${growthPercentage}%`
+                        : `Birth Order: ${getAttribute("Birth Order")}`}
                     </Badge>
                   )}
                 </Stack>
@@ -1353,7 +1422,18 @@ function SeedDetails({
                         Harvesting will result in
                       </Text>
                       <Divider borderColor={borderColor} />
-                      <Stack>
+                      <Stack spacing={4}>
+                        <Feature
+                          icon={
+                            <Icon as={Pot} color={"green.500"} w={5} h={5} />
+                          }
+                          iconBg={iconBg}
+                          text={"1 Empty Pot"}
+                        />
+
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          And
+                        </Text>
                         <Feature
                           icon={
                             selectedItem && (

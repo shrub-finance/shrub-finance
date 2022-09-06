@@ -205,6 +205,8 @@ export type potForWatering = {
   type: string;
 };
 
+export type attribute = { trait_type: string; value: string };
+
 export type itemType = {
   tokenId: string;
   name: string;
@@ -217,6 +219,7 @@ export type itemType = {
   growth?: number;
   wateringNextAvailable?: Date;
   potsForWatering?: potForWatering[];
+  attributes?: attribute[];
 };
 
 // https://stackoverflow.com/questions/41285211/overriding-interface-property-type-defined-in-typescript-d-ts-file/65561287#65561287
