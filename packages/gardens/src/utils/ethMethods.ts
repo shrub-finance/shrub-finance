@@ -541,7 +541,6 @@ export function getFaucetCutoffTimes(provider: JsonRpcProvider) {
     WATER_FAUCET_ADDRESS,
     provider
   );
-  console.log(WATER_FAUCET_ADDRESS);
   return waterFaucet.getCutoffTimes();
 }
 
