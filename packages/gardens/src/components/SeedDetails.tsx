@@ -614,8 +614,15 @@ function SeedDetails({
                       <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
                         Top: {getAttribute("Top")}
                       </Badge>
+                    </Stack>
+                    <Stack
+                      align={"center"}
+                      justify={"center"}
+                      direction={"row"}
+                      mt={6}
+                    >
                       <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                        Clothes: {getAttribute("Clothes")}
+                        Accessory: {getAttribute("Accessory")}
                       </Badge>
                     </Stack>
                     <Stack
@@ -630,9 +637,6 @@ function SeedDetails({
                       <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
                         Right Hand: {getAttribute("Right Hand")}
                       </Badge>
-                      <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                        Accessory: {getAttribute("Accessory")}
-                      </Badge>
                     </Stack>
                     <Stack
                       align={"center"}
@@ -641,11 +645,18 @@ function SeedDetails({
                       mt={6}
                     >
                       <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
-                        Body Type: {getAttribute("Body Type")}
+                        Clothes: {getAttribute("Clothes")}
                       </Badge>
                       <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
                         Hat: {getAttribute("Hat")}
                       </Badge>
+                    </Stack>
+                    <Stack
+                      align={"center"}
+                      justify={"center"}
+                      direction={"row"}
+                      mt={6}
+                    >
                       <Badge px={2} py={1} fontWeight={"600"} rounded={"lg"}>
                         Background: {getAttribute("Background")}
                       </Badge>
@@ -1423,17 +1434,6 @@ function SeedDetails({
                       </Text>
                       <Divider borderColor={borderColor} />
                       <Stack spacing={4}>
-                        <Feature
-                          icon={
-                            <Icon as={Pot} color={"green.500"} w={5} h={5} />
-                          }
-                          iconBg={iconBg}
-                          text={"1 Empty Pot"}
-                        />
-
-                        <Text textStyle={"reading"} fontSize={"lg"}>
-                          And
-                        </Text>
                         <Feature
                           icon={
                             selectedItem && (
