@@ -91,19 +91,14 @@ function TopNav() {
     <>
       <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
         <Box layerStyle={"bannerBg"} textStyle={"bannerText"}>
-           {!isMobile ? "Buy MATIC service is currently unavailable. Please check back later." : ""}
-      {/*   🎉 {!isMobile ? "Shrub's Genesis NFT Sale is live!" : ""}      */}
-        
-       
+          Buy MATIC service is currently unavailable. Please check back later.
+          {/*   🎉 {!isMobile ? "Shrub's Genesis NFT Sale is live!" : ""}      */}
         </Box>
 
-
-
-
-         {/*<Box layerStyle={"bannerBg"} textStyle={"bannerText"}>*/}
+        {/*<Box layerStyle={"bannerBg"} textStyle={"bannerText"}>*/}
         {/*  🎉 {!isMobile ? "Shrub's Genesis NFT Sale is live!" : ""}*/}
         {/*  🎉 {!isMobile ? "Shrub's Genesis NFT Sale is live!" : ""}*/}
-        
+
         {/*  <Link*/}
         {/*    href="https://gardens.shrub.finance/mint"*/}
         {/*    isExternal*/}
