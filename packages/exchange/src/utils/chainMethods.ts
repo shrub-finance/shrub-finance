@@ -1,5 +1,6 @@
 import { SupportedChainId } from "../constants/networks";
 import { PolygonIcon } from "../assets/Icons";
+import { ethers } from "ethers";
 
 const ETHERSCAN_NETWORKS: { [chainId: number]: string } = {
   [SupportedChainId.MAINNET]: "",
@@ -95,4 +96,8 @@ export function currencyIcon(chainId: any) {
 
 export function testEnvironment(chainId: any) {
   return chainId !== SupportedChainId.POLYGON;
+}
+
+export function getChecksumAddress(address: string) {
+  return ethers.utils.getAddress(address);
 }
