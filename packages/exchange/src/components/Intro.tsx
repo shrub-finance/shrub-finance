@@ -1,14 +1,31 @@
 import { isMobile } from "react-device-detect";
-import { Box, Center, Container, Heading, Link, Text } from "@chakra-ui/react";
-import React from "react";
+import {
+  Box,
+  Center,
+  Container,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  Input,
+  Link,
+  Stack,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import React, { useState } from "react";
 import { RouteComponentProps } from "@reach/router";
 import { ExchangeLogo } from "../assets/Icons";
 import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
 import { trackEvent } from "../utils/handleGATracking";
 import WyreCheckoutStatus from "./WyreCheckoutStatus";
+import { getChecksumAddress } from "../utils/chainMethods";
 
 function Intro(props: RouteComponentProps) {
+  const [destAddress, setDestAddress] = useState("");
+  const [invalidEntry, setInvalidEntry] = useState(false);
   const { account } = useWeb3React();
   async function wyreCheckout(event: React.BaseSyntheticEvent) {
     handleGA(event);
@@ -21,19 +38,24 @@ function Intro(props: RouteComponentProps) {
     const currentURL = new URL(window.location.href);
     const currentURLParams = new URLSearchParams(currentURL.search);
     const redirectPrefix = `${currentURL.protocol}//${currentURL.host}${currentURL.pathname}?`;
-    currentURLParams.set('wyreCheckoutStatus', 'failure');
+    currentURLParams.set("wyreCheckoutStatus", "failure");
     const failureRedirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
-    currentURLParams.set('wyreCheckoutStatus', 'success');
+    currentURLParams.set("wyreCheckoutStatus", "success");
     const redirectUrl = `${redirectPrefix}${currentURLParams.toString()}`;
     const params: WyreCheckoutParams = {
       redirectUrl,
       failureRedirectUrl,
     };
-    let dest;
-    if (account) {
-      dest = `ethereum:${account}`;
-      params.dest = dest;
+    let checkedAddress;
+    try {
+      checkedAddress = getChecksumAddress(destAddress);
+    } catch (e) {
+      console.error(e);
+      // TODO: Set the error state
+      return;
     }
+    const dest = `matic:${checkedAddress}`;
+    params.dest = dest;
     let prevReservationUrl = localStorage.getItem(
       "shrub:buyMatic:reservationUrl"
     );
@@ -101,6 +123,33 @@ function Intro(props: RouteComponentProps) {
     });
   }
 
+  function handleAddressChange(event: React.ChangeEvent<HTMLInputElement>) {
+    let checkedAddress;
+    const newValue = event.target.value;
+    if (!newValue) {
+      // Clear it out if input is cleared
+      setDestAddress("");
+      if (invalidEntry) {
+        setInvalidEntry(false);
+      }
+      return;
+    }
+    try {
+      checkedAddress = getChecksumAddress(newValue);
+    } catch (e) {
+      console.error(e);
+      setDestAddress(newValue);
+      if (!invalidEntry) {
+        setInvalidEntry(true);
+      }
+      return;
+    }
+    if (invalidEntry) {
+      setInvalidEntry(false);
+    }
+    setDestAddress(checkedAddress);
+  }
+
   return (
     <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
       <WyreCheckoutStatus />
@@ -123,27 +172,53 @@ function Intro(props: RouteComponentProps) {
               ? "Shrub Exchange is the easiest way to buy Polygon MATIC instantly"
               : " Shrub Exchange is the easiest way to buy Polygon MATIC instantly with your credit card, debit card or Apple Pay"}
           </Text>
-          <Link
-            onClick={wyreCheckout}
-            isExternal
-            cursor="pointer"
-            rounded="3xl"
-            size="sm"
-            px="14"
-            fontSize="25px"
-            fontWeight="semibold"
-            py="5"
-            borderColor={"#64a56a"}
-            borderWidth={"2px"}
-            _hover={{
-              transform: "translateY(-2px)",
-              bgGradient: "linear(128.17deg,#5dc466 -14.78%,#121227 110.05%)",
-            }}
-            bgGradient="linear(128.17deg,#64a56a -14.78%,#121227 110.05%)"
-            color={"white"}
-          >
-            Buy MATIC
-          </Link>
+          <VStack>
+            <FormControl isInvalid={invalidEntry}>
+              <FormLabel>Polygon (MATIC) Address</FormLabel>
+              <Input
+                value={destAddress}
+                onChange={handleAddressChange}
+                // isInvalid={invalidEntry}
+                borderColor={
+                  destAddress && !invalidEntry ? "green.200" : "grey.200"
+                }
+                focusBorderColor={
+                  destAddress && !invalidEntry ? "lime" : "blue"
+                }
+                errorBorderColor="red.300"
+                placeholder="0x..."
+                size="sm"
+              />
+              {!invalidEntry ? (
+                <FormHelperText>
+                  Enter the address where you wish to receive the MATIC
+                </FormHelperText>
+              ) : (
+                <FormErrorMessage>Invalid Polygon address</FormErrorMessage>
+              )}
+            </FormControl>
+            <Link
+              onClick={wyreCheckout}
+              isExternal
+              cursor="pointer"
+              rounded="3xl"
+              size="sm"
+              px="14"
+              fontSize="25px"
+              fontWeight="semibold"
+              py="5"
+              borderColor={"#64a56a"}
+              borderWidth={"2px"}
+              _hover={{
+                transform: "translateY(-2px)",
+                bgGradient: "linear(128.17deg,#5dc466 -14.78%,#121227 110.05%)",
+              }}
+              bgGradient="linear(128.17deg,#64a56a -14.78%,#121227 110.05%)"
+              color={"white"}
+            >
+              Buy MATIC
+            </Link>
+          </VStack>
           <Box pt="20" fontSize="14px" fontWeight="medium">
             Trouble Buying?
           </Box>
