@@ -91,7 +91,8 @@ function TopNav() {
     <>
       <Box position={"fixed"} top={"0"} w={"full"} zIndex={"overlay"}>
         <Box layerStyle={"bannerBg"} textStyle={"bannerText"}>
-          Buy MATIC service is currently unavailable. Please check back later.
+          Buy MATIC service is currently unavailable. We are actively working
+          with Wyre to get this resolved. Please check back later.
           {/*   🎉 {!isMobile ? "Shrub's Genesis NFT Sale is live!" : ""}      */}
         </Box>
 
