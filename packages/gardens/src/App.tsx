@@ -12,6 +12,7 @@ import LeaderBoardView from "./pages/LeaderBoardView";
 import AdoptionCenterView from "./pages/AdoptionCenterView";
 import MyPaperGardenView from "./pages/MyPaperGardenView";
 import ChaptersView from "./pages/ChaptersView";
+import PageNotFoundView from "./pages/PageNotFoundView";
 import IntroView from "./pages/IntroView";
 import OpenSeaView from "./pages/OpenSeaView";
 import ReactGA from "react-ga";
@@ -60,6 +61,7 @@ function App() {
               <HomeView path="/presale" />
               <HomeView path="/mint" />
               <ChaptersView path="/chapters" />
+              <PageNotFoundView default />{/*...*/}
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
               <NFTView path="/nft/paper-seed/:tokenId" />
