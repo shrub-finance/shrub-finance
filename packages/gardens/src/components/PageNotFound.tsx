@@ -72,13 +72,63 @@ function PageNotFound() {
             display={{ base: "block", md: "block" }}
           >
               <Image
-          //      width={{ base: "32rem", md: "42rem" }}
-                src="lost-seeds.svg"
-                fallbackSrc="lost-seeds.svg"
+          //    width={{ base: "32rem", md: "42rem" }}
+                src="https://shrub.finance/assets/lost-seeds.svg"
+                fallbackSrc="https://shrub.finance/assets/lost-seeds.svg"
                 alt=""
               />
           </Box>
 </Flex>
+
+<Text  
+              fontSize={{ base: "10px", md: "24px" }}
+              letterSpacing={"tight"}
+             // maxW={{ base: "20rem", md: "40rem" }}
+              textAlign={"center"}
+              mt={{base:10, md:16, lg:16, xl:20}}
+              mb={{base: 10, md:16, lg: 10, xl: 10 }}
+              >
+                Here are some of the pages that might interest you 
+                </Text>
+
+    <TableContainer>
+      <Table>
+        <Tbody>
+          <Tr>
+            <Td display={{ base: "table-cell", md: "table-cell"  }}>
+            <Text as="span"
+                background="gold.100"
+                bgClip="text" >
+                <a target="_blank" rel="noopener noreferrer" href="https://docs.shrub.finance/">Docs</a>
+             </Text>
+            </Td>
+            <Td display={{ base: "table-cell", md: "table-cell" }}>
+            <Text as="span"
+                background="gold.100"
+                bgClip="text" >
+            <a target="_blank" rel="noopener noreferrer" href="https://paper.shrub.finance/">Shrub Paper</a>
+            </Text>
+            </Td>
+            <Td display={{ base: "table-cell", md: "table-cell" }}>
+            <Text as="span"
+                background="gold.100"
+                bgClip="text" >
+            <a target="_blank" rel="noopener noreferrer" href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435">Roadmap 2022</a>
+            </Text>
+            </Td>
+            
+            <Td display={{ base: "table-cell", md: "table-cell"  }}>
+            <Text as="span"
+                background="gold.100"
+                bgClip="text" >
+                  <a target="_blank" rel="noopener noreferrer" href="https://exchange.shrub.finance/">Shrub Exchange</a>
+                  </Text>
+            </Td>
+          </Tr>
+        </Tbody>
+      </Table>
+    </TableContainer>
+
 
 </Container>
     )
