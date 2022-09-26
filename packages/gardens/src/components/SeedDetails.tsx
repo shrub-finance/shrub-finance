@@ -28,6 +28,7 @@ import {
   useColorModeValue,
   useDisclosure,
   useToast,
+  Input,
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -39,6 +40,7 @@ import {
   isApprovedErc721,
   plant,
   plantAndMakeHappy,
+  setShrubName,
   water,
   wateringNextAvailable,
   waterWithFertilizer,
@@ -99,6 +101,7 @@ function SeedDetails({
   const [stillGrowing, setStillGrowing] = React.useState(true);
   // const [showConfetti, setShowConfetti] = React.useState(false);
   const [showGrowth, setShowGrowth] = React.useState(false);
+  const [newShrubName, setNewShrubName] = React.useState("");
   const [modalState, setModalState] = useState<
     | "plant"
     | "water"
@@ -107,6 +110,7 @@ function SeedDetails({
     | "harvest"
     | "planting"
     | "plantAndMakeHappy"
+    | "nameShrub"
   >("plant");
 
   const borderColor = useColorModeValue("gray.100", "gray.700");
@@ -433,6 +437,12 @@ function SeedDetails({
   function handleHarvesting() {
     return handleBlockchainTx("Harvesting Shrub", () =>
       harvestShrub(selectedItem.tokenId, library)
+    );
+  }
+
+  function handleNameShrub() {
+    return handleBlockchainTx("Naming Shrub", () =>
+      setShrubName(selectedItem.tokenId, newShrubName, library)
     );
   }
 
@@ -772,6 +782,42 @@ function SeedDetails({
                   </Button>
                 </Tooltip>
               )}
+              {/*Name Shrub Button*/}
+              {selectedItem.category === "shrubNft" && (
+                <Tooltip
+                  hasArrow
+                  label={
+                    fungibleAssets.fertilizer < 5
+                      ? "Naming Shrub requires 5 fertilizer"
+                      : "Name your shrub!"
+                  }
+                  shouldWrapChildren
+                  mt="3"
+                >
+                  <Button
+                    onClick={() => {
+                      setModalState("nameShrub");
+                      openModal();
+                    }}
+                    flex={1}
+                    fontSize={"xl"}
+                    w={{ base: "315px", md: "420px" }}
+                    rounded={"2xl"}
+                    bgGradient="linear(to-l, #82caff, #d9efff, #a1d2e7)"
+                    color={"black"}
+                    boxShadow={"xl"}
+                    _hover={{
+                      bg: "shrub.200",
+                    }}
+                    _focus={{
+                      bg: "shrub.100",
+                    }}
+                    isDisabled={fungibleAssets.fertilizer < 5}
+                  >
+                    Name Your Shrub
+                  </Button>
+                </Tooltip>
+              )}
               {/*Water Button*/}
               {selectedItem.category === "pottedPlant" && stillGrowing && (
                 <Tooltip
@@ -1040,6 +1086,8 @@ function SeedDetails({
               ? "Fertilize Your Potted Plant"
               : modalState === "harvest"
               ? "Harvest your Shrub"
+              : modalState === "nameShrub"
+              ? "Name your Shrub"
               : "Unhandled State"}
           </ModalHeader>
           <ModalCloseButton />
@@ -1427,6 +1475,58 @@ function SeedDetails({
                         Can only be done once per day per potted plant
                       </Text>
                     </Stack>
+                  ) : modalState === "nameShrub" ? (
+                    <Stack spacing={4}>
+                      <Text textStyle={"reading"} fontSize={"lg"}>
+                        Naming your Shrub will result in
+                      </Text>
+                      <Divider borderColor={borderColor} />
+                      <Stack spacing={4}>
+                        <Feature
+                          icon={<Icon as={Fertilizer} w={5} h={5} />}
+                          iconBg={iconBg}
+                          text={"5 Fertilizer"}
+                        />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          Being used
+                        </Text>
+                        <Divider borderColor={borderColor} />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          <Icon
+                            as={RiHeartAddFill}
+                            color={"red.500"}
+                            w={5}
+                            h={5}
+                          />{" "}
+                          English Alphabet and Spaces only
+                        </Text>
+                        <Divider borderColor={borderColor} />
+                        <Text textStyle={"reading"} fontSize={"lg"}>
+                          <Icon
+                            as={RiHeartAddFill}
+                            color={"red.500"}
+                            w={5}
+                            h={5}
+                          />{" "}
+                          Maximum name length of 26
+                        </Text>
+                      </Stack>
+                      <Image
+                        objectFit={"cover"}
+                        maxH={{ base: "250px", md: "250px", lg: "250px" }}
+                        src={selectedItem.imageUrl}
+                        alt={selectedItem.name}
+                      />
+                      <Text mb="8px">New Name: {newShrubName}</Text>
+                      <Input
+                        value={newShrubName}
+                        onChange={(event) =>
+                          setNewShrubName(event.target.value)
+                        }
+                        placeholder={selectedItem.name}
+                        size="sm"
+                      />
+                    </Stack>
                   ) : modalState === "harvest" ? (
                     <Stack spacing={4}>
                       <Text textStyle={"reading"} fontSize={"lg"}>
@@ -1506,6 +1606,8 @@ function SeedDetails({
                           ? handleFertilizing
                           : modalState === "harvest"
                           ? handleHarvesting
+                          : modalState === "nameShrub"
+                          ? handleNameShrub
                           : () => console.log("unexpected state")
                       }
                       flex={1}
@@ -1541,6 +1643,8 @@ function SeedDetails({
                         ? "Let's Fertilize"
                         : modalState === "harvest"
                         ? "Let's Harvest"
+                        : modalState === "nameShrub"
+                        ? "Let's Name your Shrub"
                         : "Something is wrong"}
                     </Button>
                   </Center>
