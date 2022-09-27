@@ -1090,7 +1090,7 @@ function SeedDetails({
               ? "Name your Shrub"
               : "Unhandled State"}
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton tabIndex={-1} />
           <ModalBody>
             {localError && (
               <SlideFade in={true} unmountOnExit={true}>
