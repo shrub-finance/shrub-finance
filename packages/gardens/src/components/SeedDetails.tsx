@@ -1089,7 +1089,7 @@ function SeedDetails({
                   <>
                     <Stack spacing={4}>
                       <Text textStyle={"reading"} fontSize={"lg"}>
-                        Naming your Shrub will result in
+                        Naming your Shrub will use
                       </Text>
                       <Divider borderColor={borderColor} />
                       <Stack spacing={4}>
@@ -1098,9 +1098,6 @@ function SeedDetails({
                           iconBg={iconBg}
                           text={"5 Fertilizer"}
                         />
-                        <Text textStyle={"reading"} fontSize={"lg"}>
-                          Being used
-                        </Text>
                         <Divider borderColor={borderColor} />
                         <Text textStyle={"reading"} fontSize={"lg"}>
                           <Icon
@@ -1109,7 +1106,7 @@ function SeedDetails({
                             w={5}
                             h={5}
                           />{" "}
-                          English Alphabet and Spaces only
+                          English alphabet and spaces only
                         </Text>
                         <Divider borderColor={borderColor} />
                         <Text textStyle={"reading"} fontSize={"lg"}>
@@ -1144,7 +1141,7 @@ function SeedDetails({
                           </FormHelperText>
                         ) : (
                           <FormErrorMessage>
-                            Invalid Name - see above for rules
+                            Invalid Name - see rules above
                           </FormErrorMessage>
                         )}
                       </FormControl>
