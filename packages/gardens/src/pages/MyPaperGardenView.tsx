@@ -542,7 +542,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           <GardenGrid
             id={id}
             key={id}
-            name={`Shrub #${Number(id) - 2e6}`}
+            name={isMetadata ? md.name : `Shrub #${Number(id) - 2e6}`}
             category="shrubNft"
             onClick={() => {
               setSelectedItem(shrubItem);
