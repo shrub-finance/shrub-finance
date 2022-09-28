@@ -374,6 +374,16 @@ export async function harvestShrub(
   return paperPot.harvest(tokenId);
 }
 
+export async function setShrubName(
+  tokenId: ethers.BigNumberish,
+  newName: string,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.setShrubName(tokenId, newName);
+}
+
 export async function plant(
   seedTokenId: ethers.BigNumberish,
   provider: JsonRpcProvider

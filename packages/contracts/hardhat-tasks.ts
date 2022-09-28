@@ -139,6 +139,33 @@ task("makeWaterFaucetAdmin", "Makes WaterFaucet an Admin of PaperPot")
     console.log('confirmed');
   })
 
+task("setPaperPotMetadataAdmin", "Makes PaperPot an admin of PaperPotMetadata")
+  .addParam("enable", "true or false", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { enable } = taskArgs;
+    const [deployer] = await ethers.getSigners();
+    const paperPotMetadataDeployment = await deployments.get("PaperPotMetadata");
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPotMetadata = PaperPotMetadata__factory.connect(paperPotMetadataDeployment.address, deployer);
+    const adminAddressToSet = paperPotDeployment.address;
+    let tx: ContractTransaction;
+    const conf = await promptly.confirm(
+      `You are about to ${enable ? 'set' : 'remove'} ${adminAddressToSet} as an admin of PaperPotMetadata. Continue? (y/n)`
+    );
+    if (!conf) {
+      return;
+    }
+    if (enable) {
+      tx = await paperPotMetadata.setAdmin(adminAddressToSet, true);
+    } else {
+      tx = await paperPotMetadata.setAdmin(adminAddressToSet, false);
+    }
+    console.log(tx.hash);
+    await tx.wait();
+    console.log('confirmed');
+  })
+
 task("setWaterFaucetCutoffTimes", "Sets the cutoff times for WaterFaucet")
   .addParam('startTime1', 'startTime of phase 1 (seconds into the UTC day 0-86400)')
   .addParam('endTime1', 'endTime of phase 1 (seconds into the UTC day 0-86400)')
@@ -305,14 +332,17 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
 
     // Mint Seeds
     await env.run('mintSeed', {
-      ids: [5,16,17,250,251,2181,2182,2186,2188,8888,8869,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
+      // ids: [5,16,17,250,251,2181,2182,2186,2188,8888,8869,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
+      ids: [3,5,16,17,106,250,251,1021,1885,2000,2181,2182,2186,2188,8888,8869,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
       // ids: [1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
     })
 
     // Send Seeds
+    await env.run('sendSeed', {id: '3', receiver: account3.address});
     await env.run('sendSeed', {id: '5', receiver: account3.address});
     await env.run('sendSeed', {id: '16', receiver: account3.address});
     await env.run('sendSeed', {id: '17', receiver: account3.address});
+    await env.run('sendSeed', {id: '106', receiver: account3.address});
     await env.run('sendSeed', {id: '250', receiver: account3.address});
     await env.run('sendSeed', {id: '251', receiver: account3.address});
     await env.run('sendSeed', {id: '1000', receiver: account3.address});
@@ -328,9 +358,15 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     await env.run('sendSeed', {id: '1010', receiver: account3.address});
     await env.run('sendSeed', {id: '1011', receiver: account3.address});
     await env.run('sendSeed', {id: '1012', receiver: account3.address});
+
+    // for (const seedTokenId of [3, 106, 1021, 1885, 2000]) {
+
     await env.run('sendSeed', {id: '1013', receiver: account3.address});
     await env.run('sendSeed', {id: '1014', receiver: account3.address});
     await env.run('sendSeed', {id: '1015', receiver: account3.address});
+    await env.run('sendSeed', {id: '1021', receiver: account3.address});
+    await env.run('sendSeed', {id: '1885', receiver: account3.address});
+    await env.run('sendSeed', {id: '2000', receiver: account3.address});
     await env.run('sendSeed', {id: '2181', receiver: account3.address});
     await env.run('sendSeed', {id: '2182', receiver: account3.address});
     await env.run('sendSeed', {id: '2186', receiver: account4.address});
@@ -393,7 +429,8 @@ task("testHarvest", "Gets five seeds ready for harvesting - extends testPaperGar
     await paperSeedAccount3.setApprovalForAll(paperPotAccount3.address, true);
 
     // Loop through 5 seeds
-    for (const seedTokenId of [5, 16, 250, 1014, 1015]) {
+    // for (const seedTokenId of [5, 16, 250, 1014, 1015]) {
+    for (const seedTokenId of [3, 106, 1021, 1885, 2000]) {
       // Plant
       console.log(`planting seedTokenId ${seedTokenId}`)
       const plantTx = await paperPotAccount3.plant(paperSeedAccount3.address, seedTokenId)
