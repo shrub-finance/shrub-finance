@@ -64,7 +64,7 @@ function Growth({
                     boxSize={36}
                     position={"absolute"}
                     bottom={"178px"}
-                    left={"62px"}
+                    left={"69px"}
                   />,
                   7,
                   0
@@ -88,7 +88,7 @@ function Growth({
                     boxSize={36}
                     position={"absolute"}
                     bottom={"117px"}
-                    left={"48px"}
+                    left={"57px"}
                   />,
                   7,
                   0
@@ -129,7 +129,7 @@ function Growth({
                 boxSize={36}
                 position={"absolute"}
                 bottom={"176px"}
-                left={"58px"}
+                left={"67px"}
               />,
               6,
               0
@@ -141,7 +141,7 @@ function Growth({
                 boxSize={36}
                 position={"absolute"}
                 bottom={"176px"}
-                left={"48px"}
+                left={"57px"}
               />,
               6,
               0
@@ -153,7 +153,7 @@ function Growth({
                 boxSize={36}
                 position={"absolute"}
                 bottom={"166px"}
-                left={"45px"}
+                left={"53px"}
               />,
               6,
               0

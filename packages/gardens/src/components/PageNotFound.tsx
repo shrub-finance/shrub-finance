@@ -12,11 +12,15 @@ import {
   Td,
   Text,
   Tr,
+  useColorMode,
+  Link,
 } from "@chakra-ui/react";
 import React from "react";
 import { trackEvent } from "../utils/handleGATracking";
 
 function PageNotFound() {
+  const { colorMode } = useColorMode();
+
   function handleGA(event: any) {
     trackEvent({
       action: event.type,
@@ -45,11 +49,21 @@ function PageNotFound() {
           <Heading
             fontSize={{ base: "30px", md: "81px" }}
             letterSpacing={"tight"}
-            mr={30}
+            mr={{ base: 0, md: 0, lg: 0, xl: 30 }}
             textAlign={{ base: "center", md: "center", lg: "left", xl: "left" }}
           >
             Lost in the <br />
-            <Text as="span" background="gold.100" bgClip="text">
+            <Text
+              as="span"
+              background="gold.100"
+              bgClip="text"
+              sx={{
+                WebkitTextStroke:
+                  colorMode === "light"
+                    ? { base: "1px #7e5807", md: "2px #7e5807" }
+                    : "transparent",
+              }}
+            >
               Darkness
             </Text>{" "}
           </Heading>
@@ -75,7 +89,7 @@ function PageNotFound() {
         mt={{ base: 10, md: 16, lg: 16, xl: 20 }}
         mb={{ base: 10, md: 16, lg: 10, xl: 10 }}
       >
-        Here are some of the pages that might interest you
+        Here are some pages that might interest you
       </Text>
 
       <TableContainer>
@@ -83,48 +97,68 @@ function PageNotFound() {
           <Tbody>
             <Tr>
               <Td display={{ base: "table-cell", md: "table-cell" }}>
-                <Text as="span" background="gold.100" bgClip="text">
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://exchange.shrub.finance/"
-                  >
-                    Shrub Exchange
-                  </a>
-                </Text>
+                <Link
+                  href="https://exchange.shrub.finance/"
+                  isExternal
+                  background="gold.100"
+                  bgClip="text"
+                  sx={{
+                    WebkitTextStroke:
+                      colorMode === "light"
+                        ? { base: "1px #7e5807", md: "1px #7e5807" }
+                        : "transparent",
+                  }}
+                >
+                  Shrub Exchange
+                </Link>
               </Td>
               <Td display={{ base: "table-cell", md: "table-cell" }}>
-                <Text as="span" background="gold.100" bgClip="text">
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
-                  >
-                    Roadmap 2022
-                  </a>
-                </Text>
+                <Link
+                  href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
+                  isExternal
+                  background="gold.100"
+                  bgClip="text"
+                  sx={{
+                    WebkitTextStroke:
+                      colorMode === "light"
+                        ? { base: "1px #7e5807", md: "1px #7e5807" }
+                        : "transparent",
+                  }}
+                >
+                  Roadmap 2022
+                </Link>
               </Td>
               <Td display={{ base: "table-cell", md: "table-cell" }}>
-                <Text as="span" background="gold.100" bgClip="text">
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://docs.shrub.finance/"
-                  >
-                    Docs
-                  </a>
-                </Text>
+                <Link
+                  href="https://docs.shrub.finance/"
+                  isExternal
+                  background="gold.100"
+                  bgClip="text"
+                  sx={{
+                    WebkitTextStroke:
+                      colorMode === "light"
+                        ? { base: "1px #7e5807", md: "1px #7e5807" }
+                        : "transparent",
+                  }}
+                >
+                  Docs
+                </Link>
               </Td>
               <Td display={{ base: "table-cell", md: "table-cell" }}>
-                <Text as="span" background="gold.100" bgClip="text">
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://shrub.finance/"
-                  >
-                    Shrub Main
-                  </a>
-                </Text>
+                <Link
+                  href="https://shrub.finance"
+                  isExternal
+                  background="gold.100"
+                  bgClip="text"
+                  sx={{
+                    WebkitTextStroke:
+                      colorMode === "light"
+                        ? { base: "1px #7e5807", md: "1px #7e5807" }
+                        : "transparent",
+                  }}
+                >
+                  Shrub Main
+                </Link>
               </Td>
             </Tr>
           </Tbody>

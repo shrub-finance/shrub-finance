@@ -65,6 +65,10 @@ export function handleErrorMessagesFactory(
         ) {
           setter("Ticket quantity you entered exceeds the tickets you have");
         } else if (
+          err.message.includes("Can only set name for already set Shrub")
+        ) {
+          setter("Can only set name for already set Shrub");
+        } else if (
           err.message.includes("PaperPotMint: minting is not active")
         ) {
           setter("Pot Minting is not active - #1006");
