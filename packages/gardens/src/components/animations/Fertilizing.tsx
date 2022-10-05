@@ -46,7 +46,7 @@ function Fertilizing({
         // @ts-ignore
         descRef.current.textContent = "Transaction Confirming...";
       }
-    }, 4500);
+    }, 10000);
   }, []);
 
   return (
@@ -81,15 +81,8 @@ function Fertilizing({
         7.5,
         1.5
       )}
-      <Center>
-        <AlertTitle
-          mt={6}
-          mb={1}
-          fontSize="lg"
-          fontWeight={"medium"}
-          position={"absolute"}
-          top={"124px"}
-        >
+      <Center position={"absolute"} top={"120px"}>
+        <AlertTitle mt={6} mb={1} fontSize="lg" fontWeight={"medium"}>
           {" "}
           <SlideFade
             in={true}
