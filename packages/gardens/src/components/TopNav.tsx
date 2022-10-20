@@ -106,11 +106,21 @@ function TopNav() {
 
           <Flex alignItems={"center"}>
             <>
-              <BuyMatic />
+              {/*<BuyMatic />*/}
               <Match path="/">
                 {(props) =>
                   props.match ? (
                     <>
+                      <Link
+                        pr={5}
+                        fontSize={"sm"}
+                        fontWeight={"extrabold"}
+                        color={"green"}
+                        href={"https://exchange.shrub.finance"}
+                        isExternal
+                      >
+                        Buy MATIC
+                      </Link>
                       {/*<Link*/}
                       {/*  pr={5}*/}
                       {/*  fontSize={"sm"}*/}
