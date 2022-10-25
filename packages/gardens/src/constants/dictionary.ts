@@ -31,6 +31,13 @@ export const addressMap = {
   "0x0268aa1755b49fa115a81090b836f2b111a20163": "jimmy",
   "0xeeff517294d2aa759274703a1b1c5ac81f9a754b": "whitesocks.eth",
   "0xa9d90e75144658ee480fff3f291cb77cb6024ba9": "Leamax006",
+  "0x3890c5c513d5858fd03d4a09f8a16e6d7ef9d1ba": "ateens",
+  "0xd6803a63775e678a346d5c07cf101aa01dd88734": "linyx.eth",
+  "0x179379101c711ac27e0cbb4809f5777ccb4d1a72": "Seth",
+  "0x0d8c60eca6e23104203818c4cf953bec5be340dc": "bowie",
+  "0x52d63a71944b229abc2507a0d6e6767d10c142e2": "jamalr.eth",
+  "0x83121b33597ddba73cc73e343bfca26a0a897ff2": "stonky",
+  "0x07e401244bbf165f775e382984a7cc2aa1211aa1": "kaushalC",
 };
 
 export const b = [
