@@ -160,6 +160,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
   const [walletTokenBalance, setWalletTokenBalance] = useState<BigNumber>();
   const [approving, setApproving] = useState(false);
+  const [infoMessageDetail, setInfoMessageDetail] = useState(
+    "water from the water faucet"
+  );
   const [shrubMetadata, setShrubMetadata] = useState<{
     [tokenId: string]: string;
   }>({});
@@ -805,6 +808,75 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }
 
+  async function handleRedeemNFT() {
+    setLocalError("");
+    setIsLoading(true);
+    const description = "Redeemed NFT Tickets for Pot";
+    try {
+      if (!redeemPrice) {
+        throw new Error("mintPrice not found");
+      }
+
+      const tx = await redeemNFTTicket(
+        NFT_TICKET_TOKEN_ID,
+        redeemAmount,
+        library
+      );
+      pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+      setActiveHash(tx.hash);
+      try {
+        const receipt = await tx.wait();
+        const toastDescription = ToastDescription(
+          description,
+          receipt.transactionHash,
+          chainId
+        );
+        toast({
+          title: "Transaction Confirmed",
+          description: toastDescription,
+          status: "success",
+          isClosable: true,
+          variant: "solid",
+          position: "top-right",
+        });
+        setTicketConfetti(true);
+        setInfoMessageDetail("your NFT Ticket for a pot");
+        onOpenInfoMessage();
+        pendingTxsDispatch({
+          type: "update",
+          txHash: receipt.transactionHash,
+          status: "confirmed",
+          data: { blockNumber: receipt.blockNumber },
+        });
+        setIsLoading(false);
+      } catch (e: any) {
+        const toastDescription = ToastDescription(
+          description,
+          e.transactionHash,
+          chainId
+        );
+        pendingTxsDispatch({
+          type: "update",
+          txHash: e.transactionHash || e.hash,
+          status: "failed",
+        });
+        toast({
+          title: "Transaction Failed",
+          description: toastDescription,
+          status: "error",
+          isClosable: true,
+          variant: "solid",
+          position: "top-right",
+        });
+      }
+    } catch (e: any) {
+      setApproving(false);
+      setIsLoading(false);
+      setTicketConfetti(false);
+      handleErrorMessages({ err: e });
+    }
+  }
+
   function isWaterAvailable(growth: number, lastWatering: number) {
     return wateringNextAvailable(lastWatering) < new Date() && growth < 10000;
   }
@@ -833,6 +905,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           position: "top-right",
         });
         setTicketConfetti(true);
+        setInfoMessageDetail("water from the water faucet");
         onOpenInfoMessage();
         pendingTxsDispatch({
           type: "update",
@@ -973,8 +1046,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 <Box>
                   <AlertTitle>Congrats!</AlertTitle>
                   <AlertDescription>
-                    You just claimed water from the water faucet! See it in your
-                    garden view below. <WateringCan boxSize={10} />
+                    {/*You just claimed water from the water faucet! See it in your*/}
+                    You just claimed {infoMessageDetail}! See it in your garden
+                    view below. <WateringCan boxSize={10} />
                   </AlertDescription>
                 </Box>
                 <CloseButton
@@ -1144,6 +1218,241 @@ function MyPaperGardenView(props: RouteComponentProps) {
                                 ? "Connect to Polygon"
                                 : "Connect Wallet"
                               : "Claim Water"
+                          }
+                        </Button>
+                      </Tooltip>
+                    </VStack>
+                  </Box>
+                </Center>
+              </Flex>
+            </Center>
+          </Container>
+        )}
+        {/*NFT Ticket view*/}
+        {accountTicketCount.gt(0) && (
+          <Container
+            mt={isMobile ? 30 : 30}
+            p={5}
+            flex="1"
+            borderRadius="2xl"
+            maxW="container.lg"
+          >
+            <Center>
+              <Flex
+                direction={{ base: "column", md: "row" }}
+                gap={{ base: "10", md: "16" }}
+              >
+                {/*Ticket info*/}
+                <Center>
+                  <Box bgColor={bgColor2} p={10} rounded="3xl">
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={4}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        Redemption Available
+                      </Text>
+                      <Text>Redemption is now active</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        Last day to redeem your ticket
+                      </Text>
+                      <Text>Wednesday, November 2</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        Redemption Price
+                      </Text>
+                      <Text>0.015 WETH</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        If not redeemed, your ticket will expire in
+                      </Text>
+                      <CountdownTimer
+                        targetDate={new Date("2022-11-03T00:00:00.000Z")}
+                      />
+                    </Box>
+                  </Box>
+                </Center>
+
+                <Spacer />
+                {/*Redemption logic*/}
+                <Center shadow={"dark-lg"} p={10} borderRadius={"3xl"}>
+                  <Box>
+                    <VStack>
+                      <Heading pb={4}>
+                        You have {accountTicketCount.toString()}{" "}
+                        {accountTicketCount.eq(1) ? "Ticket" : "Tickets"}
+                      </Heading>
+                      {/*Quantity*/}
+                      <Box>
+                        <FormLabel
+                          fontSize={"sm"}
+                          color={"gray.500"}
+                          fontWeight={"medium"}
+                        >
+                          Quantity
+                        </FormLabel>
+
+                        <NumberInput
+                          isInvalid={invalidEntry}
+                          min={0}
+                          max={10}
+                          precision={0}
+                          onChange={(valueString) => {
+                            const [integerPart, decimalPart] =
+                              valueString.split(".");
+                            if (valueString.includes(".")) {
+                              setRedeemAmount(integerPart || "0");
+                              return;
+                            }
+                            if (integerPart && integerPart.length > 2) {
+                              return;
+                            }
+                            if (valueString === "00") {
+                              return;
+                            }
+                            if (isNaN(Number(valueString))) {
+                              return;
+                            }
+                            if (
+                              Number(valueString) !==
+                              Math.round(Number(valueString) * 1e6) / 1e6
+                            ) {
+                              setRedeemAmount(Number(valueString).toFixed(6));
+                              return;
+                            }
+                            setRedeemAmount(valueString);
+                          }}
+                          value={format(redeemAmount)}
+                          size="lg"
+                        >
+                          <NumberInputField
+                            h="6rem"
+                            borderRadius="3xl"
+                            shadow="sm"
+                            fontWeight="medium"
+                            fontSize="2xl"
+                          />
+                          <InputRightElement
+                            pointerEvents="none"
+                            p={14}
+                            children={
+                              <FormLabel
+                                htmlFor="amount"
+                                color="gray.500"
+                                fontWeight="medium"
+                              >
+                                tickets
+                              </FormLabel>
+                            }
+                          />
+                        </NumberInput>
+                      </Box>
+                      {/*Redeem Price*/}
+                      <Box p={4}>
+                        <FormLabel
+                          fontSize={"sm"}
+                          color={"gray.500"}
+                          fontWeight={"medium"}
+                        >
+                          Total
+                        </FormLabel>
+
+                        <Box
+                          bg={bgColor}
+                          borderRadius="3xl"
+                          fontWeight="medium"
+                          fontSize="2xl"
+                          p={"1.813rem"}
+                          w="325px"
+                        >
+                          {invalidEntry
+                            ? "?"
+                            : format(
+                                redeemPrice
+                                  ? ethers.utils.formatEther(
+                                      redeemPrice.mul(Number(redeemAmount))
+                                    )
+                                  : "-"
+                              )}{" "}
+                          WETH
+                        </Box>
+                      </Box>
+                      {/*Approve/Redeem ticket button*/}
+                      <Tooltip
+                        hasArrow
+                        label={
+                          Number(redeemAmount) <= 0
+                            ? "Nothing to redeem. Please enter the number of tickets you want to redeem"
+                            : noFunds
+                            ? "You do not have enough funds to redeem the tickets"
+                            : accountTicketCount.lte(Zero)
+                            ? "Ticket you are trying to redeem exceeds the tickets you have available"
+                            : null
+                        }
+                        shouldWrapChildren
+                        mt="3"
+                      >
+                        <Button
+                          onClick={
+                            noAllowance ? handleApprove : handleRedeemNFT
+                          }
+                          colorScheme={tradingBtnColor}
+                          variant="solid"
+                          rounded="2xl"
+                          isLoading={isLoading}
+                          isDisabled={
+                            Number(redeemAmount) <= 0 ||
+                            noFunds ||
+                            accountTicketCount.lte(Zero) ||
+                            accountTicketCount.lt(redeemAmount)
+                          }
+                          size="lg"
+                          px={["50", "50", "50", "50"]}
+                          fontSize="25px"
+                          py={10}
+                          borderRadius="full"
+                          _hover={{ transform: "translateY(-2px)" }}
+                          bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                          loadingText={
+                            noAllowance
+                              ? "Approving..."
+                              : !localError
+                              ? "Redeeming..."
+                              : "Redeem Ticket"
+                          }
+                        >
+                          {
+                            // If no account then Wrong Network and Connect Wallet
+                            !account
+                              ? !!web3Error &&
+                                getErrorMessage(web3Error).title ===
+                                  "Wrong Network"
+                                ? "Connect to Polygon"
+                                : "Connect Wallet"
+                              : tooLarge
+                              ? "Exceeds available"
+                              : noFunds
+                              ? "Insufficient funds"
+                              : noAllowance
+                              ? "Step 1: Approve WETH"
+                              : "Step 2: Redeem Ticket"
                           }
                         </Button>
                       </Tooltip>
