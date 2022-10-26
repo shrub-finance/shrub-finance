@@ -174,11 +174,13 @@ function Intro(props: RouteComponentProps) {
           </Text>
           <VStack>
             <FormControl isInvalid={invalidEntry}>
-              <FormLabel>Polygon (MATIC) Address</FormLabel>
+              <FormLabel>
+                {" "}
+                Enter the address where you want to receive Polygon (MATIC)
+              </FormLabel>
               <Input
                 value={destAddress}
                 onChange={handleAddressChange}
-                // isInvalid={invalidEntry}
                 borderColor={
                   destAddress && !invalidEntry ? "green.200" : "grey.200"
                 }
@@ -187,12 +189,15 @@ function Intro(props: RouteComponentProps) {
                 }
                 errorBorderColor="red.300"
                 placeholder="0x..."
-                size="sm"
+                size="lg"
+                h="6rem"
+                borderRadius="3xl"
+                shadow="sm"
+                fontWeight="medium"
+                fontSize="2xl"
               />
               {!invalidEntry ? (
-                <FormHelperText>
-                  Enter the address where you wish to receive the MATIC
-                </FormHelperText>
+                <FormHelperText></FormHelperText>
               ) : (
                 <FormErrorMessage>Invalid Polygon address</FormErrorMessage>
               )}
@@ -215,6 +220,7 @@ function Intro(props: RouteComponentProps) {
               }}
               bgGradient="linear(128.17deg,#64a56a -14.78%,#121227 110.05%)"
               color={"white"}
+              sx={{ userSelect: "none" }}
             >
               Buy MATIC
             </Link>
