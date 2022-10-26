@@ -97,7 +97,7 @@ function TopNav() {
 
             <Flex alignItems={"center"}>
               <>
-                <BuyMatic />
+                {/*<BuyMatic />*/}
                 {/*<Box*/}
                 {/*  pr={5}*/}
                 {/*  display={{ base: "none", sm: "flex" }}*/}
