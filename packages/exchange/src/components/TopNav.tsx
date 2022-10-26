@@ -1,37 +1,15 @@
-import React, { Suspense, useContext, useState } from "react";
+import React, { Suspense, useState } from "react";
 import {
   Box,
   Flex,
-  Text,
   IconButton,
   Button,
   useDisclosure,
   useColorMode,
   useColorModeValue,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  Spinner,
   useBreakpointValue,
-  Link,
 } from "@chakra-ui/react";
-import {
-  HamburgerIcon,
-  CloseIcon,
-  SunIcon,
-  MoonIcon,
-  InfoOutlineIcon,
-} from "@chakra-ui/icons";
-import {
-  Account,
-  Balance,
-  ConnectionStatus,
-  ConnectWalletModal,
-  getErrorMessage,
-} from "./ConnectWallet";
+import { HamburgerIcon, CloseIcon, SunIcon, MoonIcon } from "@chakra-ui/icons";
 import BuyMatic from "./BuyMatic";
 import { useConnectWallet } from "../hooks/useConnectWallet";
 import { isMobile } from "react-device-detect";
@@ -49,8 +27,7 @@ function TopNav() {
   } = useDisclosure();
 
   const { colorMode, toggleColorMode } = useColorMode();
-
-  const spinnerBg = useColorModeValue("black", "cyan.500");
+  useColorModeValue("black", "cyan.500");
   const { active, error: web3Error } = useConnectWallet();
   const displayStatus = (val: boolean) => {
     setIsHidden(val);
@@ -112,7 +89,7 @@ function TopNav() {
         {/*    {!isMobile ? "Mint Now" : "Shrub's Genesis NFT Sale is live!  "}*/}
         {/*  </Link>*/}
         {/*</Box>*/}
-        <Box shadow={topNavShadow} bg={topNavBgColor} px={4} m={"-11px"}>
+        <Box shadow={topNavShadow} bg={topNavBgColor} px={4}>
           <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
             <Suspense fallback={<Box>…</Box>}>
               <DesktopMenu />
