@@ -10,6 +10,7 @@ import {
   Heading,
   Input,
   Link,
+  Stack,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -64,7 +65,7 @@ function Intro(props: RouteComponentProps) {
     const prevReservationEndDate =
       prevReservationDate &&
       new Date(new Date(prevReservationDate).getTime() + 60 * 1000 * 14);
-    // if there is a reservation in the storage, and we are within the range, use previous reservation url
+    // if there is a reservation in the storage and we are within the range, use previous reservation url
     if (
       prevReservationDate &&
       prevReservationEndDate &&
