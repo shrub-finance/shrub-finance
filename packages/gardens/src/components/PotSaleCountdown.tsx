@@ -27,7 +27,11 @@ function PotSaleCountdown() {
       maxW="container.lg"
     >
       <Center>
-        <Box maxW="60rem" mb={8} textAlign={"center"}>
+        <Box
+          maxW="60rem"
+          // mb={8}
+          textAlign={"center"}
+        >
           <Heading
             fontSize={{ base: "30px", md: "72px" }}
             letterSpacing={"tight"}
@@ -42,8 +46,8 @@ function PotSaleCountdown() {
               color={useColorModeValue("gray.500", "gray.400")}
             >
               {!isMobile
-                ? "The most advanced NFT series yet"
-                : "The most advanced NFT series yet"}
+                ? "An NFT series for builders and innovators"
+                : "An NFT series for builders and innovators"}
             </Text>
           </Box>
         </Box>
