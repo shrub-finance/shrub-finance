@@ -18,6 +18,7 @@ import React from "react";
 import { RouteComponentProps } from "@reach/router";
 import {
   GoofyWonder,
+  NiftySwap,
   Night,
   PolygonStudiosIcon,
   Pot,
@@ -42,42 +43,35 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "container.lg" }}
       >
+        <PotSaleCountdown />
         <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
           <Box>
-            <PotSaleCountdown />
-            <AspectRatio ratio={16 / 9}>
-              <iframe
-                title="Shrub Paper Gardens trailer"
-                src="https://www.youtube.com/embed/9JBKPdFuBGE"
-                allowFullScreen
-              />
-            </AspectRatio>
+            {/*<PotSaleCountdown />*/}
+            {/*    <AspectRatio ratio={16 / 9}>*/}
+            {/*      <iframe*/}
+            {/*        title="Shrub Paper Gardens trailer"*/}
+            {/*        src="https://www.youtube.com/embed/9JBKPdFuBGE"*/}
+            {/*        allowFullScreen*/}
+            {/*      />*/}
+            {/*    </AspectRatio>*/}
           </Box>
         </Box>
       </Container>
-
-      {/*first on chain growth nft section*/}
       <Container
+        // mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        <Flex
-          direction={{
-            base: "column",
-            md: "column",
-            lg: "column",
-            xl: "column",
-          }}
-        >
-          <Box>
+        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
+          <Box mt={{ base: "0", md: "0", lg: "40" }} id="movement">
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
-              maxW={{ base: "20rem", md: "40rem" }}
+              maxW="40rem"
             >
-              First{" "}
+              A cut above the{" "}
               <Text
                 as="span"
                 background="gold.100"
@@ -89,45 +83,30 @@ function Intro(props: RouteComponentProps) {
                       : "transparent",
                 }}
               >
-                on-chain
-              </Text>{" "}
-              growth NFT
+                rest
+              </Text>
             </Heading>
+
             <Text textStyle={"description"}>
-              For the first time ever,{" "}
-              <Link
-                isExternal
-                textDecoration={"underline"}
-                href="https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
-              >
-                grow an NFT by interacting with it on-chain.
-              </Link>
+              Shrub holders are builders, innovators, and thinkers.
             </Text>
             <Text textStyle={"description"}>
-              Planting your seed into a pot creates a potted plant.
+              Visionaries who believe in the decentralized world and innovate to
+              make it possible.
+            </Text>
+            <Text textStyle={"description"}>
+              <Link href="#faqs" cursor="pointer" textDecoration={"underline"}>
+                Think that's you? Join our mission.
+              </Link>{" "}
             </Text>
           </Box>
-          <Spacer />
-          <Box mt={{ base: 20, md: 32 }}>
-            <Link
-              isExternal
-              href={"https://opensea.io/collection/shrub-paper-gardens"}
-            >
-              <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
-                <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-                <Icon
-                  as={FaPlus}
-                  boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
-                />
-                <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-                <Icon
-                  as={FaLongArrowAltRight}
-                  boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
-                />
-
-                <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-              </HStack>
-            </Link>
+          <Box mt={{ base: 0, md: 64 }}>
+            <Image
+              width={"72rem"}
+              src="https://shrub.finance/rock-power-shrub.webp"
+              fallbackSrc="https://shrub.finance/rock-power-shrub.png"
+              alt="Rock"
+            />
           </Box>
         </Flex>
       </Container>
@@ -324,21 +303,103 @@ function Intro(props: RouteComponentProps) {
       </Container>
 
       {/*NFT Tickets*/}
+      {/*<Container*/}
+      {/*  mt={{ base: 0, md: 50 }}*/}
+      {/*  p={5}*/}
+      {/*  flex="1"*/}
+      {/*  borderRadius="2xl"*/}
+      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
+      {/*>*/}
+      {/*  <Flex direction={{ base: "column", md: "column", lg: "row" }}>*/}
+      {/*    <Box mt={{ base: 0, md: 8 }} id="tickets">*/}
+      {/*      <Heading*/}
+      {/*        fontSize={{ base: "30px", md: "70px" }}*/}
+      {/*        letterSpacing={"tight"}*/}
+      {/*        maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}*/}
+      {/*      >*/}
+      {/*        An{" "}*/}
+      {/*        <Text*/}
+      {/*          as="span"*/}
+      {/*          background="gold.100"*/}
+      {/*          bgClip="text"*/}
+      {/*          sx={{*/}
+      {/*            WebkitTextStroke:*/}
+      {/*              colorMode === "light"*/}
+      {/*                ? { base: "1px #7e5807", md: "2px #7e5807" }*/}
+      {/*                : "transparent",*/}
+      {/*          }}*/}
+      {/*        >*/}
+      {/*          innovative*/}
+      {/*        </Text>{" "}*/}
+      {/*        distribution system*/}
+      {/*      </Heading>*/}
+      {/*      <Text textStyle={"description"}>*/}
+      {/*        Pots were distributed using a new mechanism developed by the Shrub*/}
+      {/*        team that provides NFT collectors more flexibility than a*/}
+      {/*        traditional whitelist.*/}
+      {/*      </Text>*/}
+      {/*      <Text textStyle={"description"}>*/}
+      {/*        NFT Tickets are NFTs themselves, ERC-1155, and are extremely*/}
+      {/*        gas-efficient to mint.*/}
+      {/*      </Text>*/}
+      {/*      <Text textStyle={"description"}>*/}
+      {/*        When buying tickets during the pre-sale, collectors only pay a*/}
+      {/*        portion of the total price. The ticket are later redeemed for the*/}
+      {/*        asset by paying the remainder, or sold on the secondary markets.*/}
+      {/*      </Text>*/}
+      {/*      <Text textStyle={"description"}>*/}
+      {/*        <Link*/}
+      {/*          isExternal*/}
+      {/*          textDecoration={"underline"}*/}
+      {/*          href="https://medium.com/@shrubfinance/nft-tickets-the-next-generation-of-distribution-eab1e0fdc317"*/}
+      {/*        >*/}
+      {/*          Thinking NFT Tickets for your presale? Learn more.*/}
+      {/*        </Link>*/}
+      {/*      </Text>*/}
+      {/*    </Box>*/}
+      {/*    <Box*/}
+      {/*      mt={{ base: 0, md: 0, lg: 40, xl: 40, "2xl": 0 }}*/}
+      {/*      ml={{ base: 0, md: 40, lg: 20, xl: 40 }}*/}
+      {/*    >*/}
+      {/*      <Link*/}
+      {/*        isExternal*/}
+      {/*        href={*/}
+      {/*          "https://opensea.io/assets/matic/0xb0e17d58ae2bc6693303b90383bed83699145866/1"*/}
+      {/*        }*/}
+      {/*      >*/}
+      {/*        <Image*/}
+      {/*          width={{ base: "32rem", md: "42rem" }}*/}
+      {/*          src="https://shrub.finance/assets/nft-ticket.webp"*/}
+      {/*          fallbackSrc="https://shrub.finance/assets/tickets.png"*/}
+      {/*          alt="nft ticket by shrub finance"*/}
+      {/*        />*/}
+      {/*      </Link>*/}
+      {/*    </Box>*/}
+      {/*  </Flex>*/}
+      {/*</Container>*/}
+
+      {/*first on chain growth nft section*/}
       <Container
-        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        <Flex direction={{ base: "column", md: "column", lg: "row" }}>
-          <Box mt={{ base: 0, md: 8 }} id="tickets">
+        <Flex
+          direction={{
+            base: "column",
+            md: "column",
+            lg: "column",
+            xl: "column",
+          }}
+        >
+          <Box>
             <Heading
               fontSize={{ base: "30px", md: "70px" }}
               letterSpacing={"tight"}
-              maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}
+              maxW={{ base: "20rem", md: "40rem" }}
             >
-              An{" "}
+              Experience first{" "}
               <Text
                 as="span"
                 background="gold.100"
@@ -350,50 +411,44 @@ function Intro(props: RouteComponentProps) {
                       : "transparent",
                 }}
               >
-                innovative
+                on-chain
               </Text>{" "}
-              distribution system
+              growth NFT
             </Heading>
             <Text textStyle={"description"}>
-              The distribution of Pots uses a new mechanism developed by the
-              Shrub team that provides NFT collectors more flexibility than a
-              traditional whitelist.
-            </Text>
-            <Text textStyle={"description"}>
-              NFT Tickets are NFTs themselves, ERC-1155, and are extremely
-              gas-efficient to mint.
-            </Text>
-            <Text textStyle={"description"}>
-              When buying tickets during the pre-sale, collectors only pay a
-              portion of the total price. The ticket are later redeemed for the
-              asset by paying the remainder, or sold on the secondary markets.
-            </Text>
-            <Text textStyle={"description"}>
+              For the first time ever,{" "}
               <Link
                 isExternal
                 textDecoration={"underline"}
-                href="https://medium.com/@shrubfinance/nft-tickets-the-next-generation-of-distribution-eab1e0fdc317"
+                href="https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
               >
-                Learn more about NFT tickets
+                grow an NFT by interacting with it on-chain.
               </Link>
             </Text>
+            <Text textStyle={"description"}>
+              Planting your seed into a pot creates a potted plant.
+            </Text>
           </Box>
-          <Box
-            mt={{ base: 0, md: 0, lg: 40, xl: 40, "2xl": 0 }}
-            ml={{ base: 0, md: 40, lg: 20, xl: 40 }}
-          >
+          <Spacer />
+          <Box mt={{ base: 20, md: 32 }}>
             <Link
               isExternal
-              href={
-                "https://opensea.io/assets/matic/0xb0e17d58ae2bc6693303b90383bed83699145866/1"
-              }
+              href={"https://opensea.io/collection/shrub-paper-gardens"}
             >
-              <Image
-                width={{ base: "32rem", md: "42rem" }}
-                src="https://shrub.finance/assets/nft-ticket.webp"
-                fallbackSrc="https://shrub.finance/assets/tickets.png"
-                alt="nft ticket by shrub finance"
-              />
+              <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
+                <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Icon
+                  as={FaPlus}
+                  boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
+                />
+                <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Icon
+                  as={FaLongArrowAltRight}
+                  boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
+                />
+
+                <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+              </HStack>
             </Link>
           </Box>
         </Flex>
@@ -609,22 +664,8 @@ function Intro(props: RouteComponentProps) {
               )}
               bgClip="text"
             >
-              Shrub Swap
-              <br /> [Q3]
-            </Text>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"70"} />
-            <Text
-              fontSize={{ base: "25px", md: "35px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight="semibold"
-              bgGradient={useColorModeValue(
-                "linear(to-l, black, black)",
-                "linear(to-l, #c9ff04, #51eae6)"
-              )}
-              bgClip="text"
-            >
               Options Main
-              <br /> [Q3-Q4]
+              <br /> [NEXT]
             </Text>{" "}
             <Text textStyle={"description"}>
               <Link
@@ -684,7 +725,7 @@ function Intro(props: RouteComponentProps) {
         </Box>
       </Container>
 
-      {/*movement*/}
+      {/*as seen on*/}
       <Container
         mt={{ base: 0, md: 50 }}
         p={5}
@@ -692,88 +733,28 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "1400px" }}
       >
-        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
-          <Box mt={{ base: "0", md: "0", lg: "40" }} id="movement">
-            <Heading
-              fontSize={{ base: "30px", md: "70px" }}
-              letterSpacing={"tight"}
-              maxW="40rem"
-            >
-              Join{" "}
-              <Text
-                as="span"
-                background="gold.100"
-                bgClip="text"
-                sx={{
-                  WebkitTextStroke:
-                    colorMode === "light"
-                      ? { base: "1px #7e5807", md: "2px #7e5807" }
-                      : "transparent",
-                }}
-              >
-                Us
-              </Text>
-            </Heading>
-
-            <Text textStyle={"description"}>
-              Shrub holders are builders, innovators, and thinkers.
-            </Text>
-            <Text textStyle={"description"}>
-              Shrubs represent visionaries who believe in the decentralized
-              world and innovate to make it possible.
-            </Text>
-            <Text textStyle={"description"}>
-              If you haven't already done so, you can join us in the mission{" "}
-              <Link href="#faqs" cursor="pointer">
-                and grow a Shrub with us.
-              </Link>{" "}
-            </Text>
-          </Box>
-          <Box mt={{ base: 0, md: 64 }}>
-            <Image
-              width={"72rem"}
-              src="https://shrub.finance/rock-power-shrub.webp"
-              fallbackSrc="https://shrub.finance/rock-power-shrub.png"
-              alt="Rock"
-            />
-          </Box>
-        </Flex>
+        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
+          <Heading
+            fontSize={{ base: "30px", md: "30px" }}
+            letterSpacing={"tight"}
+          >
+            As seen on
+          </Heading>
+          <Center>
+            <Flex direction="row" gap={8}>
+              <Box>
+                <Link
+                  href="https://beta.niftyswap.io/buy/polygon/0xA9ae86b25424d8b523A91975Da1336AC490Bc4C7?only-tradable=false"
+                  cursor="pointer"
+                  isExternal
+                >
+                  <NiftySwap boxSize={"80"} />
+                </Link>
+              </Box>
+            </Flex>
+          </Center>
+        </Box>
       </Container>
-
-      {/*as seen on*/}
-      {/*<Container*/}
-      {/*  mt={{ base: 0, md: 50 }}*/}
-      {/*  p={5}*/}
-      {/*  flex="1"*/}
-      {/*  borderRadius="2xl"*/}
-      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
-      {/*>*/}
-      {/*  <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>*/}
-      {/*    <Heading*/}
-      {/*      fontSize={{ base: "30px", md: "30px" }}*/}
-      {/*      letterSpacing={"tight"}*/}
-      {/*    >*/}
-      {/*      As seen on*/}
-      {/*    </Heading>*/}
-      {/*    <Center>*/}
-      {/*      <Flex direction="row" gap={8}>*/}
-      {/*        <Box>*/}
-      {/*          <Link*/}
-      {/*            href="https://nftcalendar.io/"*/}
-      {/*            cursor="pointer"*/}
-      {/*            isExternal*/}
-      {/*          >*/}
-      {/*            <Img*/}
-      {/*              src="/extra/nft-calendar.webp"*/}
-      {/*              alt="nft calendar"*/}
-      {/*              width={100}*/}
-      {/*            />*/}
-      {/*          </Link>*/}
-      {/*        </Box>*/}
-      {/*      </Flex>*/}
-      {/*    </Center>*/}
-      {/*  </Box>*/}
-      {/*</Container>*/}
 
       {/*ending*/}
       <Container
@@ -788,7 +769,7 @@ function Intro(props: RouteComponentProps) {
             letterSpacing={"tight"}
             mb={16}
           >
-            Get Started
+            Start The Journey
           </Heading>
           <Center>
             <Flex
@@ -805,12 +786,12 @@ function Intro(props: RouteComponentProps) {
                   href="https://discord.gg/csusZhYgTg"
                   isExternal
                   cursor="pointer"
-                  rounded="3xl"
+                  rounded="2xl"
                   size="sm"
                   px="9"
                   fontSize="22px"
                   fontWeight="semibold"
-                  py="5"
+                  py="2"
                   _hover={{ transform: "translateY(-2px)" }}
                   background="gold.100"
                   color={"black"}
@@ -833,17 +814,17 @@ function Intro(props: RouteComponentProps) {
                   href="https://twitter.com/shrubfinance"
                   isExternal
                   cursor="pointer"
-                  rounded="3xl"
+                  rounded="2xl"
                   size="sm"
                   px="6"
                   fontSize="22px"
                   fontWeight="semibold"
-                  py="5"
+                  py="2"
                   _hover={{ transform: "translateY(-2px)" }}
                   background="gold.100"
                   color={"black"}
                 >
-                  Follow Twitter{" "}
+                  Follow on Twitter{" "}
                   <ExternalLinkIcon
                     mx="2px"
                     display={{ base: "none", md: "inline" }}
