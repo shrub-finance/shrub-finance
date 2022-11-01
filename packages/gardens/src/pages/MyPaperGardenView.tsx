@@ -1263,7 +1263,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       <Text fontSize="sm" color={textColor}>
                         Last day to redeem your ticket
                       </Text>
-                      <Text>Wednesday, November 2</Text>
+                      <Text>Thursday, November 3</Text>
                     </Box>
                     <Box
                       fontSize={{ base: "18px", md: "20px" }}
@@ -1284,7 +1284,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         If not redeemed, your ticket will expire in
                       </Text>
                       <CountdownTimer
-                        targetDate={new Date("2022-11-03T00:00:00.000Z")}
+                        targetDate={new Date("2022-11-04T00:00:00.000Z")}
                       />
                     </Box>
                   </Box>
