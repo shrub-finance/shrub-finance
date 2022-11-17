@@ -1229,7 +1229,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           </Container>
         )}
         {/*NFT Ticket view*/}
-        {accountTicketCount.gt(0) && (
+        {accountTicketCount.gt(100) && (
           <Container
             mt={isMobile ? 30 : 30}
             p={5}
