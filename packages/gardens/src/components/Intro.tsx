@@ -30,6 +30,7 @@ import {
   IoEllipsisVertical,
 } from "react-icons/all";
 import PotSaleCountdown from "./PotSaleCountdown";
+import Testimonials from "./Testimonials";
 
 function Intro(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
@@ -88,17 +89,19 @@ function Intro(props: RouteComponentProps) {
             </Heading>
 
             <Text textStyle={"description"}>
-              Shrub holders are builders, innovators, and thinkers.
+              Builders, innovators, thinkers.
             </Text>
             <Text textStyle={"description"}>
-              Visionaries who believe in freedom and power to the individual.
-              We believe in a decentralized world and work hard to make it possible.
-              
+              Shrub holders believe in freedom and putting the control back in
+              the hands of the individuals.
             </Text>
             <Text textStyle={"description"}>
-              <Link href="#faqs" cursor="pointer" textDecoration={"underline"}>
-                If this is you, we welcome you to join our mission.
-              </Link>{" "}
+              Shrub holders are builders dedicated to the cause of
+              decentralization.
+            </Text>
+            <Text textStyle={"description"}>
+              Shrub holders understand its importance, and focus their efforts
+              on building that future.
             </Text>
           </Box>
           <Box mt={{ base: 0, md: 64 }}>
@@ -111,8 +114,40 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+      {/*testimonials*/}
+      <Container
+        // mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Heading
+          fontSize={{ base: "30px", md: "70px" }}
+          letterSpacing={"tight"}
+          maxW="40rem"
+          mb={14}
+        >
+          Those who make make it{" "}
+          <Text
+            as="span"
+            background="gold.100"
+            bgClip="text"
+            sx={{
+              WebkitTextStroke:
+                colorMode === "light"
+                  ? { base: "1px #7e5807", md: "2px #7e5807" }
+                  : "transparent",
+            }}
+          >
+            possible
+          </Text>
+        </Heading>
 
-      {/*section 2*/}
+        <Testimonials />
+      </Container>
+
+      {/*grow your shrub*/}
       <Container
         mt={{ base: 0, md: 40 }}
         p={5}
@@ -184,7 +219,8 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
-      {/*section 3*/}
+
+      {/*harvest your shrub*/}
       <Container
         mt={{ base: 0, md: 40, lg: 40 }}
         p={5}
@@ -286,11 +322,10 @@ function Intro(props: RouteComponentProps) {
               </Link>
             </Text>
             <Text textStyle={"description"}>
-              The seeds are now ready to transform and grow. The Potter has come
-              to help. He has a limited supply of pots which the seeds can be
-              planted in. It is the moment that everyone has been waiting for.
+              When seeds were ready to transform and grow, potter came to help.
+              He put a limited supply of pots into existence. To grow and
+              transform seeds need to be planted in a pot.
             </Text>
-            <Text textStyle={"description"}> It is time to grow!</Text>
           </Box>
           <Spacer display={{ base: "flex", md: "flex", lg: "none" }} />
           {/*visible for smaller screens*/}
@@ -379,7 +414,7 @@ function Intro(props: RouteComponentProps) {
       {/*  </Flex>*/}
       {/*</Container>*/}
 
-      {/*first on chain growth nft section*/}
+      {/*first on chain growth*/}
       <Container
         p={5}
         flex="1"
@@ -414,7 +449,7 @@ function Intro(props: RouteComponentProps) {
               >
                 on-chain
               </Text>{" "}
-              growth NFT
+              growth
             </Heading>
             <Text textStyle={"description"}>
               For the first time ever,{" "}
@@ -665,7 +700,7 @@ function Intro(props: RouteComponentProps) {
               )}
               bgClip="text"
             >
-              Options Main
+              Shrub Main
               <br /> [NEXT]
             </Text>{" "}
             <Text textStyle={"description"}>
@@ -742,7 +777,7 @@ function Intro(props: RouteComponentProps) {
             As seen on
           </Heading>
           <Center>
-            <Flex direction="row" gap={8}>
+            <Flex direction="row">
               <Box>
                 <Link
                   href="https://beta.niftyswap.io/buy/polygon/0xA9ae86b25424d8b523A91975Da1336AC490Bc4C7?only-tradable=false"
@@ -770,7 +805,7 @@ function Intro(props: RouteComponentProps) {
             letterSpacing={"tight"}
             mb={16}
           >
-            Start The Journey
+            Be the difference. Join Mission Shrub.
           </Heading>
           <Center>
             <Flex
@@ -804,9 +839,7 @@ function Intro(props: RouteComponentProps) {
                   />
                 </Link>
                 <Center>
-                  <Text mt={8}>
-                    Connect with the core team, and get detailed updates
-                  </Text>
+                  <Text mt={8}>Connect with the community</Text>
                 </Center>
               </Box>
               <Spacer />
