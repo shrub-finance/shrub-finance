@@ -91,12 +91,13 @@ function Intro(props: RouteComponentProps) {
               Shrub holders are builders, innovators, and thinkers.
             </Text>
             <Text textStyle={"description"}>
-              Visionaries who believe in the decentralized world and innovate to
-              make it possible.
+              Visionaries who believe in freedom and power to the individual.
+              We believe in a decentralized world and work hard to make it possible.
+              
             </Text>
             <Text textStyle={"description"}>
               <Link href="#faqs" cursor="pointer" textDecoration={"underline"}>
-                Think that's you? Join our mission.
+                If this is you, we welcome you to join our mission.
               </Link>{" "}
             </Text>
           </Box>
