@@ -141,4 +141,3 @@ const theme = extendTheme({
   layerStyles,
 });
 export default theme;
-

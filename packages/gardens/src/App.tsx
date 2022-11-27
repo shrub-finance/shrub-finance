@@ -61,7 +61,8 @@ function App() {
               <HomeView path="/presale" />
               <HomeView path="/mint" />
               <ChaptersView path="/chapters" />
-              <PageNotFoundView default />{/*...*/}
+              <PageNotFoundView default />
+              {/*...*/}
               <IntroView path="/intro" />
               <LeaderBoardView path="leaderboard" />
               <NFTView path="/nft/paper-seed/:tokenId" />
