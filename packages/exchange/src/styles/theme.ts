@@ -108,8 +108,8 @@ const textStyles = {
   },
   bannerText: {
     textAlign: "center",
-    color: "#FFCC66",
-    ".chakra-ui-dark &": { color: "dark.100" },
+    color: "red.900",
+    ".chakra-ui-dark &": { color: "red.900" },
     justifyContent: "center",
     fontSize: "14px",
     fontWeight: 600,
@@ -122,8 +122,8 @@ const layerStyles = {
     ".chakra-ui-dark &": { bg: "dark.100" },
   },
   bannerBg: {
-    bg: "dark.100",
-    ".chakra-ui-dark &": { bg: "#00FFFF" },
+    bg: "pink.100",
+    ".chakra-ui-dark &": { bg: "red.100" },
     padding: "10px",
     display: "flex",
     marginBottom: "10px",

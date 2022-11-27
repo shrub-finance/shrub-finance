@@ -29,6 +29,7 @@ import chainlinkAggregatorV3Interface from "./external-contracts/chainlinkAggreg
 import { address } from 'hardhat/internal/core/config/config-validation'
 import { BigNumberish, ContractTransaction } from 'ethers'
 import { WaterFaucet } from '@shrub/subgraph-paper-gardens/generated/WaterFaucet/WaterFaucet'
+import { PaperPot } from '@shrub/subgraph-paper-gardens/generated/PaperPot/PaperPot'
 const bs = require("./utils/black-scholes");
 const { Shrub712 } = require("./utils/EIP712");
 
@@ -48,15 +49,12 @@ const MINUTES_BETWEEN_ORDERS = 5; // For maker2
 
 
 const expiryDates = [
-  new Date("2022-05-02"),
-  new Date("2022-06-02"),
-  new Date("2022-07-02"),
-  // [toEthDate(new Date('2021-12-11')).toString()] : standardStrikes,
-  // [toEthDate(new Date('2021-12-18')).toString()] : standardStrikes,
-  // [toEthDate(new Date('2021-12-25')).toString()] : standardStrikes,
+  new Date("2022-08-02"),
+  new Date("2022-09-02"),
+  new Date("2022-10-02"),
 ];
-const callsArr = [2e6, 2.3e6, 2.5e6, 2.7e6];
-const putsArr = [2e6, 1.8e6, 1.6e6, 1.4e6];
+const callsArr = [0.8e6, 0.9e6, 1.0e6, 1.2e6];
+const putsArr = [0.7e6, 0.6e6, 0.5e6, 0.3e6];
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -135,6 +133,33 @@ task("makeWaterFaucetAdmin", "Makes WaterFaucet an Admin of PaperPot")
       tx = await paperPot.setAdmin(adminAddressToSet, true);
     } else {
       tx = await paperPot.setAdmin(adminAddressToSet, false);
+    }
+    console.log(tx.hash);
+    await tx.wait();
+    console.log('confirmed');
+  })
+
+task("setPaperPotMetadataAdmin", "Makes PaperPot an admin of PaperPotMetadata")
+  .addParam("enable", "true or false", true, types.boolean)
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    const { enable } = taskArgs;
+    const [deployer] = await ethers.getSigners();
+    const paperPotMetadataDeployment = await deployments.get("PaperPotMetadata");
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperPotMetadata = PaperPotMetadata__factory.connect(paperPotMetadataDeployment.address, deployer);
+    const adminAddressToSet = paperPotDeployment.address;
+    let tx: ContractTransaction;
+    const conf = await promptly.confirm(
+      `You are about to ${enable ? 'set' : 'remove'} ${adminAddressToSet} as an admin of PaperPotMetadata. Continue? (y/n)`
+    );
+    if (!conf) {
+      return;
+    }
+    if (enable) {
+      tx = await paperPotMetadata.setAdmin(adminAddressToSet, true);
+    } else {
+      tx = await paperPotMetadata.setAdmin(adminAddressToSet, false);
     }
     console.log(tx.hash);
     await tx.wait();
@@ -307,14 +332,17 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
 
     // Mint Seeds
     await env.run('mintSeed', {
-      ids: [5,16,17,250,251,2181,2182,2186,2188,8888,8869,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
+      // ids: [5,16,17,250,251,2181,2182,2186,2188,8888,8869,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
+      ids: [3,5,16,17,106,250,251,1021,1885,2000,2181,2182,2186,2188,8888,8869,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
       // ids: [1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015]
     })
 
     // Send Seeds
+    await env.run('sendSeed', {id: '3', receiver: account3.address});
     await env.run('sendSeed', {id: '5', receiver: account3.address});
     await env.run('sendSeed', {id: '16', receiver: account3.address});
     await env.run('sendSeed', {id: '17', receiver: account3.address});
+    await env.run('sendSeed', {id: '106', receiver: account3.address});
     await env.run('sendSeed', {id: '250', receiver: account3.address});
     await env.run('sendSeed', {id: '251', receiver: account3.address});
     await env.run('sendSeed', {id: '1000', receiver: account3.address});
@@ -330,9 +358,15 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     await env.run('sendSeed', {id: '1010', receiver: account3.address});
     await env.run('sendSeed', {id: '1011', receiver: account3.address});
     await env.run('sendSeed', {id: '1012', receiver: account3.address});
+
+    // for (const seedTokenId of [3, 106, 1021, 1885, 2000]) {
+
     await env.run('sendSeed', {id: '1013', receiver: account3.address});
     await env.run('sendSeed', {id: '1014', receiver: account3.address});
     await env.run('sendSeed', {id: '1015', receiver: account3.address});
+    await env.run('sendSeed', {id: '1021', receiver: account3.address});
+    await env.run('sendSeed', {id: '1885', receiver: account3.address});
+    await env.run('sendSeed', {id: '2000', receiver: account3.address});
     await env.run('sendSeed', {id: '2181', receiver: account3.address});
     await env.run('sendSeed', {id: '2182', receiver: account3.address});
     await env.run('sendSeed', {id: '2186', receiver: account4.address});
@@ -359,7 +393,7 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     // Mint Water
     await env.run('mintWater', {
       to: account3.address,
-      amount: '25'
+      amount: '250'
     })
 
     // Mint Fertilizer
@@ -377,6 +411,54 @@ task("testPaperGardens", "Sets up a test env for paper gardens")
     await WETH.transfer(account4.address, ethers.constants.WeiPerEther);
 
   })
+
+task("testHarvest", "Gets five seeds ready for harvesting - extends testPaperGardens")
+  .setAction(async (taskArgs, env) => {
+    const { ethers, deployments } = env;
+    await env.run('testPaperGardens');
+
+    const [deployer, account1, account2, account3, account4] = await ethers.getSigners();
+
+    const seedDeployment = await deployments.get("PaperSeed");
+    const paperPotDeployment = await deployments.get("PaperPot");
+    const paperSeedAccount3 = PaperSeed__factory.connect(seedDeployment.address, account3);
+    const paperPotAccount3 = PaperPot__factory.connect(paperPotDeployment.address, account3);
+
+    // SetApprovalForAll
+    console.log(`setting approval for planting seeds with account ${account3.address}`);
+    await paperSeedAccount3.setApprovalForAll(paperPotAccount3.address, true);
+
+    // Loop through 5 seeds
+    // for (const seedTokenId of [5, 16, 250, 1014, 1015]) {
+    for (const seedTokenId of [3, 106, 1021, 1885, 2000]) {
+      // Plant
+      console.log(`planting seedTokenId ${seedTokenId}`)
+      const plantTx = await paperPotAccount3.plant(paperSeedAccount3.address, seedTokenId)
+      const plantReceipt = await plantTx.wait();
+      const plantEvent = plantReceipt.events.find(
+        (event) => event.event === "Plant"
+      );
+      const tokenId = plantEvent.args.tokenId;
+      console.log(`planting resulted in the creation of tokenId ${tokenId}`);
+
+      // Water until 100% growth
+      let growthBps = 0;
+      while (growthBps < 10000) {
+        console.log(`watering tokenId ${tokenId}`)
+        const waterTx = await paperPotAccount3.water([tokenId]);
+        const waterReceipt = await waterTx.wait();
+        const growEvent = waterReceipt.events.find(
+          (event) => event.event === "Grow"
+        );
+        growthBps = growEvent.args.growthBps;
+        console.log(`plant with tokenId ${tokenId} grew ${growEvent.args.growthAmount} to ${growthBps}`);
+      }
+
+    }
+
+
+  })
+
 
 task("getPaperPotUri", "get the uri from a paperPot token")
   .addParam("tokenId", "tokenId to get the uri for")

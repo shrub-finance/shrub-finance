@@ -1,14 +1,8 @@
 import {
-  Avatar,
   Box,
-  chakra,
   Container,
   Flex,
-  Icon,
-  SimpleGrid,
   useColorModeValue,
-  Stack,
-  Text,
   HStack,
   VStack,
 } from "@chakra-ui/react";
@@ -16,33 +10,25 @@ import {
 const testimonials = [
   {
     content:
-      "Wyre has been powering Shrub Exchange allowing me to buy MATIC assets through an easy to use fiat gateway. The speed at which I have been able to exchange my USD for MATIC and the low cost associated with my debit card payment method has made it a prime choice for me to fund my NFT activities without having to leave the Shrub platform. Thank you for making things easy and seamless, making my user experience exquisite.It really saves me time and effort. It is exactly what our business has been lacking. EEZY is the most valuable business resource we have EVER purchased. After using EEZY my business skyrocketed!",
-    icon: "User-avatar.svg",
+      "Using Wyre with Apple Pay is a super fast and super convenient way to buy crypto with a click of a button.",
   },
+
   {
     content:
-      "Using Wyre with Apple Pay is a super fast and super convenient way to buy crypto with a click of a button. The most complicated aspect of it is deciding how much crypto I want/need to purchase.",
-    icon: "User-avatar.svg",
+      "The speed at which I have been able to exchange my USD for MATIC has made it a prime choice for me to fund my NFT activities without having to leave the Shrub platform. Thank you for making things easy and seamless, making my user experience exquisite. It really saves me time and effort.",
   },
   {
     content:
       "By far and away the easiest and cheapest way I've ever gotten MATIC. I used to buy it on Coinbase, send it to my MetaMask, and then use a bridge 😬",
-    icon: "User-avatar.svg",
   },
-];
-
-const backgrounds = [
-  `url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='185' viewBox='0 0 560 185' fill='none'%3E%3Cellipse cx='102.633' cy='61.0737' rx='102.633' ry='61.0737' fill='%23ED64A6' /%3E%3Cellipse cx='399.573' cy='123.926' rx='102.633' ry='61.0737' fill='%23F56565' /%3E%3Cellipse cx='366.192' cy='73.2292' rx='193.808' ry='73.2292' fill='%2338B2AC' /%3E%3Cellipse cx='222.705' cy='110.585' rx='193.808' ry='73.2292' fill='%23ED8936' /%3E%3C/svg%3E")`,
-  `url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='185' viewBox='0 0 560 185' fill='none'%3E%3Cellipse cx='457.367' cy='123.926' rx='102.633' ry='61.0737' transform='rotate(-180 457.367 123.926)' fill='%23ED8936'/%3E%3Cellipse cx='160.427' cy='61.0737' rx='102.633' ry='61.0737' transform='rotate(-180 160.427 61.0737)' fill='%2348BB78'/%3E%3Cellipse cx='193.808' cy='111.771' rx='193.808' ry='73.2292' transform='rotate(-180 193.808 111.771)' fill='%230BC5EA'/%3E%3Cellipse cx='337.295' cy='74.415' rx='193.808' ry='73.2292' transform='rotate(-180 337.295 74.415)' fill='%23ED64A6'/%3E%3C/svg%3E")`,
-  `url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='185' viewBox='0 0 560 185' fill='none'%3E%3Cellipse cx='102.633' cy='61.0737' rx='102.633' ry='61.0737' fill='%23ED8936'/%3E%3Cellipse cx='399.573' cy='123.926' rx='102.633' ry='61.0737' fill='%2348BB78'/%3E%3Cellipse cx='366.192' cy='73.2292' rx='193.808' ry='73.2292' fill='%230BC5EA'/%3E%3Cellipse cx='222.705' cy='110.585' rx='193.808' ry='73.2292' fill='%23ED64A6'/%3E%3C/svg%3E")`,
 ];
 
 function Testimonials() {
   const testimonialsCardVarticle = testimonials.map((element, index) => {
     return (
-      <SimpleGrid mb={10}>
+      <Container pb={10}>
         <Flex
-          boxShadow={"lg"}
+          boxShadow={"xl"}
           maxW={"640px"}
           direction={{ base: "column-reverse", md: "row" }}
           width={"full"}
@@ -74,7 +60,6 @@ function Testimonials() {
             backgroundSize: "cover",
             top: 0,
             left: 0,
-            backgroundImage: backgrounds[index % 4],
           }}
         >
           <Flex
@@ -82,72 +67,23 @@ function Testimonials() {
             textAlign={"left"}
             justifyContent={"space-between"}
           >
-            <chakra.p
-              fontFamily={"Inter"}
-              fontWeight={"medium"}
-              fontSize={"15px"}
-              pb={4}
-            >
+            <Box fontWeight={"medium"} fontSize={"15px"} pb={4}>
               {element.content}
-            </chakra.p>
+            </Box>
           </Flex>
         </Flex>
-      </SimpleGrid>
-    );
-  });
-  const testimonialsCard = testimonials.map((element, index) => {
-    return (
-      <Box>
-        <Container
-          alignItems="center"
-          maxW={"7xl"}
-          py={16}
-          as={Stack}
-          spacing={12}
-        >
-          <Box
-            bg={useColorModeValue("white", "gray.800")}
-            boxShadow={"lg"}
-            p={8}
-            height={370}
-            rounded={"xl"}
-            align={"left"}
-            pos={"relative"}
-            _after={{
-              content: `""`,
-              w: 0,
-              h: 0,
-              borderLeft: "solid transparent",
-              borderLeftWidth: 16,
-              borderRight: "solid transparent",
-              borderRightWidth: 16,
-              borderTop: "solid",
-              borderTopWidth: 16,
-              borderTopColor: useColorModeValue("white", "gray.800"),
-              pos: "absolute",
-              bottom: "-16px",
-              left: "50%",
-              transform: "translateX(-50%)",
-            }}
-          >
-            <Text
-              textAlign={"left"}
-              color={useColorModeValue("gray.600", "gray.400")}
-              fontSize={12}
-            >
-              {element.content}
-            </Text>
-          </Box>
-          <Avatar src={element.icon} mb={2} />
-        </Container>
-      </Box>
+      </Container>
     );
   });
   return (
-    <VStack>
-      <HStack>{testimonialsCard}</HStack>
-      {testimonialsCardVarticle}
-    </VStack>
+    <>
+      <HStack display={{ base: "none", md: "flex" }}>
+        {testimonialsCardVarticle}
+      </HStack>
+      <VStack display={{ base: "block", md: "none" }}>
+        {testimonialsCardVarticle}
+      </VStack>
+    </>
   );
 }
 

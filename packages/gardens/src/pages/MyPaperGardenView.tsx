@@ -67,10 +67,13 @@ import {
   approveToken,
   balanceOfErc1155,
   claimFromFaucet,
+  decodeBase64Uri,
   faucetTriggerTimes,
   getAllowance,
   getBigWalletBalance,
   getFaucetCutoffTimes,
+  getIpfsLink,
+  getPaperPotUri,
   getTicketData,
   potEligibleToClaim,
   redeemNFTTicket,
@@ -157,6 +160,12 @@ function MyPaperGardenView(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
   const [walletTokenBalance, setWalletTokenBalance] = useState<BigNumber>();
   const [approving, setApproving] = useState(false);
+  const [infoMessageDetail, setInfoMessageDetail] = useState(
+    "water from the water faucet"
+  );
+  const [shrubMetadata, setShrubMetadata] = useState<{
+    [tokenId: string]: string;
+  }>({});
   const [faucetCutoffTimes, setFaucetCutoffTimes] =
     useState<CutoffTimesStructOutput>();
   const [potsEligibleToClaim, setPotsEligibleToClaim] = useState<string[]>([]);
@@ -204,8 +213,14 @@ function MyPaperGardenView(props: RouteComponentProps) {
     mySeedData.user &&
     mySeedData.user.pottedPlants &&
     mySeedData.user.pottedPlants.length;
+  const holdsShrub =
+    mySeedData &&
+    mySeedData.user &&
+    mySeedData.user.shrubNfts &&
+    mySeedData.user.shrubNfts.length;
 
-  const holdsViewItem = holdsSeed || holdsFungibleAsset || holdsPottedPlant;
+  const holdsViewItem =
+    holdsSeed || holdsFungibleAsset || holdsPottedPlant || holdsShrub;
 
   const POLL_INTERVAL = 1000; // 1 second
   const tooLarge = accountTicketCount.lt(
@@ -357,7 +372,38 @@ function MyPaperGardenView(props: RouteComponentProps) {
   }, [localError, web3Error, isOpenInfoMessage]);
 
   useEffect(() => {
+    console.debug(
+      "myPaperGardenView useEffect 11 - mySeedData - get shrub NFT metadata"
+    );
+    if (!library || !holdsShrub) {
+      return;
+    }
+    const ids = mySeedData.user.shrubNfts.map((s: any) => s.id);
+    const metadataKeys = Object.keys(shrubMetadata);
+    if (
+      metadataKeys.length === ids.length &&
+      metadataKeys.every((key, index) => key === ids[index])
+    ) {
+      // return early if there is already data for these ids
+      return;
+    }
+    const res: { [tokenId: string]: string } = {};
+
+    async function fetchUri(ids: string[]) {
+      console.debug("Fetching Shrub Metadata");
+      for (const id of ids) {
+        const uri = await getPaperPotUri(id, library);
+        res[id] = uri;
+      }
+      setShrubMetadata(res);
+    }
+
+    fetchUri(ids).catch((err) => console.error(err));
+  }, [library, mySeedData]);
+
+  useEffect(() => {
     console.debug("myPaperGardenView useEffect 6 - mySeedData - fill the grid");
+    console.debug(shrubMetadata);
     const tempMySeedDataRows: JSX.Element[] = [];
     let selectedItemSet = selectedItem.tokenId !== "";
 
@@ -451,6 +497,66 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
     }
 
+    if (holdsShrub) {
+      // id, name, image
+      for (const shrubNft of mySeedData.user.shrubNfts) {
+        const { id, name: subgraphShrubName, uri, pottedPlant } = shrubNft;
+        const { id: pottedPlantId, seed } = pottedPlant;
+        const { type, emotion, dna } = seed;
+
+        const isMetadata = shrubMetadata && shrubMetadata[id];
+        const md: any = isMetadata
+          ? shrubMetadata[id].substring(0, 28) ===
+            "data:application/json;base64"
+            ? decodeBase64Uri(shrubMetadata[id])
+            : shrubMetadata[id]
+          : "";
+        const imageUrl = isMetadata
+          ? getIpfsLink(md.image)
+          : IMAGE_ASSETS.getDefaultShrub(type);
+        const name = isMetadata ? md.name : `Shrub #${Number(id) - 2e6}`;
+        const attributes = isMetadata ? md.attributes : [];
+
+        if (shrubMetadata && shrubMetadata[id]) {
+          // Check if encoded with base64
+          const md =
+            shrubMetadata[id].substring(0, 28) ===
+            "data:application/json;base64"
+              ? decodeBase64Uri(shrubMetadata[id])
+              : shrubMetadata[id];
+          console.debug(md);
+        } else {
+          const imageUrl = IMAGE_ASSETS.getDefaultShrub(type);
+        }
+        const shrubItem: itemType = {
+          tokenId: id,
+          name,
+          emotion,
+          type,
+          dna,
+          imageUrl,
+          attributes,
+          category: "shrubNft",
+        };
+        if (shrubNft === mySeedData.user.shrubNfts[0]) {
+          updateSelectedItem(shrubItem);
+        }
+        tempMySeedDataRows.push(
+          <GardenGrid
+            id={id}
+            key={id}
+            name={isMetadata ? md.name : `Shrub #${Number(id) - 2e6}`}
+            category="shrubNft"
+            onClick={() => {
+              setSelectedItem(shrubItem);
+              onOpen();
+            }}
+            imgCallback={() => imageUrl}
+          />
+        );
+      }
+    }
+
     if (holdsPottedPlant) {
       // id, name, image
       for (const pottedPlant of mySeedData.user.pottedPlants) {
@@ -459,7 +565,8 @@ function MyPaperGardenView(props: RouteComponentProps) {
         const imageUrl = IMAGE_ASSETS.getPottedPlant(
           type,
           Math.floor(growth / 2000),
-          emotion
+          emotion,
+          "shrub"
         );
         console.debug(imageUrl);
 
@@ -538,12 +645,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
       }
     }
 
-    // TODO: handle shrubs
     setMySeedRows(tempMySeedDataRows);
     if (mySeedData && mySeedData.seeds) {
       setIsInitialized(true);
     }
-  }, [mySeedData]);
+  }, [mySeedData, shrubMetadata]);
 
   // Query Handling
   // Needs to deal with having the two sources of subgraph and txmon
@@ -702,6 +808,75 @@ function MyPaperGardenView(props: RouteComponentProps) {
     }
   }
 
+  async function handleRedeemNFT() {
+    setLocalError("");
+    setIsLoading(true);
+    const description = "Redeemed NFT Tickets for Pot";
+    try {
+      if (!redeemPrice) {
+        throw new Error("mintPrice not found");
+      }
+
+      const tx = await redeemNFTTicket(
+        NFT_TICKET_TOKEN_ID,
+        redeemAmount,
+        library
+      );
+      pendingTxsDispatch({ type: "add", txHash: tx.hash, description });
+      setActiveHash(tx.hash);
+      try {
+        const receipt = await tx.wait();
+        const toastDescription = ToastDescription(
+          description,
+          receipt.transactionHash,
+          chainId
+        );
+        toast({
+          title: "Transaction Confirmed",
+          description: toastDescription,
+          status: "success",
+          isClosable: true,
+          variant: "solid",
+          position: "top-right",
+        });
+        setTicketConfetti(true);
+        setInfoMessageDetail("your NFT Ticket for a pot");
+        onOpenInfoMessage();
+        pendingTxsDispatch({
+          type: "update",
+          txHash: receipt.transactionHash,
+          status: "confirmed",
+          data: { blockNumber: receipt.blockNumber },
+        });
+        setIsLoading(false);
+      } catch (e: any) {
+        const toastDescription = ToastDescription(
+          description,
+          e.transactionHash,
+          chainId
+        );
+        pendingTxsDispatch({
+          type: "update",
+          txHash: e.transactionHash || e.hash,
+          status: "failed",
+        });
+        toast({
+          title: "Transaction Failed",
+          description: toastDescription,
+          status: "error",
+          isClosable: true,
+          variant: "solid",
+          position: "top-right",
+        });
+      }
+    } catch (e: any) {
+      setApproving(false);
+      setIsLoading(false);
+      setTicketConfetti(false);
+      handleErrorMessages({ err: e });
+    }
+  }
+
   function isWaterAvailable(growth: number, lastWatering: number) {
     return wateringNextAvailable(lastWatering) < new Date() && growth < 10000;
   }
@@ -730,6 +905,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
           position: "top-right",
         });
         setTicketConfetti(true);
+        setInfoMessageDetail("water from the water faucet");
         onOpenInfoMessage();
         pendingTxsDispatch({
           type: "update",
@@ -852,9 +1028,10 @@ function MyPaperGardenView(props: RouteComponentProps) {
             </Text>
             <Text
               textAlign="center"
-              color={"gray.400"}
+              color={"gray.500"}
               px={"5"}
-              fontSize={{ base: "15px", md: "15px", lg: "16px" }}
+              fontSize={"14px"}
+              fontWeight={"medium"}
             >
               Select seeds or plants below to grow them.
             </Text>
@@ -869,8 +1046,9 @@ function MyPaperGardenView(props: RouteComponentProps) {
                 <Box>
                   <AlertTitle>Congrats!</AlertTitle>
                   <AlertDescription>
-                    You just claimed water from the water faucet! See it in your
-                    garden view below. <WateringCan boxSize={10} />
+                    {/*You just claimed water from the water faucet! See it in your*/}
+                    You just claimed {infoMessageDetail}! See it in your garden
+                    view below. <WateringCan boxSize={10} />
                   </AlertDescription>
                 </Box>
                 <CloseButton
@@ -909,7 +1087,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       <Text fontSize="sm" color={textColor}>
                         Water Availability Status
                       </Text>
-                      <Text>
+                      <Box>
                         <Circle
                           size="10px"
                           bg={
@@ -927,7 +1105,7 @@ function MyPaperGardenView(props: RouteComponentProps) {
                         faucetTriggerTimes(faucetCutoffTimes).activeNow
                           ? "now on"
                           : "off"}
-                      </Text>
+                      </Box>
                     </Box>
                     <Box
                       fontSize={{ base: "18px", md: "20px" }}
@@ -937,9 +1115,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
                       <Text fontSize="sm" color={textColor}>
                         Current cycle ends in:
                       </Text>
-                      {/*<Text>*/}
-                      {/*  { faucetCutoffTimes ? faucetTriggerTimes(faucetCutoffTimes).periodEndDate.toLocaleString() : "" }*/}
-                      {/*</Text>*/}
                       <CountdownTimer
                         targetDate={
                           faucetCutoffTimes
@@ -965,15 +1140,11 @@ function MyPaperGardenView(props: RouteComponentProps) {
                             ).nextPeriodStartDate.toLocaleString()
                           : ""}
                       </Text>
-                      {/*<CountdownTimer*/}
-                      {/*  targetDate={ faucetCutoffTimes ? faucetTriggerTimes(faucetCutoffTimes).nextPeriodStartDate : new Date(0) }*/}
-                      {/*/>*/}
                     </Box>
                   </Box>
                 </Center>
 
                 <Spacer />
-                {/*Redemption logic*/}
                 <Center shadow={"dark-lg"} p={10} borderRadius={"3xl"}>
                   <Box>
                     <VStack>
@@ -985,7 +1156,6 @@ function MyPaperGardenView(props: RouteComponentProps) {
                           transform="scaleX(1)"
                         />
                       </Heading>
-                      {/*Redeem Price*/}
                       <Box p={4}>
                         <FormLabel
                           fontSize={"sm"}
@@ -1002,16 +1172,16 @@ function MyPaperGardenView(props: RouteComponentProps) {
                           fontSize="2xl"
                           p={"1.813rem"}
                           w="325px"
+                          color={"gray.500"}
                         >
                           {potsEligibleToClaim.length} Water
                         </Box>
                       </Box>
-                      {/*Approve/Redeem ticket button*/}
                       <Tooltip
                         hasArrow
                         label={
                           !potsEligibleToClaim.length
-                            ? "No water to claim right now . Please wait until the next claim period to get 1 water per potted plant"
+                            ? "No water to claim right now. Please wait until the next claim period to get 1 water per potted plant"
                             : "Claim water"
                         }
                         shouldWrapChildren
@@ -1048,6 +1218,241 @@ function MyPaperGardenView(props: RouteComponentProps) {
                                 ? "Connect to Polygon"
                                 : "Connect Wallet"
                               : "Claim Water"
+                          }
+                        </Button>
+                      </Tooltip>
+                    </VStack>
+                  </Box>
+                </Center>
+              </Flex>
+            </Center>
+          </Container>
+        )}
+        {/*NFT Ticket view*/}
+        {accountTicketCount.gt(0) && (
+          <Container
+            mt={isMobile ? 30 : 30}
+            p={5}
+            flex="1"
+            borderRadius="2xl"
+            maxW="container.lg"
+          >
+            <Center>
+              <Flex
+                direction={{ base: "column", md: "row" }}
+                gap={{ base: "10", md: "16" }}
+              >
+                {/*Ticket info*/}
+                <Center>
+                  <Box bgColor={bgColor2} p={10} rounded="3xl">
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={4}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        Redemption Available
+                      </Text>
+                      <Text>Redemption is now active</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        Last day to redeem your ticket
+                      </Text>
+                      <Text>Thursday, November 3</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        Redemption Price
+                      </Text>
+                      <Text>0.015 WETH</Text>
+                    </Box>
+                    <Box
+                      fontSize={{ base: "18px", md: "20px" }}
+                      mt={8}
+                      fontWeight="semibold"
+                    >
+                      <Text fontSize="sm" color={textColor}>
+                        If not redeemed, your ticket will expire in
+                      </Text>
+                      <CountdownTimer
+                        targetDate={new Date("2022-11-04T00:00:00.000Z")}
+                      />
+                    </Box>
+                  </Box>
+                </Center>
+
+                <Spacer />
+                {/*Redemption logic*/}
+                <Center shadow={"dark-lg"} p={10} borderRadius={"3xl"}>
+                  <Box>
+                    <VStack>
+                      <Heading pb={4}>
+                        You have {accountTicketCount.toString()}{" "}
+                        {accountTicketCount.eq(1) ? "Ticket" : "Tickets"}
+                      </Heading>
+                      {/*Quantity*/}
+                      <Box>
+                        <FormLabel
+                          fontSize={"sm"}
+                          color={"gray.500"}
+                          fontWeight={"medium"}
+                        >
+                          Quantity
+                        </FormLabel>
+
+                        <NumberInput
+                          isInvalid={invalidEntry}
+                          min={0}
+                          max={10}
+                          precision={0}
+                          onChange={(valueString) => {
+                            const [integerPart, decimalPart] =
+                              valueString.split(".");
+                            if (valueString.includes(".")) {
+                              setRedeemAmount(integerPart || "0");
+                              return;
+                            }
+                            if (integerPart && integerPart.length > 2) {
+                              return;
+                            }
+                            if (valueString === "00") {
+                              return;
+                            }
+                            if (isNaN(Number(valueString))) {
+                              return;
+                            }
+                            if (
+                              Number(valueString) !==
+                              Math.round(Number(valueString) * 1e6) / 1e6
+                            ) {
+                              setRedeemAmount(Number(valueString).toFixed(6));
+                              return;
+                            }
+                            setRedeemAmount(valueString);
+                          }}
+                          value={format(redeemAmount)}
+                          size="lg"
+                        >
+                          <NumberInputField
+                            h="6rem"
+                            borderRadius="3xl"
+                            shadow="sm"
+                            fontWeight="medium"
+                            fontSize="2xl"
+                          />
+                          <InputRightElement
+                            pointerEvents="none"
+                            p={14}
+                            children={
+                              <FormLabel
+                                htmlFor="amount"
+                                color="gray.500"
+                                fontWeight="medium"
+                              >
+                                tickets
+                              </FormLabel>
+                            }
+                          />
+                        </NumberInput>
+                      </Box>
+                      {/*Redeem Price*/}
+                      <Box p={4}>
+                        <FormLabel
+                          fontSize={"sm"}
+                          color={"gray.500"}
+                          fontWeight={"medium"}
+                        >
+                          Total
+                        </FormLabel>
+
+                        <Box
+                          bg={bgColor}
+                          borderRadius="3xl"
+                          fontWeight="medium"
+                          fontSize="2xl"
+                          p={"1.813rem"}
+                          w="325px"
+                        >
+                          {invalidEntry
+                            ? "?"
+                            : format(
+                                redeemPrice
+                                  ? ethers.utils.formatEther(
+                                      redeemPrice.mul(Number(redeemAmount))
+                                    )
+                                  : "-"
+                              )}{" "}
+                          WETH
+                        </Box>
+                      </Box>
+                      {/*Approve/Redeem ticket button*/}
+                      <Tooltip
+                        hasArrow
+                        label={
+                          Number(redeemAmount) <= 0
+                            ? "Nothing to redeem. Please enter the number of tickets you want to redeem"
+                            : noFunds
+                            ? "You do not have enough funds to redeem the tickets"
+                            : accountTicketCount.lte(Zero)
+                            ? "Ticket you are trying to redeem exceeds the tickets you have available"
+                            : null
+                        }
+                        shouldWrapChildren
+                        mt="3"
+                      >
+                        <Button
+                          onClick={
+                            noAllowance ? handleApprove : handleRedeemNFT
+                          }
+                          colorScheme={tradingBtnColor}
+                          variant="solid"
+                          rounded="2xl"
+                          isLoading={isLoading}
+                          isDisabled={
+                            Number(redeemAmount) <= 0 ||
+                            noFunds ||
+                            accountTicketCount.lte(Zero) ||
+                            accountTicketCount.lt(redeemAmount)
+                          }
+                          size="lg"
+                          px={["50", "50", "50", "50"]}
+                          fontSize="25px"
+                          py={10}
+                          borderRadius="full"
+                          _hover={{ transform: "translateY(-2px)" }}
+                          bgGradient={"linear(to-r,#74cecc,green.300,blue.400)"}
+                          loadingText={
+                            noAllowance
+                              ? "Approving..."
+                              : !localError
+                              ? "Redeeming..."
+                              : "Redeem Ticket"
+                          }
+                        >
+                          {
+                            // If no account then Wrong Network and Connect Wallet
+                            !account
+                              ? !!web3Error &&
+                                getErrorMessage(web3Error).title ===
+                                  "Wrong Network"
+                                ? "Connect to Polygon"
+                                : "Connect Wallet"
+                              : tooLarge
+                              ? "Exceeds available"
+                              : noFunds
+                              ? "Insufficient funds"
+                              : noAllowance
+                              ? "Step 1: Approve WETH"
+                              : "Step 2: Redeem Ticket"
                           }
                         </Button>
                       </Tooltip>

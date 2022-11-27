@@ -25,6 +25,7 @@
     "gardens": "yarn workspace @shrub/gardens start",
     "exchange": "yarn workspace @shrub/exchange start",
     "graph-node": "yarn workspace @shrub/graph-node start",
+    "graph-node-restart": "yarn workspace @shrub/graph-node restart",
     "subgraph-paper-gardens": "yarn workspace @shrub/subgraph-paper-gardens deploy-again-local",
     "subgraph-core": "yarn workspace @shrub/subgraph-core deploy-again-local",
     "test": "mocha",

@@ -181,6 +181,15 @@ export async function seedBalanceOf(
   return paperseedContract.balanceOf(address);
 }
 
+export async function getPaperPotUri(
+  tokenID: ethers.BigNumberish,
+  provider: JsonRpcProvider
+) {
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, provider);
+  const uri = await paperPot.uri(tokenID);
+  return uri;
+}
+
 export async function getTokenUri(
   tokenID: ethers.BigNumberish,
   provider: JsonRpcProvider
@@ -365,6 +374,16 @@ export async function harvestShrub(
   return paperPot.harvest(tokenId);
 }
 
+export async function setShrubName(
+  tokenId: ethers.BigNumberish,
+  newName: string,
+  provider: JsonRpcProvider
+) {
+  const signer = provider.getSigner();
+  const paperPot = PaperPot__factory.connect(PAPER_POT_ADDRESS, signer);
+  return paperPot.setShrubName(tokenId, newName);
+}
+
 export async function plant(
   seedTokenId: ethers.BigNumberish,
   provider: JsonRpcProvider
@@ -532,7 +551,6 @@ export function getFaucetCutoffTimes(provider: JsonRpcProvider) {
     WATER_FAUCET_ADDRESS,
     provider
   );
-  console.log(WATER_FAUCET_ADDRESS);
   return waterFaucet.getCutoffTimes();
 }
 
@@ -550,7 +568,6 @@ export function potEligibleToClaim(
   const ONE_DAY = 60 * 60 * 24;
   const ethNow = toEthDate(now);
   const time = ethNow % ONE_DAY;
-  console.log(lastClaim, cutoffTimes);
   return (
     lastClaim &&
     !(
@@ -577,7 +594,7 @@ export function faucetTriggerTimes(cutoffTimes: {
   const time = ethNow % ONE_DAY;
   const activeNow =
     (time >= cutoffTimes.startTime1 && time < cutoffTimes.endTime1) ||
-    !(time >= cutoffTimes.startTime2 && time < cutoffTimes.endTime2);
+    (time >= cutoffTimes.startTime2 && time < cutoffTimes.endTime2);
   const usingSecond =
     cutoffTimes.endTime1 === 86400 && cutoffTimes.startTime2 === 0;
   const periodEndTime = activeNow
@@ -610,4 +627,17 @@ export function claimFromFaucet(tokenIds: string[], provider: JsonRpcProvider) {
   );
   console.log(tokenIds);
   return waterFaucet.claim(tokenIds);
+}
+
+// From ethersproject
+export function getIpfsLink(link: string): string {
+  if (link.match(/^ipfs:\/\/ipfs\//i)) {
+    link = link.substring(12);
+  } else if (link.match(/^ipfs:\/\//i)) {
+    link = link.substring(7);
+  } else {
+    return link;
+  }
+
+  return `https://gateway.ipfs.io/ipfs/${link}`;
 }

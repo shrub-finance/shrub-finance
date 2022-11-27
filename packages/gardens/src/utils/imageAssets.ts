@@ -26,7 +26,24 @@ export const IMAGE_ASSETS: any = {
       sad: "https://shrub.finance/assets/power.svg",
     },
   },
-
+  shrubs: {
+    Wonder: {
+      light: "https://shrub.finance/smart-wonder.webp",
+      bulky: "https://shrub.finance/assets/wonder-sad.png",
+    },
+    Passion: {
+      light: "https://shrub.finance/lovely-passion-shrub.webp",
+      bulky: "https://shrub.finance/lovely-passion-shrub.png",
+    },
+    Hope: {
+      light: "https://shrub.finance/beany-hope.webp",
+      bulky: "https://shrub.finance/beany-hope.png",
+    },
+    Power: {
+      light: "https://shrub.finance/rock-power-shrub.webp",
+      bulky: "https://shrub.finance/rock-power-shrub.png",
+    },
+  },
   // use for potted plant asset
   getPottedPlant: (
     type: string,
@@ -39,6 +56,18 @@ export const IMAGE_ASSETS: any = {
     } else {
       return `${IPFS_POTTED_PLANT_BASE_URL}/pottedplant-${type}-${stage}-${emotion}.svg`;
     }
+  },
+
+  getDefaultShrub: (type: string) => {
+    return type === "Wonder"
+      ? "https://shrub.finance/assets/shrubs/wonder-shrub-base.png"
+      : type === "Passion"
+      ? "https://shrub.finance/assets/shrubs/passion-shrub-base.webp"
+      : type === "Hope"
+      ? "https://shrub.finance/assets/shrubs/hope-shrub-base.webp"
+      : type === "Power"
+      ? "https://shrub.finance/assets/shrubs/power-shrub-base.webp"
+      : "";
   },
 
   percentageToStage: (growthPercentage: number) =>

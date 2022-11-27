@@ -81,6 +81,19 @@ export const MY_GARDENS_QUERY = gql`
           type
         }
       }
+      shrubNfts {
+        id
+        name
+        uri
+        pottedPlant {
+          id
+          seed {
+            type
+            emotion
+            dna
+          }
+        }
+      }
     }
     seeds(where: { owner: $user }) {
       id
@@ -124,7 +137,7 @@ export const GARDENS_STATS_QUERY = gql`
     pottedPlants(
       orderBy: growth
       orderDirection: desc
-      where: { growth_gt: 0 }
+      where: { growth_gt: 0, growth_lt: 10000 }
     ) {
       id
       growth

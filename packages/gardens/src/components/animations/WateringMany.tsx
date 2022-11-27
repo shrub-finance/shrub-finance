@@ -20,12 +20,14 @@ import React from "react";
 import { Counter } from "../Counter";
 
 function WateringMany({
+  pots,
   seedClass,
   emotion,
   controls,
   fromArg,
   growthAmountArg,
 }: {
+  pots: number;
   seedClass: string;
   emotion: string;
   controls: AnimationControls;
@@ -63,16 +65,32 @@ function WateringMany({
       <></>
     );
   }
-
+  console.log(pots);
   return (
-    <Box maxH={"30px"} maxW={"30px"}>
-      <Center position="relative" left="10px">
+    <Box
+      maxH={"30px"}
+      maxW={"30px"}
+      px={pots === 2 ? 16 : pots === 3 ? 16 : 10}
+      py={12}
+    >
+      <Center
+        position="relative"
+        left={pots === 2 ? "27px" : pots === 3 ? "43px" : "10px"}
+      >
         {React.cloneElement(getPotSvg(seedClass, emotion), {
-          boxSize: 10,
+          boxSize: pots === 2 ? 24 : pots === 3 ? 24 : 12,
         })}
         {GrowthCounter(
-          <Center position={"absolute"} bottom={"70px"}>
-            <Text fontSize={"10px"} fontWeight={"bold"} color={growthColor}>
+          <Center
+            position={"absolute"}
+            bottom={pots === 2 ? "140px" : pots === 3 ? "140px" : "70px"}
+            right={pots === 2 ? "6px" : pots === 3 ? "6px" : "-8px"}
+          >
+            <Text
+              fontSize={pots === 2 ? "15px" : pots === 3 ? "15px" : "12px"}
+              fontWeight={"bold"}
+              color={growthColor}
+            >
               Growth: <Counter from={from} to={to} duration={7} />%
             </Text>
           </Center>,
@@ -84,18 +102,26 @@ function WateringMany({
           {Spray(
             <Water
               stroke={dropColor}
-              boxSize={8}
+              boxSize={pots === 2 ? 12 : pots === 3 ? 12 : 8}
               position={"absolute"}
-              left={"-30px"}
-              bottom={"33px"}
+              left={pots === 2 ? "-50px" : pots === 3 ? "-50px" : "-30px"}
+              bottom={pots === 2 ? "76px" : pots === 3 ? "76px" : "42px"}
             />,
             controls
           )}
           {Tilt(
-            <WateringCan boxSize={12} />,
+            <WateringCan boxSize={pots === 2 ? 20 : pots === 3 ? 20 : 14} />,
             controls,
-            [1, 1, 1],
-            [-29, -34, -29]
+            pots === 2
+              ? [-16, -16, -16]
+              : pots === 3
+              ? [-16, -16, -16]
+              : [1, 1, 1],
+            pots === 2
+              ? [-55, -64, -55]
+              : pots === 3
+              ? [-55, -64, -55]
+              : [-35, -40, -35]
           )}
         </Center>
       </Center>

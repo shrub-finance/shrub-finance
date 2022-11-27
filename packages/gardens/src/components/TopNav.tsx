@@ -106,11 +106,21 @@ function TopNav() {
 
           <Flex alignItems={"center"}>
             <>
-              <BuyMatic />
+              {/*<BuyMatic />*/}
               <Match path="/">
                 {(props) =>
                   props.match ? (
                     <>
+                      <Link
+                        pr={5}
+                        fontSize={"sm"}
+                        fontWeight={"extrabold"}
+                        color={"green"}
+                        href={"https://exchange.shrub.finance"}
+                        isExternal
+                      >
+                        Buy MATIC
+                      </Link>
                       {/*<Link*/}
                       {/*  pr={5}*/}
                       {/*  fontSize={"sm"}*/}
@@ -171,7 +181,7 @@ function TopNav() {
                       borderRadius="xl"
                       leftIcon={
                         web3Error ? (
-                          <InfoOutlineIcon colorScheme="red" />
+                          <InfoOutlineIcon color="red.400" />
                         ) : undefined
                       }
                     >

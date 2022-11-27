@@ -2,21 +2,19 @@ import Particles from "react-tsparticles";
 import React from "react";
 
 export default function Confetti() {
-  const particlesInit = (main: any) => {
+  async function particlesInit(main: any) {
     console.log(main);
 
     // you can initialize the tsParticles instance (main) here, adding custom shapes or presets
-  };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  const particlesLoaded = (container: any) => {};
+  async function particlesLoaded(container: any) {}
 
   return (
     <Particles
       id="tsparticles"
-      // @ts-ignore
       init={particlesInit}
-      // @ts-ignore
       loaded={particlesLoaded}
       options={{
         fullScreen: {

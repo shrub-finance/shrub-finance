@@ -3,22 +3,38 @@ import {
   Box,
   Center,
   Container,
+  FormControl,
+  FormErrorMessage,
+  FormHelperText,
+  FormLabel,
   Heading,
+  Input,
   Link,
-  SimpleGrid,
+  Stack,
+  useColorModeValue,
   Text,
+  VStack,
+  SlideFade,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useState } from "react";
 import { RouteComponentProps } from "@reach/router";
-import { ExchangeLogo } from "../assets/Icons";
 import axios from "axios";
 import { useWeb3React } from "@web3-react/core";
 import { trackEvent } from "../utils/handleGATracking";
 import WyreCheckoutStatus from "./WyreCheckoutStatus";
 import Testimonials from "./Testimonials";
+import { getChecksumAddress } from "../utils/chainMethods";
+import { handleErrorMessagesFactory } from "../utils/handleErrorMessages";
 
 function Intro(props: RouteComponentProps) {
+  const [destAddress, setDestAddress] = useState("");
+  const [invalidEntry, setInvalidEntry] = useState(false);
   const { account } = useWeb3React();
+  const [localError, setLocalError] = useState("");
+  const handleErrorMessages = handleErrorMessagesFactory(setLocalError);
+
   async function wyreCheckout(event: React.BaseSyntheticEvent) {
     handleGA(event);
     type WyreCheckoutParams = {
@@ -38,11 +54,16 @@ function Intro(props: RouteComponentProps) {
       redirectUrl,
       failureRedirectUrl,
     };
-    let dest;
-    if (account) {
-      dest = `ethereum:${account}`;
-      params.dest = dest;
+    let checkedAddress;
+    try {
+      checkedAddress = getChecksumAddress(destAddress);
+    } catch (e: any) {
+      console.error(e);
+      handleErrorMessages({ err: e });
+      return;
     }
+    const dest = `matic:${checkedAddress}`;
+    params.dest = dest;
     let prevReservationUrl = localStorage.getItem(
       "shrub:buyMatic:reservationUrl"
     );
@@ -52,7 +73,7 @@ function Intro(props: RouteComponentProps) {
     const prevReservationEndDate =
       prevReservationDate &&
       new Date(new Date(prevReservationDate).getTime() + 60 * 1000 * 14);
-    // if there is a reservation in the storage and we are within the range, use previous reservation url
+    // if there is a reservation in the storage, and we are within the range, use previous reservation url
     if (
       prevReservationDate &&
       prevReservationEndDate &&
@@ -110,10 +131,45 @@ function Intro(props: RouteComponentProps) {
     });
   }
 
+  function handleAddressInput(event: React.ChangeEvent<HTMLInputElement>) {
+    let checkedAddress;
+    const newValue = event.target.value;
+    if (!newValue) {
+      // Clear it out if input is cleared
+      setDestAddress("");
+      if (invalidEntry) {
+        setInvalidEntry(false);
+      }
+      return;
+    }
+    try {
+      checkedAddress = getChecksumAddress(newValue);
+    } catch (e: any) {
+      console.error(e);
+      setDestAddress(newValue);
+      if (!invalidEntry) {
+        setInvalidEntry(true);
+      }
+      return;
+    }
+    if (invalidEntry) {
+      setInvalidEntry(false);
+    }
+    setDestAddress(checkedAddress);
+  }
+
   return (
     <Container mt={50} p={5} flex="1" borderRadius="2xl" maxW="container.lg">
       <WyreCheckoutStatus />
-      <Center mt={isMobile ? 28 : 24}>
+      {localError && (
+        <SlideFade in={true} unmountOnExit={true}>
+          <Alert status="error" borderRadius={9}>
+            <AlertIcon />
+            {localError}
+          </Alert>
+        </SlideFade>
+      )}
+      <Center mt={isMobile ? 28 : 16}>
         <Box maxW="60rem" mb={8} textAlign={"center"}>
           <Heading
             fontSize={{ base: "30px", md: "50px" }}
@@ -125,38 +181,89 @@ function Intro(props: RouteComponentProps) {
             mt="3"
             mb={{ base: "16", md: "20", lg: "20" }}
             fontSize="18px"
+            fontWeight={"medium"}
             textAlign="center"
+            color={"gray.500"}
             px={["4rem", "5rem", "10rem", "10rem"]}
           >
             {isMobile
-              ? "Shrub Exchange is the easiest way to buy Polygon MATIC instantly"
-              : " Shrub Exchange is the easiest way to buy Polygon MATIC instantly with your credit card, debit card or Apple Pay"}
+              ? "The easiest way to buy Polygon MATIC instantly"
+              : " The easiest way to buy Polygon MATIC instantly with credit card, debit card or Apple Pay"}
           </Text>
-          <Link
-            onClick={wyreCheckout}
-            isExternal
-            cursor="pointer"
-            rounded="3xl"
-            size="sm"
-            px="14"
-            fontSize="25px"
-            fontWeight="semibold"
-            py="5"
-            borderColor={"#64a56a"}
-            borderWidth={"2px"}
-            _hover={{
-              transform: "translateY(-2px)",
-              bgGradient: "linear(128.17deg,#5dc466 -14.78%,#121227 110.05%)",
-            }}
-            bgGradient="linear(128.17deg,#64a56a -14.78%,#121227 110.05%)"
-            color={"white"}
-          >
-            Buy MATIC
-          </Link>
+          <VStack>
+            <FormControl isInvalid={invalidEntry}>
+              <FormLabel color={useColorModeValue("gray.700", "gray.200")}>
+                {" "}
+                Enter the address where you want to receive Polygon (MATIC)
+              </FormLabel>
+              <Input
+                value={destAddress}
+                onChange={handleAddressInput}
+                borderColor={
+                  destAddress && !invalidEntry ? "green.200" : "grey.200"
+                }
+                focusBorderColor={
+                  destAddress && !invalidEntry ? "lime" : "blue"
+                }
+                errorBorderColor="red.300"
+                placeholder="0x..."
+                h="6rem"
+                borderRadius="3xl"
+                shadow="sm"
+                fontWeight="medium"
+                fontSize="2xl"
+              />
+              {!invalidEntry ? (
+                <FormHelperText></FormHelperText>
+              ) : (
+                <FormErrorMessage>Invalid Polygon address</FormErrorMessage>
+              )}
+            </FormControl>
+            <Link
+              onClick={wyreCheckout}
+              isExternal
+              cursor="pointer"
+              rounded="3xl"
+              size="sm"
+              px="14"
+              fontSize="25px"
+              fontWeight="semibold"
+              py="5"
+              // borderColor={"#64a56a"}
+              // borderWidth={"1px"}
+              _hover={{
+                transform: "translateY(-2px)",
+                bgGradient: "linear(128.17deg,#5dc466 -14.78%,#121227 110.05%)",
+              }}
+              bgGradient="linear(128.17deg,#64a56a -14.78%,#121227 110.05%)"
+              color={"white"}
+              sx={{ userSelect: "none" }}
+            >
+              Buy MATIC
+            </Link>
+          </VStack>
+
+          {/*{!isMobile && (*/}
+          {/*  <Center>*/}
+          {/*    <ExchangeLogo boxSize={{ base: "xs", md: "xl" }} />*/}
+          {/*  </Center>*/}
+          {/*)}*/}
+
+          <Box mt={40}>
+            <Heading
+              fontSize={{ base: "30px", md: "50px" }}
+              letterSpacing={"tight"}
+            >
+              What our users have to say
+            </Heading>
+          </Box>
+          <Box pt="10">
+            <Testimonials />
+          </Box>
+
           <Box pt="20" fontSize="14px" fontWeight="medium">
             Trouble Buying?
           </Box>
-
           <Box pt="4">
             <Link
               href="https://support.sendwyre.com/hc/en-us/requests/new?ticket_form_id=1500000865321"
@@ -165,30 +272,24 @@ function Intro(props: RouteComponentProps) {
               fontSize="13px"
               fontWeight="medium"
               textDecoration="underline"
+              color={"gray.500"}
             >
               Report to Wyre
             </Link>
           </Box>
-          <Box pt="6">
+          <Box pt="3">
             <Link
               href="https://discord.gg/ntU4GhfEFP"
               isExternal
               cursor="pointer"
               fontSize="13px"
               fontWeight="medium"
+              color={"gray.500"}
               textDecoration="underline"
             >
-              Let us know
+              Let us know in Discord
             </Link>
           </Box>
-          {!isMobile && (
-            <Center>
-              <ExchangeLogo boxSize={{ base: "xs", md: "xl" }} />
-            </Center>
-          )}
-          <Center>
-            <Testimonials />
-          </Center>
         </Box>
       </Center>
     </Container>
