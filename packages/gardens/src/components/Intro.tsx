@@ -12,6 +12,11 @@ import {
   useColorModeValue,
   useColorMode,
   HStack,
+  AccordionPanel,
+  AccordionIcon,
+  AccordionButton,
+  AccordionItem,
+  Accordion,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, Icon } from "@chakra-ui/icons";
 import React from "react";
@@ -31,6 +36,7 @@ import {
 } from "react-icons/all";
 import PotSaleCountdown from "./PotSaleCountdown";
 import Testimonials from "./Testimonials";
+import { isMobile } from "react-device-detect";
 
 function Intro(props: RouteComponentProps) {
   const { colorMode } = useColorMode();
@@ -44,7 +50,40 @@ function Intro(props: RouteComponentProps) {
         borderRadius="2xl"
         maxW={{ base: "container.sm", md: "container.lg" }}
       >
-        <PotSaleCountdown />
+        <Container
+          mt={isMobile ? 30 : 50}
+          p={5}
+          flex="1"
+          borderRadius="2xl"
+          maxW="container.lg"
+        >
+          <Center>
+            <Box
+              maxW="60rem"
+              // mb={8}
+              textAlign={"center"}
+            >
+              <Heading
+                fontSize={{ base: "30px", md: "72px" }}
+                letterSpacing={"tight"}
+                mt={{ base: 8 }}
+              >
+                Paper Gardens
+              </Heading>
+              <Box maxW="60rem" textAlign={"center"} mt={2}>
+                <Text
+                  fontSize={{ base: "20px", md: "30px" }}
+                  fontWeight="semibold"
+                  color={useColorModeValue("gray.500", "gray.400")}
+                >
+                  {!isMobile
+                    ? "NFT series for the builders, innovators and thinkers"
+                    : "NFT series for the builders, innovators and thinkers"}
+                </Text>
+              </Box>
+            </Box>
+          </Center>
+        </Container>
         <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
           <Box>
             {/*<PotSaleCountdown />*/}
@@ -87,21 +126,20 @@ function Intro(props: RouteComponentProps) {
                 rest
               </Text>
             </Heading>
-
             <Text textStyle={"description"}>
-              Builders, innovators, thinkers.
+              Builders, innovators, and thinkers are like Shrubs. Powerful,
+              strong, and sturdy.
+            </Text>{" "}
+            <Text textStyle={"description"}>
+              Shrub NFTs personifies those who stand apart from the crowd. Who
+              take the first step down a new road. Who see freedom as essential
+              to everything good. Who understand the importance of putting
+              individuals in control of their money.
             </Text>
+            <Text textStyle={"description"}></Text>
             <Text textStyle={"description"}>
-              Shrub holders believe in freedom and putting the control back in
-              the hands of the individuals.
-            </Text>
-            <Text textStyle={"description"}>
-              Shrub holders are builders dedicated to the cause of
-              decentralization.
-            </Text>
-            <Text textStyle={"description"}>
-              Shrub holders understand its importance, and focus their efforts
-              on building that future.
+              Paper Gardens brings together the earlys, the legends, and the
+              myths dedicated to the cause of decentralization.
             </Text>
           </Box>
           <Box mt={{ base: 0, md: 64 }}>
@@ -128,7 +166,7 @@ function Intro(props: RouteComponentProps) {
           maxW="40rem"
           mb={14}
         >
-          Those who make make it{" "}
+          What Shrub Holders have to{" "}
           <Text
             as="span"
             background="gold.100"
@@ -140,8 +178,8 @@ function Intro(props: RouteComponentProps) {
                   : "transparent",
             }}
           >
-            possible
-          </Text>
+            say
+          </Text>{" "}
         </Heading>
 
         <Testimonials />
@@ -175,9 +213,9 @@ function Intro(props: RouteComponentProps) {
                       : "transparent",
                 }}
               >
-                Grow
+                Growing
               </Text>{" "}
-              your Shrub
+              a Shrub
             </Heading>
             <Text textStyle={"description"}>
               Take care of your potted plant to help it grow.
@@ -246,9 +284,9 @@ function Intro(props: RouteComponentProps) {
                       : "transparent",
                 }}
               >
-                Harvest
+                Harvesting
               </Text>{" "}
-              your Shrub
+              a Shrub
             </Heading>
             <Text textStyle={"description"}>
               Once your potted plant is fully grown it is time to harvest.
@@ -435,7 +473,7 @@ function Intro(props: RouteComponentProps) {
               letterSpacing={"tight"}
               maxW={{ base: "20rem", md: "40rem" }}
             >
-              Experience first{" "}
+              The first{" "}
               <Text
                 as="span"
                 background="gold.100"
@@ -449,7 +487,7 @@ function Intro(props: RouteComponentProps) {
               >
                 on-chain
               </Text>{" "}
-              growth
+              growth NFT
             </Heading>
             <Text textStyle={"description"}>
               For the first time ever,{" "}
@@ -489,137 +527,6 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
-
-      {/*faqs*/}
-      {/*<Container*/}
-      {/*  mt={{ base: 0, md: 50 }}*/}
-      {/*  p={5}*/}
-      {/*  flex="1"*/}
-      {/*  borderRadius="2xl"*/}
-      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
-      {/*>*/}
-      {/*  <Flex direction={{ base: "column", md: "column", lg: "row" }}>*/}
-      {/*    <Box*/}
-      {/*      mt={{ base: 0, md: 50 }}*/}
-      {/*      display={{*/}
-      {/*        base: "none",*/}
-      {/*        md: "none",*/}
-      {/*        lg: "flex",*/}
-      {/*        xl: "flex",*/}
-      {/*        "2xl": "flex",*/}
-      {/*      }}*/}
-      {/*    >*/}
-      {/*      <Image*/}
-      {/*        maxW="40rem"*/}
-      {/*        maxH="48rem"*/}
-      {/*        src="https://shrub.finance/funky-pineapple-shrub.webp"*/}
-      {/*        fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"*/}
-      {/*        alt="pineapple"*/}
-      {/*      />*/}
-      {/*    </Box>*/}
-      {/*    <Spacer*/}
-      {/*      display={{*/}
-      {/*        base: "none",*/}
-      {/*        md: "none",*/}
-      {/*        lg: "flex",*/}
-      {/*        xl: "flex",*/}
-      {/*        "2xl": "flex",*/}
-      {/*      }}*/}
-      {/*    />*/}
-      {/*    <Box mt={{ base: 0, md: 8 }} id="faqs">*/}
-      {/*      <Heading*/}
-      {/*        fontSize={{ base: "30px", md: "70px" }}*/}
-      {/*        letterSpacing={"tight"}*/}
-      {/*        maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}*/}
-      {/*      >*/}
-      {/*        FAQs*/}
-      {/*      </Heading>*/}
-      {/*      <Accordion*/}
-      {/*        allowToggle*/}
-      {/*        maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
-      {/*      >*/}
-      {/*        <AccordionItem>*/}
-      {/*          <AccordionButton>*/}
-      {/*            <Text*/}
-      {/*              mt="3"*/}
-      {/*              fontSize={{ base: "20px", md: "28px" }}*/}
-      {/*              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
-      {/*              fontWeight={{ base: "semibold", md: "medium" }}*/}
-      {/*              textAlign={"left"}*/}
-      {/*            >*/}
-      {/*              Where can I learn more about the series ?*/}
-      {/*            </Text>*/}
-      {/*            <AccordionIcon />*/}
-      {/*          </AccordionButton>*/}
-      {/*          <AccordionPanel pb={4}>*/}
-      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
-      {/*              {" "}*/}
-      {/*              250 pots.*/}
-      {/*            </Text>*/}
-      {/*          </AccordionPanel>*/}
-      {/*        </AccordionItem>*/}
-      {/*        <AccordionItem>*/}
-      {/*          <AccordionButton>*/}
-      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
-      {/*              What would it mean to have a fully grown Shrub?*/}
-      {/*            </Text>*/}
-      {/*            <AccordionIcon />*/}
-      {/*          </AccordionButton>*/}
-      {/*          <AccordionPanel pb={4}>*/}
-      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
-      {/*              Shrub NFTs are Shrub Finance’s genesis NFT.*/}
-      {/*            </Text>*/}
-      {/*            <Text*/}
-      {/*              mt="3"*/}
-      {/*              fontSize={{ base: "20px", md: "20px" }}*/}
-      {/*              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
-      {/*              fontWeight={{ base: "semibold", md: "medium" }}*/}
-      {/*              textAlign={"left"}*/}
-      {/*            >*/}
-      {/*              {" "}*/}
-      {/*              They will grant holders the highest status in the Shrub*/}
-      {/*              ecosystem, access to future drops, special airdrops, and*/}
-      {/*              early access to new products.*/}
-      {/*            </Text>*/}
-      {/*            <Text*/}
-      {/*              mt="3"*/}
-      {/*              fontSize={{ base: "20px", md: "20px" }}*/}
-      {/*              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
-      {/*              fontWeight={{ base: "semibold", md: "medium" }}*/}
-      {/*              textAlign={"left"}*/}
-      {/*            >*/}
-      {/*              <Link*/}
-      {/*                isExternal*/}
-      {/*                textDecoration={"underline"}*/}
-      {/*                href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"*/}
-      {/*              >*/}
-      {/*                Read Shrub roadmap*/}
-      {/*              </Link>*/}
-      {/*            </Text>*/}
-      {/*          </AccordionPanel>*/}
-      {/*        </AccordionItem>*/}
-      {/*        <AccordionItem>*/}
-      {/*          <AccordionButton>*/}
-      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
-      {/*              Will my NFTs be stored on-chain?*/}
-      {/*            </Text>*/}
-      {/*            <AccordionIcon />*/}
-      {/*          </AccordionButton>*/}
-      {/*          <AccordionPanel pb={4}>*/}
-      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
-      {/*              The latest in NFT technology is being used to store all*/}
-      {/*              metadata for pots and shrubs on-chain dynamically.*/}
-      {/*            </Text>*/}
-      {/*            <Text textStyle={"description"} textAlign={"left"}>*/}
-      {/*              All art is stored on a redundant Inter-Planetary File System*/}
-      {/*              (IPFS) setup. It's not going anywhere.*/}
-      {/*            </Text>*/}
-      {/*          </AccordionPanel>*/}
-      {/*        </AccordionItem>*/}
-      {/*      </Accordion>*/}
-      {/*    </Box>*/}
-      {/*  </Flex>*/}
-      {/*</Container>*/}
 
       {/*roadmap*/}
       <Container
@@ -710,7 +617,7 @@ function Intro(props: RouteComponentProps) {
                   "https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
                 }
               >
-                Detailed Shrub Roadmap
+                Learn more
               </Link>
             </Text>
           </Box>
@@ -805,7 +712,8 @@ function Intro(props: RouteComponentProps) {
             letterSpacing={"tight"}
             mb={16}
           >
-            Be the difference. Join Mission Shrub.
+            Be the difference. <br />
+            Join mission Shrub.
           </Heading>
           <Center>
             <Flex
@@ -832,11 +740,11 @@ function Intro(props: RouteComponentProps) {
                   background="gold.100"
                   color={"black"}
                 >
-                  Join Discord{" "}
-                  <ExternalLinkIcon
-                    mx="2px"
-                    display={{ base: "none", md: "inline" }}
-                  />
+                  Join Discord
+                  {/*<ExternalLinkIcon*/}
+                  {/*  mx="2px"*/}
+                  {/*  display={{ base: "none", md: "inline" }}*/}
+                  {/*/>*/}
                 </Link>
                 <Center>
                   <Text mt={8}>Connect with the community</Text>
@@ -858,11 +766,11 @@ function Intro(props: RouteComponentProps) {
                   background="gold.100"
                   color={"black"}
                 >
-                  Follow on Twitter{" "}
-                  <ExternalLinkIcon
-                    mx="2px"
-                    display={{ base: "none", md: "inline" }}
-                  />
+                  Follow on Twitter
+                  {/*<ExternalLinkIcon*/}
+                  {/*  mx="2px"*/}
+                  {/*  display={{ base: "none", md: "inline" }}*/}
+                  {/*/>*/}
                 </Link>
                 <Center>
                   <Text mt={8}>Official announcements</Text>
@@ -871,6 +779,194 @@ function Intro(props: RouteComponentProps) {
             </Flex>
           </Center>
         </Box>
+      </Container>
+
+      {/*faqs*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Flex direction={{ base: "column", md: "column", lg: "row" }}>
+          <Box
+            mt={{ base: 0, md: 50 }}
+            display={{
+              base: "none",
+              md: "none",
+              lg: "flex",
+              xl: "flex",
+              "2xl": "flex",
+            }}
+          >
+            <Image
+              maxW="40rem"
+              maxH="48rem"
+              src="https://shrub.finance/funky-pineapple-shrub.webp"
+              fallbackSrc="https://shrub.finance/funky-pineapple-shrub.png"
+              alt="pineapple"
+            />
+          </Box>
+          <Spacer
+            display={{
+              base: "none",
+              md: "none",
+              lg: "flex",
+              xl: "flex",
+              "2xl": "flex",
+            }}
+          />
+          <Box mt={{ base: 0, md: 8 }} id="faqs">
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW={{ base: "40rem", md: "60rem", lg: "40rem" }}
+            >
+              FAQs
+            </Heading>
+            <Accordion
+              allowToggle
+              maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+            >
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Can I still participate in the series ?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    {" "}
+                    We welcome all builders, innovators, and thinkers to come
+                    and join mission Shrub. You can start your journey by buying
+                    a seed from{" "}
+                    <Link
+                      isExternal
+                      textDecoration={"underline"}
+                      href="https://opensea.io/collection/shrub-paper-gardens-seeds"
+                    >
+                      OpenSea
+                    </Link>
+                    . We are not selling anymore pots, but you can buy a pot
+                    from{" "}
+                    <Link
+                      isExternal
+                      textDecoration={"underline"}
+                      href="https://opensea.io/collection/shrub-paper-gardens"
+                    >
+                      OpenSea
+                    </Link>{" "}
+                    to plant your seed.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text textStyle={"description"} textAlign={"left"}>
+                    What does having a fully grown Shrub mean?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    {" "}
+                    Shrub holders hold the highest status in the Shrub
+                    ecosystem, and early access to future products.
+                  </Text>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    <Link
+                      isExternal
+                      textDecoration={"underline"}
+                      href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
+                    >
+                      Read Shrub roadmap
+                    </Link>
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text textStyle={"description"} textAlign={"left"}>
+                    Why are there so few pots?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Growing a Shrub is special. To make it special only few pots
+                    were put up for sale.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <AccordionButton>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "28px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    Where can I learn more about the series ?
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <Text
+                    mt="3"
+                    fontSize={{ base: "20px", md: "20px" }}
+                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
+                    fontWeight={{ base: "semibold", md: "medium" }}
+                    textAlign={"left"}
+                  >
+                    {" "}
+                    Read the{" "}
+                    <Link
+                      isExternal
+                      textDecoration={"underline"}
+                      href="https://medium.com/@shrubfinance/building-a-web3-community-shrubs-growth-story-60f770f214d1"
+                    >
+                      full growth story of Shrub here
+                    </Link>
+                    . You can also follow us on Twitter and Discord.
+                  </Text>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
+          </Box>
+        </Flex>
       </Container>
       {/*<Container*/}
       {/*  p={5}*/}
