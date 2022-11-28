@@ -131,7 +131,7 @@ function Intro(props: RouteComponentProps) {
               strong, and sturdy.
             </Text>{" "}
             <Text textStyle={"description"}>
-              Shrub NFTs personifies those who stand apart from the crowd. Who
+              Shrub NFT personifies those who stand apart from the crowd. Who
               take the first step down a new road. Who see freedom as essential
               to everything good. Who understand the importance of putting
               individuals in control of their money.
@@ -851,18 +851,17 @@ function Intro(props: RouteComponentProps) {
                     textAlign={"left"}
                   >
                     {" "}
-                    We welcome all builders, innovators, and thinkers to come
-                    and join mission Shrub. You can start your journey by buying
-                    a seed from{" "}
+                    All builders, innovators, and thinkers are welcome to join
+                    mission Shrub. To start your journey you can by buy a seed
+                    from{" "}
                     <Link
                       isExternal
                       textDecoration={"underline"}
                       href="https://opensea.io/collection/shrub-paper-gardens-seeds"
                     >
-                      OpenSea
+                      OpenSea.
                     </Link>
-                    . We are not selling anymore pots, but you can buy a pot
-                    from{" "}
+                    Pots are not on sale anymore, but you can buy a pot from{" "}
                     <Link
                       isExternal
                       textDecoration={"underline"}
