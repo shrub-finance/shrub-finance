@@ -46,8 +46,8 @@ function PotSaleCountdown() {
               color={useColorModeValue("gray.500", "gray.400")}
             >
               {!isMobile
-                ? "An NFT series for builders and innovators"
-                : "An NFT series for builders and innovators"}
+                ? "NFT series for the builders, innovators and thinkers"
+                : "NFT series for the builders, innovators and thinkers"}
             </Text>
           </Box>
         </Box>

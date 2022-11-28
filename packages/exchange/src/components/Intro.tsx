@@ -254,7 +254,7 @@ function Intro(props: RouteComponentProps) {
               fontSize={{ base: "30px", md: "50px" }}
               letterSpacing={"tight"}
             >
-              What our users have to say
+              What Shrub users have to say
             </Heading>
           </Box>
           <Box pt="10">
