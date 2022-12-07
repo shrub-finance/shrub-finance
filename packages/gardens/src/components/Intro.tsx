@@ -897,9 +897,9 @@ function Intro(props: RouteComponentProps) {
                     textAlign={"left"}
                   >
                     {" "}
-                    We welcome all builders, innovators, and thinkers to come
-                    and join mission Shrub. You can start your journey by buying
-                    a seed from{" "}
+                    All builders, innovators, and thinkers are welcome to join
+                    mission Shrub. To start your journey you can by buy a seed
+                    from other sellers in{" "}
                     <Link
                       isExternal
                       textDecoration={"underline"}
@@ -913,9 +913,9 @@ function Intro(props: RouteComponentProps) {
                       textDecoration={"underline"}
                       href="https://opensea.io/collection/shrub-paper-gardens"
                     >
-                      OpenSea
+                      the secondary marketplace,
                     </Link>{" "}
-                    to plant your seed.
+                    plant your seed and grow a Shrub!
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
