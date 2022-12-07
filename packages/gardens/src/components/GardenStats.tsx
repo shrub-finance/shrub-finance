@@ -19,6 +19,7 @@ import {
   Td,
   Heading,
   useBreakpointValue,
+  Link,
 } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { GARDENS_STATS_QUERY } from "../constants/queries";
@@ -176,6 +177,14 @@ function GardenStats() {
           <TableCaption>
             <Text fontSize={"md"}>Total Planted: {getTotalPlanted()}</Text>
             <Text fontSize={"md"}>Shrubs Harvested: {getTotalHarvested()}</Text>
+            <Link
+              fontSize={"md"}
+              textDecoration={"underline"}
+              href="https://opensea.io/collection/shrub-paper-gardens"
+              isExternal
+            >
+              View Collection
+            </Link>
           </TableCaption>
           <Tbody>
             <Tr>
@@ -298,6 +307,16 @@ function GardenStats() {
       </Center>
       <Center>
         <Table variant="simple" size="sm">
+          <TableCaption>
+            <Link
+              fontSize="14px"
+              textDecoration={"underline"}
+              href="https://opensea.io/collection/shrub-paper-gardens"
+              isExternal
+            >
+              View Collection
+            </Link>
+          </TableCaption>
           <Thead>
             <Tr>
               <Th display={{ base: "none", md: "block" }}>Number</Th>

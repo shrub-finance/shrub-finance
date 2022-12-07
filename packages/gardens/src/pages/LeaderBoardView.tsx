@@ -197,11 +197,12 @@ function LeaderBoardView(props: RouteComponentProps) {
             <TableCaption>
               <Link
                 fontSize="14px"
+                textDecoration={"underline"}
                 href="https://opensea.io/collection/shrub-paper-gardens"
                 isExternal
                 onClick={handleGA}
               >
-                View in Open Sea
+                View Collection
               </Link>
             </TableCaption>
             <Thead>

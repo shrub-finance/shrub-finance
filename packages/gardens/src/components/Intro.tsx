@@ -127,19 +127,32 @@ function Intro(props: RouteComponentProps) {
               </Text>
             </Heading>
             <Text textStyle={"description"}>
-              Builders, innovators, and thinkers are like Shrubs. Powerful,
-              strong, and sturdy.
-            </Text>{" "}
-            <Text textStyle={"description"}>
-              Shrub NFTs personifies those who stand apart from the crowd. Who
-              take the first step down a new road. Who see freedom as essential
-              to everything good. Who understand the importance of putting
-              individuals in control of their money.
+              Paper Gardens brings together the earlys, the legends, the myths
+              dedicated to the cause of decentralization.
             </Text>
-            <Text textStyle={"description"}></Text>
+
             <Text textStyle={"description"}>
-              Paper Gardens brings together the earlys, the legends, and the
-              myths dedicated to the cause of decentralization.
+              This series personifies those who stand apart from the crowd.
+            </Text>
+            <Text textStyle={"description"}>
+              {" "}
+              Who take first steps down a new road.
+            </Text>
+            <Text textStyle={"description"}>
+              {" "}
+              Who see freedom as essential to everything.
+            </Text>
+            <Text textStyle={"description"}>
+              {" "}
+              Who want individuals in control of their money.
+            </Text>
+            <Text textStyle={"description"}>
+              <Link
+                textDecoration={"underline"}
+                href={"https://opensea.io/collection/shrub-paper-gardens"}
+              >
+                View Collection
+              </Link>
             </Text>
           </Box>
           <Box mt={{ base: 0, md: 64 }}>
@@ -152,9 +165,93 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
+
+      {/*first on chain growth*/}
+      <Container
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Flex
+          direction={{
+            base: "column",
+            md: "column",
+            lg: "column",
+            xl: "column",
+          }}
+        >
+          <Box>
+            <Heading
+              fontSize={{ base: "30px", md: "70px" }}
+              letterSpacing={"tight"}
+              maxW={{ base: "20rem", md: "40rem" }}
+            >
+              First{" "}
+              <Text
+                as="span"
+                background="gold.100"
+                bgClip="text"
+                sx={{
+                  WebkitTextStroke:
+                    colorMode === "light"
+                      ? { base: "1px #7e5807", md: "2px #7e5807" }
+                      : "transparent",
+                }}
+              >
+                on-chain
+              </Text>{" "}
+              growth NFT
+            </Heading>
+            <Text textStyle={"description"}>
+              For the first time ever,{" "}
+              <Link
+                isExternal
+                textDecoration={"underline"}
+                href="https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
+              >
+                grow an NFT by interacting with it on-chain.
+              </Link>
+            </Text>
+            <Text textStyle={"description"}>
+              Planting your seed into a pot creates a potted plant.
+            </Text>
+            <Text textStyle={"description"}>
+              <Link
+                textDecoration={"underline"}
+                href={"https://opensea.io/collection/shrub-paper-gardens"}
+              >
+                View Collection
+              </Link>
+            </Text>
+          </Box>
+          <Spacer />
+          <Box mt={{ base: 20, md: 32 }}>
+            <Link
+              isExternal
+              href={"https://opensea.io/collection/shrub-paper-gardens"}
+            >
+              <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
+                <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Icon
+                  as={FaPlus}
+                  boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
+                />
+                <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Icon
+                  as={FaLongArrowAltRight}
+                  boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
+                />
+
+                <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+              </HStack>
+            </Link>
+          </Box>
+        </Flex>
+      </Container>
       {/*testimonials*/}
       <Container
-        // mt={{ base: 0, md: 50 }}
+        mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
@@ -165,8 +262,9 @@ function Intro(props: RouteComponentProps) {
           letterSpacing={"tight"}
           maxW="40rem"
           mb={14}
+          mt={{ base: 0, md: 50 }}
         >
-          What Shrub Holders have to{" "}
+          Community{" "}
           <Text
             as="span"
             background="gold.100"
@@ -178,7 +276,7 @@ function Intro(props: RouteComponentProps) {
                   : "transparent",
             }}
           >
-            say
+            love
           </Text>{" "}
         </Heading>
 
@@ -213,7 +311,7 @@ function Intro(props: RouteComponentProps) {
                       : "transparent",
                 }}
               >
-                Growing
+                Grow
               </Text>{" "}
               a Shrub
             </Heading>
@@ -227,6 +325,14 @@ function Intro(props: RouteComponentProps) {
             <Text textStyle={"description"}>
               Traits of your potted plant will update dynamically when you
               interact with it!
+            </Text>
+            <Text textStyle={"description"}>
+              <Link
+                textDecoration={"underline"}
+                href={"https://opensea.io/collection/shrub-paper-gardens"}
+              >
+                View Collection
+              </Link>
             </Text>
           </Box>
           <Spacer />
@@ -284,7 +390,7 @@ function Intro(props: RouteComponentProps) {
                       : "transparent",
                 }}
               >
-                Harvesting
+                Harvest
               </Text>{" "}
               a Shrub
             </Heading>
@@ -297,6 +403,14 @@ function Intro(props: RouteComponentProps) {
               and DNA. Some combinations result in rare traits!
             </Text>
             <Text textStyle={"description"}>Every Shrub is unique.</Text>
+            <Text textStyle={"description"}>
+              <Link
+                textDecoration={"underline"}
+                href={"https://opensea.io/collection/shrub-paper-gardens"}
+              >
+                View Collection
+              </Link>
+            </Text>
           </Box>
           <Spacer />
           <Box mt={20}>
@@ -356,13 +470,21 @@ function Intro(props: RouteComponentProps) {
                 textDecoration={"underline"}
                 href={"https://gardens.shrub.finance/chapters"}
               >
-                Read all the chapters here.
+                Read all the chapters.
               </Link>
             </Text>
             <Text textStyle={"description"}>
               When seeds were ready to transform and grow, potter came to help.
               He put a limited supply of pots into existence. To grow and
               transform seeds need to be planted in a pot.
+            </Text>
+            <Text textStyle={"description"}>
+              <Link
+                textDecoration={"underline"}
+                href={"https://opensea.io/collection/shrub-paper-gardens"}
+              >
+                View Collection
+              </Link>
             </Text>
           </Box>
           <Spacer display={{ base: "flex", md: "flex", lg: "none" }} />
@@ -451,82 +573,6 @@ function Intro(props: RouteComponentProps) {
       {/*    </Box>*/}
       {/*  </Flex>*/}
       {/*</Container>*/}
-
-      {/*first on chain growth*/}
-      <Container
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Flex
-          direction={{
-            base: "column",
-            md: "column",
-            lg: "column",
-            xl: "column",
-          }}
-        >
-          <Box>
-            <Heading
-              fontSize={{ base: "30px", md: "70px" }}
-              letterSpacing={"tight"}
-              maxW={{ base: "20rem", md: "40rem" }}
-            >
-              The first{" "}
-              <Text
-                as="span"
-                background="gold.100"
-                bgClip="text"
-                sx={{
-                  WebkitTextStroke:
-                    colorMode === "light"
-                      ? { base: "1px #7e5807", md: "2px #7e5807" }
-                      : "transparent",
-                }}
-              >
-                on-chain
-              </Text>{" "}
-              growth NFT
-            </Heading>
-            <Text textStyle={"description"}>
-              For the first time ever,{" "}
-              <Link
-                isExternal
-                textDecoration={"underline"}
-                href="https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
-              >
-                grow an NFT by interacting with it on-chain.
-              </Link>
-            </Text>
-            <Text textStyle={"description"}>
-              Planting your seed into a pot creates a potted plant.
-            </Text>
-          </Box>
-          <Spacer />
-          <Box mt={{ base: 20, md: 32 }}>
-            <Link
-              isExternal
-              href={"https://opensea.io/collection/shrub-paper-gardens"}
-            >
-              <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
-                <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-                <Icon
-                  as={FaPlus}
-                  boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
-                />
-                <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-                <Icon
-                  as={FaLongArrowAltRight}
-                  boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
-                />
-
-                <WonderPot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
-              </HStack>
-            </Link>
-          </Box>
-        </Flex>
-      </Container>
 
       {/*roadmap*/}
       <Container
@@ -859,10 +905,9 @@ function Intro(props: RouteComponentProps) {
                       textDecoration={"underline"}
                       href="https://opensea.io/collection/shrub-paper-gardens-seeds"
                     >
-                      OpenSea
-                    </Link>
-                    . We are not selling anymore pots, but you can buy a pot
-                    from{" "}
+                      OpenSea.
+                    </Link>{" "}
+                    We are not selling anymore pots, but you can buy a pot from{" "}
                     <Link
                       isExternal
                       textDecoration={"underline"}
@@ -877,7 +922,7 @@ function Intro(props: RouteComponentProps) {
               <AccordionItem>
                 <AccordionButton>
                   <Text textStyle={"description"} textAlign={"left"}>
-                    What does having a fully grown Shrub mean?
+                    What does being a Shrub Holder mean?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
@@ -890,8 +935,10 @@ function Intro(props: RouteComponentProps) {
                     textAlign={"left"}
                   >
                     {" "}
-                    Shrub holders hold the highest status in the Shrub
-                    ecosystem, and early access to future products.
+                    Shrub holders are our early supporters. Those who see the
+                    world just as we do. Shrub holders hold the highest status
+                    in the Shrub ecosystem. They will enjoy early access to all
+                    our future products.
                   </Text>
                   <Text
                     mt="3"
@@ -913,7 +960,7 @@ function Intro(props: RouteComponentProps) {
               <AccordionItem>
                 <AccordionButton>
                   <Text textStyle={"description"} textAlign={"left"}>
-                    Why are there so few pots?
+                    Why so few pots?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
@@ -926,7 +973,7 @@ function Intro(props: RouteComponentProps) {
                     textAlign={"left"}
                   >
                     Growing a Shrub is special. To make it special only few pots
-                    were put up for sale.
+                    came into existence.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
@@ -939,7 +986,7 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    Where can I learn more about the series ?
+                    Where to learn more about the series ?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
@@ -958,13 +1005,32 @@ function Intro(props: RouteComponentProps) {
                       textDecoration={"underline"}
                       href="https://medium.com/@shrubfinance/building-a-web3-community-shrubs-growth-story-60f770f214d1"
                     >
-                      full growth story of Shrub here
-                    </Link>
-                    . You can also follow us on Twitter and Discord.
+                      full growth story of Shrub.
+                    </Link>{" "}
+                    You can also follow us on Twitter and Discord.
                   </Text>
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
+            <Box mt={10}>
+              <Link
+                href="https://opensea.io/collection/shrub-paper-gardens"
+                isExternal
+                cursor="pointer"
+                size="sm"
+                fontWeight="semibold"
+                py="2"
+                _hover={{ transform: "translateY(-2px)" }}
+                bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
+                color={"black"}
+                rounded="2xl"
+                px="6"
+                fontSize="22px"
+                background="gold.100"
+              >
+                View Collection
+              </Link>
+            </Box>
           </Box>
         </Flex>
       </Container>

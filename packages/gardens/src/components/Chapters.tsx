@@ -177,16 +177,17 @@ function Chapters() {
               href="https://opensea.io/collection/shrub-paper-gardens"
               isExternal
               cursor="pointer"
-              rounded="3xl"
               size="sm"
-              px="6"
-              fontSize="25px"
               fontWeight="semibold"
               py="5"
               _hover={{ transform: "translateY(-2px)" }}
               bgGradient="linear(to-r, #88910e, #fcafc5, #e3d606)"
               color={"black"}
               onClick={handleGA}
+              rounded="2xl"
+              px="9"
+              fontSize="22px"
+              background="gold.100"
             >
               View Collection
             </Link>
