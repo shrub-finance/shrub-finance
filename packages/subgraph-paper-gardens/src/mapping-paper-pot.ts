@@ -66,7 +66,7 @@ function transfer(tokenId: BigInt, from: Address, to: Address, value: BigInt): v
     if (to.toHexString() != ZERO_ADDRESS) {
       incrementWaterCount(toUser, value);
     }
-  } else if (tokenId >= OneMillion) {
+  } else if (tokenId >= OneMillion && tokenId < TwoMillion) {
     // Case: Potted Plant
     if (from.toHexString() != ZERO_ADDRESS) {
       // skip the minting case and will be handled by the Plant event
