@@ -49,12 +49,12 @@ const MINUTES_BETWEEN_ORDERS = 5; // For maker2
 
 
 const expiryDates = [
-  new Date("2022-08-02"),
-  new Date("2022-09-02"),
-  new Date("2022-10-02"),
+  new Date("2023-03-02"),
+  new Date("2023-04-02"),
+  new Date("2023-05-02"),
 ];
-const callsArr = [0.8e6, 0.9e6, 1.0e6, 1.2e6];
-const putsArr = [0.7e6, 0.6e6, 0.5e6, 0.3e6];
+const callsArr = [1.4e6, 1.5e6, 1.7e6, 2e6];
+const putsArr = [1.3e6, 1.1e6, 0.9e6, 0.7e6];
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
