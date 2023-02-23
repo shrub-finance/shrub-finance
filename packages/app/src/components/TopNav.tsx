@@ -149,7 +149,7 @@ function TopNav() {
                 Docs
               </Link>
               <Link
-                href="https://discord.gg/KQ88Pc7q"
+                href="https://discord.gg/shrub-finance-880456636186128465"
                 isExternal
                 variant="ghost"
                 cursor="pointer"
