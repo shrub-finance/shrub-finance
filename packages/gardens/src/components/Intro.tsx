@@ -85,15 +85,19 @@ function Intro(props: RouteComponentProps) {
           </Center>
         </Container>
         <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
-          <Box>
-            {/*<PotSaleCountdown />*/}
-            {/*    <AspectRatio ratio={16 / 9}>*/}
-            {/*      <iframe*/}
-            {/*        title="Shrub Paper Gardens trailer"*/}
-            {/*        src="https://www.youtube.com/embed/9JBKPdFuBGE"*/}
-            {/*        allowFullScreen*/}
-            {/*      />*/}
-            {/*    </AspectRatio>*/}
+          <Box
+          // position={"relative"} overflow={"hidden"}
+          >
+            <AspectRatio
+              ratio={16 / 9}
+              // top={"-60px"}
+            >
+              <iframe
+                title="Shrub Paper Gardens trailer"
+                src="https://www.youtube.com/embed/9JBKPdFuBGE?autoplay=1&loop=1&showinfo=0&vq=hd1080&modestbranding=1&mute=1&playlist=9JBKPdFuBGE"
+                allowFullScreen
+              />
+            </AspectRatio>
           </Box>
         </Box>
       </Container>
@@ -248,39 +252,6 @@ function Intro(props: RouteComponentProps) {
             </Link>
           </Box>
         </Flex>
-      </Container>
-      {/*testimonials*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Heading
-          fontSize={{ base: "30px", md: "70px" }}
-          letterSpacing={"tight"}
-          maxW="40rem"
-          mb={14}
-          mt={{ base: 0, md: 50 }}
-        >
-          Community{" "}
-          <Text
-            as="span"
-            background="gold.100"
-            bgClip="text"
-            sx={{
-              WebkitTextStroke:
-                colorMode === "light"
-                  ? { base: "1px #7e5807", md: "2px #7e5807" }
-                  : "transparent",
-            }}
-          >
-            love
-          </Text>{" "}
-        </Heading>
-
-        <Testimonials />
       </Container>
 
       {/*grow your shrub*/}
@@ -498,6 +469,40 @@ function Intro(props: RouteComponentProps) {
         </Flex>
       </Container>
 
+      {/*testimonials*/}
+      <Container
+        mt={{ base: 0, md: 50 }}
+        p={5}
+        flex="1"
+        borderRadius="2xl"
+        maxW={{ base: "container.sm", md: "1400px" }}
+      >
+        <Heading
+          fontSize={{ base: "30px", md: "70px" }}
+          letterSpacing={"tight"}
+          maxW="40rem"
+          mb={14}
+          mt={{ base: 0, md: 50 }}
+        >
+          Community{" "}
+          <Text
+            as="span"
+            background="gold.100"
+            bgClip="text"
+            sx={{
+              WebkitTextStroke:
+                colorMode === "light"
+                  ? { base: "1px #7e5807", md: "2px #7e5807" }
+                  : "transparent",
+            }}
+          >
+            love
+          </Text>{" "}
+        </Heading>
+
+        <Testimonials />
+      </Container>
+
       {/*NFT Tickets*/}
       {/*<Container*/}
       {/*  mt={{ base: 0, md: 50 }}*/}
@@ -575,109 +580,109 @@ function Intro(props: RouteComponentProps) {
       {/*</Container>*/}
 
       {/*roadmap*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Flex direction={{ base: "column", md: "row", lg: "row" }}>
-          <Box mt={{ base: "0", md: "0", lg: "40" }} id="roadmap">
-            <Heading
-              fontSize={{ base: "30px", md: "70px" }}
-              letterSpacing={"tight"}
-              maxW="40rem"
-            >
-              Roadmap
-            </Heading>
-            <Link
-              mt="10"
-              display="block"
-              fontSize={{ base: "25px", md: "35px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight={{ base: "semibold", md: "semibold" }}
-              bgGradient={useColorModeValue(
-                "linear(to-l, black, black)",
-                "linear(to-l, #7db5ff, #de00ff)"
-              )}
-              bgClip="text"
-              isExternal
-              href="https://paper.shrub.finance"
-            >
-              Shrub Paper
-              <br /> [LIVE]
-            </Link>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"70"} />
-            <Link
-              display="block"
-              fontSize={{ base: "25px", md: "35px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight="semibold"
-              bgGradient={useColorModeValue(
-                "linear(to-l, black, black)",
-                "linear(to-l, #f5f2f2, #3300ff)"
-              )}
-              bgClip="text"
-              href="https://exchange.shrub.finance"
-              isExternal
-            >
-              Shrub Exchange
-              <br /> [LIVE]
-            </Link>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"70"} />
-            <Link
-              display="block"
-              fontSize={{ base: "25px", md: "35px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight="semibold"
-              bgGradient={useColorModeValue(
-                "linear(to-l, black, black)",
-                "linear(to-l, #ff6729, #73ff00)"
-              )}
-              bgClip="text"
-              isExternal
-              href="https://gardens.shrub.finance/my-garden"
-            >
-              Paper Gardens
-              <br /> [LIVE]
-            </Link>{" "}
-            <Icon as={IoEllipsisVertical} boxSize={"70"} />
-            <Text
-              fontSize={{ base: "25px", md: "35px" }}
-              maxW={{ base: "22rem", md: "40rem" }}
-              fontWeight="semibold"
-              bgGradient={useColorModeValue(
-                "linear(to-l, black, black)",
-                "linear(to-l, #c9ff04, #51eae6)"
-              )}
-              bgClip="text"
-            >
-              Shrub Main
-              <br /> [NEXT]
-            </Text>{" "}
-            <Text textStyle={"description"}>
-              <Link
-                textDecoration={"underline"}
-                href={
-                  "https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
-                }
-              >
-                Learn more
-              </Link>
-            </Text>
-          </Box>
-          <Spacer />
-          <Box mt={{ base: 0, md: 64 }}>
-            <Image
-              width={"50rem"}
-              src="https://shrub.finance/beany-hope.webp"
-              fallbackSrc="https://shrub.finance/beany-hope.png"
-              alt="Beany"
-            />
-          </Box>
-        </Flex>
-      </Container>
+      {/*<Container*/}
+      {/*  mt={{ base: 0, md: 50 }}*/}
+      {/*  p={5}*/}
+      {/*  flex="1"*/}
+      {/*  borderRadius="2xl"*/}
+      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
+      {/*>*/}
+      {/*  <Flex direction={{ base: "column", md: "row", lg: "row" }}>*/}
+      {/*    <Box mt={{ base: "0", md: "0", lg: "40" }} id="roadmap">*/}
+      {/*      <Heading*/}
+      {/*        fontSize={{ base: "30px", md: "70px" }}*/}
+      {/*        letterSpacing={"tight"}*/}
+      {/*        maxW="40rem"*/}
+      {/*      >*/}
+      {/*        Roadmap*/}
+      {/*      </Heading>*/}
+      {/*      <Link*/}
+      {/*        mt="10"*/}
+      {/*        display="block"*/}
+      {/*        fontSize={{ base: "25px", md: "35px" }}*/}
+      {/*        maxW={{ base: "22rem", md: "40rem" }}*/}
+      {/*        fontWeight={{ base: "semibold", md: "semibold" }}*/}
+      {/*        bgGradient={useColorModeValue(*/}
+      {/*          "linear(to-l, black, black)",*/}
+      {/*          "linear(to-l, #7db5ff, #de00ff)"*/}
+      {/*        )}*/}
+      {/*        bgClip="text"*/}
+      {/*        isExternal*/}
+      {/*        href="https://paper.shrub.finance"*/}
+      {/*      >*/}
+      {/*        Shrub Paper*/}
+      {/*        <br /> [LIVE]*/}
+      {/*      </Link>{" "}*/}
+      {/*      <Icon as={IoEllipsisVertical} boxSize={"70"} />*/}
+      {/*      <Link*/}
+      {/*        display="block"*/}
+      {/*        fontSize={{ base: "25px", md: "35px" }}*/}
+      {/*        maxW={{ base: "22rem", md: "40rem" }}*/}
+      {/*        fontWeight="semibold"*/}
+      {/*        bgGradient={useColorModeValue(*/}
+      {/*          "linear(to-l, black, black)",*/}
+      {/*          "linear(to-l, #f5f2f2, #3300ff)"*/}
+      {/*        )}*/}
+      {/*        bgClip="text"*/}
+      {/*        href="https://exchange.shrub.finance"*/}
+      {/*        isExternal*/}
+      {/*      >*/}
+      {/*        Shrub Exchange*/}
+      {/*        <br /> [LIVE]*/}
+      {/*      </Link>{" "}*/}
+      {/*      <Icon as={IoEllipsisVertical} boxSize={"70"} />*/}
+      {/*      <Link*/}
+      {/*        display="block"*/}
+      {/*        fontSize={{ base: "25px", md: "35px" }}*/}
+      {/*        maxW={{ base: "22rem", md: "40rem" }}*/}
+      {/*        fontWeight="semibold"*/}
+      {/*        bgGradient={useColorModeValue(*/}
+      {/*          "linear(to-l, black, black)",*/}
+      {/*          "linear(to-l, #ff6729, #73ff00)"*/}
+      {/*        )}*/}
+      {/*        bgClip="text"*/}
+      {/*        isExternal*/}
+      {/*        href="https://gardens.shrub.finance/my-garden"*/}
+      {/*      >*/}
+      {/*        Paper Gardens*/}
+      {/*        <br /> [LIVE]*/}
+      {/*      </Link>{" "}*/}
+      {/*      <Icon as={IoEllipsisVertical} boxSize={"70"} />*/}
+      {/*      <Text*/}
+      {/*        fontSize={{ base: "25px", md: "35px" }}*/}
+      {/*        maxW={{ base: "22rem", md: "40rem" }}*/}
+      {/*        fontWeight="semibold"*/}
+      {/*        bgGradient={useColorModeValue(*/}
+      {/*          "linear(to-l, black, black)",*/}
+      {/*          "linear(to-l, #c9ff04, #51eae6)"*/}
+      {/*        )}*/}
+      {/*        bgClip="text"*/}
+      {/*      >*/}
+      {/*        Shrub Main*/}
+      {/*        <br /> [NEXT]*/}
+      {/*      </Text>{" "}*/}
+      {/*      <Text textStyle={"description"}>*/}
+      {/*        <Link*/}
+      {/*          textDecoration={"underline"}*/}
+      {/*          href={*/}
+      {/*            "https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"*/}
+      {/*          }*/}
+      {/*        >*/}
+      {/*          Learn more*/}
+      {/*        </Link>*/}
+      {/*      </Text>*/}
+      {/*    </Box>*/}
+      {/*    <Spacer />*/}
+      {/*    <Box mt={{ base: 0, md: 64 }}>*/}
+      {/*      <Image*/}
+      {/*        width={"50rem"}*/}
+      {/*        src="https://shrub.finance/beany-hope.webp"*/}
+      {/*        fallbackSrc="https://shrub.finance/beany-hope.png"*/}
+      {/*        alt="Beany"*/}
+      {/*      />*/}
+      {/*    </Box>*/}
+      {/*  </Flex>*/}
+      {/*</Container>*/}
 
       {/*partnerships*/}
       <Container
@@ -940,21 +945,21 @@ function Intro(props: RouteComponentProps) {
                     in the Shrub ecosystem. They will enjoy early access to all
                     our future products.
                   </Text>
-                  <Text
-                    mt="3"
-                    fontSize={{ base: "20px", md: "20px" }}
-                    maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}
-                    fontWeight={{ base: "semibold", md: "medium" }}
-                    textAlign={"left"}
-                  >
-                    <Link
-                      isExternal
-                      textDecoration={"underline"}
-                      href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
-                    >
-                      Read Shrub roadmap
-                    </Link>
-                  </Text>
+                  {/*<Text*/}
+                  {/*  mt="3"*/}
+                  {/*  fontSize={{ base: "20px", md: "20px" }}*/}
+                  {/*  maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
+                  {/*  fontWeight={{ base: "semibold", md: "medium" }}*/}
+                  {/*  textAlign={"left"}*/}
+                  {/*>*/}
+                  {/*  <Link*/}
+                  {/*    isExternal*/}
+                  {/*    textDecoration={"underline"}*/}
+                  {/*    href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"*/}
+                  {/*  >*/}
+                  {/*    Read Shrub roadmap*/}
+                  {/*  </Link>*/}
+                  {/*</Text>*/}
                 </AccordionPanel>
               </AccordionItem>
               <AccordionItem>
