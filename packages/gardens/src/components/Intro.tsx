@@ -86,12 +86,10 @@ function Intro(props: RouteComponentProps) {
         </Container>
         <Box maxW="80rem" mb={4} textAlign={{ base: "center", md: "center" }}>
           <Box
-          // position={"relative"} overflow={"hidden"}
+            position={["static", "relative", "relative"]}
+            overflow={["inherit", "hidden", "hidden"]}
           >
-            <AspectRatio
-              ratio={16 / 9}
-              // top={"-60px"}
-            >
+            <AspectRatio ratio={16 / 9} top={["0", "-60px", "-60px"]}>
               <iframe
                 title="Shrub Paper Gardens trailer"
                 src="https://www.youtube.com/embed/9JBKPdFuBGE?autoplay=1&loop=1&showinfo=0&vq=hd1080&modestbranding=1&mute=1&playlist=9JBKPdFuBGE"
@@ -102,7 +100,6 @@ function Intro(props: RouteComponentProps) {
         </Box>
       </Container>
       <Container
-        // mt={{ base: 0, md: 50 }}
         p={5}
         flex="1"
         borderRadius="2xl"
@@ -236,12 +233,13 @@ function Intro(props: RouteComponentProps) {
               href={"https://opensea.io/collection/shrub-paper-gardens"}
             >
               <HStack ml={{ base: 0, md: 0, lg: 60, xl: 400 }}>
-                <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
                 <Icon
                   as={FaPlus}
                   boxSize={{ base: 10, md: 16, lg: 16, xl: 16 }}
                 />
-                <GoofyWonder boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+                <Pot boxSize={{ base: 20, md: 52, lg: 52, xl: 60 }} />
+
                 <Icon
                   as={FaLongArrowAltRight}
                   boxSize={{ base: 10, md: 20, lg: 16, xl: 20 }}
