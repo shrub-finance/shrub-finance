@@ -446,8 +446,8 @@ function HomeView(props: RouteComponentProps) {
               <Text as="span">Shrub</Text>
               <Text
                 as="span"
-                bgGradient="linear(to-l, #e3d606, #54885d, #b1e7a1, #a1beaf)"
-                bgClip="text"
+                // bgGradient="linear(to-l, #e3d606, #54885d, #b1e7a1, #a1beaf)"
+                // bgClip="text"
               >
                 {" "}
                 Paper

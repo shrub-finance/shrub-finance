@@ -136,30 +136,6 @@ function TopNav() {
                   {route.item}
                 </NavRoute>
               ))}
-              <Link
-                href="https://docs.shrub.finance"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Docs
-              </Link>
-              <Link
-                href="https://discord.gg/shrub-finance-880456636186128465"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Report Issues
-              </Link>
             </HStack>
           </HStack>
           <Flex alignItems={"center"}>
@@ -263,35 +239,7 @@ function TopNav() {
                 )}
                 {colorMode === "light" ? "Dark Mode" : "Light Mode"}
               </Box>
-              <Link
-                href="https://docs.shrub.finance"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                rounded="lg"
-                py={"3"}
-                px={"2"}
-                _hover={{
-                  textDecoration: "none",
-                  bgGradient: gradient,
-                }}
-              >
-                <Icon as={HiOutlineDocumentDuplicate} mr={"2"} />
-                Docs
-              </Link>
-              <Link
-                href="https://discord.gg/KQ88Pc7q"
-                isExternal
-                variant="ghost"
-                cursor="pointer"
-                px={2}
-                py={{ base: "3", md: "1", lg: "1" }}
-                rounded={"lg"}
-                _hover={{ textDecoration: "none", bgGradient: gradient }}
-              >
-                Report Issues
-              </Link>
-              s
+
               <Box
                 pr={5}
                 onClick={handleTestFaucetModalOpen}
