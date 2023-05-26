@@ -725,21 +725,10 @@ function OptionsView(props: RouteComponentProps) {
     <>
       <SummaryView />
       <Center>
-        <Menu isLazy>
-          <MenuButton>
-            <Heading mt={20}>
-              {/*<Icon as={currencyIcon(chainId)} pr="2" boxSize={40}/>*/}
-              sMATIC Options
-              <ChevronDownIcon color={"gray.300"} boxSize={6} />
-            </Heading>
-          </MenuButton>
-          <MenuList>
-            {/* MenuItems are not rendered unless Menu is open */}
-            <MenuItem minW="400px" fontSize={"lg"}>
-              <FaEthereum /> <Text ml={"1"}>sETH Options (coming soon)</Text>
-            </MenuItem>
-          </MenuList>
-        </Menu>
+        <Heading mt={20}>
+          {/*<Icon as={currencyIcon(chainId)} pr="2" boxSize={40}/>*/}
+          sMATIC Options
+        </Heading>
       </Center>
       <Container mt={30} flex="1" borderRadius="2xl">
         {!isMobile && (
@@ -805,7 +794,7 @@ function OptionsView(props: RouteComponentProps) {
             </Center>
             <Center pt={6}>
               <Box as="span" fontWeight="medium" fontSize="md" color="gray.500">
-                No options available yet, let the Shrub Team know in Discord.
+                No options available yet.
               </Box>
             </Center>
           </Flex>
