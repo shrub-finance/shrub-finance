@@ -205,13 +205,13 @@ function Intro(props: RouteComponentProps) {
               growth NFT
             </Heading>
             <Text textStyle={"description"}>
-              For the first time ever,{" "}
+              Grow{" "}
               <Link
                 isExternal
                 textDecoration={"underline"}
                 href="https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
               >
-                grow an NFT by interacting with it on-chain.
+                an NFT by interacting with it on-chain!
               </Link>
             </Text>
             <Text textStyle={"description"}>
@@ -220,9 +220,11 @@ function Intro(props: RouteComponentProps) {
             <Text textStyle={"description"}>
               <Link
                 textDecoration={"underline"}
-                href={"https://opensea.io/collection/shrub-paper-gardens"}
+                href={
+                  "https://medium.com/@shrubfinance/paper-gardens-the-first-on-chain-growth-nft-84de2e647d8f"
+                }
               >
-                View Collection
+                Read the whole mechanics here
               </Link>
             </Text>
           </Box>
@@ -377,7 +379,7 @@ function Intro(props: RouteComponentProps) {
                 textDecoration={"underline"}
                 href={"https://opensea.io/collection/shrub-paper-gardens"}
               >
-                View Collection
+                View Seed Collection
               </Link>
             </Text>
           </Box>
@@ -452,7 +454,7 @@ function Intro(props: RouteComponentProps) {
                 textDecoration={"underline"}
                 href={"https://opensea.io/collection/shrub-paper-gardens"}
               >
-                View Collection
+                View Shrub Collection
               </Link>
             </Text>
           </Box>
@@ -718,35 +720,35 @@ function Intro(props: RouteComponentProps) {
       </Container>
 
       {/*as seen on*/}
-      <Container
-        mt={{ base: 0, md: 50 }}
-        p={5}
-        flex="1"
-        borderRadius="2xl"
-        maxW={{ base: "container.sm", md: "1400px" }}
-      >
-        <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>
-          <Heading
-            fontSize={{ base: "30px", md: "30px" }}
-            letterSpacing={"tight"}
-          >
-            As seen on
-          </Heading>
-          <Center>
-            <Flex direction="row">
-              <Box>
-                <Link
-                  href="https://beta.niftyswap.io/buy/polygon/0xA9ae86b25424d8b523A91975Da1336AC490Bc4C7?only-tradable=false"
-                  cursor="pointer"
-                  isExternal
-                >
-                  <NiftySwap boxSize={"80"} />
-                </Link>
-              </Box>
-            </Flex>
-          </Center>
-        </Box>
-      </Container>
+      {/*<Container*/}
+      {/*  mt={{ base: 0, md: 50 }}*/}
+      {/*  p={5}*/}
+      {/*  flex="1"*/}
+      {/*  borderRadius="2xl"*/}
+      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
+      {/*>*/}
+      {/*  <Box maxW="80rem" mt={{ base: 16, md: 20 }} textAlign={"center"}>*/}
+      {/*    <Heading*/}
+      {/*      fontSize={{ base: "30px", md: "30px" }}*/}
+      {/*      letterSpacing={"tight"}*/}
+      {/*    >*/}
+      {/*      As seen on*/}
+      {/*    </Heading>*/}
+      {/*    <Center>*/}
+      {/*      <Flex direction="row">*/}
+      {/*        <Box>*/}
+      {/*          <Link*/}
+      {/*            href="https://beta.niftyswap.io/buy/polygon/0xA9ae86b25424d8b523A91975Da1336AC490Bc4C7?only-tradable=false"*/}
+      {/*            cursor="pointer"*/}
+      {/*            isExternal*/}
+      {/*          >*/}
+      {/*            <NiftySwap boxSize={"80"} />*/}
+      {/*          </Link>*/}
+      {/*        </Box>*/}
+      {/*      </Flex>*/}
+      {/*    </Center>*/}
+      {/*  </Box>*/}
+      {/*</Container>*/}
 
       {/*ending*/}
       <Container
@@ -790,10 +792,6 @@ function Intro(props: RouteComponentProps) {
                   color={"black"}
                 >
                   Join Discord
-                  {/*<ExternalLinkIcon*/}
-                  {/*  mx="2px"*/}
-                  {/*  display={{ base: "none", md: "inline" }}*/}
-                  {/*/>*/}
                 </Link>
                 <Center>
                   <Text mt={8}>Connect with the community</Text>
@@ -816,10 +814,6 @@ function Intro(props: RouteComponentProps) {
                   color={"black"}
                 >
                   Follow on Twitter
-                  {/*<ExternalLinkIcon*/}
-                  {/*  mx="2px"*/}
-                  {/*  display={{ base: "none", md: "inline" }}*/}
-                  {/*/>*/}
                 </Link>
                 <Center>
                   <Text mt={8}>Official announcements</Text>
@@ -900,15 +894,15 @@ function Intro(props: RouteComponentProps) {
                     textAlign={"left"}
                   >
                     {" "}
-                    All builders, innovators, and thinkers are welcome to join
-                    mission Shrub. To start your journey you can by buy a seed
-                    from other sellers in{" "}
+                    All builders, innovators, and thinkers are welcome to become
+                    a part of Shrub. To start your journey you can buy a seed
+                    from the{" "}
                     <Link
                       isExternal
                       textDecoration={"underline"}
                       href="https://opensea.io/collection/shrub-paper-gardens-seeds"
                     >
-                      OpenSea.
+                      seed secondary marketplace.
                     </Link>{" "}
                     We are not selling anymore pots, but you can buy a pot from{" "}
                     <Link
@@ -916,7 +910,7 @@ function Intro(props: RouteComponentProps) {
                       textDecoration={"underline"}
                       href="https://opensea.io/collection/shrub-paper-gardens"
                     >
-                      the secondary marketplace,
+                      the pot secondary marketplace,
                     </Link>{" "}
                     plant your seed and grow a Shrub!
                   </Text>
@@ -939,25 +933,11 @@ function Intro(props: RouteComponentProps) {
                   >
                     {" "}
                     Shrub holders are our early supporters. Those who see the
-                    world just as we do. Shrub holders hold the highest status
-                    in the Shrub ecosystem. They will enjoy early access to all
-                    our future products.
+                    world just like we do. Shrub holders hold the highest status
+                    in the Shrub ecosystem. They enjoy early access to all our
+                    future products, insights and direct access to Shrub core
+                    team.
                   </Text>
-                  {/*<Text*/}
-                  {/*  mt="3"*/}
-                  {/*  fontSize={{ base: "20px", md: "20px" }}*/}
-                  {/*  maxW={{ base: "22rem", md: "60rem", lg: "40rem" }}*/}
-                  {/*  fontWeight={{ base: "semibold", md: "medium" }}*/}
-                  {/*  textAlign={"left"}*/}
-                  {/*>*/}
-                  {/*  <Link*/}
-                  {/*    isExternal*/}
-                  {/*    textDecoration={"underline"}*/}
-                  {/*    href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"*/}
-                  {/*  >*/}
-                  {/*    Read Shrub roadmap*/}
-                  {/*  </Link>*/}
-                  {/*</Text>*/}
                 </AccordionPanel>
               </AccordionItem>
               <AccordionItem>
@@ -989,7 +969,7 @@ function Intro(props: RouteComponentProps) {
                     fontWeight={{ base: "semibold", md: "medium" }}
                     textAlign={"left"}
                   >
-                    Where to learn more about the series ?
+                    Where can I learn more about the series ?
                   </Text>
                   <AccordionIcon />
                 </AccordionButton>
@@ -1037,26 +1017,6 @@ function Intro(props: RouteComponentProps) {
           </Box>
         </Flex>
       </Container>
-      {/*<Container*/}
-      {/*  p={5}*/}
-      {/*  flex="1"*/}
-      {/*  borderRadius="2xl"*/}
-      {/*  maxW={{ base: "container.sm", md: "1400px" }}*/}
-      {/*>*/}
-      {/*  <Box maxW="80rem" mt={{ base: 16, md: 16 }} textAlign={"center"}>*/}
-      {/*    <AspectRatio*/}
-      {/*      maxW="560px"*/}
-      {/*      ratio={16 / 9}*/}
-      {/*      layerStyle="hideExternalBranding"*/}
-      {/*    >*/}
-      {/*      <iframe*/}
-      {/*        title="sign up for shrub"*/}
-      {/*        src="https://form.jotform.com/shrub_finance/email"*/}
-      {/*        allowFullScreen*/}
-      {/*      />*/}
-      {/*    </AspectRatio>*/}
-      {/*  </Box>*/}
-      {/*</Container>*/}
     </>
   );
 }
