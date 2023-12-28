@@ -82,88 +82,88 @@ function PageNotFound() {
         </Box>
       </Flex>
 
-      <Text
-        fontSize={{ base: "10px", md: "24px" }}
-        letterSpacing={"tight"}
-        textAlign={"center"}
-        mt={{ base: 10, md: 16, lg: 16, xl: 20 }}
-        mb={{ base: 10, md: 16, lg: 10, xl: 10 }}
-      >
-        Here are some pages that might interest you
-      </Text>
+      {/*<Text*/}
+      {/*  fontSize={{ base: "10px", md: "24px" }}*/}
+      {/*  letterSpacing={"tight"}*/}
+      {/*  textAlign={"center"}*/}
+      {/*  mt={{ base: 10, md: 16, lg: 16, xl: 20 }}*/}
+      {/*  mb={{ base: 10, md: 16, lg: 10, xl: 10 }}*/}
+      {/*>*/}
+      {/*  Here are some pages that might interest you*/}
+      {/*</Text>*/}
 
-      <TableContainer>
-        <Table>
-          <Tbody>
-            <Tr>
-              <Td display={{ base: "table-cell", md: "table-cell" }}>
-                <Link
-                  href="https://exchange.shrub.finance/"
-                  isExternal
-                  background="gold.100"
-                  bgClip="text"
-                  sx={{
-                    WebkitTextStroke:
-                      colorMode === "light"
-                        ? { base: "1px #7e5807", md: "1px #7e5807" }
-                        : "transparent",
-                  }}
-                >
-                  Shrub Exchange
-                </Link>
-              </Td>
-              <Td display={{ base: "table-cell", md: "table-cell" }}>
-                <Link
-                  href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
-                  isExternal
-                  background="gold.100"
-                  bgClip="text"
-                  sx={{
-                    WebkitTextStroke:
-                      colorMode === "light"
-                        ? { base: "1px #7e5807", md: "1px #7e5807" }
-                        : "transparent",
-                  }}
-                >
-                  Roadmap 2022
-                </Link>
-              </Td>
-              <Td display={{ base: "table-cell", md: "table-cell" }}>
-                <Link
-                  href="https://docs.shrub.finance/"
-                  isExternal
-                  background="gold.100"
-                  bgClip="text"
-                  sx={{
-                    WebkitTextStroke:
-                      colorMode === "light"
-                        ? { base: "1px #7e5807", md: "1px #7e5807" }
-                        : "transparent",
-                  }}
-                >
-                  Docs
-                </Link>
-              </Td>
-              <Td display={{ base: "table-cell", md: "table-cell" }}>
-                <Link
-                  href="https://shrub.finance"
-                  isExternal
-                  background="gold.100"
-                  bgClip="text"
-                  sx={{
-                    WebkitTextStroke:
-                      colorMode === "light"
-                        ? { base: "1px #7e5807", md: "1px #7e5807" }
-                        : "transparent",
-                  }}
-                >
-                  Shrub Main
-                </Link>
-              </Td>
-            </Tr>
-          </Tbody>
-        </Table>
-      </TableContainer>
+      {/*<TableContainer>*/}
+      {/*  <Table>*/}
+      {/*    <Tbody>*/}
+      {/*      <Tr>*/}
+      {/*        <Td display={{ base: "table-cell", md: "table-cell" }}>*/}
+      {/*          <Link*/}
+      {/*            href="https://exchange.shrub.finance/"*/}
+      {/*            isExternal*/}
+      {/*            background="gold.100"*/}
+      {/*            bgClip="text"*/}
+      {/*            sx={{*/}
+      {/*              WebkitTextStroke:*/}
+      {/*                colorMode === "light"*/}
+      {/*                  ? { base: "1px #7e5807", md: "1px #7e5807" }*/}
+      {/*                  : "transparent",*/}
+      {/*            }}*/}
+      {/*          >*/}
+      {/*            Shrub Exchange*/}
+      {/*          </Link>*/}
+      {/*        </Td>*/}
+      {/*        <Td display={{ base: "table-cell", md: "table-cell" }}>*/}
+      {/*          <Link*/}
+      {/*            href="https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"*/}
+      {/*            isExternal*/}
+      {/*            background="gold.100"*/}
+      {/*            bgClip="text"*/}
+      {/*            sx={{*/}
+      {/*              WebkitTextStroke:*/}
+      {/*                colorMode === "light"*/}
+      {/*                  ? { base: "1px #7e5807", md: "1px #7e5807" }*/}
+      {/*                  : "transparent",*/}
+      {/*            }}*/}
+      {/*          >*/}
+      {/*            Roadmap 2022*/}
+      {/*          </Link>*/}
+      {/*        </Td>*/}
+      {/*        <Td display={{ base: "table-cell", md: "table-cell" }}>*/}
+      {/*          <Link*/}
+      {/*            href="https://docs.shrub.finance/"*/}
+      {/*            isExternal*/}
+      {/*            background="gold.100"*/}
+      {/*            bgClip="text"*/}
+      {/*            sx={{*/}
+      {/*              WebkitTextStroke:*/}
+      {/*                colorMode === "light"*/}
+      {/*                  ? { base: "1px #7e5807", md: "1px #7e5807" }*/}
+      {/*                  : "transparent",*/}
+      {/*            }}*/}
+      {/*          >*/}
+      {/*            Docs*/}
+      {/*          </Link>*/}
+      {/*        </Td>*/}
+      {/*        <Td display={{ base: "table-cell", md: "table-cell" }}>*/}
+      {/*          <Link*/}
+      {/*            href="https://shrub.finance"*/}
+      {/*            isExternal*/}
+      {/*            background="gold.100"*/}
+      {/*            bgClip="text"*/}
+      {/*            sx={{*/}
+      {/*              WebkitTextStroke:*/}
+      {/*                colorMode === "light"*/}
+      {/*                  ? { base: "1px #7e5807", md: "1px #7e5807" }*/}
+      {/*                  : "transparent",*/}
+      {/*            }}*/}
+      {/*          >*/}
+      {/*            Shrub Main*/}
+      {/*          </Link>*/}
+      {/*        </Td>*/}
+      {/*      </Tr>*/}
+      {/*    </Tbody>*/}
+      {/*  </Table>*/}
+      {/*</TableContainer>*/}
     </Container>
   );
 }

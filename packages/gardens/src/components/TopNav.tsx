@@ -121,28 +121,6 @@ function TopNav() {
                       >
                         Buy MATIC
                       </Link>
-                      {/*<Link*/}
-                      {/*  pr={5}*/}
-                      {/*  fontSize={"sm"}*/}
-                      {/*  fontWeight={"bold"}*/}
-                      {/*  color={rightCTA}*/}
-                      {/*  href={"https://discord.gg/BpHuVCYtdB"}*/}
-                      {/*  isExternal*/}
-                      {/*>*/}
-                      {/*  Join Discord*/}
-                      {/*</Link>*/}
-                      <Link
-                        pr={5}
-                        fontSize={"sm"}
-                        fontWeight={"bold"}
-                        color={rightCTA}
-                        href={
-                          "https://medium.com/@shrubfinance/shrub-roadmap-2022-b947b5ce1435"
-                        }
-                        isExternal
-                      >
-                        Roadmap
-                      </Link>
                     </>
                   ) : (
                     <></>
